@@ -63,6 +63,7 @@ function createMockConfigManager(overrides = {}) {
         awsRegion: 'us-east-1',
         bulkImportMinFileSizeMb: 0,
         bulkImportMaxFileSizeGb: 5,
+        bulkImportHeadS3Concurrency: 8,
         ...overrides
     };
     const obj = {};
@@ -292,6 +293,62 @@ describe('BulkImportHandler - TaskCreated (orchestrator)', () => {
                 await expect(handler.headS3FilesAsync([
                     { url: 's3://allowed-bucket/no-size.ndjson' }
                 ])).rejects.toThrow('ContentLength');
+            });
+        });
+
+        describe('concurrency', () => {
+            const urls = Array.from({ length: 20 }, (_, i) => ({ url: `s3://allowed-bucket/f${i}.ndjson` }));
+
+            test('never exceeds the configured number of in-flight HEADs', async () => {
+                let inFlight = 0;
+                let peak = 0;
+                mockSend.mockImplementation(async () => {
+                    inFlight++;
+                    peak = Math.max(peak, inFlight);
+                    await new Promise((resolve) => setTimeout(resolve, 5));
+                    inFlight--;
+                    return { ContentLength: 10 * 1024 * 1024 };
+                });
+                const h = createHandler({ bulkImportHeadS3Concurrency: 4 });
+
+                await h.headS3FilesAsync(urls);
+
+                expect(mockSend).toHaveBeenCalledTimes(20);
+                expect(peak).toBeGreaterThan(1);
+                expect(peak).toBeLessThanOrEqual(4);
+            });
+
+            test('returns results in input order regardless of completion order', async () => {
+                mockSend.mockImplementation(async (command) => {
+                    const index = Number(command.Key.match(/f(\d+)/)[1]);
+                    await new Promise((resolve) => setTimeout(resolve, (20 - index) * 2));
+                    return { ContentLength: (index + 1) * 1024 * 1024 };
+                });
+
+                const result = await handler.headS3FilesAsync(urls);
+
+                expect(result.map((r) => r.url)).toEqual(urls.map((u) => u.url));
+                expect(result.map((r) => r.fileSize)).toEqual(urls.map((_, i) => (i + 1) * 1024 * 1024));
+            });
+
+            test('validates every URI before issuing any HEAD', async () => {
+                await expect(handler.headS3FilesAsync([
+                    ...urls.slice(0, 3),
+                    { url: 's3://evil-bucket/x.ndjson' }
+                ])).rejects.toThrow('not in the allowed list');
+
+                expect(mockSend).not.toHaveBeenCalled();
+            });
+
+            test('rejects when any one HEAD fails', async () => {
+                mockSend.mockImplementation(async (command) => {
+                    if (command.Key === 'f7.ndjson') {
+                        throw Object.assign(new Error('gone'), { name: 'NotFound' });
+                    }
+                    return { ContentLength: 10 * 1024 * 1024 };
+                });
+
+                await expect(handler.headS3FilesAsync(urls)).rejects.toThrow('Cannot access S3 file');
             });
         });
 

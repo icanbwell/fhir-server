@@ -1,6 +1,7 @@
 const { S3Client: S3, HeadObjectCommand } = require('@aws-sdk/client-s3');
 const querystring = require('querystring');
 const moment = require('moment-timezone');
+const { mapLimit } = require('async');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
@@ -373,6 +374,10 @@ class BulkImportHandler {
     /**
      * HEADs each S3 file to get file sizes and validate they exist.
      * Validates each bucket against the configured allow-list to prevent SSRF.
+     * Every URI is validated before the first HEAD, then the HEADs run with bounded
+     * concurrency: a sequential loop over a large import holds the orchestrator's TaskCreated
+     * handler (and its partition) for minutes, with no heartbeat, while the Task stays
+     * 'requested' and a redelivery would publish every range again.
      * @param {Array<{ url: string }>} inputs
      * @returns {Promise<Array<{ url: string, fileSize: number }>>}
      */
@@ -382,56 +387,57 @@ class BulkImportHandler {
             throw new Error('Bulk import S3 bucket allowlist is not configured');
         }
 
-        const region = this.configManager.awsRegion || 'us-east-1';
-        const s3 = new S3({ region });
-        const minBytes = this.configManager.bulkImportMinFileSizeMb * 1024 * 1024;
-        const maxBytes = this.configManager.bulkImportMaxFileSizeGb * 1024 * 1024 * 1024;
-
-        const results = [];
-        for (const input of inputs) {
+        const targets = inputs.map((input) => {
             const match = input.url.match(/^s3:\/\/([^/]+)\/(.+)$/);
             if (!match) {
                 throw new Error(`Invalid S3 URI: "${input.url}"`);
             }
             const bucket = match[1];
-            const key = match[2];
-
             if (!allowedBuckets.includes(bucket)) {
                 throw new Error(`S3 bucket "${bucket}" is not in the allowed list`);
             }
+            return { url: input.url, bucket, key: match[2] };
+        });
 
+        const region = this.configManager.awsRegion || 'us-east-1';
+        const s3 = new S3({ region });
+        const minBytes = this.configManager.bulkImportMinFileSizeMb * 1024 * 1024;
+        const maxBytes = this.configManager.bulkImportMaxFileSizeGb * 1024 * 1024 * 1024;
+
+        // mapLimit keeps results in input order and rejects with the first error.
+        const concurrency = this.configManager.bulkImportHeadS3Concurrency;
+        return mapLimit(targets, concurrency, async ({ url, bucket, key }) => {
             let fileSize;
             try {
                 const response = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
                 fileSize = response.ContentLength;
             } catch (e) {
-                throw new Error(`Cannot access S3 file "${input.url}": ${e.name}: ${e.message}`);
+                throw new Error(`Cannot access S3 file "${url}": ${e.name}: ${e.message}`);
             }
 
             if (!Number.isFinite(fileSize)) {
-                throw new Error(`S3 HEAD for "${input.url}" returned no ContentLength`);
+                throw new Error(`S3 HEAD for "${url}" returned no ContentLength`);
             }
 
             if (fileSize <= 0) {
-                throw new Error(`File "${input.url}" is empty (0 bytes)`);
+                throw new Error(`File "${url}" is empty (0 bytes)`);
             }
             if (minBytes > 0 && fileSize < minBytes) {
                 throw new Error(
-                    `File "${input.url}" is ${(fileSize / (1024 * 1024)).toFixed(1)} MB, ` +
+                    `File "${url}" is ${(fileSize / (1024 * 1024)).toFixed(1)} MB, ` +
                     `below the minimum of ${this.configManager.bulkImportMinFileSizeMb} MB`
                 );
             }
             if (fileSize > maxBytes) {
                 throw new Error(
-                    `File "${input.url}" is ${(fileSize / (1024 * 1024 * 1024)).toFixed(1)} GB, ` +
+                    `File "${url}" is ${(fileSize / (1024 * 1024 * 1024)).toFixed(1)} GB, ` +
                     `above the maximum of ${this.configManager.bulkImportMaxFileSizeGb} GB`
                 );
             }
 
             recordImportFileSize(fileSize);
-            results.push({ url: input.url, fileSize });
-        }
-        return results;
+            return { url, fileSize };
+        });
     }
 
     /**
