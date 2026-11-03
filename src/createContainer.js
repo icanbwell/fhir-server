@@ -281,7 +281,8 @@ const createContainer = function () {
     container.register('ownerColumnHandler', (c) => new OwnerColumnHandler({ configManager: c.configManager }));
     container.register('uuidColumnHandler', (_c) => new UuidColumnHandler());
     container.register('resourceMerger', (c) => new ResourceMerger({
-        preSaveManager: c.preSaveManager
+        preSaveManager: c.preSaveManager,
+        configManager: c.configManager
     }));
     container.register('delegatedAccessRulesManager', (c) => new DelegatedAccessRulesManager({
         configManager: c.configManager,

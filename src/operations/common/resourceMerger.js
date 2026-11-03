@@ -70,15 +70,20 @@ class ResourceMerger {
      * constructor
      * @typedef {Object} Params
      * @property {PreSaveManager} preSaveManager
+     * @property {import('../../utils/configManager').ConfigManager|null} [configManager]
      *
      * @param {Params}
      */
-    constructor ({ preSaveManager }) {
+    constructor ({ preSaveManager, configManager = null }) {
         /**
          * @type {PreSaveManager}
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+        /**
+         * @type {import('../../utils/configManager').ConfigManager|null}
+         */
+        this.configManager = configManager;
     }
 
     /**
@@ -261,7 +266,31 @@ class ResourceMerger {
             );
         }
 
+        // A change to `date` alone is not a change worth a new version: writers that stamp it with
+        // "now" on every run would otherwise create a version, history row and event each time.
+        // When anything else changed, the `date` patch is kept so the new date is stored with it.
+        if (
+            patchContent.length > 0 &&
+            this.ignoresDateOnlyChange(currentObject.resourceType) &&
+            patchContent.every(item => item.path === '/date')
+        ) {
+            return [];
+        }
+
         return patchContent;
+    }
+
+    /**
+     * Whether a change to only the top-level `date` is ignored for this resource type
+     * @param {string|undefined} resourceType
+     * @returns {boolean}
+     */
+    ignoresDateOnlyChange (resourceType) {
+        return (
+            !!resourceType &&
+            !!this.configManager &&
+            this.configManager.mergeIgnoreDateOnlyChangeResourceTypes.includes(resourceType)
+        );
     }
 
     /**

@@ -1840,6 +1840,15 @@ class ConfigManager {
     }
 
     /**
+     * resource types for which a merge that changes only the top-level `date` is treated as no
+     * change (no new version, history row or event). Comma-separated, empty (off) by default.
+     * @return {string[]}
+     */
+    get mergeIgnoreDateOnlyChangeResourceTypes() {
+        return this._parseCommaSeparatedList(env.MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES);
+    }
+
+    /**
      * returns list of external services where restriction needs to be applied to request
      * @return {Object.<string, string | null>}
      */
