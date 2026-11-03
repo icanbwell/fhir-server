@@ -1841,11 +1841,13 @@ class ConfigManager {
 
     /**
      * resource types for which a merge that changes only the top-level `date` is treated as no
-     * change (no new version, history row or event). Comma-separated, empty (off) by default.
+     * change (no new version, history row or event). Comma-separated; defaults to Composition when
+     * the variable is unset, and a set-but-empty value turns the rule off.
      * @return {string[]}
      */
     get mergeIgnoreDateOnlyChangeResourceTypes() {
-        return this._parseCommaSeparatedList(env.MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES);
+        const configured = env.MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES;
+        return configured === undefined ? ['Composition'] : this._parseCommaSeparatedList(configured);
     }
 
     /**

@@ -242,7 +242,7 @@ class ResourceMerger {
      * @param {CompareObjectsProp}
      * @returns {import('fast-json-patch').Operation[]}
      */
-    compareObjects ({ currentObject, mergedObject, limitToPaths }) {
+    compareObjects ({ currentObject, mergedObject, limitToPaths, ignoreDateOnlyChange = false }) {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
@@ -269,7 +269,9 @@ class ResourceMerger {
         // A change to `date` alone is not a change worth a new version: writers that stamp it with
         // "now" on every run would otherwise create a version, history row and event each time.
         // When anything else changed, the `date` patch is kept so the new date is stored with it.
+        // Only merge asks for this; other callers (PATCH) must always see an explicit date change.
         if (
+            ignoreDateOnlyChange &&
             patchContent.length > 0 &&
             this.ignoresDateOnlyChange(currentObject.resourceType) &&
             patchContent.every(item => item.path === '/date')
@@ -501,7 +503,8 @@ class ResourceMerger {
         const patchContent = this.compareObjects({
             currentObject: currentObjectForDiff,
             mergedObject,
-            limitToPaths
+            limitToPaths,
+            ignoreDateOnlyChange: true
         });
 
         // now apply the patches to the found resource
@@ -644,7 +647,8 @@ class ResourceMerger {
         const patchContent = this.compareObjects({
             currentObject: currentResourceWithAttachmentData,
             mergedObject,
-            limitToPaths
+            limitToPaths,
+            ignoreDateOnlyChange: true
         });
 
         // now apply the patches to the found resource

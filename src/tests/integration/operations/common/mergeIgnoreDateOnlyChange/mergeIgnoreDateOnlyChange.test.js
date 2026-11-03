@@ -1,4 +1,11 @@
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    getHeadersJsonPatch,
+    createTestRequest,
+    getTestContainer
+} = require('../../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 const FIRST_DATE = '2026-01-01T00:00:00.000Z';
@@ -39,15 +46,14 @@ const readStored = async (request) => {
     return resp.body;
 };
 
-describe('merge ignores a date-only change when configured for the resource type', () => {
+describe('merge ignores a date-only change for Composition by default', () => {
     beforeEach(async () => {
-        process.env.MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES = 'Composition';
+        delete process.env.MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES;
         await commonBeforeEach();
     });
 
     afterEach(async () => {
         await commonAfterEach();
-        delete process.env.MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES;
     });
 
     test.each([['smartMerge=true', ''], ['smartMerge=false', '?smartMerge=false']])(
@@ -78,15 +84,34 @@ describe('merge ignores a date-only change when configured for the resource type
             expect(afterReal.date).toBe(SECOND_DATE);
         }
     );
+
+    test('a JSON PATCH that changes only the date is still saved', async () => {
+        const request = await createTestRequest();
+        await mergeAndSettle(request, buildComposition(), '');
+
+        const resp = await request
+            .patch('/4_0_0/Composition/date-only-1')
+            .send([{ op: 'replace', path: '/date', value: SECOND_DATE }])
+            .set(getHeadersJsonPatch());
+        expect(resp.status).toBe(200);
+        const { postRequestProcessor } = getTestContainer();
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
+
+        const stored = await readStored(request);
+        expect(stored.meta.versionId).toBe('2');
+        expect(stored.date).toBe(SECOND_DATE);
+    });
 });
 
-describe('merge keeps creating a version for a date-only change when not configured', () => {
+describe('merge keeps creating a version for a date-only change when the rule is turned off', () => {
     beforeEach(async () => {
+        process.env.MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES = '';
         await commonBeforeEach();
     });
 
     afterEach(async () => {
         await commonAfterEach();
+        delete process.env.MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES;
     });
 
     test('a new date alone adds a version', async () => {

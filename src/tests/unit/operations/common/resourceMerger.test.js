@@ -493,7 +493,11 @@ describe('ResourceMerger', () => {
                 delete merged.date;
             }
 
-            const patches = merger.compareObjects({ currentObject: current, mergedObject: merged });
+            const patches = merger.compareObjects({
+                currentObject: current,
+                mergedObject: merged,
+                ignoreDateOnlyChange: true
+            });
 
             expect(patches.map(p => p.path).sort()).toEqual(expectedPaths);
         });
@@ -505,7 +509,8 @@ describe('ResourceMerger', () => {
         ])('still reports a date-only change when %s', (_name, buildMerger) => {
             const patches = buildMerger().compareObjects({
                 currentObject: composition(),
-                mergedObject: composition({ date: '2026-02-02T00:00:00.000Z' })
+                mergedObject: composition({ date: '2026-02-02T00:00:00.000Z' }),
+                ignoreDateOnlyChange: true
             });
 
             expect(patches.map(p => p.path)).toEqual(['/date']);
@@ -516,9 +521,22 @@ describe('ResourceMerger', () => {
             const current = composition({ section: [{ title: 'a', text: { div: 'x' } }] });
             const merged = composition({ section: [{ title: 'b', text: { div: 'x' } }] });
 
-            const patches = merger.compareObjects({ currentObject: current, mergedObject: merged });
+            const patches = merger.compareObjects({
+                currentObject: current,
+                mergedObject: merged,
+                ignoreDateOnlyChange: true
+            });
 
             expect(patches.map(p => p.path)).toEqual(['/section/0/title']);
+        });
+
+        it('reports a date-only change when the caller does not ask to ignore it (PATCH)', () => {
+            const patches = mergerIgnoring(['Composition']).compareObjects({
+                currentObject: composition(),
+                mergedObject: composition({ date: '2026-02-02T00:00:00.000Z' })
+            });
+
+            expect(patches.map(p => p.path)).toEqual(['/date']);
         });
     });
 });

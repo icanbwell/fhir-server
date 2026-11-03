@@ -597,7 +597,7 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
         });
 
         test.each([
-            [undefined, []],
+            [undefined, ['Composition']],
             ['', []],
             ['Composition', ['Composition']],
             ['Composition, Observation', ['Composition', 'Observation']]
