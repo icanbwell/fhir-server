@@ -35,12 +35,40 @@ const {
 } = require('../../../../../operations/asyncJobs/bulkImport/bulkImportTaskStateMachine');
 const { FhirRequestInfo } = require('../../../../../utils/fhirRequestInfo');
 const { BULK_IMPORT_TASK } = require('../../../../../constants');
-const { logError } = require('../../../../../operations/common/logging');
+const { logError, logInfo } = require('../../../../../operations/common/logging');
+const metrics = require('../../../../../utils/metrics');
+
+jestGlobal.spyOn(metrics.importTasksCounter, 'add');
+jestGlobal.spyOn(metrics.importTaskDurationHistogram, 'record');
 
 /**
  * A plain Task document as returned by fastFindOneAsync.
  * @param {Object} [overrides]
  */
+let db = null;
+
+/**
+ * A Task document as persisted by $merge: scalars from the incoming resource win, a field the
+ * incoming resource omits keeps its persisted value, and output entries are unioned by id.
+ */
+function mergeIntoDb (incoming) {
+    const next = JSON.parse(JSON.stringify(incoming));
+    if (!db) {
+        db = next;
+        return;
+    }
+    const byId = new Map((db.output || []).map((o) => [o.id, o]));
+    for (const o of next.output || []) {
+        byId.set(o.id, { ...(byId.get(o.id) || {}), ...o });
+    }
+    db = { ...db, ...next, output: [...byId.values()] };
+}
+
+/** The Task as currently persisted by the fake database. */
+function persistedTask () {
+    return JSON.parse(JSON.stringify(db));
+}
+
 function makeTask (overrides = {}) {
     const task = {
         resourceType: 'Task',
@@ -56,6 +84,8 @@ function makeTask (overrides = {}) {
     if (task.output) {
         task.output = task.output.map((o) => ({ ...o }));
     }
+    // Each test builds the Task it is about, which is what the fake database holds to begin with.
+    db = JSON.parse(JSON.stringify(task));
     return task;
 }
 
@@ -69,16 +99,21 @@ describe('BulkImportTaskStateMachine', () => {
     beforeEach(() => {
         jestGlobal.clearAllMocks();
 
-        fastFindOneAsync = jestGlobal.fn().mockResolvedValue(makeTask());
+        // Stands in for the database; see mergeIntoDb for the $merge semantics it models.
+        db = null;
+        fastFindOneAsync = jestGlobal.fn(async () => (db ? persistedTask() : makeTask()));
         databaseQueryFactory = {
             createQuery: jestGlobal.fn(() => ({ fastFindOneAsync }))
         };
         fastDatabaseBulkInserter = {
-            executeAsync: jestGlobal.fn().mockResolvedValue(undefined)
+            executeAsync: jestGlobal.fn().mockResolvedValue([{ id: 'task-1', created: false, updated: true }])
         };
         mergeManager = {
             // mergeResourceAsync returns null on success, a MergeResultEntry on validation failure
-            mergeResourceAsync: jestGlobal.fn().mockResolvedValue(null)
+            mergeResourceAsync: jestGlobal.fn(async ({ resourceToMerge }) => {
+                mergeIntoDb(resourceToMerge);
+                return null;
+            })
         };
 
         stateMachine = new BulkImportTaskStateMachine({
@@ -198,17 +233,42 @@ describe('BulkImportTaskStateMachine', () => {
             expect(flushRequestId).toBe(mergeRequestId);
         });
 
-        test('a merge validation failure is logged and the write is NOT flushed', async () => {
+        test('a merge validation failure is logged, the write is NOT flushed, and the caller is told', async () => {
             mergeManager.mergeResourceAsync.mockResolvedValue({
                 issue: [{ diagnostics: 'Task.status is not a valid code' }]
             });
 
-            await stateMachine.writeTaskAsync(makeTask());
+            await expect(stateMachine.writeTaskAsync(makeTask())).resolves.toBe(false);
 
             expect(fastDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
             expect(logError).toHaveBeenCalledWith(
                 'Task merge returned a validation failure during orchestrator write',
                 expect.objectContaining({ taskId: 'task-1' })
+            );
+        });
+
+        test('reports true when the flush persisted the Task', async () => {
+            await expect(stateMachine.writeTaskAsync(makeTask())).resolves.toBe(true);
+        });
+
+        test.each([
+            ['an undefined flush result', undefined],
+            ['an empty flush result', []]
+        ])('treats %s as persisted', async (_label, flushResult) => {
+            fastDatabaseBulkInserter.executeAsync.mockResolvedValue(flushResult);
+            await expect(stateMachine.writeTaskAsync(makeTask())).resolves.toBe(true);
+        });
+
+        test('a write the flush rejected is logged and throws so the message retries', async () => {
+            fastDatabaseBulkInserter.executeAsync.mockResolvedValue([
+                { id: 'task-1', created: false, updated: false, issue: { code: 'exception', diagnostics: 'E11000 duplicate key' } }
+            ]);
+
+            await expect(stateMachine.writeTaskAsync(makeTask())).rejects.toThrow('rejected during flush');
+
+            expect(logError).toHaveBeenCalledWith(
+                'Task write was rejected during orchestrator flush',
+                { taskId: 'task-1', error: 'E11000 duplicate key' }
             );
         });
     });
@@ -243,6 +303,38 @@ describe('BulkImportTaskStateMachine', () => {
             expect(mergedTask().statusReason).toEqual({ text: 'S3 read timed out' });
         });
 
+        test.each([
+            ['completed', 'failed'],
+            ['failed', 'completed'],
+            ['completed', 'in-progress'],
+            ['in-progress', 'in-progress']
+        ])('does not write %s -> %s when the persisted Task is already past it', async (persisted, target) => {
+            const stale = makeTask({ status: 'requested' });
+            db.status = persisted;
+
+            await expect(stateMachine.updateTaskStatusAsync(stale, target)).resolves.toBe(false);
+
+            expect(mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+        });
+
+        test('builds the write from the persisted Task, not the caller\'s stale copy', async () => {
+            const stale = makeTask({ status: 'requested', output: [] });
+            db.status = 'in-progress';
+            db.output = [{ id: 'bulk-import-range:s3://b/P.ndjson#0-result' }];
+
+            await expect(stateMachine.updateTaskStatusAsync(stale, 'failed', 'boom')).resolves.toBe(true);
+
+            expect(mergedTask().output.map((o) => o.id)).toEqual(['bulk-import-range:s3://b/P.ndjson#0-result']);
+            expect(persistedTask().status).toBe('failed');
+        });
+
+        test('returns false when the Task is gone from the database and uses the caller\'s copy', async () => {
+            fastFindOneAsync.mockResolvedValueOnce(null);
+            await expect(stateMachine.updateTaskStatusAsync(makeTask({ status: 'requested' }), 'in-progress'))
+                .resolves.toBe(true);
+        });
+
         test('leaves statusReason absent when no reason is supplied', async () => {
             await stateMachine.updateTaskStatusAsync(makeTask(), 'completed');
             expect(mergedTask().statusReason).toBeUndefined();
@@ -272,6 +364,50 @@ describe('BulkImportTaskStateMachine', () => {
             await stateMachine.handleRangeStartedAsync(makeTask({ status: 'failed' }));
             expect(mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
         });
+
+        test('completes an in-progress Task that already has every range recorded', async () => {
+            const task = makeTask({
+                status: 'in-progress',
+                output: [
+                    { id: 'bulk-import-range:s3://b/P.ndjson#0-result' },
+                    { id: 'bulk-import-range:s3://b/P.ndjson#1-result' }
+                ]
+            });
+
+            await stateMachine.handleRangeStartedAsync(task, { taskTotalRanges: 2 });
+
+            expect(mergeManager.mergeResourceAsync).toHaveBeenCalledTimes(1);
+            expect(mergedTask().status).toBe('completed');
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledWith(1, { status: 'completed' });
+        });
+
+        test.each([
+            ['no event data', undefined],
+            ['no taskTotalRanges', {}],
+            ['a non-integer taskTotalRanges', { taskTotalRanges: 'two' }],
+            ['a zero taskTotalRanges', { taskTotalRanges: 0 }]
+        ])('does not complete an in-progress Task given %s', async (_label, params) => {
+            const task = makeTask({
+                status: 'in-progress',
+                output: [{ id: 'bulk-import-range:s3://b/P.ndjson#0-result' }]
+            });
+
+            await stateMachine.handleRangeStartedAsync(task, params);
+
+            expect(mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+        });
+
+        test('only flips requested to in-progress on the first start even when every range is recorded', async () => {
+            const task = makeTask({
+                status: 'requested',
+                output: [{ id: 'bulk-import-range:s3://b/P.ndjson#0-result' }]
+            });
+
+            await stateMachine.handleRangeStartedAsync(task, { taskTotalRanges: 1 });
+
+            expect(mergeManager.mergeResourceAsync).toHaveBeenCalledTimes(1);
+            expect(mergedTask().status).toBe('in-progress');
+        });
     });
 
     // ========================================================================================
@@ -294,6 +430,44 @@ describe('BulkImportTaskStateMachine', () => {
             await stateMachine.handleRangeFailedAsync(makeTask({ status: 'requested' }));
             expect(mergedTask().status).toBe('failed');
             expect(mergedTask().statusReason).toBeUndefined();
+        });
+
+        test('is a no-op for a Task already failed (redelivered failure report)', async () => {
+            await stateMachine.handleRangeFailedAsync(makeTask({ status: 'failed' }), 'again');
+            expect(mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+        });
+
+        test('counts the failed Task once with its duration since authoredOn', async () => {
+            const authoredOn = new Date(Date.now() - 90 * 1000).toISOString();
+            await stateMachine.handleRangeFailedAsync(makeTask({ status: 'in-progress', authoredOn }), 'boom');
+
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledTimes(1);
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledWith(1, { status: 'failed' });
+            const [duration, labels] = metrics.importTaskDurationHistogram.record.mock.calls[0];
+            expect(labels).toEqual({ status: 'failed' });
+            expect(duration).toBeGreaterThanOrEqual(90);
+            expect(duration).toBeLessThan(120);
+        });
+
+        test('counts the failed Task but records no duration when authoredOn is absent', async () => {
+            await stateMachine.handleRangeFailedAsync(makeTask({ status: 'in-progress' }), 'boom');
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledTimes(1);
+            expect(metrics.importTaskDurationHistogram.record).not.toHaveBeenCalled();
+        });
+
+        test('throws, and counts nothing, when the failed status write is rejected', async () => {
+            fastDatabaseBulkInserter.executeAsync.mockResolvedValue([{ id: 'task-1', issue: { code: 'exception' } }]);
+            await expect(
+                stateMachine.handleRangeFailedAsync(makeTask({ status: 'in-progress' }), 'boom')
+            ).rejects.toThrow('rejected during flush');
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+        });
+
+        test('does not count a failed Task whose merge was rejected as invalid, and does not throw', async () => {
+            mergeManager.mergeResourceAsync.mockResolvedValue({ issue: [{ diagnostics: 'invalid' }] });
+            await stateMachine.handleRangeFailedAsync(makeTask({ status: 'in-progress' }), 'boom');
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
         });
     });
 
@@ -360,7 +534,7 @@ describe('BulkImportTaskStateMachine', () => {
                     valueUri: 's3://b/output/Patient-001.ndjson'
                 }
             ]);
-            expect(mergedTask().status).toBe('in-progress');
+            expect(persistedTask().status).toBe('in-progress');
         });
 
         test('appends both result and error entries when the range produced failures', async () => {
@@ -396,7 +570,7 @@ describe('BulkImportTaskStateMachine', () => {
             expect(mergedTask(1).status).toBe('completed');
         });
 
-        test('is idempotent: a redelivered completion report for a recorded range is a no-op', async () => {
+        test('is idempotent: a redelivered completion report for a recorded range appends nothing', async () => {
             const task = makeTask({
                 status: 'in-progress',
                 output: [{ id: 'bulk-import-range:s3://b/Patient.ndjson#0-result' }]
@@ -405,6 +579,72 @@ describe('BulkImportTaskStateMachine', () => {
             await stateMachine.handleRangeCompletedAsync(task, rangeParams);
 
             expect(mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+        });
+
+        test('a redelivered report completes a Task that has every range recorded but was never flipped', async () => {
+            // The state the prod incident left behind: all outputs present, status still in-progress.
+            const task = makeTask({
+                status: 'in-progress',
+                output: [
+                    { id: 'bulk-import-range:s3://b/Patient.ndjson#0-result' },
+                    { id: 'bulk-import-range:s3://b/Patient.ndjson#1-result' }
+                ]
+            });
+
+            await stateMachine.handleRangeCompletedAsync(task, rangeParams);
+
+            expect(mergeManager.mergeResourceAsync).toHaveBeenCalledTimes(1);
+            expect(mergedTask().status).toBe('completed');
+            expect(mergedTask().output).toHaveLength(2);
+        });
+
+        test('counts the persisted Task, so an entry a concurrent writer added is seen', async () => {
+            // This process loaded the Task with range 1 missing; by the time its write lands,
+            // another orchestrator process has persisted range 1. $merge unions both.
+            const task = makeTask({ status: 'in-progress', output: [] });
+            fastFindOneAsync.mockResolvedValueOnce(makeTask({
+                status: 'in-progress',
+                output: [
+                    { id: 'bulk-import-range:s3://b/Patient.ndjson#0-result' },
+                    { id: 'bulk-import-range:s3://b/Patient.ndjson#1-result' }
+                ]
+            }));
+
+            await stateMachine.handleRangeCompletedAsync(task, rangeParams);
+
+            expect(mergeManager.mergeResourceAsync).toHaveBeenCalledTimes(2);
+            expect(mergedTask(0).output.map((o) => o.id)).toEqual([
+                'bulk-import-range:s3://b/Patient.ndjson#0-result'
+            ]);
+            expect(mergedTask(1).status).toBe('completed');
+            expect(logInfo).toHaveBeenCalledWith('Bulk import task progress', expect.objectContaining({
+                completedRanges: 2,
+                taskTotalRanges: 2
+            }));
+        });
+
+        test('falls back to its own copy when the Task cannot be reloaded after the write', async () => {
+            const task = makeTask({
+                status: 'in-progress',
+                output: [{ id: 'bulk-import-range:s3://b/Patient.ndjson#1-result' }]
+            });
+            fastFindOneAsync.mockResolvedValueOnce(null);
+
+            await stateMachine.handleRangeCompletedAsync(task, rangeParams);
+
+            expect(mergedTask(1).status).toBe('completed');
+        });
+
+        test('throws when the output entry was not persisted so the message is retried', async () => {
+            fastDatabaseBulkInserter.executeAsync.mockResolvedValue([{ id: 'task-1', issue: { code: 'exception' } }]);
+
+            await expect(
+                stateMachine.handleRangeCompletedAsync(makeTask({ status: 'in-progress', output: [] }), rangeParams)
+            ).rejects.toThrow('rejected during flush');
+
+            expect(mergeManager.mergeResourceAsync).toHaveBeenCalledTimes(1);
+            expect(logInfo).not.toHaveBeenCalledWith('Bulk import task progress', expect.anything());
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
         });
 
         test('range 1 is not mistaken for range 11 when checking whether it was already recorded', async () => {
@@ -428,6 +668,135 @@ describe('BulkImportTaskStateMachine', () => {
                 makeTask({ status: 'completed', output: [] }), rangeParams
             );
             expect(mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
+        });
+
+        test('records the entry on a failed Task but never flips it to completed', async () => {
+            // Range 1 already recorded, so this completion makes the count reach taskTotalRanges.
+            const task = makeTask({
+                status: 'failed',
+                output: [{ id: 'bulk-import-range:s3://b/Patient.ndjson#1-result' }]
+            });
+
+            await stateMachine.handleRangeCompletedAsync(task, rangeParams);
+
+            expect(mergeManager.mergeResourceAsync).toHaveBeenCalledTimes(1);
+            expect(persistedTask().status).toBe('failed');
+            expect(persistedTask().output.map((o) => o.id)).toContain(
+                'bulk-import-range:s3://b/Patient.ndjson#0-result'
+            );
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+        });
+
+        test('the output append carries no status, so a stale copy cannot overwrite a newer one', async () => {
+            // This process loaded the Task in-progress; another has since persisted it as failed.
+            const stale = makeTask({ status: 'in-progress', statusReason: { text: 'old' }, output: [] });
+            db.status = 'failed';
+            db.statusReason = { text: 'range 3 blew up' };
+
+            await stateMachine.handleRangeCompletedAsync(stale, rangeParams);
+
+            expect(mergedTask().status).toBeUndefined();
+            expect(mergedTask().statusReason).toBeUndefined();
+            expect(persistedTask().status).toBe('failed');
+            expect(persistedTask().statusReason).toEqual({ text: 'range 3 blew up' });
+            expect(persistedTask().output).toHaveLength(1);
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+        });
+
+        test('does not complete a Task that another process has since completed', async () => {
+            const stale = makeTask({
+                status: 'in-progress',
+                output: [{ id: 'bulk-import-range:s3://b/Patient.ndjson#1-result' }]
+            });
+            db.status = 'completed';
+
+            await stateMachine.handleRangeCompletedAsync(stale, rangeParams);
+
+            expect(mergeManager.mergeResourceAsync).toHaveBeenCalledTimes(1);
+            expect(persistedTask().status).toBe('completed');
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+        });
+
+        test('throws when the completed status write is rejected, so the message retries', async () => {
+            const task = makeTask({
+                status: 'in-progress',
+                output: [{ id: 'bulk-import-range:s3://b/Patient.ndjson#1-result' }]
+            });
+            fastDatabaseBulkInserter.executeAsync
+                .mockResolvedValueOnce([{ id: 'task-1' }])
+                .mockResolvedValueOnce([{ id: 'task-1', issue: { code: 'exception' } }]);
+
+            await expect(stateMachine.handleRangeCompletedAsync(task, rangeParams))
+                .rejects.toThrow('rejected during flush');
+
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+        });
+
+        test('a merge validation rejection of the output append is logged, not retried', async () => {
+            mergeManager.mergeResourceAsync.mockResolvedValue({ issue: [{ diagnostics: 'invalid' }] });
+
+            await expect(
+                stateMachine.handleRangeCompletedAsync(makeTask({ status: 'in-progress', output: [] }), rangeParams)
+            ).resolves.toBeUndefined();
+
+            expect(fastFindOneAsync).not.toHaveBeenCalled();
+            expect(logInfo).not.toHaveBeenCalledWith('Bulk import task progress', expect.anything());
+            expect(logError).toHaveBeenCalledWith(
+                'Task merge returned a validation failure during orchestrator write',
+                expect.objectContaining({ taskId: 'task-1' })
+            );
+        });
+
+        test('a failed reload after the write is logged and the local copy is counted', async () => {
+            const task = makeTask({
+                status: 'in-progress',
+                output: [{ id: 'bulk-import-range:s3://b/Patient.ndjson#1-result' }]
+            });
+            fastFindOneAsync.mockRejectedValueOnce(new Error('primary unavailable'));
+
+            await expect(stateMachine.handleRangeCompletedAsync(task, rangeParams)).resolves.toBeUndefined();
+
+            expect(logError).toHaveBeenCalledWith(
+                'Failed to reload Task after recording a range; counting the local copy',
+                { taskId: 'task-1', error: 'primary unavailable' }
+            );
+            expect(persistedTask().status).toBe('completed');
+        });
+
+        test('logs a progress line with completed and total range counts', async () => {
+            await stateMachine.handleRangeCompletedAsync(
+                makeTask({ status: 'in-progress', output: [] }), { ...rangeParams, taskTotalRanges: 7 }
+            );
+            expect(logInfo).toHaveBeenCalledWith('Bulk import task progress', {
+                taskId: 'task-1',
+                status: 'in-progress',
+                completedRanges: 1,
+                taskTotalRanges: 7
+            });
+        });
+
+        test('counts the completed Task once, with its duration, only when it completes', async () => {
+            const authoredOn = new Date(Date.now() - 3600 * 1000).toISOString();
+
+            await stateMachine.handleRangeCompletedAsync(
+                makeTask({ status: 'in-progress', output: [], authoredOn }), rangeParams
+            );
+            expect(metrics.importTasksCounter.add).not.toHaveBeenCalled();
+
+            await stateMachine.handleRangeCompletedAsync(
+                makeTask({
+                    status: 'in-progress',
+                    authoredOn,
+                    output: [{ id: 'bulk-import-range:s3://b/Patient.ndjson#1-result' }]
+                }),
+                rangeParams
+            );
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledTimes(1);
+            expect(metrics.importTasksCounter.add).toHaveBeenCalledWith(1, { status: 'completed' });
+            const [duration, labels] = metrics.importTaskDurationHistogram.record.mock.calls[0];
+            expect(labels).toEqual({ status: 'completed' });
+            expect(duration).toBeGreaterThanOrEqual(3600);
+            expect(duration).toBeLessThan(3660);
         });
     });
 });

@@ -11,6 +11,7 @@ const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
 const { logInfo, logError } = require('../common/logging');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { recordKafkaConsumerGroupJoin } = require('../../utils/metrics');
 
 /**
  * Generic orchestrator entrypoint: one Kafka consumer per registered job below, each routing
@@ -39,8 +40,9 @@ function getJobs(container) {
         },
         {
             // Workers report per-range progress here instead of writing to the Task
-            // themselves -- the orchestrator is the only process that ever updates a Task
-            // once it exists, so there is exactly one writer and no concurrent-update race.
+            // themselves -- the orchestrator is the only service that updates a Task once it
+            // exists. One consumer owns a partition at a time, but two processes can overlap
+            // during a rebalance; the state machine's writes are safe to run concurrently.
             // Uses a separate groupId from the TaskCreated consumer -- sharing one group
             // across two different topic subscriptions causes Kafka to assign partitions
             // inconsistently (RoundRobin can't reconcile heterogeneous subscriptions),
@@ -91,7 +93,7 @@ async function main() {
             consumers.push(consumer);
 
             joinPromises.push(kafkaClientV2.waitForConsumerToJoinGroupAsync(consumer, {
-                maxWait: 30000,
+                maxWait: container.configManager.asyncJobConsumerJoinTimeoutMs,
                 label: job.label
             }));
 
@@ -105,6 +107,12 @@ async function main() {
                 maxRetries: 3,
                 deadLetterTopic: job.deadLetterTopic
             });
+
+            // Count every join, not just the first: a steady rate on a running orchestrator is
+            // rebalance or eviction churn, which is what stalls range-progress handling.
+            if (consumer) {
+                consumer.on(consumer.events.GROUP_JOIN, () => recordKafkaConsumerGroupJoin(job.groupId));
+            }
 
             // kafkaClientV2's own CRASH listener (registered inside waitForConsumerToJoinGroupAsync)
             // only rejects the join promise above, which is a no-op once already resolved — so a

@@ -1,6 +1,7 @@
 const { S3Client: S3, HeadObjectCommand } = require('@aws-sdk/client-s3');
 const querystring = require('querystring');
 const moment = require('moment-timezone');
+const { mapLimit } = require('async');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
@@ -31,7 +32,9 @@ const {
     recordImportOperationTriggered,
     recordImportFileSize,
     recordImportResourceOutcomes,
-    recordImportRangeDuration
+    recordImportRangeDuration,
+    recordImportRanges,
+    IMPORT_RANGE_OUTCOME
 } = require('../../../utils/metrics');
 const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
 const { AuditLogger } = require('../../../utils/auditLogger');
@@ -77,9 +80,10 @@ function recordImportSpanAttributes (attributes) {
  *   ImportRangeFailed rather than writing to the Task itself.
  * - ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed (orchestrator): the ONLY writes
  *   to a Task resource once it exists happen here. Routing every worker report through the
- *   orchestrator's single consumer means there is exactly one writer for a given Task's
- *   status/output at any time -- no concurrent-update races between worker pods to resolve,
- *   and no need for smartMerge array-matching tricks on Task.output/extension.
+ *   orchestrator's consumer means one writer per Task in steady state -- no concurrent-update
+ *   races between worker pods. During a consumer-group handoff two orchestrator processes can
+ *   briefly handle the same Task, which BulkImportTaskStateMachine tolerates (see its class
+ *   doc); do not rely on there being exactly one.
  */
 class BulkImportHandler {
     /**
@@ -371,6 +375,10 @@ class BulkImportHandler {
     /**
      * HEADs each S3 file to get file sizes and validate they exist.
      * Validates each bucket against the configured allow-list to prevent SSRF.
+     * Every URI is validated before the first HEAD, then the HEADs run with bounded
+     * concurrency: a sequential loop over a large import holds the orchestrator's TaskCreated
+     * handler (and its partition) for minutes, with no heartbeat, while the Task stays
+     * 'requested' and a redelivery would publish every range again.
      * @param {Array<{ url: string }>} inputs
      * @returns {Promise<Array<{ url: string, fileSize: number }>>}
      */
@@ -380,56 +388,57 @@ class BulkImportHandler {
             throw new Error('Bulk import S3 bucket allowlist is not configured');
         }
 
-        const region = this.configManager.awsRegion || 'us-east-1';
-        const s3 = new S3({ region });
-        const minBytes = this.configManager.bulkImportMinFileSizeMb * 1024 * 1024;
-        const maxBytes = this.configManager.bulkImportMaxFileSizeGb * 1024 * 1024 * 1024;
-
-        const results = [];
-        for (const input of inputs) {
+        const targets = inputs.map((input) => {
             const match = input.url.match(/^s3:\/\/([^/]+)\/(.+)$/);
             if (!match) {
                 throw new Error(`Invalid S3 URI: "${input.url}"`);
             }
             const bucket = match[1];
-            const key = match[2];
-
             if (!allowedBuckets.includes(bucket)) {
                 throw new Error(`S3 bucket "${bucket}" is not in the allowed list`);
             }
+            return { url: input.url, bucket, key: match[2] };
+        });
 
+        const region = this.configManager.awsRegion || 'us-east-1';
+        const s3 = new S3({ region });
+        const minBytes = this.configManager.bulkImportMinFileSizeMb * 1024 * 1024;
+        const maxBytes = this.configManager.bulkImportMaxFileSizeGb * 1024 * 1024 * 1024;
+
+        // mapLimit keeps results in input order and rejects with the first error.
+        const concurrency = this.configManager.bulkImportHeadS3Concurrency;
+        return mapLimit(targets, concurrency, async ({ url, bucket, key }) => {
             let fileSize;
             try {
                 const response = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
                 fileSize = response.ContentLength;
             } catch (e) {
-                throw new Error(`Cannot access S3 file "${input.url}": ${e.name}: ${e.message}`);
+                throw new Error(`Cannot access S3 file "${url}": ${e.name}: ${e.message}`);
             }
 
             if (!Number.isFinite(fileSize)) {
-                throw new Error(`S3 HEAD for "${input.url}" returned no ContentLength`);
+                throw new Error(`S3 HEAD for "${url}" returned no ContentLength`);
             }
 
             if (fileSize <= 0) {
-                throw new Error(`File "${input.url}" is empty (0 bytes)`);
+                throw new Error(`File "${url}" is empty (0 bytes)`);
             }
             if (minBytes > 0 && fileSize < minBytes) {
                 throw new Error(
-                    `File "${input.url}" is ${(fileSize / (1024 * 1024)).toFixed(1)} MB, ` +
+                    `File "${url}" is ${(fileSize / (1024 * 1024)).toFixed(1)} MB, ` +
                     `below the minimum of ${this.configManager.bulkImportMinFileSizeMb} MB`
                 );
             }
             if (fileSize > maxBytes) {
                 throw new Error(
-                    `File "${input.url}" is ${(fileSize / (1024 * 1024 * 1024)).toFixed(1)} GB, ` +
+                    `File "${url}" is ${(fileSize / (1024 * 1024 * 1024)).toFixed(1)} GB, ` +
                     `above the maximum of ${this.configManager.bulkImportMaxFileSizeGb} GB`
                 );
             }
 
             recordImportFileSize(fileSize);
-            results.push({ url: input.url, fileSize });
-        }
-        return results;
+            return { url, fileSize };
+        });
     }
 
     /**
@@ -501,6 +510,7 @@ class BulkImportHandler {
             remoteIpAddress
         });
 
+        recordImportRanges(IMPORT_RANGE_OUTCOME.PUBLISHED, messageCount);
         logInfo('Orchestrator published byte-range messages', {
             taskId,
             messageCount
@@ -526,8 +536,9 @@ class BulkImportHandler {
     /**
      * Handles a range-progress report from a worker. This is the ONLY place a Task resource
      * is ever written once it exists (see class docstring) -- workers only publish these
-     * events, they never touch the Task themselves, so there is exactly one writer and no
-     * concurrent-update race between worker pods to resolve.
+     * events, they never touch the Task themselves, so there is no race between worker pods.
+     * Two orchestrator processes can still overlap during a consumer-group handoff, which the
+     * state machine tolerates.
      * @param {{ key: string, value: string, headers: Array<{key: string, value: string}> }} message
      * @param {'ImportRangeStarted'|'ImportRangeCompleted'|'ImportRangeFailed'} type
      * @returns {Promise<void>}
@@ -554,7 +565,7 @@ class BulkImportHandler {
 
         switch (type) {
             case 'ImportRangeStarted':
-                return this.bulkImportTaskStateMachine.handleRangeStartedAsync(task);
+                return this.bulkImportTaskStateMachine.handleRangeStartedAsync(task, eventData);
             case 'ImportRangeCompleted':
                 return this.bulkImportTaskStateMachine.handleRangeCompletedAsync(task, eventData);
             case 'ImportRangeFailed':
@@ -831,6 +842,7 @@ class BulkImportHandler {
         const task = await this.bulkImportTaskStateMachine.loadTaskAsync(taskId);
         if (!task) {
             logError('Task not found for bulk import range', { taskId, filepath, rangeIndex });
+            recordImportRanges(IMPORT_RANGE_OUTCOME.TASK_NOT_FOUND);
             return;
         }
         if (task.status === 'completed' || task.status === 'failed') {
@@ -840,6 +852,7 @@ class BulkImportHandler {
                 rangeIndex,
                 status: task.status
             });
+            recordImportRanges(IMPORT_RANGE_OUTCOME.SKIPPED_TASK_FINISHED);
             return;
         }
         if (this.bulkImportTaskStateMachine.isRangeRecorded(task, { filepath, rangeIndex })) {
@@ -848,9 +861,11 @@ class BulkImportHandler {
                 filepath,
                 rangeIndex
             });
+            recordImportRanges(IMPORT_RANGE_OUTCOME.SKIPPED_DUPLICATE);
             return;
         }
 
+        recordImportRanges(IMPORT_RANGE_OUTCOME.STARTED);
         logInfo('Processing bulk import range', {
             taskId,
             filepath,
@@ -1274,6 +1289,7 @@ class BulkImportHandler {
                     type: 'ImportRangeFailed',
                     data: { taskId, filepath, rangeIndex, taskTotalRanges, errorMessage: e.message }
                 });
+                recordImportRanges(IMPORT_RANGE_OUTCOME.FAILED);
                 recordImportSpanAttributes({ 'fhir_import.outcome': 'failed' });
                 // mergeResultEntries only ever gains entries once a batch actually commits
                 // (flushBatchAsync) or a per-line failure is recorded -- so on a partially-
@@ -1312,6 +1328,7 @@ class BulkImportHandler {
                 taskTotalRanges,
                 mergeResultEntries
             });
+            recordImportRanges(IMPORT_RANGE_OUTCOME.COMPLETED);
 
             this.queueAuditEntriesForRangeAsync({
                 requestInfo,
