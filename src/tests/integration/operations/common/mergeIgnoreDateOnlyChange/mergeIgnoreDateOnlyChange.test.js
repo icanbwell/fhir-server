@@ -85,6 +85,23 @@ describe('merge ignores a date-only change for Composition by default', () => {
         }
     );
 
+    test('a PUT that changes only the date is still saved', async () => {
+        const request = await createTestRequest();
+        await mergeAndSettle(request, buildComposition(), '');
+
+        const resp = await request
+            .put('/4_0_0/Composition/date-only-1')
+            .send(buildComposition({ date: SECOND_DATE }))
+            .set(getHeaders());
+        expect(resp.status).toBe(200);
+        const { postRequestProcessor } = getTestContainer();
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
+
+        const stored = await readStored(request);
+        expect(stored.meta.versionId).toBe('2');
+        expect(stored.date).toBe(SECOND_DATE);
+    });
+
     test('a JSON PATCH that changes only the date is still saved', async () => {
         const request = await createTestRequest();
         await mergeAndSettle(request, buildComposition(), '');

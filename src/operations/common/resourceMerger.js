@@ -422,6 +422,7 @@ class ResourceMerger {
      * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
      * @param {import('../../dataLayer/base64DataManager').Base64DataManager|null} [base64DataManager]
+     * @param {boolean|undefined} [ignoreDateOnlyChange] treat a change to only the top-level date as no change (merge only)
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async mergeResourceAsync (
@@ -434,7 +435,8 @@ class ResourceMerger {
             incrementVersion = true,
             limitToPaths,
             databaseAttachmentManager = null,
-            base64DataManager = null
+            base64DataManager = null,
+            ignoreDateOnlyChange = false
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -504,7 +506,7 @@ class ResourceMerger {
             currentObject: currentObjectForDiff,
             mergedObject,
             limitToPaths,
-            ignoreDateOnlyChange: true
+            ignoreDateOnlyChange
         });
 
         // now apply the patches to the found resource
@@ -563,6 +565,7 @@ class ResourceMerger {
      * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
      * @param {import('../../dataLayer/base64DataManager').Base64DataManager|null} [base64DataManager]
+     * @param {boolean|undefined} [ignoreDateOnlyChange] treat a change to only the top-level date as no change (merge only)
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async fastMergeResourceAsync (
@@ -575,7 +578,8 @@ class ResourceMerger {
             incrementVersion = true,
             limitToPaths,
             databaseAttachmentManager = null,
-            base64DataManager = null
+            base64DataManager = null,
+            ignoreDateOnlyChange = false
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -648,7 +652,7 @@ class ResourceMerger {
             currentObject: currentResourceWithAttachmentData,
             mergedObject,
             limitToPaths,
-            ignoreDateOnlyChange: true
+            ignoreDateOnlyChange
         });
 
         // now apply the patches to the found resource
