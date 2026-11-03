@@ -58,7 +58,7 @@ describe('MergeOperation', () => {
             logOperationFailureAsync: jest.fn().mockResolvedValue(undefined)
         };
         mockBundleManager = {
-            createBundle: jest.fn().mockReturnValue({ resourceType: 'Bundle', entry: [] })
+            createRawBundle: jest.fn().mockReturnValue({ resourceType: 'Bundle', type: 'batch-response', link: null, entry: [] })
         };
         mockConfigManager = {
             streamingHighWaterMark: 100
@@ -342,10 +342,12 @@ describe('MergeOperation', () => {
                 resourceType: 'Patient'
             });
 
-            expect(mockBundleManager.createBundle).toHaveBeenCalledTimes(1);
-            expect(mockBundleManager.createBundle.mock.calls[0][0].resources).toStrictEqual([
+            expect(mockBundleManager.createRawBundle).toHaveBeenCalledTimes(1);
+            expect(mockBundleManager.createRawBundle.mock.calls[0][0].resources).toStrictEqual([
                 { resourceType: 'OperationOutcome', id: 'p1', issue: [expectedIssue] }
             ]);
+            expect(result).not.toHaveProperty('link');
+            expect(result).toMatchObject({ resourceType: 'Bundle', type: 'batch-response' });
         });
 
         test('logs failure and rethrows on error', async () => {

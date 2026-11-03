@@ -11,6 +11,8 @@ const { BundleManager } = require('../common/bundleManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const BundleSerializer = require('../../fhir/serializers/4_0_0/resources/bundle');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { READ } = require('../../constants').OPERATIONS;
 
@@ -423,7 +425,7 @@ class SearchStreamingOperation {
                         /**
                          * @type {Bundle}
                          */
-                        const bundle = this.bundleManager.createBundle(
+                        const bundle = this.bundleManager.createRawBundle(
                             {
                                 type: 'searchset',
                                 requestId: requestInfo.requestId,
@@ -453,7 +455,7 @@ class SearchStreamingOperation {
                             res.setHeader('X-Request-ID', String(userRequestId));
                         }
                         // noinspection JSUnresolvedFunction
-                        res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
+                        res.type(fhirContentTypes.fhirJson).json(FhirResourceSerializer.serialize(bundle, BundleSerializer));
                     } else {
                         if (requestId && !res.headersSent) {
                             res.setHeader('X-Request-ID', String(userRequestId));

@@ -19,6 +19,7 @@ const { DatabaseUpdateFactory } = require('../../../../dataLayer/databaseUpdateF
 const { ScopesManager } = require('../../../../operations/security/scopesManager');
 const { PatientFilterManager } = require('../../../../fhir/patientFilterManager');
 const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
+const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
 
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -855,6 +856,26 @@ describe('ResourceValidator', () => {
             expect(result.meta.source).toBe('http://example.com/profile3');
         });
 
+        it('returns a plain StructureDefinition and does not modify the fetched profile', () => {
+            const profileJson = {
+                resourceType: 'StructureDefinition',
+                id: 'profile-5',
+                url: 'http://example.com/profile5',
+                publisher: 'Org',
+                meta: { security: [{ system: 'https://www.icanbwell.com/access', code: 'read' }] }
+            };
+
+            const result = resourceValidator.createProfileResourceFromJson({ profileJson });
+
+            expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+            expect(result.resourceType).toBe('StructureDefinition');
+            expect(profileJson.meta.security).toHaveLength(1);
+            expect(result.meta.security.map(tag => tag.system)).toEqual([
+                'https://www.icanbwell.com/access',
+                'https://www.icanbwell.com/owner'
+            ]);
+        });
+
         it('appends owner tag to existing security array', () => {
             const profileJson = {
                 resourceType: 'StructureDefinition',
@@ -873,15 +894,45 @@ describe('ResourceValidator', () => {
             const result = resourceValidator.createProfileResourceFromJson({ profileJson });
             expect(result.meta.security.length).toBe(2);
         });
+
+        const accessTag = { system: 'https://www.icanbwell.com/access', code: 'read' };
+        const ownerTag = { system: 'https://www.icanbwell.com/owner', code: 'Org' };
+
+        it.each([
+            ['meta is missing', {}, []],
+            ['meta is null', { meta: null }, []],
+            ['meta.security is missing', { meta: {} }, []],
+            ['meta.security is null', { meta: { security: null } }, []],
+            ['meta.security is empty', { meta: { security: [] } }, []],
+            ['meta.security is a single Coding object', { meta: { security: accessTag } }, [accessTag]],
+            ['meta.security is an array', { meta: { security: [accessTag] } }, [accessTag]]
+        ])('keeps the existing tags and adds the owner tag when %s', (description, metaPart, existingTags) => {
+            const profileJson = {
+                resourceType: 'StructureDefinition',
+                id: 'profile-6',
+                url: 'http://example.com/profile6',
+                publisher: 'Org',
+                ...metaPart
+            };
+
+            const result = resourceValidator.createProfileResourceFromJson({ profileJson });
+
+            expect(result.meta.security).toEqual([...existingTags, ownerTag]);
+            expect(result.meta.source).toBe('http://example.com/profile6');
+        });
     });
 
     describe('upsertProfileInRemoteServer', () => {
+        beforeEach(() => {
+            BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: ['Resource'] });
+        });
+
         it('fetches profile from remote when not in database', async () => {
-            const mockCursor = { hasNext: jest.fn().mockResolvedValue(false), nextObject: jest.fn() };
+            const mockCursor = { hasNext: jest.fn().mockResolvedValue(false), next: jest.fn() };
             mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync: jest.fn().mockResolvedValue(mockCursor) });
 
             const mockUpdateManager = { replaceOneAsync: jest.fn().mockResolvedValue(null) };
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jest.fn().mockReturnValue(mockUpdateManager);
+            mockDatabaseUpdateFactory.createFastDatabaseUpdateManager = jest.fn().mockReturnValue(mockUpdateManager);
 
             mockRemoteFhirValidator.fetchProfileAsync = jest.fn().mockResolvedValue({
                 resourceType: 'StructureDefinition', id: 'sd-1', url: 'http://example.com/profile',
@@ -901,14 +952,24 @@ describe('ResourceValidator', () => {
             });
 
             expect(mockRemoteFhirValidator.fetchProfileAsync).toHaveBeenCalledWith({ url: 'http://example.com/profile' });
-            expect(mockUpdateManager.replaceOneAsync).toHaveBeenCalled();
-            expect(mockRemoteFhirValidator.updateProfileAsync).toHaveBeenCalled();
+            expect(mockUpdateManager.replaceOneAsync).toHaveBeenCalledTimes(1);
+            const savedDoc = mockUpdateManager.replaceOneAsync.mock.calls[0][0].doc;
+            expect(Object.getPrototypeOf(savedDoc)).toBe(Object.prototype);
+            expect(savedDoc.resourceType).toBe('StructureDefinition');
+            expect(savedDoc.meta.security).toEqual([
+                { id: expect.any(String), system: 'https://www.icanbwell.com/owner', code: 'profile' }
+            ]);
+            expect(savedDoc.meta.source).toBe('http://example.com/profile');
+            expect(mockRemoteFhirValidator.updateProfileAsync).toHaveBeenCalledTimes(1);
+            const uploaded = mockRemoteFhirValidator.updateProfileAsync.mock.calls[0][0].profileJson;
+            expect(uploaded).toMatchObject({ resourceType: 'StructureDefinition', id: 'sd-1' });
+            expect(uploaded).not.toHaveProperty('_id');
         });
 
         it('throws BadRequestError when profile URL returns 404', async () => {
-            const mockCursor = { hasNext: jest.fn().mockResolvedValue(false), nextObject: jest.fn() };
+            const mockCursor = { hasNext: jest.fn().mockResolvedValue(false), next: jest.fn() };
             mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync: jest.fn().mockResolvedValue(mockCursor) });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jest.fn().mockReturnValue({});
+            mockDatabaseUpdateFactory.createFastDatabaseUpdateManager = jest.fn().mockReturnValue({});
 
             const error404 = new Error('Not Found');
             error404.response = { status: 404 };
@@ -928,16 +989,20 @@ describe('ResourceValidator', () => {
 
         it('skips remote fetch when profile already in database', async () => {
             const existingProfile = {
+                _id: 'mongo-id',
+                _uuid: 'uuid-1',
+                _sourceId: 'sd-1',
+                _sourceAssigningAuthority: 'profile',
+                resourceType: 'StructureDefinition',
                 id: 'sd-1',
-                url: 'http://example.com/profile',
-                toJSON: () => ({ id: 'sd-1', url: 'http://example.com/profile', resourceType: 'StructureDefinition' })
+                url: 'http://example.com/profile'
             };
             const mockCursor = {
                 hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false),
-                nextObject: jest.fn().mockResolvedValue(existingProfile)
+                next: jest.fn().mockResolvedValue(existingProfile)
             };
             mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({ findAsync: jest.fn().mockResolvedValue(mockCursor) });
-            mockDatabaseUpdateFactory.createDatabaseUpdateManager = jest.fn().mockReturnValue({});
+            mockDatabaseUpdateFactory.createFastDatabaseUpdateManager = jest.fn().mockReturnValue({});
             mockRemoteFhirValidator.fetchProfileAsync = jest.fn();
             mockRemoteFhirValidator.updateProfileAsync = jest.fn().mockResolvedValue(null);
 
@@ -953,7 +1018,9 @@ describe('ResourceValidator', () => {
             });
 
             expect(mockRemoteFhirValidator.fetchProfileAsync).not.toHaveBeenCalled();
-            expect(mockRemoteFhirValidator.updateProfileAsync).toHaveBeenCalled();
+            expect(mockRemoteFhirValidator.updateProfileAsync).toHaveBeenCalledWith({
+                profileJson: { resourceType: 'StructureDefinition', id: 'sd-1', url: 'http://example.com/profile' }
+            });
         });
     });
 });

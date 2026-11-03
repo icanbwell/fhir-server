@@ -19,8 +19,8 @@ const {FhirRequestInfoBuilder} = require('../utils/fhirRequestInfoBuilder');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
 const {assertTypeEquals} = require('../utils/assertType');
 const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
-const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
+const {buildBundleEntry} = require('../utils/bundleEntryBuilder');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
 const {PERSON_PROXY_PREFIX} = require('../constants');
@@ -874,12 +874,8 @@ class FhirOperationsManager {
                  */
                 const operationOutcome = convertErrorToOperationOutcome({ error: err, internalError: status === 500 });
                 await responseStreamer.writeBundleEntryAsync({
-                    bundleEntry: new BundleEntry({
-                        resource: operationOutcome
-                    }
-                    )
-                }
-                );
+                    bundleEntry: buildBundleEntry({ resource: operationOutcome })
+                });
                 await responseStreamer.setStatusCodeAsync({ statusCode: status });
                 await responseStreamer.endAsync();
             }
@@ -1256,12 +1252,8 @@ class FhirOperationsManager {
              */
             const operationOutcome = convertErrorToOperationOutcome({ error: err, internalError: status === 500 });
             await responseStreamer.writeBundleEntryAsync({
-                bundleEntry: new BundleEntry({
-                    resource: operationOutcome
-                }
-                )
-            }
-            );
+                bundleEntry: buildBundleEntry({ resource: operationOutcome })
+            });
             await responseStreamer.setStatusCodeAsync({ statusCode: status });
             await responseStreamer.endAsync();
         }

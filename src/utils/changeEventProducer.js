@@ -3,17 +3,12 @@ const moment = require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ResourceManager } = require('../operations/common/resourceManager');
 const { logTraceSystemEventAsync, logSystemErrorAsync } = require('../operations/common/systemEventLogging');
-const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
-const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
-const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
-const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEventAgent');
-const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
-const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
-const Period = require('../fhir/classes/4_0_0/complex_types/period');
 const { KafkaClient } = require('./kafkaClient');
 const { BasePostSaveHandler } = require('./basePostSaveHandler');
 const { RethrownError } = require('./rethrownError');
 const { ConfigManager } = require('./configManager');
+const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
+const AuditEventSerializer = require('../fhir/serializers/4_0_0/resources/auditEvent');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -89,7 +84,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} resourceType
      * @param {string} eventName
      * @param {string} sourceType
-     * @return {AuditEvent}
+     * @return {Object}
      * @private
      */
     _createMessage ({
@@ -103,52 +98,34 @@ class ChangeEventProducer extends BasePostSaveHandler {
         }
     ) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        const auditEvent = new AuditEvent(
-            {
-                id: generateUUID(),
-                action: eventType,
-                type: new Coding({
-                    code: '110100'
-                }),
-                recorded: currentDate,
-                period:
-                    new Period({
-                        start: timestamp,
-                        end: timestamp
-                    }),
-                purposeOfEvent:
-                    [
-                        new CodeableConcept({
-                            coding:
-                                [
-                                    new Coding({
-                                        system: 'https://www.icanbwell.com/event-purpose',
-                                        code: eventName
-                                    })
-                                ]
-                        })
-                    ],
-                agent:
-                    [
-                        new AuditEventAgent({
-                            who: new Reference(
-                                {
-                                    reference: `${resourceType}/${id}`
-                                }),
-                            requestor: true
-                        })
-                    ],
-                source: new AuditEventSource({
-                    site: requestId,
-                    observer: new Reference(
-                        { reference: 'Organization/bwell' }
-                    )
+        return FhirResourceSerializer.serialize({
+            resourceType: 'AuditEvent',
+            id: generateUUID(),
+            type: { code: '110100' },
+            action: eventType,
+            period: { start: timestamp, end: timestamp },
+            recorded: currentDate,
+            purposeOfEvent: [
+                {
+                    coding: [
+                        { system: 'https://www.icanbwell.com/event-purpose', code: eventName }
+                    ]
+                }
+            ],
+            agent: [
+                {
+                    who: { reference: `${resourceType}/${id}` },
+                    requestor: true
+                }
+            ],
+            source: {
+                site: requestId,
+                observer: { reference: 'Organization/bwell' },
+                ...(sourceType && {
+                    type: [{ system: 'https://www.icanbwell.com/sourceType', code: sourceType }]
                 })
-            });
-        if (sourceType) {
-            auditEvent.source.type = new Coding({ system: 'https://www.icanbwell.com/sourceType', code: sourceType });
-        }
-        return auditEvent;
+            }
+        }, AuditEventSerializer);
     }
 
     /**

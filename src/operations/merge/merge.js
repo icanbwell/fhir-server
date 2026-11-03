@@ -7,6 +7,8 @@ const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkIn
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { BundleManager } = require('../common/bundleManager');
 const { buildOperationOutcomeFromIssues } = require('../../utils/operationOutcomeBuilder');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const BundleSerializer = require('../../fhir/serializers/4_0_0/resources/bundle');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { QueryItem } = require('../graph/queryItem');
@@ -326,7 +328,7 @@ class MergeOperation {
                  * @type {Resource[]}
                  */
                 const resources = operationOutcomes;
-                return this.bundleManager.createBundle(
+                const bundle = this.bundleManager.createRawBundle(
                     {
                         type: 'batch-response',
                         requestId: userRequestId,
@@ -351,6 +353,7 @@ class MergeOperation {
                         parsedArgs
                     }
                 );
+                return FhirResourceSerializer.serialize(bundle, BundleSerializer);
             } else {
                 return wasIncomingAList ? mergeResults : mergeResults[0];
             }

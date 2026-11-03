@@ -8,10 +8,8 @@ const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { RemoteFhirValidator } = require('../../utils/remoteFhirValidator');
 const { RethrownError } = require('../../utils/rethrownError');
 const { ScopesManager } = require('../security/scopesManager');
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structureDefinition');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { buildOperationOutcome, buildOperationOutcomeFromIssues } = require('../../utils/operationOutcomeBuilder');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
@@ -423,7 +421,7 @@ class ResourceValidator {
         const dateColumnHandler = new DateColumnHandler();
         dateColumnHandler.setFlag(true);
         resourceToValidate = await dateColumnHandler.preSaveAsync({ resource: resourceToValidate });
-        const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
+        const resourceToValidateJson = (typeof resourceToValidate?.toJSON === 'function') ? resourceToValidate.toJSON() : resourceToValidate;
         delete resourceToValidateJson?.meta?.lastUpdated;
         /**
          * @type {OperationOutcome | null}
@@ -615,7 +613,7 @@ class ResourceValidator {
             resourceObj = null,
             profile
         }) {
-        const resourceToValidateJson = (resourceBody instanceof Resource) ? resourceBody.toJSON() : resourceBody;
+        const resourceToValidateJson = (typeof resourceBody?.toJSON === 'function') ? resourceBody.toJSON() : resourceBody;
 
         if (profile) {
             // save profile in remote server
@@ -727,7 +725,7 @@ class ResourceValidator {
             }
         };
 
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+        const databaseUpdateManager = this.databaseUpdateFactory.createFastDatabaseUpdateManager({
             resourceType: 'StructureDefinition',
             base_version: VERSIONS['4_0_0']
         });
@@ -764,14 +762,19 @@ class ResourceValidator {
                 });
 
             if (profileJson) {
-                const profileResourceNew = this.createProfileResourceFromJson({profileJson});
+                const profileResourceNew = FhirResourceWriteSerializer.serialize({
+                    obj: this.createProfileResourceFromJson({profileJson})
+                });
                 await databaseUpdateManager.replaceOneAsync({
                     base_version,
                     requestInfo,
                     doc: profileResourceNew
                 });
 
-                profileJsonToUpdate.push({profileJson: profileResourceNew.toJSON(), profileUrl});
+                profileJsonToUpdate.push({
+                    profileJson: FhirResourceSerializer.serialize(profileResourceNew),
+                    profileUrl
+                });
             }
         };
 
@@ -790,11 +793,11 @@ class ResourceValidator {
 
         while (await cursor.hasNext()) {
             /**
-             * @type {Resource}
+             * @type {Object}
              */
-            const profileJson = await cursor.nextObject();
+            const profileJson = await cursor.next();
             const profileUrl = profileJson.url;
-            profileJsonToUpdate.push({profileJson: profileJson.toJSON(), profileUrl});
+            profileJsonToUpdate.push({profileJson: FhirResourceSerializer.serialize(profileJson), profileUrl});
             profilesToFetchFromRemote.delete(profileUrl);
         }
 
@@ -823,33 +826,23 @@ class ResourceValidator {
     /**
      * Create structure definition from given profile json
      * @param {{ profileJson: Record<string, any>}} params
-     * @returns {StructureDefinition}
+     * @returns {Object}
      */
     createProfileResourceFromJson ({ profileJson }) {
-        const profileResourceNew = new StructureDefinition(profileJson);
-        if (!profileResourceNew.meta) {
-            profileResourceNew.meta = new Meta({});
-        }
-        if (profileResourceNew.meta.security) {
-            profileResourceNew.meta.security.push(
-                new Coding({
-                    system: SecurityTagSystem.owner,
-                    code: profileResourceNew.publisher || 'profile'
-                })
-            );
-        } else {
-            profileResourceNew.meta.security = [
-                new Coding({
-                    system: SecurityTagSystem.owner,
-                    code: profileResourceNew.publisher || 'profile'
-                })
-            ];
-        }
-        if (!profileResourceNew.meta.source) {
-            profileResourceNew.meta.source = profileResourceNew.url;
+        const { resourceType, id, meta: profileMeta, ...otherProperties } = structuredClone(profileJson);
+        const meta = profileMeta || {};
+        meta.security = [
+            ...[].concat(meta.security || []),
+            {
+                system: SecurityTagSystem.owner,
+                code: otherProperties.publisher || 'profile'
+            }
+        ];
+        if (!meta.source) {
+            meta.source = otherProperties.url;
         }
 
-        return profileResourceNew;
+        return { resourceType: 'StructureDefinition', id, meta, ...otherProperties };
     }
 }
 

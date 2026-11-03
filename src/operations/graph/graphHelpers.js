@@ -7,13 +7,13 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
 const {NonResourceEntityAndContained} = require('./nonResourceEntityAndContained');
 const {ScopesValidator} = require('../security/scopesValidator');
-const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {ConfigManager} = require('../../utils/configManager');
+const {FhirResourceSerializer} = require('../../fhir/fhirResourceSerializer');
+const BundleSerializer = require('../../fhir/serializers/4_0_0/resources/bundle');
+const {buildBundleEntry} = require('../../utils/bundleEntryBuilder');
 const {BundleManager} = require('../common/bundleManager');
 const {RethrownError} = require('../../utils/rethrownError');
 const {SearchManager} = require('../search/searchManager');
-const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
-const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {ParsedArgs} = require('../query/parsedArgs');
@@ -21,9 +21,6 @@ const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ReferenceParser} = require('../../utils/referenceParser');
 const {QueryItem} = require('./queryItem');
 const {ProcessMultipleIdsAsyncResult} = require('../common/processMultipleIdsAsyncResult');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
-const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
 const {logError, logInfo, logWarn} = require('../common/logging');
 const {isExtendedGroupMemberPath} = require('../../utils/mongoGroupExtendedTag');
 const {MongoGroupMemberRepository} = require('../../dataLayer/repositories/mongoGroupMemberRepository');
@@ -44,7 +41,6 @@ const {
 } = require('../../constants');
 const {isValidResource} = require('../../utils/validResourceCheck');
 const {SearchParametersManager} = require('../../searchParameters/searchParametersManager');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { RemoveHelper } = require('../remove/removeHelper');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -1875,12 +1871,6 @@ class GraphHelper {
              * @type {number}
              */
             const startTime = Date.now();
-            /**
-             * @type {Resource}
-             */
-            const graphDefinition = FhirResourceCreator.create(graphDefinitionJson, GraphDefinition);
-            assertTypeEquals(graphDefinition, GraphDefinition);
-
             // see if the count of ids is greater than batch size
             /**
              * @type {ParsedArgsItem}
@@ -1957,7 +1947,7 @@ class GraphHelper {
                         base_version,
                         requestInfo,
                         resourceType,
-                        graphDefinition,
+                        graphDefinition: graphDefinitionJson,
                         contained,
                         explain: !!parsedArgs._explain,
                         debug: !!parsedArgs._debug,
@@ -2164,33 +2154,31 @@ class GraphHelper {
                 // for testing with delay
                 // await new Promise(r => setTimeout(r, 10000));
 
-                // noinspection JSAnnotator
-                const bundleEntry = new BundleEntry({
+                const bundleEntry = buildBundleEntry({
                     id: resource.id,
-                    resource: FhirResourceCreator.create({
-                        id: resource.id,
-                        _uuid: resource._uuid,
-                        resourceType: resultResourceType
-                    }, ResourceContainer),
-                    request: new BundleRequest(
-                        {
-                            id: requestInfo.userRequestId,
-                            method: 'DELETE',
-                            url: `/${base_version}/${resultResourceType}/${resource.id}`
-                        }
-                    )
+                    resource: {
+                        resourceType: resultResourceType,
+                        id: resource.id
+                    },
+                    request: {
+                        id: requestInfo.userRequestId,
+                        method: 'DELETE',
+                        url: `/${base_version}/${resultResourceType}/${resource.id}`
+                    }
                 });
+                Object.defineProperty(bundleEntry.resource, '_uuid', { value: resource._uuid });
                 deleteOperationBundleEntries.push(bundleEntry);
                 if (responseStreamer) {
                     await responseStreamer.writeBundleEntryAsync({bundleEntry});
                 }
             }
-            const deleteOperationBundle = new Bundle({
+            const deleteOperationBundle = FhirResourceSerializer.serialize({
+                resourceType: 'Bundle',
                 id: requestInfo.userRequestId,
                 type: 'batch-response',
-                entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
-            });
+            }, BundleSerializer);
+            deleteOperationBundle.entry = deleteOperationBundleEntries;
 
             if (responseStreamer) {
                 responseStreamer.setBundle({bundle: deleteOperationBundle});

@@ -12,7 +12,7 @@ const { isValidResource } = require('../utils/validResourceCheck');
 const { ReferenceParser } = require('../utils/referenceParser');
 const { ConfigManager } = require('../utils/configManager');
 const { parseResolveInfo } = require('graphql-parse-resolve-info');
-const { getResource } = require('../operations/common/getResource');
+const { getSerializer } = require('../fhir/baseFhirResourceSerializer');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../utils/mongoGroupExtendedTag');
 const { SearchBundleOperation } = require('../operations/search/searchBundle');
@@ -655,13 +655,9 @@ class FhirDataSource {
                 if (Object.values(COLLECTION).includes(key)) {
                     let resourceType = key;
                     /**
-                     * @type {Resource}
-                     */
-                    const resource = getResource(VERSIONS['4_0_0'], resourceType);
-                    /**
                      * @type {string[]}
                      */
-                    const resourceFields = Object.getOwnPropertyNames(new resource({}));
+                    const resourceFields = Object.keys(getSerializer(VERSIONS['4_0_0'], resourceType).allPropertyToSerializerMap);
 
                     if (!this.resourceProjections[resourceType]) {
                         const baseFields = ['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'];
