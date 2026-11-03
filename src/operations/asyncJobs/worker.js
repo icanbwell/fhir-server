@@ -11,6 +11,7 @@ const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
 const { logInfo, logError, logWarn } = require('../common/logging');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { recordKafkaConsumerGroupJoin } = require('../../utils/metrics');
 
 /**
  * Generic worker entrypoint: one Kafka consumer per registered job below, each routing its
@@ -137,7 +138,7 @@ async function main() {
             consumers.push(consumer);
 
             joinPromises.push(kafkaClientV2.waitForConsumerToJoinGroupAsync(consumer, {
-                maxWait: 30000,
+                maxWait: container.configManager.asyncJobConsumerJoinTimeoutMs,
                 label: job.label
             }));
 
@@ -152,12 +153,15 @@ async function main() {
                 deadLetterTopic: job.deadLetterTopic
             });
 
-            // waitForConsumerToJoinGroupAsync only reports the first join; this logs every one,
-            // so rebalances (e.g. a scale-out) show which partitions each pod took over.
+            // waitForConsumerToJoinGroupAsync only reports the first join; this logs and counts
+            // every one, so rebalances (e.g. a scale-out) show which partitions each pod took
+            // over and a steady join rate shows eviction churn (kafkajs rejoins after
+            // UNKNOWN_MEMBER_ID without emitting REBALANCING).
             if (consumer) {
-                consumer.on(consumer.events.GROUP_JOIN, (event) =>
-                    logPartitionAssignmentAsync({ kafkaClientV2, job, event })
-                );
+                consumer.on(consumer.events.GROUP_JOIN, (event) => {
+                    recordKafkaConsumerGroupJoin(job.groupId);
+                    return logPartitionAssignmentAsync({ kafkaClientV2, job, event });
+                });
             }
 
             // kafkaClientV2's own CRASH listener (registered inside waitForConsumerToJoinGroupAsync)

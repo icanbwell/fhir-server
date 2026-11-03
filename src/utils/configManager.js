@@ -1690,6 +1690,31 @@ class ConfigManager {
     }
 
     /**
+     * How long an async-job entrypoint waits for its consumers to join their groups before
+     * giving up and exiting. Must exceed the consumer rebalance timeout (60s default), or a
+     * replica starting during another member's rebalance crash-loops and forces more rebalances,
+     * and must stay well under the startup probe window (150s) so boot still fits in it.
+     * @return {number}
+     */
+    get asyncJobConsumerJoinTimeoutMs() {
+        const raw = env.ASYNC_JOB_CONSUMER_JOIN_TIMEOUT_MS;
+        // Digits only ('120s' must not parse as 120 ms), above the rebalance timeout, and within
+        // the largest delay setTimeout honors (anything larger fires after 1 ms, so every replica
+        // would give up on the join immediately).
+        const parsed = /^\d+$/.test(raw ?? '') ? Number(raw) : NaN;
+        return parsed > 60000 && parsed <= 2147483647 ? parsed : 90000;
+    }
+
+    /**
+     * Maximum concurrent S3 HEAD requests when the orchestrator validates a bulk import's inputs
+     * @return {number}
+     */
+    get bulkImportHeadS3Concurrency() {
+        const parsed = parseInt(env.BULK_IMPORT_HEAD_S3_CONCURRENCY, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 8;
+    }
+
+    /**
      * Minimum file size in MB for bulk import
      * @return {number}
      */
@@ -1837,6 +1862,17 @@ class ConfigManager {
      */
     get kafkaV2AwsRegion() {
         return env.KAFKA_V2_AWS_REGION || 'us-east-1';
+    }
+
+    /**
+     * resource types for which a merge that changes only the top-level `date` is treated as no
+     * change (no new version, history row or event). Comma-separated; defaults to Composition when
+     * the variable is unset, and a set-but-empty value turns the rule off.
+     * @return {string[]}
+     */
+    get mergeIgnoreDateOnlyChangeResourceTypes() {
+        const configured = env.MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES;
+        return configured === undefined ? ['Composition'] : this._parseCommaSeparatedList(configured);
     }
 
     /**

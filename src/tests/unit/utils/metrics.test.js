@@ -32,6 +32,15 @@ const {
     recordImportRangeDuration,
     recordImportS3ReadThroughput,
     recordImportFileSize,
+    recordImportRanges,
+    recordImportTaskFinished,
+    recordKafkaConsumerGroupJoin,
+    importRangesCounter,
+    importTasksCounter,
+    importTaskDurationHistogram,
+    kafkaConsumerGroupJoinsCounter,
+    IMPORT_RANGE_OUTCOME,
+    IMPORT_TASK_STATUS,
     mergeOutcomeCounter,
     validationFailureCounter,
     bundleSizeHistogram,
@@ -242,6 +251,61 @@ describe('metrics.js', () => {
         test('does not emit when entries is null', () => {
             recordMergeOutcomes(null);
             expect(mergeOutcomeCounter.add).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('recordImportRanges', () => {
+        test.each(Object.values(IMPORT_RANGE_OUTCOME))('emits outcome=%s with the given count', (outcome) => {
+            recordImportRanges(outcome, 3);
+            expect(importRangesCounter.add).toHaveBeenCalledWith(3, { [LABEL.OUTCOME]: outcome });
+        });
+
+        test('defaults the count to 1', () => {
+            recordImportRanges(IMPORT_RANGE_OUTCOME.STARTED);
+            expect(importRangesCounter.add).toHaveBeenCalledWith(1, { [LABEL.OUTCOME]: 'started' });
+        });
+
+        test('collapses an unknown outcome to UNKNOWN so cardinality stays bounded', () => {
+            recordImportRanges('exploded');
+            expect(importRangesCounter.add).toHaveBeenCalledWith(1, { [LABEL.OUTCOME]: UNKNOWN });
+        });
+
+        test.each([0, -1, NaN])('does not emit for a non-positive count (%p)', (count) => {
+            recordImportRanges(IMPORT_RANGE_OUTCOME.PUBLISHED, count);
+            expect(importRangesCounter.add).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('recordImportTaskFinished', () => {
+        test.each(Object.values(IMPORT_TASK_STATUS))('emits tasks_total and duration for status=%s', (status) => {
+            recordImportTaskFinished(status, 125.5);
+            expect(importTasksCounter.add).toHaveBeenCalledWith(1, { [LABEL.STATUS]: status });
+            expect(importTaskDurationHistogram.record).toHaveBeenCalledWith(125.5, { [LABEL.STATUS]: status });
+        });
+
+        test.each([undefined, NaN, -1, Infinity])('counts the task but skips the histogram for duration %p', (duration) => {
+            recordImportTaskFinished(IMPORT_TASK_STATUS.COMPLETED, duration);
+            expect(importTasksCounter.add).toHaveBeenCalledTimes(1);
+            expect(importTaskDurationHistogram.record).not.toHaveBeenCalled();
+        });
+
+        test('collapses an unknown status to UNKNOWN', () => {
+            recordImportTaskFinished('cancelled', 1);
+            expect(importTasksCounter.add).toHaveBeenCalledWith(1, { [LABEL.STATUS]: UNKNOWN });
+        });
+    });
+
+    describe('recordKafkaConsumerGroupJoin', () => {
+        test('emits one join for the group', () => {
+            recordKafkaConsumerGroupJoin('fhir-bulk-import-consumer');
+            expect(kafkaConsumerGroupJoinsCounter.add).toHaveBeenCalledWith(1, {
+                [LABEL.GROUP_ID]: 'fhir-bulk-import-consumer'
+            });
+        });
+
+        test('uses UNKNOWN when the group id is missing', () => {
+            recordKafkaConsumerGroupJoin(undefined);
+            expect(kafkaConsumerGroupJoinsCounter.add).toHaveBeenCalledWith(1, { [LABEL.GROUP_ID]: UNKNOWN });
         });
     });
 
