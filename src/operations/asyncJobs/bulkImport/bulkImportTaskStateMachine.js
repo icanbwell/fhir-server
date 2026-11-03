@@ -28,9 +28,16 @@ function taskDurationSeconds(task) {
 /**
  * Handles the Task resource state machine for bulk import orchestration.
  *
- * The orchestrator is the only process that ever writes a Task's status/output once it exists --
- * workers publish range-progress events and this class processes them, so there is exactly one
- * writer and no concurrent-update race to resolve.
+ * The orchestrator is the only service that writes a Task's status/output once it exists --
+ * workers publish range-progress events and this class processes them. In steady state a Task
+ * has one writer, but not during a consumer-group handoff (rebalance, deploy, pod loss): the
+ * previous owner can still be finishing an in-flight handler while the new owner starts on the
+ * same Task. Every write here is therefore safe to run concurrently with another one:
+ * - the range-output append omits status, so a stale copy cannot overwrite a newer status;
+ * - a status write re-reads the Task from the primary first and never changes a terminal one;
+ * - completion is counted on the persisted Task, not on the copy this process wrote;
+ * - every range-progress event can finalize a Task, so no single event has to be the one.
+ * Do not remove those on the assumption that there is only ever one writer.
  *
  * Task writes go through mergeManager.mergeResourceAsync (the same path as $merge API writes)
  * for consistent validation, upsert semantics, and pre/post-save handling. After each
@@ -120,7 +127,9 @@ class BulkImportTaskStateMachine {
      * Writes an updated Task through the merge flow (mergeManager.mergeResourceAsync),
      * which handles FHIR validation, proper upsert semantics, and pre/post-save processing.
      * @param {Object} task - copied Task resource with updated fields already applied
-     * @returns {Promise<boolean>} true when the write reached the database
+     * @returns {Promise<boolean>} true when the write reached the database, false when the merge
+     *   rejected it as invalid (deterministic, logged, not worth retrying)
+     * @throws {Error} when the database flush rejected the write (transient; the message retries)
      */
     async writeTaskAsync(task) {
         const requestInfo = this.buildOrchestratorRequestInfo();
@@ -150,24 +159,38 @@ class BulkImportTaskStateMachine {
         // The flush reports a rejected write as a result entry with an issue, not a throw.
         const rejected = (flushResults || []).find((r) => r && r.issue);
         if (rejected) {
-            logError('Task write was rejected during orchestrator flush', {
-                taskId: task.id,
-                error: rejected.issue.diagnostics || rejected.issue.code
-            });
-            return false;
+            const error = rejected.issue.diagnostics || rejected.issue.code;
+            logError('Task write was rejected during orchestrator flush', { taskId: task.id, error });
+            throw new Error(`Task ${task.id} write was rejected during flush: ${error}`);
         }
         return true;
     }
 
     /**
      * Updates a Task's status (and optional statusReason) through the merge flow.
+     *
+     * Re-reads the Task from the primary first and builds the write from that copy, not from the
+     * caller's: the caller's may be stale, and $merge applies scalars like status over whatever is
+     * persisted. Never changes a terminal Task, never rewrites a status that is already set, and
+     * only moves requested -> in-progress. A terminal status is counted in the task metrics once,
+     * here, when this call persists it.
      * @param {Object} task
      * @param {string} status
      * @param {string} [statusReason]
-     * @returns {Promise<boolean>} true when the write reached the database
+     * @returns {Promise<boolean>} true when this call wrote the status
      */
     async updateTaskStatusAsync(task, status, statusReason) {
-        const updated = deepcopy(task);
+        const current = (await this.loadTaskAsync(task.id)) || task;
+        const skip =
+            current.status === 'completed' ||
+            current.status === 'failed' ||
+            current.status === status ||
+            (status === 'in-progress' && current.status !== 'requested');
+        if (skip) {
+            return false;
+        }
+
+        const updated = deepcopy(current);
         updated.status = status;
         updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         if (statusReason) {
@@ -176,7 +199,13 @@ class BulkImportTaskStateMachine {
             }
             updated.statusReason.text = statusReason;
         }
-        return this.writeTaskAsync(updated);
+        const persisted = await this.writeTaskAsync(updated);
+        if (persisted && status === 'completed') {
+            recordImportTaskFinished(IMPORT_TASK_STATUS.COMPLETED, taskDurationSeconds(current));
+        } else if (persisted && status === 'failed') {
+            recordImportTaskFinished(IMPORT_TASK_STATUS.FAILED, taskDurationSeconds(current));
+        }
+        return persisted;
     }
 
     /**
@@ -216,11 +245,7 @@ class BulkImportTaskStateMachine {
         if (this.countCompletedRanges(task) < taskTotalRanges) {
             return false;
         }
-        const persisted = await this.updateTaskStatusAsync(task, 'completed');
-        if (persisted) {
-            recordImportTaskFinished(IMPORT_TASK_STATUS.COMPLETED, taskDurationSeconds(task));
-        }
-        return persisted;
+        return this.updateTaskStatusAsync(task, 'completed');
     }
 
     /**
@@ -235,10 +260,7 @@ class BulkImportTaskStateMachine {
         if (task.status === 'completed' || task.status === 'failed') {
             return;
         }
-        const persisted = await this.updateTaskStatusAsync(task, 'failed', errorMessage);
-        if (persisted) {
-            recordImportTaskFinished(IMPORT_TASK_STATUS.FAILED, taskDurationSeconds(task));
-        }
+        await this.updateTaskStatusAsync(task, 'failed', errorMessage);
     }
 
     /**
@@ -281,15 +303,30 @@ class BulkImportTaskStateMachine {
         const updated = deepcopy(task);
         updated.output = [...(updated.output || []), ...newOutputs];
         updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        if (!(await this.writeTaskAsync(updated))) {
-            // Not persisted: let the message retry rather than count an entry that isn't there.
-            throw new Error(`Bulk import range completion was not persisted on Task ${task.id}`);
+        // Append only: status and statusReason are left out of the write so a stale copy cannot
+        // overwrite a status another process has since persisted ($merge keeps the persisted
+        // value for a field the incoming resource does not carry).
+        const appendOnly = deepcopy(updated);
+        delete appendOnly.status;
+        delete appendOnly.statusReason;
+        if (!(await this.writeTaskAsync(appendOnly))) {
+            // Rejected as invalid (already logged). Retrying cannot change that, so don't.
+            return;
         }
 
         // Count what is in the database, not the copy this process wrote: $merge unions
         // Task.output by entry id, so a concurrent writer's entries are present on the
-        // persisted document but absent from `updated`.
-        const persisted = (await this.loadTaskAsync(task.id)) || updated;
+        // persisted document but absent from `updated`. The entry above is already persisted,
+        // so if the reload fails fall back to the local copy rather than retry the message.
+        let persisted = updated;
+        try {
+            persisted = (await this.loadTaskAsync(task.id)) || updated;
+        } catch (e) {
+            logError('Failed to reload Task after recording a range; counting the local copy', {
+                taskId: task.id,
+                error: e.message
+            });
+        }
 
         // One line per recorded range so a stalled import is visible: an in-progress Task
         // with no progress line for N minutes is the alert.

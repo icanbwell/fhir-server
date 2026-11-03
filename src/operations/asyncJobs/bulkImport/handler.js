@@ -80,9 +80,10 @@ function recordImportSpanAttributes (attributes) {
  *   ImportRangeFailed rather than writing to the Task itself.
  * - ImportRangeStarted/ImportRangeCompleted/ImportRangeFailed (orchestrator): the ONLY writes
  *   to a Task resource once it exists happen here. Routing every worker report through the
- *   orchestrator's single consumer means there is exactly one writer for a given Task's
- *   status/output at any time -- no concurrent-update races between worker pods to resolve,
- *   and no need for smartMerge array-matching tricks on Task.output/extension.
+ *   orchestrator's consumer means one writer per Task in steady state -- no concurrent-update
+ *   races between worker pods. During a consumer-group handoff two orchestrator processes can
+ *   briefly handle the same Task, which BulkImportTaskStateMachine tolerates (see its class
+ *   doc); do not rely on there being exactly one.
  */
 class BulkImportHandler {
     /**
@@ -535,8 +536,9 @@ class BulkImportHandler {
     /**
      * Handles a range-progress report from a worker. This is the ONLY place a Task resource
      * is ever written once it exists (see class docstring) -- workers only publish these
-     * events, they never touch the Task themselves, so there is exactly one writer and no
-     * concurrent-update race between worker pods to resolve.
+     * events, they never touch the Task themselves, so there is no race between worker pods.
+     * Two orchestrator processes can still overlap during a consumer-group handoff, which the
+     * state machine tolerates.
      * @param {{ key: string, value: string, headers: Array<{key: string, value: string}> }} message
      * @param {'ImportRangeStarted'|'ImportRangeCompleted'|'ImportRangeFailed'} type
      * @returns {Promise<void>}

@@ -140,9 +140,9 @@ class BulkImportEventProducer {
 
     /**
      * Publishes a single range-progress CloudEvent onto the worker->orchestrator topic. The
-     * orchestrator is the only process that ever writes to a Task once it exists -- workers
-     * report progress here instead of touching the Task themselves, so there's exactly one
-     * writer and no concurrent-update race to resolve.
+     * orchestrator is the only service that writes to a Task once it exists -- workers report
+     * progress here instead of touching the Task themselves. Two orchestrator processes can
+     * overlap during a consumer-group handoff; the state machine tolerates that.
      * @param {Object} params
      * @param {'ImportRangeStarted'|'ImportRangeCompleted'|'ImportRangeFailed'} params.type
      * @param {Object} params.data

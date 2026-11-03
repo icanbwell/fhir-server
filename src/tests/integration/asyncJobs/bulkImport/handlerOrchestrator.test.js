@@ -278,6 +278,102 @@ describe('BulkImportHandler - ImportRangeStarted/ImportRangeCompleted/ImportRang
         expect(taskResp.body.output).toHaveLength(2);
     });
 
+    test('a stale completion cannot overwrite a Task another process already failed', async () => {
+        const request = await createTestRequest();
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-orch-stale' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+        const stateMachine = container.bulkImportTaskStateMachine;
+
+        // This process loaded the Task while it was still requested ...
+        const staleCopy = await stateMachine.loadTaskAsync('import-orch-stale');
+        expect(staleCopy.status).toBe('requested');
+
+        // ... and before it writes, another orchestrator process failed the Task.
+        await handler.handleMessageAsync({
+            key: 'import-orch-stale-0',
+            value: makeRangeProgressEvent('ImportRangeFailed', {
+                taskId: 'import-orch-stale',
+                errorMessage: 'S3 read timed out'
+            }),
+            headers: []
+        });
+
+        // The stale process records its range, which would complete a one-range import.
+        await stateMachine.handleRangeCompletedAsync(staleCopy, {
+            filepath: 's3://allowed-bucket/Patient.ndjson',
+            rangeIndex: 0,
+            taskTotalRanges: 1,
+            resultUri: 's3://allowed-bucket/output/Patient-001.ndjson',
+            errorUri: null
+        });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-orch-stale')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('failed');
+        expect(taskResp.body.statusReason.text).toBe('S3 read timed out');
+        expect(taskResp.body.output.find((o) => o.type.text === 'result').valueUri)
+            .toBe('s3://allowed-bucket/output/Patient-001.ndjson');
+    });
+
+    test('a redelivered completion finalizes a Task whose last range was recorded but never counted', async () => {
+        const request = await createTestRequest();
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-orch-stuck' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+        const stateMachine = container.bulkImportTaskStateMachine;
+        const range = {
+            filepath: 's3://allowed-bucket/Patient.ndjson',
+            rangeIndex: 0,
+            resultUri: 's3://allowed-bucket/output/Patient-001.ndjson',
+            errorUri: null
+        };
+
+        // Record the range while the import still expects two, so the Task stays in-progress ...
+        await handler.handleMessageAsync({
+            key: 'import-orch-stuck-0',
+            value: makeRangeProgressEvent('ImportRangeStarted', { taskId: 'import-orch-stuck' }),
+            headers: []
+        });
+        await stateMachine.handleRangeCompletedAsync(
+            await stateMachine.loadTaskAsync('import-orch-stuck'),
+            { ...range, taskTotalRanges: 2 }
+        );
+        expect((await stateMachine.loadTaskAsync('import-orch-stuck')).status).toBe('in-progress');
+
+        // ... then a redelivery of the same report, now seeing the full total, completes it.
+        await handler.handleMessageAsync({
+            key: 'import-orch-stuck-1',
+            value: makeRangeProgressEvent('ImportRangeCompleted', {
+                taskId: 'import-orch-stuck',
+                ...range,
+                taskTotalRanges: 1
+            }),
+            headers: []
+        });
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-orch-stuck')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+        expect(taskResp.body.output).toHaveLength(1);
+    });
+
     test('handleMessageAsync ignores malformed range-progress messages', async () => {
         const { createTestContainer } = require('../../createTestContainer');
         const container = createTestContainer();

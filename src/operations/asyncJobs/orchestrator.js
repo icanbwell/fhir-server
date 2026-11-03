@@ -40,8 +40,9 @@ function getJobs(container) {
         },
         {
             // Workers report per-range progress here instead of writing to the Task
-            // themselves -- the orchestrator is the only process that ever updates a Task
-            // once it exists, so there is exactly one writer and no concurrent-update race.
+            // themselves -- the orchestrator is the only service that updates a Task once it
+            // exists. One consumer owns a partition at a time, but two processes can overlap
+            // during a rebalance; the state machine's writes are safe to run concurrently.
             // Uses a separate groupId from the TaskCreated consumer -- sharing one group
             // across two different topic subscriptions causes Kafka to assign partitions
             // inconsistently (RoundRobin can't reconcile heterogeneous subscriptions),
