@@ -11,7 +11,8 @@ const SCHEMA_FILES = [
     '01-init-schema.sql',
     '02-audit-event.sql',
     '04-access-log.sql',
-    '05-audit-access-mv.sql'
+    '05-audit-access-mv.sql',
+    '08-resource-history.sql'
 ];
 
 /**

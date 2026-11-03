@@ -43,7 +43,8 @@ class BulkInsertUpdateEntry {
                     skipped,
                     sourceAssigningAuthority,
                     contextData = null,
-                    writePrecondition = null
+                    writePrecondition = null,
+                    smartMerge = true
                 }
     ) {
         /**
@@ -98,6 +99,7 @@ class BulkInsertUpdateEntry {
          * @type {WritePrecondition|null}
          */
         this.writePrecondition = writePrecondition;
+        this.smartMerge = smartMerge;
     }
 }
 

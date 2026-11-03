@@ -57,5 +57,28 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
         });
+
+        test('person to person link is removed by a token that only has the admin scope', async () => {
+            const request = await createTestRequest();
+            let resp = await request
+                .post('/4_0_0/Person/$merge?validate=true')
+                .send(personResource)
+                .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'));
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/admin/removePersonToPersonLink')
+                .send({
+                    bwellPersonId: 'Person/aba5bcf41cf64435839cf0568c121843',
+                    externalPersonId: 'Person/a58e50292d79469691d3048e787434cc'
+                })
+                .set(getHeadersWithCustomToken('admin/*.*'));
+            expect(resp).toHaveStatusCode(200);
+            expect(resp).toHaveResponse(expectedResult);
+
+            resp = await request.get('/4_0_0/Person/aba5bcf41cf64435839cf0568c121843/_history/2').set(getHeaders());
+            expect(resp).toHaveStatusCode(200);
+            expect(resp).toHaveResponse(expectedPersonResources);
+        });
     });
 });

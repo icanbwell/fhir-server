@@ -1,0 +1,25 @@
+{
+  "resourceType": "Bundle",
+  "type": "batch-response",
+  "total": 1,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "exception",
+            "details": {
+              "text": "Error merging: {\"resourceType\":\"Patient\",\"meta\":{\"source\":\"http://example.com/source\",\"security\":[{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"access\"},{\"system\":\"https://www.icanbwell.com/owner\",\"code\":\"owner\"}]}}"
+            },
+            "diagnostics": "resource is missing id",
+            "expression": [
+              "Patient"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

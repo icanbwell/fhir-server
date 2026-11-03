@@ -8,13 +8,11 @@ const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { RemoteFhirValidator } = require('../../utils/remoteFhirValidator');
 const { RethrownError } = require('../../utils/rethrownError');
 const { ScopesManager } = require('../security/scopesManager');
-const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
-const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structureDefinition');
+const { buildOperationOutcome, buildOperationOutcomeFromIssues } = require('../../utils/operationOutcomeBuilder');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
@@ -147,14 +145,12 @@ class ResourceValidator {
                 // (e.g. an absolute-URL reference) can't be resolved to a tenant, so we cannot
                 // verify the caller is allowed to link it. Silently skipping it -- the previous
                 // behavior -- is a bypass of this whole check, so fail closed and reject instead.
-                return new OperationOutcome({
-                    issue: new OperationOutcomeIssue({
-                        code: 'invalid',
-                        severity: 'error',
-                        details: new CodeableConcept({
-                            text: `Person.link target ${reference} could not be resolved to a resource. Specify it as ResourceType/id with a _uuid or sourceAssigningAuthority.`
-                        })
-                    })
+                return buildOperationOutcome({
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: `Person.link target ${reference} could not be resolved to a resource. Specify it as ResourceType/id with a _uuid or sourceAssigningAuthority.`
+                    }
                 });
             }
             const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
@@ -175,14 +171,12 @@ class ResourceValidator {
             ).toObjectArrayAsync();
 
             if (targetResources.length === 0) {
-                return new OperationOutcome({
-                    issue: new OperationOutcomeIssue({
-                        code: 'not-found',
-                        severity: 'error',
-                        details: new CodeableConcept({
-                            text: `Person.link target ${reference} was not found.`
-                        })
-                    })
+                return buildOperationOutcome({
+                    severity: 'error',
+                    code: 'not-found',
+                    details: {
+                        text: `Person.link target ${reference} was not found.`
+                    }
                 });
             }
 
@@ -191,26 +185,22 @@ class ResourceValidator {
             );
 
             if (accessibleTargetResources.length === 0) {
-                return new OperationOutcome({
-                    issue: new OperationOutcomeIssue({
-                        code: 'forbidden',
-                        severity: 'error',
-                        details: new CodeableConcept({
-                            text: `Person.link target ${reference} belongs to a tenant the caller does not have access to.`
-                        })
-                    })
+                return buildOperationOutcome({
+                    severity: 'error',
+                    code: 'forbidden',
+                    details: {
+                        text: `Person.link target ${reference} belongs to a tenant the caller does not have access to.`
+                    }
                 });
             }
 
             if (accessibleTargetResources.length > 1) {
-                return new OperationOutcome({
-                    issue: new OperationOutcomeIssue({
-                        code: 'multiple-matches',
-                        severity: 'error',
-                        details: new CodeableConcept({
-                            text: `Person.link target ${reference} is ambiguous: multiple accessible resources share this id. Specify the target's _uuid or sourceAssigningAuthority.`
-                        })
-                    })
+                return buildOperationOutcome({
+                    severity: 'error',
+                    code: 'multiple-matches',
+                    details: {
+                        text: `Person.link target ${reference} is ambiguous: multiple accessible resources share this id. Specify the target's _uuid or sourceAssigningAuthority.`
+                    }
                 });
             }
 
@@ -366,14 +356,12 @@ class ResourceValidator {
 
             // Return operationOutcome is patientReference are not same to avoid patientReference change
             if (!referenceMatched) {
-                return new OperationOutcome({
-                    issue: new OperationOutcomeIssue({
-                        code: 'invalid',
-                        severity: 'error',
-                        details: new CodeableConcept({
-                            text: `Patient Reference ${newValue} did not match with patient reference ${currentValue} reference present in database`
-                        })
-                    })
+                return buildOperationOutcome({
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: `Patient Reference ${newValue} did not match with patient reference ${currentValue} reference present in database`
+                    }
                 });
             }
         }
@@ -428,7 +416,7 @@ class ResourceValidator {
                 currentResource
             });
             if (groupMemberLimitError) {
-                return new OperationOutcome({ issue: groupMemberLimitError.issue });
+                return buildOperationOutcomeFromIssues(groupMemberLimitError.issue);
             }
         }
 
@@ -515,16 +503,12 @@ class ResourceValidator {
         if (sizeInBytes <= this.configManager.auditEventMaxSizeBytes) {
             return null;
         }
-        return new OperationOutcome({
-            issue: [
-                new OperationOutcomeIssue({
-                    severity: 'error',
-                    code: 'too-long',
-                    details: new CodeableConcept({
-                        text: 'Payload size too large.'
-                    })
-                })
-            ]
+        return buildOperationOutcome({
+            severity: 'error',
+            code: 'too-long',
+            details: {
+                text: 'Payload size too large.'
+            }
         });
     }
 
@@ -548,18 +532,14 @@ class ResourceValidator {
      * @returns {OperationOutcome}
      */
     buildMissingOwnerTagOutcome (resource) {
-        const outcome = new OperationOutcome({
-            issue: [
-                new OperationOutcomeIssue({
-                    severity: 'error',
-                    code: 'invalid',
-                    details: new CodeableConcept({
-                        text: `Resource ${resource.resourceType}/${resource.id}` +
-                            ' is missing a security access tag with system: ' +
-                            `${SecurityTagSystem.owner}`
-                    })
-                })
-            ]
+        const outcome = buildOperationOutcome({
+            severity: 'error',
+            code: 'invalid',
+            details: {
+                text: `Resource ${resource.resourceType}/${resource.id}` +
+                    ' is missing a security access tag with system: ' +
+                    `${SecurityTagSystem.owner}`
+            }
         });
         recordValidationFailure(outcome, resource.resourceType, VALIDATION_STAGE.META, PATH.SAVE);
         return outcome;
@@ -569,16 +549,12 @@ class ResourceValidator {
         const resourceType = resource && resource.resourceType;
         // Check if meta & meta.source exists in resource
         if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
-            const outcome = new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: 'Unable to create/update resource. Missing either metadata or metadata source.'
-                        })
-                    })
-                ]
+            const outcome = buildOperationOutcome({
+                severity: 'error',
+                code: 'invalid',
+                details: {
+                    text: 'Unable to create/update resource. Missing either metadata or metadata source.'
+                }
             });
             recordValidationFailure(outcome, resourceType, VALIDATION_STAGE.META, PATH.SAVE);
             return outcome;
@@ -589,35 +565,27 @@ class ResourceValidator {
         }
         // Check if multiple owner tags are present inside the resource.
         if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource)) {
-            const outcome = new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: `Resource ${resource.resourceType}/${resource.id}` +
-                                ' is having multiple security access tag with system: ' +
-                                `${SecurityTagSystem.owner}`
-                        })
-                    })
-                ]
+            const outcome = buildOperationOutcome({
+                severity: 'error',
+                code: 'invalid',
+                details: {
+                    text: `Resource ${resource.resourceType}/${resource.id}` +
+                        ' is having multiple security access tag with system: ' +
+                        `${SecurityTagSystem.owner}`
+                }
             });
             recordValidationFailure(outcome, resourceType, VALIDATION_STAGE.META, PATH.SAVE);
             return outcome;
         }
         // Check if any system or code in the meta.security array is null
         if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resource)) {
-            const outcome = new OperationOutcome({
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: `Resource ${resource.resourceType}/${resource.id}` +
-                                ' has null/empty value for \'system\' or \'code\' in security access tag.'
-                        })
-                    })
-                ]
+            const outcome = buildOperationOutcome({
+                severity: 'error',
+                code: 'invalid',
+                details: {
+                    text: `Resource ${resource.resourceType}/${resource.id}` +
+                        ' has null/empty value for \'system\' or \'code\' in security access tag.'
+                }
             });
             recordValidationFailure(outcome, resourceType, VALIDATION_STAGE.META, PATH.SAVE);
             return outcome;
@@ -699,16 +667,18 @@ class ResourceValidator {
             operationOutcome.issue = operationOutcome.issue.filter(issue => issue.severity === 'error');
         }
         if (!operationOutcome.issue || operationOutcome.issue.length === 0) {
-            operationOutcome.issue = new OperationOutcomeIssue({
-                code: 'informational',
-                details: new CodeableConcept({
-                    text: 'OK'
-                }),
-                expression: [
-                    'Practitioner'
-                ],
-                severity: 'information'
-            });
+            operationOutcome.issue = [
+                {
+                    severity: 'information',
+                    code: 'informational',
+                    details: {
+                        text: 'OK'
+                    },
+                    expression: [
+                        resourceName
+                    ]
+                }
+            ];
         }
         return operationOutcome;
     }

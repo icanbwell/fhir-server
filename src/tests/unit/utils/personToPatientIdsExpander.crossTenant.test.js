@@ -53,7 +53,7 @@ function createStubInstance (RealClass, overrides = {}) {
 }
 
 /**
- * Builds a mongo-cursor-like object (hasNext/nextObject) over a fixed array of docs, matching
+ * Builds a mongo-cursor-like object (hasNext/next) over a fixed array of docs, matching
  * the subset of the DatabaseQueryManager cursor interface this module relies on.
  * @param {Object[]} docs
  */
@@ -61,7 +61,7 @@ function createCursor (docs) {
     let index = 0;
     return {
         hasNext: jestGlobal.fn(async () => index < docs.length),
-        nextObject: jestGlobal.fn(async () => docs[index++])
+        next: jestGlobal.fn(async () => docs[index++])
     };
 }
 

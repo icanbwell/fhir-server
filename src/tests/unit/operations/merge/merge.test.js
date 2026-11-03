@@ -259,7 +259,49 @@ describe('MergeOperation', () => {
             expect(Array.isArray(result)).toBe(true);
         });
 
-        test('returns OperationOutcome bundle when prefer header is return=OperationOutcome', async () => {
+        test.each([
+            [
+                'a created entry reports Created',
+                { created: true, updated: false },
+                {
+                    severity: 'information',
+                    code: 'informational',
+                    details: {
+                        coding: [{ system: 'https://www.rfc-editor.org/rfc/rfc9110.html', code: '201', display: 'Created' }]
+                    },
+                    expression: ['Patient/p1']
+                }
+            ],
+            [
+                'an updated entry reports Updated',
+                { created: false, updated: true },
+                {
+                    severity: 'information',
+                    code: 'informational',
+                    details: {
+                        coding: [{ system: 'https://www.rfc-editor.org/rfc/rfc9110.html', code: '200', display: 'Updated' }]
+                    },
+                    expression: ['Patient/p1']
+                }
+            ],
+            [
+                'an unchanged entry reports Not Modified',
+                { created: false, updated: false },
+                {
+                    severity: 'information',
+                    code: 'informational',
+                    details: {
+                        coding: [{ system: 'https://www.rfc-editor.org/rfc/rfc9110.html', code: '304', display: 'Not Modified' }]
+                    },
+                    expression: ['Patient/p1']
+                }
+            ],
+            [
+                'a failed entry reports its own error',
+                { created: false, updated: false, issue: { severity: 'error', code: 'exception', diagnostics: 'merge failed' } },
+                { severity: 'error', code: 'exception', diagnostics: 'merge failed' }
+            ]
+        ])('returns OperationOutcome bundle when prefer header is return=OperationOutcome: %s', async (_name, entryState, expectedIssue) => {
             const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
             const { assertTypeEquals, assertIsValid } = require('../../../../utils/assertType');
             assertTypeEquals.mockImplementation(() => {});
@@ -280,7 +322,7 @@ describe('MergeOperation', () => {
                 { resource: { id: 'p1', _uuid: 'uuid-p1', resourceType: 'Patient' }, mergeError: null }
             ]);
             mockDatabaseBulkInserter.executeAsync.mockResolvedValue([
-                { _uuid: 'uuid-p1', resourceType: 'Patient', created: true, updated: false, id: 'p1' }
+                { _uuid: 'uuid-p1', resourceType: 'Patient', id: 'p1', ...entryState }
             ]);
 
             const requestInfo = {
@@ -300,7 +342,10 @@ describe('MergeOperation', () => {
                 resourceType: 'Patient'
             });
 
-            expect(mockBundleManager.createBundle).toHaveBeenCalled();
+            expect(mockBundleManager.createBundle).toHaveBeenCalledTimes(1);
+            expect(mockBundleManager.createBundle.mock.calls[0][0].resources).toStrictEqual([
+                { resourceType: 'OperationOutcome', id: 'p1', issue: [expectedIssue] }
+            ]);
         });
 
         test('logs failure and rethrows on error', async () => {

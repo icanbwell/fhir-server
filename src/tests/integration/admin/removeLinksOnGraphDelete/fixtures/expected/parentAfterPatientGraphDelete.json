@@ -1,0 +1,61 @@
+{
+  "id": "graph-parent",
+  "link": [
+    {
+      "target": {
+        "reference": "Person/graph-sibling",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Person/graph-sibling"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Person/ca9ce500-d1bb-5422-9d32-121b9939938f"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "owner"
+          }
+        ]
+      }
+    }
+  ],
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "access",
+        "id": "9577400a-46de-52fa-9cfe-80f65f67611c"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "owner",
+        "id": "3607e02d-135a-5386-bd89-32281c49913c"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "owner",
+        "id": "2e2a082f-78d2-5773-921a-451f69aaa157"
+      }
+    ],
+    "versionId": "2"
+  },
+  "resourceType": "Person",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "graph-parent"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "3965e5c3-602b-565d-8e83-18700b7e8dd5"
+    }
+  ]
+}

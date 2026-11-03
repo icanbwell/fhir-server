@@ -41,7 +41,7 @@ describe('PersonToPatientIdsExpander — access gate letter for the Person looku
         const databaseQueryManager = {
             findAsync: jestGlobal.fn().mockResolvedValue({
                 hasNext: async () => false,
-                nextObject: async () => null
+                next: async () => null
             })
         };
 

@@ -110,6 +110,25 @@ describe('FhirBundleWriter', () => {
             });
         });
 
+        test('should emit an object that appears twice in the chunk in both places', (done) => {
+            const coding = { system: 'http://loinc.org', code: '1234-5' };
+            const chunk = {
+                id: 'obs-1',
+                resourceType: 'Observation',
+                code: { coding: [coding] },
+                category: [{ coding: [coding] }]
+            };
+            const pushed = [];
+            writer.push = jest.fn((data) => pushed.push(data));
+
+            writer._transform(chunk, 'utf8', () => {
+                const { resource } = JSON.parse(pushed[0].replace(/^\{"entry":\[/, ''));
+                expect(resource.code.coding).toEqual([coding]);
+                expect(resource.category[0].coding).toEqual([coding]);
+                done();
+            });
+        });
+
         test('should do nothing when signal is aborted', (done) => {
             mockSignal.aborted = true;
             writer.push = jest.fn();

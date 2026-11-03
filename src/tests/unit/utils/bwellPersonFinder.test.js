@@ -32,8 +32,7 @@ function createMockCursor(documents) {
     let index = 0;
     return {
         hasNext: jest.fn(async () => index < documents.length),
-        next: jest.fn(async () => documents[index++] || null),
-        nextObject: jest.fn(async () => documents[index++] || null)
+        next: jest.fn(async () => documents[index++] || null)
     };
 }
 

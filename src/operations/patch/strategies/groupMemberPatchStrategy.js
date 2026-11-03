@@ -1,7 +1,6 @@
 const { BadRequestError } = require('../../../utils/httpErrors');
 const { PATCH_PATHS, PATCH_OPERATIONS } = require('../../../constants/groupConstants');
 const { createTooCostlyError } = require('../../../utils/fhirErrorFactory');
-const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { buildContextDataForHybridStorage, USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 const { isTrue } = require('../../../utils/isTrue');
 const { enrichMemberReferences } = require('../../../utils/referenceEnricher');
@@ -196,11 +195,11 @@ class GroupMemberPatchStrategy {
                     message: `Missing required value.entity.reference in PATCH operation: ${JSON.stringify(op)}`,
                     toString: function () { return this.message; }
                 }, {
-                    issue: [new OperationOutcomeIssue({
+                    issue: [{
                         severity: 'error',
                         code: 'required',
                         diagnostics: 'Each member PATCH operation must include value.entity.reference'
-                    })]
+                    }]
                 });
             }
 
@@ -234,11 +233,11 @@ class GroupMemberPatchStrategy {
                         return message;
                     }
                 }, {
-                    issue: [new OperationOutcomeIssue({
+                    issue: [{
                         severity: 'error',
                         code: 'not-supported',
                         diagnostics: message
-                    })]
+                    }]
                 });
             }
         }
@@ -402,11 +401,11 @@ class GroupMemberPatchStrategy {
                     message: `Missing required value.entity.reference in PATCH operation: ${JSON.stringify(op)}`,
                     toString: function () { return this.message; }
                 }, {
-                    issue: [new OperationOutcomeIssue({
+                    issue: [{
                         severity: 'error',
                         code: 'required',
                         diagnostics: 'Each member PATCH operation must include value.entity.reference'
-                    })]
+                    }]
                 });
             }
 
@@ -432,11 +431,11 @@ class GroupMemberPatchStrategy {
                         return message;
                     }
                 }, {
-                    issue: [new OperationOutcomeIssue({
+                    issue: [{
                         severity: 'error',
                         code: 'not-supported',
                         diagnostics: message
-                    })]
+                    }]
                 });
             }
         }

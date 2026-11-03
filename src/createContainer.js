@@ -78,6 +78,7 @@ const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
 const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 const {PatientFilterManager} = require('./fhir/patientFilterManager');
 const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
+const {AdminResourceWriter} = require('./admin/adminResourceWriter');
 const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
 const {KafkaClient} = require('./utils/kafkaClient');
 const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
@@ -1205,9 +1206,17 @@ const createContainer = function () {
         return null;
     });
 
+    container.register('adminResourceWriter', (c) => new AdminResourceWriter({
+        databaseQueryFactory: c.databaseQueryFactory,
+        resourceMerger: c.resourceMerger,
+        fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
+        postRequestProcessor: c.postRequestProcessor,
+        requestSpecificCache: c.requestSpecificCache
+    }));
+
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory,
+        adminResourceWriter: c.adminResourceWriter,
         fhirOperationsManager: c.fhirOperationsManager,
         postSaveProcessor: c.postSaveProcessor,
         patientFilterManager: c.patientFilterManager,
@@ -1224,9 +1233,8 @@ const createContainer = function () {
             fhirOperationsManager: c.fhirOperationsManager,
             everythingOperation: c.everythingOperation,
             databaseQueryFactory: c.databaseQueryFactory,
-            databaseUpdateFactory: c.databaseUpdateFactory,
-            r4ArgsParser: c.r4ArgsParser,
-            postSaveProcessor: c.postSaveProcessor
+            adminResourceWriter: c.adminResourceWriter,
+            r4ArgsParser: c.r4ArgsParser
         }));
 
     container.register('oauthClientCredentialsHelper', (c) => new OAuthClientCredentialsHelper({

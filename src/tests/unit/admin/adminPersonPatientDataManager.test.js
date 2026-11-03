@@ -28,9 +28,8 @@ const { AdminPersonPatientDataManager } = require('../../../admin/adminPersonPat
 const { FhirOperationsManager } = require('../../../operations/fhirOperationsManager');
 const { EverythingOperation } = require('../../../operations/everything/everything');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
-const { DatabaseUpdateFactory } = require('../../../dataLayer/databaseUpdateFactory');
+const { AdminResourceWriter } = require('../../../admin/adminResourceWriter');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
-const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const Bundle = require('../../../fhir/classes/4_0_0/resources/bundle');
 
 function createPrototypedMock(RealClass) {
@@ -58,25 +57,18 @@ function createManager() {
     };
     databaseQueryFactory.createQuery = jestObj.fn().mockReturnValue(mockQueryManager);
 
-    const databaseUpdateFactory = createPrototypedMock(DatabaseUpdateFactory);
-    const mockUpdateManager = {
-        replaceOneAsync: jestObj.fn().mockResolvedValue({ savedResource: {} })
-    };
-    databaseUpdateFactory.createDatabaseUpdateManager = jestObj.fn().mockReturnValue(mockUpdateManager);
+    const adminResourceWriter = createPrototypedMock(AdminResourceWriter);
+    adminResourceWriter.writeAsync = jestObj.fn().mockResolvedValue(undefined);
 
     const r4ArgsParser = createPrototypedMock(R4ArgsParser);
     r4ArgsParser.parseArgs = jestObj.fn().mockReturnValue({ id: 'test-id' });
-
-    const postSaveProcessor = createPrototypedMock(PostSaveProcessor);
-    postSaveProcessor.afterSaveAsync = jestObj.fn().mockResolvedValue(undefined);
 
     const inst = new AdminPersonPatientDataManager({
         fhirOperationsManager,
         everythingOperation,
         databaseQueryFactory,
-        databaseUpdateFactory,
-        r4ArgsParser,
-        postSaveProcessor
+        adminResourceWriter,
+        r4ArgsParser
     });
 
     return {
@@ -85,11 +77,9 @@ function createManager() {
             fhirOperationsManager,
             everythingOperation,
             databaseQueryFactory,
-            databaseUpdateFactory,
+            adminResourceWriter,
             queryManager: mockQueryManager,
-            updateManager: mockUpdateManager,
-            r4ArgsParser,
-            postSaveProcessor
+            r4ArgsParser
         }
     };
 }
@@ -222,6 +212,53 @@ describe('AdminPersonPatientDataManager', () => {
             expect(result).toBe(bundle);
         });
 
+        describe('link-removal entries for a Person that pointed at the deleted Patient', () => {
+            const arrangeLinkedPerson = () => {
+                mocks.everythingOperation.everythingAsync.mockResolvedValue(
+                    new Bundle({ entry: [{ resource: { resourceType: 'Patient', _uuid: 'uuid-p1', id: 'p1' } }] })
+                );
+                mocks.queryManager.findAsync.mockResolvedValue({
+                    toArrayAsync: jestObj.fn().mockResolvedValue([{
+                        id: 'person-1',
+                        resourceType: 'Person',
+                        link: [{ target: { _uuid: 'Patient/uuid-p1', reference: 'Patient/p1' } }]
+                    }])
+                });
+            };
+            const expectedPatchEntry = {
+                id: 'person-1',
+                resource: { resourceType: 'Person', id: 'person-1' },
+                request: { id: 'req-123', method: 'PATCH', url: '/4_0_0/Person/person-1' }
+            };
+
+            test('without a response streamer, returns a JSON-safe bundle ending with the PATCH entry', async () => {
+                arrangeLinkedPerson();
+
+                const result = await manager.deletePatientDataGraphAsync({
+                    req: {}, res: {}, patientId: 'p1', responseStreamer: null
+                });
+
+                const json = JSON.parse(JSON.stringify(result));
+                expect(json.entry).toHaveLength(2);
+                expect(json.entry[0].resource).toMatchObject({ resourceType: 'Patient', id: 'p1' });
+                expect(json.entry[1]).toEqual(expectedPatchEntry);
+            });
+
+            test('with a response streamer, streams the PATCH entry as a plain object', async () => {
+                arrangeLinkedPerson();
+                const responseStreamer = { writeBundleEntryAsync: jestObj.fn() };
+
+                await manager.deletePatientDataGraphAsync({
+                    req: {}, res: {}, patientId: 'p1', responseStreamer
+                });
+
+                expect(responseStreamer.writeBundleEntryAsync).toHaveBeenCalledTimes(2);
+                const streamed = responseStreamer.writeBundleEntryAsync.mock.calls[1][0].bundleEntry;
+                expect(Object.getPrototypeOf(streamed)).toBe(Object.prototype);
+                expect(streamed).toEqual(expectedPatchEntry);
+            });
+        });
+
         test('throws RethrownError when everythingAsync fails', async () => {
             const req = {};
             const res = {};
@@ -305,7 +342,7 @@ describe('AdminPersonPatientDataManager', () => {
     });
 
     describe('removeLinksFromOtherPersonsAsync', () => {
-        test('creates query and update managers for Person resourceType', async () => {
+        test('creates the query manager for Person resourceType', async () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
             const bundle = new Bundle({ entry: [] });
 
@@ -317,9 +354,6 @@ describe('AdminPersonPatientDataManager', () => {
             });
 
             expect(mocks.databaseQueryFactory.createQuery).toHaveBeenCalledWith(
-                expect.objectContaining({ resourceType: 'Person', base_version: '4_0_0' })
-            );
-            expect(mocks.databaseUpdateFactory.createDatabaseUpdateManager).toHaveBeenCalledWith(
                 expect.objectContaining({ resourceType: 'Person', base_version: '4_0_0' })
             );
         });
@@ -383,19 +417,12 @@ describe('AdminPersonPatientDataManager', () => {
             Object.setPrototypeOf(mockDatabaseQueryManagerForPerson,
                 require('../../../dataLayer/databaseQueryManager').DatabaseQueryManager.prototype);
 
-            const mockDatabaseUpdateManagerForPerson = {
-                replaceOneAsync: jestObj.fn().mockResolvedValue({})
-            };
-            Object.setPrototypeOf(mockDatabaseUpdateManagerForPerson,
-                require('../../../dataLayer/databaseUpdateManager').DatabaseUpdateManager.prototype);
-
             await manager.removeLinksToResourceTypeAsync({
                 base_version: '4_0_0',
                 requestInfo,
                 bundle,
                 resourceType: 'Patient',
                 databaseQueryManagerForPerson: mockDatabaseQueryManagerForPerson,
-                databaseUpdateManagerForPerson: mockDatabaseUpdateManagerForPerson,
                 responseStreamer: null
             });
 
@@ -408,7 +435,7 @@ describe('AdminPersonPatientDataManager', () => {
             });
         });
 
-        test('removes links from person records and calls replaceOneAsync', async () => {
+        test('writes the Person without the removed link through the admin resource writer using replace semantics', async () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
             Object.setPrototypeOf(requestInfo, require('../../../utils/fhirRequestInfo').FhirRequestInfo.prototype);
 
@@ -435,31 +462,66 @@ describe('AdminPersonPatientDataManager', () => {
             Object.setPrototypeOf(mockDatabaseQueryManagerForPerson,
                 require('../../../dataLayer/databaseQueryManager').DatabaseQueryManager.prototype);
 
-            const mockDatabaseUpdateManagerForPerson = {
-                replaceOneAsync: jestObj.fn().mockResolvedValue({})
-            };
-            Object.setPrototypeOf(mockDatabaseUpdateManagerForPerson,
-                require('../../../dataLayer/databaseUpdateManager').DatabaseUpdateManager.prototype);
-
             await manager.removeLinksToResourceTypeAsync({
                 base_version: '4_0_0',
                 requestInfo,
                 bundle,
                 resourceType: 'Patient',
                 databaseQueryManagerForPerson: mockDatabaseQueryManagerForPerson,
-                databaseUpdateManagerForPerson: mockDatabaseUpdateManagerForPerson,
                 responseStreamer: null
             });
 
-            expect(mockDatabaseUpdateManagerForPerson.replaceOneAsync).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    base_version: '4_0_0',
-                    smartMerge: false
-                })
-            );
+            expect(mocks.adminResourceWriter.writeAsync).toHaveBeenCalledTimes(1);
+            const writeArgs = mocks.adminResourceWriter.writeAsync.mock.calls[0][0];
+            expect(writeArgs).toMatchObject({
+                requestInfo,
+                base_version: '4_0_0',
+                resourceType: 'Person',
+                smartMerge: false
+            });
+            expect(writeArgs.resource.id).toBe('person-1');
+            expect(writeArgs.resource.link.map(l => l.target._uuid)).toEqual(['Patient/uuid-p99']);
         });
 
-        test('calls postSaveProcessor.afterSaveAsync for each updated person', async () => {
+        test('writes every updated Person once, in order', async () => {
+            const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
+            Object.setPrototypeOf(requestInfo, require('../../../utils/fhirRequestInfo').FhirRequestInfo.prototype);
+
+            const bundle = new Bundle({
+                entry: [
+                    { resource: { resourceType: 'Patient', _uuid: 'uuid-p1', id: 'p1' } }
+                ]
+            });
+
+            const personRecords = ['person-1', 'person-2'].map(id => ({
+                id,
+                resourceType: 'Person',
+                link: [{ target: { _uuid: 'Patient/uuid-p1', reference: 'Patient/p1' } }]
+            }));
+
+            const mockDatabaseQueryManagerForPerson = {
+                findAsync: jestObj.fn().mockResolvedValue({
+                    toArrayAsync: jestObj.fn().mockResolvedValue(personRecords)
+                })
+            };
+            Object.setPrototypeOf(mockDatabaseQueryManagerForPerson,
+                require('../../../dataLayer/databaseQueryManager').DatabaseQueryManager.prototype);
+
+            const result = await manager.removeLinksToResourceTypeAsync({
+                base_version: '4_0_0',
+                requestInfo,
+                bundle,
+                resourceType: 'Patient',
+                databaseQueryManagerForPerson: mockDatabaseQueryManagerForPerson,
+                responseStreamer: null
+            });
+
+            expect(mocks.adminResourceWriter.writeAsync.mock.calls.map(call => call[0].resource.id))
+                .toEqual(['person-1', 'person-2']);
+            expect(result.map(entry => entry.id)).toEqual(['person-1', 'person-2']);
+        });
+
+        test('wraps a write failure and does not stream an entry for the failed Person', async () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
             Object.setPrototypeOf(requestInfo, require('../../../utils/fhirRequestInfo').FhirRequestInfo.prototype);
 
@@ -472,10 +534,10 @@ describe('AdminPersonPatientDataManager', () => {
             const personRecord = {
                 id: 'person-1',
                 resourceType: 'Person',
-                link: [
-                    { target: { _uuid: 'Patient/uuid-p1', reference: 'Patient/p1' } }
-                ]
+                link: [{ target: { _uuid: 'Patient/uuid-p1', reference: 'Patient/p1' } }]
             };
+            const responseStreamer = { writeBundleEntryAsync: jestObj.fn() };
+            mocks.adminResourceWriter.writeAsync.mockRejectedValue(new Error('write failed'));
 
             const mockDatabaseQueryManagerForPerson = {
                 findAsync: jestObj.fn().mockResolvedValue({
@@ -485,29 +547,15 @@ describe('AdminPersonPatientDataManager', () => {
             Object.setPrototypeOf(mockDatabaseQueryManagerForPerson,
                 require('../../../dataLayer/databaseQueryManager').DatabaseQueryManager.prototype);
 
-            const mockDatabaseUpdateManagerForPerson = {
-                replaceOneAsync: jestObj.fn().mockResolvedValue({})
-            };
-            Object.setPrototypeOf(mockDatabaseUpdateManagerForPerson,
-                require('../../../dataLayer/databaseUpdateManager').DatabaseUpdateManager.prototype);
-
-            await manager.removeLinksToResourceTypeAsync({
+            await expect(manager.removeLinksToResourceTypeAsync({
                 base_version: '4_0_0',
                 requestInfo,
                 bundle,
                 resourceType: 'Patient',
                 databaseQueryManagerForPerson: mockDatabaseQueryManagerForPerson,
-                databaseUpdateManagerForPerson: mockDatabaseUpdateManagerForPerson,
-                responseStreamer: null
-            });
-
-            expect(mocks.postSaveProcessor.afterSaveAsync).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    requestId: 'req-1',
-                    eventType: 'U',
-                    resourceType: 'Person'
-                })
-            );
+                responseStreamer
+            })).rejects.toThrow('Error in removeLinksToResourceTypeAsync()');
+            expect(responseStreamer.writeBundleEntryAsync).not.toHaveBeenCalled();
         });
 
         test('returns empty array when no resources of specified type in bundle', async () => {
@@ -526,19 +574,12 @@ describe('AdminPersonPatientDataManager', () => {
             Object.setPrototypeOf(mockDatabaseQueryManagerForPerson,
                 require('../../../dataLayer/databaseQueryManager').DatabaseQueryManager.prototype);
 
-            const mockDatabaseUpdateManagerForPerson = {
-                replaceOneAsync: jestObj.fn()
-            };
-            Object.setPrototypeOf(mockDatabaseUpdateManagerForPerson,
-                require('../../../dataLayer/databaseUpdateManager').DatabaseUpdateManager.prototype);
-
             const result = await manager.removeLinksToResourceTypeAsync({
                 base_version: '4_0_0',
                 requestInfo,
                 bundle,
                 resourceType: 'Patient',
                 databaseQueryManagerForPerson: mockDatabaseQueryManagerForPerson,
-                databaseUpdateManagerForPerson: mockDatabaseUpdateManagerForPerson,
                 responseStreamer: null
             });
 
@@ -574,19 +615,12 @@ describe('AdminPersonPatientDataManager', () => {
             Object.setPrototypeOf(mockDatabaseQueryManagerForPerson,
                 require('../../../dataLayer/databaseQueryManager').DatabaseQueryManager.prototype);
 
-            const mockDatabaseUpdateManagerForPerson = {
-                replaceOneAsync: jestObj.fn().mockResolvedValue({})
-            };
-            Object.setPrototypeOf(mockDatabaseUpdateManagerForPerson,
-                require('../../../dataLayer/databaseUpdateManager').DatabaseUpdateManager.prototype);
-
             const result = await manager.removeLinksToResourceTypeAsync({
                 base_version: '4_0_0',
                 requestInfo,
                 bundle,
                 resourceType: 'Patient',
                 databaseQueryManagerForPerson: mockDatabaseQueryManagerForPerson,
-                databaseUpdateManagerForPerson: mockDatabaseUpdateManagerForPerson,
                 responseStreamer
             });
 
@@ -605,17 +639,12 @@ describe('AdminPersonPatientDataManager', () => {
             Object.setPrototypeOf(mockDatabaseQueryManagerForPerson,
                 require('../../../dataLayer/databaseQueryManager').DatabaseQueryManager.prototype);
 
-            const mockDatabaseUpdateManagerForPerson = { replaceOneAsync: jestObj.fn() };
-            Object.setPrototypeOf(mockDatabaseUpdateManagerForPerson,
-                require('../../../dataLayer/databaseUpdateManager').DatabaseUpdateManager.prototype);
-
             const result = await manager.removeLinksToResourceTypeAsync({
                 base_version: '4_0_0',
                 requestInfo,
                 bundle,
                 resourceType: 'Patient',
                 databaseQueryManagerForPerson: mockDatabaseQueryManagerForPerson,
-                databaseUpdateManagerForPerson: mockDatabaseUpdateManagerForPerson,
                 responseStreamer: null
             });
 

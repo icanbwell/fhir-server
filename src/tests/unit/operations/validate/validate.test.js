@@ -68,7 +68,7 @@ describe('ValidateOperation - null safety bugs', () => {
         test('returns null when cursor has no results for provided id', async () => {
             const mockCursor = {
                 hasNext: jest.fn().mockResolvedValue(false),
-                nextObject: jest.fn()
+                next: jest.fn()
             };
             const mockDatabaseQueryManager = {
                 findAsync: jest.fn().mockResolvedValue(mockCursor)
@@ -125,7 +125,7 @@ describe('ValidateOperation - null safety bugs', () => {
         };
 
         test('a request with an id checks r at both gates before reading the resource', async () => {
-            const mockCursor = { hasNext: jest.fn().mockResolvedValue(false), nextObject: jest.fn() };
+            const mockCursor = { hasNext: jest.fn().mockResolvedValue(false), next: jest.fn() };
             mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue(mockCursor)
             });
@@ -154,7 +154,7 @@ describe('ValidateOperation - null safety bugs', () => {
         test('a request with an id validates the stored resource with r, a body keeps the default', async () => {
             const mockCursor = {
                 hasNext: jest.fn().mockResolvedValueOnce(true).mockResolvedValue(false),
-                nextObject: jest.fn().mockResolvedValue({ toJSON: () => ({ resourceType: 'Patient', id: '1', meta: {} }) })
+                next: jest.fn().mockResolvedValue({ resourceType: 'Patient', id: '1', meta: {} })
             };
             mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue(mockCursor)
@@ -271,18 +271,14 @@ describe('ValidateOperation - null safety bugs', () => {
             // second resource validates to something with issue = undefined
 
             const mockDoc1 = {
-                toJSON: () => ({
-                    id: 'res-1',
-                    resourceType: 'Patient',
-                    meta: { security: [{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }] }
-                })
+                id: 'res-1',
+                resourceType: 'Patient',
+                meta: { security: [{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }] }
             };
             const mockDoc2 = {
-                toJSON: () => ({
-                    id: 'res-2',
-                    resourceType: 'Patient',
-                    meta: { security: [{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }] }
-                })
+                id: 'res-2',
+                resourceType: 'Patient',
+                meta: { security: [{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }] }
             };
 
             let callCount = 0;
@@ -291,7 +287,7 @@ describe('ValidateOperation - null safety bugs', () => {
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(true)
                     .mockResolvedValueOnce(false),
-                nextObject: jest.fn()
+                next: jest.fn()
                     .mockResolvedValueOnce(mockDoc1)
                     .mockResolvedValueOnce(mockDoc2)
             };
@@ -408,7 +404,7 @@ describe('ValidateOperation - null safety bugs', () => {
         test('forwards userType and actor from requestInfo', async () => {
             const mockCursor = {
                 hasNext: jest.fn().mockResolvedValue(false),
-                nextObject: jest.fn()
+                next: jest.fn()
             };
             const mockDatabaseQueryManager = {
                 findAsync: jest.fn().mockResolvedValue(mockCursor)

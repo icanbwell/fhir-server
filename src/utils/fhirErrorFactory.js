@@ -1,5 +1,3 @@
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-
 const GUIDANCE = {
     PATCH: 'Use PATCH with JSON Patch to add members incrementally',
     PATCH_EXAMPLE: '[{"op":"add","path":"/member/-","value":{"entity":{"reference":"Patient/123"}}}]',
@@ -25,7 +23,7 @@ function createTooCostlyError({ actual, limit, operation, customGuidance }) {
     return {
         message: `Group ${operationType} count exceeds maximum (${actual} > ${limit})`,
         options: {
-            issue: [new OperationOutcomeIssue({
+            issue: [{
                 severity: 'error',
                 code: 'too-costly',
                 diagnostics:
@@ -35,7 +33,7 @@ function createTooCostlyError({ actual, limit, operation, customGuidance }) {
                     `1. ${alternative1}\n` +
                     `2. For reads: ${GUIDANCE.PAGINATION}\n` +
                     `3. For reads: ${GUIDANCE.STREAMING}`
-            })]
+            }]
         }
     };
 }
@@ -51,14 +49,14 @@ function createExtendedGroupMemberWriteError({ groupId }) {
     return {
         message: `Group ${groupId} members can only be changed with PATCH`,
         options: {
-            issue: [new OperationOutcomeIssue({
+            issue: [{
                 severity: 'error',
                 code: 'too-costly',
                 diagnostics:
                     `Group ${groupId} stores its members in extended member storage, so PUT and $merge ` +
                     `can only change its other fields. ${GUIDANCE.PATCH} on /4_0_0/Group/${groupId} ` +
                     `(example: ${GUIDANCE.PATCH_EXAMPLE}). See: ${GUIDANCE.FHIR_PATCH_URL}`
-            })]
+            }]
         }
     };
 }
@@ -75,7 +73,7 @@ function createExtendedGroupDeleteTooCostlyError({ matched }) {
     return {
         message: `Delete matched ${matched} extended Groups; only one can be deleted per request`,
         options: {
-            issue: [new OperationOutcomeIssue({
+            issue: [{
                 severity: 'error',
                 code: 'too-costly',
                 diagnostics:
@@ -83,7 +81,7 @@ function createExtendedGroupDeleteTooCostlyError({ matched }) {
                     `Group also deletes all of its members, so deleting more than one in a single ` +
                     `request is too costly to process. Delete them one at a time ` +
                     `(example: DELETE /4_0_0/Group/{id}).`
-            })]
+            }]
         }
     };
 }

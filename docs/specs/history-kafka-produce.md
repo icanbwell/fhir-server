@@ -7,6 +7,14 @@ at a time, beside the unchanged MongoDB history write. This change only produces
 topic is an independent workflow. Out of scope: Kafka-primary behaviour and the MongoDB fallback
 replay job.
 
+## Consumer table
+
+The topic is loaded into ClickHouse table `fhir.Resource_4_0_0_History`
+(`clickhouse-init/08-resource-history.sql`, see `readme/clickhouse.md`). It is a
+`ReplacingMergeTree` keyed on `(resource_type, _uuid, _recorded, version_id)`, partitioned by month,
+with a 13-month TTL. Duplicate deliveries collapse on that key, which is why consumers dedupe
+rather than this producer. The loader and the `_history` read path are separate work.
+
 ## Behaviour
 
 - `RESOURCE_HISTORY_KAFKA_RESOURCES` (comma-separated resource types) is the only switch. Empty (default) is

@@ -554,9 +554,35 @@ describe('MongoBulkWriteExecutor', () => {
             for (const entry of result.mergeResultEntries) {
                 expect(entry.created).toBe(false);
                 expect(entry.updated).toBe(false);
-                expect(entry.issue.severity).toBe('error');
-                expect(entry.issue.diagnostics).toContain('Error in one of the resources of Patient');
+                expect(Object.getPrototypeOf(entry.issue)).toBe(Object.prototype);
+                expect(entry.issue).toEqual({
+                    severity: 'error',
+                    code: 'exception',
+                    details: { text: expect.stringContaining('Error in one of the resources of Patient') },
+                    diagnostics: expect.stringContaining('Error in one of the resources of Patient')
+                });
             }
+        });
+
+        test('a bulkWrite write error is reported as a plain error issue naming the resource', async () => {
+            collection.bulkWrite.mockResolvedValue(
+                makeBulkWriteResult({ writeErrors: [makeWriteError({ code: 11000, errmsg: 'duplicate key' })] })
+            );
+
+            const result = await run();
+
+            const entry = result.mergeResultEntries[0];
+            expect(entry.created).toBe(false);
+            expect(entry.updated).toBe(false);
+            expect(Object.getPrototypeOf(entry.issue)).toBe(Object.prototype);
+            expect(entry.issue).toEqual({
+                severity: 'error',
+                code: 'exception',
+                details: { text: expect.stringContaining('duplicate key') },
+                diagnostics: expect.stringContaining('duplicate key'),
+                expression: ['Patient/uuid-patient-1']
+            });
+            expect(JSON.parse(JSON.stringify(entry)).issue).toEqual(entry.issue);
         });
     });
 
@@ -612,6 +638,30 @@ describe('MongoBulkWriteExecutor', () => {
             });
 
             expect(updateManager.replaceOneAsync).toHaveBeenCalledTimes(1);
+        });
+
+        test.each([
+            [{}, true],
+            [{ smartMerge: true }, true],
+            [{ smartMerge: false }, false]
+        ])('one-by-one fallback forwards the entry %j as smartMerge=%s', async (entryOverrides, expectedSmartMerge) => {
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 0 }));
+            updateManager.replaceOneAsync.mockResolvedValue({ savedResource: null, patches: null });
+
+            await run({
+                operations: [
+                    makeEntry({
+                        operationType: 'merge',
+                        isCreateOperation: false,
+                        isUpdateOperation: true,
+                        ...entryOverrides
+                    })
+                ]
+            });
+
+            expect(updateManager.replaceOneAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ smartMerge: expectedSmartMerge })
+            );
         });
 
         test('RULE 11 N>1: one-by-one fallback processes every entry independently', async () => {

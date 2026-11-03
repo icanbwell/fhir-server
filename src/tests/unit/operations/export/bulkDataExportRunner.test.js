@@ -185,7 +185,14 @@ describe('BulkDataExportRunner', () => {
                 allowedResources: ['Patient', 'Observation']
             });
             expect(result).toEqual(['Patient']);
-            expect(mocks.s3Client.uploadAsync).toHaveBeenCalled();
+            expect(mocks.s3Client.uploadAsync).toHaveBeenCalledTimes(1);
+            const { filePath, data } = mocks.s3Client.uploadAsync.mock.calls[0][0];
+            expect(filePath).toBe('exports/bwell/export-123/OperationOutcome.ndjson');
+            expect(data).toBe(
+                '{"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"forbidden",' +
+                    '"details":{"text":"Cannot access Forbidden with scope user/Patient.read"},' +
+                    '"diagnostics":"Cannot access Forbidden with scope user/Patient.read"}]}\n'
+            );
         });
 
         test('handles 0 allowed resources', async () => {

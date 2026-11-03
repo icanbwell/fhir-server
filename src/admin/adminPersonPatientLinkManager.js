@@ -1,13 +1,9 @@
-const moment = require('moment-timezone');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
-const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
+const { AdminResourceWriter } = require('./adminResourceWriter');
 const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
 const { PatientFilterManager } = require('../fhir/patientFilterManager');
 const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
 const { ReferenceParser } = require('../utils/referenceParser');
-const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
-const Person = require('../fhir/classes/4_0_0/resources/person');
-const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
 const { logInfo } = require('../operations/common/logging');
 const { assertTypeEquals } = require('../utils/assertType');
 const { generateUUID, isUuid, generateUUIDv5 } = require('../utils/uid.util');
@@ -27,7 +23,7 @@ class AdminPersonPatientLinkManager {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {DatabaseUpdateFactory} databaseUpdateFactory
+     * @param {AdminResourceWriter} adminResourceWriter
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {PostSaveProcessor} postSaveProcessor
      * @param {PatientFilterManager} patientFilterManager
@@ -37,7 +33,7 @@ class AdminPersonPatientLinkManager {
     constructor (
         {
             databaseQueryFactory,
-            databaseUpdateFactory,
+            adminResourceWriter,
             fhirOperationsManager,
             postSaveProcessor,
             patientFilterManager,
@@ -52,10 +48,10 @@ class AdminPersonPatientLinkManager {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
 
         /**
-         * @type {DatabaseUpdateFactory}
+         * @type {AdminResourceWriter}
          */
-        this.databaseUpdateFactory = databaseUpdateFactory;
-        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
+        this.adminResourceWriter = adminResourceWriter;
+        assertTypeEquals(adminResourceWriter, AdminResourceWriter);
 
         /**
          * @type {FhirOperationsManager}
@@ -105,16 +101,12 @@ class AdminPersonPatientLinkManager {
             resourceType: 'Person',
             base_version
         });
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-            resourceType: 'Person',
-            base_version
-        });
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
 
         /**
          * @type {Person}
          */
-        const bwellPerson = await databaseQueryManager.findOneAsync({
+        const bwellPerson = await databaseQueryManager.fastFindOneAsync({
             query: { id: bwellPersonId }
         });
         if (bwellPerson) {
@@ -123,12 +115,7 @@ class AdminPersonPatientLinkManager {
                 if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${externalPersonId}`)) {
                     logInfo('link before (non-empty)', { link: bwellPerson.link });
                     bwellPerson.link = bwellPerson.link.concat([
-                        new PersonLink(
-                            {
-                                target: new Reference(
-                                    { reference: `Person/${externalPersonId}` }
-                                )
-                            })
+                        { target: { reference: `Person/${externalPersonId}` } }
                     ]);
                     logInfo('link after (non-empty)', { link: bwellPerson.link });
                 } else {
@@ -141,32 +128,15 @@ class AdminPersonPatientLinkManager {
             } else {
                 // no existing link array so create one
                 logInfo('link before (empty)', { link: bwellPerson.link });
-                bwellPerson.link = [new PersonLink(
-                    {
-                        target: new Reference(
-                            { reference: `Person/${externalPersonId}` }
-                        )
-                    })];
+                bwellPerson.link = [{ target: { reference: `Person/${externalPersonId}` } }];
                 logInfo('link after (empty)', { link: bwellPerson.link });
             }
 
-            const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
-                base_version,
+            await this.adminResourceWriter.writeAsync({
                 requestInfo,
-                doc: bwellPerson
-            });
-
-            await databaseUpdateManager.postSaveAsync({
                 base_version,
-                requestInfo,
-                doc: savedResource
-            });
-
-            await this.postSaveProcessor.afterSaveAsync({
-                requestId: requestInfo.requestId,
-                eventType: 'U',
                 resourceType: 'Person',
-                doc: bwellPerson
+                resource: bwellPerson
             });
 
             return {
@@ -206,7 +176,7 @@ class AdminPersonPatientLinkManager {
         /**
          * @type {Person}
          */
-        const bwellPerson = await databaseQueryManager.findOneAsync({
+        const bwellPerson = await databaseQueryManager.fastFindOneAsync({
             query: { [isUuid(bwellPersonId) ? '_uuid' : '_sourceId']: bwellPersonId }
         });
         if (bwellPerson) {
@@ -236,29 +206,12 @@ class AdminPersonPatientLinkManager {
                     externalPersonId
                 };
             }
-            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-                resourceType: 'Person',
-                base_version
-            });
-
-            const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
-                base_version,
+            await this.adminResourceWriter.writeAsync({
                 requestInfo,
-                doc: bwellPerson,
+                base_version,
+                resourceType: 'Person',
+                resource: bwellPerson,
                 smartMerge: false
-            });
-
-            await databaseUpdateManager.postSaveAsync({
-                base_version,
-                requestInfo,
-                doc: savedResource
-            });
-
-            await this.postSaveProcessor.afterSaveAsync({
-                requestId: requestInfo.requestId,
-                eventType: 'U',
-                resourceType: 'Person',
-                doc: bwellPerson
             });
 
             return {
@@ -293,16 +246,12 @@ class AdminPersonPatientLinkManager {
             resourceType: 'Person',
             base_version
         });
-        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-            resourceType: 'Person',
-            base_version
-        });
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
 
         /**
          * @type {Person}
          */
-        let sourcePerson = await databaseQueryManager.findOneAsync({
+        let sourcePerson = await databaseQueryManager.fastFindOneAsync({
             query: { [isUuid(externalPersonId) ? '_uuid' : 'id']: externalPersonId }
         });
         if (!sourcePerson) {
@@ -315,7 +264,7 @@ class AdminPersonPatientLinkManager {
             /**
              * @type {Patient|null}
              */
-            const patient = await patientDatabaseQueryManager.findOneAsync({
+            const patient = await patientDatabaseQueryManager.fastFindOneAsync({
                 query: { [isUuid(patientId) ? '_uuid' : 'id']: patientId }
             });
             if (!patient) {
@@ -329,38 +278,23 @@ class AdminPersonPatientLinkManager {
              * @type {Meta}
              */
             const meta = patient.meta;
-            sourcePerson = new Person({
-                id: generateUUID(),
+            const sourcePersonId = generateUUID();
+            sourcePerson = {
+                resourceType: 'Person',
+                id: sourcePersonId,
+                _uuid: sourcePersonId,
                 meta: {
                     id: generateUUID(),
-                    versionId: 1,
-                    lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
                     source: meta.source,
                     security: meta.security
                 },
-                link: [
-                    new PersonLink(
-                        {
-                            target: new Reference({ reference: `Patient/${patientId}` }
-                            )
-                        })
-                ]
-            });
-            const savedResource = await databaseUpdateManager.insertOneAsync({
-                doc: sourcePerson
-            });
-
-            await databaseUpdateManager.postSaveAsync({
-                base_version,
+                link: [{ target: { reference: `Patient/${patientId}` } }]
+            };
+            await this.adminResourceWriter.writeAsync({
                 requestInfo,
-                doc: savedResource
-            });
-
-            await this.postSaveProcessor.afterSaveAsync({
-                requestId: requestInfo.requestId,
-                eventType: 'U',
+                base_version,
                 resourceType: 'Person',
-                doc: sourcePerson
+                resource: sourcePerson
             });
 
             await this.patientPersonManualLinkingEventProducer.produceEventAsync({
@@ -380,11 +314,7 @@ class AdminPersonPatientLinkManager {
                 if (!sourcePerson.link.some(l => l.target && l.target.reference === `Patient/${patientId}`)) {
                     logInfo('link before (non-empty)', { link: sourcePerson.link });
                     sourcePerson.link = sourcePerson.link.concat([
-                        new PersonLink(
-                            {
-                                target: new Reference({ reference: `Patient/${patientId}` }
-                                )
-                            })
+                        { target: { reference: `Patient/${patientId}` } }
                     ]);
                     logInfo('link before (non-empty)', { link: sourcePerson.link });
                 } else {
@@ -396,33 +326,15 @@ class AdminPersonPatientLinkManager {
                 }
             } else {
                 logInfo('link before (empty)', { link: sourcePerson.link });
-                sourcePerson.link = [
-                    new PersonLink(
-                        {
-                            target: new Reference(
-                                { reference: `Patient/${patientId}` }
-                            )
-                        })];
+                sourcePerson.link = [{ target: { reference: `Patient/${patientId}` } }];
                 logInfo('link after', { link: sourcePerson.link });
             }
 
-            const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
-                base_version,
+            await this.adminResourceWriter.writeAsync({
                 requestInfo,
-                doc: sourcePerson
-            });
-
-            await databaseUpdateManager.postSaveAsync({
                 base_version,
-                requestInfo,
-                doc: savedResource
-            });
-
-            await this.postSaveProcessor.afterSaveAsync({
-                requestId: requestInfo.requestId,
-                eventType: 'U',
                 resourceType: 'Person',
-                doc: sourcePerson
+                resource: sourcePerson
             });
 
             await this.patientPersonManualLinkingEventProducer.produceEventAsync({
@@ -462,7 +374,7 @@ class AdminPersonPatientLinkManager {
         /**
          * @type {Person}
          */
-        const person = await databaseQueryManager.findOneAsync({
+        const person = await databaseQueryManager.fastFindOneAsync({
             query: { [isUuid(personId) ? '_uuid' : '_sourceId']: personId }
         });
         if (person) {
@@ -493,29 +405,12 @@ class AdminPersonPatientLinkManager {
                     patientId
                 };
             }
-            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-                resourceType: 'Person',
-                base_version
-            });
-
-            const { savedResource } = await databaseUpdateManager.replaceOneAsync({
-                base_version,
+            await this.adminResourceWriter.writeAsync({
                 requestInfo,
-                doc: person,
+                base_version,
+                resourceType: 'Person',
+                resource: person,
                 smartMerge: false
-            });
-
-            await databaseUpdateManager.postSaveAsync({
-                base_version,
-                requestInfo,
-                doc: savedResource
-            });
-
-            await this.postSaveProcessor.afterSaveAsync({
-                requestId: requestInfo.requestId,
-                eventType: 'U',
-                resourceType: 'Person',
-                doc: person
             });
 
             await this.patientPersonManualLinkingEventProducer.produceEventAsync({
@@ -553,7 +448,7 @@ class AdminPersonPatientLinkManager {
             base_version
         });
         /** @type {Person|null} */
-        const person = await databaseQueryManager.findOneAsync({
+        const person = await databaseQueryManager.fastFindOneAsync({
             query: { id: personId }
         });
         if (!person) {
@@ -710,7 +605,7 @@ class AdminPersonPatientLinkManager {
         const parentPersonResponses = [];
         // iterate and remove links to this person
         while (await personsLinkingToThisPersonId.hasNext()) {
-            const parentPerson = await personsLinkingToThisPersonId.nextObject();
+            const parentPerson = await personsLinkingToThisPersonId.next();
             const removePersonResult = await this.removePersonToPersonLinkAsync({
                 req,
                 bwellPersonId: parentPerson.id,
@@ -786,9 +681,9 @@ class AdminPersonPatientLinkManager {
             base_version
         });
         /**
-         * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+         * @type {Object}
          */
-        const relatedResource = await databaseQueryManager.findOneAsync({
+        const relatedResource = await databaseQueryManager.fastFindOneAsync({
             query: {
                 [isUuid(resourceId) ? '_uuid' : '_sourceId']: resourceId
             }
@@ -806,30 +701,12 @@ class AdminPersonPatientLinkManager {
         });
 
         if (isReferenceUpdated) {
-            // increment versionId
-            relatedResource.meta.versionId = `${parseInt(relatedResource.meta.versionId) + 1}`;
-
-            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-                resourceType,
-                base_version
-            });
-
-            await databaseUpdateManager.updateOneAsync({
+            await this.adminResourceWriter.writeAsync({
                 requestInfo,
-                doc: relatedResource
-            });
-
-            // create history for the resource
-            await databaseUpdateManager.postSaveAsync({
-                requestInfo,
-                doc: relatedResource
-            });
-
-            await this.postSaveProcessor.afterSaveAsync({
-                requestId: requestInfo.requestId,
-                eventType: 'U',
+                base_version,
                 resourceType,
-                doc: relatedResource
+                resource: relatedResource,
+                smartMerge: false
             });
 
             return {
@@ -848,7 +725,7 @@ class AdminPersonPatientLinkManager {
      * Updates main patient reference in currentResource
      * @typedef {Object} UpdatePatientReferenceParams
      * @property {string} reference
-     * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+     * @property {Object} currentResource
      *
      * @param {UpdatePatientReferenceParams}
      * @returns {boolean}
