@@ -12,6 +12,7 @@ const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumnHandler");
 const deepcopy = require('deepcopy');
+const { logInfo } = require('./logging');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
@@ -276,6 +277,12 @@ class ResourceMerger {
             this.ignoresDateOnlyChange(currentObject.resourceType) &&
             patchContent.every(item => item.path === '/date')
         ) {
+            logInfo('Ignoring merge: only the top-level date changed', {
+                args: {
+                    resourceType: currentObject.resourceType,
+                    uuid: currentObject._uuid
+                }
+            });
             return [];
         }
 
