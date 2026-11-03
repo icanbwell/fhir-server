@@ -52,6 +52,8 @@ describe('HistoryOperation', () => {
     let mockBase64DataManager;
     let mockScopesManager;
     let mockHistoryResourceCloudStorageClient;
+    let mockAuditLogger;
+    let mockPostRequestProcessor;
     let mockIdentifierEnrichmentProvider;
     let mockCompositionSectionFilterEnrichmentProvider;
     let mockParsedArgs;
@@ -149,6 +151,10 @@ describe('HistoryOperation', () => {
         historyOp.historyResourceCloudStorageClient = mockHistoryResourceCloudStorageClient;
         historyOp.identifierEnrichmentProvider = mockIdentifierEnrichmentProvider;
         historyOp.compositionSectionFilterEnrichmentProvider = mockCompositionSectionFilterEnrichmentProvider;
+        mockAuditLogger = { logAuditEntryAsync: jest.fn().mockResolvedValue(undefined) };
+        mockPostRequestProcessor = { add: jest.fn() };
+        historyOp.auditLogger = mockAuditLogger;
+        historyOp.postRequestProcessor = mockPostRequestProcessor;
         // Set properties that fetchHistoryAsync expects to be set by historyAsync
         historyOp.currentOperationName = 'history';
         historyOp.errorMessagePostfix = 'for Patient resources';
@@ -184,6 +190,79 @@ describe('HistoryOperation', () => {
             ).rejects.toThrow(ForbiddenError);
 
             expect(mockFhirLoggingManager.logOperationFailureAsync).toHaveBeenCalled();
+        });
+    });
+
+    describe('read audit', () => {
+        function mockCursorReturningIds(...ids) {
+            ids.forEach(() => mockCursor.hasNext.mockResolvedValueOnce(true));
+            mockCursor.hasNext.mockResolvedValueOnce(false);
+            ids.forEach(id => mockCursor.next.mockResolvedValueOnce({
+                id,
+                resource: { id, _uuid: `uuid-${id}`, resourceType: 'Patient', meta: { lastUpdated: '2023-01-01' } }
+            }));
+            getLastUpdatedISO.mockReturnValue('2023-01-01');
+        }
+
+        test('queues one read audit entry listing each resource uuid once', async () => {
+            // two versions of p1 and one of p2
+            mockCursorReturningIds('p1', 'p1', 'p2');
+
+            await historyOp.fetchHistoryAsync({
+                requestInfo: makeRequestInfo(),
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            expect(mockPostRequestProcessor.add).toHaveBeenCalledTimes(1);
+            const { requestId, fnTask } = mockPostRequestProcessor.add.mock.calls[0][0];
+            expect(requestId).toBe('req-123');
+            await fnTask();
+            expect(mockAuditLogger.logAuditEntryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resourceType: 'Patient',
+                    operation: 'read',
+                    ids: ['uuid-p1', 'uuid-p2']
+                })
+            );
+        });
+
+        test('does not queue an audit entry for AuditEvent history', async () => {
+            mockCursorReturningIds('a1');
+
+            await historyOp.fetchHistoryAsync({
+                requestInfo: makeRequestInfo(),
+                parsedArgs: mockParsedArgs,
+                resourceType: 'AuditEvent'
+            });
+
+            expect(mockPostRequestProcessor.add).not.toHaveBeenCalled();
+        });
+
+        test('does not queue an audit entry when access is denied', async () => {
+            mockScopesManager.hasPatientScope.mockReturnValue(true);
+
+            await expect(
+                historyOp.fetchHistoryAsync({
+                    requestInfo: makeRequestInfo(),
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient'
+                })
+            ).rejects.toThrow(ForbiddenError);
+
+            expect(mockPostRequestProcessor.add).not.toHaveBeenCalled();
+        });
+
+        test('does not queue an audit entry when no history is found', async () => {
+            await expect(
+                historyOp.fetchHistoryAsync({
+                    requestInfo: makeRequestInfo(),
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient'
+                })
+            ).rejects.toThrow(NotFoundError);
+
+            expect(mockPostRequestProcessor.add).not.toHaveBeenCalled();
         });
     });
 

@@ -968,7 +968,9 @@ const createContainer = function () {
             base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-            mongoGroupMemberRepository: c.mongoGroupMemberRepository
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+            auditLogger: c.auditLogger,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -986,7 +988,9 @@ const createContainer = function () {
             base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
+            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
+            auditLogger: c.auditLogger,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -1004,7 +1008,9 @@ const createContainer = function () {
             base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
+            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
+            auditLogger: c.auditLogger,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
     container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(

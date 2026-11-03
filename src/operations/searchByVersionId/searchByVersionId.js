@@ -17,6 +17,8 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 class SearchByVersionIdOperation {
     /**
@@ -45,7 +47,9 @@ class SearchByVersionIdOperation {
             databaseAttachmentManager,
             base64DataManager,
             historyResourceCloudStorageClient,
-            mongoGroupMemberRepository
+            mongoGroupMemberRepository,
+            auditLogger,
+            postRequestProcessor
         }
     ) {
         /**
@@ -109,6 +113,18 @@ class SearchByVersionIdOperation {
          */
         this.mongoGroupMemberRepository = mongoGroupMemberRepository;
         assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
+
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -138,9 +154,9 @@ class SearchByVersionIdOperation {
             /** @type {string | null} */
             scope,
             actor,
-            userType
-            // /** @type {string} */
-            // requestId
+            userType,
+            /** @type {string} */
+            requestId
         } = requestInfo;
 
         if (this.scopesManager.hasPatientScope({ scope })) {
@@ -282,6 +298,7 @@ class SearchByVersionIdOperation {
                 // strips server-internal fields like _uuid from the wire representation (see
                 // searchById.js's identical pattern with resourceUuid).
                 const groupUuid = historyResource._uuid;
+                const resourceUuid = groupUuid;
                 const targetLastUpdated = historyResource.meta.lastUpdated;
                 const isExtendedGroup = resourceType === 'Group' &&
                     historyResource[MONGO_GROUP_EXTENDED_FIELD] === true &&
@@ -307,6 +324,23 @@ class SearchByVersionIdOperation {
                     startTime,
                     action: currentOperationName
                 });
+
+                if (resourceType !== 'AuditEvent') {
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            // log access to audit logs
+                            await this.auditLogger.logAuditEntryAsync({
+                                requestInfo,
+                                base_version,
+                                resourceType,
+                                operation: 'read',
+                                args: parsedArgs.getRawArgs(),
+                                ids: [resourceUuid]
+                            });
+                        }
+                    });
+                }
 
                 // serialize the resource
                 FhirResourceSerializer.serialize(historyResource);
