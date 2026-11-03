@@ -613,6 +613,16 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
             expect(cm.postRequestBatchSize).toBe(50);
             expect(cm.graphQLFetchResourceBatchSize).toBe(50);
         });
+
+        test.each([
+            [undefined, ['Composition']],
+            ['', []],
+            ['Composition', ['Composition']],
+            ['Composition, Observation', ['Composition', 'Observation']]
+        ])('mergeIgnoreDateOnlyChangeResourceTypes parses %p', (value, expected) => {
+            setEnv('MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES', value);
+            expect(new ConfigManager().mergeIgnoreDateOnlyChangeResourceTypes).toEqual(expected);
+        });
     });
 
     describe('everythingBatchSize', () => {

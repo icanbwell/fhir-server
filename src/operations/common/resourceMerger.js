@@ -12,6 +12,7 @@ const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumnHandler");
 const deepcopy = require('deepcopy');
+const { logInfo } = require('./logging');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
@@ -70,15 +71,20 @@ class ResourceMerger {
      * constructor
      * @typedef {Object} Params
      * @property {PreSaveManager} preSaveManager
+     * @property {import('../../utils/configManager').ConfigManager|null} [configManager]
      *
      * @param {Params}
      */
-    constructor ({ preSaveManager }) {
+    constructor ({ preSaveManager, configManager = null }) {
         /**
          * @type {PreSaveManager}
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+        /**
+         * @type {import('../../utils/configManager').ConfigManager|null}
+         */
+        this.configManager = configManager;
     }
 
     /**
@@ -237,7 +243,7 @@ class ResourceMerger {
      * @param {CompareObjectsProp}
      * @returns {import('fast-json-patch').Operation[]}
      */
-    compareObjects ({ currentObject, mergedObject, limitToPaths }) {
+    compareObjects ({ currentObject, mergedObject, limitToPaths, ignoreDateOnlyChange = false }) {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
@@ -261,7 +267,39 @@ class ResourceMerger {
             );
         }
 
+        // A change to `date` alone is not a change worth a new version: writers that stamp it with
+        // "now" on every run would otherwise create a version, history row and event each time.
+        // When anything else changed, the `date` patch is kept so the new date is stored with it.
+        // Only merge asks for this; other callers (PATCH) must always see an explicit date change.
+        if (
+            ignoreDateOnlyChange &&
+            patchContent.length > 0 &&
+            this.ignoresDateOnlyChange(currentObject.resourceType) &&
+            patchContent.every(item => item.path === '/date')
+        ) {
+            logInfo('Ignoring merge: only the top-level date changed', {
+                args: {
+                    resourceType: currentObject.resourceType,
+                    uuid: currentObject._uuid
+                }
+            });
+            return [];
+        }
+
         return patchContent;
+    }
+
+    /**
+     * Whether a change to only the top-level `date` is ignored for this resource type
+     * @param {string|undefined} resourceType
+     * @returns {boolean}
+     */
+    ignoresDateOnlyChange (resourceType) {
+        return (
+            !!resourceType &&
+            !!this.configManager &&
+            this.configManager.mergeIgnoreDateOnlyChangeResourceTypes.includes(resourceType)
+        );
     }
 
     /**
@@ -391,6 +429,7 @@ class ResourceMerger {
      * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
      * @param {import('../../dataLayer/base64DataManager').Base64DataManager|null} [base64DataManager]
+     * @param {boolean|undefined} [ignoreDateOnlyChange] treat a change to only the top-level date as no change (merge only)
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async mergeResourceAsync (
@@ -403,7 +442,8 @@ class ResourceMerger {
             incrementVersion = true,
             limitToPaths,
             databaseAttachmentManager = null,
-            base64DataManager = null
+            base64DataManager = null,
+            ignoreDateOnlyChange = false
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -472,7 +512,8 @@ class ResourceMerger {
         const patchContent = this.compareObjects({
             currentObject: currentObjectForDiff,
             mergedObject,
-            limitToPaths
+            limitToPaths,
+            ignoreDateOnlyChange
         });
 
         // now apply the patches to the found resource
@@ -531,6 +572,7 @@ class ResourceMerger {
      * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
      * @param {import('../../dataLayer/base64DataManager').Base64DataManager|null} [base64DataManager]
+     * @param {boolean|undefined} [ignoreDateOnlyChange] treat a change to only the top-level date as no change (merge only)
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async fastMergeResourceAsync (
@@ -543,7 +585,8 @@ class ResourceMerger {
             incrementVersion = true,
             limitToPaths,
             databaseAttachmentManager = null,
-            base64DataManager = null
+            base64DataManager = null,
+            ignoreDateOnlyChange = false
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -615,7 +658,8 @@ class ResourceMerger {
         const patchContent = this.compareObjects({
             currentObject: currentResourceWithAttachmentData,
             mergedObject,
-            limitToPaths
+            limitToPaths,
+            ignoreDateOnlyChange
         });
 
         // now apply the patches to the found resource

@@ -464,4 +464,79 @@ describe('ResourceMerger', () => {
             expect(mockPreSaveManager.preSaveAsync).toHaveBeenCalled();
         });
     });
+
+    describe('compareObjects when date-only changes are ignored', () => {
+        const composition = (overrides = {}) => ({
+            resourceType: 'Composition',
+            id: 'c1',
+            status: 'final',
+            title: 'Summary',
+            date: '2026-01-01T00:00:00.000Z',
+            ...overrides
+        });
+        const mergerIgnoring = (resourceTypes) => new ResourceMerger({
+            preSaveManager: mockPreSaveManager,
+            configManager: { mergeIgnoreDateOnlyChangeResourceTypes: resourceTypes }
+        });
+
+        it.each([
+            ['only the date changed', { date: '2026-02-02T00:00:00.000Z' }, []],
+            ['the date was removed', { date: undefined }, []],
+            ['the title changed', { title: 'Other' }, ['/title']],
+            ['the title and the date changed', { title: 'Other', date: '2026-02-02T00:00:00.000Z' }, ['/date', '/title']],
+            ['nothing changed', {}, []]
+        ])('Composition: %s', (_name, change, expectedPaths) => {
+            const merger = mergerIgnoring(['Composition']);
+            const current = composition();
+            const merged = composition(change);
+            if (change.date === undefined && 'date' in change) {
+                delete merged.date;
+            }
+
+            const patches = merger.compareObjects({
+                currentObject: current,
+                mergedObject: merged,
+                ignoreDateOnlyChange: true
+            });
+
+            expect(patches.map(p => p.path).sort()).toEqual(expectedPaths);
+        });
+
+        it.each([
+            ['the type is not listed', () => mergerIgnoring(['Observation'])],
+            ['the list is empty', () => mergerIgnoring([])],
+            ['no config manager is injected', () => new ResourceMerger({ preSaveManager: mockPreSaveManager })]
+        ])('still reports a date-only change when %s', (_name, buildMerger) => {
+            const patches = buildMerger().compareObjects({
+                currentObject: composition(),
+                mergedObject: composition({ date: '2026-02-02T00:00:00.000Z' }),
+                ignoreDateOnlyChange: true
+            });
+
+            expect(patches.map(p => p.path)).toEqual(['/date']);
+        });
+
+        it('only ignores the top-level date, not a nested one', () => {
+            const merger = mergerIgnoring(['Composition']);
+            const current = composition({ section: [{ title: 'a', text: { div: 'x' } }] });
+            const merged = composition({ section: [{ title: 'b', text: { div: 'x' } }] });
+
+            const patches = merger.compareObjects({
+                currentObject: current,
+                mergedObject: merged,
+                ignoreDateOnlyChange: true
+            });
+
+            expect(patches.map(p => p.path)).toEqual(['/section/0/title']);
+        });
+
+        it('reports a date-only change when the caller does not ask to ignore it (PATCH)', () => {
+            const patches = mergerIgnoring(['Composition']).compareObjects({
+                currentObject: composition(),
+                mergedObject: composition({ date: '2026-02-02T00:00:00.000Z' })
+            });
+
+            expect(patches.map(p => p.path)).toEqual(['/date']);
+        });
+    });
 });
