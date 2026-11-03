@@ -41,6 +41,8 @@ const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
  * @property {Object} currentObject
  * @property {Object} mergedObject
  * @property {string[]|undefined} limitToPaths
+ * @property {boolean} [ignoreDateOnlyChange]
+ * @property {string|undefined} [uuid] uuid of the current resource, used for logging only
  */
 
 /**
@@ -243,7 +245,7 @@ class ResourceMerger {
      * @param {CompareObjectsProp}
      * @returns {import('fast-json-patch').Operation[]}
      */
-    compareObjects ({ currentObject, mergedObject, limitToPaths, ignoreDateOnlyChange = false }) {
+    compareObjects ({ currentObject, mergedObject, limitToPaths, ignoreDateOnlyChange = false, uuid }) {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
@@ -280,7 +282,7 @@ class ResourceMerger {
             logInfo('Ignoring merge: only the top-level date changed', {
                 args: {
                     resourceType: currentObject.resourceType,
-                    uuid: currentObject._uuid
+                    uuid
                 }
             });
             return [];
@@ -513,7 +515,8 @@ class ResourceMerger {
             currentObject: currentObjectForDiff,
             mergedObject,
             limitToPaths,
-            ignoreDateOnlyChange
+            ignoreDateOnlyChange,
+            uuid: currentResource._uuid
         });
 
         // now apply the patches to the found resource
@@ -659,7 +662,8 @@ class ResourceMerger {
             currentObject: currentResourceWithAttachmentData,
             mergedObject,
             limitToPaths,
-            ignoreDateOnlyChange
+            ignoreDateOnlyChange,
+            uuid: currentResource._uuid
         });
 
         // now apply the patches to the found resource
