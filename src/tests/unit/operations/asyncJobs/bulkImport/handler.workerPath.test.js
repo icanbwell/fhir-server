@@ -36,6 +36,14 @@ jestGlobal.mock('@aws-sdk/client-s3', () => ({
     HeadObjectCommand: jestGlobal.fn().mockImplementation((params) => params)
 }));
 
+// The OTel no-op meter hands every counter the same singleton, so spying on one counter's
+// `add` sees every counter. Stub the range recorder instead of spying on its instrument.
+// Must precede the handler require: jestGlobal.mock is not hoisted.
+jestGlobal.mock('../../../../../utils/metrics', () => ({
+    ...jestGlobal.requireActual('../../../../../utils/metrics'),
+    recordImportRanges: jestGlobal.fn()
+}));
+
 const { BulkImportHandler } = require('../../../../../operations/asyncJobs/bulkImport/handler');
 const { FhirRequestInfo } = require('../../../../../utils/fhirRequestInfo');
 const { MergeResultEntry } = require('../../../../../operations/common/mergeResultEntry');
@@ -45,6 +53,7 @@ const {
     STRICT_SEARCH_HANDLING
 } = require('../../../../../constants');
 const { logError } = require('../../../../../operations/common/logging');
+const metrics = require('../../../../../utils/metrics');
 const BaseSerializer = require('../../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
 
 // Mirrors createContainer.js:191 — every write serializer reads BaseSerializer.configManager,
@@ -642,6 +651,7 @@ describe('BulkImportHandler — worker path', () => {
 
             const published = deps.bulkImportEventProducer.publishRangeProgressEventAsync.mock.calls.map((c) => c[0].type);
             expect(published).toEqual(['ImportRangeStarted', 'ImportRangeCompleted']);
+            expect(metrics.recordImportRanges.mock.calls).toEqual([['started'], ['completed']]);
             expect(deps.mergeManager.mergeResourceAsync).toHaveBeenCalledTimes(1);
             expect(deps.fastDatabaseBulkInserter.executeAsync).toHaveBeenCalled();
             expect(deps.auditLogger.flushAsync).toHaveBeenCalledTimes(1);
@@ -661,6 +671,7 @@ describe('BulkImportHandler — worker path', () => {
                 await handler.handleImportRangeRequestedAsync(rangeMessage());
 
                 expectNothingRead();
+                expect(metrics.recordImportRanges).toHaveBeenCalledWith('skipped_task_finished');
             });
 
             test('skips a range already recorded on the Task', async () => {
@@ -669,6 +680,7 @@ describe('BulkImportHandler — worker path', () => {
                 await handler.handleImportRangeRequestedAsync(rangeMessage());
 
                 expectNothingRead();
+                expect(metrics.recordImportRanges).toHaveBeenCalledWith('skipped_duplicate');
             });
 
             test('skips a range whose Task no longer exists', async () => {
@@ -677,6 +689,7 @@ describe('BulkImportHandler — worker path', () => {
                 await handler.handleImportRangeRequestedAsync(rangeMessage());
 
                 expectNothingRead();
+                expect(metrics.recordImportRanges).toHaveBeenCalledWith('task_not_found');
             });
 
             test('still processes a range of an in-progress Task that has not recorded it', async () => {

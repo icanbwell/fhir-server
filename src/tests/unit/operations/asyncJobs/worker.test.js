@@ -51,7 +51,8 @@ const mockKafkaClientV2 = {
 };
 const mockConfigManager = {
     kafkaBulkImportEventTopic: 'test-topic',
-    bulkImportConsumerGroupId: 'test-group-id'
+    bulkImportConsumerGroupId: 'test-group-id',
+    asyncJobConsumerJoinTimeoutMs: 90000
 };
 
 jestObj.mock('../../../../createContainer', () => ({
@@ -72,6 +73,12 @@ jestObj.mock('../../../../utils/initStandaloneEntrypointSentry', () => ({
 // Mock winstonInit
 jestObj.mock('../../../../winstonInit', () => ({
     initialize: jestObj.fn()
+}));
+
+// Hoisted so every isolateModules registry shares the same fn to assert on.
+const mockRecordKafkaConsumerGroupJoin = jestObj.fn();
+jestObj.mock('../../../../utils/metrics', () => ({
+    recordKafkaConsumerGroupJoin: mockRecordKafkaConsumerGroupJoin
 }));
 
 // Mock logging
@@ -164,6 +171,21 @@ describe('asyncJobs/worker', () => {
             expect(mockAdmin.disconnect).toHaveBeenCalled();
         });
 
+        test('counts every GROUP_JOIN for the job\'s group so rejoin churn is measurable', async () => {
+            mockKafkaClientV2.createAdminClient.mockReturnValue({
+                connect: jestObj.fn().mockResolvedValue(undefined),
+                disconnect: jestObj.fn().mockResolvedValue(undefined),
+                fetchOffsets: jestObj.fn().mockResolvedValue([{ topic: 'test-topic', partitions: [] }])
+            });
+
+            const onJoin = await startWorkerAndGetJoinHandler();
+            await onJoin(joinEvent);
+            await onJoin(joinEvent);
+
+            expect(mockRecordKafkaConsumerGroupJoin).toHaveBeenCalledTimes(2);
+            expect(mockRecordKafkaConsumerGroupJoin).toHaveBeenCalledWith('test-group-id');
+        });
+
         test('still logs the assignment when the offset lookup fails', async () => {
             const mockAdmin = {
                 connect: jestObj.fn().mockRejectedValue(new Error('broker down')),
@@ -231,7 +253,7 @@ describe('asyncJobs/worker', () => {
 
             expect(mockKafkaClientV2.waitForConsumerToJoinGroupAsync).toHaveBeenCalledWith(
                 mockConsumer,
-                { maxWait: 30000, label: 'bulk-import-worker' }
+                { maxWait: 90000, label: 'bulk-import-worker' }
             );
         });
 
