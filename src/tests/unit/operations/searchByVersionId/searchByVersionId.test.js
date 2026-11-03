@@ -285,14 +285,13 @@ describe('SearchByVersionIdOperation', () => {
             expect(mocks.postRequestProcessor.add).not.toHaveBeenCalled();
         });
 
-        test('hands the stored history document to enrichment without nulls, as a plain object', async () => {
+        test('hands the stored history document to enrichment as a plain object', async () => {
             const historyResult = {
                 resource: {
                     id: 'test-id',
                     _uuid: 'uuid-1',
                     resourceType: 'Patient',
-                    gender: null,
-                    meta: { versionId: '2', source: null }
+                    meta: { versionId: '2' }
                 },
                 collectionName: 'Patient_4_0_0_History'
             };

@@ -34,7 +34,6 @@ const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
-const { removeNull } = require('../../../utils/nullRemover');
 const { StorageProviderFactory } = require('../../../dataLayer/providers/storageProviderFactory');
 const { hasExternalStorageMemberTag } = require('../../../utils/clickHouseGroupPreSave');
 const { MongoGroupMemberRepository } = require('../../../dataLayer/repositories/mongoGroupMemberRepository');
@@ -604,7 +603,7 @@ class BulkDataExportRunner {
      * @returns {Promise<Object>}
      */
     async serializeExportDoc({ doc, resourceType, parsedArgs, isProjected }) {
-        let resource = removeNull(doc);
+        let resource = doc;
         if (!isProjected) {
             await this.enrichmentManager.enrichAsync({ resources: [resource], parsedArgs });
         }

@@ -14,7 +14,6 @@ const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { GRIDFS: { RETRIEVE }, BLOB_OP, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
-const { removeNull } = require('../../utils/nullRemover');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { AuditLogger } = require('../../utils/auditLogger');
@@ -292,7 +291,7 @@ class SearchByVersionIdOperation {
                     }
                 }
 
-                historyResource = removeNull(historyResource.resource || historyResource);
+                historyResource = historyResource.resource || historyResource;
 
                 // Captured now, not re-read off historyResource after serialize below -- serialize
                 // strips server-internal fields like _uuid from the wire representation (see
