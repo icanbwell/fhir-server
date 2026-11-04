@@ -37,8 +37,7 @@ describe('HistoryClickHouseRepository', () => {
         jestObj.clearAllMocks();
         queryAsync = jestObj.fn().mockResolvedValue([]);
         repo = new HistoryClickHouseRepository({
-            clickHouseClientManager: { queryAsync },
-            configManager: { resourceHistoryClickHouseReadTimeoutMs: 1234 }
+            clickHouseClientManager: { queryAsync }
         });
     });
 
@@ -60,17 +59,16 @@ describe('HistoryClickHouseRepository', () => {
     });
 
     describe('findPageAsync', () => {
-        test('queries by resource type and _uuid with FINAL, ordering and the history timeout', async () => {
+        test('queries by resource type and _uuid with FINAL and ordering', async () => {
             await repo.findPageAsync({ resourceType: 'Patient', uuid: 'u1', limit: 10 });
 
-            const { query, query_params, timeoutMs } = queryAsync.mock.calls[0][0];
+            const { query, query_params } = queryAsync.mock.calls[0][0];
             expect(query).toContain('fhir.Resource_4_0_0_History FINAL');
             expect(query).toContain('resource_type = {resource_type:String}');
             expect(query).toContain('_uuid = {uuid:String}');
             expect(query).toContain('ORDER BY _recorded DESC, toUInt64OrZero(version_id) DESC');
             expect(query).not.toContain('(_recorded, toUInt64OrZero(version_id)) <');
             expect(query_params).toEqual({ resource_type: 'Patient', uuid: 'u1', limit: 11 });
-            expect(timeoutMs).toBe(1234);
             expect(queryAsync.mock.calls[0][0].clickhouse_settings).toEqual({ output_format_json_quote_64bit_integers: 0 });
         });
 

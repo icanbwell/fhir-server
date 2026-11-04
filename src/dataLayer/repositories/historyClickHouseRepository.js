@@ -2,7 +2,6 @@ const { TABLES } = require('../../constants/clickHouseConstants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { RethrownError } = require('../../utils/rethrownError');
-const { ConfigManager } = require('../../utils/configManager');
 const { logDebug, logError } = require('../../operations/common/logging');
 const metrics = require('../../utils/metrics');
 
@@ -15,12 +14,9 @@ class HistoryClickHouseRepository {
     /**
      * @param {Object} params
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
-     * @param {ConfigManager} params.configManager
      */
-    constructor({ clickHouseClientManager, configManager }) {
-        assertTypeEquals(configManager, ConfigManager);
+    constructor({ clickHouseClientManager }) {
         this.clickHouseClientManager = clickHouseClientManager;
-        this.configManager = configManager;
     }
 
     /**
@@ -140,7 +136,6 @@ class HistoryClickHouseRepository {
             const rows = await this.clickHouseClientManager.queryAsync({
                 query,
                 query_params,
-                timeoutMs: this.configManager.resourceHistoryClickHouseReadTimeoutMs,
                 // JSON integer paths are Int64, which ClickHouse quotes by default; FHIR integers must stay numbers
                 clickhouse_settings: { output_format_json_quote_64bit_integers: 0 }
             });

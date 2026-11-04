@@ -442,8 +442,7 @@ const createContainer = function () {
     container.register('historyClickHouseRepository', (c) => {
         if (c.clickHouseClientManager) {
             return new HistoryClickHouseRepository({
-                clickHouseClientManager: c.clickHouseClientManager,
-                configManager: c.configManager
+                clickHouseClientManager: c.clickHouseClientManager
             });
         }
         return null;

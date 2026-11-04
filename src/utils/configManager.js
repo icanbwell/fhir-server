@@ -1415,18 +1415,6 @@ class ConfigManager {
     }
 
     /**
-     * Timeout, in ms, for one ClickHouse `_history` read.
-     * Configuration: RESOURCE_HISTORY_CLICKHOUSE_READ_TIMEOUT_MS (default 7200000, i.e. 120 minutes).
-     * Anything that is not a positive integer falls back to the default. The shared ClickHouse client's own
-     * request timeout (CLICKHOUSE_REQUEST_TIMEOUT) still applies, so raise that too to allow longer reads.
-     * @return {number}
-     */
-    get resourceHistoryClickHouseReadTimeoutMs() {
-        const value = parseInt(env.RESOURCE_HISTORY_CLICKHOUSE_READ_TIMEOUT_MS, 10);
-        return Number.isInteger(value) && value > 0 ? value : 120 * 60 * 1000;
-    }
-
-    /**
      * Largest `_count` a ClickHouse `_history` read honours.
      * Configuration: RESOURCE_HISTORY_CLICKHOUSE_MAX_PAGE_SIZE (default 100). Anything that is not a
      * positive integer falls back to the default.
