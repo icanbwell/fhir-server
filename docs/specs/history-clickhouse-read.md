@@ -13,6 +13,12 @@ off; a listed type reads from ClickHouse; unlisted types read from MongoDB as to
 environment per call, so changing it is a config rollout. Enable a type only once its history is
 complete in ClickHouse (backfill done, ClickPipe running).
 
+The loader must also disable date inference when it writes `raw`:
+`input_format_try_infer_datetimes=0` and `input_format_try_infer_dates=0`. With the defaults, the JSON
+column stores any string that looks like a fractional-second timestamp as `DateTime64(9)` and returns it
+padded to nanoseconds (`…995Z` becomes `…995000000Z`, `+00:00` becomes `Z`), so reads would differ from
+MongoDB. Checked against a local ClickHouse; not yet confirmed for ClickPipes.
+
 ## Request contract (flag on)
 
 - `_uuid` is required. A request without it is rejected with 400 before any query runs. The URL
