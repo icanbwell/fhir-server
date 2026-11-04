@@ -624,6 +624,12 @@ describe('SearchByVersionIdOperation', () => {
             await expect(run()).rejects.toMatchObject({ statusCode: 404 });
         });
 
+        test('accepts _metaUuid, which fhir-server-ui always sends', async () => {
+            mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({ _metaUuid: '1' });
+
+            await expect(run()).resolves.toBeDefined();
+        });
+
         test('rejects an argument the ClickHouse read cannot honour', async () => {
             mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({ _lastUpdated: 'gt2026-01-01' });
 

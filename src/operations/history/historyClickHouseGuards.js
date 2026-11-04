@@ -9,7 +9,7 @@ const { RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
  */
 const SUPPORTED_ARGS = new Set([
     'base_version', 'id', '_id', 'version_id', '_count', '_format', '_pretty', '_prefer', '_bundle',
-    '_keepOldUI', '_explain', '_debug', '_useAccessIndex', '_setIndexHint', '_streamResponse', 'streamResponse'
+    '_keepOldUI', '_metaUuid', '_explain', '_debug', '_useAccessIndex', '_setIndexHint', '_streamResponse', 'streamResponse'
 ]);
 
 /**

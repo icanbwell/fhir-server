@@ -189,6 +189,12 @@ describe('HistoryOperation reading from ClickHouse', () => {
         expect(repository.findPageAsync).not.toHaveBeenCalled();
     });
 
+    test('accepts the arguments fhir-server-ui always sends (_count, _metaUuid)', async () => {
+        await expect(run(makeArgs({ _uuid: 'u1', _count: '10', _metaUuid: '1' }))).resolves.toBeDefined();
+
+        expect(repository.findPageAsync).toHaveBeenCalledWith(expect.objectContaining({ limit: 10 }));
+    });
+
     test('historyById returns 404 when _uuid belongs to a different resource than the URL id', async () => {
         op.currentOperationName = 'historyById';
 
