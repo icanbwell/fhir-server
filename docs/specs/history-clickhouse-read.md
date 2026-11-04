@@ -60,8 +60,9 @@ Entries get the same attachment/base64 transforms, `response` fill-in and enrich
   landed is missing. Enable a type only once its history is complete (backfill done, produce enabled).
 - Queries set `output_format_json_quote_64bit_integers=0` so FHIR integers stay numbers.
 
-- Per-query timeout: `RESOURCE_HISTORY_CLICKHOUSE_READ_TIMEOUT_MS` (default 10000), enforced by an
-  abort signal and `max_execution_time`.
+- Per-query timeout: `RESOURCE_HISTORY_CLICKHOUSE_READ_TIMEOUT_MS` (default 7200000 = 120 minutes),
+  enforced by an abort signal and `max_execution_time`. The shared client's `CLICKHOUSE_REQUEST_TIMEOUT`
+  (default 3 minutes) still applies and must be raised as well for reads longer than that.
 - Any ClickHouse error or timeout returns 500. There is no fallback to MongoDB; the per-type flag
   is the rollback.
 - Versions older than the 13-month TTL are not in ClickHouse, so they are not returned (history is
