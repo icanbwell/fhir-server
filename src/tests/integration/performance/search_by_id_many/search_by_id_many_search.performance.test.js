@@ -13,7 +13,6 @@ const { ConfigManager } = require('../../../../utils/configManager');
 const { ResponseChunkParser } = require('../responseChunkParser');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
-const Practitioner = require('../../../../fhir/classes/4_0_0/resources/practitioner');
 
 class MockConfigManagerStreaming extends ConfigManager {
     get defaultSortId () {
@@ -89,7 +88,7 @@ describe('seach by id many performance', () => {
                     entry.resource = await preSaveManager.preSaveAsync({
                         base_version,
                         requestInfo,
-                        resource: new Practitioner(entry.resource)
+                        resource: entry.resource
                     });
                 }
 

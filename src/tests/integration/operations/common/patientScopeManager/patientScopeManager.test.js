@@ -13,10 +13,8 @@ const {
     getTestRequestInfo
 } = require('../../../common');
 const { createTestContainer } = require('../../../createTestContainer');
-const Patient = require('../../../../../fhir/classes/4_0_0/resources/patient');
-const Condition = require('../../../../../fhir/classes/4_0_0/resources/condition');
-const { generateUUIDv5 } = require('../../../../../utils/uid.util');
 const deepcopy = require('deepcopy');
+const { generateUUIDv5 } = require('../../../../../utils/uid.util');
 const { PatientFilterManager } = require('../../../../../fhir/patientFilterManager');
 
 describe('PatientScopeManager Tests', () => {
@@ -44,8 +42,8 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {PatientFilterManager} */
             const patientFilterManager = container.patientFilterManager;
-            /** @type {Patient} */
-            const patient = new Patient(patient1Resource);
+            /** @type {Object} */
+            const patient = deepcopy(patient1Resource);
 
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
@@ -66,8 +64,8 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {PatientFilterManager} */
             const patientFilterManager = container.patientFilterManager;
-            /** @type {Condition} */
-            const condition = new Condition(condition1Resource);
+            /** @type {Object} */
+            const condition = deepcopy(condition1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
@@ -91,8 +89,8 @@ describe('PatientScopeManager Tests', () => {
             const patientScopeManager = container.patientScopeManager;
             /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
-            /** @type {Patient} */
-            const patient = new Patient(patient1Resource);
+            /** @type {Object} */
+            const patient = deepcopy(patient1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
@@ -112,8 +110,8 @@ describe('PatientScopeManager Tests', () => {
             const patientScopeManager = container.patientScopeManager;
             /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
-            /** @type {Patient} */
-            const patient = new Patient(patient1Resource);
+            /** @type {Object} */
+            const patient = deepcopy(patient1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
@@ -133,8 +131,8 @@ describe('PatientScopeManager Tests', () => {
             const patientScopeManager = container.patientScopeManager;
             /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
-            /** @type {Patient} */
-            const patient = new Patient(patient1Resource);
+            /** @type {Object} */
+            const patient = deepcopy(patient1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
@@ -154,8 +152,8 @@ describe('PatientScopeManager Tests', () => {
             const patientScopeManager = container.patientScopeManager;
             /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
-            /** @type {Patient} */
-            const patient = new Patient(patient1Resource);
+            /** @type {Object} */
+            const patient = deepcopy(patient1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
@@ -180,8 +178,8 @@ describe('PatientScopeManager Tests', () => {
             const patientScopeManager = container.patientScopeManager;
             /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
-            /** @type {Condition} */
-            const condition = new Condition(condition1Resource);
+            /** @type {Object} */
+            const condition = deepcopy(condition1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
@@ -203,8 +201,8 @@ describe('PatientScopeManager Tests', () => {
             const patientScopeManager = container.patientScopeManager;
             /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
-            /** @type {Condition} */
-            const condition = new Condition(condition1Resource);
+            /** @type {Object} */
+            const condition = deepcopy(condition1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
@@ -226,8 +224,8 @@ describe('PatientScopeManager Tests', () => {
             const patientScopeManager = container.patientScopeManager;
             /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
-            /** @type {Condition} */
-            const condition = new Condition(condition1Resource);
+            /** @type {Object} */
+            const condition = deepcopy(condition1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
@@ -247,8 +245,8 @@ describe('PatientScopeManager Tests', () => {
             const patientScopeManager = container.patientScopeManager;
             /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
-            /** @type {Condition} */
-            const condition = new Condition(condition1Resource);
+            /** @type {Object} */
+            const condition = deepcopy(condition1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
@@ -289,8 +287,8 @@ describe('PatientScopeManager Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
             await postRequestProcessor.waitTillDoneAsync({ requestId });
 
-            /** @type {Condition} */
-            const condition = new Condition(condition1Resource);
+            /** @type {Object} */
+            const condition = deepcopy(condition1Resource);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
@@ -328,8 +326,8 @@ describe('PatientScopeManager Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
             await postRequestProcessor.waitTillDoneAsync({ requestId });
 
-            /** @type {Condition} */
-            const condition = new Condition(deepcopy(condition1Resource));
+            /** @type {Object} */
+            const condition = deepcopy(condition1Resource);
             condition.subject.reference = 'Patient/patient2';
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids
@@ -368,8 +366,8 @@ describe('PatientScopeManager Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
             await postRequestProcessor.waitTillDoneAsync({ requestId });
 
-            /** @type {Condition} */
-            const condition = new Condition(deepcopy(condition1Resource));
+            /** @type {Object} */
+            const condition = deepcopy(condition1Resource);
             condition.subject.reference = 'Patient/patient2';
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             // generate all the uuids

@@ -1,7 +1,5 @@
 const { PreSaveHandler } = require('./preSaveHandler');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { ConfigManager } = require('../../utils/configManager');
 const { assertTypeEquals } = require('../../utils/assertType');
@@ -27,10 +25,10 @@ class OwnerColumnHandler extends PreSaveHandler {
     /**
      * fixes up any resources before they are saved
      * @typedef {Object} PreSaveAsyncProps
-     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resource
+     * @property {Object} resource
      *
      * @param {PreSaveAsyncProps}
-     * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
+     * @returns {Promise<Object>}
      */
     async preSaveAsync ({ resource }) {
         if (resource.meta && resource.meta.security) {
@@ -52,16 +50,9 @@ class OwnerColumnHandler extends PreSaveHandler {
                      * @type {string}
                      */
                     const firstAccessCode = accessCodes[0];
-                    if (resource instanceof Resource) {
-                        resource.meta.security.push(new Coding({
-                            system: SecurityTagSystem.owner,
-                            code: firstAccessCode
-                        }));
-                    } else {
-                        resource.meta.security.push(
-                            this.buildOwnerTag(resource.resourceType, firstAccessCode)
-                        );
-                    }
+                    resource.meta.security.push(
+                        this.buildOwnerTag(resource.resourceType, firstAccessCode)
+                    );
                 }
             }
         }
@@ -70,7 +61,7 @@ class OwnerColumnHandler extends PreSaveHandler {
     }
 
     /**
-     * Builds the owner security tag for a plain object, adding a deterministic coding id only for
+     * Builds the owner security tag, adding a deterministic coding id only for
      * resource types configured in PRE_SAVE_CODING_ID_UPDATE_RESOURCES.
      * @param {string} resourceType
      * @param {string} code

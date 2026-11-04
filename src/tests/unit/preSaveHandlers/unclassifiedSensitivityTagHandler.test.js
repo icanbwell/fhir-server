@@ -4,22 +4,12 @@ jestObj.mock('../../../utils/uid.util', () => ({
     generateUUIDv5: jestObj.fn((input) => `uuid-for-${input}`)
 }));
 
-jestObj.mock('../../../fhir/classes/4_0_0/complex_types/coding', () => {
-    return jestObj.fn((props) => ({ ...props, _isCoding: true }));
-});
-
-jestObj.mock('../../../fhir/classes/4_0_0/resources/resource', () => {
-    class MockResource {}
-    return MockResource;
-});
-
 jestObj.mock('../../../preSaveHandlers/handlers/preSaveHandler', () => ({
     PreSaveHandler: class PreSaveHandler {}
 }));
 
 const { UnclassifiedSensitivityTagHandler } = require('../../../preSaveHandlers/handlers/unclassifiedSensitivityTagHandler');
 const { SENSITIVE_CATEGORY } = require('../../../constants');
-const Resource = require('../../../fhir/classes/4_0_0/resources/resource');
 
 describe('UnclassifiedSensitivityTagHandler', () => {
     let handler;
@@ -141,18 +131,7 @@ describe('UnclassifiedSensitivityTagHandler', () => {
             );
         });
 
-        test('creates Coding instance when resource is instanceof Resource', async () => {
-            const resource = Object.create(Resource.prototype);
-            resource.resourceType = 'Patient';
-            resource.meta = { security: [] };
-
-            const result = await handler.preSaveAsync({ resource });
-
-            expect(result.meta.security).toHaveLength(1);
-            expect(result.meta.security[0]._isCoding).toBe(true);
-        });
-
-        test('creates plain object when resource is NOT instanceof Resource', async () => {
+        test('adds a plain tag object', async () => {
             const resource = {
                 resourceType: 'Patient',
                 meta: { security: [] }
@@ -160,7 +139,6 @@ describe('UnclassifiedSensitivityTagHandler', () => {
 
             const result = await handler.preSaveAsync({ resource });
 
-            expect(result.meta.security[0]._isCoding).toBeUndefined();
             expect(result.meta.security[0].system).toBe(SENSITIVE_CATEGORY.SYSTEM);
             expect(result.meta.security[0].code).toBe(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE);
         });

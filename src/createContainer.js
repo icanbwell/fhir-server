@@ -70,7 +70,6 @@ const {UnclassifiedSensitivityTagHandler} = require('./preSaveHandlers/handlers/
 const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
 const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
-const {CodeableConceptIdHandler} = require("./preSaveHandlers/handlers/codeableConceptIdHandler");
 const {PersonToPatientIdsExpander} = require('./utils/personToPatientIdsExpander');
 const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkManager');
 const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
@@ -266,9 +265,6 @@ const createContainer = function () {
             new OwnerColumnHandler({ configManager: c.configManager }),
             c.sourceAssigningAuthorityColumnHandler,
             new UnclassifiedSensitivityTagHandler({ configManager: c.configManager }),
-            new CodeableConceptIdHandler({
-                configManager: c.configManager
-            }),
             // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
             // it uses sourceAssigningAuthority value
             c.uuidColumnHandler,

@@ -1,11 +1,10 @@
 const allergyIntoleranceNoIdResource = require('./fixtures/AllergyIntoleranceNoId.json');
 const allergyIntoleranceWithIdResource = require('./fixtures/AllergyIntoleranceWithId.json');
 
-const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getTestRequestInfo } = require('../../../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getTestContainer } = require('../../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { PreSaveManager } = require('../../../../../preSaveHandlers/preSave');
-const Resource = require('../../../../../fhir/classes/4_0_0/resources/allergyIntolerance');
-const { assertTypeEquals, assertIsValid } = require('../../../../../utils/assertType');
+const deepcopy = require('deepcopy');
+
 const newClinicalStatusId = '088efe1a-9bfd-54ba-b459-5c655c2e580f';
 const newVerificationStatusId = '00bc12cd-2dea-5278-9c68-4eb8983df0ce';
 const newCodeId = '5d55d752-8e63-5421-96bb-afcc34501abc';
@@ -22,48 +21,24 @@ describe('PreSave CodeableConcept Tests', () => {
         await commonAfterEach();
     });
 
-    describe('PreSave CodeableConcept id', () => {
-        const base_version = '4_0_0';
-        test('PreSave CodeableConcept add id', async () => {
-            await createTestRequest();
-            /**
-             * @type {SimpleContainer}
-             */
-            const container = getTestContainer();
-            /**
-             * @type {PreSaveManager}
-             */
-            const preSaveManager = container.preSaveManager;
-            assertTypeEquals(preSaveManager, PreSaveManager);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
-            const resource = new Resource(allergyIntoleranceNoIdResource);
-            const result = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
-            const newResource = new Resource(result);
-            expect(newResource.clinicalStatus.coding[0].id).toEqual(newClinicalStatusId);
-            expect(newResource.verificationStatus.coding[0].id).toEqual(newVerificationStatusId);
-            expect(newResource.code.coding[0].id).toEqual(newCodeId);
-            // assertIsValid(newResource.clinicalStatus.coding[0].id);
-            // assertIsValid(newResource.verificationStatus.coding[0].id);
-            // assertIsValid(newResource.code.coding[0].id);
-        });
-        test('PreSave CodeableConcept existing id', async () => {
-            await createTestRequest();
-            /**
-             * @type {SimpleContainer}
-             */
-            const container = getTestContainer();
-            /**
-             * @type {PreSaveManager}
-             */
-            const preSaveManager = container.preSaveManager;
-            assertTypeEquals(preSaveManager, PreSaveManager);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
-            const resource = new Resource(allergyIntoleranceWithIdResource);
-            const result = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
-            const newResource = new Resource(result);
-            expect(newResource.clinicalStatus.coding[0].id).toEqual(existingClinicalStatusId);
-            expect(newResource.verificationStatus.coding[0].id).toEqual(existingVerificationStatusId);
-            expect(newResource.code.coding[0].id).toEqual(existingCodeId);
-        });
+    test.each([
+        ['adds a deterministic id to codings without one', allergyIntoleranceNoIdResource, [newClinicalStatusId, newVerificationStatusId, newCodeId]],
+        ['keeps the id of codings that already have one', allergyIntoleranceWithIdResource, [existingClinicalStatusId, existingVerificationStatusId, existingCodeId]]
+    ])('$merge %s', async (_name, fixture, expectedCodingIds) => {
+        const request = await createTestRequest();
+
+        const resp = await request
+            .post('/4_0_0/AllergyIntolerance/1/$merge')
+            .send(deepcopy(fixture))
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const fhirDb = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+        const stored = await fhirDb.collection('AllergyIntolerance_4_0_0').findOne({ id: fixture.id });
+        expect([
+            stored.clinicalStatus.coding[0].id,
+            stored.verificationStatus.coding[0].id,
+            stored.code.coding[0].id
+        ]).toEqual(expectedCodingIds);
     });
 });
