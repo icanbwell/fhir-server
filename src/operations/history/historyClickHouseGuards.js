@@ -1,5 +1,6 @@
 const { BadRequestError, NotFoundError } = require('../../utils/httpErrors');
 const { RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
+const { IdParser } = require('../../utils/idParser');
 
 /**
  * Arguments a ClickHouse history read honours or can safely ignore. Anything else (for example
@@ -14,10 +15,13 @@ const SUPPORTED_ARGS = new Set([
 
 /**
  * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
+ * @param {{allowIdArgs?: boolean}} [options] pass false for a type-level history, where an id filter would be ignored
  * @throws {BadRequestError} when an argument the ClickHouse history read cannot honour is present
  */
-function assertSupportedHistoryArgs(parsedArgs) {
-    const unsupported = Object.keys(parsedArgs.getRawArgs()).filter((name) => !SUPPORTED_ARGS.has(name));
+function assertSupportedHistoryArgs(parsedArgs, { allowIdArgs = true } = {}) {
+    const unsupported = Object.keys(parsedArgs.getRawArgs()).filter(
+        (name) => !SUPPORTED_ARGS.has(name) || (!allowIdArgs && (name === 'id' || name === '_id'))
+    );
     if (unsupported.length > 0) {
         throw new BadRequestError(new Error(
             `${unsupported.join(', ')} not supported when history is read from ClickHouse`
@@ -36,8 +40,10 @@ function assertEntriesMatchUrlId({ entries, id }) {
     if (id === undefined || id === null || id === '') {
         return;
     }
+    // The URL id may be `id|owner`; match on the id part, as the MongoDB path does
+    const { id: urlId } = IdParser.parse(String(id));
     const matches = (entry) => [entry.resource?.id, entry.resource?._uuid, entry.resource?._sourceId]
-        .some((candidate) => candidate !== undefined && String(candidate) === String(id));
+        .some((candidate) => candidate !== undefined && String(candidate) === urlId);
     if (!entries.every(matches)) {
         throw new NotFoundError(new Error('History not found for the requested id'));
     }

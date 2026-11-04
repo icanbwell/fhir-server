@@ -602,6 +602,30 @@ describe('SearchByVersionIdOperation', () => {
             expect(result).toBeDefined();
         });
 
+        test('passes an extended Group member lookup a Date even though ClickHouse returns an ISO string', async () => {
+            Object.defineProperty(mocks.configManager, 'resourceHistoryClickHouseReadResources', {
+                get: () => ['Group'], configurable: true
+            });
+            Object.defineProperty(mocks.configManager, 'enableExtendedGroup', { get: () => true, configurable: true });
+            historyClickHouseRepository.findVersionAsync.mockResolvedValue({
+                id: 'e1',
+                resource: {
+                    resourceType: 'Group', id: 'test-id', _uuid: 'u1', [MONGO_GROUP_EXTENDED_FIELD]: true,
+                    meta: { versionId: '2', lastUpdated: '2026-01-01T00:00:00.000Z' }
+                }
+            });
+            mocks.mongoGroupMemberRepository.getMemberCursorAtAsync = jest.fn().mockResolvedValue({});
+            mocks.searchManager.streamGroupMemberArrayAsync = jest.fn().mockResolvedValue(undefined);
+
+            await searchByVersionIdOp.searchByVersionIdAsync({
+                requestInfo, parsedArgs: mockParsedArgs, resourceType: 'Group', res: {}
+            });
+
+            expect(mocks.mongoGroupMemberRepository.getMemberCursorAtAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ targetLastUpdated: new Date('2026-01-01T00:00:00.000Z') })
+            );
+        });
+
         test('returns 404 when the version is not in ClickHouse', async () => {
             historyClickHouseRepository.findVersionAsync.mockResolvedValue(null);
 

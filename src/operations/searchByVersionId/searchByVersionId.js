@@ -341,7 +341,10 @@ class SearchByVersionIdOperation {
                 // searchById.js's identical pattern with resourceUuid).
                 const groupUuid = historyResource._uuid;
                 const resourceUuid = groupUuid;
-                const targetLastUpdated = historyResource.meta.lastUpdated;
+                // ClickHouse returns meta.lastUpdated as an ISO string; the group member lookup needs a Date
+                const targetLastUpdated = typeof historyResource.meta.lastUpdated === 'string'
+                    ? new Date(historyResource.meta.lastUpdated)
+                    : historyResource.meta.lastUpdated;
                 const isExtendedGroup = resourceType === 'Group' &&
                     historyResource[MONGO_GROUP_EXTENDED_FIELD] === true &&
                     this.configManager.enableExtendedGroup;

@@ -204,11 +204,19 @@ describe('HistoryOperation reading from ClickHouse', () => {
 
     test.each([
         ['resource id', 'p1'],
-        ['resource _uuid', 'u1']
+        ['resource _uuid', 'u1'],
+        ['id with an owner suffix', 'p1|client-1']
     ])('historyById accepts the URL id when it matches the %s', async (_name, id) => {
         op.currentOperationName = 'historyById';
 
         await expect(run(makeArgs({ _uuid: 'u1', id }))).resolves.toBeDefined();
+    });
+
+    test.each(['id', '_id'])('type-level history rejects %s instead of dropping it', async (name) => {
+        op.currentOperationName = 'history';
+
+        await expect(run(makeArgs({ _uuid: 'u1', [name]: 'p1' })))
+            .rejects.toMatchObject({ statusCode: 400 });
     });
 
     test('fails clearly when an entry is a cloud storage stub', async () => {

@@ -441,7 +441,7 @@ class BaseHistoryOperationProcessor {
             if (typeof uuid !== 'string' || uuid.length === 0) {
                 throw new BadRequestError(new Error(`_uuid is required to read ${resourceType} history`));
             }
-            assertSupportedHistoryArgs(parsedArgs);
+            assertSupportedHistoryArgs(parsedArgs, { allowIdArgs: currentOperationName === 'historyById' });
             const requested = Number(parsedArgs._count);
             const limit = Math.min(
                 Number.isInteger(requested) && requested > 0 ? requested : DB_SEARCH_LIMIT,
