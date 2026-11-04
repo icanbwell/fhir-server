@@ -252,7 +252,7 @@ describe('ResourceValidator', () => {
          */
         function resolveTargetsAs (resources) {
             mockFindAsync.mockResolvedValue({
-                toObjectArrayAsync: jest.fn().mockResolvedValue(resources)
+                toArrayAsync: jest.fn().mockResolvedValue(resources)
             });
         }
 

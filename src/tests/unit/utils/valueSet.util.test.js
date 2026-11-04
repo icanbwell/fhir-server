@@ -19,7 +19,7 @@ describe('ValueSetManager', () => {
 
     beforeEach(() => {
         mockQueryManager = {
-            findOneAsync: jestObj.fn()
+            fastFindOneAsync: jestObj.fn()
         };
         mockDatabaseQueryFactory = {
             createQuery: jestObj.fn(() => mockQueryManager)
@@ -98,7 +98,7 @@ describe('ValueSetManager', () => {
     });
 
     test('getIncludeAsync with valueSet recursively fetches', async () => {
-        mockQueryManager.findOneAsync.mockResolvedValue({
+        mockQueryManager.fastFindOneAsync.mockResolvedValue({
             compose: {
                 include: [{
                     system: 'http://nested.org',
@@ -112,6 +112,9 @@ describe('ValueSetManager', () => {
         const result = await manager.getIncludeAsync('ValueSet', '4_0_0', include);
         expect(result).toHaveLength(1);
         expect(result[0].code).toBe('nested');
+        expect(mockQueryManager.fastFindOneAsync).toHaveBeenCalledWith({
+            query: { url: 'http://example.org/ValueSet/test' }
+        });
     });
 
     test('getExpandedValueSetAsync sets expansion and removes compose', async () => {

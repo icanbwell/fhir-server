@@ -293,7 +293,7 @@ describe('AuditEvent ClickHouse read integration', () => {
             });
 
             expect(await cursor.hasNext()).toBe(true);
-            const doc = await cursor.nextObject();
+            const doc = await cursor.next();
             expect(doc).not.toBeNull();
         });
 

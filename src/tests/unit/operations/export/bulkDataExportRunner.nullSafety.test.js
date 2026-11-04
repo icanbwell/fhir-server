@@ -107,9 +107,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
                     .mockResolvedValueOnce(true)  // outer while loop check
                     .mockResolvedValueOnce(true)  // inner while loop check - will try new Array(Infinity)
                     .mockResolvedValue(false),
-                next: jest.fn().mockResolvedValue({
-                    toJSONInternal: () => ({ id: '1', resourceType: 'Patient' })
-                })
+                next: jest.fn().mockResolvedValue({ id: '1', resourceType: 'Patient' })
             };
             const mockCollection = {
                 find: jest.fn().mockReturnValue(mockCursor)
@@ -157,9 +155,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
                     .mockResolvedValueOnce(true)  // inner while check - read one doc
                     .mockResolvedValueOnce(false) // inner while done
                     .mockResolvedValue(false),    // outer while done
-                next: jest.fn().mockResolvedValue({
-                    toJSONInternal: () => ({ id: '1', resourceType: 'Observation' })
-                })
+                next: jest.fn().mockResolvedValue({ id: '1', resourceType: 'Observation' })
             };
 
             const mockCollection = {
@@ -276,9 +272,7 @@ describe('BulkDataExportRunner - null safety bugs', () => {
                     .mockResolvedValueOnce(true)  // outer while
                     .mockResolvedValueOnce(true)  // inner while
                     .mockResolvedValue(false),
-                next: jest.fn().mockResolvedValue({
-                    toJSONInternal: () => ({ id: '1', resourceType: 'Observation' })
-                })
+                next: jest.fn().mockResolvedValue({ id: '1', resourceType: 'Observation' })
             };
 
             const mockDbInner = {

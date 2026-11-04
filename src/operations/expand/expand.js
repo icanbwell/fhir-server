@@ -117,13 +117,13 @@ class ExpandOperation {
         const query = {};
         query.id = id;
         /**
-         * @type {Resource}
+         * @type {Object|null}
          */
         let resource;
         try {
             resource = await this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
-            ).findOneAsync({ query: { id: id.toString() } });
+            ).fastFindOneAsync({ query: { id: id.toString() } });
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
@@ -177,7 +177,7 @@ class ExpandOperation {
 
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(resource);
-            resource = FhirResourceSerializer.serialize(resource.toJSONInternal());
+            resource = FhirResourceSerializer.serializeByResourceType(resource, resourceType);
 
             return resource;
         } else {

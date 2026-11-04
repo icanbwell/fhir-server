@@ -13,7 +13,6 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { GRIDFS: { RETRIEVE }, BLOB_OP, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
@@ -292,7 +291,7 @@ class SearchByVersionIdOperation {
                     }
                 }
 
-                historyResource = FhirResourceCreator.create(historyResource.resource || historyResource);
+                historyResource = historyResource.resource || historyResource;
 
                 // Captured now, not re-read off historyResource after serialize below -- serialize
                 // strips server-internal fields like _uuid from the wire representation (see

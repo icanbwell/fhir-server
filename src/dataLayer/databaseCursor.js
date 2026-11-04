@@ -116,31 +116,6 @@ class DatabaseCursor {
     }
 
     /**
-     * Get the next available document from the cursors and return it as a Resource or BundleEntry object.
-     * Returns null if no more documents are available.
-     * @return {Promise<Resource|BundleEntry|null>}
-     */
-    async nextObject() {
-        try {
-            /**
-             * @type {Object}
-             */
-            const result = await this.next();
-            if (!result) {
-                return null;
-            }
-            return FhirResourceCreator.mapDocumentToResourceObject(result, this.resourceType);
-        } catch (e) {
-            throw new RethrownError({
-                collections: this.cursor.namespace.collection,
-                databases: this.cursor.namespace.db,
-                error: e,
-                query: this.query
-            });
-        }
-    }
-
-    /**
      * Sets a field projection for the query
      * @param { import('mongodb').SchemaMember<import('mongodb').DefaultSchema, any>} projection
      * @return {DatabaseCursor}

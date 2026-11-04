@@ -489,4 +489,109 @@ describe('BulkDataExportRunner', () => {
             expect(uploadedDocCount + carriedOverDocCount).toBe(totalDocs);
         });
     });
+    describe('serializeExportDoc', () => {
+        const { GRIDFS, BLOB_OP } = require('../../../../constants');
+        let callOrder;
+
+        const storedPatient = () => ({
+            resourceType: 'Patient',
+            id: 'p1',
+            _id: 'mongo-id',
+            _uuid: 'uuid-1',
+            _sourceId: 'p1',
+            _sourceAssigningAuthority: 'bwell',
+            active: true,
+            gender: null,
+            notAFhirField: 'x',
+            meta: {
+                source: 'https://example.test/source',
+                security: [{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }]
+            }
+        });
+
+        beforeEach(() => {
+            callOrder = [];
+            mocks.enrichmentManager.enrichAsync = jest.fn(({ resources }) => {
+                callOrder.push('enrich');
+                return Promise.resolve(resources);
+            });
+            mocks.databaseAttachmentManager.transformAttachments = jest.fn((resource) => {
+                callOrder.push('attachments');
+                return Promise.resolve(resource);
+            });
+            mocks.base64DataManager.transformAsync = jest.fn((resource) => {
+                callOrder.push('base64');
+                return Promise.resolve(resource);
+            });
+        });
+
+        test('serializes the stored document: drops server-internal fields, nulls and unknown fields', async () => {
+            const result = await runner.serializeExportDoc({
+                doc: storedPatient(),
+                resourceType: 'Patient',
+                parsedArgs: {},
+                isProjected: false
+            });
+
+            expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+            expect(result).toStrictEqual({
+                resourceType: 'Patient',
+                id: 'p1',
+                active: true,
+                meta: {
+                    source: 'https://example.test/source',
+                    security: [{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }]
+                }
+            });
+        });
+
+        test.each([
+            ['a full export enriches the resource', false, 1],
+            ['a projected export skips enrichment', true, 0]
+        ])('%s', async (_name, isProjected, expectedEnrichCalls) => {
+            await runner.serializeExportDoc({
+                doc: storedPatient(),
+                resourceType: 'Patient',
+                parsedArgs: {},
+                isProjected
+            });
+
+            expect(mocks.enrichmentManager.enrichAsync).toHaveBeenCalledTimes(expectedEnrichCalls);
+        });
+
+        test('rehydrates attachments and base64 data, after enrichment and before serializing', async () => {
+            await runner.serializeExportDoc({
+                doc: storedPatient(),
+                resourceType: 'Patient',
+                parsedArgs: {},
+                isProjected: false
+            });
+
+            expect(callOrder).toStrictEqual(['enrich', 'attachments', 'base64']);
+            expect(mocks.databaseAttachmentManager.transformAttachments).toHaveBeenCalledWith(
+                expect.objectContaining({ id: 'p1' }),
+                GRIDFS.RETRIEVE
+            );
+            expect(mocks.base64DataManager.transformAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ id: 'p1' }),
+                BLOB_OP.RETRIEVE
+            );
+        });
+
+        test('serializes what attachment and base64 rehydration return', async () => {
+            mocks.databaseAttachmentManager.transformAttachments = jest.fn((resource) => Promise.resolve({
+                ...resource,
+                photo: [{ contentType: 'text/plain', data: 'Zm9v' }]
+            }));
+
+            const result = await runner.serializeExportDoc({
+                doc: storedPatient(),
+                resourceType: 'Patient',
+                parsedArgs: {},
+                isProjected: false
+            });
+
+            expect(result.photo).toStrictEqual([{ contentType: 'text/plain', data: 'Zm9v' }]);
+        });
+    });
 });

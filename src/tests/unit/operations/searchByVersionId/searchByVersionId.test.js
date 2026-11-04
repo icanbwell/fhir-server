@@ -10,20 +10,6 @@ jest.mock('../../../../operations/common/logging', () => {
     return { logInfo: j.fn(), logError: j.fn(), logDebug: j.fn() };
 });
 
-jest.mock('../../../../fhir/fhirResourceCreator', () => {
-    const { jest: j } = require('@jest/globals');
-    return {
-        FhirResourceCreator: {
-            create: j.fn((json) => ({
-                ...json,
-                _uuid: json._uuid || 'uuid-history',
-                toJSON: () => json,
-                toJSONInternal: () => json
-            }))
-        }
-    };
-});
-
 jest.mock('../../../../fhir/fhirResourceSerializer', () => {
     const { jest: j } = require('@jest/globals');
     return {
@@ -297,6 +283,37 @@ describe('SearchByVersionIdOperation', () => {
             ).rejects.toThrow();
 
             expect(mocks.postRequestProcessor.add).not.toHaveBeenCalled();
+        });
+
+        test('hands the stored history document to enrichment as a plain object', async () => {
+            const historyResult = {
+                resource: {
+                    id: 'test-id',
+                    _uuid: 'uuid-1',
+                    resourceType: 'Patient',
+                    meta: { versionId: '2' }
+                },
+                collectionName: 'Patient_4_0_0_History'
+            };
+            mocks.databaseHistoryFactory.createDatabaseHistoryManager.mockReturnValue({
+                findOneAsync: jest.fn().mockResolvedValue(historyResult)
+            });
+
+            await searchByVersionIdOp.searchByVersionIdAsync({
+                requestInfo: { user: 'admin', scope: 'user/*.read', requestId: 'r1', isUser: false, personIdFromJwtToken: null, actor: null, userType: 'user' },
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            const { resources } = mocks.enrichmentManager.enrichAsync.mock.calls[0][0];
+            expect(resources).toHaveLength(1);
+            expect(Object.getPrototypeOf(resources[0])).toBe(Object.prototype);
+            expect(resources[0]).toStrictEqual({
+                id: 'test-id',
+                _uuid: 'uuid-1',
+                resourceType: 'Patient',
+                meta: { versionId: '2' }
+            });
         });
 
         test('appends version query to existing $and clause', async () => {
