@@ -15,27 +15,6 @@ jestObj.mock('../../../operations/common/systemEventLogging', () => ({
     logTraceSystemEventAsync: jestObj.fn().mockResolvedValue(undefined),
     logSystemErrorAsync: jestObj.fn().mockResolvedValue(undefined)
 }));
-jestObj.mock('../../../fhir/classes/4_0_0/resources/auditEvent', () => {
-    return jestObj.fn().mockImplementation((args) => ({ ...args, resourceType: 'AuditEvent' }));
-});
-jestObj.mock('../../../fhir/classes/4_0_0/complex_types/codeableConcept', () => {
-    return jestObj.fn().mockImplementation((args) => args);
-});
-jestObj.mock('../../../fhir/classes/4_0_0/complex_types/coding', () => {
-    return jestObj.fn().mockImplementation((args) => args);
-});
-jestObj.mock('../../../fhir/classes/4_0_0/backbone_elements/auditEventAgent', () => {
-    return jestObj.fn().mockImplementation((args) => args);
-});
-jestObj.mock('../../../fhir/classes/4_0_0/complex_types/reference', () => {
-    return jestObj.fn().mockImplementation((args) => args);
-});
-jestObj.mock('../../../fhir/classes/4_0_0/backbone_elements/auditEventSource', () => {
-    return jestObj.fn().mockImplementation((args) => args);
-});
-jestObj.mock('../../../fhir/classes/4_0_0/complex_types/period', () => {
-    return jestObj.fn().mockImplementation((args) => args);
-});
 jestObj.mock('../../../utils/assertType', () => ({
     assertTypeEquals: jestObj.fn(),
     assertIsValid: jestObj.fn()
@@ -136,6 +115,36 @@ describe('ChangeEventProducer', () => {
             expect(message.resourceType).toBe('AuditEvent');
         });
 
+        test('produces the exact AuditEvent payload published to consumers', () => {
+            const message = producer._createMessage({
+                requestId: 'req-123',
+                id: 'patient-1',
+                timestamp: '2024-01-15T10:00:00.000Z',
+                eventType: 'U',
+                resourceType: 'Patient',
+                eventName: 'Patient Change',
+                sourceType: 'testSource'
+            });
+
+            expect(JSON.stringify(message)).toBe(JSON.stringify({
+                resourceType: 'AuditEvent',
+                id: 'test-uuid-123',
+                type: { code: '110100' },
+                action: 'U',
+                period: { start: '2024-01-15T10:00:00.000Z', end: '2024-01-15T10:00:00.000Z' },
+                recorded: '2024-01-15',
+                purposeOfEvent: [
+                    { coding: [{ system: 'https://www.icanbwell.com/event-purpose', code: 'Patient Change' }] }
+                ],
+                agent: [{ who: { reference: 'Patient/patient-1' }, requestor: true }],
+                source: {
+                    site: 'req-123',
+                    observer: { reference: 'Organization/bwell' },
+                    type: [{ system: 'https://www.icanbwell.com/sourceType', code: 'testSource' }]
+                }
+            }));
+        });
+
         test('creates message with source.type when sourceType is provided', () => {
             const message = producer._createMessage({
                 requestId: 'req-123',
@@ -147,9 +156,9 @@ describe('ChangeEventProducer', () => {
                 sourceType: 'testSource'
             });
 
-            expect(message.source.type).toBeDefined();
-            expect(message.source.type.code).toBe('testSource');
-            expect(message.source.type.system).toBe('https://www.icanbwell.com/sourceType');
+            expect(message.source.type).toStrictEqual([
+                { system: 'https://www.icanbwell.com/sourceType', code: 'testSource' }
+            ]);
         });
 
         test('does not set source.type when sourceType is falsy', () => {
@@ -498,7 +507,9 @@ describe('ChangeEventProducer', () => {
 
             const map = producer.getFhirResourceMessageMap();
             const message = map.get('patient-1');
-            expect(message.source.type.code).toBe('mySourceType');
+            expect(message.source.type).toStrictEqual([
+                { system: 'https://www.icanbwell.com/sourceType', code: 'mySourceType' }
+            ]);
         });
 
         test('handles doc with extension array missing sourceType url', async () => {

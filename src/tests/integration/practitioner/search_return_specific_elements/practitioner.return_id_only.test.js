@@ -152,5 +152,13 @@ describe('PractitionerReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerMultiElementResourceBundle);
         });
+        test.each([['__data'], ['notAFhirProperty']])('Unsupported _elements value %s is rejected', async (property) => {
+            const request = await createTestRequest();
+            const resp = await request
+                .get(`/4_0_0/Practitioner?_elements=${property}`)
+                .set(getHeaders());
+            expect(resp.status).toBe(400);
+            expect(resp.body.resourceType).toBe('OperationOutcome');
+        });
     });
 });

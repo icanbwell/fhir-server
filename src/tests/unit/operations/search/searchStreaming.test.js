@@ -88,8 +88,7 @@ describe('SearchStreamingOperation', () => {
             isAdminScope: jest.fn().mockReturnValue(true)
         };
         mockBundleManager = {
-            createBundle: jest.fn().mockReturnValue({ resourceType: 'Bundle', entry: [], toJSON: () => ({}) }),
-            createRawBundle: jest.fn().mockReturnValue({ resourceType: 'Bundle', entry: [], toJSON: () => ({}) })
+            createRawBundle: jest.fn().mockReturnValue({ resourceType: 'Bundle', type: 'searchset', total: 0, link: null, entry: null })
         };
         mockConfigManager = {
             useAccessIndex: false,
@@ -199,7 +198,8 @@ describe('SearchStreamingOperation', () => {
                 resourceType: 'Patient'
             });
 
-            expect(mockBundleManager.createBundle).toHaveBeenCalled();
+            expect(mockBundleManager.createRawBundle).toHaveBeenCalled();
+            expect(mockRes.json).toHaveBeenCalledWith({ resourceType: 'Bundle', type: 'searchset', total: 0 });
         });
 
         test('handles null cursor with enableReturnBundle=false returns empty array', async () => {

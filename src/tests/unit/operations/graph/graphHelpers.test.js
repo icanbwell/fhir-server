@@ -616,5 +616,58 @@ describe('GraphHelper', () => {
             expect(result.entry || []).toHaveLength(0);
             expect(mockRemoveHelper.deleteManyAsync).not.toHaveBeenCalled();
         });
+
+        test('returns a serialized delete bundle whose entries expose _uuid to callers but not in the JSON', async () => {
+            const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+            const { assertTypeEquals } = require('../../../../utils/assertType');
+            assertTypeEquals.mockImplementation(() => {});
+
+            const parsedArgs = Object.create(ParsedArgs.prototype);
+            parsedArgs.get = jest.fn().mockReturnValue({
+                queryParameterValue: { values: ['patient-1'] }
+            });
+            parsedArgs._explain = false;
+            parsedArgs._debug = false;
+            parsedArgs.resourceFilterList = null;
+            parsedArgs.clone = jest.fn().mockReturnValue(parsedArgs);
+            parsedArgs.id = ['patient-1'];
+            parsedArgs.remove = jest.fn();
+            parsedArgs.getRawArgs = jest.fn().mockReturnValue({});
+
+            graphHelper.processGraphAsync = jest.fn().mockResolvedValue({
+                entry: [
+                    { resource: { id: 'patient-1', _uuid: 'patient-uuid-1', resourceType: 'Patient' } }
+                ]
+            });
+
+            const requestInfo = {
+                user: 'u', userRequestId: 'ur', requestId: 'req-1',
+                host: 'h', protocol: 'https', method: 'DELETE'
+            };
+
+            const result = await graphHelper.deleteGraphAsync({
+                requestInfo,
+                base_version: '4_0_0',
+                resourceType: 'Patient',
+                graphDefinitionJson: { resourceType: 'GraphDefinition', link: [] },
+                parsedArgs,
+                supportLegacyId: true
+            });
+
+            expect(result.entry.map(e => e.resource._uuid)).toStrictEqual(['patient-uuid-1']);
+            expect(JSON.parse(JSON.stringify(result))).toStrictEqual({
+                resourceType: 'Bundle',
+                id: 'ur',
+                type: 'batch-response',
+                total: 1,
+                entry: [
+                    {
+                        id: 'patient-1',
+                        resource: { resourceType: 'Patient', id: 'patient-1' },
+                        request: { id: 'ur', method: 'DELETE', url: '/4_0_0/Patient/patient-1' }
+                    }
+                ]
+            });
+        });
     });
 });

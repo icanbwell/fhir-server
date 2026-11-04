@@ -13,7 +13,7 @@ const { ConfigManager } = require('../utils/configManager');
 const { isUuid, generateUUIDv5 } = require('../utils/uid.util');
 const { SearchBundleOperation } = require('../operations/search/searchBundle');
 const { parseResolveInfo } = require('graphql-parse-resolve-info');
-const { getResource } = require('../operations/common/getResource');
+const { getSerializer } = require('../fhir/baseFhirResourceSerializer');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { PatientDataViewControlManager } = require('../utils/patientDataViewController');
 const { CustomTracer } = require('../utils/customTracer');
@@ -646,13 +646,9 @@ class FhirDataSource {
                 if (Object.values(COLLECTION).includes(key)) {
                     let resourceType = key;
                     /**
-                     * @type {Resource}
-                     */
-                    const resource = getResource(VERSIONS['4_0_0'], resourceType);
-                    /**
                      * @type {string[]}
                      */
-                    const resourceFields = Object.getOwnPropertyNames(new resource({}));
+                    const resourceFields = Object.keys(getSerializer(VERSIONS['4_0_0'], resourceType).allPropertyToSerializerMap);
 
                     if (!this.resourceProjections[resourceType]) {
                         this.resourceProjections[resourceType] = this.getBaseProjectionForResourceType(resourceType)

@@ -59,7 +59,7 @@ describe('MergeOperation - Null Safety', () => {
             logOperationFailureAsync: jest.fn().mockResolvedValue(undefined)
         };
         mockBundleManager = {
-            createBundle: jest.fn().mockReturnValue({ resourceType: 'Bundle', entry: [] })
+            createRawBundle: jest.fn().mockReturnValue({ resourceType: 'Bundle', entry: [] })
         };
         mockConfigManager = {
             streamingHighWaterMark: 100
@@ -405,8 +405,8 @@ describe('MergeOperation - Null Safety', () => {
                 resourceType: 'Patient'
             });
 
-            expect(mockBundleManager.createBundle).toHaveBeenCalled();
-            const bundleCallArgs = mockBundleManager.createBundle.mock.calls[0][0];
+            expect(mockBundleManager.createRawBundle).toHaveBeenCalled();
+            const bundleCallArgs = mockBundleManager.createRawBundle.mock.calls[0][0];
             // resources should be array of OperationOutcomes
             expect(bundleCallArgs.resources.length).toBeGreaterThan(0);
         });

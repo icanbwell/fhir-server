@@ -3,10 +3,9 @@
 /**
  * Unit tests for BundleManager
  *
- * Top 3 largest methods:
- * 1. createBundleFromEntries (lines 458-639)
- * 2. createRawBundleFromEntries (lines 240-431)
- * 3. createBundle (lines 59-123)
+ * Top 2 largest methods:
+ * 1. createRawBundleFromEntries
+ * 2. createRawBundle
  */
 
 const { describe, beforeEach, afterEach, it, expect, jest } = require('@jest/globals');
@@ -38,7 +37,7 @@ describe('BundleManager', () => {
         jest.clearAllMocks();
     });
 
-    describe('createBundle', () => {
+    describe('createRawBundle', () => {
         it('creates bundle with entries from resources', () => {
             const resources = [
                 { id: 'obs-1', resourceType: 'Observation', _uuid: 'uuid-1' },
@@ -47,7 +46,7 @@ describe('BundleManager', () => {
             const originalQuery = new QueryItem({ query: {}, resourceType: 'Observation', collectionName: 'Observation_4_0_0' });
             const parsedArgs = { _explain: false, _debug: false };
 
-            const result = bundleManager.createBundle({
+            const result = bundleManager.createRawBundle({
                 requestId: 'req-1',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
@@ -70,6 +69,10 @@ describe('BundleManager', () => {
             expect(result.id).toBe('req-1');
             expect(result.total).toBe(2);
             expect(result.type).toBe('searchset');
+            expect(result.entry.map(e => e.fullUrl)).toStrictEqual([
+                'http://localhost:3000/4_0_0/Observation/obs-1',
+                'http://localhost:3000/4_0_0/Observation/obs-2'
+            ]);
             expect(mockResourceManager.getFullUrlForResource).toHaveBeenCalledTimes(2);
         });
 
@@ -77,7 +80,7 @@ describe('BundleManager', () => {
             const originalQuery = new QueryItem({ query: {}, resourceType: 'Observation', collectionName: 'Observation_4_0_0' });
             const parsedArgs = { _explain: false, _debug: false };
 
-            const result = bundleManager.createBundle({
+            const result = bundleManager.createRawBundle({
                 requestId: 'req-2',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
@@ -104,7 +107,7 @@ describe('BundleManager', () => {
             const originalQuery = new QueryItem({ query: {}, resourceType: 'Observation', collectionName: 'Observation_4_0_0' });
             const parsedArgs = { _explain: false, _debug: false };
 
-            const result = bundleManager.createBundle({
+            const result = bundleManager.createRawBundle({
                 requestId: 'req-3',
                 type: 'searchset',
                 originalUrl: '/4_0_0/Observation',
@@ -210,6 +213,36 @@ describe('BundleManager', () => {
                 explanations: []
             });
 
+            expect(result.entry).toBeNull();
+        });
+
+        it('handles array of QueryItems', () => {
+            const entries = [];
+            const originalQuery = [
+                new QueryItem({ query: { a: 1 }, resourceType: 'Observation', collectionName: 'Observation_4_0_0' }),
+                new QueryItem({ query: { b: 2 }, resourceType: 'Condition', collectionName: 'Condition_4_0_0' })
+            ];
+            const parsedArgs = { _explain: false, _debug: false };
+
+            const result = bundleManager.createRawBundleFromEntries({
+                requestId: 'req-1',
+                type: 'searchset',
+                originalUrl: '/4_0_0/Observation',
+                host: 'localhost:3000',
+                protocol: 'http',
+                entries,
+                total_count: 0,
+                parsedArgs,
+                originalQuery,
+                originalOptions: {},
+                columns: new Set(),
+                stopTime: 200,
+                startTime: 100,
+                user: null,
+                explanations: []
+            });
+
+            expect(result.total).toBe(0);
             expect(result.entry).toBeNull();
         });
 
@@ -471,100 +504,6 @@ describe('BundleManager', () => {
             });
 
             expect(result.meta).toBeUndefined();
-        });
-    });
-
-    describe('createBundleFromEntries', () => {
-        it('creates Bundle with next link when last_id provided', () => {
-            const entries = [{ id: 'obs-1', resource: { id: 'obs-1', resourceType: 'Observation' } }];
-            const originalQuery = new QueryItem({ query: {}, resourceType: 'Observation', collectionName: 'Observation_4_0_0' });
-            const parsedArgs = { _explain: false, _debug: false };
-
-            const result = bundleManager.createBundleFromEntries({
-                requestId: 'req-1',
-                type: 'searchset',
-                originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
-                last_id: 'obs-last',
-                entries,
-                total_count: 50,
-                parsedArgs,
-                originalQuery,
-                originalOptions: {},
-                columns: new Set(),
-                stopTime: 200,
-                startTime: 100,
-                user: null,
-                explanations: []
-            });
-
-            expect(result.type).toBe('searchset');
-            expect(result.total).toBe(50);
-        });
-
-        it('handles array of QueryItems', () => {
-            const entries = [];
-            const originalQuery = [
-                new QueryItem({ query: { a: 1 }, resourceType: 'Observation', collectionName: 'Observation_4_0_0' }),
-                new QueryItem({ query: { b: 2 }, resourceType: 'Condition', collectionName: 'Condition_4_0_0' })
-            ];
-            const parsedArgs = { _explain: false, _debug: false };
-
-            const result = bundleManager.createBundleFromEntries({
-                requestId: 'req-1',
-                type: 'searchset',
-                originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
-                entries,
-                total_count: 0,
-                parsedArgs,
-                originalQuery,
-                originalOptions: {},
-                columns: new Set(),
-                stopTime: 200,
-                startTime: 100,
-                user: null,
-                explanations: []
-            });
-
-            expect(result).toBeDefined();
-        });
-
-        it('appends parsedArgs.chainDebugDisplay onto the existing query tag rather than adding a new tag', () => {
-            const entries = [];
-            const originalQuery = new QueryItem({ query: {}, resourceType: 'Patient', collectionName: 'Patient_4_0_0' });
-            const parsedArgs = {
-                _explain: false,
-                _debug: true,
-                chainDebugDisplay: 'patient.identifier -> Patient?identifier=X: db.Patient_4_0_0.find(...)'
-            };
-
-            const result = bundleManager.createBundleFromEntries({
-                requestId: 'req-1',
-                type: 'searchset',
-                originalUrl: '/4_0_0/Observation',
-                host: 'localhost:3000',
-                protocol: 'http',
-                entries,
-                total_count: 0,
-                parsedArgs,
-                originalQuery,
-                originalOptions: {},
-                columns: new Set(),
-                stopTime: 200,
-                startTime: 100,
-                user: null,
-                explanations: []
-            });
-
-            const queryTags = result.meta.tag.filter(t => t.system === 'https://www.icanbwell.com/query');
-            expect(queryTags).toHaveLength(1);
-            expect(queryTags[0].display.endsWith(
-                ' | patient.identifier -> Patient?identifier=X: db.Patient_4_0_0.find(...)'
-            )).toBe(true);
-            expect(result.meta.tag.some(t => t.system === 'https://www.icanbwell.com/chainedQuery')).toBe(false);
         });
     });
 
