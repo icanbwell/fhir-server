@@ -731,18 +731,6 @@ class ConfigManager {
         return isTrueWithFallback(env.LOG_UPDATED_MERGE_VALIDATION_ERRORS, true);
     }
 
-    get enableCreateFastSerializer() {
-        return isTrueWithFallback(env.ENABLE_CREATE_FAST_SERIALIZER, true);
-    }
-
-    get enableUpdateFastSerializer() {
-        return isTrueWithFallback(env.ENABLE_UPDATE_FAST_SERIALIZER, true);
-    }
-
-    get enablePatchFastSerializer() {
-        return isTrueWithFallback(env.ENABLE_PATCH_FAST_SERIALIZER, true);
-    }
-
     /**
      * returns cron expression for postRequest processes
      * @returns {string}

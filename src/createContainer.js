@@ -703,16 +703,8 @@ const createContainer = function () {
 
     container.register('databaseBulkInserter', (c) => new DatabaseBulkInserter(
             {
-                resourceManager: c.resourceManager,
                 postRequestProcessor: c.postRequestProcessor,
-                resourceLocatorFactory: c.resourceLocatorFactory,
-                postSaveProcessor: c.postSaveProcessor,
-                preSaveManager: c.preSaveManager,
                 requestSpecificCache: c.requestSpecificCache,
-                databaseUpdateFactory: c.databaseUpdateFactory,
-                resourceMerger: c.resourceMerger,
-                configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
                 bulkWriteExecutors: [c.kafkaClickPipeBulkWriteExecutor, c.clickHouseBulkWriteExecutor, c.mongoBulkWriteExecutor].filter(Boolean),
                 historyKafkaProducer: c.historyKafkaProducer
@@ -876,7 +868,6 @@ const createContainer = function () {
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
-                databaseBulkInserter: c.databaseBulkInserter,
                 fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
@@ -895,7 +886,6 @@ const createContainer = function () {
                 resourceValidator: c.resourceValidator,
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                databaseBulkInserter: c.databaseBulkInserter,
                 fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
@@ -1029,7 +1019,6 @@ const createContainer = function () {
             preSaveManager: c.preSaveManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            databaseBulkInserter: c.databaseBulkInserter,
             fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
             base64DataManager: c.base64DataManager,

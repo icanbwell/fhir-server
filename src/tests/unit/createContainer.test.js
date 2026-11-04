@@ -190,6 +190,17 @@ describe('createContainer', () => {
         expect(container.mergeManager.databaseBulkInserter).not.toBe(container.databaseBulkInserter);
     });
 
+    test.each(['createOperation', 'updateOperation', 'patchOperation'])(
+        '%s is wired to the FAST bulk inserter under the databaseBulkInserter property, not the plain one',
+        (operationName) => {
+            const container = createContainer();
+            const operation = container[operationName];
+            expect(operation.databaseBulkInserter).toBeInstanceOf(FastDatabaseBulkInserter);
+            expect(operation.databaseBulkInserter).toBe(container.fastDatabaseBulkInserter);
+            expect(operation.databaseBulkInserter).not.toBe(container.databaseBulkInserter);
+        }
+    );
+
     test('preSaveManager orders SourceAssigningAuthorityColumnHandler before UuidColumnHandler before ReferenceGlobalIdHandler', () => {
         // preSave.js's factory comment: "UuidColumnHandler MUST come after
         // SourceAssigningAuthorityColumnHandler since it uses sourceAssigningAuthority value" and

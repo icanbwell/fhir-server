@@ -4,17 +4,11 @@ const { describe, beforeEach, afterEach, beforeAll, afterAll, jest, test, expect
 const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const { ChangeEventProducer } = require('../../../../utils/changeEventProducer');
-const Observation = require('../../../../fhir/classes/4_0_0/resources/observation');
-const Consent = require('../../../../fhir/classes/4_0_0/resources/consent');
-const Group = require('../../../../fhir/classes/4_0_0/resources/group');
-const Patient = require('../../../../fhir/classes/4_0_0/resources/patient');
 const { Collection, MongoInvalidArgumentError } = require('mongodb');
-const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
 const { PostSaveProcessor } = require('../../../../dataLayer/postSaveProcessor');
 const { MONGO_ERROR } = require('../../../../constants');
+const deepcopy = require('deepcopy');
 
-const observationObject = new Observation(observation);
-const consentObject = new Consent(consent);
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -75,9 +69,9 @@ describe('databaseBulkInserter Tests', () => {
                 .mockImplementation(() => {
                 });
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
             const requestInfo = getTestRequestInfo({ requestId });
 
@@ -85,13 +79,13 @@ describe('databaseBulkInserter Tests', () => {
                 base_version,
                 requestInfo,
                 resourceType: 'Observation',
-                doc: observationObject
+                doc: deepcopy(observation)
             });
             await databaseBulkInserter.insertOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'Consent',
-                doc: consentObject
+                doc: deepcopy(consent)
             });
 
             // now execute the bulk inserts
@@ -183,9 +177,9 @@ describe('databaseBulkInserter Tests', () => {
                     return result;
                 });
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
             const requestInfo = getTestRequestInfo({ requestId });
 
@@ -193,13 +187,13 @@ describe('databaseBulkInserter Tests', () => {
                 base_version,
                 requestInfo,
                 resourceType: 'Observation',
-                doc: observationObject
+                doc: deepcopy(observation)
             });
             await databaseBulkInserter.insertOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'Consent',
-                doc: consentObject
+                doc: deepcopy(consent)
             });
 
             // now execute the bulk inserts
@@ -266,9 +260,9 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
             const requestInfo = getTestRequestInfo({ requestId });
 
@@ -276,14 +270,14 @@ describe('databaseBulkInserter Tests', () => {
                 base_version,
                 requestInfo,
                 resourceType: 'Observation',
-                doc: observationObject
+                doc: deepcopy(observation)
             });
 
             await databaseBulkInserter.insertOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'Consent',
-                doc: consentObject
+                doc: deepcopy(consent)
             });
 
             // now execute the bulk inserts
@@ -363,7 +357,7 @@ describe('databaseBulkInserter Tests', () => {
                 [
                     'Group resource with contextData',
                     'Group',
-                    new Group({
+                    {
                         id: 'group-1',
                         resourceType: 'Group',
                         type: 'person',
@@ -376,7 +370,7 @@ describe('databaseBulkInserter Tests', () => {
                                 { system: 'https://www.icanbwell.com/access', code: 'test-access' }
                             ]
                         }
-                    }),
+                    },
                     {
                         groupMembers: [{ entity: { reference: 'Patient/1' } }],
                         resourceType: 'Group',
@@ -388,7 +382,7 @@ describe('databaseBulkInserter Tests', () => {
                 [
                     'Group resource without contextData',
                     'Group',
-                    new Group({
+                    {
                         id: 'group-2',
                         resourceType: 'Group',
                         type: 'person',
@@ -401,14 +395,14 @@ describe('databaseBulkInserter Tests', () => {
                                 { system: 'https://www.icanbwell.com/access', code: 'test-access' }
                             ]
                         }
-                    }),
+                    },
                     null,
                     false
                 ],
                 [
                     'Patient resource with contextData null',
                     'Patient',
-                    new Patient({
+                    {
                         id: 'patient-1',
                         resourceType: 'Patient',
                         meta: {
@@ -418,7 +412,7 @@ describe('databaseBulkInserter Tests', () => {
                                 { system: 'https://www.icanbwell.com/access', code: 'test-access' }
                             ]
                         }
-                    }),
+                    },
                     null,
                     false
                 ]
@@ -428,7 +422,7 @@ describe('databaseBulkInserter Tests', () => {
                     c.register('postSaveProcessor', () => new PostSaveProcessor({ handlers: [] }));
                     return c;
                 });
-                const databaseBulkInserter = container.databaseBulkInserter;
+                const databaseBulkInserter = container.fastDatabaseBulkInserter;
                 const mongoDatabaseManager = container.mongoDatabaseManager;
                 const requestId = '1234';
                 const requestInfo = getTestRequestInfo({ requestId });

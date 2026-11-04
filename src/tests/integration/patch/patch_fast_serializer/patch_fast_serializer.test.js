@@ -71,11 +71,6 @@ describe('Patch with fast serializer', () => {
     const patch = async (request, resourceType, id, operations) =>
         await request.patch(`/4_0_0/${resourceType}/${id}`).send(operations).set(getHeadersJsonPatch());
 
-    test('fast serializer is enabled by default', async () => {
-        await createTestRequest();
-        expect(getTestContainer().patchOperation.useFastSerializer).toStrictEqual(true);
-    });
-
     test('patched document and history have the same shape as before', async () => {
         const request = await createTestRequest();
         const id = await create(request, 'Practitioner', practitionerPayload());

@@ -68,11 +68,6 @@ describe('Update with fast serializer', () => {
         return postResp.body.id;
     };
 
-    test('fast serializer is enabled by default', async () => {
-        await createTestRequest();
-        expect(getTestContainer().updateOperation.useFastSerializer).toStrictEqual(true);
-    });
-
     test('updated document and history have the same shape as before', async () => {
         const request = await createTestRequest();
         const id = await createPractitioner(request);

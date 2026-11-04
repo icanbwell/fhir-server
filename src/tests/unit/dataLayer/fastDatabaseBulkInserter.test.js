@@ -205,6 +205,29 @@ describe('FastDatabaseBulkInserter', () => {
         }, 10000);
     });
 
+    describe('replaceOneAsync', () => {
+        test('creates replaceOne operation filtered by _uuid', async () => {
+            const requestInfo = createMockFhirRequestInfo();
+            const doc = { resourceType: 'Patient', id: 'pr', _uuid: 'ur', _sourceAssigningAuthority: 'a', meta: { versionId: '2' } };
+            await inserter.replaceOneAsync({ requestInfo, resourceType: 'Patient', uuid: 'ur', doc, patches: null });
+            const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
+            expect(ops[0].operationType).toBe('replace');
+            expect(ops[0].operation.replaceOne.filter._uuid).toBe('ur');
+        });
+
+        test('replaces a pending update in place and drops its version filter', async () => {
+            const requestInfo = createMockFhirRequestInfo();
+            const doc1 = { resourceType: 'Patient', id: 'pr2', _uuid: 'ur2', _sourceAssigningAuthority: 'a', meta: { versionId: '2' } };
+            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '1', doc: doc1, patches: null });
+            const doc2 = { resourceType: 'Patient', id: 'pr2', _uuid: 'ur2', _sourceAssigningAuthority: 'a', meta: { versionId: '3' } };
+            await inserter.replaceOneAsync({ requestInfo, resourceType: 'Patient', uuid: 'ur2', doc: doc2, patches: null });
+            const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
+            expect(ops.length).toBe(1);
+            expect(ops[0].operation.replaceOne.filter).toBeNull();
+            expect(ops[0].operation.replaceOne.replacement.meta.versionId).toBe('3');
+        });
+    });
+
     describe('executeAsync', () => {
         test('delegates to executor and returns results', async () => {
             const requestInfo = createMockFhirRequestInfo();

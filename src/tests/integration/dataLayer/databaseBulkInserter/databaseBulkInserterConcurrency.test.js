@@ -10,7 +10,9 @@ const BundleEntry = require('../../../../fhir/classes/4_0_0/backbone_elements/bu
 const BundleRequest = require('../../../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const Coding = require('../../../../fhir/classes/4_0_0/complex_types/coding');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
-const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
+const { FhirResourceWriteSerializer } = require('../../../../fhir/fhirResourceWriteSerializer');
+
+const toWriteDoc = (resource) => FhirResourceWriteSerializer.serialize({ obj: resource.toJSONInternal() });
 
 
 class MockChangeEventProducer extends ChangeEventProducer {
@@ -67,9 +69,9 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
             const userRequestId = '123456';
             const requestInfo = getTestRequestInfo({ requestId, userRequestId });
@@ -289,7 +291,7 @@ describe('databaseBulkInserter Tests', () => {
                 requestInfo,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
-                doc: codeSystem2,
+                doc: toWriteDoc(codeSystem2),
                 previousVersionId: '1',
                 patches: null
             });
@@ -487,9 +489,9 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
             const userRequestId = '123456';
             const requestInfo = getTestRequestInfo({ requestId, userRequestId });
@@ -582,7 +584,7 @@ describe('databaseBulkInserter Tests', () => {
                 requestInfo,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
-                doc: codeSystem2,
+                doc: toWriteDoc(codeSystem2),
                 previousVersionId: '1',
                 patches: null
             });
@@ -898,9 +900,9 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
 
             const codeSystemOriginal = new CodeSystem({
@@ -1002,21 +1004,21 @@ describe('databaseBulkInserter Tests', () => {
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal
+                doc: toWriteDoc(codeSystemOriginal)
             });
 
             await databaseBulkInserter.insertOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystem1
+                doc: toWriteDoc(codeSystem1)
             });
 
             await databaseBulkInserter.mergeOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystem2,
+                doc: toWriteDoc(codeSystem2),
                 previousVersionId: null,
                 patches: null
             });
@@ -1142,9 +1144,9 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
             const requestInfo = getTestRequestInfo({ requestId });
 
@@ -1183,14 +1185,14 @@ describe('databaseBulkInserter Tests', () => {
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal
+                doc: toWriteDoc(codeSystemOriginal)
             });
 
             await databaseBulkInserter.insertOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal
+                doc: toWriteDoc(codeSystemOriginal)
             });
 
             await databaseBulkInserter.mergeOneAsync({
@@ -1198,7 +1200,7 @@ describe('databaseBulkInserter Tests', () => {
                 requestInfo,
                 id: codeSystemOriginal.id,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal,
+                doc: toWriteDoc(codeSystemOriginal),
                 previousVersionId: null,
                 patches: null
             });

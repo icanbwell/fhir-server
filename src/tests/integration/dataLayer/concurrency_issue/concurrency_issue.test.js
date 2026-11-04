@@ -12,7 +12,10 @@ const CodeSystem = require('../../../../fhir/classes/4_0_0/resources/codeSystem'
 const Meta = require('../../../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../../../fhir/classes/4_0_0/complex_types/coding');
 const deepcopy = require('deepcopy');
+const { FhirResourceWriteSerializer } = require('../../../../fhir/fhirResourceWriteSerializer');
 const { logInfo } = require('../../../../operations/common/logging');
+
+const toWriteDoc = (resource) => FhirResourceWriteSerializer.serialize({ obj: resource.toJSONInternal() });
 
 describe('CodeSystem Tests', () => {
     beforeEach(async () => {
@@ -229,9 +232,9 @@ describe('CodeSystem Tests', () => {
             expect(await fhirDb.collection(collectionName).countDocuments()).toStrictEqual(0);
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             expect(databaseBulkInserter).toBeDefined();
 
             const codesystem1ResourceCopy = deepcopy(codesystem1Resource);
@@ -244,7 +247,7 @@ describe('CodeSystem Tests', () => {
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: new CodeSystem(firstCodeSystem)
+                doc: toWriteDoc(new CodeSystem(firstCodeSystem))
             });
 
             for (const codeSystem of codesystem1ResourceCopy) {
@@ -255,7 +258,7 @@ describe('CodeSystem Tests', () => {
                         resourceType: 'CodeSystem',
                         id: 'medline-loinc-labs',
                         previousVersionId: '1',
-                        doc: new CodeSystem(codeSystem),
+                        doc: toWriteDoc(new CodeSystem(codeSystem)),
                         upsert: false,
                         patches: null
                     }
@@ -323,9 +326,9 @@ describe('CodeSystem Tests', () => {
             expect(await codeSystemCollection.countDocuments()).toStrictEqual(0);
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             expect(databaseBulkInserter).toBeDefined();
 
             const codesystem1ResourceCopy = deepcopy(codesystem1Resource);
@@ -339,7 +342,7 @@ describe('CodeSystem Tests', () => {
                 base_version: '4_0_0',
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: new CodeSystem(firstCodeSystem)
+                doc: toWriteDoc(new CodeSystem(firstCodeSystem))
             });
 
             let i = 0;
@@ -357,7 +360,7 @@ describe('CodeSystem Tests', () => {
                         resourceType: 'CodeSystem',
                         id: 'medline-loinc-labs',
                         previousVersionId: '1',
-                        doc: new CodeSystem(codeSystem),
+                        doc: toWriteDoc(new CodeSystem(codeSystem)),
                         upsert: false,
                         patches: null
                     }
