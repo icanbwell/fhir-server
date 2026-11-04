@@ -78,14 +78,6 @@ jestObj.mock('../../../../utils/nullRemover', () => ({
 
 jestObj.mock('../../../../graphql/resolvers', () => ({}));
 
-jestObj.mock('../../../../fhir/classes/4_0_0/resources/operationOutcome', () => {
-    return jestObj.fn().mockImplementation((props) => ({ ...props, toJSON: () => props }));
-});
-
-jestObj.mock('../../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue', () => {
-    return jestObj.fn().mockImplementation((props) => props);
-});
-
 const { GraphQLError } = require('graphql');
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@as-integrations/express5');

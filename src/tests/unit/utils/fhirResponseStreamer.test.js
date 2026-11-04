@@ -16,10 +16,6 @@ jestObj.mock('../../../utils/baseResponseStreamer', () => {
     return { BaseResponseStreamer };
 });
 
-jestObj.mock('../../../fhir/classes/4_0_0/resources/bundle', () => {
-    return class Bundle {};
-});
-
 jestObj.mock('../../../fhir/fhirResourceSerializer', () => ({
     FhirResourceSerializer: {
         serialize: jestObj.fn((obj, _serializer) => obj)

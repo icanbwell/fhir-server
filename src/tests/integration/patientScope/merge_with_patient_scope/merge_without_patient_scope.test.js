@@ -6,7 +6,6 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../../utils/configManager');
-const Bundle = require('../../../../../src/fhir/classes/4_0_0/resources/bundle');
 const { PatientFilterManager } = require('../../../../fhir/patientFilterManager');
 
 class MockConfigManager extends ConfigManager {
@@ -70,8 +69,7 @@ describe('Condition Tests', () => {
                 return c;
             });
 
-            const bundle = new Bundle(
-                {
+            const bundle = {
                     resourceType: 'Bundle',
                     type: 'transaction',
                     entry: [
@@ -83,8 +81,7 @@ describe('Condition Tests', () => {
                             }
                         }
                     ]
-                }
-            );
+                };
             const person_payload = {
                 scope: 'patient/Observation.* user/Condition.write access/*.*',
                 username: 'patient-123@example.com',

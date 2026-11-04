@@ -17,7 +17,6 @@ const { ConfigManager } = require('../../../../utils/configManager');
 const deepcopy = require('deepcopy');
 const { COLLECTION } = require('../../../../constants');
 
-const Bundle = require('../../../../../src/fhir/classes/4_0_0/resources/bundle');
 
 const person_payload = {
     scope: 'patient/*.* admin/*.read',
@@ -196,8 +195,7 @@ describe('Patient Scope merge Tests', () => {
             condition1WithDifferentPatientId.subject.reference = 'Patient/2';
             condition1WithDifferentPatientId.id = '2';
 
-            const bundle = new Bundle(
-                {
+            const bundle = {
                     resourceType: 'Bundle',
                     type: 'transaction',
                     entry: [
@@ -216,8 +214,7 @@ describe('Patient Scope merge Tests', () => {
                             }
                         }
                     ]
-                }
-            );
+                };
             // ARRANGE
             // add the resources to FHIR server
             resp = await request
@@ -260,8 +257,7 @@ describe('Patient Scope merge Tests', () => {
             const condition1WithDifferentPatientId = deepcopy(condition1Resource);
             condition1WithDifferentPatientId.subject.reference = 'Patient/2';
 
-            const bundle = new Bundle(
-                {
+            const bundle = {
                     resourceType: 'Bundle',
                     type: 'transaction',
                     entry: [
@@ -273,8 +269,7 @@ describe('Patient Scope merge Tests', () => {
                             }
                         }
                     ]
-                }
-            );
+                };
             // ARRANGE
             // add the resources to FHIR server
             // We should be able to add this resource since we are not using the patient scope
@@ -286,8 +281,7 @@ describe('Patient Scope merge Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // now try to update the resource which should fail since we don't have access to the patient reference of that resource
-            const bundle2 = new Bundle(
-                {
+            const bundle2 = {
                     resourceType: 'Bundle',
                     type: 'transaction',
                     entry: [
@@ -299,8 +293,7 @@ describe('Patient Scope merge Tests', () => {
                             }
                         }
                     ]
-                }
-            );
+                };
             resp = await request
                 .post('/4_0_0/Condition/1/$merge?validate=true')
                 .send(bundle2)

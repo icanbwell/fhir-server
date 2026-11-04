@@ -24,15 +24,15 @@ const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
 /**
  * @typedef {Object} UpdateSecurityTagProps
- * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
- * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+ * @property {Object} currentResource
+ * @property {Object} resourceToMerge
  * @property {string} system
  */
 
 /**
  * @typedef {Object} OverWriteNonWritableFieldsProp
- * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
- * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+ * @property {Object} currentResource
+ * @property {Object} resourceToMerge
  */
 
 /**
@@ -44,22 +44,22 @@ const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
 /**
  * @typedef {Object} UpdateMetaProp
- * @property {import('../../fhir/classes/4_0_0/resources/resource')} patched_resource_incoming
- * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+ * @property {Object} patched_resource_incoming
+ * @property {Object} currentResource
  * @property {string} original_source
  * @property {boolean} incrementVersion
  */
 
 /**
  * @typedef {Object} ApplyPatchProp
- * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+ * @property {Object} currentResource
  * @property {import('fast-json-patch').Operation[]} patchContent
  */
 
 /**
  * @typedef {Object} RemoveOwnerTagIfDisplayFieldMissingProp
  * @property {Object} currentResource
- * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+ * @property {Object} resourceToMerge
  */
 
 /**
@@ -89,7 +89,7 @@ class ResourceMerger {
     /**
      * Updates security tag with provided system to system present in current resource
      * @param {UpdateSecurityTagProps}
-     * @returns {import('../../fhir/classes/4_0_0/resources/resource') | undefined}
+     * @returns {Object | undefined}
      */
     updateSecurityTag ({ system, resourceToMerge, currentResource }) {
         let currentValue = currentResource.meta.security.find(
@@ -134,7 +134,7 @@ class ResourceMerger {
     /**
      * Overwrites resourceToMerge with currentResources fields which should not be updated
      * @param {OverWriteNonWritableFieldsProp}
-     * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
+     * @returns {Object}
      */
     overWriteNonWritableFields ({ currentResource, resourceToMerge }) {
         // create metadata structure if not present

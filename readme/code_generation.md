@@ -5,16 +5,14 @@ This folder (`generatorScripts/`) contains the code generator for the FHIR schem
 Currently we generate the following code:
 
 1. Services in `src/services`
-2. Javascript classes in `src/fhir/classes`
-3. Javascript file `src/fhir/classes/4_0_0/resources/index.js` that contains a list of resources
-4. GraphQL schemas and resolvers in `src/graphql/v2`
-5. Search parameters in `src/searchParameters`
-6. Resources Non-clinical fields in `src/graphs/patient`
-7. Validation schema: `src/fhir/fhir-generated.schema.json`
-8. Resource field types: `src/fhir/fhir-generated.field-types.json`
-9. Resource DB Schema in `generatorScripts/db-schema/fhir-generated.db-schema/`
-10. Resource serializers in `src/fhir/writeSerializers/4_0_0/`
-11. Resource's fields with Attachment Types: `src/dataLayer/generated.databaseAttachmentResources.json`
+2. GraphQL schemas and resolvers in `src/graphql/v2`
+3. Search parameters in `src/searchParameters`
+4. Resources Non-clinical fields in `src/graphs/patient`
+5. Validation schema: `src/fhir/fhir-generated.schema.json`
+6. Resource field types: `src/fhir/fhir-generated.field-types.json`
+7. Resource DB Schema in `generatorScripts/db-schema/fhir-generated.db-schema/`
+8. Resource serializers in `src/fhir/writeSerializers/4_0_0/`
+9. Resource's fields with Attachment Types: `src/dataLayer/generated.databaseAttachmentResources.json`
 
 ## Schema files
 
@@ -53,31 +51,7 @@ You can run this via `make generate`.
 This runs `generatorScripts/generate_services.py`.
 This does not use Jinja2 templates.
 
-### 2. Javascript classes in `src/fhir/classes`
-
-You can run this via `make classes`.
-
-This runs `generatorScripts/classes/generate_classes.py`.
-
-This uses the following Jinja2 template `template.javascript.class.jinja2` to generate the classes.
-
-This generates Javascript classes for each:
-
-- resource
-- backboneElement
-- extension
-- complex type
-- valueset
-
-### 3. Javascript file `src/fhir/classes/4_0_0/resources/index.js` that contains a list of resources
-
-This is run by the same command as in #2.
-
-This runs `generatorScripts/classes/generate_classes_index.py`.
-
-This uses the following Jinja2 template `template.javascript.index.jinja2` to generate the index.js file.
-
-### 4. GraphQL schemas and resolvers in `src/graphql/v2`
+### 2. GraphQL schemas and resolvers in `src/graphql/v2`
 
 This is run by the command `make graphql`.
 
@@ -94,7 +68,7 @@ This uses the following Jinja2 templates:
 7. `template.complex_type.jinja2` to generate the complex type schema
 8. `resolvers/template.complex_type.jinja2` to generate the complex type resolvers
 
-### 5. Search parameters in `src/searchParameters`
+### 3. Search parameters in `src/searchParameters`
 
 This is run by the command `make searchParameters`.
 
@@ -105,7 +79,7 @@ This reads the `src/searchParameters/search-parameters.json` file and generates 
 1. `src/searchParameters/searchParameters.js`
 2. `generatorScripts/search_parameters.py`
 
-### 6. Data for everything operation
+### 4. Data for everything operation
 
 This is run by the command `make everythingOperationData`.
 
@@ -116,7 +90,7 @@ This file generates the following files:
 - `src/operations/everything/generated.non_clinical_resources_reachablity.json`
 - `src/operations/everything/generated.resource_types.json`
 
-### 7. Validation schema in `generatorScripts/json`
+### 5. Validation schema in `generatorScripts/json`
 
 This is run by the command `make schema`.
 
@@ -124,7 +98,7 @@ This runs `generatorScripts/generate_schema.py`.
 
 It generates `generatorScripts/json/fhir-generated.schema.json` file used for resources validation.
 
-### 8. Resource field types in `generatorScripts/json`
+### 6. Resource field types in `generatorScripts/json`
 
 This is run by the command `make resourceFieldTypes`.
 
@@ -132,7 +106,7 @@ This runs `generatorScripts/generate_resource_fields_type.py`.
 
 It reads `generatorScripts/xsd/definitions.xml/profiles-resources.xml` file and generates `src/fhir/fhir-generated.field-types.json` file used for getting field types while making queries.
 
-### 9. Resource DB Schema in `generatorScripts/json/fhir-generated.db-schema/`
+### 7. Resource DB Schema in `generatorScripts/json/fhir-generated.db-schema/`
 
 This is run by the command `make dbSchema`.
 
@@ -140,7 +114,7 @@ This runs `generatorScripts/db-schema/generate_db_schema.py`.
 
 It reads generates `generatorScripts/json/fhir-generated.db-schema/*.json` containing the DB schema for all fields of all resources.
 
-### 10. Resource serializers in `src/fhir/writeSerializers/4_0_0/`
+### 8. Resource serializers in `src/fhir/writeSerializers/4_0_0/`
 
 This is run by the command `make serializers`.
 
@@ -150,7 +124,7 @@ It generates resource serializer classes `src/fhir/writeSerializers/4_0_0/` for 
 
 Note: the subfolder `src/fhir/writeSerializers/4_0_0/customSerializers` is manually written and not generated using the script for custom and base resource serializer classes.
 
-### 11. Resource's fields with Attachment Types: `src/dataLayer/generated.databaseAttachmentResources.json`
+### 9. Resource's fields with Attachment Types: `src/dataLayer/generated.databaseAttachmentResources.json`
 
 This is run by the command `make attachmentFields`.
 

@@ -308,9 +308,8 @@ describe('_sort field hardening tests', () => {
         expect(resp.body.entry.map(e => e.resource.id)).toEqual(['allergyintolerance-onsetperiod-2031', 'allergyintolerance-onsetperiod-2019']);
     });
 
-    // Procedure.encounter is a Reference, and the generated Reference class (src/fhir/classes/
-    // 4_0_0/complex_types/reference.js) silently drops any 'period' property on construction, so
-    // $merge can never populate encounter.period.start/.end. To prove the custom-sort-field
+    // Procedure.encounter is a Reference, which has no 'period' element, so $merge cannot
+    // populate encounter.period.start/.end. To prove the custom-sort-field
     // resolution itself works against whatever ends up in Mongo (regardless of how it got there),
     // this test writes the fixtures via $merge first, then sets encounter.period directly on the
     // persisted documents with a raw Mongo update.

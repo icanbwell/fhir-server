@@ -147,9 +147,6 @@ jest.mock('../../../operations/common/parametersBodyParser', () => ({
         parseParametersResource({ body, args }) { return args; }
     }
 }));
-jest.mock('../../../fhir/classes/4_0_0/backbone_elements/bundleEntry', () => {
-    return class BundleEntry { constructor(props) { Object.assign(this, props); } };
-});
 jest.mock('../../../utils/convertErrorToOperationOutcome', () => ({
     convertErrorToOperationOutcome: jest.fn().mockReturnValue({ resourceType: 'OperationOutcome' })
 }));
