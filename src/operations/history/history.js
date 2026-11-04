@@ -21,6 +21,8 @@ const { ensureHistoryEntryResponse } = require('./historyEntryResponse');
 const { getLastUpdatedISO } = require('../../utils/date.util');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { CompositionSectionFilterEnrichmentProvider } = require('../../enrich/providers/compositionSectionFilterEnrichmentProvider');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 class BaseHistoryOperationProcessor {
     /**
@@ -39,6 +41,8 @@ class BaseHistoryOperationProcessor {
      * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      * @param {CompositionSectionFilterEnrichmentProvider} compositionSectionFilterEnrichmentProvider
+     * @param {AuditLogger} auditLogger
+     * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor (
         {
@@ -55,7 +59,9 @@ class BaseHistoryOperationProcessor {
             scopesManager,
             historyResourceCloudStorageClient,
             identifierEnrichmentProvider,
-            compositionSectionFilterEnrichmentProvider
+            compositionSectionFilterEnrichmentProvider,
+            auditLogger,
+            postRequestProcessor
         }
     ) {
         /**
@@ -139,6 +145,18 @@ class BaseHistoryOperationProcessor {
          */
         this.compositionSectionFilterEnrichmentProvider = compositionSectionFilterEnrichmentProvider;
         assertTypeEquals(compositionSectionFilterEnrichmentProvider, CompositionSectionFilterEnrichmentProvider);
+
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -179,7 +197,8 @@ class BaseHistoryOperationProcessor {
             /** @type {string} */
             personIdFromJwtToken,
             actor,
-            userType
+            userType,
+            requestId
         } = requestInfo;
 
         // _explain/_debug/_setIndexHint expose Mongo query plans, collection internals, and
@@ -412,6 +431,26 @@ class BaseHistoryOperationProcessor {
                 return historyResource;
             })
         );
+
+        // capture UUIDs eagerly: serialization below strips _uuid. A resource's versions share
+        // one _uuid, so de-duplicate to audit each resource once.
+        const resourceUuids = [...new Set(entries.map((e) => e.resource?._uuid).filter(Boolean))];
+        if (resourceType !== 'AuditEvent' && resourceUuids.length > 0) {
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => {
+                    // log access to audit logs
+                    await this.auditLogger.logAuditEntryAsync({
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        operation: 'read',
+                        args: parsedArgs.getRawArgs(),
+                        ids: resourceUuids
+                    });
+                }
+            });
+        }
 
         await this.fhirLoggingManager.logOperationSuccessAsync({
             requestInfo,

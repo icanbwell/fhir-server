@@ -383,7 +383,8 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
                 ['BULK_IMPORT_MIN_FILE_SIZE_MB', 'bulkImportMinFileSizeMb', 50],
                 ['BULK_IMPORT_MAX_FILE_SIZE_GB', 'bulkImportMaxFileSizeGb', 5],
                 ['BULK_IMPORT_MAX_LINE_SIZE_MB', 'bulkImportMaxLineSizeMb', 16],
-                ['BULK_IMPORT_BATCH_SIZE', 'bulkImportBatchSize', 100]
+                ['BULK_IMPORT_BATCH_SIZE', 'bulkImportBatchSize', 100],
+                ['BULK_IMPORT_HEAD_S3_CONCURRENCY', 'bulkImportHeadS3Concurrency', 8]
             ];
             for (const [envKey, getter, fallback] of specs) {
                 for (const bad of [undefined, '', '0', '-3', 'abc']) {
@@ -394,6 +395,23 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
                 setEnv(envKey, '7');
                 expect([getter, new ConfigManager()[getter]]).toEqual([getter, 7]);
             }
+        });
+
+        test.each([
+            ['unset', undefined, 90000],
+            ['empty', '', 90000],
+            ['garbage', 'abc', 90000],
+            ['a unit suffix, which parseInt would read as 120 ms', '120s', 90000],
+            ['negative', '-90000', 90000],
+            ['at the 60s rebalance timeout', '60000', 90000],
+            ['below the rebalance timeout', '30000', 90000],
+            ['above the largest setTimeout delay', '2147483648', 90000],
+            ['just above the rebalance timeout', '60001', 60001],
+            ['a normal override', '100000', 100000],
+            ['the largest setTimeout delay', '2147483647', 2147483647]
+        ])('asyncJobConsumerJoinTimeoutMs with %s', (_label, value, expected) => {
+            setEnv('ASYNC_JOB_CONSUMER_JOIN_TIMEOUT_MS', value);
+            expect(new ConfigManager().asyncJobConsumerJoinTimeoutMs).toBe(expected);
         });
 
         test('bulkImportBatchDelayMs allows 0 (unlike the >0 guards) but rejects negatives and garbage', () => {
@@ -594,6 +612,16 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
             expect(cm.mergeParallelChunkSize).toBe(50);
             expect(cm.postRequestBatchSize).toBe(50);
             expect(cm.graphQLFetchResourceBatchSize).toBe(50);
+        });
+
+        test.each([
+            [undefined, ['Composition']],
+            ['', []],
+            ['Composition', ['Composition']],
+            ['Composition, Observation', ['Composition', 'Observation']]
+        ])('mergeIgnoreDateOnlyChangeResourceTypes parses %p', (value, expected) => {
+            setEnv('MERGE_IGNORE_DATE_ONLY_CHANGE_RESOURCE_TYPES', value);
+            expect(new ConfigManager().mergeIgnoreDateOnlyChangeResourceTypes).toEqual(expected);
         });
     });
 

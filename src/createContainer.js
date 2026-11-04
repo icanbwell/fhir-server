@@ -281,7 +281,8 @@ const createContainer = function () {
     container.register('ownerColumnHandler', (c) => new OwnerColumnHandler({ configManager: c.configManager }));
     container.register('uuidColumnHandler', (_c) => new UuidColumnHandler());
     container.register('resourceMerger', (c) => new ResourceMerger({
-        preSaveManager: c.preSaveManager
+        preSaveManager: c.preSaveManager,
+        configManager: c.configManager
     }));
     container.register('delegatedAccessRulesManager', (c) => new DelegatedAccessRulesManager({
         configManager: c.configManager,
@@ -967,7 +968,9 @@ const createContainer = function () {
             base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-            mongoGroupMemberRepository: c.mongoGroupMemberRepository
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+            auditLogger: c.auditLogger,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -985,7 +988,9 @@ const createContainer = function () {
             base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
+            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
+            auditLogger: c.auditLogger,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -1003,7 +1008,9 @@ const createContainer = function () {
             base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
+            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
+            auditLogger: c.auditLogger,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
     container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(

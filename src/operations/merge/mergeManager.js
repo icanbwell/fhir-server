@@ -199,7 +199,8 @@ class MergeManager {
             smartMerge,
             limitToPaths: undefined,
             databaseAttachmentManager: this.databaseAttachmentManager,
-            base64DataManager: this.base64DataManager
+            base64DataManager: this.base64DataManager,
+            ignoreDateOnlyChange: true
         });
         if (patched_resource_incoming) {
             /**
