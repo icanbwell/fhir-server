@@ -27,7 +27,6 @@ jest.mock('mongodb', () => {
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
 const { MongoDatabaseManager } = require('../../../utils/mongoDatabaseManager');
 const { ConfigManager } = require('../../../utils/configManager');
-const Attachment = require('../../../fhir/classes/4_0_0/complex_types/attachment');
 
 /**
  * Helper: create a mock MongoDatabaseManager instance that passes assertTypeEquals.
@@ -188,7 +187,7 @@ describe('DatabaseAttachmentManager', () => {
             const resource = Object.create(parentProto);
             resource.someField = 'own-value';
 
-            // The resource is not an Attachment, not an Object with _file_id,
+            // The resource is not an Object with _file_id,
             // and doesn't match attachmentResourceFields, so it falls through to
             // the for..in loop at line 215-230.
             // The for..in will find 'inheritedProp' from the prototype.
@@ -326,7 +325,7 @@ describe('DatabaseAttachmentManager', () => {
             // The mocked GridFSBucket (from mongodb mock) also needs openDownloadStream
             mockGridFSBucketInstance.openDownloadStream.mockImplementation(() => createFailingStream());
 
-            const resource = Object.create(Attachment.prototype);
+            const resource = {};
             resource._file_id = '507f1f77bcf86cd799439011';
 
             await expect(

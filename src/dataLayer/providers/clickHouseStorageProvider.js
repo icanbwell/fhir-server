@@ -75,7 +75,7 @@ class ClickHouseStorageProvider extends StorageProvider {
      * @param {Object} [params.options]
      * @returns {Promise<Object|null>}
      */
-    async findOneAsync({ query, options }) {
+    async fastFindOneAsync({ query, options }) {
         // If query has an id field, use findById for efficiency
         if (query.id && typeof query.id === 'string') {
             const row = await this.repository.findByIdAsync({
@@ -100,17 +100,6 @@ class ClickHouseStorageProvider extends StorageProvider {
 
         const schema = this.schemaRegistry.getSchema(this.resourceType);
         return this._extractFhirDocument(rows[0], schema);
-    }
-
-    /**
-     * Finds one resource matching a MongoDB-style query.
-     * @param {Object} params
-     * @param {Object} params.query
-     * @param {Object} [params.options]
-     * @returns {Promise<Object|null>}
-     */
-    async fastFindOneAsync({ query, options }) {
-        return await this.findOneAsync({query, options})
     }
 
     /**

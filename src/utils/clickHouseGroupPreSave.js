@@ -1,5 +1,3 @@
-const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
-const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const { generateUUIDv5 } = require('./uid.util');
 
 const EXTERNAL_STORAGE_TAG_SYSTEM = 'https://www.icanbwell.com/externalStorageFields';
@@ -10,7 +8,7 @@ const EXTERNAL_STORAGE_TAG_CODE = 'member';
  * This tag is permanent — once set, it's never removed, even if all members are deleted.
  * Indicates that this Group's member field is tracked in ClickHouse.
  *
- * @param {Resource} doc - The Group resource being saved
+ * @param {Object} doc - The Group resource being saved
  * @param {Object|null} contextData - Context data with useExternalStorage flag
  */
 function addExternalStorageTagIfNeeded(doc, contextData) {
@@ -37,13 +35,7 @@ function addExternalStorageTagIfNeeded(doc, contextData) {
         code: EXTERNAL_STORAGE_TAG_CODE
     };
 
-    // Set meta.tag with existing tags + new tag
-    // Cannot push to empty array on FHIR Resource class (setter converts [] to undefined)
-    if (doc instanceof Resource) {
-        doc.meta.tag = [...existingTags, new Coding(newTag)];
-    } else {
-        doc.meta.tag = [...existingTags, newTag];
-    }
+    doc.meta.tag = [...existingTags, newTag];
 }
 
 /**
@@ -51,7 +43,7 @@ function addExternalStorageTagIfNeeded(doc, contextData) {
  * Skipped for PATCH (groupMemberEventsWritten) and $merge smartMerge=true
  * because those preserve existing MongoDB members.
  *
- * @param {Resource} doc - The Group resource being saved
+ * @param {Object} doc - The Group resource being saved
  * @param {Object|null} contextData - Context data with flags
  */
 function stripMembersIfNeeded(doc, contextData) {
@@ -80,7 +72,7 @@ function hasExternalStorageMemberTag(doc) {
  * Handles all ClickHouse-related pre-save modifications for Group resources.
  * Called from FastDatabaseBulkInserter after preSaveManager runs.
  *
- * @param {Resource} doc - The Group resource being saved
+ * @param {Object} doc - The Group resource being saved
  * @param {Object|null} contextData - Context data with useExternalStorage and other flags
  * @param {Object} configManager - ConfigManager instance to check ClickHouse enablement
  */

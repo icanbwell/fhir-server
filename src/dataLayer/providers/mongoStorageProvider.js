@@ -1,6 +1,5 @@
 const { StorageProvider } = require('./storageProvider');
 const { DatabaseCursor } = require('../databaseCursor');
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 
@@ -51,29 +50,6 @@ class MongoStorageProvider extends StorageProvider {
             resourceType: this.resourceLocator._resourceType,
             base_version: this.resourceLocator._base_version
         });
-    }
-
-    /**
-     * Finds one resource matching query using MongoDB
-     * @param {Object} params
-     * @param {Object} params.query
-     * @param {Object} [params.options]
-     * @returns {Promise<Resource|null>}
-     */
-    async findOneAsync({ query, options }) {
-        const collection = await this.resourceLocator.getCollectionAsync({});
-
-        const resource = await collection.findOne(query, options);
-
-        if (resource !== null) {
-            // Convert to FHIR resource object
-            return FhirResourceCreator.createByResourceType(
-                resource,
-                this.resourceLocator._resourceType
-            );
-        }
-
-        return null;
     }
 
     /**

@@ -1,7 +1,5 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 
 // Deliberately a different system/code pair than clickHouseGroupPreSave's
@@ -12,8 +10,8 @@ const MONGO_GROUP_MEMBER_TAG_CODE = 'extended';
 
 class GroupExtendedTagEnrichmentProvider extends EnrichmentProvider {
     /**
-     * @param {Resource[]} resources
-     * @return {Promise<Resource[]>}
+     * @param {Object[]} resources
+     * @return {Promise<Object[]>}
      */
     async enrichAsync ({ resources }) {
         for (const resource of resources) {
@@ -42,7 +40,7 @@ class GroupExtendedTagEnrichmentProvider extends EnrichmentProvider {
      * Computed fresh on every read from the internal field -- never persisted -- so it can't
      * drift out of sync with it. Idempotent.
      *
-     * @param {Resource} doc - The Group resource being enriched
+     * @param {Object} doc - The Group resource being enriched
      */
     static addExtendedTagIfNeeded (doc) {
         if (!doc || doc.resourceType !== 'Group' || !doc.meta) {
@@ -63,13 +61,7 @@ class GroupExtendedTagEnrichmentProvider extends EnrichmentProvider {
             code: MONGO_GROUP_MEMBER_TAG_CODE
         };
 
-        // Cannot push to an empty array on the FHIR Resource class (its setter converts [] to
-        // undefined), so always assign a fresh array.
-        if (doc instanceof Resource) {
-            doc.meta.tag = [...existingTags, new Coding(newTag)];
-        } else {
-            doc.meta.tag = [...existingTags, newTag];
-        }
+        doc.meta.tag = [...existingTags, newTag];
     }
 }
 

@@ -84,12 +84,12 @@ describe('ClickHouseStorageProvider', () => {
         });
     });
 
-    describe('findOneAsync', () => {
+    describe('fastFindOneAsync', () => {
         test('uses findByIdAsync when query has id', async () => {
             const row = { _fhir_resource: JSON.stringify({ id: 'found', resourceType: 'TestResource' }) };
             mockRepository.findByIdAsync.mockResolvedValue(row);
 
-            const result = await provider.findOneAsync({ query: { id: 'found' } });
+            const result = await provider.fastFindOneAsync({ query: { id: 'found' } });
 
             expect(mockRepository.findByIdAsync).toHaveBeenCalledWith({
                 resourceType: 'TestResource',
@@ -101,7 +101,7 @@ describe('ClickHouseStorageProvider', () => {
 
         test('returns null when findByIdAsync finds nothing', async () => {
             mockRepository.findByIdAsync.mockResolvedValue(null);
-            const result = await provider.findOneAsync({ query: { id: 'missing' } });
+            const result = await provider.fastFindOneAsync({ query: { id: 'missing' } });
             expect(result).toBeNull();
         });
 
@@ -111,7 +111,7 @@ describe('ClickHouseStorageProvider', () => {
                 hasMore: false
             });
 
-            const result = await provider.findOneAsync({ query: { status: 'final' } });
+            const result = await provider.fastFindOneAsync({ query: { status: 'final' } });
 
             expect(mockRepository.searchAsync).toHaveBeenCalledWith({
                 resourceType: 'TestResource',
@@ -123,7 +123,7 @@ describe('ClickHouseStorageProvider', () => {
 
         test('returns null from search when no results', async () => {
             mockRepository.searchAsync.mockResolvedValue({ rows: [], hasMore: false });
-            const result = await provider.findOneAsync({ query: { status: 'final' } });
+            const result = await provider.fastFindOneAsync({ query: { status: 'final' } });
             expect(result).toBeNull();
         });
     });

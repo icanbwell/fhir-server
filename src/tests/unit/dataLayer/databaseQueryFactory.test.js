@@ -37,7 +37,6 @@ describe('DatabaseQueryFactory', () => {
 
         mockStorageProvider = {
             findAsync: jestObj.fn(),
-            findOneAsync: jestObj.fn(),
             getStorageType: jestObj.fn().mockReturnValue('mongodb')
         };
 

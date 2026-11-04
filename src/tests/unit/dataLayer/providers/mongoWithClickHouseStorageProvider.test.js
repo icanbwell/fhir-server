@@ -34,7 +34,6 @@ describe('MongoWithClickHouseStorageProvider', () => {
 
         mockMongoStorageProvider = {
             findAsync: jest.fn(),
-            findOneAsync: jest.fn(),
             countAsync: jest.fn()
         };
 

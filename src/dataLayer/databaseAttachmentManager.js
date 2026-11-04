@@ -5,7 +5,6 @@ const { GridFSBucket, ReadPreferenceMode } = require('mongodb');
 const { assertTypeEquals } = require('../utils/assertType');
 const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
 const { ConfigManager } = require('../utils/configManager');
-const Attachment = require('../fhir/classes/4_0_0/complex_types/attachment');
 const { NotFoundError } = require('../utils/httpErrors');
 const { logInfo } = require('../operations/common/logging');
 const { INSERT, RETRIEVE, DELETE } = require('../constants').GRIDFS;
@@ -151,7 +150,6 @@ class DatabaseAttachmentManager {
         const cleanedPath = path.replace(/\d+/g, '[]');
 
         if (
-            resource instanceof Attachment ||
             (resource instanceof Object && resource._file_id) ||
             (resourceType &&
                 attachmentResourceFields[resourceType] &&

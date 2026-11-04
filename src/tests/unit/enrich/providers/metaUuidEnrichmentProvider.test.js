@@ -5,19 +5,8 @@ jestObj.mock('../../../../utils/isTrue', () => ({
     isTrue: jestObj.fn()
 }));
 
-jestObj.mock('../../../../fhir/fhirResourceCreator', () => ({
-    FhirResourceCreator: {
-        create: jestObj.fn()
-    }
-}));
-
-jestObj.mock('../../../../fhir/classes/4_0_0/complex_types/coding', () => {
-    return class MockCoding {};
-});
-
 const { MetaUuidEnrichmentProvider } = require('../../../../enrich/providers/metaUuidEnrichmentProvider');
 const { isTrue } = require('../../../../utils/isTrue');
-const { FhirResourceCreator } = require('../../../../fhir/fhirResourceCreator');
 const { IdentifierSystem } = require('../../../../utils/identifierSystem');
 
 describe('MetaUuidEnrichmentProvider', () => {
@@ -37,13 +26,11 @@ describe('MetaUuidEnrichmentProvider', () => {
             const result = await provider.enrichAsync({ resources, parsedArgs });
 
             expect(result[0].meta.tag).toEqual([]);
-            expect(FhirResourceCreator.create).not.toHaveBeenCalled();
         });
 
         test('adds uuid tag to resource meta when _metaUuid is true and resource has _uuid and meta', async () => {
             isTrue.mockReturnValue(true);
             const mockCoding = { system: IdentifierSystem.uuid, code: 'test-uuid' };
-            FhirResourceCreator.create.mockReturnValue(mockCoding);
 
             const resources = [{
                 id: 'test',
@@ -54,17 +41,13 @@ describe('MetaUuidEnrichmentProvider', () => {
 
             const result = await provider.enrichAsync({ resources, parsedArgs });
 
-            expect(FhirResourceCreator.create).toHaveBeenCalledWith(
-                { system: IdentifierSystem.uuid, code: 'test-uuid' },
-                expect.anything()
-            );
-            expect(result[0].meta.tag).toContain(mockCoding);
+            expect(result[0].meta.tag).toStrictEqual([mockCoding]);
+            expect(result[0].meta.tag[0].constructor).toBe(Object);
         });
 
         test('creates tag array when meta exists but tag does not', async () => {
             isTrue.mockReturnValue(true);
             const mockCoding = { system: IdentifierSystem.uuid, code: 'uuid-val' };
-            FhirResourceCreator.create.mockReturnValue(mockCoding);
 
             const resources = [{
                 id: 'test',
@@ -82,7 +65,6 @@ describe('MetaUuidEnrichmentProvider', () => {
             isTrue.mockReturnValue(true);
             const existingTag = { system: 'http://existing', code: 'existing-code' };
             const mockCoding = { system: IdentifierSystem.uuid, code: 'uuid-val' };
-            FhirResourceCreator.create.mockReturnValue(mockCoding);
 
             const resources = [{
                 id: 'test',
@@ -95,7 +77,7 @@ describe('MetaUuidEnrichmentProvider', () => {
 
             expect(result[0].meta.tag).toHaveLength(2);
             expect(result[0].meta.tag[0]).toBe(existingTag);
-            expect(result[0].meta.tag[1]).toBe(mockCoding);
+            expect(result[0].meta.tag[1]).toStrictEqual(mockCoding);
         });
 
         test('does NOT add tag when resource has no _uuid', async () => {
@@ -108,7 +90,6 @@ describe('MetaUuidEnrichmentProvider', () => {
 
             const result = await provider.enrichAsync({ resources, parsedArgs });
 
-            expect(FhirResourceCreator.create).not.toHaveBeenCalled();
             expect(result[0].meta.tag).toEqual([]);
         });
 
@@ -122,16 +103,11 @@ describe('MetaUuidEnrichmentProvider', () => {
 
             const result = await provider.enrichAsync({ resources, parsedArgs });
 
-            expect(FhirResourceCreator.create).not.toHaveBeenCalled();
+            expect(result[0].meta).toBeUndefined();
         });
 
         test('processes contained resources recursively', async () => {
             isTrue.mockReturnValue(true);
-            let callCount = 0;
-            FhirResourceCreator.create.mockImplementation((obj) => {
-                callCount++;
-                return { system: obj.system, code: obj.code };
-            });
 
             const resources = [{
                 id: 'parent',
@@ -157,7 +133,6 @@ describe('MetaUuidEnrichmentProvider', () => {
 
         test('does NOT process contained when array is empty', async () => {
             isTrue.mockReturnValue(true);
-            FhirResourceCreator.create.mockReturnValue({ system: 'sys', code: 'code' });
 
             const resources = [{
                 id: 'parent',
@@ -167,18 +142,14 @@ describe('MetaUuidEnrichmentProvider', () => {
             }];
             const parsedArgs = { _metaUuid: 'true' };
 
-            await provider.enrichAsync({ resources, parsedArgs });
+            const result = await provider.enrichAsync({ resources, parsedArgs });
 
-            // Should only be called once for the parent
-            expect(FhirResourceCreator.create).toHaveBeenCalledTimes(1);
+            expect(result[0].meta.tag).toHaveLength(1);
+            expect(result[0].contained).toEqual([]);
         });
 
         test('handles multiple resources', async () => {
             isTrue.mockReturnValue(true);
-            FhirResourceCreator.create.mockImplementation((obj) => ({
-                system: obj.system,
-                code: obj.code
-            }));
 
             const resources = [
                 { id: 'r1', _uuid: 'uuid-1', meta: { tag: [] } },
@@ -209,7 +180,6 @@ describe('MetaUuidEnrichmentProvider', () => {
     describe('enrichBundleEntriesAsync', () => {
         test('enriches each entry resource and sets entry.id', async () => {
             isTrue.mockReturnValue(true);
-            FhirResourceCreator.create.mockReturnValue({ system: 'sys', code: 'code' });
 
             const entries = [
                 { resource: { id: 'res-1', _uuid: 'uuid-1', meta: { tag: [] } } }

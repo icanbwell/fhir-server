@@ -81,7 +81,7 @@ describe('MongoStorageProvider', () => {
         });
     });
 
-    describe('findOneAsync', () => {
+    describe('fastFindOneAsync', () => {
         test('should return resource when found', async () => {
             const mockDoc = {
                 resourceType: 'Patient',
@@ -93,7 +93,7 @@ describe('MongoStorageProvider', () => {
             const query = { id: 'patient-1' };
             const options = { projection: { id: 1, name: 1 } };
 
-            const result = await provider.findOneAsync({ query, options });
+            const result = await provider.fastFindOneAsync({ query, options });
 
             expect(mockCollection.findOne).toHaveBeenCalledWith(query, options);
             expect(result).toBeDefined();
@@ -103,7 +103,7 @@ describe('MongoStorageProvider', () => {
         test('should return null when resource not found', async () => {
             mockCollection.findOne.mockResolvedValue(null);
 
-            const result = await provider.findOneAsync({
+            const result = await provider.fastFindOneAsync({
                 query: { id: 'nonexistent' }
             });
 

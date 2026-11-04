@@ -169,56 +169,6 @@ describe('DatabaseQueryManager', () => {
         });
     });
 
-    describe('findOneAsync', () => {
-        test('should return null when no document found', async () => {
-            mockCollection.findOne.mockResolvedValue(null);
-
-            const result = await databaseQueryManager.findOneAsync({
-                query: { _uuid: 'non-existent' }
-            });
-
-            expect(result).toBeNull();
-        });
-
-        test('should return resource when document found', async () => {
-            const mockDocument = {
-                resourceType: 'Patient',
-                _uuid: 'test-uuid',
-                name: [{ family: 'Test' }]
-            };
-            mockCollection.findOne.mockResolvedValue(mockDocument);
-
-            const result = await databaseQueryManager.findOneAsync({
-                query: { _uuid: 'test-uuid' }
-            });
-
-            expect(result).toBeDefined();
-        });
-
-        test('should throw RethrownError on database error', async () => {
-            mockCollection.findOne.mockRejectedValue(new Error('DB Error'));
-
-            await expect(databaseQueryManager.findOneAsync({
-                query: { _uuid: 'test-uuid' }
-            })).rejects.toThrow(RethrownError);
-        });
-
-        test('should use storageProvider if available', async () => {
-            const mockStorageProvider = {
-                findOneAsync: jest.fn().mockResolvedValue({ resourceType: 'Patient', _uuid: '123' })
-            };
-            const managerWithStorage = new DatabaseQueryManager({
-                resourceLocatorFactory: mockResourceLocatorFactory,
-                storageProvider: mockStorageProvider,
-                resourceType: 'Patient',
-                base_version: '4_0_0'
-            });
-
-            await managerWithStorage.findOneAsync({ query: { _uuid: '123' } });
-            expect(mockStorageProvider.findOneAsync).toHaveBeenCalled();
-        });
-    });
-
     describe('fastFindOneAsync', () => {
         test('should return null when no document found', async () => {
             mockCollection.findOne.mockResolvedValue(null);
