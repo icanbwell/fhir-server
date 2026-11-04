@@ -1,4 +1,8 @@
-const { NotFoundError, ForbiddenError } = require('../../utils/httpErrors');
+const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
+const { TABLES } = require('../../constants/clickHouseConstants');
+const {
+    assertSupportedHistoryArgs, assertEntriesMatchUrlId, assertNoCloudStorageStubs
+} = require('./historyClickHouseGuards');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -43,6 +47,7 @@ class BaseHistoryOperationProcessor {
      * @param {CompositionSectionFilterEnrichmentProvider} compositionSectionFilterEnrichmentProvider
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {import('../../dataLayer/repositories/historyClickHouseRepository').HistoryClickHouseRepository | null} historyClickHouseRepository
      */
     constructor (
         {
@@ -61,9 +66,15 @@ class BaseHistoryOperationProcessor {
             identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider,
             auditLogger,
-            postRequestProcessor
+            postRequestProcessor,
+            historyClickHouseRepository
         }
     ) {
+        /**
+         * null when ClickHouse is not enabled
+         * @type {import('../../dataLayer/repositories/historyClickHouseRepository').HistoryClickHouseRepository | null}
+         */
+        this.historyClickHouseRepository = historyClickHouseRepository || null;
         /**
          * @type {DatabaseHistoryFactory}
          */
@@ -197,8 +208,7 @@ class BaseHistoryOperationProcessor {
             /** @type {string} */
             personIdFromJwtToken,
             actor,
-            userType,
-            requestId
+            userType
         } = requestInfo;
 
         // _explain/_debug/_setIndexHint expose Mongo query plans, collection internals, and
@@ -252,6 +262,10 @@ class BaseHistoryOperationProcessor {
             action: currentOperationName,
             accessRequested
         });
+
+        if (this.configManager.resourceHistoryClickHouseReadResources.includes(resourceType)) {
+            return await this.fetchHistoryFromClickHouseAsync({ requestInfo, parsedArgs, resourceType, startTime });
+        }
 
         // Common search params
         const { base_version, _count } = parsedArgs;
@@ -389,6 +403,126 @@ class BaseHistoryOperationProcessor {
             });
         }
 
+        return await this.buildHistoryBundleAsync({
+            requestInfo,
+            parsedArgs,
+            resourceType,
+            startTime,
+            historyResources,
+            downloadedData,
+            collectionName,
+            query,
+            options,
+            explanations,
+            lastResourceLastUpdated
+        });
+    }
+
+    /**
+     * Serves a history read for a resource type whose history lives in ClickHouse. Requires `_uuid`;
+     * the URL id is not used. The scope checks have already run in fetchHistoryAsync.
+     * @param {Object} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
+     * @param {number} params.startTime
+     * @return {Promise<Object>} history Bundle
+     */
+    async fetchHistoryFromClickHouseAsync({ requestInfo, parsedArgs, resourceType, startTime }) {
+        const { currentOperationName } = this;
+        const uuid = parsedArgs._uuid;
+        const cursor = parsedArgs._historyCursor;
+        try {
+            if (!this.historyClickHouseRepository) {
+                throw new Error(
+                    `ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`
+                );
+            }
+            if (typeof uuid !== 'string' || uuid.length === 0) {
+                throw new BadRequestError(new Error(`_uuid is required to read ${resourceType} history`));
+            }
+            assertSupportedHistoryArgs(parsedArgs);
+            const requested = Number(parsedArgs._count);
+            const limit = Math.min(
+                Number.isInteger(requested) && requested > 0 ? requested : DB_SEARCH_LIMIT,
+                this.configManager.resourceHistoryClickHouseMaxPageSize
+            );
+            const { entries, nextCursor } = await this.historyClickHouseRepository.findPageAsync({
+                resourceType,
+                uuid,
+                limit,
+                cursor: typeof cursor === 'string' ? cursor : undefined
+            });
+            if (entries.length === 0 && !cursor) {
+                throw new NotFoundError('History not found ' + this.errorMessagePostfix);
+            }
+            assertNoCloudStorageStubs(entries);
+            assertEntriesMatchUrlId({
+                entries,
+                id: currentOperationName === 'historyById' ? parsedArgs.id : undefined
+            });
+            return await this.buildHistoryBundleAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType,
+                startTime,
+                historyResources: entries,
+                downloadedData: {},
+                collectionName: TABLES.RESOURCE_HISTORY,
+                query: { resource_type: resourceType, _uuid: uuid },
+                options: {},
+                explanations: [],
+                lastResourceLastUpdated: null,
+                historyCursor: nextCursor
+            });
+        } catch (e) {
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: e
+            });
+            throw e;
+        }
+    }
+
+    /**
+     * Wraps history documents in BundleEntry objects and builds the history Bundle
+     * @param {Object} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
+     * @param {number} params.startTime
+     * @param {object[]} params.historyResources
+     * @param {Object} params.downloadedData history documents fetched from cloud storage, by path
+     * @param {string} params.collectionName
+     * @param {import('mongodb').Document} params.query
+     * @param {import('mongodb').FindOptions} params.options
+     * @param {import('mongodb').Document[]} params.explanations
+     * @param {string|null} params.lastResourceLastUpdated
+     * @param {string|null} [params.historyCursor] token for the next page (ClickHouse reads)
+     * @return {Promise<Object>} history Bundle
+     */
+    async buildHistoryBundleAsync({
+        requestInfo,
+        parsedArgs,
+        resourceType,
+        startTime,
+        historyResources,
+        downloadedData,
+        collectionName,
+        query,
+        options,
+        explanations,
+        lastResourceLastUpdated,
+        historyCursor
+    }) {
+        const { currentOperationName } = this;
+        const { user, originalUrl: url, protocol, host, userType, actor, requestId } = requestInfo;
+        const { base_version } = parsedArgs;
+
         // If doc is not BundleEntry then wrap it in a bundle entry.
         // Use the Promise.all return value (not push-in-callback) so the lastUpdated-desc
         // order set by the Mongo query is preserved even when S3 fetches finish out of order.
@@ -497,7 +631,8 @@ class BaseHistoryOperationProcessor {
                 startTime,
                 user,
                 explanations,
-                lastResourceLastUpdated
+                lastResourceLastUpdated,
+                historyCursor
             }
         );
 

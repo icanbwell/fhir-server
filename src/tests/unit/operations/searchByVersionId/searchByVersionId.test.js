@@ -565,4 +565,94 @@ describe('SearchByVersionIdOperation', () => {
             expect(result).toBeDefined();
         });
     });
+
+    describe('reading from ClickHouse', () => {
+        const requestInfo = {
+            user: 'admin', scope: 'access/*.read', requestId: 'r1', isUser: false,
+            personIdFromJwtToken: null, actor: null, userType: 'user'
+        };
+        let historyClickHouseRepository;
+
+        const run = () => searchByVersionIdOp.searchByVersionIdAsync({
+            requestInfo, parsedArgs: mockParsedArgs, resourceType: 'Patient'
+        });
+
+        beforeEach(() => {
+            Object.defineProperty(mocks.configManager, 'resourceHistoryClickHouseReadResources', {
+                get: () => ['Patient'], configurable: true
+            });
+            historyClickHouseRepository = {
+                findVersionAsync: jest.fn().mockResolvedValue({
+                    id: 'e1',
+                    resource: { resourceType: 'Patient', id: 'test-id', _uuid: 'u1', meta: { versionId: '2', lastUpdated: '2026-01-01T00:00:00.000Z' } }
+                })
+            };
+            mockParsedArgs._uuid = 'u1';
+            searchByVersionIdOp = new SearchByVersionIdOperation({ ...mocks, historyClickHouseRepository });
+        });
+
+        test('reads the version by resource type, _uuid and version_id and never queries MongoDB', async () => {
+            const result = await run();
+
+            expect(historyClickHouseRepository.findVersionAsync).toHaveBeenCalledWith({
+                resourceType: 'Patient', uuid: 'u1', versionId: '2'
+            });
+            expect(mocks.databaseHistoryFactory.createDatabaseHistoryManager).not.toHaveBeenCalled();
+            expect(mocks.searchManager.constructQueryAsync).not.toHaveBeenCalled();
+            expect(result).toBeDefined();
+        });
+
+        test('returns 404 when the version is not in ClickHouse', async () => {
+            historyClickHouseRepository.findVersionAsync.mockResolvedValue(null);
+
+            await expect(run()).rejects.toMatchObject({ statusCode: 404 });
+        });
+
+        test.each([
+            ['missing', undefined],
+            ['empty', '']
+        ])('rejects a request whose _uuid is %s without querying', async (_name, uuid) => {
+            mockParsedArgs._uuid = uuid;
+
+            await expect(run()).rejects.toMatchObject({ statusCode: 400 });
+            expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+        });
+
+        test('returns 404 when _uuid belongs to a different resource than the URL id', async () => {
+            mockParsedArgs.id = 'someone-else';
+
+            await expect(run()).rejects.toMatchObject({ statusCode: 404 });
+        });
+
+        test('rejects an argument the ClickHouse read cannot honour', async () => {
+            mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({ _lastUpdated: 'gt2026-01-01' });
+
+            await expect(run()).rejects.toMatchObject({ statusCode: 400 });
+            expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+        });
+
+        test('fails clearly when the version is a cloud storage stub', async () => {
+            historyClickHouseRepository.findVersionAsync.mockResolvedValue({ id: 'e1', _ref: 'path' });
+
+            await expect(run()).rejects.toThrow('cloud storage');
+        });
+
+        test('a ClickHouse failure is rethrown with no MongoDB fallback', async () => {
+            historyClickHouseRepository.findVersionAsync.mockRejectedValue(new Error('clickhouse down'));
+
+            await expect(run()).rejects.toThrow('clickhouse down');
+            expect(mocks.databaseHistoryFactory.createDatabaseHistoryManager).not.toHaveBeenCalled();
+        });
+
+        test('a type outside the flag list still reads from MongoDB', async () => {
+            Object.defineProperty(mocks.configManager, 'resourceHistoryClickHouseReadResources', {
+                get: () => ['Observation'], configurable: true
+            });
+
+            await run().catch(() => {});
+
+            expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+            expect(mocks.databaseHistoryFactory.createDatabaseHistoryManager).toHaveBeenCalled();
+        });
+    });
 });

@@ -182,9 +182,11 @@ class ClickHouseClientManager {
      * @param {string} params.query - SQL query
      * @param {Object} [params.query_params] - Query parameters
      * @param {string} [params.format] - Result format (default: JSONEachRow)
+     * @param {number} [params.timeoutMs] - Per-query timeout; aborts the request and caps server execution time
+     * @param {Object} [params.clickhouse_settings] - Extra ClickHouse settings for this query
      * @returns {Promise<Object>}
      */
-    async queryAsync({ query, query_params = {}, format = 'JSONEachRow' }) {
+    async queryAsync({ query, query_params = {}, format = 'JSONEachRow', timeoutMs, clickhouse_settings = {} }) {
         const startTime = Date.now();
         const queryStr = typeof query === 'string' ? query : (query || '');
         const queryPreview = queryStr.substring(0, 200);
@@ -217,8 +219,11 @@ class ClickHouseClientManager {
                     query_params,
                     format,
                     clickhouse_settings: {
-                        date_time_output_format: 'iso'
-                    }
+                        date_time_output_format: 'iso',
+                        ...clickhouse_settings,
+                        ...(timeoutMs ? { max_execution_time: Math.max(1, Math.ceil(timeoutMs / 1000)) } : {})
+                    },
+                    ...(timeoutMs ? { abort_signal: AbortSignal.timeout(timeoutMs) } : {})
                 });
 
                 const result = await resultSet.json();

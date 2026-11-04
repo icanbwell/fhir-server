@@ -1026,6 +1026,30 @@ class FhirOperationsManager {
     }
 
     /**
+     * Parses the args of a history read. `_uuid` and `_historyCursor` are only meaningful when the
+     * resource type is read from ClickHouse, so they are taken out before parsing and attached
+     * afterwards; for any other type they stay ordinary (unknown) arguments, as before.
+     * @param {Object} params
+     * @param {Object} params.args
+     * @param {string} params.resourceType
+     * @param {Object} params.headers
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @return {Promise<ParsedArgs>}
+     */
+    async getHistoryParsedArgsAsync({ args, resourceType, headers, requestInfo }) {
+        if (!this.configManager.resourceHistoryClickHouseReadResources.includes(resourceType)) {
+            return await this.getParsedArgsAsync({ args, resourceType, headers, operation: READ, requestInfo });
+        }
+        const { _uuid, _historyCursor, ...rest } = args;
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: rest, resourceType, headers, operation: READ, requestInfo
+        });
+        parsedArgs._uuid = _uuid;
+        parsedArgs._historyCursor = _historyCursor;
+        return parsedArgs;
+    }
+
+    /**
      * does a FHIR Search By Version
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
@@ -1045,10 +1069,9 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
-        }
-        );
+        const parsedArgs = await this.getHistoryParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, requestInfo
+        });
         return await this.searchByVersionIdOperation.searchByVersionIdAsync(
             {
                 requestInfo: requestInfo,
@@ -1079,10 +1102,9 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
-        }
-        );
+        const parsedArgs = await this.getHistoryParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, requestInfo
+        });
 
         return await this.historyOperation.historyAsync(
             {
@@ -1113,10 +1135,9 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
-        }
-        );
+        const parsedArgs = await this.getHistoryParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, requestInfo
+        });
         return await this.historyByIdOperation.historyByIdAsync(
             {
                 requestInfo: requestInfo,

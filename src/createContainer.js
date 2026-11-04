@@ -170,6 +170,7 @@ const { GenericClickHouseQueryParser } = require('./dataLayer/clickHouse/generic
 const { GenericClickHouseQueryBuilder } = require('./dataLayer/builders/genericClickHouseQueryBuilder');
 const { GenericClickHouseRepository } = require('./dataLayer/repositories/genericClickHouseRepository');
 const { AccessHistoryClickHouseRepository } = require('./dataLayer/repositories/accessHistoryClickHouseRepository');
+const { HistoryClickHouseRepository } = require('./dataLayer/repositories/historyClickHouseRepository');
 const { AccessHistoryOperation } = require('./operations/accessHistory/accessHistory');
 const { BaseSerializer } = require('./fhir/writeSerializers/4_0_0/customSerializers');
 const deepcopy = require('deepcopy');
@@ -434,6 +435,15 @@ const createContainer = function () {
         if (c.clickHouseClientManager) {
             return new AccessHistoryClickHouseRepository({
                 clickHouseClientManager: c.clickHouseClientManager
+            });
+        }
+        return null;
+    });
+    container.register('historyClickHouseRepository', (c) => {
+        if (c.clickHouseClientManager) {
+            return new HistoryClickHouseRepository({
+                clickHouseClientManager: c.clickHouseClientManager,
+                configManager: c.configManager
             });
         }
         return null;
@@ -970,7 +980,8 @@ const createContainer = function () {
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             mongoGroupMemberRepository: c.mongoGroupMemberRepository,
             auditLogger: c.auditLogger,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            historyClickHouseRepository: c.historyClickHouseRepository
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -990,7 +1001,8 @@ const createContainer = function () {
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
             auditLogger: c.auditLogger,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            historyClickHouseRepository: c.historyClickHouseRepository
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -1010,7 +1022,8 @@ const createContainer = function () {
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
             auditLogger: c.auditLogger,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            historyClickHouseRepository: c.historyClickHouseRepository
         }
     ));
     container.register('mongoGroupMemberRepository', (c) => new MongoGroupMemberRepository(

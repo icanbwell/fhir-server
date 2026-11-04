@@ -1,4 +1,8 @@
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
+const { TABLES } = require('../../constants/clickHouseConstants');
+const {
+    assertSupportedHistoryArgs, assertEntriesMatchUrlId, assertNoCloudStorageStubs
+} = require('../history/historyClickHouseGuards');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -48,9 +52,15 @@ class SearchByVersionIdOperation {
             historyResourceCloudStorageClient,
             mongoGroupMemberRepository,
             auditLogger,
-            postRequestProcessor
+            postRequestProcessor,
+            historyClickHouseRepository
         }
     ) {
+        /**
+         * null when ClickHouse is not enabled
+         * @type {import('../../dataLayer/repositories/historyClickHouseRepository').HistoryClickHouseRepository | null}
+         */
+        this.historyClickHouseRepository = historyClickHouseRepository || null;
         /**
          * @type {DatabaseHistoryFactory}
          */
@@ -124,6 +134,35 @@ class SearchByVersionIdOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+    }
+
+    /**
+     * Reads one version from ClickHouse (resource types listed in
+     * RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES). Requires `_uuid`; the URL id is not used.
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {ParsedArgs} params.parsedArgs
+     * @return {Promise<{resource: object, collectionName: string}|null>} null when the version is not in ClickHouse
+     */
+    async findVersionInClickHouseAsync ({ resourceType, parsedArgs }) {
+        const { _uuid: uuid, version_id: versionId } = parsedArgs;
+        if (!this.historyClickHouseRepository) {
+            throw new Error(`ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`);
+        }
+        if (typeof uuid !== 'string' || uuid.length === 0) {
+            throw new BadRequestError(new Error(`_uuid is required to read a ${resourceType} version`));
+        }
+        if (typeof versionId !== 'string') {
+            throw new BadRequestError(new Error('version_id must be a string'));
+        }
+        assertSupportedHistoryArgs(parsedArgs);
+        const raw = await this.historyClickHouseRepository.findVersionAsync({ resourceType, uuid, versionId });
+        if (!raw) {
+            return null;
+        }
+        assertNoCloudStorageStubs([raw]);
+        assertEntriesMatchUrlId({ entries: [raw], id: parsedArgs.id });
+        return { resource: raw, collectionName: TABLES.RESOURCE_HISTORY };
     }
 
     /**
@@ -207,65 +246,69 @@ class SearchByVersionIdOperation {
             );
 
             /**
-             * @type {boolean}
-             */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
-
-            /**
-             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
-             */
-            let {
-                /** @type {import('mongodb').Document}**/
-                query
-                // /** @type {Set} **/
-                // columns
-            } = await this.searchManager.constructQueryAsync({
-                user,
-                scope,
-                isUser,
-                userType,
-                resourceType,
-                useAccessIndex,
-                personIdFromJwtToken,
-                parsedArgs,
-                useHistoryTable: true,
-                operation: READ,
-                accessRequested: 'r',
-                actor
-            });
-
-            if (typeof version_id !== 'string') {
-                throw new BadRequestError('version_id must be a string');
-            }
-            const queryForVersionId = {
-                'resource.meta.versionId': version_id
-            };
-
-            if (query.$and) {
-                query.$and.push(queryForVersionId);
-            } else {
-                query = {
-                    $and: [
-                        query,
-                        queryForVersionId
-                    ]
-                };
-            }
-            /**
              * @type {{resource: object, collectionName: string}|null}
              */
             let result;
-            try {
-                const databaseHistoryManager = this.databaseHistoryFactory.createDatabaseHistoryManager(
-                    {
-                        resourceType, base_version
-                    }
-                );
-                result = await databaseHistoryManager.findOneAsync({
+            if (this.configManager.resourceHistoryClickHouseReadResources.includes(resourceType)) {
+                result = await this.findVersionInClickHouseAsync({ resourceType, parsedArgs });
+            } else {
+                /**
+                 * @type {boolean}
+                 */
+                const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
+
+                /**
+                 * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+                 */
+                let {
+                    /** @type {import('mongodb').Document}**/
                     query
+                    // /** @type {Set} **/
+                    // columns
+                } = await this.searchManager.constructQueryAsync({
+                    user,
+                    scope,
+                    isUser,
+                    userType,
+                    resourceType,
+                    useAccessIndex,
+                    personIdFromJwtToken,
+                    parsedArgs,
+                    useHistoryTable: true,
+                    operation: READ,
+                    accessRequested: 'r',
+                    actor
                 });
-            } catch (e) {
-                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
+
+                if (typeof version_id !== 'string') {
+                    throw new BadRequestError('version_id must be a string');
+                }
+                const queryForVersionId = {
+                    'resource.meta.versionId': version_id
+                };
+
+                if (query.$and) {
+                    query.$and.push(queryForVersionId);
+                } else {
+                    query = {
+                        $and: [
+                            query,
+                            queryForVersionId
+                        ]
+                    };
+                }
+                try {
+                    const databaseHistoryManager = this.databaseHistoryFactory.createDatabaseHistoryManager(
+                        {
+                            resourceType, base_version
+                        }
+                    );
+                    result = await databaseHistoryManager.findOneAsync({
+                        query
+                    });
+                } catch (e) {
+                    throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
+                }
             }
 
             if (result) {
