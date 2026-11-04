@@ -42,11 +42,11 @@ jestGlobal.mock('../../../operations/security/scopesManager', () => {
     return { ScopesManager };
 });
 
-// Mock DatabaseBulkInserter
-jestGlobal.mock('../../../dataLayer/databaseBulkInserter', () => {
+// Mock FastDatabaseBulkInserter
+jestGlobal.mock('../../../dataLayer/fastDatabaseBulkInserter', () => {
     const { EventEmitter } = require('events');
-    class DatabaseBulkInserter extends EventEmitter {}
-    return { DatabaseBulkInserter };
+    class FastDatabaseBulkInserter extends EventEmitter {}
+    return { FastDatabaseBulkInserter };
 });
 
 // Mock AccessLogClickHouseWriter
@@ -59,7 +59,7 @@ const httpContext = require('express-http-context');
 const { AccessLogger } = require('../../../utils/accessLogger');
 const { ScopesManager } = require('../../../operations/security/scopesManager');
 const { FhirOperationsManager } = require('../../../operations/fhirOperationsManager');
-const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
 const { AccessLogClickHouseWriter } = require('../../../utils/accessLogClickHouseWriter');
 const { logError, logInfo } = require('../../../operations/common/logging');
 
@@ -98,7 +98,7 @@ describe('AccessLogger', () => {
             getRawArgs: () => ({})
         });
 
-        mockDatabaseBulkInserter = createMockInstance(DatabaseBulkInserter);
+        mockDatabaseBulkInserter = createMockInstance(FastDatabaseBulkInserter);
         mockDatabaseBulkInserter.getOperationForResourceAsync = jestGlobal.fn().mockReturnValue({ op: 'insert' });
         mockDatabaseBulkInserter.executeAsync = jestGlobal.fn().mockResolvedValue([]);
 

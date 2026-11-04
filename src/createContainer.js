@@ -756,7 +756,7 @@ const createContainer = function () {
                 fhirOperationsManager: c.fhirOperationsManager,
                 imageVersion: getImageVersion(),
                 configManager: c.configManager,
-                databaseBulkInserter: c.databaseBulkInserter,
+                databaseBulkInserter: c.fastDatabaseBulkInserter,
                 accessLogClickHouseWriter: c.accessLogClickHouseWriter
             }
         )
