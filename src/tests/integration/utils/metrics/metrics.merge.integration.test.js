@@ -111,7 +111,7 @@ describe('metrics merge boundary', () => {
 
         const request = await createTestRequest();
         const container = getTestContainer();
-        const bulkInserter = container.databaseBulkInserter;
+        const bulkInserter = container.fastDatabaseBulkInserter;
         const insertSpy = jest.spyOn(bulkInserter, 'executeAsync')
             .mockRejectedValueOnce(new Error('synthetic mid-flight failure'));
 

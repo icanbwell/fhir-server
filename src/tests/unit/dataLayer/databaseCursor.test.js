@@ -8,14 +8,8 @@ jest.mock('../../../operations/common/systemEventLogging', () => ({
     logTraceSystemEventAsync: jest.fn().mockResolvedValue(undefined),
     logSystemEventAsync: jest.fn().mockResolvedValue(undefined)
 }));
-jest.mock('../../../fhir/fhirResourceCreator', () => ({
-    FhirResourceCreator: {
-        mapDocumentToResourceObject: jest.fn((doc) => ({ ...doc, _mapped: true }))
-    }
-}));
 
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
-const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 
 /**
  * Creates a mock MongoDB FindCursor-like object.
@@ -231,14 +225,6 @@ describe('DatabaseCursor', () => {
         test('wraps errors in RethrownError', async () => {
             mockCursor.toArray.mockRejectedValue(new Error('timeout'));
             await expect(dbCursor.toArrayAsync()).rejects.toThrow('timeout');
-        });
-    });
-
-    describe('toObjectArrayAsync', () => {
-        test('maps all documents through FhirResourceCreator', async () => {
-            const result = await dbCursor.toObjectArrayAsync();
-            expect(result).toHaveLength(2);
-            expect(FhirResourceCreator.mapDocumentToResourceObject).toHaveBeenCalledTimes(2);
         });
     });
 

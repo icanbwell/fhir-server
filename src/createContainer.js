@@ -4,7 +4,6 @@ const {SimpleContainer} = require('./utils/simpleContainer');
 const {AccessLogger} = require('./utils/accessLogger');
 const {ChangeEventProducer} = require('./utils/changeEventProducer');
 const {ResourceManager} = require('./operations/common/resourceManager');
-const {DatabaseBulkInserter} = require('./dataLayer/databaseBulkInserter');
 const {FastDatabaseBulkInserter} = require('./dataLayer/fastDatabaseBulkInserter');
 const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
 const {DatabaseAttachmentManager} = require('./dataLayer/databaseAttachmentManager');
@@ -481,8 +480,7 @@ const createContainer = function () {
             preSaveManager: c.preSaveManager,
             databaseQueryFactory: c.databaseQueryFactory,
             configManager: c.configManager,
-            base64DataManager: c.base64DataManager,
-            historyKafkaProducer: c.historyKafkaProducer
+            base64DataManager: c.base64DataManager
         }));
 
     container.register('resourceManager', (c) => new ResourceManager(
@@ -654,7 +652,7 @@ const createContainer = function () {
             genericClickHouseRepository: c.genericClickHouseRepository,
             schemaRegistry: c.clickHouseSchemaRegistry,
             postSaveProcessor: c.postSaveProcessor,
-            fallbackExecutor: c.mongoBulkWriteExecutor
+            fallbackExecutor: c.fastMongoBulkWriteExecutor
         });
     });
 
@@ -667,7 +665,7 @@ const createContainer = function () {
         return new KafkaClickPipeBulkWriteExecutor({
             kafkaClientV2: c.kafkaClientV2,
             schemaRegistry: c.clickHouseSchemaRegistry,
-            fallbackExecutor: c.mongoBulkWriteExecutor,
+            fallbackExecutor: c.fastMongoBulkWriteExecutor,
             batchSize: c.configManager.auditEventClickPipeBatchSize,
             compression: getKafkaCompressionType(c.configManager.kafkaProducerCompression),
             produceTimeoutMs: c.configManager.kafkaProducerTimeoutMs
@@ -677,17 +675,6 @@ const createContainer = function () {
     container.register('historyKafkaProducer', (c) => new HistoryKafkaProducer({
         configManager: c.configManager,
         kafkaClientV2: c.kafkaClientV2
-    }));
-
-    container.register('mongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
-        resourceLocatorFactory: c.resourceLocatorFactory,
-        configManager: c.configManager,
-        postSaveProcessor: c.postSaveProcessor,
-        postRequestProcessor: c.postRequestProcessor,
-        cloneResource: (resource) => resource.clone(),
-        createUpdateManager: ({resourceType, base_version}) =>
-            c.databaseUpdateFactory.createDatabaseUpdateManager({resourceType, base_version}),
-        base64DataManager: c.base64DataManager
     }));
 
     container.register('fastMongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
@@ -700,17 +687,6 @@ const createContainer = function () {
             c.databaseUpdateFactory.createFastDatabaseUpdateManager({resourceType, base_version}),
         base64DataManager: c.base64DataManager
     }));
-
-    container.register('databaseBulkInserter', (c) => new DatabaseBulkInserter(
-            {
-                postRequestProcessor: c.postRequestProcessor,
-                requestSpecificCache: c.requestSpecificCache,
-                base64DataManager: c.base64DataManager,
-                bulkWriteExecutors: [c.kafkaClickPipeBulkWriteExecutor, c.clickHouseBulkWriteExecutor, c.mongoBulkWriteExecutor].filter(Boolean),
-                historyKafkaProducer: c.historyKafkaProducer
-            }
-        )
-    );
 
     container.register('fastDatabaseBulkInserter', (c) => new FastDatabaseBulkInserter(
             {

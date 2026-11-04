@@ -69,7 +69,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
      * @param {PostSaveProcessor} postSaveProcessor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {Function} cloneResource - Strategy: (resource) => cloned resource
-     * @param {Function} createUpdateManager - Strategy: ({resourceType, base_version}) => DatabaseUpdateManager
+     * @param {Function} createUpdateManager - Strategy: ({resourceType, base_version}) => FastDatabaseUpdateManager
      * @param {Base64DataManager} base64DataManager
      */
     constructor ({
@@ -109,7 +109,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
 
         /**
          * Strategy function to clone a resource for history doc creation.
-         * - DatabaseBulkInserter: (resource) => resource.clone()
          * - FastDatabaseBulkInserter: (resource) => deepcopy(resource)
          * @type {Function}
          */
@@ -118,7 +117,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
 
         /**
          * Strategy function to create an update manager for concurrency fallback.
-         * - DatabaseBulkInserter: createDatabaseUpdateManager
          * - FastDatabaseBulkInserter: createFastDatabaseUpdateManager
          * @type {Function}
          */
@@ -635,7 +633,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                 }
             );
             /**
-             * @type {DatabaseUpdateManager}
+             * @type {FastDatabaseUpdateManager}
              */
             const databaseUpdateManager = this.createUpdateManager(
                 {

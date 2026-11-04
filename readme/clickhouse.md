@@ -394,7 +394,7 @@ table is loaded by ClickPipes and read by the `_history` path, not by the generi
 sequenceDiagram
     participant Client
     participant API as FHIR API
-    participant BulkInserter as DatabaseBulkInserter
+    participant BulkInserter as FastDatabaseBulkInserter
     participant Context as httpContext
     participant Mongo as MongoDB
     participant PostSave as PostSaveProcessor

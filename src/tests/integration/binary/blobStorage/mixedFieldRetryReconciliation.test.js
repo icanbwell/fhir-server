@@ -102,12 +102,11 @@ describe('Mixed-field version-conflict retry never drops the payload change', ()
 
         // Directly exercise databaseUpdateManager.replaceOneAsync, forcing the exact "diff sees an
         // unrelated field change" branch: contentType AND data both change vs the committed v1.
-        const mgr = container.databaseUpdateFactory.createDatabaseUpdateManager({
+        const mgr = container.databaseUpdateFactory.createFastDatabaseUpdateManager({
             resourceType: 'Binary', base_version: '4_0_0'
         });
         const requestInfo = makeRequestInfo('reconcile-1');
-        const Binary = require('../../../../fhir/classes/4_0_0/resources/binary');
-        const incoming = new Binary(buildBinary(DATA_Y, 'application/xml'));
+        const incoming = buildBinary(DATA_Y, 'application/xml');
         incoming.id = docV1.id;
         incoming._uuid = docV1._uuid;
         incoming.meta.versionId = docV1.meta.versionId;

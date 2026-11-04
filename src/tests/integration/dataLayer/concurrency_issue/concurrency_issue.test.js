@@ -162,9 +162,9 @@ describe('CodeSystem Tests', () => {
             expect(databaseUpdateFactory).toBeDefined();
 
             /**
-             * @type {DatabaseUpdateManager}
+             * @type {FastDatabaseUpdateManager}
              */
-            const databaseUpdateManager = databaseUpdateFactory.createDatabaseUpdateManager({
+            const databaseUpdateManager = databaseUpdateFactory.createFastDatabaseUpdateManager({
                 resourceType: 'CodeSystem',
                 base_version: '4_0_0'
             });
@@ -180,7 +180,7 @@ describe('CodeSystem Tests', () => {
                 await databaseUpdateManager.replaceOneAsync({
                     base_version,
                     requestInfo,
-                    doc: new CodeSystem(codeSystem)
+                    doc: toWriteDoc(new CodeSystem(codeSystem))
                 });
             }
 

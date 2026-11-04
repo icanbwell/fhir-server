@@ -1,8 +1,6 @@
 const { assertIsValid } = require('../utils/assertType');
-const async = require('async');
 const { RethrownError } = require('../utils/rethrownError');
 const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
-const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 const { FindCursor } = require('mongodb');
 
 /**
@@ -154,36 +152,6 @@ class DatabaseCursor {
             });
 
             return await this.cursor.toArray();
-        } catch (e) {
-            throw new RethrownError({
-                collections: this.cursor.namespace.collection,
-                databases: this.cursor.namespace.db,
-                error: e,
-                query: this.query
-            });
-        }
-    }
-
-    /**
-     * Returns an array of resources.
-     * The caller is responsible for making sure that there is enough memory to store the results.
-     * Note that the array only contains partial results when this cursor had been previously accessed.
-     * In that case, cursor.rewind() can be used to reset the cursor.
-     * @return {Promise<Resource[]>}
-     */
-    async toObjectArrayAsync() {
-        try {
-            await logTraceSystemEventAsync({
-                event: 'DatabaseCursor: toObjectArrayAsync',
-                message: 'DatabaseCursor: toObjectArrayAsync',
-                args: {
-                    collections: this.cursor.namespace.collection,
-                    query: this.query
-                }
-            });
-
-            const docs = await this.toArrayAsync();
-            return await async.map(docs, async (doc) => FhirResourceCreator.mapDocumentToResourceObject(doc, this.resourceType));
         } catch (e) {
             throw new RethrownError({
                 collections: this.cursor.namespace.collection,

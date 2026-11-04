@@ -19,6 +19,7 @@ const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactor
 const { ConfigManager } = require('../../../utils/configManager');
 const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
 const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
+const { RethrownError } = require('../../../utils/rethrownError');
 
 function createPrototypedMock(RealClass) {
     return Object.create(RealClass.prototype);
@@ -207,6 +208,37 @@ describe('FastDatabaseUpdateManager', () => {
             await expect(
                 manager.insertOneAsync({ doc, requestInfo })
             ).rejects.toThrow();
+        });
+    });
+
+    describe('updateOneAsync', () => {
+        test('replaces the stored document that has the same _uuid', async () => {
+            const doc = createMockDoc({ id: 'p1', _uuid: 'u1', versionId: '2' });
+            const requestInfo = createMockFhirRequestInfo();
+
+            await manager.updateOneAsync({ doc, requestInfo });
+
+            expect(mocks.collection.replaceOne).toHaveBeenCalledTimes(1);
+            expect(mocks.collection.replaceOne).toHaveBeenCalledWith({ _uuid: { $eq: 'u1' } }, doc);
+        });
+
+        test('calls preSaveManager before replacing', async () => {
+            const doc = createMockDoc({ id: 'p2', _uuid: 'u2', versionId: '3' });
+            const requestInfo = createMockFhirRequestInfo();
+
+            await manager.updateOneAsync({ doc, requestInfo });
+
+            expect(mocks.preSaveManager.preSaveAsync).toHaveBeenCalledTimes(1);
+            expect(mocks.preSaveManager.preSaveAsync.mock.invocationCallOrder[0])
+                .toBeLessThan(mocks.collection.replaceOne.mock.invocationCallOrder[0]);
+        });
+
+        test('throws RethrownError when collection.replaceOne fails', async () => {
+            mocks.collection.replaceOne.mockRejectedValue(new Error('DB update failed'));
+            const doc = createMockDoc({ id: 'p3', _uuid: 'u3', versionId: '1' });
+            const requestInfo = createMockFhirRequestInfo();
+
+            await expect(manager.updateOneAsync({ doc, requestInfo })).rejects.toThrow(RethrownError);
         });
     });
 

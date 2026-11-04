@@ -81,7 +81,7 @@ request examples. Stop the stack with `make down`.
 - Test container overrides: `src/tests/createTestContainer.js`
 - **Shared request id in integration tests.** `mockHttpContext()` pins one `systemGeneratedRequestId`
   for every request in a test, so they all share one request-scoped cache (`RequestSpecificCache`),
-  including the pending-history map used by `DatabaseBulkInserter` / `FastDatabaseBulkInserter`.
+  including the pending-history map used by `FastDatabaseBulkInserter`.
   A write flushes its history in a post-request task that runs after the response is sent. If the
   test's next request starts while that task is still in flight, it works on the same map: a history
   entry is written twice (`E11000` on `<Resource>_4_0_0_History._id`, seen as a 500 on DELETE) or

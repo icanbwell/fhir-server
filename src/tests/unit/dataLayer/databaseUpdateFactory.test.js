@@ -8,21 +8,6 @@ jestObj.mock('../../../utils/assertType', () => ({
     assertIsValid: jestObj.fn()
 }));
 
-// Mock DatabaseUpdateManager
-jestObj.mock('../../../dataLayer/databaseUpdateManager', () => ({
-    DatabaseUpdateManager: jestObj.fn().mockImplementation((params) => ({
-        _resourceType: params.resourceType,
-        _base_version: params.base_version,
-        resourceLocatorFactory: params.resourceLocatorFactory,
-        resourceMerger: params.resourceMerger,
-        preSaveManager: params.preSaveManager,
-        databaseQueryFactory: params.databaseQueryFactory,
-        configManager: params.configManager,
-        base64DataManager: params.base64DataManager,
-        _isDatabaseUpdateManager: true
-    }))
-}));
-
 // Mock FastDatabaseUpdateManager
 jestObj.mock('../../../dataLayer/fastDatabaseUpdateManager', () => ({
     FastDatabaseUpdateManager: jestObj.fn().mockImplementation((params) => ({
@@ -39,7 +24,6 @@ jestObj.mock('../../../dataLayer/fastDatabaseUpdateManager', () => ({
 }));
 
 const { DatabaseUpdateFactory } = require('../../../dataLayer/databaseUpdateFactory');
-const { DatabaseUpdateManager } = require('../../../dataLayer/databaseUpdateManager');
 const { FastDatabaseUpdateManager } = require('../../../dataLayer/fastDatabaseUpdateManager');
 const { ResourceLocatorFactory } = require('../../../operations/common/resourceLocatorFactory');
 const { ResourceMerger } = require('../../../operations/common/resourceMerger');
@@ -64,7 +48,7 @@ describe('DatabaseUpdateFactory', () => {
         mockResourceLocatorFactory.createResourceLocator = jestObj.fn();
 
         mockResourceMerger = Object.create(ResourceMerger.prototype);
-        mockResourceMerger.mergeResourceAsync = jestObj.fn();
+        mockResourceMerger.fastMergeResourceAsync = jestObj.fn();
 
         mockPreSaveManager = Object.create(PreSaveManager.prototype);
         mockPreSaveManager.preSaveAsync = jestObj.fn();
@@ -115,95 +99,6 @@ describe('DatabaseUpdateFactory', () => {
             createFactory();
 
             expect(assertTypeEquals).toHaveBeenCalledTimes(6);
-        });
-    });
-
-    describe('createDatabaseUpdateManager', () => {
-        let factory;
-
-        beforeEach(() => {
-            factory = createFactory();
-        });
-
-        test('should create DatabaseUpdateManager with all dependencies', () => {
-            const result = factory.createDatabaseUpdateManager({
-                resourceType: 'Patient',
-                base_version: '4_0_0'
-            });
-
-            expect(DatabaseUpdateManager).toHaveBeenCalledWith({
-                resourceLocatorFactory: mockResourceLocatorFactory,
-                resourceMerger: mockResourceMerger,
-                preSaveManager: mockPreSaveManager,
-                databaseQueryFactory: mockDatabaseQueryFactory,
-                configManager: mockConfigManager,
-                base64DataManager: mockBase64DataManager,
-                historyKafkaProducer: null,
-                resourceType: 'Patient',
-                base_version: '4_0_0'
-            });
-            expect(result._isDatabaseUpdateManager).toBe(true);
-        });
-
-        test('should pass different resource types', () => {
-            factory.createDatabaseUpdateManager({
-                resourceType: 'Observation',
-                base_version: '4_0_0'
-            });
-
-            expect(DatabaseUpdateManager).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    resourceType: 'Observation'
-                })
-            );
-        });
-
-        test('should pass different base_version values', () => {
-            factory.createDatabaseUpdateManager({
-                resourceType: 'Patient',
-                base_version: '3_0_1'
-            });
-
-            expect(DatabaseUpdateManager).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    base_version: '3_0_1'
-                })
-            );
-        });
-
-        test('should return a new instance each time', () => {
-            const result1 = factory.createDatabaseUpdateManager({
-                resourceType: 'Patient',
-                base_version: '4_0_0'
-            });
-
-            const result2 = factory.createDatabaseUpdateManager({
-                resourceType: 'Patient',
-                base_version: '4_0_0'
-            });
-
-            expect(result1).not.toBe(result2);
-            expect(DatabaseUpdateManager).toHaveBeenCalledTimes(2);
-        });
-
-        test('should use same dependencies for all created managers', () => {
-            factory.createDatabaseUpdateManager({
-                resourceType: 'Patient',
-                base_version: '4_0_0'
-            });
-
-            factory.createDatabaseUpdateManager({
-                resourceType: 'Observation',
-                base_version: '4_0_0'
-            });
-
-            const calls = DatabaseUpdateManager.mock.calls;
-            expect(calls[0][0].resourceLocatorFactory).toBe(calls[1][0].resourceLocatorFactory);
-            expect(calls[0][0].resourceMerger).toBe(calls[1][0].resourceMerger);
-            expect(calls[0][0].preSaveManager).toBe(calls[1][0].preSaveManager);
-            expect(calls[0][0].databaseQueryFactory).toBe(calls[1][0].databaseQueryFactory);
-            expect(calls[0][0].configManager).toBe(calls[1][0].configManager);
-            expect(calls[0][0].base64DataManager).toBe(calls[1][0].base64DataManager);
         });
     });
 
@@ -290,53 +185,6 @@ describe('DatabaseUpdateFactory', () => {
             expect(calls[0][0].resourceMerger).toBe(calls[1][0].resourceMerger);
             expect(calls[0][0].preSaveManager).toBe(calls[1][0].preSaveManager);
             expect(calls[0][0].configManager).toBe(calls[1][0].configManager);
-        });
-    });
-
-    describe('createDatabaseUpdateManager vs createFastDatabaseUpdateManager', () => {
-        test('should create different types of managers', () => {
-            const factory = createFactory();
-
-            const updateManager = factory.createDatabaseUpdateManager({
-                resourceType: 'Patient',
-                base_version: '4_0_0'
-            });
-
-            const fastUpdateManager = factory.createFastDatabaseUpdateManager({
-                resourceType: 'Patient',
-                base_version: '4_0_0'
-            });
-
-            expect(updateManager._isDatabaseUpdateManager).toBe(true);
-            expect(updateManager._isFastDatabaseUpdateManager).toBeUndefined();
-            expect(fastUpdateManager._isFastDatabaseUpdateManager).toBe(true);
-            expect(fastUpdateManager._isDatabaseUpdateManager).toBeUndefined();
-        });
-
-        test('should pass same params to both manager types', () => {
-            const factory = createFactory();
-
-            factory.createDatabaseUpdateManager({
-                resourceType: 'Patient',
-                base_version: '4_0_0'
-            });
-
-            factory.createFastDatabaseUpdateManager({
-                resourceType: 'Patient',
-                base_version: '4_0_0'
-            });
-
-            const updateManagerParams = DatabaseUpdateManager.mock.calls[0][0];
-            const fastUpdateManagerParams = FastDatabaseUpdateManager.mock.calls[0][0];
-
-            expect(updateManagerParams.resourceLocatorFactory).toBe(fastUpdateManagerParams.resourceLocatorFactory);
-            expect(updateManagerParams.resourceMerger).toBe(fastUpdateManagerParams.resourceMerger);
-            expect(updateManagerParams.preSaveManager).toBe(fastUpdateManagerParams.preSaveManager);
-            expect(updateManagerParams.databaseQueryFactory).toBe(fastUpdateManagerParams.databaseQueryFactory);
-            expect(updateManagerParams.configManager).toBe(fastUpdateManagerParams.configManager);
-            expect(updateManagerParams.base64DataManager).toBe(fastUpdateManagerParams.base64DataManager);
-            expect(updateManagerParams.resourceType).toBe(fastUpdateManagerParams.resourceType);
-            expect(updateManagerParams.base_version).toBe(fastUpdateManagerParams.base_version);
         });
     });
 });

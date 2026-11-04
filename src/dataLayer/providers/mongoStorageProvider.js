@@ -101,7 +101,7 @@ class MongoStorageProvider extends StorageProvider {
     /**
      * Inserts or updates resources in MongoDB
      * NOTE: This is a simplified version. Actual upsert logic is handled
-     * by DatabaseBulkInserter and DatabaseUpdateManager
+     * by FastDatabaseBulkInserter and FastDatabaseUpdateManager
      * @param {Object} params
      * @param {Array<Object>} params.resources
      * @param {Object} [params.options]
@@ -110,7 +110,7 @@ class MongoStorageProvider extends StorageProvider {
     async upsertAsync({ resources, options }) {
         // This method is primarily called from ClickHouseStorageProvider
         // for dual-write scenarios. The actual MongoDB insert/update logic
-        // remains in DatabaseBulkInserter and DatabaseUpdateManager.
+        // remains in FastDatabaseBulkInserter and FastDatabaseUpdateManager.
         //
         // For MongoDB-only scenarios, those managers are used directly.
         return { acknowledged: true, insertedCount: resources.length };

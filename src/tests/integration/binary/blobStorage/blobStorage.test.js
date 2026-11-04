@@ -731,7 +731,6 @@ describe('Binary base64 S3 offload — write paths', () => {
     });
 
     test('payload-only concurrent update is forced through on the PUT (non-fast) retry path', async () => {
-        const Binary = require('../../../../fhir/classes/4_0_0/resources/binary');
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const b64 = container.base64DataManager;
@@ -748,18 +747,18 @@ describe('Binary base64 S3 offload — write paths', () => {
 
         const dbDoc = await readBinaryFromMongo(container, id);
 
-        // Build a class-instance incoming write (as the PUT path uses) that changes ONLY the
-        // payload; externalize it so it mirrors the doc reaching DatabaseUpdateManager on retry.
+        // Build a plain-object incoming write (as the PUT path uses) that changes ONLY the
+        // payload; externalize it so it mirrors the doc reaching FastDatabaseUpdateManager on retry.
         const requestInfo = getTestRequestInfo({ requestId: 'payload-only-put-req' });
         const plain = { ...dbDoc, data: ALT_LARGE_DATA };
         delete plain._id;
         delete plain._blobMeta; // a fresh inline write carries no sidecar
-        const incoming = new Binary(plain);
+        const incoming = plain;
         await b64.transformAsync(incoming, BLOB_OP.INSERT, requestInfo);
         expect(incoming.data).toBeUndefined();
         expect(incoming._blobMeta).toBeDefined();
 
-        const updateManager = container.databaseUpdateFactory.createDatabaseUpdateManager({
+        const updateManager = container.databaseUpdateFactory.createFastDatabaseUpdateManager({
             resourceType: 'Binary',
             base_version: '4_0_0'
         });
@@ -781,7 +780,6 @@ describe('Binary base64 S3 offload — write paths', () => {
     });
 
     test('retry reconciliation: caller data (A) overwrites a concurrent B and re-uploads A even though its original key was deleted', async () => {
-        const Binary = require('../../../../fhir/classes/4_0_0/resources/binary');
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -810,13 +808,13 @@ describe('Binary base64 S3 offload — write paths', () => {
         // K_A and it never uploaded A itself. Its bytes survive only in the request stash
         // (currentData captured at RETRIEVE). Drive replaceOneAsync against the concurrently-moved DB.
         const requestInfo = getTestRequestInfo({ requestId: 'merge-retry-rebase-R' });
-        const rDoc = new Binary({ ...v1 });
+        const rDoc = { ...v1 };
         delete rDoc._id;
         const dataSegments = ['data'];
         b64._stashCurrentData(requestInfo, rDoc._uuid, dataSegments, [], { content: LARGE_DATA, lastUpdated: v1._blobMeta.lastUpdated });
         b64._stashOriginalData(requestInfo, rDoc._uuid, dataSegments, [], { hash: hashA, changed: false });
 
-        const mgr = container.databaseUpdateFactory.createDatabaseUpdateManager({ resourceType: 'Binary', base_version: '4_0_0' });
+        const mgr = container.databaseUpdateFactory.createFastDatabaseUpdateManager({ resourceType: 'Binary', base_version: '4_0_0' });
         const { savedResource } = await mgr.replaceOneAsync({ base_version: '4_0_0', requestInfo, doc: rDoc });
         expect(savedResource).not.toBeNull();
 

@@ -3,15 +3,27 @@ const {
     MongoJsonPatchHelper
 } = require('../../../../utils/mongoJsonPatchHelper');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const Person = require('../../../../fhir/classes/4_0_0/resources/person');
-const Reference = require('../../../../fhir/classes/4_0_0/complex_types/reference');
-const Meta = require('../../../../fhir/classes/4_0_0/complex_types/meta');
-const Coding = require('../../../../fhir/classes/4_0_0/complex_types/coding');
-const PersonLink = require('../../../../fhir/classes/4_0_0/backbone_elements/personLink');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { ResourceMerger } = require('../../../../operations/common/resourceMerger');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
+const deepcopy = require('deepcopy');
+const { FhirResourceWriteSerializer } = require('../../../../fhir/fhirResourceWriteSerializer');
+
+const buildPerson = ({ target, elementId }) => FhirResourceWriteSerializer.serialize({
+    obj: {
+        resourceType: 'Person',
+        id: '1',
+        meta: {
+            versionId: '1',
+            security: [{ system: SecurityTagSystem.owner, code: 'myAccess' }]
+        },
+        link: [{
+            ...(elementId && { id: elementId }),
+            target: { ...(elementId && { id: elementId }), reference: target }
+        }]
+    }
+});
 
 describe('mongoJsonPatchHelper Tests', () => {
     beforeEach(async () => {
@@ -32,28 +44,7 @@ describe('mongoJsonPatchHelper Tests', () => {
             const preSaveManager = container.preSaveManager;
             assertTypeEquals(preSaveManager, PreSaveManager);
 
-            let doc1 = new Person({
-                resourceType: 'Person',
-                id: '1',
-                meta: new Meta(
-                    {
-                        versionId: '1',
-                        security: [
-                            new Coding({
-                                system: SecurityTagSystem.owner,
-                                code: 'myAccess'
-                            })
-                        ]
-                    }
-                ),
-                link: [
-                    new PersonLink({
-                        target: new Reference({
-                            reference: 'Patient/2'
-                        })
-                    })
-                ]
-            });
+            let doc1 = buildPerson({ target: 'Patient/2' });
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             doc1 = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc1 });
 
@@ -67,30 +58,9 @@ describe('mongoJsonPatchHelper Tests', () => {
              * @type {import('mongodb').Collection<import('mongodb').Document>}
              */
             const collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne(doc1.toJSONInternal());
+            await collection.insertOne(deepcopy(doc1));
 
-            const doc2 = new Person({
-                resourceType: 'Person',
-                id: '1',
-                meta: new Meta(
-                    {
-                        versionId: '1',
-                        security: [
-                            new Coding({
-                                system: SecurityTagSystem.owner,
-                                code: 'myAccess'
-                            })
-                        ]
-                    }
-                ),
-                link: [
-                    new PersonLink({
-                        target: new Reference({
-                            reference: 'Patient/3'
-                        })
-                    })
-                ]
-            });
+            const doc2 = buildPerson({ target: 'Patient/3' });
 
             /**
              * @type {ResourceMerger}
@@ -98,7 +68,7 @@ describe('mongoJsonPatchHelper Tests', () => {
             const resourceMerger = container.resourceMerger;
             assertTypeEquals(resourceMerger, ResourceMerger);
 
-            const { patches } = await resourceMerger.mergeResourceAsync({
+            const { patches } = await resourceMerger.fastMergeResourceAsync({
                 base_version,
                 requestInfo,
                 currentResource: doc1,
@@ -198,30 +168,7 @@ describe('mongoJsonPatchHelper Tests', () => {
             const preSaveManager = container.preSaveManager;
             assertTypeEquals(preSaveManager, PreSaveManager);
 
-            let doc1 = new Person({
-                resourceType: 'Person',
-                id: '1',
-                meta: new Meta(
-                    {
-                        versionId: '1',
-                        security: [
-                            new Coding({
-                                system: SecurityTagSystem.owner,
-                                code: 'myAccess'
-                            })
-                        ]
-                    }
-                ),
-                link: [
-                    new PersonLink({
-                        id: '1',
-                        target: new Reference({
-                            id: '1',
-                            reference: 'Patient/2'
-                        })
-                    })
-                ]
-            });
+            let doc1 = buildPerson({ target: 'Patient/2', elementId: '1' });
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             doc1 = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc1 });
 
@@ -235,32 +182,9 @@ describe('mongoJsonPatchHelper Tests', () => {
              * @type {import('mongodb').Collection<import('mongodb').Document>}
              */
             const collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne(doc1.toJSONInternal());
+            await collection.insertOne(deepcopy(doc1));
 
-            const doc2 = new Person({
-                resourceType: 'Person',
-                id: '1',
-                meta: new Meta(
-                    {
-                        versionId: '1',
-                        security: [
-                            new Coding({
-                                system: SecurityTagSystem.owner,
-                                code: 'myAccess'
-                            })
-                        ]
-                    }
-                ),
-                link: [
-                    new PersonLink({
-                        id: '1',
-                        target: new Reference({
-                            id: '1',
-                            reference: 'Patient/3'
-                        })
-                    })
-                ]
-            });
+            const doc2 = buildPerson({ target: 'Patient/3', elementId: '1' });
 
             /**
              * @type {ResourceMerger}
@@ -268,7 +192,7 @@ describe('mongoJsonPatchHelper Tests', () => {
             const resourceMerger = container.resourceMerger;
             assertTypeEquals(resourceMerger, ResourceMerger);
 
-            const { patches } = await resourceMerger.mergeResourceAsync({
+            const { patches } = await resourceMerger.fastMergeResourceAsync({
                 base_version,
                 requestInfo,
                 currentResource: doc1,

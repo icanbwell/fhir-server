@@ -78,7 +78,7 @@ function hasExternalStorageMemberTag(doc) {
 
 /**
  * Handles all ClickHouse-related pre-save modifications for Group resources.
- * Called from both DatabaseBulkInserter and FastDatabaseBulkInserter after preSaveManager runs.
+ * Called from FastDatabaseBulkInserter after preSaveManager runs.
  *
  * @param {Resource} doc - The Group resource being saved
  * @param {Object|null} contextData - Context data with useExternalStorage and other flags
