@@ -224,7 +224,7 @@ class EverythingOperation {
             }
 
             /**
-             * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
+             * @type {Object}
              */
             let result;
             if (useEverythingHelperForPatient) {

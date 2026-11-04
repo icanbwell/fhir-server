@@ -22,9 +22,7 @@ jest.mock('../../../../../operations/common/logging', () => ({
 }));
 
 jest.mock('../../../../../utils/convertErrorToOperationOutcome', () => ({
-    convertErrorToOperationOutcome: jest.fn(({ error }) => ({
-        toJSON: () => ({ resourceType: 'OperationOutcome', issue: [{ severity: 'error', diagnostics: error.message }] })
-    }))
+    convertErrorToOperationOutcome: jest.fn(({ error }) => ({ resourceType: 'OperationOutcome', issue: [{ severity: 'error', diagnostics: error.message }] }))
 }));
 
 const { FhirBundleWriter } = require('../../../../../operations/streaming/resourceWriters/fhirBundleWriter');
@@ -316,9 +314,7 @@ describe('FhirBundleWriter', () => {
     describe('writeOperationOutcome', () => {
         test('should push operationOutcome as first entry', () => {
             writer.push = jest.fn();
-            const operationOutcome = {
-                toJSON: () => ({ resourceType: 'OperationOutcome', issue: [] })
-            };
+            const operationOutcome = { resourceType: 'OperationOutcome', issue: [] };
 
             writer.writeOperationOutcome({ operationOutcome });
 
@@ -332,9 +328,7 @@ describe('FhirBundleWriter', () => {
         test('should push operationOutcome with comma when not first', () => {
             writer.push = jest.fn();
             writer._first = false;
-            const operationOutcome = {
-                toJSON: () => ({ resourceType: 'OperationOutcome', issue: [] })
-            };
+            const operationOutcome = { resourceType: 'OperationOutcome', issue: [] };
 
             writer.writeOperationOutcome({ operationOutcome });
 

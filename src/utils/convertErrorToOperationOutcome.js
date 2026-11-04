@@ -1,46 +1,37 @@
-const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
+const { buildOperationOutcome, buildOperationOutcomeFromIssues } = require('./operationOutcomeBuilder');
+
+const cloneIssues = (issues) => JSON.parse(JSON.stringify(issues));
 
 /**
- * Creates an OperationOutcomeIssue
+ * Creates an OperationOutcome issue
  * @param {Error} error
  * @param {boolean | undefined} internalError Indicates the error as an internal server error
- * @return {OperationOutcomeIssue}
+ * @return {Object}
  */
 function createOperationOutcomeIssue ({ error, internalError }) {
-    const operationOutcomeIssue = new OperationOutcomeIssue({
+    return {
         severity: 'error',
         code: 'internal',
-        details: new CodeableConcept({
+        details: {
             text: internalError ? 'Internal Server Error' : `Unexpected Error: ${error.message}`
-        })
-    });
-    return operationOutcomeIssue;
+        }
+    };
 }
 
 /**
  * Converts Error to OperationOutcome
  * @param {Error} error
  * @param {boolean | undefined} internalError Indicates the error as an internal server error
- * @returns {OperationOutcome}
+ * @returns {Object}
  */
 function convertErrorToOperationOutcome ({ error, internalError }) {
     if (internalError) {
-        return new OperationOutcome({
-            issue: [createOperationOutcomeIssue({ error, internalError })]
-        });
+        return buildOperationOutcome(createOperationOutcomeIssue({ error, internalError }));
     }
 
     return Object.hasOwn(error, 'issue') && error.issue && error.issue.length > 0
-        ? new OperationOutcome({
-            issue: error.issue
-        })
-        : new OperationOutcome({
-            issue: [
-                createOperationOutcomeIssue({ error })
-            ]
-        });
+        ? buildOperationOutcomeFromIssues(cloneIssues(error.issue))
+        : buildOperationOutcome(createOperationOutcomeIssue({ error }));
 }
 
 module.exports = {

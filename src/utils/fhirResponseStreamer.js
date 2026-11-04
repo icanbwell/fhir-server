@@ -1,7 +1,6 @@
 const moment = require('moment-timezone');
 const { assertIsValid } = require('./assertType');
 const { BaseResponseStreamer } = require('./baseResponseStreamer');
-const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
 const BundleEntrySerializer = require('../fhir/serializers/4_0_0/backbone_elements/bundleEntry');
 const BundleSerializer = require('../fhir/serializers/4_0_0/resources/bundle');

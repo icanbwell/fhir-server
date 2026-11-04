@@ -191,6 +191,46 @@ describe('promoteExistingGroupIfNeeded', () => {
         expect(doc.member).toBeUndefined();
     });
 
+    test('writes members through toJSONInternal when the doc is a legacy class instance', async () => {
+        const doc = buildPromotableDoc('7');
+        doc.toJSONInternal = jest.fn();
+        doc.member = doc.member.map((member, index) => ({
+            ...member,
+            toJSONInternal: () => ({ entity: member.entity, _uuid: `member-uuid-${index}` })
+        }));
+        const mongoGroupMemberRepository = buildRepository();
+        const configManager = { ...buildConfigManager(), groupMemberPromotionLimit: 3 };
+
+        await promoteExistingGroupIfNeeded({
+            doc, requestInfo, base_version: '4_0_0', configManager, mongoGroupMemberRepository
+        });
+
+        const { writeRequests } = mongoGroupMemberRepository.resolveMemberWritesAsync.mock.calls[0][0];
+        expect(writeRequests.map(request => request._uuid)).toEqual([
+            'member-uuid-0', 'member-uuid-1', 'member-uuid-2', 'member-uuid-3'
+        ]);
+    });
+
+    test('rejects a member without entity.reference with a plain required issue', async () => {
+        const doc = buildPromotableDoc('7');
+        doc.member[1] = { entity: {} };
+        const mongoGroupMemberRepository = buildRepository();
+        const configManager = { ...buildConfigManager(), groupMemberPromotionLimit: 3 };
+
+        const error = await promoteExistingGroupIfNeeded({
+            doc, requestInfo, base_version: '4_0_0', configManager, mongoGroupMemberRepository
+        }).catch(e => e);
+
+        expect(error.original_error.issue).toEqual([{
+            severity: 'error',
+            code: 'required',
+            diagnostics: 'Each Group member must include entity.reference to be promoted to extended member storage'
+        }]);
+        expect(Object.getPrototypeOf(error.original_error.issue[0])).toBe(Object.prototype);
+        expect(mongoGroupMemberRepository.applyResolvedMemberWritesAsync).not.toHaveBeenCalled();
+        expect(doc.member).toHaveLength(4);
+    });
+
     test('does nothing, and deletes nothing, when the Group is not over the limit', async () => {
         const doc = buildGroupDoc({ memberCount: 3 });
         const mongoGroupMemberRepository = buildRepository();

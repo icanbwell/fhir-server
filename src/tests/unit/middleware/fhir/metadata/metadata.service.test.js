@@ -10,10 +10,6 @@ jestObj.mock('../../../../../middleware/fhir/metadata/capability.template', () =
     resource: jestObj.fn((version, key) => ({ type: key, interaction: [] }))
 }));
 
-jestObj.mock('../../../../../middleware/fhir/utils/error.utils', () => ({
-    internal: jestObj.fn((msg) => new Error(msg))
-}));
-
 const { generateCapabilityStatement } = require('../../../../../middleware/fhir/metadata/metadata.service');
 
 describe('metadata.service', () => {
@@ -122,10 +118,16 @@ describe('metadata.service', () => {
         const badGenerator = () => ({ makeStatement: null, securityStatement: null });
         const profiles = { Patient: { versions: ['4_0_0'], operation: [] } };
 
-        await expect(generateCapabilityStatement({
+        const error = await generateCapabilityStatement({
             fhirVersion: '4_0_0',
             profiles,
             statementGenerator: badGenerator
-        })).rejects.toThrow('Unable to generate metadata');
+        }).catch((e) => e);
+
+        expect(error.resourceType).toBe('OperationOutcome');
+        expect(error.statusCode).toBe(500);
+        expect(error.issue).toEqual([
+            { severity: 'error', code: 'exception', diagnostics: 'Internal Server Error' }
+        ]);
     });
 });

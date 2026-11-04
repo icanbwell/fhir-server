@@ -4,9 +4,7 @@ const { BadRequestError } = require('./httpErrors');
 const { enrichMemberReferences } = require('./referenceEnricher');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('./mongoGroupExtendedTag');
 const { createTooCostlyError } = require('./fhirErrorFactory');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { PATCH_OPERATIONS } = require('../constants/groupConstants');
-const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const { isTrue } = require('./isTrue');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('./contextDataBuilder');
 const { hasExternalStorageMemberTag } = require('./clickHouseGroupPreSave');
@@ -110,15 +108,15 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
                 message: `Missing required member.entity.reference while promoting Group to extended member storage: ${JSON.stringify(memberMissingReference)}`,
                 toString: function () { return this.message; }
             }, {
-                issue: [new OperationOutcomeIssue({
+                issue: [{
                     severity: 'error',
                     code: 'required',
                     diagnostics: 'Each Group member must include entity.reference to be promoted to extended member storage'
-                })]
+                }]
             });
         }
 
-        const isResourceInstance = doc instanceof Resource;
+        const isResourceInstance = typeof doc.toJSONInternal === 'function';
         const writeRequests = members.map((member) => ({
             ...(isResourceInstance ? member.toJSONInternal() : member),
             op: PATCH_OPERATIONS.ADD

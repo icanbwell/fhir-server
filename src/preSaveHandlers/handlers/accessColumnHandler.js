@@ -8,10 +8,10 @@ class AccessColumnHandler extends PreSaveHandler {
     /**
      * fixes up any resources before they are saved
      * @typedef {Object} PreSaveAsyncProps
-     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resource
+     * @property {Object} resource
      *
      * @param {PreSaveAsyncProps}
-     * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
+     * @returns {Promise<Object>}
      */
     async preSaveAsync ({ resource }) {
         // Only meta.security actually present as an array is authoritative about what the access

@@ -4,8 +4,6 @@
 const { RethrownError } = require('../utils/rethrownError');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { ParsedArgs } = require('../operations/query/parsedArgs');
-const Resource = require('../fhir/classes/4_0_0/resources/resource');
-const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
 class EnrichmentManager {
     /**

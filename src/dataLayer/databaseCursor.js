@@ -2,7 +2,6 @@ const { assertIsValid } = require('../utils/assertType');
 const async = require('async');
 const { RethrownError } = require('../utils/rethrownError');
 const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
-const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 const { FindCursor } = require('mongodb');
 

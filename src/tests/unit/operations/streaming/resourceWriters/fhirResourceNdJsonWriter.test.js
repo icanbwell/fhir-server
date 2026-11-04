@@ -23,11 +23,9 @@ jestObj.mock('../../../../../operations/common/logging', () => ({
 
 jestObj.mock('../../../../../utils/convertErrorToOperationOutcome', () => ({
     convertErrorToOperationOutcome: jestObj.fn(({ error }) => ({
-        toJSON: () => ({
             resourceType: 'OperationOutcome',
             issue: [{ severity: 'error', diagnostics: error.message }]
-        })
-    }))
+        }))
 }));
 
 const { FhirResourceNdJsonWriter } = require('../../../../../operations/streaming/resourceWriters/fhirResourceNdJsonWriter');
@@ -366,9 +364,7 @@ describe('FhirResourceNdJsonWriter', () => {
 
     describe('writeOperationOutcome', () => {
         test('sets status code to 500', () => {
-            const operationOutcome = {
-                toJSON: () => ({ resourceType: 'OperationOutcome', issue: [] })
-            };
+            const operationOutcome = { resourceType: 'OperationOutcome', issue: [] };
 
             writer.writeOperationOutcome({ operationOutcome, encoding: 'utf8' });
 
@@ -381,7 +377,7 @@ describe('FhirResourceNdJsonWriter', () => {
                 resourceType: 'OperationOutcome',
                 issue: [{ severity: 'error', diagnostics: 'test' }]
             };
-            const operationOutcome = { toJSON: () => outcomeData };
+            const operationOutcome = outcomeData;
 
             writer.writeOperationOutcome({ operationOutcome, encoding: 'utf8' });
 
@@ -393,9 +389,7 @@ describe('FhirResourceNdJsonWriter', () => {
 
         test('passes encoding to push', () => {
             const pushSpy = jestObj.spyOn(writer, 'push');
-            const operationOutcome = {
-                toJSON: () => ({ resourceType: 'OperationOutcome' })
-            };
+            const operationOutcome = { resourceType: 'OperationOutcome' };
 
             writer.writeOperationOutcome({ operationOutcome, encoding: 'utf8' });
 
@@ -404,9 +398,7 @@ describe('FhirResourceNdJsonWriter', () => {
 
         test('always sets 500 regardless of current status code', () => {
             mockResponse.statusCode = 404;
-            const operationOutcome = {
-                toJSON: () => ({ resourceType: 'OperationOutcome' })
-            };
+            const operationOutcome = { resourceType: 'OperationOutcome' };
 
             writer.writeOperationOutcome({ operationOutcome, encoding: 'utf8' });
 

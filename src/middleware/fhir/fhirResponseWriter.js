@@ -1,5 +1,4 @@
 const path = require('path');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
@@ -70,7 +69,7 @@ class FhirResponseWriter {
     readCustomOperation ({ req, res, result }) {
         this.setBaseResponseHeaders({ req, res });
         if (!res.headersSent) {
-            res.status(200).json(result instanceof Resource ? result.toJSON() : result);
+            res.status(200).json(result);
         }
     }
 

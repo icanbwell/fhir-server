@@ -1,7 +1,6 @@
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 /**
  * This class returns collections that contain the requested resourceType

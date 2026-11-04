@@ -21,7 +21,7 @@ module.exports = function versionValidationMiddleware (profile = {}) {
                     return next();
                 }
             });
-            return next(errors.notFound(undefined, base_version));
+            return next(errors.notFound());
         };
     }
 
@@ -29,7 +29,7 @@ module.exports = function versionValidationMiddleware (profile = {}) {
         const base_version = req.params && req.params.base_version;
 
         if (!base_version || versions.indexOf(base_version) === -1) {
-            return next(errors.notFound(undefined, base_version));
+            return next(errors.notFound());
         }
 
         next();

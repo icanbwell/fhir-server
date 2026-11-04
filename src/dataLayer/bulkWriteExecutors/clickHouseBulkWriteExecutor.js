@@ -1,9 +1,8 @@
 'use strict';
 
 const { logDebug, logError, logWarn } = require('../../operations/common/logging');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { MergeResultEntry } = require('../../operations/common/mergeResultEntry');
+const { buildOperationOutcomeIssue } = require('../../utils/operationOutcomeBuilder');
 const { BulkWriteExecutor } = require('./bulkWriteExecutor');
 const { WRITE_STRATEGIES } = require('../../constants/clickHouseConstants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
@@ -168,10 +167,10 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
                     resourceType,
                     created: false,
                     updated: false,
-                    issue: new OperationOutcomeIssue({
+                    issue: buildOperationOutcomeIssue({
                         severity: 'error',
                         code: 'exception',
-                        details: new CodeableConcept({ text: err.message }),
+                        details: { text: err.message },
                         diagnostics: err.message,
                         expression: [resourceType + '/' + entry.uuid]
                     })
