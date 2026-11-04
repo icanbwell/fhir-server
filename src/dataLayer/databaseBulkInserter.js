@@ -955,14 +955,27 @@ class DatabaseBulkInserter extends EventEmitter {
                 `No BulkWriteExecutor registered for resourceType=${resourceType}. Available: ${available}`
             );
         }
+        // Kafka-only history: produce first and write to MongoDB only what Kafka did not accept, so a
+        // Kafka outage loses no history. The producer never throws.
+        const mongoHistoryDisabled = useHistoryCollection === true && !!this.historyKafkaProducer &&
+            this.historyKafkaProducer.isMongoWriteDisabledFor(resourceType);
+        let operationsToWrite = operations;
+        if (mongoHistoryDisabled) {
+            operationsToWrite = await this.historyKafkaProducer.produceWithMongoFallbackAsync({
+                resourceType, operations, requestId: requestInfo.requestId
+            });
+            if (operationsToWrite.length === 0) {
+                return { resourceType, mergeResult: undefined, error: null, mergeResultEntries: [] };
+            }
+        }
         const result = await executor.executeBulkAsync({
-            resourceType, operations, requestInfo, base_version,
+            resourceType, operations: operationsToWrite, requestInfo, base_version,
             useHistoryCollection, maintainOrder, isAccessLogOperation,
             insertOneHistoryFn: this.insertOneHistoryAsync.bind(this)
         });
         // Parallel history produce: only after a successful history write (a size-rejected write returns
         // `error` and writes nothing), never replaces it, never throws.
-        if (useHistoryCollection === true && this.historyKafkaProducer && !result?.error &&
+        if (useHistoryCollection === true && !mongoHistoryDisabled && this.historyKafkaProducer && !result?.error &&
             this.historyKafkaProducer.isEnabledFor(resourceType)) {
             await this.historyKafkaProducer.produceAsync({
                 resourceType, operations, requestId: requestInfo.requestId

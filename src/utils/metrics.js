@@ -258,6 +258,10 @@ const historyKafkaProduceDurationHistogram = meter.createHistogram('fhir_history
     unit: 's'
 });
 
+const historyMongoFallbackCounter = meter.createCounter('fhir_history_mongo_fallback_total', {
+    description: 'History documents written to MongoDB because the Kafka produce failed while the MongoDB history write is disabled, by resource_type and reason.'
+});
+
 const importOperationsTriggeredCounter = meter.createCounter('fhir_import_operations_triggered_total', {
     description: 'Bulk $import operations triggered — one per TaskCreated event the orchestrator begins processing (Task found, before S3 validation).'
 });
@@ -466,6 +470,19 @@ function recordKafkaRetryExhausted (topic, errorCode) {
 }
 
 /**
+ * Count history documents written to MongoDB because the Kafka produce failed.
+ * @param {string} resourceType
+ * @param {number} count documents written to MongoDB
+ * @param {string} reason why the produce did not succeed
+ */
+function recordHistoryMongoFallback (resourceType, count, reason) {
+    historyMongoFallbackCounter.add(count, {
+        [LABEL.RESOURCE_TYPE]: resourceType || UNKNOWN,
+        [LABEL.REASON]: reason || UNKNOWN
+    });
+}
+
+/**
  * Emit history Kafka produce metrics for one produce call (a chunk of messages).
  * @param {string} resourceType
  * @param {number} count messages in the call
@@ -641,6 +658,7 @@ module.exports = {
     historyKafkaProducedCounter,
     historyKafkaFailedCounter,
     historyKafkaProduceDurationHistogram,
+    historyMongoFallbackCounter,
     importOperationsTriggeredCounter,
     importResourcesProcessedCounter,
     importResourcesFailedCounter,
@@ -663,6 +681,7 @@ module.exports = {
     recordOutboundEverything,
     recordKafkaRetryExhausted,
     recordHistoryKafkaProduce,
+    recordHistoryMongoFallback,
     recordImportOperationTriggered,
     recordImportResourceOutcomes,
     recordImportRangeDuration,

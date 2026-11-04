@@ -9,7 +9,7 @@ const { KafkaClientV2 } = require('../../../utils/kafkaClientV2');
 const metrics = require('../../../utils/metrics');
 
 const ENV_KEYS = [
-    'ENABLE_EVENTS_KAFKA_V2', 'RESOURCE_HISTORY_KAFKA_RESOURCES',
+    'ENABLE_EVENTS_KAFKA_V2', 'RESOURCE_HISTORY_KAFKA_RESOURCES', 'RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES',
     'RESOURCE_HISTORY_KAFKA_TOPIC', 'RESOURCE_HISTORY_KAFKA_BATCH_SIZE', 'KAFKA_PRODUCER_TIMEOUT_MS', 'KAFKA_PRODUCER_COMPRESSION'
 ];
 
@@ -166,9 +166,10 @@ describe('HistoryKafkaProducer', () => {
 
     test('Kafka failure: retries, never throws, counts the failure', async () => {
         kafkaClientV2.sendCloudEventMessageAsync.mockRejectedValue(new Error('broker down'));
+        const failedOperation = historyOperation('Observation', 'u1');
         await expect(producer.produceAsync({
-            resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1'
-        })).resolves.toBeUndefined();
+            resourceType: 'Observation', operations: [failedOperation], requestId: 'r1'
+        })).resolves.toEqual([failedOperation]);
 
         expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(3); // 1 + maxRetries
         expect(recordSpy).toHaveBeenCalledTimes(1);
@@ -228,9 +229,10 @@ describe('HistoryKafkaProducer', () => {
 
     test('an unexpected failure is counted, not only logged', async () => {
         setEnv({ KAFKA_PRODUCER_COMPRESSION: 'not-a-codec' });
+        const failedOperation = historyOperation('Observation', 'u1');
         await expect(producer.produceAsync({
-            resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1'
-        })).resolves.toBeUndefined();
+            resourceType: 'Observation', operations: [failedOperation], requestId: 'r1'
+        })).resolves.toEqual([failedOperation]);
         expect(recordSpy).toHaveBeenCalledWith('Observation', 1, false, expect.any(Number));
         expect(kafkaClientV2.sendCloudEventMessageAsync).not.toHaveBeenCalled();
     });
@@ -238,5 +240,99 @@ describe('HistoryKafkaProducer', () => {
     test('success is counted', async () => {
         await producer.produceAsync({ resourceType: 'Observation', operations: [historyOperation('Observation', 'u1')], requestId: 'r1' });
         expect(recordSpy).toHaveBeenCalledWith('Observation', 1, true, expect.any(Number));
+    });
+
+    describe('MongoDB history write disabled', () => {
+        let fallbackSpy;
+        beforeEach(() => {
+            fallbackSpy = jest.spyOn(metrics, 'recordHistoryMongoFallback').mockImplementation(() => {});
+            setEnv({ RESOURCE_HISTORY_KAFKA_RESOURCES: 'Observation,Condition', RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES: 'Observation' });
+        });
+
+        test.each([
+            ['listed in both', {}, 'Observation', true],
+            ['not in the disabled list', {}, 'Condition', false],
+            ['disabled list empty (default)', { RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES: '' }, 'Observation', false],
+            ['not produced to Kafka', { RESOURCE_HISTORY_KAFKA_RESOURCES: 'Condition' }, 'Observation', false],
+            ['Kafka V2 disabled', { ENABLE_EVENTS_KAFKA_V2: '0' }, 'Observation', false]
+        ])('isMongoWriteDisabledFor: %s', (_name, env, resourceType, expected) => {
+            setEnv(env);
+            expect(producer.isMongoWriteDisabledFor(resourceType)).toBe(expected);
+        });
+
+        test('Kafka healthy: nothing falls back', async () => {
+            const operations = [historyOperation('Observation', 'u1'), historyOperation('Observation', 'u2')];
+            const fallback = await producer.produceWithMongoFallbackAsync({ resourceType: 'Observation', operations, requestId: 'r1' });
+            expect(fallback).toEqual([]);
+            expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
+            expect(fallbackSpy).not.toHaveBeenCalled();
+        });
+
+        test('Kafka down: every document falls back, with a metric, and nothing throws', async () => {
+            kafkaClientV2.sendCloudEventMessageAsync.mockRejectedValue(new Error('broker unavailable'));
+            const operations = [historyOperation('Observation', 'u1'), historyOperation('Observation', 'u2')];
+            const fallback = await producer.produceWithMongoFallbackAsync({ resourceType: 'Observation', operations, requestId: 'r1' });
+            expect(fallback).toEqual(operations);
+            expect(fallbackSpy).toHaveBeenCalledWith('Observation', 2, 'produce_failed');
+        });
+
+        test('a produce timeout falls back', async () => {
+            kafkaClientV2.sendCloudEventMessageAsync.mockReturnValue(new Promise(() => {}));
+            const timedProducer = new HistoryKafkaProducer({
+                configManager: new ConfigManager(), kafkaClientV2, maxRetries: 0, initialRetryDelayMs: 1, produceTimeoutMs: 20
+            });
+            const operations = [historyOperation('Observation', 'u1')];
+            const fallback = await timedProducer.produceWithMongoFallbackAsync({ resourceType: 'Observation', operations, requestId: 'r1' });
+            expect(fallback).toEqual(operations);
+        });
+
+        test('a bad record alone falls back while the rest of the chunk is produced', async () => {
+            const bad = historyOperation('Observation', 'bad');
+            const good = historyOperation('Observation', 'good');
+            kafkaClientV2.sendCloudEventMessageAsync.mockImplementation(async ({ messages }) => {
+                if (messages.length > 1 || messages[0].key.endsWith(':bad')) {
+                    throw Object.assign(new Error('too large'), { type: 'MESSAGE_TOO_LARGE' });
+                }
+            });
+            const fallback = await producer.produceWithMongoFallbackAsync({ resourceType: 'Observation', operations: [bad, good], requestId: 'r1' });
+            expect(fallback).toEqual([bad]);
+            expect(fallbackSpy).toHaveBeenCalledWith('Observation', 1, 'produce_failed');
+        });
+
+        test('after a broker failure the remaining chunks fall back without being sent', async () => {
+            setEnv({ RESOURCE_HISTORY_KAFKA_BATCH_SIZE: '1' });
+            kafkaClientV2.sendCloudEventMessageAsync.mockRejectedValue(new Error('broker unavailable'));
+            const operations = ['u1', 'u2', 'u3'].map((u) => historyOperation('Observation', u));
+            const fallback = await producer.produceWithMongoFallbackAsync({ resourceType: 'Observation', operations, requestId: 'r1' });
+            expect(fallback).toEqual(operations);
+            expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(3); // first chunk only: 1 + maxRetries
+            expect(fallbackSpy).toHaveBeenCalledWith('Observation', 3, 'produce_failed');
+        });
+
+        test('a rejected bad record does not stop the remaining chunks', async () => {
+            setEnv({ RESOURCE_HISTORY_KAFKA_BATCH_SIZE: '1' });
+            kafkaClientV2.sendCloudEventMessageAsync.mockImplementation(async ({ messages }) => {
+                if (messages[0].key.endsWith(':bad')) {
+                    throw Object.assign(new Error('too large'), { type: 'MESSAGE_TOO_LARGE' });
+                }
+            });
+            const bad = historyOperation('Observation', 'bad');
+            const fallback = await producer.produceWithMongoFallbackAsync({
+                resourceType: 'Observation', operations: [bad, historyOperation('Observation', 'good')], requestId: 'r1'
+            });
+            expect(fallback).toEqual([bad]);
+            expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(2);
+        });
+
+        test('a document that cannot be serialised falls back', async () => {
+            const broken = { uuid: 'u1', resourceType: 'Observation', operation: { insertOne: { document: null } } };
+            const fallback = await producer.produceWithMongoFallbackAsync({ resourceType: 'Observation', operations: [broken], requestId: 'r1' });
+            expect(fallback).toEqual([broken]);
+        });
+
+        test('produceAsync returns no failures for a type that is not enabled', async () => {
+            const result = await producer.produceAsync({ resourceType: 'Patient', operations: [historyOperation('Patient', 'u1')], requestId: 'r1' });
+            expect(result).toEqual([]);
+        });
     });
 });

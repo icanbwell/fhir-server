@@ -3,9 +3,10 @@
 ## Goal
 
 Produce each history record to Kafka topic `fhir_server.resource-history.events`, one resource type
-at a time, beside the unchanged MongoDB history write. This change only produces; what consumes the
-topic is an independent workflow. Out of scope: Kafka-primary behaviour and the MongoDB fallback
-replay job.
+at a time. By default the MongoDB history write is unchanged and the produce runs beside it; for types
+in `RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES` Kafka is the primary history store with a MongoDB fallback
+(see "Kafka-only history"). What consumes the topic is an independent workflow. Out of scope: the
+MongoDB fallback replay job.
 
 ## Consumer table
 
@@ -20,22 +21,41 @@ rather than this producer. The loader and the `_history` read path are separate 
 - `RESOURCE_HISTORY_KAFKA_RESOURCES` (comma-separated resource types) is the only switch. Empty (default) is
   off; a listed type produces; unlisted types behave as today. No separate kill switch.
 - Requires the V2 Kafka cluster (`ENABLE_EVENTS_KAFKA_V2`); the disabled client would drop events.
-- The MongoDB history write is never replaced, skipped or delayed. The produce runs after it, in
-  the same post-request task (inline for delete), and only when the
-  write reported no error.
+- By default the MongoDB history write is never replaced, skipped or delayed. The produce runs after
+  it, in the same post-request task (inline for delete), and only when the write reported no error.
+  For a type in `RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES` the order reverses: the produce runs first and
+  the MongoDB write covers only what Kafka did not accept.
 - Flags are read from the environment per call: changing the list is a config rollout, not a code
   change. There is no live reload without that rollout.
-- A produce failure never fails the FHIR write and leaves MongoDB history in place.
+- A produce failure never fails the FHIR write. In parallel mode MongoDB history stays in place; in
+  Kafka-only mode the failed documents are written to MongoDB.
 
 ## Configuration
 
 | Variable | Default | Meaning |
 |---|---|---|
 | `RESOURCE_HISTORY_KAFKA_RESOURCES` | empty (off) | Resource types that produce |
+| `RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES` | empty (off) | Resource types whose MongoDB history write is replaced by the produce; must also be in `RESOURCE_HISTORY_KAFKA_RESOURCES` |
 | `RESOURCE_HISTORY_KAFKA_TOPIC` | `fhir_server.resource-history.events` | Target topic |
 | `RESOURCE_HISTORY_KAFKA_BATCH_SIZE` | 50 | Messages per produce call; non-positive/non-numeric falls back to 50 |
 | `KAFKA_PRODUCER_TIMEOUT_MS` | 10000 | Per-attempt produce timeout in ms (history and the AuditEvent ClickPipe path); non-positive/non-numeric falls back to 10000 |
 | `KAFKA_PRODUCER_COMPRESSION` | `zstd` | Compression for history and the AuditEvent ClickPipe path (`none`/`gzip`/`zstd`) |
+
+## Kafka-only history (MongoDB write disabled)
+
+For a type in `RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES` (and in `RESOURCE_HISTORY_KAFKA_RESOURCES`),
+the history flush produces first and writes to MongoDB only the documents Kafka did not accept
+(after the retries and timeout below), so a Kafka outage loses no history and never fails the FHIR
+write. Each fallback is logged (resource type, count, reason; no ids or payloads) and counted in
+`fhir_history_mongo_fallback_total{resource_type,reason}`. Other types, and a type in only the produce
+list, keep the parallel write above. Enable a type only after its `_history` reads are served from
+ClickHouse. `GroupMember` must stay out of the list for now: Group vread rebuilds the roster from the
+MongoDB `GroupMember_4_0_0_History` collection (`getMemberCursorAtAsync`). No ClickHouse `_history`/vread read path exists in this repo yet (the read path still queries
+only MongoDB), so listing a type before one ships hides its new versions from those reads. Retention
+also changes: MongoDB history has no expiry, while `fhir.Resource_4_0_0_History` deletes rows after
+13 months (`TTL`, `clickhouse-init/08-resource-history.sql`); align the table's TTL with the required
+history retention before listing a type. After a broker-level failure (retries used up or timeout) the
+remaining chunks of that flush are not sent and fall back to MongoDB straight away. Replaying fallback documents to Kafka and deleting migrated MongoDB history are separate work.
 
 ## Event
 
@@ -57,9 +77,10 @@ rather than this producer. The loader and the `_history` read path are separate 
 - `DatabaseBulkInserter` and `FastDatabaseBulkInserter`, in `performBulkForResourceTypeAsync`, when
   `useHistoryCollection === true`, only for types in the allowlist. The produce is awaited right after
   the history write, in whichever context that write runs (post-request task, or inline for delete via
-  `executeHistoryAsync`), so a delete response waits for it.
-- `DatabaseUpdateManager.postSaveAsync` (admin Person/Patient link/unlink), which writes history
-  directly.
+  `executeHistoryAsync`), so a delete response waits for it. In Kafka-only mode the produce runs
+  before the history write in the same place.
+- Every other writer (admin Person/Patient link/unlink through `AdminResourceWriter`, `removeHelper`
+  tombstones, `GroupMember`) queues its history through these inserters, so the same hook covers them.
 
 ## Failure handling
 
@@ -69,12 +90,13 @@ rather than this producer. The loader and the `_history` read path are separate 
 - A timed-out send is not retried (it is not cancelled and may still deliver); consumers dedupe on
   `ce_id`.
 - Records that still fail are logged and counted (`fhir_history_kafka_produce_failed_total`) and
-  remain in the MongoDB history. There is no dead-letter topic: this is a producer only.
+  remain in the MongoDB history (parallel mode) or are written to it (Kafka-only mode). There is no dead-letter topic: this is a producer only.
 
 ## Observability
 
 - Metrics by `resource_type`: `fhir_history_kafka_produced_total`,
-  `fhir_history_kafka_produce_failed_total`, `fhir_history_kafka_produce_duration_seconds`.
+  `fhir_history_kafka_produce_failed_total`, `fhir_history_kafka_produce_duration_seconds`; and
+  `fhir_history_mongo_fallback_total` (also by `reason`) for Kafka-only fallback writes.
 - Structured logs carry resource type, counts, topic and request id only (no payloads, no PHI).
 
 ## Constraints
@@ -89,6 +111,8 @@ rather than this producer. The loader and the `_history` read path are separate 
 - Unit: producer (allowlist off/one/two types, batching, retries, timeout, chunk isolation,
   `ce_id`, batch-size validation) and the hook on both inserters (order, skip on error, skip when not enabled).
 - Integration (`src/tests/integration/dataLayer/databaseBulkInserter/historyKafkaProduce.test.js`):
-  flag off, one type, two types, Kafka down, and the `postSaveAsync` writer; synthetic data only.
+  flag off, one type, two types, Kafka down, the `AdminResourceWriter` writer, and Kafka-only mode
+  (Kafka healthy: no MongoDB history for the type; Kafka down: falls back to MongoDB; not enabled
+  without the produce flag or V2 Kafka); synthetic data only.
 - Not done: dev-environment verification (consume the topic; confirm events, headers, compression,
   size under 17 MB; disable and confirm no new events).

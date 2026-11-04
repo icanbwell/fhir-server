@@ -10,7 +10,7 @@ const Consent = require('../../../../fhir/classes/4_0_0/resources/consent');
 
 const base_version = '4_0_0';
 const TOPIC = 'fhir_server.resource-history.events';
-const ENV_KEYS = ['ENABLE_EVENTS_KAFKA_V2', 'RESOURCE_HISTORY_KAFKA_RESOURCES'];
+const ENV_KEYS = ['ENABLE_EVENTS_KAFKA_V2', 'RESOURCE_HISTORY_KAFKA_RESOURCES', 'RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES'];
 
 describe('History Kafka produce (parallel to MongoDB history)', () => {
     let savedEnv;
@@ -21,6 +21,7 @@ describe('History Kafka produce (parallel to MongoDB history)', () => {
         savedEnv = Object.fromEntries(ENV_KEYS.map((k) => [k, process.env[k]]));
         process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
         delete process.env.RESOURCE_HISTORY_KAFKA_RESOURCES;
+        delete process.env.RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES;
     });
 
     afterEach(async () => {
@@ -100,6 +101,41 @@ describe('History Kafka produce (parallel to MongoDB history)', () => {
         expect(r.mergeResults.every((m) => m.created === true && !m.issue)).toBe(true);
         expect(r.observationHistory).toStrictEqual(1);
         expect(r.consentHistory).toStrictEqual(1);
+    });
+
+    describe('MongoDB history write disabled', () => {
+        test('Kafka healthy: the disabled type is produced and not written to MongoDB, other types are unaffected', async () => {
+            process.env.RESOURCE_HISTORY_KAFKA_RESOURCES = 'Observation';
+            process.env.RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES = 'Observation';
+            const r = await writeAsync();
+            expect(r.producedTypes).toStrictEqual(['Observation']);
+            expect(r.observationHistory).toStrictEqual(0);
+            expect(r.consentHistory).toStrictEqual(1);
+            expect(r.mergeResults.every((m) => m.created === true && !m.issue)).toBe(true);
+        });
+
+        test('Kafka down: the FHIR write succeeds and the history falls back to MongoDB', async () => {
+            process.env.RESOURCE_HISTORY_KAFKA_RESOURCES = 'Observation';
+            process.env.RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES = 'Observation';
+            const r = await writeAsync({ failKafka: true });
+            expect(r.sendSpy).toHaveBeenCalled();
+            expect(r.mergeResults.length).toStrictEqual(2);
+            expect(r.mergeResults.every((m) => m.created === true && !m.issue)).toBe(true);
+            expect(r.observationHistory).toStrictEqual(1);
+            expect(r.consentHistory).toStrictEqual(1);
+        });
+
+        test.each([
+            ['not in the produce list', { RESOURCE_HISTORY_KAFKA_RESOURCES: 'Consent' }],
+            ['produce list empty', {}],
+            ['Kafka V2 disabled', { RESOURCE_HISTORY_KAFKA_RESOURCES: 'Observation', ENABLE_EVENTS_KAFKA_V2: '0' }]
+        ])('listed as disabled but %s: MongoDB history is still written', async (_name, env) => {
+            process.env.RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES = 'Observation';
+            Object.assign(process.env, env);
+            const r = await writeAsync();
+            expect(r.producedTypes).not.toContain('Observation');
+            expect(r.observationHistory).toStrictEqual(1);
+        });
     });
 
     test('AdminResourceWriter (admin link/unlink writer) also produces', async () => {

@@ -3,8 +3,10 @@ info:
   title: Resource History Events
   version: '1.0.0'
   description: >-
-    One event per resource history record, produced by the FHIR server beside the MongoDB history write
-    for the resource types listed in RESOURCE_HISTORY_KAFKA_RESOURCES. CloudEvents 1.0 in Kafka binary mode
+    One event per resource history record, produced by the FHIR server for the resource types listed in
+    RESOURCE_HISTORY_KAFKA_RESOURCES, beside the MongoDB history write or, for types also listed in
+    RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES, instead of it (with a MongoDB fallback). The event itself
+    is the same in both modes. CloudEvents 1.0 in Kafka binary mode
     (ce_-prefixed headers); the message value is the history document.
 operations:
   FhirResourceHistory:
