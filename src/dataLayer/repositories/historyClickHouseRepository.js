@@ -1,5 +1,5 @@
 const { TABLES } = require('../../constants/clickHouseConstants');
-const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { assertIsValid } =require('../../utils/assertType');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { RethrownError } = require('../../utils/rethrownError');
 const { logDebug, logError } = require('../../operations/common/logging');
