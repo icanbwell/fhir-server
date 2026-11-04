@@ -23,10 +23,7 @@ class AuditEventFieldExtractor {
      * @returns {Object} Flat row keyed by ClickHouse column names
      */
     extract (resource) {
-        const doc = typeof resource.toJSONInternal === 'function'
-            ? resource.toJSONInternal()
-            : resource;
-        return this._transformer.transformDocument(doc);
+        return this._transformer.transformDocument(resource);
     }
 }
 

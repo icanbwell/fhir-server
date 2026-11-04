@@ -41,24 +41,6 @@ describe('AuditEventFieldExtractor', () => {
         expect(row._sourceAssigningAuthority).toBe('org-1');
     });
 
-    test('extract handles resource with toJSONInternal method', () => {
-        const resource = {
-            toJSONInternal: () => ({
-                id: 'ae-2',
-                _uuid: 'AuditEvent/ae-2-uuid',
-                recorded: '2024-01-01T00:00:00.000Z',
-                agent: [],
-                entity: [],
-                meta: { security: [] }
-            })
-        };
-
-        const row = extractor.extract(resource);
-        expect(row).not.toBeNull();
-        expect(row.id).toBe('ae-2');
-        expect(row._uuid).toBe('AuditEvent/ae-2-uuid');
-    });
-
     test('extract emits an undefined _uuid for a resource missing _uuid (CH insert will reject)', () => {
         const resource = { id: 'ae-3', recorded: '2024-01-01T00:00:00.000Z' };
         const row = extractor.extract(resource);

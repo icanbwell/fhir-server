@@ -116,9 +116,8 @@ async function promoteGroup ({ doc, requestInfo, base_version, mongoGroupMemberR
             });
         }
 
-        const isResourceInstance = typeof doc.toJSONInternal === 'function';
         const writeRequests = members.map((member) => ({
-            ...(isResourceInstance ? member.toJSONInternal() : member),
+            ...member,
             op: PATCH_OPERATIONS.ADD
         }));
 

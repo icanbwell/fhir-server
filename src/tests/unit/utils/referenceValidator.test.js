@@ -1,20 +1,7 @@
 'use strict';
 
 const { describe, test, expect } = require('@jest/globals');
-const { validateReferences, fastValidateReferences } = require('../../../utils/referenceValidator');
-const Person = require('../../../fhir/classes/4_0_0/resources/person');
-const personInvalid = require('./referenceValidator.fixtures/personInvalid.json');
-const personValid = require('./referenceValidator.fixtures/personValid.json');
-
-/**
- * Helper: creates an object whose constructor.name === 'Reference'
- */
-function createReferenceInstance(referenceValue) {
-    function Reference() {
-        this.reference = referenceValue;
-    }
-    return new Reference();
-}
+const { fastValidateReferences } = require('../../../utils/referenceValidator');
 
 describe('referenceValidator', () => {
     describe('checkReferenceValue (tested via fastValidateReferences)', () => {
@@ -178,74 +165,7 @@ describe('referenceValidator', () => {
         });
     });
 
-    describe('validateReferences (constructor.name check)', () => {
-        test('SECURITY: plain objects are NOT detected as References (constructor.name !== "Reference")', () => {
-            const resource = {
-                subject: { reference: 'invalid-no-slash' }
-            };
-            const errors = validateReferences(resource, 'Resource');
-            // Bug: plain objects have constructor.name === 'Object', not 'Reference'
-            // So the reference check is never triggered; no errors reported
-            expect(errors).toEqual([]);
-        });
 
-        test('Reference class instances ARE detected and validated', () => {
-            const ref = createReferenceInstance('invalid-no-slash');
-            const resource = { subject: ref };
-            const errors = validateReferences(resource, 'Resource');
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('invalid-no-slash');
-            expect(errors[0]).toContain('invalid reference');
-        });
-
-        test('valid Reference class instance with correct relative reference passes', () => {
-            const ref = createReferenceInstance('Patient/123');
-            const resource = { subject: ref };
-            const errors = validateReferences(resource, 'Resource');
-            expect(errors).toEqual([]);
-        });
-
-        test('valid Reference class instance with contained reference passes', () => {
-            const ref = createReferenceInstance('#contained-1');
-            const resource = { subject: ref };
-            const errors = validateReferences(resource, 'Resource');
-            expect(errors).toEqual([]);
-        });
-
-        test('valid Reference class instance with absolute URL passes', () => {
-            const ref = createReferenceInstance('https://fhir.example.com/Patient/456');
-            const resource = { subject: ref };
-            const errors = validateReferences(resource, 'Resource');
-            expect(errors).toEqual([]);
-        });
-
-        test('null resourceObj returns empty array', () => {
-            const errors = validateReferences(null, 'Resource');
-            expect(errors).toEqual([]);
-        });
-
-        test('undefined resourceObj returns empty array', () => {
-            const errors = validateReferences(undefined, 'Resource');
-            expect(errors).toEqual([]);
-        });
-    });
-
-    describe('against a real generated FHIR resource class (not a plain object)', () => {
-        test('reports invalid references on a real Person class instance', () => {
-            const personResourceObj = new Person(personInvalid);
-            const errors = validateReferences(personResourceObj, '');
-            expect(errors).toStrictEqual([
-                'link.0.target.reference: Person/Person/a58e50292d79469691d3048e787434cc is an invalid reference',
-                'link.1.target.reference: Patient/Patient/26a2b5508f6840a1b4c5f67d38360060 is an invalid reference'
-            ]);
-        });
-
-        test('reports no errors for a valid Person class instance', () => {
-            const personResourceObj = new Person(personValid);
-            const errors = validateReferences(personResourceObj, '');
-            expect(errors).toStrictEqual([]);
-        });
-    });
 
     describe('fastValidateReferences (duck-typing)', () => {
         test('detects invalid references on plain objects (more reliable than validateReferences)', () => {
@@ -298,23 +218,6 @@ describe('referenceValidator', () => {
             expect(errors[0]).toContain('Resource.level1.level2.level3.level4.subject');
         });
 
-        test('deeply nested Reference instances are found by validateReferences', () => {
-            const ref = createReferenceInstance('no-slash-invalid');
-            const resource = {
-                level1: {
-                    level2: {
-                        level3: {
-                            subject: ref
-                        }
-                    }
-                }
-            };
-            const errors = validateReferences(resource, 'Resource');
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('no-slash-invalid');
-            expect(errors[0]).toContain('Resource.level1.level2.level3.subject');
-        });
-
         test('multiple invalid references at different depths are all reported', () => {
             const resource = {
                 subject: { reference: 'bad-ref-one' },
@@ -352,27 +255,6 @@ describe('referenceValidator', () => {
     });
 
     describe('arrays of references', () => {
-        test('validateReferences handles arrays of Reference instances', () => {
-            const refs = [
-                createReferenceInstance('Patient/1'),
-                createReferenceInstance('bad-ref'),
-                createReferenceInstance('Patient/2')
-            ];
-            const errors = validateReferences(refs, 'Resource');
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('bad-ref');
-        });
-
-        test('validateReferences iterates array with index in path', () => {
-            const refs = [
-                createReferenceInstance('Patient/1'),
-                createReferenceInstance('no-slash-here')
-            ];
-            const errors = validateReferences(refs, 'Resource');
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('Resource.1');
-        });
-
         test('fastValidateReferences handles objects containing arrays with references', () => {
             const resource = {
                 performer: [
@@ -410,10 +292,6 @@ describe('referenceValidator', () => {
             );
         });
 
-        test('empty array returns no errors', () => {
-            const errors = validateReferences([], 'Resource');
-            expect(errors).toEqual([]);
-        });
     });
 
     describe('path construction', () => {
@@ -435,14 +313,6 @@ describe('referenceValidator', () => {
             expect(errors[0]).toContain('subject');
         });
 
-        test('validateReferences builds path for array indices', () => {
-            const refs = [
-                createReferenceInstance('no-slash')
-            ];
-            const errors = validateReferences(refs, 'Bundle');
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('Bundle.0');
-        });
     });
 
     describe('edge cases', () => {
@@ -474,28 +344,6 @@ describe('referenceValidator', () => {
             const errors = fastValidateReferences(resource, 'Resource');
             expect(errors).toHaveLength(1);
             expect(errors[0]).toContain('no-slash');
-        });
-
-        test('validateReferences skips null properties in object iteration', () => {
-            const resource = {
-                subject: null,
-                performer: createReferenceInstance('no-slash')
-            };
-            const errors = validateReferences(resource, 'Resource');
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('no-slash');
-        });
-
-        test('validateReferences skips primitive properties', () => {
-            const resource = {
-                id: '123',
-                active: true,
-                count: 5,
-                performer: createReferenceInstance('bad-ref')
-            };
-            const errors = validateReferences(resource, 'Resource');
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('bad-ref');
         });
 
         test('fastValidateReferences handles resource with no reference fields', () => {

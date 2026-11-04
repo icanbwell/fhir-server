@@ -104,7 +104,7 @@ describe('seach by id many performance', () => {
                  */
                 const collection = db.collection(`${resourceType}_${base_version}`);
 
-                await collection.insertMany(bundle.entry.map(e => e.resource.toJSONInternal()));
+                await collection.insertMany(bundle.entry.map(e => e.resource));
 
                 console.log(`Finished saving ${numberOfResources} resources.`);
 
