@@ -73,6 +73,11 @@ Entries get the same attachment/base64 transforms, `response` fill-in and enrich
   is the rollback.
 - Versions older than the 13-month TTL are not in ClickHouse, so they are not returned (history is
   truncated, a version read returns 404).
+- `Group` and `GroupMember` are not supported yet. The 13-month retention would truncate their
+  history, and a Group's roster at a version is rebuilt from GroupMember history, so a truncated
+  GroupMember history would return incomplete rosters. Do not add `Group` to
+  `RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES` until ClickHouse retention covers them (or the roster
+  is served another way); support is planned for later.
 
 ## Observability
 
