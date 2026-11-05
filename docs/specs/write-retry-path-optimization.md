@@ -34,7 +34,7 @@ A `mergeOneAsync` write with no previous version (`lastVersionId` missing or `'0
 - **Rounds: 3**, configurable with `CONCURRENCY_RESOLUTION_ROUNDS`.
 - **Backoff:** full jitter, `random() * CONCURRENCY_RESOLUTION_BACKOFF_MS * 2^(round-1)`, base 25 ms. The worst case adds 175 ms across 3 rounds.
 - **Exhaustion: a per-resource issue**, never a thrown error from the executor.
-- **HTTP status for a single-resource conflict: 409 Conflict.** `update` (PUT) throws a new `ConflictError` (`src/utils/httpErrors.js`) carrying the issue. `NotAllowedError` is also a 409, but its issue code is fixed to `forbidden`. A `forbidden` issue from the resolver throws the existing `ForbiddenError` (403).
+- **HTTP status for a single-resource conflict: 409 Conflict.** `update` (PUT) throws a new `ConflictError` (`src/utils/httpErrors.js`) carrying the issue. A `forbidden` issue from the resolver throws the existing `ForbiddenError` (403).
 
 ## Behavior
 
