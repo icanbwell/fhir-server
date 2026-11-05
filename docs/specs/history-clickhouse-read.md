@@ -79,16 +79,18 @@ Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need a
 ## Query
 
 ```sql
-SELECT raw
+SELECT raw, _uuid AS row_uuid, toUnixTimestamp64Milli(_recorded) AS recorded_ms, toUInt64OrZero(version_id) AS version_number
 FROM fhir.Resource_4_0_0_History FINAL
-WHERE resource_type = {resource_type:String} AND _uuid = {uuid:String}
-  [AND (_recorded, toUInt64OrZero(version_id)) < ({recorded:DateTime64(3, 'UTC')}, {version:UInt64})]
-ORDER BY _recorded DESC, toUInt64OrZero(version_id) DESC
+WHERE resource_type = {resource_type:String}
+  [AND _uuid = {uuid:String}]                                   -- instance read only
+  [AND _recorded >= fromUnixTimestamp64Milli({since_ms:Int64}, 'UTC')]   -- _since
+  [AND (_recorded, [_uuid,] toUInt64OrZero(version_id)) < (...)]         -- cursor; _uuid only type-level
+ORDER BY _recorded DESC, [_uuid DESC,] toUInt64OrZero(version_id) DESC
 LIMIT {limit:UInt32}
 ```
 
 The page asks for `limit + 1` rows; an extra row means a `next` link. The cursor is
-`base64url(JSON {r: _recorded epoch ms, v: version number})` of the last returned row, so pages have no
+`base64url(JSON {r: _recorded epoch ms, v: version number[, u: _uuid]})` of the last returned row (`u` only for a type-level read), so pages have no
 gaps or duplicates even when new versions are written between requests. No `access_tags`
 predicate: history reads already require a non-tenant access scope (`hasHistoryAccess`), which
 is checked before the query.
