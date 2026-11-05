@@ -1,6 +1,9 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
 const patientResolvers = require('../../../../../graphql/resolvers/custom/patient');
+const { MergeOperation } = require('../../../../../operations/merge/merge');
+const { R4ArgsParser } = require('../../../../../operations/query/r4ArgsParser');
+const { BadRequestError } = require('../../../../../utils/httpErrors');
 
 describe('graphql/resolvers/custom/patient', () => {
     let mockContext;
@@ -259,6 +262,31 @@ describe('graphql/resolvers/custom/patient', () => {
                     mockInfo
                 )
             ).rejects.toThrow('Practitioner not found pr-missing');
+        });
+    });
+
+    describe('Mutation.updateGeneralPractitioner merge result', () => {
+        test.each([
+            ['an issue', { issue: { severity: 'error', code: 'conflict', diagnostics: 'modified concurrently' } }],
+            ['an operationOutcome', { operationOutcome: { resourceType: 'OperationOutcome', issue: [{ code: 'forbidden' }] } }]
+        ])('throws BadRequestError when the merge result carries %s', async (_label, mergeResult) => {
+            const mergeOperation = Object.create(MergeOperation.prototype);
+            mergeOperation.mergeAsync = jest.fn().mockResolvedValue([mergeResult]);
+            const r4ArgsParser = Object.create(R4ArgsParser.prototype);
+            r4ArgsParser.parseArgs = jest.fn().mockReturnValue({});
+            mockContext.container = { mergeOperation, r4ArgsParser };
+            mockContext.dataApi.getResourcesForMutation.mockResolvedValue([{ resourceType: 'Patient', id: 'p1', generalPractitioner: null }]);
+            mockContext.dataApi.getResources.mockResolvedValue([{ id: 'pr-1' }]);
+
+            const promise = patientResolvers.Mutation.updateGeneralPractitioner(
+                null,
+                { patientId: 'p1', practitionerId: 'pr-1', remove: false },
+                mockContext,
+                mockInfo
+            );
+
+            await expect(promise).rejects.toThrow(BadRequestError);
+            await expect(promise).rejects.toThrow('Unable to update patient p1');
         });
     });
 

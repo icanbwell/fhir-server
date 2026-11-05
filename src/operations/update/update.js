@@ -1,6 +1,6 @@
 const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
-const { NotValidatedError, BadRequestError, PreconditionFailedError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError, PreconditionFailedError, ConflictError, ForbiddenError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -492,7 +492,10 @@ class UpdateOperation {
                         resourceType,
                         doc,
                         contextData,
-                        rejectIfExists: ifNoneMatch === '*'
+                        rejectIfExists: ifNoneMatch === '*',
+                        // a PUT replaces: if this create loses to a concurrent create, it is
+                        // rebased onto that document the way a PUT on an existing resource is
+                        smartMerge: false
                     });
                 }
             }
@@ -507,13 +510,24 @@ class UpdateOperation {
                         base_version
                     }
                 );
-                if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                    throw new BadRequestError(
-                        new Error(mergeResults.length > 0
-                            ? JSON.stringify(mergeResults[0].issue, getCircularReplacer())
-                            : 'No merge result'
-                        )
-                    );
+                if (!mergeResults || mergeResults.length === 0) {
+                    throw new BadRequestError(new Error('No merge result'));
+                }
+                const mergeResult = mergeResults[0];
+                if (mergeResult.issue) {
+                    if (mergeResult.issue.code === 'conflict') {
+                        throw new ConflictError(mergeResult.issue);
+                    }
+                    if (mergeResult.issue.code === 'forbidden') {
+                        throw new ForbiddenError(mergeResult.issue.diagnostics || mergeResult.issue.details?.text);
+                    }
+                    throw new BadRequestError(new Error(JSON.stringify(mergeResult.issue, getCircularReplacer())));
+                }
+                const skipped = !mergeResult.created && !mergeResult.updated;
+                const createSavedAsUpdate = !foundResource && mergeResult.updated;
+                if ((skipped || createSavedAsUpdate) && mergeResult.savedResource) {
+                    // a concurrent write decided what was stored: respond with that document
+                    doc = mergeResult.savedResource;
                 }
 
                 if (resourceType !== 'AuditEvent') {

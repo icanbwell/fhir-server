@@ -17,6 +17,7 @@ const deepcopy = require('deepcopy');
 const { logInfo } = require('../operations/common/logging');
 const { PreconditionFailedError } = require('../utils/httpErrors');
 const { normalizeETag } = require('../utils/ifMatchHelper');
+const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 
 class FastDatabaseUpdateManager {
     /**
@@ -332,6 +333,67 @@ class FastDatabaseUpdateManager {
                 error: e
             });
         }
+    }
+
+    /**
+     * Reads the current documents for these _uuids in one query on the primary
+     * @param {string[]} uuids
+     * @return {Promise<Map<string, Object>>}
+     */
+    async findLatestByUuidsAsync({ uuids }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: this._resourceType,
+            base_version: '4_0_0'
+        });
+        const cursor = await databaseQueryManager.findAsync({
+            query: { _uuid: { $in: uuids } },
+            options: { readPreference: ReadPreference.PRIMARY }
+        });
+        const documents = await cursor.toArrayAsync();
+        return new Map(
+            documents.map((document) => [
+                document._uuid,
+                FhirResourceWriteSerializer.serializeByResourceType({ obj: document, resourceType: this._resourceType })
+            ])
+        );
+    }
+
+    /**
+     * Merges doc onto the current resource, as the legacy retry does, without writing it.
+     * Returns nulls when the merge finds no change.
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Object} doc
+     * @param {Object} currentResource
+     * @param {boolean} smartMerge
+     * @return {Promise<{updatedResource: Object|null, patches: MergePatchEntry[]|null}>}
+     */
+    async rebaseOnLatestAsync({ base_version, requestInfo, doc, currentResource, smartMerge }) {
+        let { updatedResource, patches } = await this.resourceMerger.fastMergeResourceAsync({
+            base_version,
+            requestInfo,
+            currentResource,
+            resourceToMerge: doc,
+            smartMerge
+        });
+        updatedResource = await this.base64DataManager.resolveWriteForExternalizedDataChange(
+            updatedResource, currentResource, requestInfo, this._forceBase64Write
+        );
+        if (!updatedResource) {
+            return { updatedResource: null, patches: null };
+        }
+        const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+        updatedResource = await this.preSaveManager.preSaveAsync({ resource: deepcopy(updatedResource), options: preSaveOptions });
+        return { updatedResource, patches };
+    }
+
+    /**
+     * The document collection.replaceOne writes for this resource
+     * @param {Object} doc
+     * @return {Object}
+     */
+    toWriteDocument(doc) {
+        return doc;
     }
 
     /**

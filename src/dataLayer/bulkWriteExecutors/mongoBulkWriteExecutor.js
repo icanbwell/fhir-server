@@ -23,6 +23,8 @@ const { PostSaveProcessor } = require('../postSaveProcessor');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { Base64DataManager } = require('../base64DataManager');
 const { PreconditionFailedError } = require('../../utils/httpErrors');
+const { WriteConflictDetector } = require('../concurrency/writeConflictDetector');
+const { ConcurrentWriteResolver } = require('../concurrency/concurrentWriteResolver');
 
 // MongoDB BSON document hard limit is 16 MiB (16,777,216 bytes). The Node driver and
 // libbson allocate a 17 MiB scratch buffer (kMaxBSONSize + 1 MiB headroom = 17,825,792 bytes),
@@ -71,6 +73,8 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
      * @param {Function} cloneResource - Strategy: (resource) => cloned resource
      * @param {Function} createUpdateManager - Strategy: ({resourceType, base_version}) => FastDatabaseUpdateManager
      * @param {Base64DataManager} base64DataManager
+     * @param {WriteConflictDetector} writeConflictDetector
+     * @param {ConcurrentWriteResolver} concurrentWriteResolver
      */
     constructor ({
         resourceLocatorFactory,
@@ -79,7 +83,9 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
         postRequestProcessor,
         cloneResource,
         createUpdateManager,
-        base64DataManager
+        base64DataManager,
+        writeConflictDetector,
+        concurrentWriteResolver
     }) {
         super();
 
@@ -128,6 +134,18 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
          */
         this.base64DataManager = base64DataManager;
         assertTypeEquals(base64DataManager, Base64DataManager);
+
+        /**
+         * @type {WriteConflictDetector}
+         */
+        this.writeConflictDetector = writeConflictDetector;
+        assertTypeEquals(writeConflictDetector, WriteConflictDetector);
+
+        /**
+         * @type {ConcurrentWriteResolver}
+         */
+        this.concurrentWriteResolver = concurrentWriteResolver;
+        assertTypeEquals(concurrentWriteResolver, ConcurrentWriteResolver);
     }
 
     /**
@@ -337,83 +355,48 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                      * @type {number}
                      */
                     const actualInsertsByUniqueIdCount = bulkWriteResult.upsertedCount;
+                    // fewer upserts than expected: a concurrent writer created at least one of
+                    // these resources first
+                    const insertsFellShort = expectedInsertsByUniqueIdCount > 0 &&
+                        expectedInsertsByUniqueIdCount > actualInsertsByUniqueIdCount;
+                    // fewer modified than expected: a concurrent writer updated at least one of
+                    // these resources first, so its versioned filter matched nothing
+                    const updatesFellShort = expectedUpdatesCount > 0 &&
+                        bulkWriteResult.modifiedCount < expectedUpdatesCount;
 
-                    // 1. check if we got same number of inserts as we expected
-                    //      If we did not, it means someone else inserted this resource.  Then we have to use update instead of insert
-                    if (this.configManager.handleConcurrency &&
-                        expectedInsertsByUniqueIdCount > 0 &&
-                        expectedInsertsByUniqueIdCount > actualInsertsByUniqueIdCount
+                    // The insertUniqueId operation (fastDatabaseBulkInserter.js) is itself an atomic
+                    // updateOne-with-upsert, so upsertedCount < expected here means a concurrent
+                    // writer's create won the race for at least one of these resources -- exactly
+                    // what If-None-Match: * asks us to reject rather than silently fold into an
+                    // update, so check that before resolving the conflict.
+                    if (this.configManager.handleConcurrency && insertsFellShort &&
+                        expectedInsertsByUniqueId.some(e => e.writePrecondition?.rejectIfExists)
                     ) {
-                        // The insertUniqueId operation (databaseBulkInserter.js) is itself an atomic
-                        // updateOne-with-upsert, so upsertedCount < expected here means a concurrent
-                        // writer's create won the race for at least one of these resources -- exactly
-                        // what If-None-Match: * asks us to reject rather than silently fold into an
-                        // update, so check that before falling into the generic concurrency fallback.
-                        if (expectedInsertsByUniqueId.some(e => e.writePrecondition?.rejectIfExists)) {
-                            throw new PreconditionFailedError('Version conflict: If-None-Match: * was provided but resource already exists.');
-                        }
+                        throw new PreconditionFailedError('Version conflict: If-None-Match: * was provided but resource already exists.');
+                    }
+                    if (this.configManager.handleConcurrency && (insertsFellShort || updatesFellShort)) {
                         await logTraceSystemEventAsync(
                             {
                                 event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
-                                message: 'Insert count not matched so running updates one by one',
+                                message: 'Write counts not matched so resolving the concurrent writes',
                                 args: {
                                     resourceType,
                                     collectionName,
-                                    expectedInsertsByUniqueId,
                                     actualInsertsByUniqueIdCount,
                                     expectedInsertsByUniqueIdCount,
-                                    bulkWriteResult
+                                    actualUpdatesCount: bulkWriteResult.modifiedCount,
+                                    expectedUpdatesCount
                                 }
                             }
                         );
-                        // do inserts/updates one by one
-                        await this._updateResourcesOneByOneAsync(
-                            {
-                                base_version,
-                                requestInfo,
-                                bulkInsertUpdateEntries: expectedInsertsByUniqueId
-                            }
-                        );
-                    }
-                    // 2. Now check if we got the same number of updates as we expected.
-                    //      If we did not, it means someone else updated the version of the resources we were updating
-                    // NOTE: Mongo does NOT return ids of updated resources so we have to go through each
-                    //       document to see if it is same in db as we have it
-                    // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
-                    // nMatched: The number of existing documents selected for update or replacement.
-                    // If the update/replacement operation results in no change to an existing document,
-                    // e.g. $set expression updates the value to the current value,
-                    // nMatched can be greater than nModified.
-                    // insertsByUniqueId are also matches so subtract that count to get count of matches for updates
-                    /**
-                     * @type {number}
-                     */
-                    const actualUpdatesCount = bulkWriteResult.modifiedCount;
-                    if (this.configManager.handleConcurrency && expectedUpdatesCount > 0 &&
-                        actualUpdatesCount < expectedUpdatesCount) {
-                        // concurrency check failed (another parallel process updated atleast one resource)
-                        // process one by one
-                        await logTraceSystemEventAsync(
-                            {
-                                event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
-                                message: 'Update count not matched so running updates one by one',
-                                args: {
-                                    resourceType,
-                                    collectionName,
-                                    expectedUpdates,
-                                    actualUpdatesCount,
-                                    expectedUpdatesCount,
-                                    bulkWriteResult
-                                }
-                            }
-                        );
-                        await this._updateResourcesOneByOneAsync(
-                            {
-                                base_version,
-                                requestInfo,
-                                bulkInsertUpdateEntries: expectedUpdates
-                            }
-                        );
+                        await this._resolveConcurrentWritesAsync({
+                            base_version,
+                            requestInfo,
+                            resourceType,
+                            collection,
+                            operationsByCollection,
+                            bulkWriteResult
+                        });
                     }
 
                     // 3. Call postSaveAsync for each operation
@@ -510,6 +493,20 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                 }
             }
         );
+        // an entry the concurrency resolver could not save carries its issue: no history, no event
+        if (bulkInsertUpdateEntry.issue) {
+            return new MergeResultEntry({
+                id: bulkInsertUpdateEntry.id,
+                uuid: bulkInsertUpdateEntry.uuid,
+                sourceAssigningAuthority: bulkInsertUpdateEntry.sourceAssigningAuthority,
+                created: false,
+                updated: false,
+                resourceType,
+                issue: bulkInsertUpdateEntry.issue,
+                operationOutcome: bulkInsertUpdateEntry.operationOutcome,
+                savedResource: bulkInsertUpdateEntry.resource
+            });
+        }
         if (
             !bulkInsertUpdateEntry.skipped &&
             resourceType !== 'AuditEvent' &&
@@ -536,7 +533,8 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
             sourceAssigningAuthority: bulkInsertUpdateEntry.sourceAssigningAuthority,
             created: bulkInsertUpdateEntry.isCreateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
             updated: bulkInsertUpdateEntry.isUpdateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
-            resourceType
+            resourceType,
+            savedResource: bulkInsertUpdateEntry.resource
         });
         if (hasBulkWriteErrors) {
             const bulkWriteErrors = bulkWriteResult.getWriteErrors();
@@ -609,6 +607,59 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
         }
 
         return mergeResultEntry;
+    }
+
+    /**
+     * Finds the entries of this collection's bulk write that lost a concurrency race and
+     * resolves them: losers are rebased and rewritten in bulk, an If-Match update that lost
+     * fails the request, and a {_uuid}-only write whose document is missing is replayed one by one
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {import('mongodb').Collection} collection
+     * @param {BulkInsertUpdateEntry[]} operationsByCollection - in the order they were written
+     * @param {import('mongodb').BulkWriteResult} bulkWriteResult
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _resolveConcurrentWritesAsync ({
+        base_version,
+        requestInfo,
+        resourceType,
+        collection,
+        operationsByCollection,
+        bulkWriteResult
+    }) {
+        const updateManager = this.createUpdateManager({ resourceType, base_version: '4_0_0' });
+        const { losers, latestByUuid, ifMatchMisses, missingUuidOnly } = await this.writeConflictDetector.detectAsync({
+            entries: operationsByCollection.map((entry, index) => ({ entry, index })),
+            bulkWriteResult,
+            updateManager
+        });
+        if (ifMatchMisses.length > 0) {
+            const ifMatchVersionIds = ifMatchMisses[0].writePrecondition?.ifMatchVersionIds || [];
+            throw new PreconditionFailedError(
+                `Version conflict: If-Match does not match current resource version. If-Match: ${ifMatchVersionIds.join(', ')}`
+            );
+        }
+        if (losers.length > 0) {
+            await this.concurrentWriteResolver.resolveAsync({
+                base_version,
+                requestInfo,
+                collection,
+                losers,
+                latestByUuid,
+                updateManager,
+                cloneResource: this.cloneResource
+            });
+        }
+        if (missingUuidOnly.length > 0) {
+            await this._updateResourcesOneByOneAsync({
+                base_version,
+                requestInfo,
+                bulkInsertUpdateEntries: missingUuidOnly
+            });
+        }
     }
 
     /**

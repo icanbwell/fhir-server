@@ -558,4 +558,96 @@ describe('FastDatabaseUpdateManager', () => {
             expect(result).toBe(expected);
         });
     });
+
+    describe('findLatestByUuidsAsync', () => {
+        test('issues one $in query on primary and keys the documents by _uuid', async () => {
+            const d1 = createMockDoc({ id: 'r1', _uuid: 'u1' });
+            const d2 = createMockDoc({ id: 'r2', _uuid: 'u2' });
+            const cursor = { toArrayAsync: jestObj.fn().mockResolvedValue([d1, d2]) };
+            mocks.databaseQueryManager.findAsync = jestObj.fn().mockResolvedValue(cursor);
+
+            const result = await manager.findLatestByUuidsAsync({ uuids: ['u1', 'u2'] });
+
+            expect(mocks.databaseQueryManager.findAsync).toHaveBeenCalledTimes(1);
+            const { query, options } = mocks.databaseQueryManager.findAsync.mock.calls[0][0];
+            expect(query).toEqual({ _uuid: { $in: ['u1', 'u2'] } });
+            expect(options.readPreference.mode).toBe('primary');
+            expect(result.get('u1')).toMatchObject({ id: 'r1', _uuid: 'u1' });
+            expect(result.get('u2')).toMatchObject({ id: 'r2', _uuid: 'u2' });
+            expect(result.size).toBe(2);
+        });
+    });
+
+    describe('rebaseOnLatestAsync', () => {
+        test('returns null when the merge finds no change', async () => {
+            mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource: null, patches: null });
+
+            const result = await manager.rebaseOnLatestAsync({
+                base_version: '4_0_0',
+                requestInfo: createMockFhirRequestInfo(),
+                doc: createMockDoc({ versionId: '2' }),
+                currentResource: createMockDoc({ versionId: '2' }),
+                smartMerge: true
+            });
+
+            expect(result).toEqual({ updatedResource: null, patches: null });
+            expect(mocks.preSaveManager.preSaveAsync).not.toHaveBeenCalled();
+        });
+
+        test.each([true, false])('passes smartMerge %s to the merge', async (smartMerge) => {
+            const currentResource = createMockDoc({ versionId: '3' });
+            const doc = createMockDoc({ versionId: '2' });
+
+            await manager.rebaseOnLatestAsync({
+                base_version: '4_0_0', requestInfo: createMockFhirRequestInfo(), doc, currentResource, smartMerge
+            });
+
+            expect(mocks.resourceMerger.fastMergeResourceAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ currentResource, resourceToMerge: doc, smartMerge })
+            );
+        });
+
+        test('returns a preSaved copy of the merged resource with its patches', async () => {
+            const merged = createMockDoc({ versionId: '4' });
+            const patches = [{ op: 'replace', path: '/gender', value: 'other' }];
+            mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource: merged, patches });
+
+            const result = await manager.rebaseOnLatestAsync({
+                base_version: '4_0_0',
+                requestInfo: createMockFhirRequestInfo(),
+                doc: createMockDoc({ versionId: '2' }),
+                currentResource: createMockDoc({ versionId: '3' }),
+                smartMerge: true
+            });
+
+            const preSaved = mocks.preSaveManager.preSaveAsync.mock.calls[0][0].resource;
+            expect(preSaved).not.toBe(merged);
+            expect(preSaved).toEqual(merged);
+            expect(result.updatedResource).toBe(preSaved);
+            expect(result.patches).toBe(patches);
+        });
+
+        test('reconciles externalized base64 data against the rebase target', async () => {
+            const merged = createMockDoc({ versionId: '4' });
+            const currentResource = createMockDoc({ versionId: '3' });
+            mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource: merged, patches: null });
+            const info = createMockFhirRequestInfo();
+
+            await manager.rebaseOnLatestAsync({
+                base_version: '4_0_0', requestInfo: info, doc: createMockDoc(), currentResource, smartMerge: true
+            });
+
+            expect(mocks.base64DataManager.resolveWriteForExternalizedDataChange).toHaveBeenCalledWith(
+                merged, currentResource, info, manager._forceBase64Write
+            );
+        });
+    });
+
+    describe('toWriteDocument', () => {
+        test('returns the document as the replace writes it', () => {
+            const doc = createMockDoc();
+
+            expect(manager.toWriteDocument(doc)).toBe(doc);
+        });
+    });
 });

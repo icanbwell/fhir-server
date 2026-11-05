@@ -53,14 +53,16 @@ const { RethrownError } = require('../../../../utils/rethrownError');
 const { MongoInvalidArgumentError } = require('mongodb');
 const { MONGO_ERROR, ACCESS_LOGS_COLLECTION_NAME } = require('../../../../constants');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
+const { WriteConflictDetector } = require('../../../../dataLayer/concurrency/writeConflictDetector');
 
 /**
  * A mongodb BulkWriteResult test double.
  * @param {Object} [opts]
  */
-function makeBulkWriteResult ({ upsertedCount = 0, modifiedCount = 0, writeErrors = [] } = {}) {
+function makeBulkWriteResult ({ upsertedCount = 0, modifiedCount = 0, writeErrors = [], upsertedIds = {} } = {}) {
     return {
         upsertedCount,
+        upsertedIds,
         modifiedCount,
         insertedCount: 0,
         matchedCount: modifiedCount,
@@ -133,6 +135,7 @@ describe('MongoBulkWriteExecutor', () => {
     let updateManager;
     let createUpdateManager;
     let insertOneHistoryFn;
+    let concurrentWriteResolver;
     let executor;
 
     beforeEach(() => {
@@ -169,11 +172,15 @@ describe('MongoBulkWriteExecutor', () => {
         cloneResource = jestGlobal.fn((r) => ({ ...r, __cloned: true }));
 
         updateManager = {
-            replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: null, patches: null })
+            replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: null, patches: null }),
+            findLatestByUuidsAsync: jestGlobal.fn().mockResolvedValue(new Map()),
+            toWriteDocument: jestGlobal.fn((doc) => doc)
         };
         createUpdateManager = jestGlobal.fn(() => updateManager);
 
         insertOneHistoryFn = jestGlobal.fn().mockResolvedValue(undefined);
+
+        concurrentWriteResolver = { resolveAsync: jestGlobal.fn().mockResolvedValue(undefined) };
 
         executor = new MongoBulkWriteExecutor({
             resourceLocatorFactory,
@@ -182,7 +189,9 @@ describe('MongoBulkWriteExecutor', () => {
             postRequestProcessor,
             cloneResource,
             createUpdateManager,
-            base64DataManager
+            base64DataManager,
+            writeConflictDetector: new WriteConflictDetector(),
+            concurrentWriteResolver
         });
     });
 
@@ -426,6 +435,34 @@ describe('MongoBulkWriteExecutor', () => {
             expect(postRequestProcessor.add).not.toHaveBeenCalled();
         });
 
+        test('an entry carrying an issue is reported with that issue and writes no history or change event', async () => {
+            const issue = { severity: 'error', code: 'conflict', expression: ['Patient/uuid-patient-1'] };
+            const operationOutcome = { resourceType: 'OperationOutcome', issue: [issue] };
+            postSaveProcessor.needsSyncFor.mockReturnValue(true);
+
+            const result = await run({ operations: [makeEntry({ issue, operationOutcome })] });
+
+            const entry = result.mergeResultEntries[0];
+            expect(entry.created).toBe(false);
+            expect(entry.updated).toBe(false);
+            expect(entry.issue).toBe(issue);
+            expect(entry.operationOutcome).toBe(operationOutcome);
+            expect(insertOneHistoryFn).not.toHaveBeenCalled();
+            expect(base64DataManager.cleanupPreviousLiveObjectAsync).not.toHaveBeenCalled();
+            expect(postSaveProcessor.afterSaveAsync).not.toHaveBeenCalled();
+            expect(postRequestProcessor.add).not.toHaveBeenCalled();
+        });
+
+        test('a merge result carries the saved resource without serializing it', async () => {
+            const operations = [makeEntry()];
+
+            const result = await run({ operations });
+
+            const entry = result.mergeResultEntries[0];
+            expect(entry.savedResource).toBe(operations[0].resource);
+            expect(entry.toJSON()).not.toHaveProperty('savedResource');
+        });
+
         test('AuditEvent writes never produce history docs or change events', async () => {
             const auditResource = makeResource({ id: 'audit-1', resourceType: 'AuditEvent' });
             await run({
@@ -590,54 +627,113 @@ describe('MongoBulkWriteExecutor', () => {
     // Concurrency fallback (_updateResourcesOneByOneAsync)
     // ========================================================================================
     describe('concurrency fallback', () => {
-        test('falls back to one-by-one updates when fewer upserts landed than expected', async () => {
-            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0 }));
+        function patient (id, gender = 'male', versionId = '2') {
+            return { ...makeResource({ id }), _uuid: `uuid-${id}`, meta: { ...makeResource({ id }).meta, versionId }, gender };
+        }
+
+        function createEntry (resource, overrides = {}) {
+            return makeEntry({
+                resource,
+                operation: { updateOne: { filter: { _uuid: resource._uuid }, update: { $setOnInsert: resource }, upsert: true } },
+                ...overrides
+            });
+        }
+
+        function versionedEntry (resource) {
+            return makeEntry({
+                resource,
+                operationType: 'merge',
+                isCreateOperation: false,
+                isUpdateOperation: true,
+                operation: {
+                    replaceOne: {
+                        filter: { $and: [{ _uuid: resource._uuid }, { 'meta.versionId': '1' }] },
+                        replacement: resource
+                    }
+                }
+            });
+        }
+
+        function uuidOnlyEntry (resource, overrides = {}) {
+            return makeEntry({
+                resource,
+                operationType: 'replace',
+                isCreateOperation: false,
+                isUpdateOperation: true,
+                operation: { replaceOne: { filter: { _uuid: resource._uuid }, replacement: resource } },
+                ...overrides
+            });
+        }
+
+        test('only losing entries reach the resolver and winners are not replayed', async () => {
+            const won = patient('p-1');
+            const lost = patient('p-2');
+            const storedForLost = patient('p-2', 'female');
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 1 }));
+            updateManager.findLatestByUuidsAsync.mockResolvedValue(new Map([
+                ['uuid-p-1', { ...won }],
+                ['uuid-p-2', storedForLost]
+            ]));
+            const lostEntry = versionedEntry(lost);
+
+            const result = await run({ operations: [versionedEntry(won), lostEntry] });
+
+            expect(concurrentWriteResolver.resolveAsync).toHaveBeenCalledTimes(1);
+            const call = concurrentWriteResolver.resolveAsync.mock.calls[0][0];
+            expect(call.losers).toEqual([lostEntry]);
+            expect(call.latestByUuid.get('uuid-p-2')).toBe(storedForLost);
+            expect(call.cloneResource).toBe(cloneResource);
+            expect(call.collection).toBe(collection);
+            expect(updateManager.replaceOneAsync).not.toHaveBeenCalled();
+            expect(result.mergeResultEntries[0].updated).toBe(true);
+        });
+
+        test('a lost create reaches the resolver', async () => {
+            const entry = createEntry(patient('p-1', 'male', '1'));
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0, upsertedIds: {} }));
+            updateManager.findLatestByUuidsAsync.mockResolvedValue(new Map([['uuid-p-1', patient('p-1', 'female', '1')]]));
+
+            await run({ operations: [entry] });
+
+            expect(concurrentWriteResolver.resolveAsync.mock.calls[0][0].losers).toEqual([entry]);
+            expect(updateManager.replaceOneAsync).not.toHaveBeenCalled();
+        });
+
+        test('a {_uuid}-only write whose document is missing goes through the one-by-one fallback', async () => {
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 0 }));
             updateManager.replaceOneAsync.mockResolvedValue({
-                savedResource: makeResource({ id: 'patient-1' }),
+                savedResource: patient('p-1'),
                 patches: [{ op: 'replace', path: '/status' }]
             });
 
-            const result = await run();
+            const result = await run({ operations: [uuidOnlyEntry(patient('p-1'))] });
 
-            expect(createUpdateManager).toHaveBeenCalledWith({ resourceType: 'Patient', base_version: '4_0_0' });
             expect(updateManager.replaceOneAsync).toHaveBeenCalledTimes(1);
-            // the entry's resource is replaced with the DB-resolved one and patches recorded
-            expect(result.mergeResultEntries[0].created).toBe(true);
+            expect(concurrentWriteResolver.resolveAsync).not.toHaveBeenCalled();
+            expect(result.mergeResultEntries[0].updated).toBe(true);
             expect(insertOneHistoryFn.mock.calls[0][0].patches).toEqual([{ op: 'replace', path: '/status' }]);
         });
 
         test('a one-by-one replace that resolves to no change marks the entry skipped', async () => {
-            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0 }));
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 0 }));
             updateManager.replaceOneAsync.mockResolvedValue({ savedResource: null, patches: null });
 
-            const result = await run();
+            const result = await run({ operations: [uuidOnlyEntry(patient('p-1'))] });
 
-            expect(updateManager.replaceOneAsync).toHaveBeenCalledTimes(1);
-            // skipped => not created, no history doc, no change event
-            expect(result.mergeResultEntries[0].created).toBe(false);
+            expect(result.mergeResultEntries[0].updated).toBe(false);
             expect(insertOneHistoryFn).not.toHaveBeenCalled();
             expect(postRequestProcessor.add).not.toHaveBeenCalled();
         });
 
-        test('handleConcurrency=false disables the one-by-one fallback entirely', async () => {
-            configManager.handleConcurrency = false;
-            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0 }));
+        test('a {_uuid}-only write whose document exists is not replayed', async () => {
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 0 }));
+            updateManager.findLatestByUuidsAsync.mockResolvedValue(new Map([['uuid-p-1', patient('p-1', 'female')]]));
 
-            await run();
+            const result = await run({ operations: [uuidOnlyEntry(patient('p-1'))] });
 
             expect(updateManager.replaceOneAsync).not.toHaveBeenCalled();
-        });
-
-        test('falls back when fewer updates were modified than expected', async () => {
-            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 0 }));
-
-            await run({
-                operations: [
-                    makeEntry({ operationType: 'merge', isCreateOperation: false, isUpdateOperation: true })
-                ]
-            });
-
-            expect(updateManager.replaceOneAsync).toHaveBeenCalledTimes(1);
+            expect(concurrentWriteResolver.resolveAsync).not.toHaveBeenCalled();
+            expect(result.mergeResultEntries[0].updated).toBe(true);
         });
 
         test.each([
@@ -646,42 +742,75 @@ describe('MongoBulkWriteExecutor', () => {
             [{ smartMerge: false }, false]
         ])('one-by-one fallback forwards the entry %j as smartMerge=%s', async (entryOverrides, expectedSmartMerge) => {
             collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 0 }));
-            updateManager.replaceOneAsync.mockResolvedValue({ savedResource: null, patches: null });
 
-            await run({
-                operations: [
-                    makeEntry({
-                        operationType: 'merge',
-                        isCreateOperation: false,
-                        isUpdateOperation: true,
-                        ...entryOverrides
-                    })
-                ]
-            });
+            await run({ operations: [uuidOnlyEntry(patient('p-1'), entryOverrides)] });
 
             expect(updateManager.replaceOneAsync).toHaveBeenCalledWith(
                 expect.objectContaining({ smartMerge: expectedSmartMerge })
             );
         });
 
-        test('RULE 11 N>1: one-by-one fallback processes every entry independently', async () => {
-            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0 }));
-            updateManager.replaceOneAsync
-                .mockResolvedValueOnce({ savedResource: makeResource({ id: 'p-1' }), patches: ['a'] })
-                .mockResolvedValueOnce({ savedResource: null, patches: null });
+        test('an If-Match update that lost throws PreconditionFailedError', async () => {
+            const resource = patient('p-1');
+            const entry = makeEntry({
+                resource,
+                operationType: 'replace',
+                isCreateOperation: false,
+                isUpdateOperation: true,
+                writePrecondition: { ifMatchVersionIds: ['1'] },
+                operation: {
+                    replaceOne: {
+                        filter: { $and: [{ _uuid: resource._uuid }, { 'meta.versionId': { $in: ['1'] } }] },
+                        replacement: resource
+                    }
+                }
+            });
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 0 }));
+            updateManager.findLatestByUuidsAsync.mockResolvedValue(new Map([['uuid-p-1', patient('p-1', 'female', '3')]]));
 
-            const result = await run({
-                operations: [
-                    makeEntry({ resource: makeResource({ id: 'p-1' }) }),
-                    makeEntry({ resource: makeResource({ id: 'p-2' }) })
-                ]
+            await expect(run({ operations: [entry] })).rejects.toMatchObject({ statusCode: 412 });
+            expect(concurrentWriteResolver.resolveAsync).not.toHaveBeenCalled();
+        });
+
+        test('a conflict issue set by the resolver surfaces as a MergeResultEntry issue while winners report updated: true', async () => {
+            const won = patient('p-1');
+            const lostEntry = versionedEntry(patient('p-2'));
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 1 }));
+            updateManager.findLatestByUuidsAsync.mockResolvedValue(new Map([
+                ['uuid-p-1', { ...won }],
+                ['uuid-p-2', patient('p-2', 'female')]
+            ]));
+            const issue = { severity: 'error', code: 'conflict', expression: ['Patient/uuid-p-2'] };
+            concurrentWriteResolver.resolveAsync.mockImplementation(async ({ losers }) => {
+                losers[0].issue = issue;
             });
 
-            expect(updateManager.replaceOneAsync).toHaveBeenCalledTimes(2);
-            // entry 1 committed, entry 2 was identical in the DB => skipped
-            expect(result.mergeResultEntries[0].created).toBe(true);
-            expect(result.mergeResultEntries[1].created).toBe(false);
+            const result = await run({ operations: [versionedEntry(won), lostEntry] });
+
+            expect(result.mergeResultEntries[0].updated).toBe(true);
+            expect(result.mergeResultEntries[1].updated).toBe(false);
+            expect(result.mergeResultEntries[1].issue).toBe(issue);
             expect(insertOneHistoryFn).toHaveBeenCalledTimes(1);
+        });
+
+        test('If-None-Match * still throws PreconditionFailedError before detection runs', async () => {
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0 }));
+
+            await expect(run({
+                operations: [createEntry(patient('p-1', 'male', '1'), { writePrecondition: { rejectIfExists: true } })]
+            })).rejects.toMatchObject({ statusCode: 412 });
+            expect(updateManager.findLatestByUuidsAsync).not.toHaveBeenCalled();
+        });
+
+        test('handleConcurrency=false skips detection, the resolver and the one-by-one fallback', async () => {
+            configManager.handleConcurrency = false;
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0, modifiedCount: 0 }));
+
+            await run({ operations: [createEntry(patient('p-1', 'male', '1')), uuidOnlyEntry(patient('p-2'))] });
+
+            expect(updateManager.findLatestByUuidsAsync).not.toHaveBeenCalled();
+            expect(concurrentWriteResolver.resolveAsync).not.toHaveBeenCalled();
+            expect(updateManager.replaceOneAsync).not.toHaveBeenCalled();
         });
     });
 });

@@ -149,4 +149,18 @@ describe('BulkInsertUpdateEntry', () => {
         });
         expect(entry.skipped).toBe(true);
     });
+
+    test('should default issue and operationOutcome to null', () => {
+        const entry = new BulkInsertUpdateEntry(defaultParams);
+        expect(entry.issue).toBeNull();
+        expect(entry.operationOutcome).toBeNull();
+    });
+
+    test('should set issue and operationOutcome when provided', () => {
+        const issue = { severity: 'error', code: 'conflict' };
+        const operationOutcome = { resourceType: 'OperationOutcome', issue: [issue] };
+        const entry = new BulkInsertUpdateEntry({ ...defaultParams, issue, operationOutcome });
+        expect(entry.issue).toBe(issue);
+        expect(entry.operationOutcome).toBe(operationOutcome);
+    });
 });

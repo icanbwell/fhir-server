@@ -159,6 +159,8 @@ const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheK
 const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
 const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
+const { WriteConflictDetector } = require('./dataLayer/concurrency/writeConflictDetector');
+const { ConcurrentWriteResolver } = require('./dataLayer/concurrency/concurrentWriteResolver');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
 const { HistoryKafkaProducer } = require('./dataLayer/historyKafkaProducer');
@@ -673,6 +675,15 @@ const createContainer = function () {
         kafkaClientV2: c.kafkaClientV2
     }));
 
+    container.register('writeConflictDetector', () => new WriteConflictDetector());
+
+    container.register('concurrentWriteResolver', (c) => new ConcurrentWriteResolver({
+        configManager: c.configManager,
+        base64DataManager: c.base64DataManager,
+        scopesValidator: c.scopesValidator,
+        writeConflictDetector: c.writeConflictDetector
+    }));
+
     container.register('fastMongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
         resourceLocatorFactory: c.resourceLocatorFactory,
         configManager: c.configManager,
@@ -681,7 +692,9 @@ const createContainer = function () {
         cloneResource: (resource) => deepcopy(resource),
         createUpdateManager: ({resourceType, base_version}) =>
             c.databaseUpdateFactory.createFastDatabaseUpdateManager({resourceType, base_version}),
-        base64DataManager: c.base64DataManager
+        base64DataManager: c.base64DataManager,
+        writeConflictDetector: c.writeConflictDetector,
+        concurrentWriteResolver: c.concurrentWriteResolver
     }));
 
     container.register('fastDatabaseBulkInserter', (c) => new FastDatabaseBulkInserter(

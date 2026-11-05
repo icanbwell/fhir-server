@@ -633,9 +633,12 @@ class Base64DataManager {
      * touching a leaf whose unchanged sidecar still points at a committed prior version. Never throws.
      * @param {Object} resource
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {Object} [options]
+     * @param {Object|null} [options.keepReferencedBy] - a
+     *   stored document: an object it still references is kept, even when this request uploaded it
      * @returns {Promise<void>}
      */
-    async deleteOwnUploadedLiveObjectsAsync (resource, requestInfo) {
+    async deleteOwnUploadedLiveObjectsAsync (resource, requestInfo, { keepReferencedBy = null } = {}) {
         if (!resource || !this.enableBase64FieldCloudStorage) {
             return;
         }
@@ -643,6 +646,9 @@ class Base64DataManager {
         if (!entries) {
             return;
         }
+        const referencedMs = new Set(
+            [...this.getLiveObjectRefsOrResourceLastUpdated(keepReferencedBy).values()].map((lastUpdated) => this._toEpochMs(lastUpdated))
+        );
         for (const entry of entries) {
             const dataSegments = this._parseJsonPointer(entry.dataPath);
             const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
@@ -650,7 +656,8 @@ class Base64DataManager {
             await this._processPaths(resource, dataSegments, [], async ({ parent, indices }) => {
                 const stashed = this._readStashedOriginalData(requestInfo, resource._uuid, dataSegments, indices);
                 const blobMeta = parent[blobMetaLeaf];
-                if (stashed && stashed.changed && blobMeta && blobMeta.lastUpdated) {
+                if (stashed && stashed.changed && blobMeta && blobMeta.lastUpdated &&
+                    !referencedMs.has(this._toEpochMs(blobMeta.lastUpdated))) {
                     await this._deleteExactLiveObjectAsync(resource.resourceType, resource._uuid, blobMeta.lastUpdated);
                 }
             });

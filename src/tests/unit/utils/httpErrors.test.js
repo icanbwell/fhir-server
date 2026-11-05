@@ -1,8 +1,8 @@
 const { describe, test, expect } = require('@jest/globals');
 const {
     BadRequestError,
+    ConflictError,
     NotFoundError,
-    NotAllowedError,
     NotValidatedError,
     UnauthorizedError,
     ForbiddenError,
@@ -119,29 +119,6 @@ describe('httpErrors', () => {
         });
     });
 
-    describe('NotAllowedError', () => {
-        test('constructs correctly', () => {
-            const err = new NotAllowedError('not allowed');
-            expect(err.message).toBe('not allowed');
-            // BUG: The comment says "Set this to make the HTTP status code 409"
-            // but the class is named NotAllowedError - semantically this should be 403
-            // However the statusCode getter returns 409 (Conflict)
-            expect(err.statusCode).toBe(409);
-            expect(err.issue[0].code).toBe('forbidden');
-        });
-
-        test('BUG: statusCode 409 (Conflict) is semantically wrong for NotAllowedError', () => {
-            // NotAllowedError uses code 'forbidden' in the issue but returns 409 (Conflict)
-            // 409 is "Conflict", not "Forbidden" (which is 403)
-            // This is a semantic mismatch between the error name/code and HTTP status
-            const err = new NotAllowedError('not allowed');
-            expect(err.issue[0].code).toBe('forbidden');
-            // The HTTP status is 409 (Conflict) but the issue code says 'forbidden'
-            expect(err.statusCode).not.toBe(403);
-            expect(err.statusCode).toBe(409);
-        });
-    });
-
     describe('UnauthorizedError', () => {
         test('constructs correctly', () => {
             const err = new UnauthorizedError('unauthorized');
@@ -158,6 +135,25 @@ describe('httpErrors', () => {
             expect(err.statusCode).toBe(403);
             expect(err.issue[0].code).toBe('forbidden');
             expect(err.issue[0].diagnostics).toBe('forbidden');
+        });
+    });
+
+    describe('ConflictError', () => {
+        test('is a 409 carrying the conflict issue it was given', () => {
+            const issue = {
+                severity: 'error',
+                code: 'conflict',
+                details: { text: 'Concurrent update conflict' },
+                diagnostics: 'Resource Patient/u-1 was modified concurrently and could not be saved after 3 attempts',
+                expression: ['Patient/u-1']
+            };
+
+            const err = new ConflictError(issue);
+
+            expect(err.statusCode).toBe(409);
+            expect(err.message).toBe(issue.diagnostics);
+            expect(err.issue).toEqual([issue]);
+            expect(err.logLevel).toBe('info');
         });
     });
 
