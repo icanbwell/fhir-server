@@ -11,20 +11,9 @@ jestObj.mock('../../../utils/uid.util', () => ({
     generateUUIDv5: jestObj.fn((input) => `uuidv5-${input}`)
 }));
 
-jestObj.mock('../../../fhir/classes/4_0_0/resources/resource', () => class Resource {});
-
-jestObj.mock('../../../fhir/classes/4_0_0/complex_types/coding', () => {
-    return class Coding {
-        constructor(props) {
-            Object.assign(this, props);
-        }
-    };
-});
-
 const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { generateUUIDv5 } = require('../../../utils/uid.util');
-const Resource = require('../../../fhir/classes/4_0_0/resources/resource');
 
 describe('SourceAssigningAuthorityColumnHandler', () => {
     const makeHandler = (codingIdResourceTypes = ['Patient', 'Observation']) => {
@@ -151,25 +140,7 @@ describe('SourceAssigningAuthorityColumnHandler', () => {
             expect(saaTags[0].code).toBe('org-abc');
         });
 
-        test('adds Coding instance when falling back to owner on Resource instance', async () => {
-            const handler = makeHandler();
-            const resource = new Resource();
-            resource.resourceType = 'Patient';
-            resource.meta = {
-                security: [
-                    { system: SecurityTagSystem.owner, code: 'org-abc' }
-                ]
-            };
-            await handler.preSaveAsync({ resource });
-            const saaTags = resource.meta.security.filter(
-                s => s.system === SecurityTagSystem.sourceAssigningAuthority
-            );
-            expect(saaTags).toHaveLength(1);
-            expect(saaTags[0].system).toBe(SecurityTagSystem.sourceAssigningAuthority);
-            expect(saaTags[0].code).toBe('org-abc');
-        });
-
-        test('uses buildSourceAssigningAuthorityTag for plain objects with id for configured types', async () => {
+        test('adds a source assigning authority tag with an id for configured resource types', async () => {
             const handler = makeHandler(['Patient']);
             const resource = {
                 resourceType: 'Patient',

@@ -6,23 +6,6 @@ jestObj.mock('../../../utils/uid.util', () => ({
     generateUUIDv5: jestObj.fn(() => 'mock-uuid')
 }));
 
-// Mock Resource as a class we can use for instanceof checks
-class MockResource {
-    constructor(data) {
-        Object.assign(this, data);
-    }
-}
-
-jestObj.mock('../../../fhir/classes/4_0_0/resources/resource', () => MockResource);
-
-class MockCoding {
-    constructor(data) {
-        Object.assign(this, data);
-    }
-}
-
-jestObj.mock('../../../fhir/classes/4_0_0/complex_types/coding', () => MockCoding);
-
 const {
     addExternalStorageTagIfNeeded,
     stripMembersIfNeeded,
@@ -111,19 +94,6 @@ describe('clickHouseGroupPreSave', () => {
             addExternalStorageTagIfNeeded(doc, contextData);
 
             expect(doc.meta).toBeUndefined();
-        });
-
-        test('creates Coding instance when doc is instanceof Resource', () => {
-            const doc = new MockResource({
-                resourceType: 'Group',
-                meta: { tag: [] }
-            });
-            const contextData = { useExternalStorage: true };
-
-            addExternalStorageTagIfNeeded(doc, contextData);
-
-            expect(doc.meta.tag).toHaveLength(1);
-            expect(doc.meta.tag[0]).toBeInstanceOf(MockCoding);
         });
 
         test('appends to existing tags', () => {

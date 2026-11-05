@@ -12,20 +12,9 @@ jestObj.mock('../../../utils/uid.util', () => ({
     generateUUIDv5: jestObj.fn((name) => `uuid5-for-${name}`)
 }));
 
-jestObj.mock('../../../fhir/classes/4_0_0/resources/resource', () => class Resource {});
-
-jestObj.mock('../../../fhir/classes/4_0_0/complex_types/coding', () => {
-    return class Coding {
-        constructor(props) {
-            Object.assign(this, props);
-        }
-    };
-});
-
 const { OwnerColumnHandler } = require('../../../preSaveHandlers/handlers/ownerColumnHandler');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { generateUUIDv5 } = require('../../../utils/uid.util');
-const Resource = require('../../../fhir/classes/4_0_0/resources/resource');
 
 describe('OwnerColumnHandler', () => {
     let handler;
@@ -74,26 +63,7 @@ describe('OwnerColumnHandler', () => {
             expect(ownerTags[0].code).toBe('tenant_a');
         });
 
-        test('adds owner tag with Coding instance when resource is instanceof Resource', async () => {
-            const resource = new Resource();
-            resource.resourceType = 'Patient';
-            resource.meta = {
-                security: [
-                    { system: SecurityTagSystem.access, code: 'my_org' }
-                ]
-            };
-
-            const result = await handler.preSaveAsync({ resource });
-
-            const ownerTags = result.meta.security.filter(
-                s => s.system === SecurityTagSystem.owner
-            );
-            expect(ownerTags).toHaveLength(1);
-            expect(ownerTags[0].system).toBe(SecurityTagSystem.owner);
-            expect(ownerTags[0].code).toBe('my_org');
-        });
-
-        test('uses buildOwnerTag for plain objects (non-Resource)', async () => {
+        test('adds an owner tag with a generated id for a configured resource type', async () => {
             const resource = {
                 resourceType: 'Observation',
                 meta: {

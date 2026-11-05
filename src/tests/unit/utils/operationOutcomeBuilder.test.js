@@ -4,8 +4,6 @@ const {
     buildOperationOutcomeFromIssues,
     buildOperationOutcomeIssue
 } = require('../../../utils/operationOutcomeBuilder');
-const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 
 describe('buildOperationOutcome', () => {
     test.each([
@@ -58,16 +56,16 @@ describe('buildOperationOutcome', () => {
                 { severity: 'warning', code: 'informational', diagnostics: 'second' }
             ]
         ]
-    ])('serializes %s the same as the legacy OperationOutcome class', (_name, issues) => {
+    ])('keeps %s', (_name, issues) => {
         const result = buildOperationOutcome(...issues);
 
-        expect(JSON.stringify(result)).toStrictEqual(JSON.stringify(new OperationOutcome({ issue: issues })));
+        expect(result).toStrictEqual({ resourceType: 'OperationOutcome', issue: issues });
     });
 
     test('returns a plain object with the OperationOutcome resourceType', () => {
         const result = buildOperationOutcome({ severity: 'error', code: 'exception', diagnostics: 'boom' });
 
-        expect(result).not.toBeInstanceOf(OperationOutcome);
+        expect(result.constructor).toBe(Object);
         expect(result).toStrictEqual({
             resourceType: 'OperationOutcome',
             issue: [{ severity: 'error', code: 'exception', diagnostics: 'boom' }]
@@ -86,14 +84,14 @@ describe('buildOperationOutcome', () => {
     });
 
     test.each([
-        ['an id', 'validationfail'],
-        ['no id', undefined]
-    ])('buildOperationOutcomeFromIssues with %s serializes the same as the legacy class', (_name, id) => {
+        ['an id', 'validationfail', { id: 'validationfail' }],
+        ['no id', undefined, {}]
+    ])('buildOperationOutcomeFromIssues with %s keeps the issues', (_name, id, expectedId) => {
         const issues = [{ severity: 'error', code: 'structure', details: { text: 'Invalid parameter list' } }];
 
         const result = buildOperationOutcomeFromIssues(issues, id);
 
-        expect(JSON.stringify(result)).toStrictEqual(JSON.stringify(new OperationOutcome({ id, issue: issues })));
+        expect(result).toStrictEqual({ resourceType: 'OperationOutcome', ...expectedId, issue: issues });
     });
 
     test.each([[undefined], [[]]])(
@@ -102,11 +100,10 @@ describe('buildOperationOutcome', () => {
             const result = buildOperationOutcomeFromIssues(issues);
 
             expect(result).toStrictEqual({ resourceType: 'OperationOutcome' });
-            expect(JSON.stringify(result)).toStrictEqual(JSON.stringify(new OperationOutcome({ issue: issues })));
         }
     );
 
-    test('buildOperationOutcomeIssue serializes the same as the legacy OperationOutcomeIssue class', () => {
+    test('buildOperationOutcomeIssue keeps a valid issue', () => {
         const issue = {
             severity: 'error',
             code: 'exception',
@@ -117,7 +114,7 @@ describe('buildOperationOutcome', () => {
 
         const result = buildOperationOutcomeIssue({ ...issue });
 
-        expect(JSON.stringify(result)).toStrictEqual(JSON.stringify(new OperationOutcomeIssue({ ...issue })));
+        expect(result).toStrictEqual(issue);
     });
 
     test('buildOperationOutcomeIssue drops fields that are not part of an OperationOutcome issue', () => {

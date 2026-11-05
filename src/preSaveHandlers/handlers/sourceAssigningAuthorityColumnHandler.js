@@ -1,8 +1,6 @@
 const { PreSaveHandler } = require('./preSaveHandler');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const { generateUUIDv5 } = require('../../utils/uid.util');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { ConfigManager } = require('../../utils/configManager');
 const { assertTypeEquals } = require('../../utils/assertType');
 
@@ -29,10 +27,10 @@ class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
     /**
      * fixes up any resources before they are saved
      * @typedef {Object} PreSaveAsyncProps
-     * @property {import('../../fhir/classes/4_0_0/resources/resource')} resource
+     * @property {Object} resource
      *
      * @param {PreSaveAsyncProps}
-     * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
+     * @returns {Promise<Object>}
      */
     async preSaveAsync ({ resource }) {
         if (resource.meta && resource.meta.security) {
@@ -49,16 +47,9 @@ class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
                 sourceAssigningAuthorityCodes = Array.from(new Set(sourceAssigningAuthorityCodes));
                 // add security tags
                 if (sourceAssigningAuthorityCodes.length > 0) {
-                    if (resource instanceof Resource) {
-                        resource.meta.security.push(new Coding({
-                            system: SecurityTagSystem.sourceAssigningAuthority,
-                            code: sourceAssigningAuthorityCodes[0]
-                        }));
-                    } else {
-                        resource.meta.security.push(
-                            this.buildSourceAssigningAuthorityTag(resource.resourceType, sourceAssigningAuthorityCodes[0])
-                        );
-                    }
+                    resource.meta.security.push(
+                        this.buildSourceAssigningAuthorityTag(resource.resourceType, sourceAssigningAuthorityCodes[0])
+                    );
                 }
             } else {
                 sourceAssigningAuthorityCodes = Array.from(new Set(sourceAssigningAuthorityCodes));
@@ -75,7 +66,7 @@ class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
     }
 
     /**
-     * Builds the sourceAssigningAuthority security tag for a plain object, stamping a deterministic
+     * Builds the sourceAssigningAuthority security tag, stamping a deterministic
      * coding id only for resource types configured in PRE_SAVE_CODING_ID_UPDATE_RESOURCES.
      * @param {string} resourceType
      * @param {string} code

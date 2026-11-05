@@ -1,7 +1,5 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
 const { isTrue } = require('../../utils/isTrue');
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 
 /**
@@ -10,9 +8,9 @@ const { IdentifierSystem } = require('../../utils/identifierSystem');
 class MetaUuidEnrichmentProvider extends EnrichmentProvider {
     /**
      * enrich the specified resources
-     * @param {Resource[]} resources
+     * @param {Object[]} resources
      * @param {ParsedArgs} parsedArgs
-     * @return {Promise<Resource[]>}
+     * @return {Promise<Object[]>}
      */
 
     async enrichAsync({ resources, parsedArgs }) {
@@ -22,13 +20,10 @@ class MetaUuidEnrichmentProvider extends EnrichmentProvider {
                     /**
                      * @type {object[]}
                      */
-                    let uuidTag = FhirResourceCreator.create(
-                        {
-                            system: IdentifierSystem.uuid,
-                            code: resource._uuid
-                        },
-                        Coding
-                    );
+                    const uuidTag = {
+                        system: IdentifierSystem.uuid,
+                        code: resource._uuid
+                    };
                     let tag = resource.meta.tag;
                     if (tag) {
                         tag.push(uuidTag);

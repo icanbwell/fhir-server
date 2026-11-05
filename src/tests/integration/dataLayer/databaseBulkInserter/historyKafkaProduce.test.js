@@ -5,8 +5,7 @@ const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../..
 const { createTestContainer } = require('../../createTestContainer');
 const { HistoryKafkaProducer } = require('../../../../dataLayer/historyKafkaProducer');
 const { MockKafkaClientV2 } = require('../../mocks/mockKafkaClientV2');
-const Observation = require('../../../../fhir/classes/4_0_0/resources/observation');
-const Consent = require('../../../../fhir/classes/4_0_0/resources/consent');
+const deepcopy = require('deepcopy');
 
 const base_version = '4_0_0';
 const TOPIC = 'fhir_server.resource-history.events';
@@ -48,9 +47,9 @@ describe('History Kafka produce (parallel to MongoDB history)', () => {
         }
         const requestId = '1234';
         const requestInfo = getTestRequestInfo({ requestId });
-        const inserter = container.databaseBulkInserter;
-        await inserter.insertOneAsync({ base_version, requestInfo, resourceType: 'Observation', doc: new Observation(observation) });
-        await inserter.insertOneAsync({ base_version, requestInfo, resourceType: 'Consent', doc: new Consent(consent) });
+        const inserter = container.fastDatabaseBulkInserter;
+        await inserter.insertOneAsync({ base_version, requestInfo, resourceType: 'Observation', doc: deepcopy(observation) });
+        await inserter.insertOneAsync({ base_version, requestInfo, resourceType: 'Consent', doc: deepcopy(consent) });
         const mergeResults = await inserter.executeAsync({ requestInfo, base_version });
         await container.postRequestProcessor.executeAsync({ requestId });
         await container.postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });

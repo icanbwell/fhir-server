@@ -10,13 +10,11 @@ const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { fhirContentTypes } = require('../../utils/contentTypes');
 const { ParsedArgs } = require('../query/parsedArgs');
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { ConfigManager } = require('../../utils/configManager');
@@ -52,7 +50,7 @@ class PatchOperation {
      * @param {PreSaveManager} preSaveManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
-     * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {ConfigManager} configManager
@@ -72,7 +70,6 @@ class PatchOperation {
             preSaveManager,
             fhirLoggingManager,
             scopesValidator,
-            databaseBulkInserter,
             fastDatabaseBulkInserter,
             databaseAttachmentManager,
             base64DataManager,
@@ -112,21 +109,11 @@ class PatchOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-        this.useFastSerializer = configManager.enablePatchFastSerializer;
-
-        if (this.useFastSerializer) {
-            /**
-             * @type {FastDatabaseBulkInserter}
-             */
-            this.databaseBulkInserter = fastDatabaseBulkInserter;
-            assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
-        } else {
-            /**
-             * @type {DatabaseBulkInserter}
-             */
-            this.databaseBulkInserter = databaseBulkInserter;
-            assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-        }
+        /**
+         * @type {FastDatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = fastDatabaseBulkInserter;
+        assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
         /**
          * @type {DatabaseAttachmentManager}
          */
@@ -352,9 +339,7 @@ class PatchOperation {
             /**
              * @type {[Resource] | null}
              */
-            const resources = this.useFastSerializer
-                ? (await cursor.toArrayAsync()).map((r) => FhirResourceWriteSerializer.serialize({ obj: r }))
-                : await cursor.toObjectArrayAsync();
+            const resources = (await cursor.toArrayAsync()).map((r) => FhirResourceWriteSerializer.serialize({ obj: r }));
 
             if (resources.length > 1) {
                 const sourceAssigningAuthorities = resources.flatMap(
@@ -448,7 +433,7 @@ class PatchOperation {
             }
             // ====================================================================
 
-            const originalResource = this.useFastSerializer ? deepcopy(foundResource) : foundResource.clone();
+            const originalResource = deepcopy(foundResource);
             foundResource = await this.databaseAttachmentManager.transformAttachments(
                 foundResource, RETRIEVE, effectivePatchContent
             );
@@ -459,9 +444,7 @@ class PatchOperation {
             // Validate the patch
             const errors = validate(
                 effectivePatchContent,
-                this.useFastSerializer
-                    ? FhirResourceWriteNormalizeSerializer.serialize({ obj: deepcopy(foundResource) })
-                    : foundResource
+                FhirResourceWriteNormalizeSerializer.serialize({ obj: deepcopy(foundResource) })
             );
             if (errors) {
                 const error = Array.isArray(errors) && errors.length && errors.find(e => !!e) ? errors.find(e => !!e) : errors;
@@ -471,19 +454,13 @@ class PatchOperation {
             /**
              * @type {Object}
              */
-            const resource_incoming = this.useFastSerializer
-                ? this.resourceMerger.fastApplyPatch({
-                    currentResource: deepcopy(foundResource), patchContent: deepcopy(effectivePatchContent)
-                })
-                : this.resourceMerger.applyPatch({
-                    currentResource: foundResource, patchContent: effectivePatchContent
-                });
+            const resource_incoming = this.resourceMerger.fastApplyPatch({
+                currentResource: deepcopy(foundResource), patchContent: deepcopy(effectivePatchContent)
+            });
             /**
-             * @type {Resource}
+             * @type {Object}
              */
-            let resource = this.useFastSerializer
-                ? resource_incoming
-                : FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
+            let resource = resource_incoming;
 
             // DCON-4841: this must run whenever foundResource has metadata, not just when a
             // meta.source happens to be present -- overWriteNonWritableFields is what reverts any
@@ -515,10 +492,8 @@ class PatchOperation {
             let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
                 resource_incoming
             );
-            const resourceToValidate = this.useFastSerializer ? deepcopy(resource) : resource;
-            if (this.useFastSerializer) {
-                removeUnderscoreFieldsRecursive(resourceToValidate);
-            }
+            const resourceToValidate = deepcopy(resource);
+            removeUnderscoreFieldsRecursive(resourceToValidate);
             if (!validationOperationOutcome) {
                 validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                     accessRequested: 'u',
@@ -532,7 +507,7 @@ class PatchOperation {
                     currentResource: foundResource
                 });
             }
-            if (this.useFastSerializer && !validationOperationOutcome) {
+            if (!validationOperationOutcome) {
                 FhirResourceWriteSerializer.serialize({ obj: resourceToValidate });
                 validationOperationOutcome = validateResource({
                     resourceBody: resourceToValidate,
@@ -563,22 +538,14 @@ class PatchOperation {
             dateColumnHandler.setFlag(true);
             foundResource = await dateColumnHandler.preSaveAsync({ resource: foundResource });
 
-            let appliedPatchContent;
-            if (this.useFastSerializer) {
-                const mergedObject = deepcopy(resource);
-                await dateColumnHandler.preSaveAsync({ resource: mergedObject });
-                FhirResourceWriteNormalizeSerializer.serialize({ obj: foundResource });
-                FhirResourceWriteNormalizeSerializer.serialize({ obj: mergedObject });
-                appliedPatchContent = this.resourceMerger.compareObjects({
-                    currentObject: foundResource,
-                    mergedObject
-                });
-            } else {
-                appliedPatchContent = this.resourceMerger.compareObjects({
-                    currentObject: foundResource.toJSON(),
-                    mergedObject: resource.toJSON()
-                });
-            }
+            const mergedObject = deepcopy(resource);
+            await dateColumnHandler.preSaveAsync({ resource: mergedObject });
+            FhirResourceWriteNormalizeSerializer.serialize({ obj: foundResource });
+            FhirResourceWriteNormalizeSerializer.serialize({ obj: mergedObject });
+            const appliedPatchContent = this.resourceMerger.compareObjects({
+                currentObject: foundResource,
+                mergedObject
+            });
 
             // hasPendingMemberWrites forces entry even when the non-member ops alone produced no
             // diff (appliedPatchContent.length === 0) -- true for every extended-regime
@@ -591,7 +558,7 @@ class PatchOperation {
             // resolved that above, so an all-none member patch still correctly skips the bump
             // here even when it's the only thing in the request.
             if (appliedPatchContent.length > 0 || hasPendingMemberWrites) {
-                this.resourceMerger[this.useFastSerializer ? 'fastUpdateMeta' : 'updateMeta']({
+                this.resourceMerger.fastUpdateMeta({
                     patched_resource_incoming: resource,
                     currentResource: foundResource,
                     original_source: foundResource.meta?.source,
@@ -710,7 +677,7 @@ class PatchOperation {
             });
 
             // after-save handlers hold the saved doc, so build the response from a copy
-            resource = this.useFastSerializer ? deepcopy(resource) : resource;
+            resource = deepcopy(resource);
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
             resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE, requestInfo);
@@ -718,7 +685,7 @@ class PatchOperation {
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(resource);
             [resource] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [resource] });
-            resource = FhirResourceSerializer.serialize(this.useFastSerializer ? resource : resource.toJSONInternal());
+            resource = FhirResourceSerializer.serialize(resource);
 
             return {
                 id: resource.id,

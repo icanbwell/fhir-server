@@ -23,8 +23,7 @@
  *
  * Only true external collaborators (ConfigManager) are mocked; the classes under test
  * (PatientQueryCreator, ScopesValidator, UnclassifiedSensitivityTagHandler, PreSaveOptions) are
- * required from their real source paths and exercised directly, including real FHIR resource/
- * Meta/Coding classes for the "real Resource instance" branch of the handler.
+ * required from their real source paths and exercised directly.
  */
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
@@ -45,10 +44,6 @@ const { PatientScopeManager } = require('../../../operations/security/patientSco
 const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
 const { DelegatedAccessScopeManager } = require('../../../operations/security/delegatedAccessScopeManager');
 
-const Basic = require('../../../fhir/classes/4_0_0/resources/basic');
-const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');
-const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
-const Resource = require('../../../fhir/classes/4_0_0/resources/resource');
 
 /**
  * Creates an object that passes `instanceof ClassType` (satisfying the real `assertTypeEquals`
@@ -357,33 +352,15 @@ describe('Resource Authorization §9 — Sensitivity classification', () => {
             expect(result.meta.security).toBeUndefined();
         });
 
-        test('pushes a real Coding instance (not a plain object) when the resource is a real FHIR Resource instance', async () => {
-            const resource = new Basic({
-                id: 'basic-1',
-                meta: new Meta({
-                    security: [{ system: 'https://www.icanbwell.com/access', code: 'tenant-a' }]
-                })
-            });
-            expect(resource).toBeInstanceOf(Resource);
-            handler = new UnclassifiedSensitivityTagHandler({ configManager: configuredFor(['Basic']) });
-
-            const result = await handler.preSaveAsync({ resource, options: {} });
-
-            const unclassifiedTag = result.meta.security.find(isUnclassifiedTag);
-            expect(unclassifiedTag).toBeInstanceOf(Coding);
-        });
-
-        test('pushes a plain object (not a Coding instance) when the resource is a plain object (fast-merge flow)', async () => {
+        test('pushes a plain tag object', async () => {
             const resource = {
                 resourceType: 'Observation',
                 meta: { security: [{ system: 'https://www.icanbwell.com/access', code: 'tenant-a' }] }
             };
-            expect(resource).not.toBeInstanceOf(Resource);
 
             const result = await handler.preSaveAsync({ resource, options: {} });
 
             const unclassifiedTag = result.meta.security.find(isUnclassifiedTag);
-            expect(unclassifiedTag).not.toBeInstanceOf(Coding);
             expect(unclassifiedTag).toEqual({
                 id: generateUUIDv5(`${SENSITIVE_CATEGORY.SYSTEM}|${SENSITIVE_CATEGORY.UNCLASSIFIED_CODE}`),
                 system: SENSITIVE_CATEGORY.SYSTEM,

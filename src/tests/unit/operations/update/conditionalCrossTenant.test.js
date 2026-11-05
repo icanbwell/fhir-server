@@ -31,8 +31,6 @@
  * re-enabled in `jest.config.js` now that every test in it reflects real, verified behavior.
  */
 
-process.env.ENABLE_UPDATE_FAST_SERIALIZER = '0';
-
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
 // ============ Mocks ============
@@ -47,25 +45,17 @@ jestGlobal.mock('../../../../operations/common/logging', () => {
     return { logInfo: j.fn(), logError: j.fn(), logDebug: j.fn(), logWarn: j.fn() };
 });
 
-jestGlobal.mock('../../../../fhir/fhirResourceCreator', () => {
-    const { jest: j } = require('@jest/globals');
-    return {
-        FhirResourceCreator: {
-            createByResourceType: j.fn((json, resourceType) => ({
-                ...json,
-                resourceType,
-                _uuid: json._uuid || `generated-uuid-${json.id}`,
-                toJSON: () => json,
-                toJSONInternal: () => json,
-                clone: () => ({ ...json })
-            }))
-        }
-    };
-});
-
 jestGlobal.mock('../../../../fhir/fhirResourceSerializer', () => {
     const { jest: j } = require('@jest/globals');
     return { FhirResourceSerializer: { serialize: j.fn((json) => json) } };
+});
+
+jestGlobal.mock('../../../../utils/validator.util', () => {
+    const { jest: j } = require('@jest/globals');
+    return {
+        ...j.requireActual('../../../../utils/validator.util'),
+        validateResource: j.fn(() => null)
+    };
 });
 
 jestGlobal.mock('../../../../utils/contextDataBuilder', () => {
@@ -83,7 +73,6 @@ const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor
 const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
 const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
 const { ResourceValidator } = require('../../../../operations/common/resourceValidator');
-const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
 const { ResourceMerger } = require('../../../../operations/common/resourceMerger');
 const { ConfigManager } = require('../../../../utils/configManager');
@@ -100,6 +89,9 @@ const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { QueryRewriterManager } = require('../../../../queryRewriters/queryRewriterManager');
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
+const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+
+BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
 // ============ Helpers ============
 
@@ -135,10 +127,7 @@ function makePatientResource({ id, uuid, owner, access, identifier, name, birthD
         },
         identifier: identifier || [],
         name: name || [],
-        birthDate: birthDate || '1990-01-01',
-        toJSON: function () { return this; },
-        toJSONInternal: function () { return this; },
-        clone: function () { return { ...this }; }
+        birthDate: birthDate || '1990-01-01'
     };
 }
 
@@ -156,7 +145,6 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             fhirLoggingManager: createMockInstance(FhirLoggingManager),
             scopesValidator: createMockInstance(ScopesValidator),
             resourceValidator: createMockInstance(ResourceValidator),
-            databaseBulkInserter: createMockInstance(DatabaseBulkInserter),
             fastDatabaseBulkInserter: createMockInstance(FastDatabaseBulkInserter),
             resourceMerger: createMockInstance(ResourceMerger),
             configManager: createMockInstance(ConfigManager),
@@ -183,14 +171,14 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         mocks.postSaveHandlerFactory.getHandlers = jestGlobal.fn().mockReturnValue([]);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jestGlobal.fn();
         mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jestGlobal.fn(({ resources }) => Promise.resolve(resources));
-        mocks.databaseBulkInserter.insertOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
-        mocks.databaseBulkInserter.replaceOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
-        mocks.databaseBulkInserter.executeAsync = jestGlobal.fn().mockResolvedValue([{
+        mocks.fastDatabaseBulkInserter.insertOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
+        mocks.fastDatabaseBulkInserter.replaceOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
+        mocks.fastDatabaseBulkInserter.executeAsync = jestGlobal.fn().mockResolvedValue([{
             created: false, updated: true, id: 'patient-tenant-b',
             uuid: 'uuid-patient-tenant-b', resourceType: 'Patient',
             sourceAssigningAuthority: 'tenant_b'
         }]);
-        mocks.resourceMerger.mergeResourceAsync = jestGlobal.fn().mockResolvedValue({
+        mocks.resourceMerger.fastMergeResourceAsync = jestGlobal.fn().mockResolvedValue({
             updatedResource: null, patches: []
         });
 
@@ -224,7 +212,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         // Database returns the tenant_a patient
         mocks.databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
             findAsync: jestGlobal.fn().mockResolvedValue({
-                toObjectArrayAsync: jestGlobal.fn().mockResolvedValue([tenantAPatient])
+                toArrayAsync: jestGlobal.fn().mockResolvedValue([tenantAPatient])
             })
         });
 
@@ -286,7 +274,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
     test('update looks the target up by the uuid derived from the id and the body owner tag', async () => {
         // Return empty so update creates new resource (no cross-tenant match)
         const findAsync = jestGlobal.fn().mockResolvedValue({
-            toObjectArrayAsync: jestGlobal.fn().mockResolvedValue([])
+            toArrayAsync: jestGlobal.fn().mockResolvedValue([])
         });
         mocks.databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({ findAsync });
         mocks.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes =
@@ -347,7 +335,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         // Database returns the cross-tenant resource
         mocks.databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
             findAsync: jestGlobal.fn().mockResolvedValue({
-                toObjectArrayAsync: jestGlobal.fn().mockResolvedValue([tenantAPatient])
+                toArrayAsync: jestGlobal.fn().mockResolvedValue([tenantAPatient])
             })
         });
 
@@ -371,7 +359,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             }
         );
 
-        mocks.resourceMerger.mergeResourceAsync = jestGlobal.fn().mockResolvedValue({
+        mocks.resourceMerger.fastMergeResourceAsync = jestGlobal.fn().mockResolvedValue({
             updatedResource: { ...tenantAPatient, name: [{ family: 'Hacked' }] },
             patches: [{ op: 'replace', path: '/name' }]
         });
@@ -412,7 +400,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         ).rejects.toThrow(/forbidden|access denied|cross-tenant|no.*write.*access/i);
 
         // Verify that the resource was NOT actually written
-        expect(mocks.databaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
+        expect(mocks.fastDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
     });
 
     test('conditional update with name+birthDate must not resolve cross-tenant resources', async () => {
@@ -432,7 +420,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
 
         mocks.databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
             findAsync: jestGlobal.fn().mockResolvedValue({
-                toObjectArrayAsync: jestGlobal.fn().mockResolvedValue([tenantAPatient])
+                toArrayAsync: jestGlobal.fn().mockResolvedValue([tenantAPatient])
             })
         });
 

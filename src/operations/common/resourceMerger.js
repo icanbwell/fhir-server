@@ -1,7 +1,6 @@
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
 const { compare, applyPatch } = require('fast-json-patch');
-const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
@@ -305,38 +304,6 @@ class ResourceMerger {
     /**
      * Updated meta of the resource with meta of current resource
      * @param {UpdateMetaProp}
-     * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
-     */
-    updateMeta ({ patched_resource_incoming, currentResource, original_source, incrementVersion }) {
-        // update the metadata to increment versionId
-        /**
-         * @type {Meta}
-         */
-        const meta = new Meta(currentResource.meta);
-        meta.versionId = incrementVersion
-            ? `${parseInt(currentResource.meta.versionId) + 1}`
-            : currentResource.meta.versionId;
-        meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        // set the source from the incoming resource
-        meta.source = original_source;
-        // These properties are set automatically
-        patched_resource_incoming.meta.versionId = meta.versionId;
-        patched_resource_incoming.meta.lastUpdated = meta.lastUpdated;
-        // If not source is provided then use the source of the previous entity
-        if (!(patched_resource_incoming.meta.source)) {
-            patched_resource_incoming.meta.source = meta.source;
-        }
-        // If no security tags are provided then use the source of the previous entity
-        if (!(patched_resource_incoming.meta.security)) {
-            patched_resource_incoming.meta.security = meta.security;
-        }
-
-        return patched_resource_incoming;
-    }
-
-    /**
-     * Updated meta of the resource with meta of current resource
-     * @param {UpdateMetaProp}
      * @returns {Object}
      */
     fastUpdateMeta ({ patched_resource_incoming, currentResource, original_source, incrementVersion }) {
@@ -360,25 +327,6 @@ class ResourceMerger {
         }
 
         return patched_resource_incoming;
-    }
-
-    /**
-     * Applies patch to the resource provided
-     * @param {ApplyPatchProp}
-     * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
-     */
-    applyPatch ({ currentResource, patchContent }) {
-        /**
-         * @type {import('fast-json-patch').PatchResult<import('../../fhir/classes/4_0_0/resources/resource')>}
-         */
-        const patchResult = applyPatch(currentResource.toJSONInternal(), patchContent);
-        /**
-         * @type {import('../../fhir/classes/4_0_0/resources/resource')}
-         */
-        const patched_incoming_data = patchResult.newDocument;
-
-        // Create a new resource to store the merged data
-        return currentResource.create(patched_incoming_data);
     }
 
     /**
@@ -432,149 +380,6 @@ class ResourceMerger {
      * @param {boolean|undefined} [ignoreDateOnlyChange] treat a change to only the top-level date as no change (merge only)
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
-    async mergeResourceAsync (
-        {
-            base_version,
-            requestInfo,
-            currentResource,
-            resourceToMerge,
-            smartMerge = true,
-            incrementVersion = true,
-            limitToPaths,
-            databaseAttachmentManager = null,
-            base64DataManager = null,
-            ignoreDateOnlyChange = false
-        }
-    ) {
-        assertTypeEquals(requestInfo, FhirRequestInfo);
-        const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
-        // confirm the resource has been run through preSave
-        if (!resourceToMerge._uuid) {
-            resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
-        }
-        assertIsValid(resourceToMerge._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
-        /**
-         * @type {string}
-         */
-        const original_source = resourceToMerge?.meta?.source;
-
-        // overwrite fields that should not be changed once resource is created
-        resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
-
-        resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
-
-        // for speed, first check if the incoming resource is exactly the same. Skipped when a
-        // configured base64 leaf is externalized on currentResource — the naive toJSON comparison
-        // can't correctly see a data-only hash-based change or an omission-as-removal; the full
-        // diff + explicit reconciliation below handles both directly regardless.
-        const hasExternalizedLeaf = !!base64DataManager && base64DataManager.hasExternalizedLeaf(currentResource);
-        if (!hasExternalizedLeaf && deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
-            return { updatedResource: null, patches: null };
-        }
-
-        let currentResourceWithAttachmentData = currentResource.clone();
-        if (databaseAttachmentManager) {
-            await databaseAttachmentManager.transformAttachments(
-                currentResourceWithAttachmentData, RETRIEVE
-            );
-        }
-
-        /**
-         * @type {Object}
-         */
-        let mergedObject;
-        if (smartMerge) {
-            const currentResourceWithAttachmentDataObject = this.removeOwnerTagIfDisplayFieldMissing({
-                currentResource: currentResourceWithAttachmentData.toJSON(),
-                resourceToMerge
-            });
-            mergedObject = mergeObject(currentResourceWithAttachmentDataObject, resourceToMerge.toJSON());
-        }
-        else {
-            mergedObject = resourceToMerge.toJSON();
-        }
-
-        // now create a patch between the document in db and the incoming document
-        // this returns an array of patchecurrentResources
-        /**
-         * @type {DateColumnHandler}
-         */
-        const dateColumnHandler = new DateColumnHandler();
-        dateColumnHandler.setFlag(true);
-        currentResourceWithAttachmentData = await dateColumnHandler.preSaveAsync({ resource: currentResourceWithAttachmentData });
-        mergedObject = await dateColumnHandler.preSaveAsync({ resource: mergedObject });
-
-        const currentObjectForDiff = currentResourceWithAttachmentData.toJSON();
-        if (base64DataManager) {
-            base64DataManager.excludeExternalizedLeaves(currentObjectForDiff, currentResource);
-            base64DataManager.excludeExternalizedLeaves(mergedObject, currentResource);
-        }
-        const patchContent = this.compareObjects({
-            currentObject: currentObjectForDiff,
-            mergedObject,
-            limitToPaths,
-            ignoreDateOnlyChange
-        });
-
-        // now apply the patches to the found resource
-        if (databaseAttachmentManager) {
-            await databaseAttachmentManager.transformAttachments(
-                currentResource, DELETE, patchContent.filter(patch => patch.op !== 'add')
-            );
-            await databaseAttachmentManager.transformAttachments(
-                currentResource, RETRIEVE, patchContent
-            );
-        }
-
-        /**
-         * @type {import('../../fhir/classes/4_0_0/resources/resource')}
-         */
-        let patched_resource_incoming = this.applyPatch({ currentResource, patchContent });
-
-        let base64Patches = [];
-        if (base64DataManager) {
-            base64Patches = await base64DataManager.reconcileLeavesAsync(
-                patched_resource_incoming, currentResource, resourceToMerge, smartMerge, requestInfo
-            );
-        }
-
-        // see if there are any changes (generic diff, or the base64 leaf reconciled above)
-        if (patchContent.length === 0 && base64Patches.length === 0) {
-            return { updatedResource: null, patches: null };
-        }
-
-        patched_resource_incoming = this.updateMeta({
-            patched_resource_incoming,
-            currentResource,
-            original_source,
-            incrementVersion
-        });
-
-        return {
-            updatedResource: patched_resource_incoming,
-            patches: [...patchContent, ...base64Patches].map(p => {
-                return {
-                    op: p.op, path: p.path, value: p.value
-                };
-            })
-        };
-    }
-
-    /**
-     * Merges two resources and returns either a merged resource or null (if there were no changes)
-     * Note: Make sure to run preSave on the updatedResource before inserting/updating the resource into database
-     * @param {string} base_version
-     * @param {FhirRequestInfo} requestInfo
-     * @param {Resource} currentResource
-     * @param {Resource} resourceToMerge
-     * @param {boolean|undefined} [smartMerge]
-     * @param {boolean|undefined} [incrementVersion]
-     * @param {string[]|undefined} [limitToPaths]
-     * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
-     * @param {import('../../dataLayer/base64DataManager').Base64DataManager|null} [base64DataManager]
-     * @param {boolean|undefined} [ignoreDateOnlyChange] treat a change to only the top-level date as no change (merge only)
-     * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
-     */
     async fastMergeResourceAsync (
         {
             base_version,
@@ -607,8 +412,9 @@ class ResourceMerger {
         resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
 
         // for speed, first check if the incoming resource is exactly the same. Skipped when a
-        // configured base64 leaf is externalized on currentResource — see mergeResourceAsync's
-        // identical comment above.
+        // configured base64 leaf is externalized on currentResource — the naive comparison can't
+        // correctly see a data-only hash-based change or an omission-as-removal; the full diff +
+        // explicit reconciliation below handles both directly regardless.
         const hasExternalizedLeaf = !!base64DataManager && base64DataManager.hasExternalizedLeaf(currentResource);
         if (!hasExternalizedLeaf && deepEqual(currentResource, resourceToMerge) === true) {
             return { updatedResource: null, patches: null };

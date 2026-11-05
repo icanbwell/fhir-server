@@ -70,7 +70,7 @@ describe('AccessLogs $graph with proxy patient id Tests', () => {
                 scopesManager: c.scopesManager,
                 fhirOperationsManager: c.fhirOperationsManager,
                 configManager: c.configManager,
-                databaseBulkInserter: c.databaseBulkInserter
+                databaseBulkInserter: c.fastDatabaseBulkInserter
             }));
             return container;
         });

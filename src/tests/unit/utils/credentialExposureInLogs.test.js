@@ -72,14 +72,14 @@ jestGlobal.mock('../../../operations/security/scopesManager', () => {
     return { ScopesManager };
 });
 
-// Mock DatabaseBulkInserter
-jestGlobal.mock('../../../dataLayer/databaseBulkInserter', () => {
+// Mock FastDatabaseBulkInserter
+jestGlobal.mock('../../../dataLayer/fastDatabaseBulkInserter', () => {
     const { EventEmitter } = require('events');
-    class DatabaseBulkInserter extends EventEmitter {
+    class FastDatabaseBulkInserter extends EventEmitter {
         getOperationForResourceAsync() { return {}; }
         async executeAsync() { return []; }
     }
-    return { DatabaseBulkInserter };
+    return { FastDatabaseBulkInserter };
 });
 
 // Mock AccessLogClickHouseWriter
@@ -93,7 +93,7 @@ jestGlobal.mock('../../../utils/accessLogClickHouseWriter', () => {
 const { AccessLogger } = require('../../../utils/accessLogger');
 const { ScopesManager } = require('../../../operations/security/scopesManager');
 const { FhirOperationsManager } = require('../../../operations/fhirOperationsManager');
-const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
 const { AccessLogClickHouseWriter } = require('../../../utils/accessLogClickHouseWriter');
 const { generateLogDetail } = require('../../../utils/requestCompletionLogData');
 
@@ -121,7 +121,7 @@ describe('HITRUST 09.ad - Credential and PHI Exposure in Logs', () => {
         mockFhirOperationsManager.parseParametersFromBody = FhirOperationsManager.prototype.parseParametersFromBody;
         mockFhirOperationsManager.getParsedArgsAsync = FhirOperationsManager.prototype.getParsedArgsAsync;
 
-        mockDatabaseBulkInserter = createMockInstance(DatabaseBulkInserter);
+        mockDatabaseBulkInserter = createMockInstance(FastDatabaseBulkInserter);
         mockDatabaseBulkInserter.getOperationForResourceAsync = jestGlobal.fn().mockReturnValue({});
         mockDatabaseBulkInserter.executeAsync = jestGlobal.fn().mockResolvedValue([]);
 

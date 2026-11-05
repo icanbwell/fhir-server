@@ -77,7 +77,7 @@ See `_createMessage` function for an example:
 
 The code for this is at [src/utils/changeEventProducer.js](../src/utils/changeEventProducer.js)
 
-When DatabaseBulkInserter inserts or updates a resource, it calls ChangeEventProducer to fire events
+When FastDatabaseBulkInserter inserts or updates a resource, it calls ChangeEventProducer to fire events
 ```javascript
         // fire change events
         if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {

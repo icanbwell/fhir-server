@@ -12,12 +12,10 @@ jestObj.mock('../../../utils/assertType', () => ({
     assertIsValid: jestObj.fn((val, msg) => { if (!val) throw new Error(msg); })
 }));
 
-jestObj.mock('../../../fhir/classes/4_0_0/resources/resource', () => class Resource {});
 
 const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
 const { IdentifierSystem } = require('../../../utils/identifierSystem');
 const { isUuid, generateUUIDv5, generateUUID } = require('../../../utils/uid.util');
-const Resource = require('../../../fhir/classes/4_0_0/resources/resource');
 
 describe('UuidColumnHandler', () => {
     let handler;
@@ -200,16 +198,6 @@ describe('UuidColumnHandler', () => {
             expect(result.identifier).toBeUndefined();
         });
 
-        test('preserves empty identifier array on Resource instances (does not delete)', async () => {
-            const resource = new Resource();
-            resource.id = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
-            resource.resourceType = 'Patient';
-            resource.identifier = [{ system: IdentifierSystem.uuid, value: 'x' }];
-            const result = await handler.preSaveAsync({ resource });
-            expect(result.identifier).toBeDefined();
-            expect(result.identifier).toHaveLength(0);
-        });
-
         test('does not modify identifier when no uuid identifiers exist', async () => {
             const resource = {
                 id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -253,14 +241,13 @@ describe('UuidColumnHandler', () => {
             expect(result.identifier).toBe('not-an-array');
         });
 
-        test('empty identifier array is deleted for plain objects', async () => {
+        test('empty identifier array is deleted', async () => {
             const resource = {
                 id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
                 resourceType: 'Patient',
                 identifier: []
             };
             const result = await handler.preSaveAsync({ resource });
-            // Empty array after filter means length 0, and since not Resource instance, it's deleted
             expect(result.identifier).toBeUndefined();
         });
     });

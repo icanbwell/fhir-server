@@ -44,7 +44,7 @@ describe('GroupMemberPatchStrategy', () => {
             enableExtendedGroup: true
         };
         mockResourceMerger = {
-            updateMeta: jest.fn()
+            fastUpdateMeta: jest.fn()
         };
         mockDatabaseBulkInserter = {
             replaceOneAsync: jest.fn(),
@@ -444,7 +444,7 @@ describe('GroupMemberPatchStrategy', () => {
                 sourceAssigningAuthority: SOURCE_AUTHORITY
             });
             expect(mockPostSaveHandlerFactory.getHandlers).not.toHaveBeenCalled();
-            expect(mockResourceMerger.updateMeta).not.toHaveBeenCalled();
+            expect(mockResourceMerger.fastUpdateMeta).not.toHaveBeenCalled();
             expect(mockDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
             expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
             expect(mockMongoGroupMemberRepository.applyResolvedMemberWritesAsync).not.toHaveBeenCalled();
@@ -497,7 +497,7 @@ describe('GroupMemberPatchStrategy', () => {
             });
 
             expect(result.hasPendingMemberWrites).toBe(false);
-            expect(mockResourceMerger.updateMeta).not.toHaveBeenCalled();
+            expect(mockResourceMerger.fastUpdateMeta).not.toHaveBeenCalled();
         });
 
         test('does not call mongoGroupMemberRepository when the operations fail to parse', async () => {

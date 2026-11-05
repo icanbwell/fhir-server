@@ -42,7 +42,7 @@ class GroupMemberPatchStrategy {
      * @param {import('../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} params.postSaveHandlerFactory
      * @param {import('../../../utils/configManager').ConfigManager} params.configManager
      * @param {import('../../common/resourceMerger').ResourceMerger} params.resourceMerger
-     * @param {import('../../../dataLayer/databaseBulkInserter').DatabaseBulkInserter} params.databaseBulkInserter
+     * @param {import('../../../dataLayer/fastDatabaseBulkInserter').FastDatabaseBulkInserter} params.databaseBulkInserter
      * @param {import('../../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} params.mongoGroupMemberRepository
      */
     constructor({
@@ -56,7 +56,6 @@ class GroupMemberPatchStrategy {
         this.configManager = configManager;
         this.resourceMerger = resourceMerger;
         this.databaseBulkInserter = databaseBulkInserter;
-        this.useFastSerializer = configManager.enablePatchFastSerializer;
         this.mongoGroupMemberRepository = mongoGroupMemberRepository;
     }
 
@@ -253,10 +252,8 @@ class GroupMemberPatchStrategy {
         // 4. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
         // IMPORTANT: Write MongoDB first, then ClickHouse (matches CREATE/UPDATE pattern)
         // Different write orders = different failure modes = unpredictable behavior
-        const updatedResource = this.useFastSerializer
-            ? deepcopy(foundResource)
-            : (foundResource.clone ? foundResource.clone() : { ...foundResource });
-        this.resourceMerger[this.useFastSerializer ? 'fastUpdateMeta' : 'updateMeta']({
+        const updatedResource = deepcopy(foundResource);
+        this.resourceMerger.fastUpdateMeta({
             patched_resource_incoming: updatedResource,
             currentResource: foundResource,
             original_source: foundResource.meta?.source,
@@ -338,7 +335,7 @@ class GroupMemberPatchStrategy {
             created: false,
             updated: true,
             resource_version: updatedResource.meta.versionId,
-            resource: this.useFastSerializer ? FhirResourceSerializer.serialize(deepcopy(updatedResource)) : updatedResource
+            resource: FhirResourceSerializer.serialize(deepcopy(updatedResource))
         };
     }
 

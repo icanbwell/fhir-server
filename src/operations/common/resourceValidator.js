@@ -421,7 +421,7 @@ class ResourceValidator {
         const dateColumnHandler = new DateColumnHandler();
         dateColumnHandler.setFlag(true);
         resourceToValidate = await dateColumnHandler.preSaveAsync({ resource: resourceToValidate });
-        const resourceToValidateJson = (typeof resourceToValidate?.toJSON === 'function') ? resourceToValidate.toJSON() : resourceToValidate;
+        const resourceToValidateJson = resourceToValidate;
         delete resourceToValidateJson?.meta?.lastUpdated;
         /**
          * @type {OperationOutcome | null}
@@ -613,7 +613,7 @@ class ResourceValidator {
             resourceObj = null,
             profile
         }) {
-        const resourceToValidateJson = (typeof resourceBody?.toJSON === 'function') ? resourceBody.toJSON() : resourceBody;
+        const resourceToValidateJson = resourceBody;
 
         if (profile) {
             // save profile in remote server

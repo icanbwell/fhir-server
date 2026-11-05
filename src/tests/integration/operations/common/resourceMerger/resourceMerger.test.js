@@ -10,7 +10,7 @@ const personMergeResource = require('./fixtures/Person/person2.json');
 // const expectedPersonResource = require('./fixtures/expected/expected_person.json');
 
 const { ResourceMerger } = require('../../../../../operations/common/resourceMerger');
-const Person = require('../../../../../fhir/classes/4_0_0/resources/person');
+const deepcopy = require('deepcopy');
 const deepmerge = require('deepmerge');
 const { mergeObject } = require('../../../../../utils/mergeHelper');
 const { UuidColumnHandler } = require('../../../../../preSaveHandlers/handlers/uuidColumnHandler');
@@ -44,19 +44,19 @@ describe('ResourceMerger Tests', () => {
                 }),
                 patientFilterManager: new PatientFilterManager()
             });
-            const currentResource = new Person(person1Resource);
-            const resourceToMerge = new Person(personMergeResource);
+            const currentResource = deepcopy(person1Resource);
+            const resourceToMerge = deepcopy(personMergeResource);
 
             // first try merge of the raw json
             let mergedObject = deepmerge(person1Resource, personMergeResource);
             expect(mergedObject.gender).toStrictEqual('male');
 
             // then try merge of the resources
-            mergedObject = deepmerge(currentResource.toJSON(), resourceToMerge.toJSON());
+            mergedObject = deepmerge(currentResource, resourceToMerge);
             expect(mergedObject.gender).toStrictEqual('male');
 
             // now try merge with our options
-            mergedObject = mergeObject(currentResource.toJSON(), resourceToMerge.toJSON());
+            mergedObject = mergeObject(currentResource, resourceToMerge);
             expect(mergedObject.gender).toStrictEqual('male');
 
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
@@ -64,7 +64,7 @@ describe('ResourceMerger Tests', () => {
             /**
              * @type {{updatedResource: (Resource|null), patches: (MergePatchEntry[]|null)}}
              */
-            const result = await resourceMerger.mergeResourceAsync({
+            const result = await resourceMerger.fastMergeResourceAsync({
                 base_version,
                 requestInfo,
                 currentResource,

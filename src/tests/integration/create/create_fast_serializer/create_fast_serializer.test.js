@@ -62,11 +62,6 @@ describe('Create with fast serializer', () => {
         await commonAfterEach();
     });
 
-    test('fast serializer is enabled by default', async () => {
-        await createTestRequest();
-        expect(getTestContainer().createOperation.useFastSerializer).toStrictEqual(true);
-    });
-
     test('stored document has the same shape as before', async () => {
         const request = await createTestRequest();
         const postResp = await request

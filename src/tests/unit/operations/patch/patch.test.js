@@ -1,7 +1,5 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
-process.env.ENABLE_PATCH_FAST_SERIALIZER = '0';
-
 jest.mock('express-http-context', () => {
     const { jest: j } = require('@jest/globals');
     return { get: j.fn(), set: j.fn() };
@@ -12,27 +10,17 @@ jest.mock('../../../../operations/common/logging', () => {
     return { logInfo: j.fn(), logError: j.fn(), logDebug: j.fn() };
 });
 
-jest.mock('../../../../fhir/fhirResourceCreator', () => {
-    const { jest: j } = require('@jest/globals');
-    return {
-        FhirResourceCreator: {
-            createByResourceType: j.fn((json, resourceType) => ({
-                ...json,
-                resourceType,
-                _uuid: json._uuid || 'gen-uuid',
-                id: json.id,
-                meta: json.meta || {},
-                toJSON: () => json,
-                toJSONInternal: () => json,
-                clone: function() { return { ...this }; }
-            }))
-        }
-    };
-});
-
 jest.mock('../../../../fhir/fhirResourceSerializer', () => {
     const { jest: j } = require('@jest/globals');
     return { FhirResourceSerializer: { serialize: j.fn((json) => json) } };
+});
+
+jest.mock('../../../../utils/validator.util', () => {
+    const { jest: j } = require('@jest/globals');
+    return {
+        ...j.requireActual('../../../../utils/validator.util'),
+        validateResource: j.fn(() => null)
+    };
 });
 
 jest.mock('../../../../utils/contextDataBuilder', () => {
@@ -56,7 +44,6 @@ const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
 const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
 const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
-const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
 const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
@@ -70,6 +57,9 @@ const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/provi
 const { fhirContentTypes } = require('../../../../utils/contentTypes');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { AuditLogger } = require('../../../../utils/auditLogger');
+const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+
+BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -87,7 +77,6 @@ describe('PatchOperation', () => {
             preSaveManager: createMockInstance(PreSaveManager),
             fhirLoggingManager: createMockInstance(FhirLoggingManager),
             scopesValidator: createMockInstance(ScopesValidator),
-            databaseBulkInserter: createMockInstance(DatabaseBulkInserter),
             fastDatabaseBulkInserter: createMockInstance(FastDatabaseBulkInserter),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
@@ -118,31 +107,27 @@ describe('PatchOperation', () => {
             _sourceAssigningAuthority: 'bwell',
             resourceType: 'Observation',
             status: 'final',
-            meta: { versionId: '1', lastUpdated: new Date(), security: [], source: 'urn:test' },
-            toJSON: () => ({ id: 'obs-1', resourceType: 'Observation', status: 'final', meta: { versionId: '1' } }),
-            toJSONInternal: () => ({ id: 'obs-1', resourceType: 'Observation', status: 'final', meta: { versionId: '1' } }),
-            clone: function() { return { ...this, toJSON: this.toJSON, toJSONInternal: this.toJSONInternal, clone: this.clone }; }
+            meta: { versionId: '1', lastUpdated: new Date(), security: [], source: 'urn:test' }
         };
 
         mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
             findAsync: jest.fn().mockResolvedValue({
-                toObjectArrayAsync: jest.fn().mockResolvedValue([foundResource])
+                toArrayAsync: jest.fn().mockResolvedValue([foundResource])
             })
         });
 
         mocks.databaseAttachmentManager.transformAttachments = jest.fn((doc) => Promise.resolve(doc));
         mocks.base64DataManager.transformAsync = jest.fn((doc) => Promise.resolve(doc));
         mocks.preSaveManager.preSaveAsync = jest.fn(({ resource }) => Promise.resolve(resource));
-        mocks.resourceMerger.applyPatch = jest.fn(({ currentResource }) => ({
-            ...currentResource.toJSON(),
-            _uuid: currentResource._uuid,
+        mocks.resourceMerger.fastApplyPatch = jest.fn(({ currentResource }) => ({
+            ...currentResource,
             status: 'amended'
         }));
         mocks.resourceMerger.overWriteNonWritableFields = jest.fn();
         mocks.resourceMerger.compareObjects = jest.fn().mockReturnValue([{ op: 'replace', path: '/status', value: 'amended' }]);
-        mocks.resourceMerger.updateMeta = jest.fn();
-        mocks.databaseBulkInserter.replaceOneAsync = jest.fn().mockResolvedValue(undefined);
-        mocks.databaseBulkInserter.executeAsync = jest.fn().mockResolvedValue([{
+        mocks.resourceMerger.fastUpdateMeta = jest.fn();
+        mocks.fastDatabaseBulkInserter.replaceOneAsync = jest.fn().mockResolvedValue(undefined);
+        mocks.fastDatabaseBulkInserter.executeAsync = jest.fn().mockResolvedValue([{
             created: false, updated: true, id: 'obs-1', uuid: 'uuid-obs-1',
             resourceType: 'Observation', sourceAssigningAuthority: 'bwell'
         }]);
@@ -191,7 +176,7 @@ describe('PatchOperation', () => {
         test('throws NotFoundError when resource not found', async () => {
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue({
-                    toObjectArrayAsync: jest.fn().mockResolvedValue([])
+                    toArrayAsync: jest.fn().mockResolvedValue([])
                 })
             });
 
@@ -235,7 +220,7 @@ describe('PatchOperation', () => {
 
             expect(result.updated).toBe(true);
             expect(result.created).toBe(false);
-            expect(mocks.databaseBulkInserter.replaceOneAsync).toHaveBeenCalled();
+            expect(mocks.fastDatabaseBulkInserter.replaceOneAsync).toHaveBeenCalled();
         });
 
         test('builds the lookup query with the u access codes', async () => {
@@ -264,9 +249,9 @@ describe('PatchOperation', () => {
         test('throws BadRequestError when multiple resources found', async () => {
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue({
-                    toObjectArrayAsync: jest.fn().mockResolvedValue([
-                        { id: 'obs-1', _uuid: 'u1', meta: { security: [{ system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'a' }] } },
-                        { id: 'obs-1', _uuid: 'u2', meta: { security: [{ system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'b' }] } }
+                    toArrayAsync: jest.fn().mockResolvedValue([
+                        { id: 'obs-1', resourceType: 'Observation', _uuid: 'u1', meta: { security: [{ system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'a' }] } },
+                        { id: 'obs-1', resourceType: 'Observation', _uuid: 'u2', meta: { security: [{ system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'b' }] } }
                     ])
                 })
             });
@@ -311,7 +296,7 @@ describe('PatchOperation', () => {
                 resourceType: 'Observation'
             });
 
-            expect(mocks.databaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
+            expect(mocks.fastDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
             expect(result.updated).toBe(true);
         });
 
@@ -373,7 +358,7 @@ describe('PatchOperation', () => {
             ],
             [
                 'write is neither created nor updated',
-                () => mocks.databaseBulkInserter.executeAsync.mockResolvedValue([{
+                () => mocks.fastDatabaseBulkInserter.executeAsync.mockResolvedValue([{
                     created: false, updated: false, issue: { code: 'exception' }
                 }])
             ]

@@ -4,7 +4,6 @@ const { ResourceLocator } = require('../operations/common/resourceLocator');
 const { assertTypeEquals } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
-const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 
 /**
@@ -83,41 +82,6 @@ class DatabaseQueryManager {
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in fastFindOneAsync(): ' + `query: ${JSON.stringify(query)}`,
-                error: e,
-                args: { query, options }
-            });
-        }
-    }
-
-    /**
-     * Finds one resource of a resource type
-     * @typedef FindOneOption
-     * @property {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
-     * @property {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
-     *
-     * @param {FindOneOption} params
-     * @return {Promise<Resource|null>}
-     */
-    async findOneAsync({ query, options = {} }) {
-        try {
-            // Use storage provider if available
-            if (this.storageProvider) {
-                return await this.storageProvider.findOneAsync({ query, options });
-            }
-
-            // Fall back to direct MongoDB access
-            const collection = await this.resourceLocator.getCollectionAsync({});
-            /**
-             * @type { Promise<Resource|null>}
-             */
-            const resource = await collection.findOne(query, options);
-            if (resource !== null) {
-                return FhirResourceCreator.createByResourceType(resource, this._resourceType);
-            }
-            return null;
-        } catch (e) {
-            throw new RethrownError({
-                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`,
                 error: e,
                 args: { query, options }
             });

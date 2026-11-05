@@ -3,7 +3,7 @@
  */
 const { fhirSchemaValidator } = require('./fhirSchemaValidator');
 const { buildOperationOutcomeFromIssues } = require('./operationOutcomeBuilder');
-const { validateReferences, fastValidateReferences } = require('./referenceValidator');
+const { fastValidateReferences } = require('./referenceValidator');
 
 const invalidIssue = (text) => ({ severity: 'error', code: 'invalid', details: { text } });
 
@@ -32,11 +32,7 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
     let referenceErrors = null;
 
     if (resourceObj) {
-        if (typeof resourceObj.toJSONInternal === 'function') {
-            referenceErrors = validateReferences(resourceObj);
-        } else {
-            referenceErrors = fastValidateReferences(resourceObj);
-        }
+        referenceErrors = fastValidateReferences(resourceObj);
     }
     let issue;
     if (errors && errors.length) {

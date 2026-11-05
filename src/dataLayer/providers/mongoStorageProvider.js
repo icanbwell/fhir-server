@@ -1,6 +1,5 @@
 const { StorageProvider } = require('./storageProvider');
 const { DatabaseCursor } = require('../databaseCursor');
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 
@@ -54,29 +53,6 @@ class MongoStorageProvider extends StorageProvider {
     }
 
     /**
-     * Finds one resource matching query using MongoDB
-     * @param {Object} params
-     * @param {Object} params.query
-     * @param {Object} [params.options]
-     * @returns {Promise<Resource|null>}
-     */
-    async findOneAsync({ query, options }) {
-        const collection = await this.resourceLocator.getCollectionAsync({});
-
-        const resource = await collection.findOne(query, options);
-
-        if (resource !== null) {
-            // Convert to FHIR resource object
-            return FhirResourceCreator.createByResourceType(
-                resource,
-                this.resourceLocator._resourceType
-            );
-        }
-
-        return null;
-    }
-
-    /**
      * Finds one resource matching query using MongoDB, returned as a plain, write-serialized object
      * @param {Object} params
      * @param {Object} params.query
@@ -101,7 +77,7 @@ class MongoStorageProvider extends StorageProvider {
     /**
      * Inserts or updates resources in MongoDB
      * NOTE: This is a simplified version. Actual upsert logic is handled
-     * by DatabaseBulkInserter and DatabaseUpdateManager
+     * by FastDatabaseBulkInserter and FastDatabaseUpdateManager
      * @param {Object} params
      * @param {Array<Object>} params.resources
      * @param {Object} [params.options]
@@ -110,7 +86,7 @@ class MongoStorageProvider extends StorageProvider {
     async upsertAsync({ resources, options }) {
         // This method is primarily called from ClickHouseStorageProvider
         // for dual-write scenarios. The actual MongoDB insert/update logic
-        // remains in DatabaseBulkInserter and DatabaseUpdateManager.
+        // remains in FastDatabaseBulkInserter and FastDatabaseUpdateManager.
         //
         // For MongoDB-only scenarios, those managers are used directly.
         return { acknowledged: true, insertedCount: resources.length };

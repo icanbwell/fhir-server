@@ -35,7 +35,7 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
             groupPatchOperationsLimit: 5000
         };
         mockResourceMerger = {
-            updateMeta: jestGlobal.fn()
+            fastUpdateMeta: jestGlobal.fn()
         };
         mockDatabaseBulkInserter = {
             replaceOneAsync: jestGlobal.fn().mockResolvedValue(undefined),

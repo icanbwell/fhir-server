@@ -6,9 +6,7 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const { PreSaveManager } = require('../../../../../preSaveHandlers/preSave');
 const { PreSaveOptions } = require('../../../../../preSaveHandlers/preSaveOptions');
 const { ConfigManager } = require('../../../../../utils/configManager');
-const Observation = require('../../../../../fhir/classes/4_0_0/resources/observation');
-const Patient = require('../../../../../fhir/classes/4_0_0/resources/patient');
-const Coding = require('../../../../../fhir/classes/4_0_0/complex_types/coding');
+const deepcopy = require('deepcopy');
 const { assertTypeEquals } = require('../../../../../utils/assertType');
 const { SENSITIVE_CATEGORY } = require('../../../../../constants');
 
@@ -38,11 +36,11 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             assertTypeEquals(preSaveManager, PreSaveManager);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             const options = PreSaveOptions.fromRequestInfo(requestInfo);
-            const resource = new Observation(observationNoTagResource);
+            const resource = deepcopy(observationNoTagResource);
 
             const result = await preSaveManager.preSaveAsync({ resource, options });
 
-            const newResource = new Observation(result);
+            const newResource = result;
             const tag = newResource.meta.security.find(
                 s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
             );
@@ -52,7 +50,7 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             expect(tag.code).toStrictEqual(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE);
         });
 
-        test('adds tag as a PLAIN object (not a Coding instance) for plain-object resources (fast flow)', async () => {
+        test('adds the tag as a plain object', async () => {
             await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -62,7 +60,6 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             assertTypeEquals(preSaveManager, PreSaveManager);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             const options = PreSaveOptions.fromRequestInfo(requestInfo);
-            // plain object as used by the fast merge flow (NOT a Resource class instance)
             const resource = {
                 resourceType: 'Observation',
                 id: 'obs-plain',
@@ -78,10 +75,6 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             );
             expect(tag).toBeDefined();
             expect(tag.id).toBeDefined();
-            // Must be a plain object, not a Coding class instance. Mixing a class instance into the
-            // otherwise-plain fast flow breaks fast-deep-equal dedup (Object vs Coding constructor
-            // mismatch) and duplicates the tag on concurrent-update retries.
-            expect(tag instanceof Coding).toBe(false);
             expect(tag.constructor).toBe(Object);
         });
 
@@ -95,14 +88,15 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             assertTypeEquals(preSaveManager, PreSaveManager);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             const options = PreSaveOptions.fromRequestInfo(requestInfo);
-            const resource = new Patient({
+            const resource = {
+                resourceType: 'Patient',
                 id: 'patient-1',
                 meta: {
                     security: [
                         { system: 'https://www.icanbwell.com/access', code: 'healthsystem1' }
                     ]
                 }
-            });
+            };
 
             const result = await preSaveManager.preSaveAsync({ resource, options });
 
@@ -122,11 +116,11 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             assertTypeEquals(preSaveManager, PreSaveManager);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             const options = PreSaveOptions.fromRequestInfo(requestInfo);
-            const resource = new Observation(observationWithTagResource);
+            const resource = deepcopy(observationWithTagResource);
 
             const result = await preSaveManager.preSaveAsync({ resource, options });
 
-            const newResource = new Observation(result);
+            const newResource = result;
             const tags = newResource.meta.security.filter(
                 s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
             );
@@ -143,8 +137,8 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             assertTypeEquals(preSaveManager, PreSaveManager);
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             const options = PreSaveOptions.fromRequestInfo(requestInfo);
-            const resource = new Observation({
-                ...observationWithTagResource,
+            const resource = {
+                ...deepcopy(observationWithTagResource),
                 meta: {
                     ...observationWithTagResource.meta,
                     security: [
@@ -159,11 +153,11 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
                         }
                     ]
                 }
-            });
+            };
 
             const result = await preSaveManager.preSaveAsync({ resource, options });
 
-            const newResource = new Observation(result);
+            const newResource = result;
             const tags = newResource.meta.security.filter(
                 s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
             );
@@ -180,11 +174,11 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             const preSaveManager = container.preSaveManager;
             assertTypeEquals(preSaveManager, PreSaveManager);
             const options = new PreSaveOptions({ suppressUnclassifiedTag: true });
-            const resource = new Observation(observationNoTagResource);
+            const resource = deepcopy(observationNoTagResource);
 
             const result = await preSaveManager.preSaveAsync({ resource, options });
 
-            const newResource = new Observation(result);
+            const newResource = result;
             const tag = newResource.meta.security.find(
                 s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
             );
@@ -200,11 +194,11 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             const preSaveManager = container.preSaveManager;
             assertTypeEquals(preSaveManager, PreSaveManager);
             const options = new PreSaveOptions({ suppressUnclassifiedTag: true });
-            const resource = new Observation(observationWithTagResource);
+            const resource = deepcopy(observationWithTagResource);
 
             const result = await preSaveManager.preSaveAsync({ resource, options });
 
-            const newResource = new Observation(result);
+            const newResource = result;
             const tags = newResource.meta.security.filter(
                 s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
             );

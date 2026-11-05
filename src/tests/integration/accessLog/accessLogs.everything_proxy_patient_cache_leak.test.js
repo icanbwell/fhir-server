@@ -64,7 +64,7 @@ describe('AccessLogs $everything proxy patient RequestSpecificCache leak Tests',
                 scopesManager: c.scopesManager,
                 fhirOperationsManager: c.fhirOperationsManager,
                 configManager: c.configManager,
-                databaseBulkInserter: c.databaseBulkInserter
+                databaseBulkInserter: c.fastDatabaseBulkInserter
             }));
             return container;
         });

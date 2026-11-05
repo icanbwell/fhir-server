@@ -2,7 +2,6 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, 
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { PreSaveManager } = require('../../../../../preSaveHandlers/preSave');
 const { SecurityTagSystem } = require('../../../../../utils/securityTagSystem');
-const Resource = require('../../../../../fhir/classes/4_0_0/resources/resource');
 const { assertTypeEquals } = require('../../../../../utils/assertType');
 
 describe('Patient Tests', () => {
@@ -27,10 +26,8 @@ describe('Patient Tests', () => {
              */
             const preSaveManager = container.preSaveManager;
             assertTypeEquals(preSaveManager, PreSaveManager);
-            /**
-             * @type {Resource}
-             */
-            const resource = new Resource({
+            const resource = {
+                resourceType: 'Patient',
                 id: '123',
                 meta: {
                     security: [
@@ -44,7 +41,7 @@ describe('Patient Tests', () => {
                         }
                     ]
                 }
-            });
+            };
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
             const result = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             expect(result._uuid).toBeDefined();

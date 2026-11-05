@@ -1,7 +1,7 @@
 const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
 const { AccessLogger } = require('../../../utils/accessLogger');
 const { AccessLogClickHouseWriter } = require('../../../utils/accessLogClickHouseWriter');
-const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
 const { ConfigManager } = require('../../../utils/configManager');
 const { ScopesManager } = require('../../../operations/security/scopesManager');
 const { FhirOperationsManager } = require('../../../operations/fhirOperationsManager');
@@ -29,7 +29,7 @@ function makeLogEntry (id) {
 function makeLogger ({ configManager, writer }) {
     const scopesManager = Object.create(ScopesManager.prototype);
     const fhirOperationsManager = Object.create(FhirOperationsManager.prototype);
-    const databaseBulkInserter = Object.create(DatabaseBulkInserter.prototype);
+    const databaseBulkInserter = Object.create(FastDatabaseBulkInserter.prototype);
     databaseBulkInserter.getOperationForResourceAsync = jest.fn().mockReturnValue({});
     databaseBulkInserter.executeAsync = jest.fn().mockResolvedValue([]);
 

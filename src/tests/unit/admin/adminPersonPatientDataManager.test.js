@@ -30,7 +30,6 @@ const { EverythingOperation } = require('../../../operations/everything/everythi
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
 const { AdminResourceWriter } = require('../../../admin/adminResourceWriter');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
-const Bundle = require('../../../fhir/classes/4_0_0/resources/bundle');
 
 function createPrototypedMock(RealClass) {
     return Object.create(RealClass.prototype);
@@ -46,7 +45,7 @@ function createManager() {
 
     const everythingOperation = createPrototypedMock(EverythingOperation);
     everythingOperation.everythingAsync = jestObj.fn().mockResolvedValue(
-        new Bundle({ entry: [] })
+        buildBundle({ entry: [] })
     );
 
     const databaseQueryFactory = createPrototypedMock(DatabaseQueryFactory);
@@ -83,6 +82,8 @@ function createManager() {
         }
     };
 }
+
+const buildBundle = (props) => ({ resourceType: 'Bundle', ...props });
 
 describe('AdminPersonPatientDataManager', () => {
     let manager;
@@ -145,7 +146,7 @@ describe('AdminPersonPatientDataManager', () => {
             const req = {};
             const res = {};
             const responseStreamer = { writeBundleEntryAsync: jestObj.fn() };
-            const bundle = new Bundle({
+            const bundle = buildBundle({
                 entry: [
                     { resource: { resourceType: 'Patient', _uuid: 'uuid-pat-1', id: 'pat-1' } }
                 ]
@@ -183,7 +184,7 @@ describe('AdminPersonPatientDataManager', () => {
             const req = {};
             const res = {};
             const responseStreamer = { writeBundleEntryAsync: jestObj.fn() };
-            const bundle = new Bundle({
+            const bundle = buildBundle({
                 entry: [
                     { resource: { resourceType: 'Patient', _uuid: 'uuid-1', id: 'p1' } },
                     { resource: { resourceType: 'Observation', _uuid: 'uuid-2', id: 'o1' } }
@@ -202,7 +203,7 @@ describe('AdminPersonPatientDataManager', () => {
             const req = {};
             const res = {};
             const responseStreamer = { writeBundleEntryAsync: jestObj.fn() };
-            const bundle = new Bundle({ entry: [] });
+            const bundle = buildBundle({ entry: [] });
             mocks.everythingOperation.everythingAsync.mockResolvedValue(bundle);
 
             const result = await manager.deletePatientDataGraphAsync({
@@ -215,7 +216,7 @@ describe('AdminPersonPatientDataManager', () => {
         describe('link-removal entries for a Person that pointed at the deleted Patient', () => {
             const arrangeLinkedPerson = () => {
                 mocks.everythingOperation.everythingAsync.mockResolvedValue(
-                    new Bundle({ entry: [{ resource: { resourceType: 'Patient', _uuid: 'uuid-p1', id: 'p1' } }] })
+                    buildBundle({ entry: [{ resource: { resourceType: 'Patient', _uuid: 'uuid-p1', id: 'p1' } }] })
                 );
                 mocks.queryManager.findAsync.mockResolvedValue({
                     toArrayAsync: jestObj.fn().mockResolvedValue([{
@@ -311,7 +312,7 @@ describe('AdminPersonPatientDataManager', () => {
             const req = {};
             const res = {};
             const responseStreamer = { writeBundleEntryAsync: jestObj.fn() };
-            const bundle = new Bundle({ entry: [] });
+            const bundle = buildBundle({ entry: [] });
             mocks.everythingOperation.everythingAsync.mockResolvedValue(bundle);
 
             // Mock query manager for removeLinks
@@ -344,7 +345,7 @@ describe('AdminPersonPatientDataManager', () => {
     describe('removeLinksFromOtherPersonsAsync', () => {
         test('creates the query manager for Person resourceType', async () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
-            const bundle = new Bundle({ entry: [] });
+            const bundle = buildBundle({ entry: [] });
 
             await manager.removeLinksFromOtherPersonsAsync({
                 base_version: '4_0_0',
@@ -360,7 +361,7 @@ describe('AdminPersonPatientDataManager', () => {
 
         test('searches for Person records linked to Patient and Person entries', async () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
-            const bundle = new Bundle({
+            const bundle = buildBundle({
                 entry: [
                     { resource: { resourceType: 'Patient', _uuid: 'uuid-p1', id: 'p1' } },
                     { resource: { resourceType: 'Person', _uuid: 'uuid-per1', id: 'per1' } }
@@ -383,7 +384,7 @@ describe('AdminPersonPatientDataManager', () => {
 
         test('returns empty array when bundle has no entries', async () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
-            const bundle = new Bundle({ entry: null });
+            const bundle = buildBundle({ entry: null });
 
             // removeLinksToResourceTypeAsync checks bundle.entry and returns [] if null
             const result = await manager.removeLinksFromOtherPersonsAsync({
@@ -402,7 +403,7 @@ describe('AdminPersonPatientDataManager', () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
             Object.setPrototypeOf(requestInfo, require('../../../utils/fhirRequestInfo').FhirRequestInfo.prototype);
 
-            const bundle = new Bundle({
+            const bundle = buildBundle({
                 entry: [
                     { resource: { resourceType: 'Patient', _uuid: 'uuid-p1', id: 'p1' } },
                     { resource: { resourceType: 'Patient', _uuid: 'uuid-p2', id: 'p2' } }
@@ -439,7 +440,7 @@ describe('AdminPersonPatientDataManager', () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
             Object.setPrototypeOf(requestInfo, require('../../../utils/fhirRequestInfo').FhirRequestInfo.prototype);
 
-            const bundle = new Bundle({
+            const bundle = buildBundle({
                 entry: [
                     { resource: { resourceType: 'Patient', _uuid: 'uuid-p1', id: 'p1' } }
                 ]
@@ -487,7 +488,7 @@ describe('AdminPersonPatientDataManager', () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
             Object.setPrototypeOf(requestInfo, require('../../../utils/fhirRequestInfo').FhirRequestInfo.prototype);
 
-            const bundle = new Bundle({
+            const bundle = buildBundle({
                 entry: [
                     { resource: { resourceType: 'Patient', _uuid: 'uuid-p1', id: 'p1' } }
                 ]
@@ -525,7 +526,7 @@ describe('AdminPersonPatientDataManager', () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
             Object.setPrototypeOf(requestInfo, require('../../../utils/fhirRequestInfo').FhirRequestInfo.prototype);
 
-            const bundle = new Bundle({
+            const bundle = buildBundle({
                 entry: [
                     { resource: { resourceType: 'Patient', _uuid: 'uuid-p1', id: 'p1' } }
                 ]
@@ -562,7 +563,7 @@ describe('AdminPersonPatientDataManager', () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
             Object.setPrototypeOf(requestInfo, require('../../../utils/fhirRequestInfo').FhirRequestInfo.prototype);
 
-            const bundle = new Bundle({
+            const bundle = buildBundle({
                 entry: [
                     { resource: { resourceType: 'Observation', _uuid: 'uuid-o1', id: 'o1' } }
                 ]
@@ -591,7 +592,7 @@ describe('AdminPersonPatientDataManager', () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
             Object.setPrototypeOf(requestInfo, require('../../../utils/fhirRequestInfo').FhirRequestInfo.prototype);
 
-            const bundle = new Bundle({
+            const bundle = buildBundle({
                 entry: [
                     { resource: { resourceType: 'Patient', _uuid: 'uuid-p1', id: 'p1' } }
                 ]
@@ -633,7 +634,7 @@ describe('AdminPersonPatientDataManager', () => {
             const requestInfo = { requestId: 'req-1', method: 'DELETE', headers: {} };
             Object.setPrototypeOf(requestInfo, require('../../../utils/fhirRequestInfo').FhirRequestInfo.prototype);
 
-            const bundle = new Bundle({ entry: null });
+            const bundle = buildBundle({ entry: null });
 
             const mockDatabaseQueryManagerForPerson = { findAsync: jestObj.fn() };
             Object.setPrototypeOf(mockDatabaseQueryManagerForPerson,

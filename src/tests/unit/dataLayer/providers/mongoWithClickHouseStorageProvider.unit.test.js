@@ -10,7 +10,6 @@ function createProvider(overrides = {}) {
     };
     const mongoStorageProvider = {
         findAsync: jestGlobal.fn().mockResolvedValue({ toArray: () => [] }),
-        findOneAsync: jestGlobal.fn().mockResolvedValue(null),
         fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null),
         upsertAsync: jestGlobal.fn().mockResolvedValue({ acknowledged: true }),
         countAsync: jestGlobal.fn().mockResolvedValue(10)
@@ -34,7 +33,6 @@ describe('MongoWithClickHouseStorageProvider - unit tests', () => {
         clickHouseClientManager = { queryAsync: jestGlobal.fn().mockResolvedValue([{ count: '5' }]) };
         mongoStorageProvider = {
             findAsync: jestGlobal.fn().mockResolvedValue({ toArray: () => [] }),
-            findOneAsync: jestGlobal.fn().mockResolvedValue({ id: 'g1', resourceType: 'Group' }),
             fastFindOneAsync: jestGlobal.fn().mockResolvedValue({ id: 'g1' }),
             upsertAsync: jestGlobal.fn().mockResolvedValue({ acknowledged: true }),
             countAsync: jestGlobal.fn().mockResolvedValue(10)
@@ -151,14 +149,6 @@ describe('MongoWithClickHouseStorageProvider - unit tests', () => {
             const query = { 'member.entity._reference': 'Patient/p1' };
             await provider.findAsync({ query, options: {}, extraInfo: {} });
             expect(mongoStorageProvider.findAsync).toHaveBeenCalled();
-        });
-    });
-
-    describe('findOneAsync', () => {
-        test('delegates to mongoStorageProvider', async () => {
-            const result = await provider.findOneAsync({ query: { _uuid: 'u1' } });
-            expect(mongoStorageProvider.findOneAsync).toHaveBeenCalled();
-            expect(result.id).toBe('g1');
         });
     });
 

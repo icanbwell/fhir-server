@@ -8,11 +8,44 @@ const expectedCodeSystemsFromDatabase = require('./fixtures/expected/expected_co
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getTestRequestInfo } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const CodeSystem = require('../../../../fhir/classes/4_0_0/resources/codeSystem');
-const Meta = require('../../../../fhir/classes/4_0_0/complex_types/meta');
-const Coding = require('../../../../fhir/classes/4_0_0/complex_types/coding');
 const deepcopy = require('deepcopy');
+const { FhirResourceWriteSerializer } = require('../../../../fhir/fhirResourceWriteSerializer');
+const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
 const { logInfo } = require('../../../../operations/common/logging');
+
+const identityExtensionUrls = [
+    'https://www.icanbwell.com/sourceId',
+    'https://www.icanbwell.com/uuid',
+    'https://www.icanbwell.com/sourceAssigningAuthority'
+];
+
+const withoutIdentityExtensions = (value) => {
+    if (Array.isArray(value)) {
+        return value.map(withoutIdentityExtensions);
+    }
+    if (value === null || typeof value !== 'object' || value instanceof Date) {
+        return value;
+    }
+    return Object.fromEntries(
+        Object.entries(value)
+            .map(([key, child]) => [
+                key,
+                key === 'extension' && Array.isArray(child)
+                    ? child.filter((e) => !identityExtensionUrls.includes(e.url))
+                    : child
+            ])
+            .filter(([key, child]) => !(key === 'extension' && child.length === 0))
+            .map(([key, child]) => [key, withoutIdentityExtensions(child)])
+    );
+};
+
+const toWriteDoc = (resource) => FhirResourceWriteSerializer.serialize({ obj: deepcopy(resource) });
+
+const readCodeSystemJsonAsync = async (databaseQueryManager) => {
+    const doc = await databaseQueryManager.fastFindOneAsync({ query: { id: 'medline-loinc-labs' } });
+    doc.meta.lastUpdated = null;
+    return withoutIdentityExtensions(FhirResourceSerializer.serialize(doc));
+};
 
 describe('CodeSystem Tests', () => {
     beforeEach(async () => {
@@ -53,28 +86,29 @@ describe('CodeSystem Tests', () => {
 
             // Currently we don't handle concurrent inserts of same resource so create
             // a simple one first
-            const simpleCodeSystem = new CodeSystem({
+            const simpleCodeSystem = {
+                resourceType: 'CodeSystem',
                 id: 'medline-loinc-labs',
-                meta: new Meta({
+                meta: {
                     source: 'https://connect.medlineplus.gov/service',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             code: 'medlineplus'
-                        }),
-                        new Coding({
+                        },
+                        {
                             system: 'https://www.icanbwell.com/access',
                             code: 'medlineplus'
-                        }),
-                        new Coding({
+                        },
+                        {
                             system: 'https://www.icanbwell.com/vendor',
                             code: 'medlineplus'
-                        })
+                        }
                     ]
-                }),
+                },
                 status: 'active',
                 content: 'fragment'
-            });
+            };
             let resp = await request
                 .post('/4_0_0/CodeSystem/1/$merge?validate=true')
                 .send(simpleCodeSystem)
@@ -159,9 +193,9 @@ describe('CodeSystem Tests', () => {
             expect(databaseUpdateFactory).toBeDefined();
 
             /**
-             * @type {DatabaseUpdateManager}
+             * @type {FastDatabaseUpdateManager}
              */
-            const databaseUpdateManager = databaseUpdateFactory.createDatabaseUpdateManager({
+            const databaseUpdateManager = databaseUpdateFactory.createFastDatabaseUpdateManager({
                 resourceType: 'CodeSystem',
                 base_version: '4_0_0'
             });
@@ -177,7 +211,7 @@ describe('CodeSystem Tests', () => {
                 await databaseUpdateManager.replaceOneAsync({
                     base_version,
                     requestInfo,
-                    doc: new CodeSystem(codeSystem)
+                    doc: toWriteDoc(codeSystem)
                 });
             }
 
@@ -191,20 +225,12 @@ describe('CodeSystem Tests', () => {
                 resourceType: 'CodeSystem',
                 base_version: '4_0_0'
             });
-            /**
-             * @type {Resource|null}
-             */
-            const resource = await databaseQueryManager.findOneAsync(
-                {
-                    query: { id: 'medline-loinc-labs' }
-                }
-            );
-            resource.meta.lastUpdated = null;
+            const resource = await readCodeSystemJsonAsync(databaseQueryManager);
             const expectedCodeSystemsFromDatabaseCopy = deepcopy(expectedCodeSystemsFromDatabase);
             expectedCodeSystemsFromDatabaseCopy.meta.versionId = '29'; // in case of databaseUpdateManager we expect the versionId to increment
-            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
+            expect(resource).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
 
-            expect(resource.toJSON().meta.versionId).toStrictEqual(`${countOfUpdates}`);
+            expect(resource.meta.versionId).toStrictEqual(`${countOfUpdates}`);
             logInfo('finish test: concurrency_issue works with databaseUpdateManager', {});
         });
         test('concurrency_issue works with databaseBulkInserter', async () => {
@@ -229,9 +255,9 @@ describe('CodeSystem Tests', () => {
             expect(await fhirDb.collection(collectionName).countDocuments()).toStrictEqual(0);
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             expect(databaseBulkInserter).toBeDefined();
 
             const codesystem1ResourceCopy = deepcopy(codesystem1Resource);
@@ -244,7 +270,7 @@ describe('CodeSystem Tests', () => {
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: new CodeSystem(firstCodeSystem)
+                doc: toWriteDoc(firstCodeSystem)
             });
 
             for (const codeSystem of codesystem1ResourceCopy) {
@@ -255,7 +281,7 @@ describe('CodeSystem Tests', () => {
                         resourceType: 'CodeSystem',
                         id: 'medline-loinc-labs',
                         previousVersionId: '1',
-                        doc: new CodeSystem(codeSystem),
+                        doc: toWriteDoc(codeSystem),
                         upsert: false,
                         patches: null
                     }
@@ -283,21 +309,13 @@ describe('CodeSystem Tests', () => {
                 resourceType: 'CodeSystem',
                 base_version: '4_0_0'
             });
-            /**
-             * @type {Resource|null}
-             */
-            const resource = await databaseQueryManager.findOneAsync(
-                {
-                    query: { id: 'medline-loinc-labs' }
-                }
-            );
-            resource.meta.lastUpdated = null;
-            expect(resource.toJSON().meta.versionId).toStrictEqual('1');
-            expect(resource.toJSON().concept.length).toStrictEqual(countOfUpdates);
+            const resource = await readCodeSystemJsonAsync(databaseQueryManager);
+            expect(resource.meta.versionId).toStrictEqual('1');
+            expect(resource.concept.length).toStrictEqual(countOfUpdates);
 
             const expectedCodeSystemsFromDatabaseCopy = deepcopy(expectedCodeSystemsFromDatabase);
             expectedCodeSystemsFromDatabaseCopy.meta.versionId = '1';
-            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
+            expect(resource).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
             logInfo('finish test: concurrency_issue works with databaseBulkInserter', {});
         });
         test('concurrency_issue works with databaseBulkInserter with insert in the middle', async () => {
@@ -323,9 +341,9 @@ describe('CodeSystem Tests', () => {
             expect(await codeSystemCollection.countDocuments()).toStrictEqual(0);
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             expect(databaseBulkInserter).toBeDefined();
 
             const codesystem1ResourceCopy = deepcopy(codesystem1Resource);
@@ -339,16 +357,16 @@ describe('CodeSystem Tests', () => {
                 base_version: '4_0_0',
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: new CodeSystem(firstCodeSystem)
+                doc: toWriteDoc(firstCodeSystem)
             });
 
             let i = 0;
             for (const codeSystem of codesystem1ResourceCopy) {
                 i += 1;
                 if (i === 10) {
-                    const doc = new CodeSystem(firstCodeSystem);
+                    const doc = deepcopy(firstCodeSystem);
                     doc.meta.versionId = '2';
-                    await codeSystemCollection.insertOne(doc.toJSONInternal());
+                    await codeSystemCollection.insertOne(doc);
                 }
                 await databaseBulkInserter.mergeOneAsync(
                     {
@@ -357,7 +375,7 @@ describe('CodeSystem Tests', () => {
                         resourceType: 'CodeSystem',
                         id: 'medline-loinc-labs',
                         previousVersionId: '1',
-                        doc: new CodeSystem(codeSystem),
+                        doc: toWriteDoc(codeSystem),
                         upsert: false,
                         patches: null
                     }
@@ -386,22 +404,14 @@ describe('CodeSystem Tests', () => {
                 resourceType: 'CodeSystem',
                 base_version: '4_0_0'
             });
-            /**
-             * @type {Resource|null}
-             */
-            const resource = await databaseQueryManager.findOneAsync(
-                {
-                    query: { id: 'medline-loinc-labs' }
-                }
-            );
-            resource.meta.lastUpdated = null;
-            expect(resource.toJSON().meta.versionId).toStrictEqual('3');
-            expect(resource.toJSON().concept.length).toStrictEqual(countOfUpdates);
+            const resource = await readCodeSystemJsonAsync(databaseQueryManager);
+            expect(resource.meta.versionId).toStrictEqual('3');
+            expect(resource.concept.length).toStrictEqual(countOfUpdates);
 
             const expectedCodeSystemsFromDatabaseCopy = deepcopy(expectedCodeSystemsFromDatabase);
 
             expectedCodeSystemsFromDatabaseCopy.meta.versionId = '3';
-            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
+            expect(resource).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
             logInfo('finish test: concurrency_issue works with databaseBulkInserter with update in the middle', {});
         });
     });

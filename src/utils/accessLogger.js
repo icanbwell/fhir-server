@@ -12,7 +12,7 @@ const {
 } = require('../constants');
 const { ScopesManager } = require('../operations/security/scopesManager');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
-const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../dataLayer/fastDatabaseBulkInserter');
 const { AccessLogClickHouseWriter } = require('./accessLogClickHouseWriter');
 const { buildBulkWriteRequestContext } = require('../dataLayer/bulkWriteRequestContext');
 const mutex = new Mutex();
@@ -26,7 +26,7 @@ class AccessLogger {
      * @property {string} base_version
      * @property {string|null} imageVersion
      * @property {ConfigManager} configManager
-     * @property {DatabaseBulkInserter} databaseBulkInserter
+     * @property {FastDatabaseBulkInserter} databaseBulkInserter
      * @property {AccessLogClickHouseWriter|null} [accessLogClickHouseWriter]
      *
      * @param {params}
@@ -63,10 +63,10 @@ class AccessLogger {
          */
         this.hostname = os.hostname() ? String(os.hostname()) : null;
         /**
-         * @type {DatabaseBulkInserter}
+         * @type {FastDatabaseBulkInserter}
          */
         this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        assertTypeEquals(databaseBulkInserter, FastDatabaseBulkInserter);
         /**
          * @type {AccessLogClickHouseWriter|null}
          */

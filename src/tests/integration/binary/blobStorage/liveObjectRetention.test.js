@@ -5,7 +5,6 @@ const {
 } = require('../../common');
 const { MockS3Client } = require('../../export/mocks/s3Client');
 const { CLOUD_STORAGE_CLIENTS, BLOB_OP } = require('../../../../constants');
-const Binary = require('../../../../fhir/classes/4_0_0/resources/binary');
 
 const DATA_1 = 'QQ==';
 const DATA_2 = 'Qg==';
@@ -409,13 +408,13 @@ describe('Live-object retention: superseded keys survive for stale readers', () 
             const plain = { ...v2, data: DATA_3 };
             delete plain._id;
             delete plain._blobMeta;
-            const incoming = new Binary(plain);
+            const incoming = plain;
             await container.base64DataManager.transformAsync(incoming, BLOB_OP.INSERT, requestInfo);
             const uploadedKey = liveKeyOf({ _uuid: incoming._uuid, _blobMeta: incoming._blobMeta });
             expect(container.base64FieldCloudStorageClient.uploadedData[uploadedKey]).toBe(DATA_3);
 
-            jest.spyOn(container.resourceMerger, 'mergeResourceAsync').mockRejectedValue(new Error('write failed'));
-            const manager = container.databaseUpdateFactory.createDatabaseUpdateManager({
+            jest.spyOn(container.resourceMerger, 'fastMergeResourceAsync').mockRejectedValue(new Error('write failed'));
+            const manager = container.databaseUpdateFactory.createFastDatabaseUpdateManager({
                 resourceType: 'Binary', base_version: '4_0_0'
             });
             await expect(manager.replaceOneAsync({
@@ -496,14 +495,14 @@ describe('Live-object retention: superseded keys survive for stale readers', () 
     describe('version conflict retry', () => {
         const buildIncoming = async (container, base, data, incomingRequestId) => {
             const requestInfo = getTestRequestInfo({ requestId: incomingRequestId });
-            const incoming = new Binary({ ...base, data });
+            const incoming = { ...base, data };
             delete incoming._id;
             await container.base64DataManager.transformAsync(incoming, BLOB_OP.INSERT, requestInfo);
             return { incoming, requestInfo };
         };
 
         const replace = (container, { incoming, requestInfo }) => container.databaseUpdateFactory
-            .createDatabaseUpdateManager({ resourceType: 'Binary', base_version: '4_0_0' })
+            .createFastDatabaseUpdateManager({ resourceType: 'Binary', base_version: '4_0_0' })
             .replaceOneAsync({ base_version: '4_0_0', requestInfo, doc: incoming });
 
         test('a concurrent $merge that conflicts and falls back to the one-by-one path keeps every version since its first read', async () => {

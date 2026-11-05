@@ -125,11 +125,11 @@ describe('createContainer', () => {
         expect(container.configManager).toBe(container.configManager);
     });
 
-    test('two DIFFERENT registrations of the same underlying class produce two DISTINCT instances, not a shared one', () => {
+    test('the legacy bulk inserter and mongo executor registrations are gone', () => {
         const container = createContainer();
-        expect(container.mongoBulkWriteExecutor).toBeInstanceOf(MongoBulkWriteExecutor);
         expect(container.fastMongoBulkWriteExecutor).toBeInstanceOf(MongoBulkWriteExecutor);
-        expect(container.mongoBulkWriteExecutor).not.toBe(container.fastMongoBulkWriteExecutor);
+        expect(container.databaseBulkInserter).toBeUndefined();
+        expect(container.mongoBulkWriteExecutor).toBeUndefined();
     });
 
     test('kafkaClient resolves to DummyKafkaClient (not the real KafkaClient) when ENABLE_EVENTS_KAFKA is disabled', () => {
@@ -182,13 +182,22 @@ describe('createContainer', () => {
         expect(manager.mergeOperation).toBe(container.mergeOperation);
     });
 
-    test('mergeManager is wired to the FAST bulk inserter under the databaseBulkInserter property, not the plain one', () => {
+    test('mergeManager is wired to the fast bulk inserter under the databaseBulkInserter property', () => {
         const container = createContainer();
         expect(container.mergeManager).toBeInstanceOf(MergeManager);
         expect(container.mergeManager.databaseBulkInserter).toBeInstanceOf(FastDatabaseBulkInserter);
         expect(container.mergeManager.databaseBulkInserter).toBe(container.fastDatabaseBulkInserter);
-        expect(container.mergeManager.databaseBulkInserter).not.toBe(container.databaseBulkInserter);
     });
+
+    test.each(['createOperation', 'updateOperation', 'patchOperation'])(
+        '%s is wired to the fast bulk inserter under the databaseBulkInserter property',
+        (operationName) => {
+            const container = createContainer();
+            const operation = container[operationName];
+            expect(operation.databaseBulkInserter).toBeInstanceOf(FastDatabaseBulkInserter);
+            expect(operation.databaseBulkInserter).toBe(container.fastDatabaseBulkInserter);
+        }
+    );
 
     test('preSaveManager orders SourceAssigningAuthorityColumnHandler before UuidColumnHandler before ReferenceGlobalIdHandler', () => {
         // preSave.js's factory comment: "UuidColumnHandler MUST come after

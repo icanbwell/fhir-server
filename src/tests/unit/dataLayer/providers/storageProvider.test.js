@@ -27,23 +27,6 @@ describe('StorageProvider', () => {
         });
     });
 
-    describe('findOneAsync', () => {
-        test('should throw "Not implemented" error', async () => {
-            await expect(provider.findOneAsync({ query: {}, options: {} }))
-                .rejects.toThrow('Not implemented: findOneAsync must be implemented by subclass');
-        });
-
-        test('should throw error even with empty params', async () => {
-            await expect(provider.findOneAsync({}))
-                .rejects.toThrow('Not implemented: findOneAsync must be implemented by subclass');
-        });
-
-        test('should throw Error instance', async () => {
-            await expect(provider.findOneAsync({ query: { _id: '123' } }))
-                .rejects.toBeInstanceOf(Error);
-        });
-    });
-
     describe('fastFindOneAsync', () => {
         test('should throw "Not implemented" error', async () => {
             await expect(provider.fastFindOneAsync({ query: {}, options: {} }))
@@ -118,18 +101,6 @@ describe('StorageProvider', () => {
             const testProvider = new TestProvider();
             const result = await testProvider.findAsync({ query: { _id: '1' }, options: {} });
             expect(result).toEqual({ results: [], query: { _id: '1' } });
-        });
-
-        test('subclass can override findOneAsync', async () => {
-            class TestProvider extends StorageProvider {
-                async findOneAsync({ query }) {
-                    return { id: '1', resourceType: 'Patient' };
-                }
-            }
-
-            const testProvider = new TestProvider();
-            const result = await testProvider.findOneAsync({ query: { _id: '1' } });
-            expect(result).toEqual({ id: '1', resourceType: 'Patient' });
         });
 
         test('subclass can override fastFindOneAsync', async () => {
@@ -209,8 +180,6 @@ describe('StorageProvider', () => {
             expect(partialProvider.getStorageType()).toBe('partial');
 
             // Unimplemented methods still throw
-            await expect(partialProvider.findOneAsync({ query: {} }))
-                .rejects.toThrow('Not implemented: findOneAsync must be implemented by subclass');
             await expect(partialProvider.fastFindOneAsync({ query: {} }))
                 .rejects.toThrow('Not implemented: fastFindOneAsync must be implemented by subclass');
             await expect(partialProvider.upsertAsync({ resources: [] }))

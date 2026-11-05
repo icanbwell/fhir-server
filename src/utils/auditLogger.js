@@ -60,7 +60,7 @@ class AuditLogger {
          */
         this.postRequestProcessor = postRequestProcessor;
         /**
-         * @type {DatabaseBulkInserter}
+         * @type {import('../dataLayer/fastDatabaseBulkInserter').FastDatabaseBulkInserter}
          */
         this.databaseBulkInserter = databaseBulkInserter;
         /**

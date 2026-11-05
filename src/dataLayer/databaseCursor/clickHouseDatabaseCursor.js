@@ -1,6 +1,5 @@
 'use strict';
 
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { RESOURCE_COLUMN_TYPES } = require('../../constants/clickHouseConstants');
 
 /**
@@ -125,17 +124,6 @@ class ClickHouseDatabaseCursor {
         const remaining = this._rows.slice(this._index);
         this._index = this._rows.length;
         return remaining.map(row => this._extractFhirDocument(row));
-    }
-
-    /**
-     * Returns all remaining rows as FHIR Resource objects.
-     * @returns {Promise<Resource[]>}
-     */
-    async toObjectArrayAsync () {
-        const docs = await this.toArrayAsync();
-        return docs.map(doc =>
-            FhirResourceCreator.mapDocumentToResourceObject(doc, this.resourceType)
-        );
     }
 
     /**

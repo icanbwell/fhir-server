@@ -12,7 +12,6 @@ const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
 let validateResource;
 let fhirSchemaValidator;
-let validateReferences;
 let fastValidateReferences;
 
 beforeEach(() => {
@@ -25,17 +24,15 @@ beforeEach(() => {
     }));
 
     jest.mock('../../../utils/referenceValidator', () => ({
-        validateReferences: jest.fn(),
         fastValidateReferences: jest.fn()
     }));
 
     ({ fhirSchemaValidator } = require('../../../utils/fhirSchemaValidator'));
-    ({ validateReferences, fastValidateReferences } = require('../../../utils/referenceValidator'));
+    ({ fastValidateReferences } = require('../../../utils/referenceValidator'));
     ({ validateResource } = require('../../../utils/validator.util'));
 
     // Default: no errors
     fhirSchemaValidator.validate.mockReturnValue(null);
-    validateReferences.mockReturnValue(null);
     fastValidateReferences.mockReturnValue(null);
 });
 
@@ -244,21 +241,6 @@ describe('validateResource', () => {
     // 3. Reference validation
     // ==========================================
     describe('reference validation', () => {
-        test('calls validateReferences when resourceObj is a legacy class instance (has toJSONInternal)', () => {
-            const resourceObj = { resourceType: 'Patient', toJSONInternal: jest.fn() };
-            validateReferences.mockReturnValue(null);
-
-            validateResource({
-                resourceBody: { resourceType: 'Patient' },
-                resourceName: 'Patient',
-                path: '/Patient',
-                resourceObj
-            });
-
-            expect(validateReferences).toHaveBeenCalledWith(resourceObj);
-            expect(fastValidateReferences).not.toHaveBeenCalled();
-        });
-
         test('calls fastValidateReferences when resourceObj is a plain object', () => {
             const resourceObj = { resourceType: 'Patient', id: '123' };
             fastValidateReferences.mockReturnValue(null);
@@ -271,7 +253,6 @@ describe('validateResource', () => {
             });
 
             expect(fastValidateReferences).toHaveBeenCalledWith(resourceObj);
-            expect(validateReferences).not.toHaveBeenCalled();
         });
 
         test('does NOT call any reference validator when resourceObj is null', () => {
@@ -282,7 +263,6 @@ describe('validateResource', () => {
                 resourceObj: null
             });
 
-            expect(validateReferences).not.toHaveBeenCalled();
             expect(fastValidateReferences).not.toHaveBeenCalled();
         });
 
@@ -293,7 +273,6 @@ describe('validateResource', () => {
                 path: '/Patient'
             });
 
-            expect(validateReferences).not.toHaveBeenCalled();
             expect(fastValidateReferences).not.toHaveBeenCalled();
         });
 
@@ -740,7 +719,6 @@ describe('validateResource', () => {
             });
 
             expect(result).toBeNull();
-            expect(validateReferences).not.toHaveBeenCalled();
             expect(fastValidateReferences).not.toHaveBeenCalled();
         });
 
@@ -793,25 +771,6 @@ describe('validateResource', () => {
             });
 
             expect(result.issue[0].details.text).toContain('root');
-        });
-
-        test('validates a legacy class instance using validateReferences that returns errors', () => {
-            fhirSchemaValidator.validate.mockReturnValue(null);
-            const resourceObj = { resourceType: 'Patient', toJSONInternal: jest.fn() };
-            validateReferences.mockReturnValue([
-                'Reference Patient/missing does not exist'
-            ]);
-
-            const result = validateResource({
-                resourceBody: { resourceType: 'Patient' },
-                resourceName: 'Patient',
-                path: '/Patient',
-                resourceObj
-            });
-
-            expect(result).not.toBeNull();
-            expect(result.issue).toHaveLength(1);
-            expect(result.issue[0].details.text).toBe('Reference Patient/missing does not exist');
         });
 
         test('multiple reference errors are all included in OperationOutcome', () => {
@@ -923,13 +882,13 @@ describe('validateResource serialization', () => {
         fhirSchemaValidator.validate.mockReturnValue([
             { message: 'must be string', params: { type: 'string' }, dataPath: '.gender' }
         ]);
-        validateReferences.mockReturnValue(['Reference Patient/missing does not exist']);
+        fastValidateReferences.mockReturnValue(['Reference Patient/missing does not exist']);
 
         const result = validateResource({
             resourceBody: { resourceType: 'Patient' },
             resourceName: 'Patient',
             path: '/4_0_0/Patient/1',
-            resourceObj: { resourceType: 'Patient', toJSONInternal: jest.fn() }
+            resourceObj: { resourceType: 'Patient' }
         });
 
         expect(JSON.stringify(result)).toBe(

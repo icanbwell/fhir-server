@@ -4,7 +4,6 @@ const {commonBeforeEach, commonAfterEach, getTestRequestInfo} = require('../../.
 const {TestMongoDatabaseManager} = require('../../../testMongoDatabaseManager');
 const {PreSaveManager} = require('../../../../../preSaveHandlers/preSave');
 
-const Person = require('../../../../../fhir/classes/4_0_0/resources/person');
 const deepmerge = require('deepmerge');
 const {mergeObject} = require('../../../../../utils/mergeHelper');
 const {UuidColumnHandler} = require('../../../../../preSaveHandlers/handlers/uuidColumnHandler');

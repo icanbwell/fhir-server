@@ -1,4 +1,3 @@
-const { DatabaseUpdateManager } = require('./databaseUpdateManager');
 const { FastDatabaseUpdateManager } = require('./fastDatabaseUpdateManager');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { assertTypeEquals } = require('../utils/assertType');
@@ -25,8 +24,7 @@ class DatabaseUpdateFactory {
             preSaveManager,
             databaseQueryFactory,
             configManager,
-            base64DataManager,
-            historyKafkaProducer = null
+            base64DataManager
         }
     ) {
         /**
@@ -64,33 +62,6 @@ class DatabaseUpdateFactory {
          */
         this.base64DataManager = base64DataManager;
         assertTypeEquals(base64DataManager, Base64DataManager);
-
-        /**
-         * @type {import('./historyKafkaProducer').HistoryKafkaProducer|null}
-         */
-        this.historyKafkaProducer = historyKafkaProducer;
-    }
-
-    /**
-     * create a database update manager for this resource type
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @return {DatabaseUpdateManager}
-     */
-    createDatabaseUpdateManager ({ resourceType, base_version }) {
-        return new DatabaseUpdateManager(
-            {
-                historyKafkaProducer: this.historyKafkaProducer,
-                resourceLocatorFactory: this.resourceLocatorFactory,
-                resourceMerger: this.resourceMerger,
-                preSaveManager: this.preSaveManager,
-                databaseQueryFactory: this.databaseQueryFactory,
-                configManager: this.configManager,
-                base64DataManager: this.base64DataManager,
-                resourceType,
-                base_version
-            }
-        );
     }
 
     /**

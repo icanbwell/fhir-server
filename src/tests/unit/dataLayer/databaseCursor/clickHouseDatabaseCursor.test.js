@@ -97,16 +97,6 @@ describe('ClickHouseDatabaseCursor', () => {
         });
     });
 
-    describe('toObjectArrayAsync', () => {
-        test('returns FHIR Resource objects', async () => {
-            const cursor = createCursor([{ _fhir_resource: JSON.stringify(fhirDoc1) }]);
-            const resources = await cursor.toObjectArrayAsync();
-            expect(resources).toHaveLength(1);
-            expect(resources[0].id).toBe('obs-1');
-            expect(resources[0].resourceType).toBe('Observation');
-        });
-    });
-
     describe('project', () => {
         test('filters row fields by projection', async () => {
             const cursor = createCursor([

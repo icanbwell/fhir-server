@@ -2,18 +2,12 @@
 
 /**
  * Unit tests for ResourceMerger
- *
- * Top 3 largest methods:
- * 1. mergeResourceAsync (lines 382-506)
- * 2. fastMergeResourceAsync (lines 522-646)
- * 3. overWriteNonWritableFields (lines 134-219)
  */
 
 const { describe, beforeEach, afterEach, it, expect, jest } = require('@jest/globals');
 
 const { ResourceMerger } = require('../../../../operations/common/resourceMerger');
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
-const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
 
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -286,72 +280,6 @@ describe('ResourceMerger', () => {
         });
     });
 
-    describe('updateMeta', () => {
-        it('increments versionId when incrementVersion is true', () => {
-            const patched_resource_incoming = { meta: {} };
-            const currentResource = {
-                meta: { versionId: '3', lastUpdated: '2024-01-01', source: 'src', security: [] }
-            };
-
-            const result = resourceMerger.updateMeta({
-                patched_resource_incoming,
-                currentResource,
-                original_source: 'new-source',
-                incrementVersion: true
-            });
-
-            expect(result.meta.versionId).toBe('4');
-        });
-
-        it('does not increment versionId when incrementVersion is false', () => {
-            const patched_resource_incoming = { meta: {} };
-            const currentResource = {
-                meta: { versionId: '3', lastUpdated: '2024-01-01', source: 'src', security: [] }
-            };
-
-            const result = resourceMerger.updateMeta({
-                patched_resource_incoming,
-                currentResource,
-                original_source: 'new-source',
-                incrementVersion: false
-            });
-
-            expect(result.meta.versionId).toBe('3');
-        });
-
-        it('uses original_source when patched_resource_incoming has no source', () => {
-            const patched_resource_incoming = { meta: {} };
-            const currentResource = {
-                meta: { versionId: '1', lastUpdated: '2024-01-01', source: 'old-src', security: [] }
-            };
-
-            const result = resourceMerger.updateMeta({
-                patched_resource_incoming,
-                currentResource,
-                original_source: 'incoming-src',
-                incrementVersion: true
-            });
-
-            expect(result.meta.source).toBe('incoming-src');
-        });
-
-        it('preserves existing source on patched_resource_incoming', () => {
-            const patched_resource_incoming = { meta: { source: 'keep-me' } };
-            const currentResource = {
-                meta: { versionId: '1', lastUpdated: '2024-01-01', source: 'old-src', security: [] }
-            };
-
-            const result = resourceMerger.updateMeta({
-                patched_resource_incoming,
-                currentResource,
-                original_source: 'incoming-src',
-                incrementVersion: true
-            });
-
-            expect(result.meta.source).toBe('keep-me');
-        });
-    });
-
     describe('fastUpdateMeta', () => {
         it('increments versionId and sets lastUpdated', () => {
             const patched_resource_incoming = {};
@@ -380,6 +308,51 @@ describe('ResourceMerger', () => {
             });
 
             expect(result.meta.versionId).toBe('1');
+        });
+
+        it('does not increment versionId when incrementVersion is false', () => {
+            const currentResource = {
+                meta: { versionId: '3', lastUpdated: '2024-01-01', source: 'src', security: [] }
+            };
+
+            const result = resourceMerger.fastUpdateMeta({
+                patched_resource_incoming: { meta: {} },
+                currentResource,
+                original_source: 'new-source',
+                incrementVersion: false
+            });
+
+            expect(result.meta.versionId).toBe('3');
+        });
+
+        it('uses original_source when patched_resource_incoming has no source', () => {
+            const currentResource = {
+                meta: { versionId: '1', lastUpdated: '2024-01-01', source: 'old-src', security: [] }
+            };
+
+            const result = resourceMerger.fastUpdateMeta({
+                patched_resource_incoming: { meta: {} },
+                currentResource,
+                original_source: 'incoming-src',
+                incrementVersion: true
+            });
+
+            expect(result.meta.source).toBe('incoming-src');
+        });
+
+        it('preserves existing source on patched_resource_incoming', () => {
+            const currentResource = {
+                meta: { versionId: '1', lastUpdated: '2024-01-01', source: 'old-src', security: [] }
+            };
+
+            const result = resourceMerger.fastUpdateMeta({
+                patched_resource_incoming: { meta: { source: 'keep-me' } },
+                currentResource,
+                original_source: 'incoming-src',
+                incrementVersion: true
+            });
+
+            expect(result.meta.source).toBe('keep-me');
         });
     });
 
@@ -421,47 +394,6 @@ describe('ResourceMerger', () => {
             const result = resourceMerger.removeOwnerTagIfDisplayFieldMissing({ currentResource, resourceToMerge });
             const ownerTag = result.meta.security.find(s => s.system === 'https://www.icanbwell.com/owner');
             expect(ownerTag).toBeDefined();
-        });
-    });
-
-    describe('mergeResourceAsync', () => {
-        it('requires _uuid on resourceToMerge (runs preSave if missing)', async () => {
-            const requestInfo = Object.create(FhirRequestInfo.prototype);
-            const resourceToMerge = {
-                id: 'r1',
-                resourceType: 'Observation',
-                meta: { versionId: '1', lastUpdated: '2024-01-01', source: 'src', security: [] },
-                status: 'active'
-            };
-
-            mockPreSaveManager.preSaveAsync = jest.fn().mockImplementation(async ({ resource: r }) => {
-                r._uuid = 'generated-uuid';
-                return r;
-            });
-
-            // This will throw because currentResource doesn't have proper methods
-            // but we can verify preSaveManager was called
-            try {
-                await resourceMerger.mergeResourceAsync({
-                    base_version: '4_0_0',
-                    requestInfo,
-                    currentResource: {
-                        id: 'r1', _uuid: 'uuid-1', resourceType: 'Observation',
-                        meta: { versionId: '1', lastUpdated: '2024-01-01', source: 'src', security: [] },
-                        identifier: [],
-                        toJSON: function () { return { id: this.id, meta: this.meta, status: 'active' }; },
-                        toJSONInternal: function () { return this.toJSON(); },
-                        clone: function () { return { ...this, toJSON: this.toJSON, toJSONInternal: this.toJSONInternal, clone: this.clone, create: this.create }; },
-                        create: function (data) { return { ...data }; }
-                    },
-                    resourceToMerge
-                });
-            } catch (e) {
-                // Expected - mock is incomplete for full merge flow
-            }
-
-            // preSaveManager should have been called since _uuid was missing
-            expect(mockPreSaveManager.preSaveAsync).toHaveBeenCalled();
         });
     });
 

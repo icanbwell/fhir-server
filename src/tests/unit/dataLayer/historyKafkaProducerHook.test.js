@@ -1,16 +1,10 @@
 'use strict';
 
 const { describe, test, expect, jest } = require('@jest/globals');
-const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
 const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
 
-// Both inserters share the same history flush seam (performBulkForResourceTypeAsync), so the
-// parallel Kafka produce must behave identically on each.
-describe.each([
-    ['DatabaseBulkInserter', DatabaseBulkInserter],
-    ['FastDatabaseBulkInserter', FastDatabaseBulkInserter]
-])('%s history Kafka hook', (_name, InserterClass) => {
+describe('FastDatabaseBulkInserter history Kafka hook', () => {
     const build = () => {
         const order = [];
         const executor = {
@@ -31,7 +25,7 @@ describe.each([
                 return [];
             })
         };
-        const inserter = Object.create(InserterClass.prototype);
+        const inserter = Object.create(FastDatabaseBulkInserter.prototype);
         Object.assign(inserter, { bulkWriteExecutors: [executor], historyKafkaProducer });
         return { inserter, executor, historyKafkaProducer, order };
     };

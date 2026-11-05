@@ -2,15 +2,51 @@ const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/g
 const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const { ChangeEventProducer } = require('../../../../utils/changeEventProducer');
-const CodeSystem = require('../../../../fhir/classes/4_0_0/resources/codeSystem');
-const Meta = require('../../../../fhir/classes/4_0_0/complex_types/meta');
-const CodeSystemConcept = require('../../../../fhir/classes/4_0_0/backbone_elements/codeSystemConcept');
-const CodeSystemProperty1 = require('../../../../fhir/classes/4_0_0/backbone_elements/codeSystemProperty1');
-const BundleEntry = require('../../../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const BundleRequest = require('../../../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const Coding = require('../../../../fhir/classes/4_0_0/complex_types/coding');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
-const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
+const { FhirResourceWriteSerializer } = require('../../../../fhir/fhirResourceWriteSerializer');
+const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
+const { buildBundleEntry } = require('../../../../utils/bundleEntryBuilder');
+const deepcopy = require('deepcopy');
+
+const identityExtensionUrls = [
+    'https://www.icanbwell.com/sourceId',
+    'https://www.icanbwell.com/uuid',
+    'https://www.icanbwell.com/sourceAssigningAuthority'
+];
+
+const withoutIdentityExtensions = (value) => {
+    if (Array.isArray(value)) {
+        return value.map(withoutIdentityExtensions);
+    }
+    if (value === null || typeof value !== 'object' || value instanceof Date) {
+        return value;
+    }
+    return Object.fromEntries(
+        Object.entries(value)
+            .map(([key, child]) => [
+                key,
+                key === 'extension' && Array.isArray(child)
+                    ? child.filter((e) => !identityExtensionUrls.includes(e.url))
+                    : child
+            ])
+            .filter(([key, child]) => !(key === 'extension' && child.length === 0))
+            .map(([key, child]) => [key, withoutIdentityExtensions(child)])
+    );
+};
+
+const toWriteDoc = (resource) => FhirResourceWriteSerializer.serialize({ obj: deepcopy(resource) });
+
+const toComparable = (doc) => {
+    const copy = deepcopy(doc);
+    copy.meta.lastUpdated = null;
+    return withoutIdentityExtensions(FhirResourceSerializer.serialize(copy));
+};
+
+const toComparableHistoryEntry = (entry) => {
+    const copy = deepcopy(entry);
+    copy.resource.meta.lastUpdated = null;
+    return withoutIdentityExtensions(buildBundleEntry(copy));
+};
 
 
 class MockChangeEventProducer extends ChangeEventProducer {
@@ -67,36 +103,34 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
             const userRequestId = '123456';
             const requestInfo = getTestRequestInfo({ requestId, userRequestId });
 
-            const codeSystemOriginal = new CodeSystem({
+            const codeSystemOriginal = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '1'
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
 
             /**
              * @type {MongoDatabaseManager}
@@ -114,62 +148,58 @@ describe('databaseBulkInserter Tests', () => {
              */
             const codeSystemCollection = fhirDb.collection(collectionName);
 
-            await codeSystemCollection.insertOne(codeSystemOriginal.toJSONInternal());
+            await codeSystemCollection.insertOne(deepcopy(codeSystemOriginal));
 
             // add another one
-            const codeSystem1 = new CodeSystem({
+            const codeSystem1 = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 _uuid: '93289a07-f21f-514b-9224-532b574c16cd',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '2',
                     security: [
-                        new Coding({
+                        {
                             id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
-                        }),
-                        new Coding({
+                        },
+                        {
                             code: 'client',
                             id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '5565-4',
                             code: '5565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '2'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
             const updateResult = await codeSystemCollection.findOneAndReplace(
                 {
                     id: 'loinc-1'
                 },
-                codeSystem1.toJSONInternal(),
+                deepcopy(codeSystem1),
                 { includeResultMetadata: true }
             );
             expect(updateResult.lastErrorObject).toStrictEqual({
@@ -178,118 +208,107 @@ describe('databaseBulkInserter Tests', () => {
             });
             const codeSystemsBeforeBulkUpdate = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystemsBeforeBulkUpdate.length).toStrictEqual(1);
-            const expectedCodeSystemAfterFirstUpdate = new CodeSystem({
+            const expectedCodeSystemAfterFirstUpdate = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '2',
                     security: [
-                        new Coding({
+                        {
                             id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
-                        }),
-                        new Coding({
+                        },
+                        {
                             code: 'client',
                             id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '5565-4',
                             code: '5565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '2'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
-            expectedCodeSystemAfterFirstUpdate.meta.lastUpdated = null;
+            };
             // noinspection JSCheckFunctionSignatures
-            let actualCodeSystem = new CodeSystem(codeSystemsBeforeBulkUpdate[0]);
-            actualCodeSystem.meta.lastUpdated = null;
-            expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystemAfterFirstUpdate.toJSON());
+            let actualCodeSystem = toComparable(codeSystemsBeforeBulkUpdate[0]);
+            expect(actualCodeSystem).toStrictEqual(toComparable(expectedCodeSystemAfterFirstUpdate));
 
-            const codeSystem2 = new CodeSystem({
+            const codeSystem2 = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '2',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '5565-4',
                             code: '5565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '2'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept({
+                        },
+                    {
                             id: '6665-3',
                             code: '6665-3',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '3'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
             await databaseBulkInserter.mergeOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
-                doc: codeSystem2,
+                doc: toWriteDoc(codeSystem2),
                 previousVersionId: '1',
                 patches: null
             });
@@ -325,150 +344,132 @@ describe('databaseBulkInserter Tests', () => {
             // check codeSystems
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystems.length).toStrictEqual(1);
-            const expectedCodeSystem = new CodeSystem({
+            const expectedCodeSystem = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     versionId: '3',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
-                        }),
-                        new Coding({
+                        },
+                        {
                             code: 'client',
                             id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '5565-4',
                             code: '5565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '2'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '6665-3',
                             code: '6665-3',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '3'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
             // noinspection JSCheckFunctionSignatures
-            actualCodeSystem = new CodeSystem(codeSystems[0]);
-            actualCodeSystem.meta.lastUpdated = null;
-            expectedCodeSystem.meta.lastUpdated = null;
+            actualCodeSystem = toComparable(codeSystems[0]);
 
-            expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
+            expect(actualCodeSystem).toStrictEqual(toComparable(expectedCodeSystem));
 
             // now check the history table
             const actualCodeSystemHistoryEntries = await fhirDb.collection(`${collectionName}_History`).find().toArray();
             expect(actualCodeSystemHistoryEntries.length).toStrictEqual(1);
-            const expectedCodeSystemHistoryEntry = new BundleEntry(
-                {
+            const expectedCodeSystemHistoryEntry = {
                     id: generateUUIDv5('loinc-1|client'),
-                    request: new BundleRequest({
+                    request: {
                         id: userRequestId,
                         method: 'POST',
                         url: '/4_0_0/CodeSystem/loinc-1'
-                    }),
-                    resource: new CodeSystem({
+                    },
+                    resource: { resourceType: 'CodeSystem',
                         id: 'loinc-1',
                         _uuid: '93289a07-f21f-514b-9224-532b574c16cd',
                         status: 'active',
                         content: 'complete',
-                        meta: new Meta({
+                        meta: {
                             versionId: '3',
                             source: 'http://www/icanbwell.com',
                             security: [
-                                new Coding({
+                                {
                                     id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                                     system: 'https://www.icanbwell.com/owner',
                                     code: 'client'
-                                }),
-                                new Coding({
+                                },
+                                {
                                     code: 'client',
                                     id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                                     system: 'https://www.icanbwell.com/sourceAssigningAuthority'
-                                })
+                                }
                             ]
-                        }),
+                        },
                         concept: [
-                            new CodeSystemConcept(
-                                {
+                            {
                                     id: '3565-4',
                                     code: '3565-4',
                                     property: [
-                                        new CodeSystemProperty1({
+                                        {
                                             code: 'medline_plus',
                                             valueString: '1'
-                                        })
+                                        }
                                     ]
-                                }
-                            ),
-                            new CodeSystemConcept(
-                                {
+                                },
+                            {
                                     id: '5565-4',
                                     code: '5565-4',
                                     property: [
-                                        new CodeSystemProperty1({
+                                        {
                                             code: 'medline_plus',
                                             valueString: '2'
-                                        })
+                                        }
                                     ]
-                                }
-                            ),
-                            new CodeSystemConcept(
-                                {
+                                },
+                            {
                                     id: '6665-3',
                                     code: '6665-3',
                                     property: [
-                                        new CodeSystemProperty1({
+                                        {
                                             code: 'medline_plus',
                                             valueString: '3'
-                                        })
+                                        }
                                     ]
                                 }
-                            )
                         ]
-                    })
-                }
-            );
+                    }
+                };
             // noinspection JSCheckFunctionSignatures
-            const actualCodeSystemHistoryEntry = new BundleEntry(actualCodeSystemHistoryEntries[0]);
-            actualCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
-            expectedCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
-            expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
+            const actualCodeSystemHistoryEntry = toComparableHistoryEntry(actualCodeSystemHistoryEntries[0]);
+            expect(actualCodeSystemHistoryEntry).toStrictEqual(toComparableHistoryEntry(expectedCodeSystemHistoryEntry));
         });
         test('execAsync works on CodeSystem with concurrency', async () => {
             const container = createTestContainer((container1) => {
@@ -487,46 +488,42 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
             const userRequestId = '123456';
             const requestInfo = getTestRequestInfo({ requestId, userRequestId });
 
-            const codeSystemOriginal = new CodeSystem({
+            const codeSystemOriginal = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 _uuid: generateUUIDv5('loinc-1|client'),
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '1',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding(
-                            {
+                        {
                                 system: 'https://www.icanbwell.com/owner',
                                 code: 'client'
                             }
-                        )
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
 
             /**
              * @type {MongoDatabaseManager}
@@ -544,102 +541,96 @@ describe('databaseBulkInserter Tests', () => {
              */
             const codeSystemCollection = fhirDb.collection(collectionName);
 
-            await codeSystemCollection.insertOne(codeSystemOriginal.toJSONInternal());
+            await codeSystemCollection.insertOne(deepcopy(codeSystemOriginal));
 
-            const codeSystem2 = new CodeSystem({
+            const codeSystem2 = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 _uuid: generateUUIDv5('loinc-1|client'),
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '2',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '6665-3',
                             code: '6665-3',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '3'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
             await databaseBulkInserter.mergeOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
-                doc: codeSystem2,
+                doc: toWriteDoc(codeSystem2),
                 previousVersionId: '1',
                 patches: null
             });
 
             // now add in a new one while waiting
-            const codeSystem1 = new CodeSystem({
+            const codeSystem1 = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 _uuid: generateUUIDv5('loinc-1|client'),
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '2',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             code: 'client'
-                        }),
-                        new Coding({
+                        },
+                        {
                             code: 'client',
                             id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '5565-4',
                             code: '5565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '2'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
             const updateResult = await codeSystemCollection.findOneAndReplace(
                 { id: 'loinc-1' },
-                codeSystem1.toJSONInternal(),
+                deepcopy(codeSystem1),
                 { includeResultMetadata: true }
             );
             expect(updateResult.lastErrorObject).toStrictEqual({
@@ -652,60 +643,54 @@ describe('databaseBulkInserter Tests', () => {
             const codeSystemHistoryEntriesBeforeUpdate = await fhirDb.collection(`${collectionName}_History`).find().toArray();
             expect(codeSystemHistoryEntriesBeforeUpdate.length).toStrictEqual(0);
 
-            const expectedCodeSystemAfterFirstUpdate = new CodeSystem({
+            const expectedCodeSystemAfterFirstUpdate = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 _uuid: generateUUIDv5('loinc-1|client'),
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '2',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             code: 'client'
-                        }),
-                        new Coding({
+                        },
+                        {
                             code: 'client',
                             id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '5565-4',
                             code: '5565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '2'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
-            expectedCodeSystemAfterFirstUpdate.meta.lastUpdated = null;
+            };
             // noinspection JSCheckFunctionSignatures
-            let actualCodeSystem = new CodeSystem(codeSystemsBeforeBulkUpdate[0]);
-            actualCodeSystem.meta.lastUpdated = null;
-            expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystemAfterFirstUpdate.toJSON());
+            let actualCodeSystem = toComparable(codeSystemsBeforeBulkUpdate[0]);
+            expect(actualCodeSystem).toStrictEqual(toComparable(expectedCodeSystemAfterFirstUpdate));
 
             // now execute the bulk inserts
             /**
@@ -735,151 +720,133 @@ describe('databaseBulkInserter Tests', () => {
             // check codeSystems
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystems.length).toStrictEqual(1);
-            const expectedCodeSystem = new CodeSystem({
+            const expectedCodeSystem = { resourceType: 'CodeSystem',
                 _uuid: generateUUIDv5('loinc-1|client'),
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     versionId: '3',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             code: 'client'
-                        }),
-                        new Coding({
+                        },
+                        {
                             code: 'client',
                             id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '5565-4',
                             code: '5565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '2'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '6665-3',
                             code: '6665-3',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '3'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
             // noinspection JSCheckFunctionSignatures
-            actualCodeSystem = new CodeSystem(codeSystems[0]);
-            actualCodeSystem.meta.lastUpdated = null;
-            expectedCodeSystem.meta.lastUpdated = null;
+            actualCodeSystem = toComparable(codeSystems[0]);
 
-            expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
+            expect(actualCodeSystem).toStrictEqual(toComparable(expectedCodeSystem));
 
             // now check the history table
             const actualCodeSystemHistoryEntries = await fhirDb.collection(`${collectionName}_History`).find().toArray();
             expect(actualCodeSystemHistoryEntries.length).toStrictEqual(1);
-            const expectedCodeSystemHistoryEntry = new BundleEntry(
-                {
+            const expectedCodeSystemHistoryEntry = {
                     id: generateUUIDv5('loinc-1|client'),
-                    request: new BundleRequest({
+                    request: {
                         id: userRequestId,
                         method: 'POST',
                         url: '/4_0_0/CodeSystem/loinc-1'
-                    }),
-                    resource: new CodeSystem({
+                    },
+                    resource: { resourceType: 'CodeSystem',
                         id: 'loinc-1',
                         _uuid: generateUUIDv5('loinc-1|client'),
                         status: 'active',
                         content: 'complete',
-                        meta: new Meta({
+                        meta: {
                             versionId: '3',
                             source: 'http://www/icanbwell.com',
                             security: [
-                                new Coding({
+                                {
                                     system: 'https://www.icanbwell.com/owner',
                                     id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                                     code: 'client'
-                                }),
-                                new Coding({
+                                },
+                                {
                                     code: 'client',
                                     id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                                     system: 'https://www.icanbwell.com/sourceAssigningAuthority'
-                                })
+                                }
                             ]
-                        }),
+                        },
                         concept: [
-                            new CodeSystemConcept(
-                                {
+                            {
                                     id: '3565-4',
                                     code: '3565-4',
                                     property: [
-                                        new CodeSystemProperty1({
+                                        {
                                             code: 'medline_plus',
                                             valueString: '1'
-                                        })
+                                        }
                                     ]
-                                }
-                            ),
-                            new CodeSystemConcept(
-                                {
+                                },
+                            {
                                     id: '5565-4',
                                     code: '5565-4',
                                     property: [
-                                        new CodeSystemProperty1({
+                                        {
                                             code: 'medline_plus',
                                             valueString: '2'
-                                        })
+                                        }
                                     ]
-                                }
-                            ),
-                            new CodeSystemConcept(
-                                {
+                                },
+                            {
                                     id: '6665-3',
                                     code: '6665-3',
                                     property: [
-                                        new CodeSystemProperty1({
+                                        {
                                             code: 'medline_plus',
                                             valueString: '3'
-                                        })
+                                        }
                                     ]
                                 }
-                            )
                         ]
-                    })
-                }
-            );
+                    }
+                };
             // noinspection JSCheckFunctionSignatures
-            const actualCodeSystemHistoryEntry = new BundleEntry(actualCodeSystemHistoryEntries[0]);
-            actualCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
-            expectedCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
-            expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
+            const actualCodeSystemHistoryEntry = toComparableHistoryEntry(actualCodeSystemHistoryEntries[0]);
+            expect(actualCodeSystemHistoryEntry).toStrictEqual(toComparableHistoryEntry(expectedCodeSystemHistoryEntry));
         });
         test('execAsync works on CodeSystem with multiple inserts and replace on same id', async () => {
             const container = createTestContainer((container1) => {
@@ -898,125 +865,119 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
 
-            const codeSystemOriginal = new CodeSystem({
+            const codeSystemOriginal = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '1',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
 
             // now add in a new one while waiting
-            const codeSystem1 = new CodeSystem({
+            const codeSystem1 = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '1',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '5565-4',
                             code: '5565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '2'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
 
-            const codeSystem2 = new CodeSystem({
+            const codeSystem2 = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '1',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '6665-3',
                             code: '6665-3',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '3'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
             const requestInfo = getTestRequestInfo({ requestId });
 
             await databaseBulkInserter.insertOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal
+                doc: toWriteDoc(codeSystemOriginal)
             });
 
             await databaseBulkInserter.insertOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystem1
+                doc: toWriteDoc(codeSystem1)
             });
 
             await databaseBulkInserter.mergeOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystem2,
+                doc: toWriteDoc(codeSystem2),
                 previousVersionId: null,
                 patches: null
             });
@@ -1059,71 +1020,63 @@ describe('databaseBulkInserter Tests', () => {
 
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystems.length).toStrictEqual(1);
-            const expectedCodeSystem = new CodeSystem({
+            const expectedCodeSystem = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     versionId: '1',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                             code: 'client'
-                        }),
-                        new Coding({
+                        },
+                        {
                             code: 'client',
                             id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                             system: 'https://www.icanbwell.com/sourceAssigningAuthority'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '5565-4',
                             code: '5565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '2'
-                                })
+                                }
                             ]
-                        }
-                    ),
-                    new CodeSystemConcept(
-                        {
+                        },
+                    {
                             id: '6665-3',
                             code: '6665-3',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '3'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
-            });
+            };
             // noinspection JSCheckFunctionSignatures
-            const actualCodeSystem = new CodeSystem(codeSystems[0]);
-            actualCodeSystem.meta.lastUpdated = null;
-            expectedCodeSystem.meta.lastUpdated = null;
+            const actualCodeSystem = toComparable(codeSystems[0]);
 
-            expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
+            expect(actualCodeSystem).toStrictEqual(toComparable(expectedCodeSystem));
         });
         test('execAsync works on CodeSystem with multiple inserts with same resource', async () => {
             const container = createTestContainer((container1) => {
@@ -1142,55 +1095,53 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             /**
-             * @type {DatabaseBulkInserter}
+             * @type {FastDatabaseBulkInserter}
              */
-            const databaseBulkInserter = container.databaseBulkInserter;
+            const databaseBulkInserter = container.fastDatabaseBulkInserter;
             const requestId = '1234';
             const requestInfo = getTestRequestInfo({ requestId });
 
-            const codeSystemOriginal = new CodeSystem({
+            const codeSystemOriginal = { resourceType: 'CodeSystem',
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
-                meta: new Meta({
+                meta: {
                     lastUpdated: Date(),
                     versionId: '1',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding({
+                        {
                             system: 'https://www.icanbwell.com/owner',
                             code: 'client'
-                        })
+                        }
                     ]
-                }),
+                },
                 concept: [
-                    new CodeSystemConcept(
-                        {
+                    {
                             id: '3565-4',
                             code: '3565-4',
                             property: [
-                                new CodeSystemProperty1({
+                                {
                                     code: 'medline_plus',
                                     valueString: '1'
-                                })
+                                }
                             ]
                         }
-                    )
                 ]
+            };
+
+            await databaseBulkInserter.insertOneAsync({
+                base_version,
+                requestInfo,
+                resourceType: 'CodeSystem',
+                doc: toWriteDoc(codeSystemOriginal)
             });
 
             await databaseBulkInserter.insertOneAsync({
                 base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal
-            });
-
-            await databaseBulkInserter.insertOneAsync({
-                base_version,
-                requestInfo,
-                resourceType: 'CodeSystem',
-                doc: codeSystemOriginal
+                doc: toWriteDoc(codeSystemOriginal)
             });
 
             await databaseBulkInserter.mergeOneAsync({
@@ -1198,7 +1149,7 @@ describe('databaseBulkInserter Tests', () => {
                 requestInfo,
                 id: codeSystemOriginal.id,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal,
+                doc: toWriteDoc(codeSystemOriginal),
                 previousVersionId: null,
                 patches: null
             });
@@ -1241,50 +1192,43 @@ describe('databaseBulkInserter Tests', () => {
 
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystems.length).toStrictEqual(1);
-            const expectedCodeSystem = new CodeSystem({
+            const expectedCodeSystem = { resourceType: 'CodeSystem',
                 concept: [
-                    new CodeSystemConcept({
+                    {
                         code: '3565-4',
                         id: '3565-4',
                         property: [
-                            new CodeSystemProperty1({
+                            {
                                 code: 'medline_plus',
                                 valueString: '1'
-                            })
+                            }
                         ]
-                    })
+                    }
                 ],
                 content: 'complete',
                 id: 'loinc-1',
-                meta: new Meta({
+                meta: {
                     versionId: '1',
                     source: 'http://www/icanbwell.com',
                     security: [
-                        new Coding(
-                            {
+                        {
                                 system: 'https://www.icanbwell.com/owner',
                                 id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
                                 code: 'client'
-                            }
-                        ),
-                        new Coding(
-                            {
+                            },
+                        {
                                 code: 'client',
                                 id: "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
                                 system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                             }
-                        )
                     ]
-                }),
-                resourceType: 'CodeSystem',
+                },
                 status: 'active'
-            });
+            };
             // noinspection JSCheckFunctionSignatures
-            const actualCodeSystem = new CodeSystem(codeSystems[0]);
-            actualCodeSystem.meta.lastUpdated = null;
-            expectedCodeSystem.meta.lastUpdated = null;
+            const actualCodeSystem = toComparable(codeSystems[0]);
 
-            expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
+            expect(actualCodeSystem).toStrictEqual(toComparable(expectedCodeSystem));
         });
     });
 });

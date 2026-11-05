@@ -1,7 +1,5 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
-process.env.ENABLE_UPDATE_FAST_SERIALIZER = '0';
-
 jest.mock('express-http-context', () => {
     const { jest: j } = require('@jest/globals');
     return { get: j.fn(), set: j.fn() };
@@ -12,25 +10,17 @@ jest.mock('../../../../operations/common/logging', () => {
     return { logInfo: j.fn(), logError: j.fn(), logDebug: j.fn() };
 });
 
-jest.mock('../../../../fhir/fhirResourceCreator', () => {
-    const { jest: j } = require('@jest/globals');
-    return {
-        FhirResourceCreator: {
-            createByResourceType: j.fn((json, resourceType) => ({
-                ...json,
-                resourceType,
-                _uuid: json._uuid || `generated-uuid-${json.id}`,
-                toJSON: () => json,
-                toJSONInternal: () => json,
-                clone: () => ({ ...json })
-            }))
-        }
-    };
-});
-
 jest.mock('../../../../fhir/fhirResourceSerializer', () => {
     const { jest: j } = require('@jest/globals');
     return { FhirResourceSerializer: { serialize: j.fn((json) => json) } };
+});
+
+jest.mock('../../../../utils/validator.util', () => {
+    const { jest: j } = require('@jest/globals');
+    return {
+        ...j.requireActual('../../../../utils/validator.util'),
+        validateResource: j.fn(() => null)
+    };
 });
 
 jest.mock('../../../../utils/contextDataBuilder', () => {
@@ -45,7 +35,6 @@ const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor
 const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
 const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
 const { ResourceValidator } = require('../../../../operations/common/resourceValidator');
-const { DatabaseBulkInserter } = require('../../../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
 const { ResourceMerger } = require('../../../../operations/common/resourceMerger');
 const { ConfigManager } = require('../../../../utils/configManager');
@@ -58,6 +47,9 @@ const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
+const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+
+BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -78,7 +70,6 @@ describe('UpdateOperation', () => {
             fhirLoggingManager: createMockInstance(FhirLoggingManager),
             scopesValidator: createMockInstance(ScopesValidator),
             resourceValidator: createMockInstance(ResourceValidator),
-            databaseBulkInserter: createMockInstance(DatabaseBulkInserter),
             fastDatabaseBulkInserter: createMockInstance(FastDatabaseBulkInserter),
             resourceMerger: createMockInstance(ResourceMerger),
             configManager: createMockInstance(ConfigManager),
@@ -100,16 +91,16 @@ describe('UpdateOperation', () => {
         mocks.resourceValidator.validateResourceHasAuthorityTagSync = jest.fn().mockReturnValue(null);
         mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
             findAsync: jest.fn().mockResolvedValue({
-                toObjectArrayAsync: jest.fn().mockResolvedValue([])
+                toArrayAsync: jest.fn().mockResolvedValue([])
             })
         });
-        mocks.databaseBulkInserter.insertOneAsync = jest.fn().mockResolvedValue(undefined);
-        mocks.databaseBulkInserter.replaceOneAsync = jest.fn().mockResolvedValue(undefined);
-        mocks.databaseBulkInserter.executeAsync = jest.fn().mockResolvedValue([{
+        mocks.fastDatabaseBulkInserter.insertOneAsync = jest.fn().mockResolvedValue(undefined);
+        mocks.fastDatabaseBulkInserter.replaceOneAsync = jest.fn().mockResolvedValue(undefined);
+        mocks.fastDatabaseBulkInserter.executeAsync = jest.fn().mockResolvedValue([{
             created: true, updated: false, id: 'test-id', uuid: 'uuid-1',
             resourceType: 'Patient', sourceAssigningAuthority: 'bwell'
         }]);
-        mocks.resourceMerger.mergeResourceAsync = jest.fn().mockResolvedValue({
+        mocks.resourceMerger.fastMergeResourceAsync = jest.fn().mockResolvedValue({
             updatedResource: null, patches: []
         });
         mocks.databaseAttachmentManager.transformAttachments = jest.fn((doc) => Promise.resolve(doc));
@@ -178,18 +169,10 @@ describe('UpdateOperation', () => {
             });
 
             expect(result.created).toBe(true);
-            expect(mocks.databaseBulkInserter.insertOneAsync).toHaveBeenCalled();
+            expect(mocks.fastDatabaseBulkInserter.insertOneAsync).toHaveBeenCalled();
         });
 
-        // DCON-4806: a client-supplied _file_id (or any other internal underscore field,
-        // e.g. _uuid) must be stripped from the raw incoming payload before it's even used
-        // to construct the Resource / merged with the stored resource -- otherwise a caller
-        // could claim an arbitrary GridFS file id (e.g. belonging to another resource/tenant)
-        // with no actual upload, and have it served back as this resource's attachment data
-        // on a later read, or spoof an internal id used elsewhere in the pipeline.
-        test('strips a client-supplied _file_id and _uuid before Resource construction and transformAttachments', async () => {
-            const { FhirResourceCreator } = require('../../../../fhir/fhirResourceCreator');
-
+        test('strips a client-supplied _file_id and _uuid before validation and transformAttachments', async () => {
             const requestInfo = {
                 user: 'admin',
                 scope: 'user/*.write',
@@ -207,10 +190,11 @@ describe('UpdateOperation', () => {
                 headers: {}
             };
 
-            // createByResourceType is a module-level mock shared across all tests in this
-            // file (jest.unit.config.js has no clearMocks) -- clear its call history so
-            // mock.calls[0] below reflects only this test's invocation.
-            FhirResourceCreator.createByResourceType.mockClear();
+            let payloadAtValidation;
+            mocks.resourceValidator.validateResourceAsync = jest.fn(async ({ resourceToValidate }) => {
+                payloadAtValidation = JSON.parse(JSON.stringify(resourceToValidate));
+                return null;
+            });
 
             await updateOp.updateAsync({
                 requestInfo,
@@ -218,10 +202,8 @@ describe('UpdateOperation', () => {
                 resourceType: 'Patient'
             });
 
-            // the raw payload handed to FhirResourceCreator must already be stripped
-            const jsonPassedToResourceCreator = FhirResourceCreator.createByResourceType.mock.calls[0][0];
-            expect(jsonPassedToResourceCreator._uuid).toBeUndefined();
-            expect(jsonPassedToResourceCreator.photo[0]._file_id).toBeUndefined();
+            expect(payloadAtValidation._uuid).toBeUndefined();
+            expect(payloadAtValidation.photo[0]._file_id).toBeUndefined();
 
             const resourcePassedToAttachmentManager = mocks.databaseAttachmentManager.transformAttachments.mock.calls[0][0];
             expect(resourcePassedToAttachmentManager.photo[0]._file_id).toBeUndefined();
@@ -234,27 +216,22 @@ describe('UpdateOperation', () => {
                 _uuid: 'uuid-1',
                 _sourceAssigningAuthority: 'bwell',
                 resourceType: 'Patient',
-                meta: { versionId: '1', lastUpdated: new Date(), security: [], source: 'urn:test' },
-                toJSON: () => ({}),
-                toJSONInternal: () => ({}),
-                clone: function() { return { ...this }; }
+                meta: { versionId: '1', lastUpdated: new Date(), security: [], source: 'urn:test' }
             };
 
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue({
-                    toObjectArrayAsync: jest.fn().mockResolvedValue([existingResource])
+                    toArrayAsync: jest.fn().mockResolvedValue([existingResource])
                 })
             });
-            mocks.resourceMerger.mergeResourceAsync.mockResolvedValue({
+            mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
                 updatedResource: {
                     ...existingResource,
-                    meta: { ...existingResource.meta, versionId: '2' },
-                    toJSON: () => ({}),
-                    toJSONInternal: () => ({})
+                    meta: { ...existingResource.meta, versionId: '2' }
                 },
                 patches: [{ op: 'replace', path: '/name' }]
             });
-            mocks.databaseBulkInserter.executeAsync.mockResolvedValue([{
+            mocks.fastDatabaseBulkInserter.executeAsync.mockResolvedValue([{
                 created: false, updated: true, id: 'test-id', uuid: 'uuid-1',
                 resourceType: 'Patient', sourceAssigningAuthority: 'bwell'
             }]);
@@ -277,12 +254,12 @@ describe('UpdateOperation', () => {
             });
 
             expect(result.created).toBe(false);
-            expect(mocks.databaseBulkInserter.replaceOneAsync).toHaveBeenCalled();
+            expect(mocks.fastDatabaseBulkInserter.replaceOneAsync).toHaveBeenCalled();
         });
 
         test('looks the existing resource up by the uuid derived from id and owner tag', async () => {
             const findAsync = jest.fn().mockResolvedValue({
-                toObjectArrayAsync: jest.fn().mockResolvedValue([])
+                toArrayAsync: jest.fn().mockResolvedValue([])
             });
             mocks.databaseQueryFactory.createQuery.mockReturnValue({ findAsync });
 
@@ -306,7 +283,7 @@ describe('UpdateOperation', () => {
 
         test('looks the resource up by the uuid derived from the body owner when the id authority matches it', async () => {
             const findAsync = jest.fn().mockResolvedValue({
-                toObjectArrayAsync: jest.fn().mockResolvedValue([])
+                toArrayAsync: jest.fn().mockResolvedValue([])
             });
             mocks.databaseQueryFactory.createQuery.mockReturnValue({ findAsync });
             mockParsedArgs.getOriginal.mockReturnValue({ queryParameterValue: { value: 'test-id|bwell' } });
@@ -386,13 +363,11 @@ describe('UpdateOperation', () => {
                 id: 'test-id',
                 _uuid: 'uuid-1',
                 resourceType: 'Patient',
-                meta: { versionId: '2', lastUpdated: new Date(), security: [] },
-                toJSON: () => ({}),
-                toJSONInternal: () => ({})
+                meta: { versionId: '2', lastUpdated: new Date(), security: [] }
             };
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue({
-                    toObjectArrayAsync: jest.fn().mockResolvedValue([existingResource])
+                    toArrayAsync: jest.fn().mockResolvedValue([existingResource])
                 })
             });
 
@@ -422,16 +397,14 @@ describe('UpdateOperation', () => {
                 _uuid: 'uuid-1',
                 _sourceAssigningAuthority: 'bwell',
                 resourceType: 'Patient',
-                meta: { versionId: '1', lastUpdated: new Date(), security: [], source: 'urn:test' },
-                toJSON: () => ({}),
-                toJSONInternal: () => ({})
+                meta: { versionId: '1', lastUpdated: new Date(), security: [], source: 'urn:test' }
             };
             mocks.databaseQueryFactory.createQuery.mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue({
-                    toObjectArrayAsync: jest.fn().mockResolvedValue([existingResource])
+                    toArrayAsync: jest.fn().mockResolvedValue([existingResource])
                 })
             });
-            mocks.resourceMerger.mergeResourceAsync.mockResolvedValue({
+            mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
                 updatedResource: null,
                 patches: []
             });
@@ -455,7 +428,7 @@ describe('UpdateOperation', () => {
 
             expect(result.created).toBe(false);
             expect(result.updated).toBe(false);
-            expect(mocks.databaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
+            expect(mocks.fastDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
         });
 
         const existingResource = {
@@ -463,10 +436,7 @@ describe('UpdateOperation', () => {
             _uuid: 'uuid-1',
             _sourceAssigningAuthority: 'bwell',
             resourceType: 'Patient',
-            meta: { versionId: '1', lastUpdated: new Date(), security: [], source: 'urn:test' },
-            toJSON: () => ({}),
-            toJSONInternal: () => ({}),
-            clone: function() { return { ...this }; }
+            meta: { versionId: '1', lastUpdated: new Date(), security: [], source: 'urn:test' }
         };
 
         const buildRequestInfo = () => ({
@@ -493,10 +463,10 @@ describe('UpdateOperation', () => {
             if (resourceExists) {
                 mocks.databaseQueryFactory.createQuery.mockReturnValue({
                     findAsync: jest.fn().mockResolvedValue({
-                        toObjectArrayAsync: jest.fn().mockResolvedValue([existingResource])
+                        toArrayAsync: jest.fn().mockResolvedValue([existingResource])
                     })
                 });
-                mocks.resourceMerger.mergeResourceAsync.mockResolvedValue({
+                mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
                     updatedResource: {
                         ...existingResource,
                         meta: { ...existingResource.meta, versionId: '2' }
@@ -504,7 +474,7 @@ describe('UpdateOperation', () => {
                     patches: [{ op: 'replace', path: '/name' }]
                 });
             }
-            mocks.databaseBulkInserter.executeAsync.mockResolvedValue([{
+            mocks.fastDatabaseBulkInserter.executeAsync.mockResolvedValue([{
                 ...mergeFlags, id: 'test-id', uuid: 'uuid-1',
                 resourceType: 'Patient', sourceAssigningAuthority: 'bwell'
             }]);
@@ -523,7 +493,7 @@ describe('UpdateOperation', () => {
         });
 
         test('no audit entry when the write is neither created nor updated (request fails)', async () => {
-            mocks.databaseBulkInserter.executeAsync.mockResolvedValue([{
+            mocks.fastDatabaseBulkInserter.executeAsync.mockResolvedValue([{
                 created: false, updated: false, id: 'test-id', uuid: 'uuid-1',
                 resourceType: 'Patient', sourceAssigningAuthority: 'bwell', issue: { code: 'exception' }
             }]);

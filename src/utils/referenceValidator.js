@@ -24,47 +24,6 @@ function checkReferenceValue (referenceObj, path) {
     }
 }
 
-/**
- * Validate if the references in a resource object/array are valid or not
- * @param {Resource} resourceObj
- * @param {string} path
- * @returns {*[]}
- */
-function validateReferences (resourceObj, path) {
-    if (!resourceObj) {
-        return [];
-    }
-    const errors = [];
-    if (resourceObj.constructor.name === 'Reference') {
-        const err = checkReferenceValue(resourceObj, path);
-        if (err) {
-            errors.push(err);
-        }
-    } else if (Array.isArray(resourceObj)) {
-        resourceObj.forEach(
-            (arrObj, i) => {
-                if (typeof arrObj === 'object' && arrObj) {
-                    const newPath = path ? `${path}.${i}` : `${i}`;
-                    const objErrors = validateReferences(arrObj, newPath);
-                    errors.push(...objErrors);
-                }
-            }
-        );
-    } else {
-        for (const prop in resourceObj) {
-            if (
-                Object.prototype.hasOwnProperty.call(resourceObj, prop) &&
-                resourceObj[`${prop}`] && typeof resourceObj[`${prop}`] === 'object'
-            ) {
-                const newPath = path ? `${path}.${prop}` : `${prop}`;
-                const objErrors = validateReferences(resourceObj[`${prop}`], newPath);
-                errors.push(...objErrors);
-            }
-        }
-    }
-    return errors;
-}
-
 const URI_REFERENCE_ELEMENTS = new Set(
     Object.entries(fieldTypes)
         .filter(([key, value]) => key.endsWith('.reference') && value.code === 'uri')
@@ -109,4 +68,4 @@ function fastValidateReferences (resourceObj, path, elementName = resourceObj?.r
     return errors;
 }
 
-module.exports = { validateReferences, fastValidateReferences };
+module.exports = { fastValidateReferences };

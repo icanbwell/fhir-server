@@ -41,17 +41,7 @@ jestObj.mock('../../../utils/resourceUpdater', () => ({
     })
 }));
 
-jestObj.mock('../../../fhir/classes/4_0_0/resources/resource', () => {
-    return class Resource {};
-});
-
-jestObj.mock('../../../fhir/classes/4_0_0/complex_types/reference', () => {
-    return class Reference {};
-});
-
 const { ReferenceGlobalIdHandler } = require('../../../preSaveHandlers/handlers/referenceGlobalIdHandler');
-const Resource = require('../../../fhir/classes/4_0_0/resources/resource');
-const Reference = require('../../../fhir/classes/4_0_0/complex_types/reference');
 
 describe('ReferenceGlobalIdHandler', () => {
     let handler;
@@ -75,27 +65,7 @@ describe('ReferenceGlobalIdHandler', () => {
             );
         });
 
-        test('uses updateReferencesAsync for Resource instances', async () => {
-            const mockUpdateReferencesAsync = jestObj.fn(async ({ fnUpdateReferenceAsync }) => {
-                const ref = { reference: 'Patient/123' };
-                mockIsUuid.mockReturnValue(false);
-                await fnUpdateReferenceAsync(ref);
-            });
-
-            const resource = Object.create(Resource.prototype);
-            Object.assign(resource, {
-                resourceType: 'Observation',
-                id: 'obs-1',
-                _sourceAssigningAuthority: 'testAuthority',
-                updateReferencesAsync: mockUpdateReferencesAsync
-            });
-
-            await handler.preSaveAsync({ resource });
-
-            expect(mockUpdateReferencesAsync).toHaveBeenCalled();
-        });
-
-        test('uses resourceReferenceUpdater for non-Resource instances', async () => {
+        test('updates every reference through resourceReferenceUpdater', async () => {
             const { resourceReferenceUpdater } = require('../../../utils/resourceUpdater');
             mockIsUuid.mockReturnValue(false);
 
@@ -362,7 +332,7 @@ describe('ReferenceGlobalIdHandler', () => {
             expect(reference.extension[0].url).toBe('http://other.com/ext');
         });
 
-        test('deletes extension array for non-Reference when all extensions removed', async () => {
+        test('deletes the extension array when all extensions are removed', async () => {
             mockIsUuid.mockReturnValue(false);
 
             const reference = {
@@ -377,28 +347,7 @@ describe('ReferenceGlobalIdHandler', () => {
                 reference
             });
 
-            // For non-Reference instances, empty extension array is deleted
             expect(reference.extension).toBeUndefined();
-        });
-
-        test('does NOT delete extension array for Reference instances when empty', async () => {
-            mockIsUuid.mockReturnValue(false);
-
-            const reference = Object.create(Reference.prototype);
-            Object.assign(reference, {
-                reference: 'Patient/123',
-                extension: [
-                    { url: 'https://www.icanbwell.com/uuid', valueString: 'u' }
-                ]
-            });
-
-            await handler.updateReferenceAsync({
-                sourceAssigningAuthority: 'auth',
-                reference
-            });
-
-            // For Reference instances, empty array is preserved (not deleted)
-            expect(reference.extension).toEqual([]);
         });
 
         test('handles reference with no extensions property', async () => {

@@ -159,7 +159,7 @@ This is an expected HTTP limitation, not a ClickHouse issue.
 
 Large Groups are created through:
 - **Incremental PATCH operations** (10K-15K members per PATCH) ← **Recommended**
-- **Admin scripts** using `DatabaseBulkInserter`
+- **Admin scripts** using `FastDatabaseBulkInserter`
 - **Batch operations** with `BaseBulkOperationRunner`
 - **Gradual accumulation** over time via FHIR operations
 
