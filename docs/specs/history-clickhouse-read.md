@@ -30,12 +30,12 @@ Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need a
 | `GET /4_0_0/Patient/{uuid}/_history?_count=50` | Supported. Capped at `RESOURCE_HISTORY_CLICKHOUSE_MAX_PAGE_SIZE`. |
 | `GET /4_0_0/Patient/{uuid}/_history?_historyCursor=<token>` | Supported. Token from the previous `next` link. |
 | `GET /4_0_0/Patient/{uuid}/_history?_since=2026-01-01T00:00:00Z` | Supported. Versions recorded at or after it. |
+| `GET /4_0_0/Patient/abc\|client-1/_history` | Supported. The server converts `id\|owner` to the uuid (UUIDv5 of `abc\|client-1`, as on write); no lookup. |
 | `GET /4_0_0/Patient/{uuid}/_history/2` | Supported. One version; 404 if not in ClickHouse. |
 | `GET /4_0_0/Patient/_history` | Supported. History of every `Patient`, paged by cursor; slow without `_since` on large types. |
 | `GET /4_0_0/Patient/_history?_since=2026-01-01&_count=100` | Supported. Bounded type-level read. |
 | `GET /4_0_0/Patient/{uuid}/_history?_metaUuid=1` | Supported. `_metaUuid` is accepted (sent by fhir-server-ui). |
-| `GET /4_0_0/Patient/abc/_history` | 400. The id is not a uuid (a source id). |
-| `GET /4_0_0/Patient/abc\|client-1/_history` | 400. The `id\|owner` form is not a uuid. |
+| `GET /4_0_0/Patient/abc/_history` | 400. A bare source id with no owner is ambiguous across owners; use the uuid or `id\|owner`. |
 | `GET /4_0_0/Patient/{uuid}/_history?_uuid={uuid}` | 400. There is no `_uuid` parameter; the URL id is the uuid. |
 | `GET /4_0_0/Patient/_history?_id={uuid}` or `?id=` | 400. An id filter on a type-level read would be ignored. |
 | `GET /4_0_0/Patient/{uuid}/_history?_lastUpdated=gt2026-01-01` | 400. Unsupported arguments are rejected, not dropped. |
@@ -51,11 +51,11 @@ Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need a
 
 ## Request contract (flag on)
 
-- The URL `{id}` must be the resource `_uuid` (checked with `isUuid`): `/{type}/{uuid}/_history` and
-  `/{type}/{uuid}/_history/{versionId}`. There is no `_uuid` query parameter. A request whose id is
-  not a uuid (a source id or `id|owner`) is rejected with 400 before any query runs. No id-to-uuid
-  lookup is done, so there is no MongoDB read. The resource type comes from the route, so no scan
-  across resource types is possible.
+- The URL `{id}` is the resource `_uuid`, or `id|owner`, which the server converts to the uuid as on
+  write (UUIDv5 of `id|owner`, no lookup): `/{type}/{uuid}/_history`, `/{type}/{id}|{owner}/_history`
+  and the same with `/_history/{versionId}`. There is no `_uuid` query parameter. Any other id (a
+  bare source id, or an empty owner) is rejected with 400 before any query runs. There is no MongoDB
+  read. The resource type comes from the route, so no scan across resource types is possible.
 - Type-level `/{type}/_history` (no id) is also served: it pages through the history of every
   resource of the type, newest first (`_recorded DESC, _uuid DESC, version DESC`), with the same
   keyset cursor (which also carries the last row's `_uuid`). `id`/`_id` arguments are rejected with

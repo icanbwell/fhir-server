@@ -23,6 +23,7 @@ const entry = (versionId) => ({
     request: { method: 'PUT', url: 'Patient/p1' }
 });
 
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const UUID = '11111111-1111-4111-8111-111111111111';
 
 describe('HistoryOperation reading from ClickHouse', () => {
@@ -146,6 +147,20 @@ describe('HistoryOperation reading from ClickHouse', () => {
         expect(repository.findPageAsync).toHaveBeenCalledWith(expect.objectContaining({ limit: expected }));
     });
 
+    test('converts id|owner to the uuid on the server and queries by it', async () => {
+        await run(makeArgs({ id: 'p1|client-1' }));
+
+        expect(repository.findPageAsync).toHaveBeenCalledWith(
+            expect.objectContaining({ uuid: generateUUIDv5('p1|client-1') })
+        );
+    });
+
+    test('lower-cases an upper-case uuid before querying', async () => {
+        await run(makeArgs({ id: UUID.toUpperCase() }));
+
+        expect(repository.findPageAsync).toHaveBeenCalledWith(expect.objectContaining({ uuid: UUID }));
+    });
+
     test('passes a valid _since to the repository as epoch milliseconds', async () => {
         await run(makeArgs({ id: UUID, _since: '2026-01-01T00:00:00.000Z' }));
 
@@ -187,7 +202,7 @@ describe('HistoryOperation reading from ClickHouse', () => {
         ['missing', undefined],
         ['empty', ''],
         ['a source id', 'p1'],
-        ['an id with an owner suffix', 'p1|client-1'],
+        ['an id with an empty owner', 'p1|'],
         ['repeated', ['a', 'b']]
     ])('rejects a request whose id is %s without querying', async (_name, id) => {
         await expect(run(makeArgs({ id }))).rejects.toMatchObject({ statusCode: 400 });

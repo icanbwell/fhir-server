@@ -1,7 +1,7 @@
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const {
-    assertSupportedHistoryArgs, assertHistoryIdIsUuid, assertNoCloudStorageStubs
+    assertSupportedHistoryArgs, resolveHistoryUuid, assertNoCloudStorageStubs
 } = require('../history/historyClickHouseGuards');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -138,18 +138,18 @@ class SearchByVersionIdOperation {
 
     /**
      * Reads one version from ClickHouse (resource types listed in
-     * RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES). The URL id must be the resource `_uuid`.
+     * RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES). The URL id must be the resource `_uuid` or `id|owner`.
      * @param {Object} params
      * @param {string} params.resourceType
      * @param {ParsedArgs} params.parsedArgs
      * @return {Promise<{resource: object, collectionName: string}|null>} null when the version is not in ClickHouse
      */
     async findVersionInClickHouseAsync ({ resourceType, parsedArgs }) {
-        const { id: uuid, version_id: versionId } = parsedArgs;
+        const { version_id: versionId } = parsedArgs;
         if (!this.historyClickHouseRepository) {
             throw new Error(`ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`);
         }
-        assertHistoryIdIsUuid({ id: uuid, resourceType });
+        const uuid = resolveHistoryUuid({ id: parsedArgs.id, resourceType });
         if (typeof versionId !== 'string') {
             throw new BadRequestError(new Error('version_id must be a string'));
         }

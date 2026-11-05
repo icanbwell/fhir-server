@@ -34,6 +34,7 @@ const { CloudStorageClient } = require('../../../../utils/cloudStorageClient');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { AuditLogger } = require('../../../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../../utils/mongoGroupExtendedTag');
 
 function createMockInstance(ClassType) {
@@ -637,12 +638,22 @@ describe('SearchByVersionIdOperation', () => {
             ['missing', undefined],
             ['empty', ''],
             ['a source id', 'test-id'],
-            ['an id with an owner suffix', 'test-id|client-1']
+            ['an id with an empty owner', 'test-id|']
         ])('rejects a request whose id is %s without querying', async (_name, id) => {
             mockParsedArgs.id = id;
 
             await expect(run()).rejects.toMatchObject({ statusCode: 400 });
             expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+        });
+
+        test('converts id|owner to the uuid on the server', async () => {
+            mockParsedArgs.id = 'test-id|client-1';
+
+            await run();
+
+            expect(historyClickHouseRepository.findVersionAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ uuid: generateUUIDv5('test-id|client-1') })
+            );
         });
 
         test('rejects _since on a single-version read', async () => {

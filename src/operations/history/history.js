@@ -1,7 +1,7 @@
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const {
-    assertSupportedHistoryArgs, assertHistoryIdIsUuid, assertNoCloudStorageStubs, parseSinceArg
+    assertSupportedHistoryArgs, resolveHistoryUuid, assertNoCloudStorageStubs, parseSinceArg
 } = require('./historyClickHouseGuards');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -420,8 +420,8 @@ class BaseHistoryOperationProcessor {
 
     /**
      * Serves a history read for a resource type whose history lives in ClickHouse. For an instance
-     * read the URL id must be the resource `_uuid`; anything else is rejected with 400 before a query
-     * runs. A type-level read (no id) pages through the history of every resource of the type. The scope checks
+     * read the URL id must be the resource `_uuid` or `id|owner` (converted to the uuid here); anything
+     * else is rejected with 400 before a query runs. A type-level read (no id) pages through the history of every resource of the type. The scope checks
      * have already run in fetchHistoryAsync.
      * @param {Object} params
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
@@ -433,7 +433,6 @@ class BaseHistoryOperationProcessor {
     async fetchHistoryFromClickHouseAsync({ requestInfo, parsedArgs, resourceType, startTime }) {
         const { currentOperationName } = this;
         const isInstanceRead = currentOperationName === 'historyById';
-        const uuid = isInstanceRead ? parsedArgs.id : undefined;
         const cursor = parsedArgs._historyCursor;
         try {
             if (!this.historyClickHouseRepository) {
@@ -441,9 +440,7 @@ class BaseHistoryOperationProcessor {
                     `ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`
                 );
             }
-            if (isInstanceRead) {
-                assertHistoryIdIsUuid({ id: uuid, resourceType });
-            }
+            const uuid = isInstanceRead ? resolveHistoryUuid({ id: parsedArgs.id, resourceType }) : undefined;
             assertSupportedHistoryArgs(parsedArgs, { allowIdArgs: isInstanceRead });
             const sinceMs = parseSinceArg(parsedArgs._since);
             const requested = Number(parsedArgs._count);

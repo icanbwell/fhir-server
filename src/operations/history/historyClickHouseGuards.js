@@ -1,6 +1,7 @@
 const { BadRequestError } = require('../../utils/httpErrors');
 const { RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
-const { isUuid } = require('../../utils/uid.util');
+const { generateUUIDv5 } = require('../../utils/uid.util');
+const { IdParser } = require('../../utils/idParser');
 
 /**
  * Arguments a ClickHouse history read honours or can safely ignore. Anything else (for example
@@ -29,20 +30,33 @@ function assertSupportedHistoryArgs(parsedArgs, { allowIdArgs = true } = {}) {
     }
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /**
- * A ClickHouse history read is keyed on the resource `_uuid`, which must be the URL id. Reject
- * anything else (no id, `id|owner`, a source id) before a query runs; no id lookup is done.
+ * A ClickHouse history read is keyed on the resource `_uuid`. The URL id is either that uuid or
+ * `id|owner`, which the server turns into the uuid the same way it does when it writes a resource
+ * (UUIDv5 of `id|owner`); no lookup is done. Anything else (no id, a bare source id that is not a
+ * uuid) is ambiguous across owners and is rejected before a query runs.
  * @param {Object} params
  * @param {string|undefined} params.id id from the URL
  * @param {string} params.resourceType
- * @throws {BadRequestError} when the id is not a uuid
+ * @return {string} the resource `_uuid`
+ * @throws {BadRequestError} when the id is neither a uuid nor `id|owner`
  */
-function assertHistoryIdIsUuid({ id, resourceType }) {
-    if (typeof id !== 'string' || !isUuid(id)) {
-        throw new BadRequestError(new Error(
-            `${resourceType} history must be read as /${resourceType}/{uuid}/_history with the resource _uuid as the id`
-        ));
+function resolveHistoryUuid({ id, resourceType }) {
+    if (typeof id === 'string' && id.length > 0) {
+        if (UUID_PATTERN.test(id)) {
+            return id.toLowerCase();
+        }
+        const { id: sourceId, sourceAssigningAuthority } = IdParser.parse(id);
+        if (sourceId && sourceAssigningAuthority) {
+            return generateUUIDv5(`${sourceId}|${sourceAssigningAuthority}`);
+        }
     }
+    throw new BadRequestError(new Error(
+        `${resourceType} history must be read as /${resourceType}/{uuid}/_history or ` +
+        `/${resourceType}/{id}|{owner}/_history`
+    ));
 }
 
 /**
@@ -77,7 +91,7 @@ function assertNoCloudStorageStubs(entries) {
 
 module.exports = {
     assertSupportedHistoryArgs,
-    assertHistoryIdIsUuid,
+    resolveHistoryUuid,
     parseSinceArg,
     assertNoCloudStorageStubs
 };
