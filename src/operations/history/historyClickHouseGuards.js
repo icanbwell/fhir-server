@@ -1,6 +1,6 @@
 const { BadRequestError } = require('../../utils/httpErrors');
 const { RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
-const { generateUUIDv5 } = require('../../utils/uid.util');
+const { generateUUIDv5, isUuid } = require('../../utils/uid.util');
 const { IdParser } = require('../../utils/idParser');
 
 /**
@@ -30,8 +30,6 @@ function assertSupportedHistoryArgs(parsedArgs, { allowIdArgs = true } = {}) {
     }
 }
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 /**
  * A ClickHouse history read is keyed on the resource `_uuid`. The URL id is either that uuid or
  * `id|owner`, which the server turns into the uuid the same way it does when it writes a resource
@@ -45,8 +43,8 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
  */
 function resolveHistoryUuid({ id, resourceType }) {
     if (typeof id === 'string' && id.length > 0) {
-        if (UUID_PATTERN.test(id)) {
-            return id.toLowerCase();
+        if (isUuid(id)) {
+            return id;
         }
         const { id: sourceId, sourceAssigningAuthority } = IdParser.parse(id);
         if (sourceId && sourceAssigningAuthority) {

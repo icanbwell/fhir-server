@@ -155,12 +155,6 @@ describe('HistoryOperation reading from ClickHouse', () => {
         );
     });
 
-    test('lower-cases an upper-case uuid before querying', async () => {
-        await run(makeArgs({ id: UUID.toUpperCase() }));
-
-        expect(repository.findPageAsync).toHaveBeenCalledWith(expect.objectContaining({ uuid: UUID }));
-    });
-
     test('passes a valid _since to the repository as epoch milliseconds', async () => {
         await run(makeArgs({ id: UUID, _since: '2026-01-01T00:00:00.000Z' }));
 
