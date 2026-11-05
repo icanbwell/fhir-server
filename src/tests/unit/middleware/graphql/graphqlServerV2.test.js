@@ -96,20 +96,6 @@ jestGlobal.mock('../../../../utils/nullRemover', () => ({
 
 jestGlobal.mock('../../../../graphqlv2/resolvers', () => ({}));
 
-jestGlobal.mock('../../../../fhir/classes/4_0_0/resources/operationOutcome', () => {
-    return jestGlobal.fn().mockImplementation((args) => ({
-        ...args,
-        toJSON: jestGlobal.fn().mockReturnValue({
-            resourceType: 'OperationOutcome',
-            issue: args.issue
-        })
-    }));
-});
-
-jestGlobal.mock('../../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue', () => {
-    return jestGlobal.fn().mockImplementation((args) => args);
-});
-
 // --- Helpers ---
 
 const { GraphQLError } = require('graphql');

@@ -15,7 +15,6 @@ module.exports = {
     transformIgnorePatterns,
     coveragePathIgnorePatterns: [
         '<rootDir>/src/testutils/',
-        '<rootDir>/src/fhir/classes',
         '<rootDir>/src/fhir/generator',
         '<rootDir>/src/middleware/fhir/resources',
         '<rootDir>/src/views',

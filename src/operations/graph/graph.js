@@ -152,8 +152,6 @@ class GraphOperation {
             if (graphDefinitionRaw.resourceType === 'Parameters') {
                 // check if this is a Parameters resourceType
                 // Unfortunately our FHIR schema resource creator does not support Parameters
-                // const ParametersResourceCreator = getResource(base_version, 'Parameters');
-                // const parametersResource = new ParametersResourceCreator(resource_incoming);
                 const parametersResource = graphDefinitionRaw;
                 if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
                     throw new BadRequestError({ message: 'Invalid parameter field in resource' });

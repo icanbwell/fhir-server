@@ -11,7 +11,7 @@ paths:
 - A test uses the name of the file it covers plus `.test.js`, in the matching folder under
   `src/tests/unit` or `src/tests/integration`.
 - Do not rename existing files to fit this rule, and keep the names a generator produces
-  (`src/services`, `src/searchParameters`, `src/graphql*`, `src/fhir/classes`, `src/fhir/serializers`).
+  (`src/services`, `src/searchParameters`, `src/graphql*`, `src/fhir/serializers`).
   The MCP tool files (`src/mcp/tools/*.tool.js`) are an existing exception; follow their pattern
   there.
 - Put code in the folder for its role: `src/operations`, `src/dataLayer`, `src/middleware`,

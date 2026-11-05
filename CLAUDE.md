@@ -51,10 +51,9 @@ yarn run prettier-fix
 # Bring up full local stack (MongoDB, Keycloak, Redis, Kafka, ClickHouse)
 make up
 
-# Code generation (FHIR classes, GraphQL schemas, search parameters)
+# Code generation (GraphQL schemas, search parameters)
 make generate
 make graphql
-make classes
 make searchParameters
 ```
 
@@ -114,7 +113,6 @@ All dependency wiring is in `src/createContainer.js` (~130+ services registered 
 - `src/services/` - Route handlers for each FHIR resource (from `generatorScripts/generate_services.py`)
 - `src/searchParameters/` - FHIR search parameter definitions (from `generatorScripts/searchParameters/`)
 - `src/graphql/` and `src/graphqlv2/` - GraphQL schemas/resolvers (from their respective generator scripts)
-- `src/fhir/classes/` - FHIR resource classes
 
 ### Core Directories
 - `src/operations/` - FHIR operation implementations (create, search, merge, export, history, etc.)

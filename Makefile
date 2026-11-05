@@ -211,12 +211,6 @@ check-graphql-sdl:
 	$(ACTIVATE_NODE) && \
 	node generatorScripts/generateGraphqlSdl.js --check
 
-.PHONY:classes
-classes:
-	$(ACTIVATE_NODE) && \
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/classes/generate_classes.py && python3 generatorScripts/classes/generate_classes_index.py" && \
-	yarn eslint --fix "src/fhir/classes/**/*.js"
-
 .PHONY:searchParameters
 searchParameters:
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/searchParameters/generate_search_parameters.py" && \

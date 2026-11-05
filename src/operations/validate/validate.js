@@ -275,8 +275,6 @@ class ValidateOperation {
         // check if this is a Parameters resourceType
         if (resource_incoming.resourceType === 'Parameters') {
             // Unfortunately our FHIR schema resource creator does not support Parameters
-            // const ParametersResourceCreator = getResource(base_version, 'Parameters');
-            // const parametersResource = new ParametersResourceCreator(resource_incoming);
             /**
              * @type {Parameters|undefined}
              */
