@@ -31,6 +31,7 @@ const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAtt
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { CloudStorageClient } = require('../../../../utils/cloudStorageClient');
+const { HistoryReadRouter } = require('../../../../operations/history/historyReadRouter');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { AuditLogger } = require('../../../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
@@ -53,6 +54,7 @@ describe('SearchByVersionIdOperation', () => {
             scopesValidator: createMockInstance(ScopesValidator),
             enrichmentManager: createMockInstance(EnrichmentManager),
             configManager: createMockInstance(ConfigManager),
+            historyReadRouter: null,
             searchManager: createMockInstance(SearchManager),
             scopesManager: createMockInstance(ScopesManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
@@ -89,6 +91,7 @@ describe('SearchByVersionIdOperation', () => {
         mockParsedArgs._useAccessIndex = false;
         mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({});
 
+        mocks.historyReadRouter = new HistoryReadRouter({ configManager: mocks.configManager });
         searchByVersionIdOp = new SearchByVersionIdOperation(mocks);
     });
 

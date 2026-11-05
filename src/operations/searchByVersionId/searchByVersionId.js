@@ -1,4 +1,5 @@
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
+const { HistoryReadRouter } = require('../history/historyReadRouter');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const {
     assertSupportedHistoryArgs, resolveHistoryUuid, assertNotDelegatedUser, assertNoCloudStorageStubs
@@ -53,7 +54,8 @@ class SearchByVersionIdOperation {
             mongoGroupMemberRepository,
             auditLogger,
             postRequestProcessor,
-            historyClickHouseRepository
+            historyClickHouseRepository,
+            historyReadRouter
         }
     ) {
         /**
@@ -61,6 +63,11 @@ class SearchByVersionIdOperation {
          * @type {import('../../dataLayer/repositories/historyClickHouseRepository').HistoryClickHouseRepository | null}
          */
         this.historyClickHouseRepository = historyClickHouseRepository || null;
+        /**
+         * @type {HistoryReadRouter}
+         */
+        this.historyReadRouter = historyReadRouter;
+        assertTypeEquals(historyReadRouter, HistoryReadRouter);
         /**
          * @type {DatabaseHistoryFactory}
          */
@@ -251,7 +258,7 @@ class SearchByVersionIdOperation {
              * @type {{resource: object, collectionName: string}|null}
              */
             let result;
-            if (this.configManager.resourceHistoryClickHouseReadResources.includes(resourceType)) {
+            if (this.historyReadRouter.readsFromClickHouse(resourceType)) {
                 result = await this.findVersionInClickHouseAsync({ requestInfo, resourceType, parsedArgs });
             } else {
                 /**

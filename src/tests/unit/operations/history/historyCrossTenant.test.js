@@ -140,6 +140,7 @@ describe('History Operation - Cross-Tenant Data Exposure', () => {
         mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({});
 
         const { HistoryOperation } = require('../../../../operations/history/history');
+        const { HistoryReadRouter } = require('../../../../operations/history/historyReadRouter');
         historyOp = Object.create(HistoryOperation.prototype);
         historyOp.databaseHistoryFactory = mockDatabaseHistoryFactory;
         historyOp.fhirLoggingManager = mockFhirLoggingManager;
@@ -147,6 +148,7 @@ describe('History Operation - Cross-Tenant Data Exposure', () => {
         historyOp.bundleManager = mockBundleManager;
         historyOp.resourceLocatorFactory = mockResourceLocatorFactory;
         historyOp.configManager = mockConfigManager;
+        historyOp.historyReadRouter = new HistoryReadRouter({ configManager: mockConfigManager });
         historyOp.searchManager = mockSearchManager;
         historyOp.resourceManager = mockResourceManager;
         historyOp.databaseAttachmentManager = mockDatabaseAttachmentManager;

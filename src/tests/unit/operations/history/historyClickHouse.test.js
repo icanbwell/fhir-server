@@ -15,6 +15,7 @@ jest.mock('../../../../fhir/fhirResourceSerializer', () => ({
 }));
 
 const { HistoryOperation } = require('../../../../operations/history/history');
+const { HistoryReadRouter } = require('../../../../operations/history/historyReadRouter');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 
 const entry = (versionId) => ({
@@ -79,6 +80,7 @@ describe('HistoryOperation reading from ClickHouse', () => {
             postRequestProcessor,
             auditLogger: { logAuditEntryAsync: jest.fn() },
             configManager,
+            historyReadRouter: new HistoryReadRouter({ configManager }),
             bundleManager,
             fhirLoggingManager,
             databaseHistoryFactory: { createDatabaseHistoryManager: jest.fn().mockReturnValue({ findAsync: mongoFindAsync }) },
