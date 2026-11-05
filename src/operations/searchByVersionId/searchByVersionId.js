@@ -1,7 +1,7 @@
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const {
-    assertSupportedHistoryArgs, assertEntriesMatchUrlId, assertNoCloudStorageStubs
+    assertSupportedHistoryArgs, assertHistoryIdIsUuid, assertNoCloudStorageStubs
 } = require('../history/historyClickHouseGuards');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -138,20 +138,18 @@ class SearchByVersionIdOperation {
 
     /**
      * Reads one version from ClickHouse (resource types listed in
-     * RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES). Requires `_uuid`; the URL id is not used.
+     * RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES). The URL id must be the resource `_uuid`.
      * @param {Object} params
      * @param {string} params.resourceType
      * @param {ParsedArgs} params.parsedArgs
      * @return {Promise<{resource: object, collectionName: string}|null>} null when the version is not in ClickHouse
      */
     async findVersionInClickHouseAsync ({ resourceType, parsedArgs }) {
-        const { _uuid: uuid, version_id: versionId } = parsedArgs;
+        const { id: uuid, version_id: versionId } = parsedArgs;
         if (!this.historyClickHouseRepository) {
             throw new Error(`ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`);
         }
-        if (typeof uuid !== 'string' || uuid.length === 0) {
-            throw new BadRequestError(new Error(`_uuid is required to read a ${resourceType} version`));
-        }
+        assertHistoryIdIsUuid({ id: uuid, resourceType });
         if (typeof versionId !== 'string') {
             throw new BadRequestError(new Error('version_id must be a string'));
         }
@@ -161,7 +159,6 @@ class SearchByVersionIdOperation {
             return null;
         }
         assertNoCloudStorageStubs([raw]);
-        assertEntriesMatchUrlId({ entries: [raw], id: parsedArgs.id });
         return { resource: raw, collectionName: TABLES.RESOURCE_HISTORY };
     }
 

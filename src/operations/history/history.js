@@ -1,7 +1,7 @@
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const {
-    assertSupportedHistoryArgs, assertEntriesMatchUrlId, assertNoCloudStorageStubs
+    assertSupportedHistoryArgs, assertHistoryIdIsUuid, assertNoCloudStorageStubs
 } = require('./historyClickHouseGuards');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -419,8 +419,9 @@ class BaseHistoryOperationProcessor {
     }
 
     /**
-     * Serves a history read for a resource type whose history lives in ClickHouse. Requires `_uuid`;
-     * the URL id is not used. The scope checks have already run in fetchHistoryAsync.
+     * Serves a history read for a resource type whose history lives in ClickHouse. The URL id must be
+     * the resource `_uuid`; anything else is rejected with 400 before a query runs. The scope checks
+     * have already run in fetchHistoryAsync.
      * @param {Object} params
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @param {ParsedArgs} params.parsedArgs
@@ -430,7 +431,7 @@ class BaseHistoryOperationProcessor {
      */
     async fetchHistoryFromClickHouseAsync({ requestInfo, parsedArgs, resourceType, startTime }) {
         const { currentOperationName } = this;
-        const uuid = parsedArgs._uuid;
+        const uuid = parsedArgs.id;
         const cursor = parsedArgs._historyCursor;
         try {
             if (!this.historyClickHouseRepository) {
@@ -438,10 +439,8 @@ class BaseHistoryOperationProcessor {
                     `ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`
                 );
             }
-            if (typeof uuid !== 'string' || uuid.length === 0) {
-                throw new BadRequestError(new Error(`_uuid is required to read ${resourceType} history`));
-            }
-            assertSupportedHistoryArgs(parsedArgs, { allowIdArgs: currentOperationName === 'historyById' });
+            assertHistoryIdIsUuid({ id: uuid, resourceType });
+            assertSupportedHistoryArgs(parsedArgs);
             const requested = Number(parsedArgs._count);
             const limit = Math.min(
                 Number.isInteger(requested) && requested > 0 ? requested : DB_SEARCH_LIMIT,
@@ -457,10 +456,6 @@ class BaseHistoryOperationProcessor {
                 throw new NotFoundError('History not found ' + this.errorMessagePostfix);
             }
             assertNoCloudStorageStubs(entries);
-            assertEntriesMatchUrlId({
-                entries,
-                id: currentOperationName === 'historyById' ? parsedArgs.id : undefined
-            });
             return await this.buildHistoryBundleAsync({
                 requestInfo,
                 parsedArgs,

@@ -571,6 +571,7 @@ describe('SearchByVersionIdOperation', () => {
             user: 'admin', scope: 'access/*.read', requestId: 'r1', isUser: false,
             personIdFromJwtToken: null, actor: null, userType: 'user'
         };
+        const UUID = '11111111-1111-4111-8111-111111111111';
         let historyClickHouseRepository;
 
         const run = () => searchByVersionIdOp.searchByVersionIdAsync({
@@ -584,10 +585,10 @@ describe('SearchByVersionIdOperation', () => {
             historyClickHouseRepository = {
                 findVersionAsync: jest.fn().mockResolvedValue({
                     id: 'e1',
-                    resource: { resourceType: 'Patient', id: 'test-id', _uuid: 'u1', meta: { versionId: '2', lastUpdated: '2026-01-01T00:00:00.000Z' } }
+                    resource: { resourceType: 'Patient', id: 'test-id', _uuid: UUID, meta: { versionId: '2', lastUpdated: '2026-01-01T00:00:00.000Z' } }
                 })
             };
-            mockParsedArgs._uuid = 'u1';
+            mockParsedArgs.id = UUID;
             searchByVersionIdOp = new SearchByVersionIdOperation({ ...mocks, historyClickHouseRepository });
         });
 
@@ -595,7 +596,7 @@ describe('SearchByVersionIdOperation', () => {
             const result = await run();
 
             expect(historyClickHouseRepository.findVersionAsync).toHaveBeenCalledWith({
-                resourceType: 'Patient', uuid: 'u1', versionId: '2'
+                resourceType: 'Patient', uuid: UUID, versionId: '2'
             });
             expect(mocks.databaseHistoryFactory.createDatabaseHistoryManager).not.toHaveBeenCalled();
             expect(mocks.searchManager.constructQueryAsync).not.toHaveBeenCalled();
@@ -610,7 +611,7 @@ describe('SearchByVersionIdOperation', () => {
             historyClickHouseRepository.findVersionAsync.mockResolvedValue({
                 id: 'e1',
                 resource: {
-                    resourceType: 'Group', id: 'test-id', _uuid: 'u1', [MONGO_GROUP_EXTENDED_FIELD]: true,
+                    resourceType: 'Group', id: 'test-id', _uuid: UUID, [MONGO_GROUP_EXTENDED_FIELD]: true,
                     meta: { versionId: '2', lastUpdated: '2026-01-01T00:00:00.000Z' }
                 }
             });
@@ -634,18 +635,14 @@ describe('SearchByVersionIdOperation', () => {
 
         test.each([
             ['missing', undefined],
-            ['empty', '']
-        ])('rejects a request whose _uuid is %s without querying', async (_name, uuid) => {
-            mockParsedArgs._uuid = uuid;
+            ['empty', ''],
+            ['a source id', 'test-id'],
+            ['an id with an owner suffix', 'test-id|client-1']
+        ])('rejects a request whose id is %s without querying', async (_name, id) => {
+            mockParsedArgs.id = id;
 
             await expect(run()).rejects.toMatchObject({ statusCode: 400 });
             expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
-        });
-
-        test('returns 404 when _uuid belongs to a different resource than the URL id', async () => {
-            mockParsedArgs.id = 'someone-else';
-
-            await expect(run()).rejects.toMatchObject({ statusCode: 404 });
         });
 
         test('accepts _metaUuid, which fhir-server-ui always sends', async () => {

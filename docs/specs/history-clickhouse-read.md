@@ -21,13 +21,13 @@ MongoDB. Checked against a local ClickHouse; not yet confirmed for ClickPipes.
 
 ## Request contract (flag on)
 
-- `_uuid` is required. A request without it is rejected with 400 before any query runs. The URL
-  `id` is not used to look anything up, so there is no MongoDB read. The resource type comes from the
-  route. No scan across resource types or across all ids is possible.
-- The URL `id` must match the resource `_uuid` points to (`id`, `_uuid` or `_sourceId` of the returned
-  entries); otherwise 404, so a URL can never return another resource's history.
+- The URL `{id}` must be the resource `_uuid` (checked with `isUuid`): `/{type}/{uuid}/_history` and
+  `/{type}/{uuid}/_history/{versionId}`. There is no `_uuid` query parameter. A request whose id is
+  not a uuid (a source id, `id|owner`, or a type-level `/{type}/_history` with no id) is rejected with
+  400 before any query runs. No id-to-uuid lookup is done, so there is no MongoDB read. The resource
+  type comes from the route. No scan across resource types or across all ids is possible.
 - Arguments the read cannot honour (for example `_lastUpdated`) are rejected with 400 instead of being
-  dropped. `_uuid` and `_historyCursor` are accepted only for flagged resource types, and are not
+  dropped. `_historyCursor` is accepted only for flagged resource types, and are not
   added to the global strict-mode allow-list.
 - A history entry that was moved to cloud storage (a stub) cannot be served from ClickHouse and
   fails with 500.
