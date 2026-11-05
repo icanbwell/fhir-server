@@ -95,7 +95,7 @@ describe('HistoryOperation reading from ClickHouse', () => {
                 enrichBundleEntriesAsync: jest.fn().mockImplementation(async ({ entries }) => entries)
             },
             historyResourceCloudStorageClient: null,
-            currentOperationName: 'history',
+            currentOperationName: 'historyById',
             errorMessagePostfix: 'for Patient resources'
         });
     });
@@ -144,6 +144,26 @@ describe('HistoryOperation reading from ClickHouse', () => {
         await run(makeArgs({ id: UUID, _count: count }));
 
         expect(repository.findPageAsync).toHaveBeenCalledWith(expect.objectContaining({ limit: expected }));
+    });
+
+    describe('type-level history (no id)', () => {
+        beforeEach(() => {
+            op.currentOperationName = 'history';
+        });
+
+        test('reads every resource of the type without a uuid', async () => {
+            await run(makeArgs({ _count: '5' }));
+
+            expect(repository.findPageAsync).toHaveBeenCalledWith({
+                resourceType: 'Patient', uuid: undefined, limit: 5, cursor: undefined
+            });
+            expect(mongoFindAsync).not.toHaveBeenCalled();
+        });
+
+        test.each(['id', '_id'])('rejects %s instead of dropping it', async (name) => {
+            await expect(run(makeArgs({ [name]: UUID }))).rejects.toMatchObject({ statusCode: 400 });
+            expect(repository.findPageAsync).not.toHaveBeenCalled();
+        });
     });
 
     test.each([

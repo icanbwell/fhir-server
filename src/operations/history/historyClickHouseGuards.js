@@ -15,10 +15,13 @@ const SUPPORTED_ARGS = new Set([
 
 /**
  * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
+ * @param {{allowIdArgs?: boolean}} [options] false for a type-level read, where an id filter would be ignored
  * @throws {BadRequestError} when an argument the ClickHouse history read cannot honour is present
  */
-function assertSupportedHistoryArgs(parsedArgs) {
-    const unsupported = Object.keys(parsedArgs.getRawArgs()).filter((name) => !SUPPORTED_ARGS.has(name));
+function assertSupportedHistoryArgs(parsedArgs, { allowIdArgs = true } = {}) {
+    const unsupported = Object.keys(parsedArgs.getRawArgs()).filter(
+        (name) => !SUPPORTED_ARGS.has(name) || (!allowIdArgs && (name === 'id' || name === '_id'))
+    );
     if (unsupported.length > 0) {
         throw new BadRequestError(new Error(
             `${unsupported.join(', ')} not supported when history is read from ClickHouse`

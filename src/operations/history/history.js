@@ -419,8 +419,9 @@ class BaseHistoryOperationProcessor {
     }
 
     /**
-     * Serves a history read for a resource type whose history lives in ClickHouse. The URL id must be
-     * the resource `_uuid`; anything else is rejected with 400 before a query runs. The scope checks
+     * Serves a history read for a resource type whose history lives in ClickHouse. For an instance
+     * read the URL id must be the resource `_uuid`; anything else is rejected with 400 before a query
+     * runs. A type-level read (no id) pages through the history of every resource of the type. The scope checks
      * have already run in fetchHistoryAsync.
      * @param {Object} params
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
@@ -431,7 +432,8 @@ class BaseHistoryOperationProcessor {
      */
     async fetchHistoryFromClickHouseAsync({ requestInfo, parsedArgs, resourceType, startTime }) {
         const { currentOperationName } = this;
-        const uuid = parsedArgs.id;
+        const isInstanceRead = currentOperationName === 'historyById';
+        const uuid = isInstanceRead ? parsedArgs.id : undefined;
         const cursor = parsedArgs._historyCursor;
         try {
             if (!this.historyClickHouseRepository) {
@@ -439,8 +441,10 @@ class BaseHistoryOperationProcessor {
                     `ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`
                 );
             }
-            assertHistoryIdIsUuid({ id: uuid, resourceType });
-            assertSupportedHistoryArgs(parsedArgs);
+            if (isInstanceRead) {
+                assertHistoryIdIsUuid({ id: uuid, resourceType });
+            }
+            assertSupportedHistoryArgs(parsedArgs, { allowIdArgs: isInstanceRead });
             const requested = Number(parsedArgs._count);
             const limit = Math.min(
                 Number.isInteger(requested) && requested > 0 ? requested : DB_SEARCH_LIMIT,
@@ -464,7 +468,7 @@ class BaseHistoryOperationProcessor {
                 historyResources: entries,
                 downloadedData: {},
                 collectionName: TABLES.RESOURCE_HISTORY,
-                query: { resource_type: resourceType, _uuid: uuid },
+                query: { resource_type: resourceType, ...(uuid ? { _uuid: uuid } : {}) },
                 options: {},
                 explanations: [],
                 lastResourceLastUpdated: null,

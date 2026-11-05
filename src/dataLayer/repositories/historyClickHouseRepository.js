@@ -20,24 +20,28 @@ class HistoryClickHouseRepository {
     }
 
     /**
-     * Encodes the position of the last row of a page as an opaque token
-     * @param {{recordedMs: number, versionNumber: number}} position
+     * Encodes the position of the last row of a page as an opaque token. `uuid` is only part of the
+     * position for a type-level read, where rows of many resources are interleaved.
+     * @param {{recordedMs: number, versionNumber: number, uuid?: string}} position
      * @return {string}
      */
-    static encodeCursor({ recordedMs, versionNumber }) {
-        return Buffer.from(JSON.stringify({ r: recordedMs, v: versionNumber })).toString('base64url');
+    static encodeCursor({ recordedMs, versionNumber, uuid }) {
+        return Buffer.from(
+            JSON.stringify({ r: recordedMs, v: versionNumber, ...(uuid ? { u: uuid } : {}) })
+        ).toString('base64url');
     }
 
     /**
      * @param {string} cursor
-     * @return {{recordedMs: number, versionNumber: number}}
+     * @return {{recordedMs: number, versionNumber: number, uuid: string|undefined}}
      * @throws {BadRequestError} when the token was not produced by encodeCursor
      */
     static decodeCursor(cursor) {
         try {
-            const { r, v } = JSON.parse(Buffer.from(String(cursor), 'base64url').toString('utf8'));
-            if (Number.isSafeInteger(r) && Number.isSafeInteger(v) && v >= 0) {
-                return { recordedMs: r, versionNumber: v };
+            const { r, v, u } = JSON.parse(Buffer.from(String(cursor), 'base64url').toString('utf8'));
+            if (Number.isSafeInteger(r) && Number.isSafeInteger(v) && v >= 0 &&
+                (u === undefined || typeof u === 'string')) {
+                return { recordedMs: r, versionNumber: v, uuid: u };
             }
         } catch (e) {
             // fall through to the error below
@@ -46,32 +50,41 @@ class HistoryClickHouseRepository {
     }
 
     /**
-     * Returns one page of versions of a resource, newest first.
+     * Returns one page of versions, newest first. With `uuid` it is the history of one resource;
+     * without it, the history of every resource of the type, ordered by `_recorded` then `_uuid` then version.
      * @param {Object} params
      * @param {string} params.resourceType
-     * @param {string} params.uuid
+     * @param {string} [params.uuid] resource `_uuid`; omit for a type-level read
      * @param {number} params.limit page size
      * @param {string} [params.cursor] token from the previous page
      * @return {Promise<{entries: Object[], nextCursor: string|null}>}
      */
     async findPageAsync({ resourceType, uuid, limit, cursor }) {
-        assertIsValid(resourceType && uuid, 'resourceType and _uuid are required');
+        assertIsValid(resourceType, 'resourceType is required');
         assertIsValid(Number.isInteger(limit) && limit > 0, 'limit must be a positive integer');
+        const typeLevel = !uuid;
         const position = cursor ? HistoryClickHouseRepository.decodeCursor(cursor) : null;
+        if (position && typeLevel && !position.uuid) {
+            throw new BadRequestError(new Error('_historyCursor is not valid'));
+        }
 
+        const keyColumns = typeLevel
+            ? '(_recorded, _uuid, toUInt64OrZero(version_id))'
+            : '(_recorded, toUInt64OrZero(version_id))';
+        const keyValues = typeLevel
+            ? '(fromUnixTimestamp64Milli({recorded_ms:Int64}, \'UTC\'), {cursor_uuid:String}, {version_number:UInt64})'
+            : '(fromUnixTimestamp64Milli({recorded_ms:Int64}, \'UTC\'), {version_number:UInt64})';
         const query = `
             SELECT
                 raw,
+                _uuid AS row_uuid,
                 toUnixTimestamp64Milli(_recorded) AS recorded_ms,
                 toUInt64OrZero(version_id) AS version_number
             FROM ${TABLES.RESOURCE_HISTORY} FINAL
             WHERE resource_type = {resource_type:String}
-              AND _uuid = {uuid:String}
-              ${position
-                ? 'AND (_recorded, toUInt64OrZero(version_id)) < ' +
-                  '(fromUnixTimestamp64Milli({recorded_ms:Int64}, \'UTC\'), {version_number:UInt64})'
-                : ''}
-            ORDER BY _recorded DESC, toUInt64OrZero(version_id) DESC
+              ${typeLevel ? '' : 'AND _uuid = {uuid:String}'}
+              ${position ? `AND ${keyColumns} < ${keyValues}` : ''}
+            ORDER BY _recorded DESC, ${typeLevel ? '_uuid DESC, ' : ''}toUInt64OrZero(version_id) DESC
             LIMIT {limit:UInt32}
         `;
         const rows = await this._runAsync({
@@ -79,9 +92,15 @@ class HistoryClickHouseRepository {
             query,
             query_params: {
                 resource_type: resourceType,
-                uuid,
+                ...(typeLevel ? {} : { uuid }),
                 limit: limit + 1,
-                ...(position ? { recorded_ms: position.recordedMs, version_number: position.versionNumber } : {})
+                ...(position
+                    ? {
+                        recorded_ms: position.recordedMs,
+                        version_number: position.versionNumber,
+                        ...(typeLevel ? { cursor_uuid: position.uuid } : {})
+                    }
+                    : {})
             }
         });
 
@@ -92,7 +111,8 @@ class HistoryClickHouseRepository {
             nextCursor: rows.length > limit
                 ? HistoryClickHouseRepository.encodeCursor({
                     recordedMs: Number(last.recorded_ms),
-                    versionNumber: Number(last.version_number)
+                    versionNumber: Number(last.version_number),
+                    ...(typeLevel ? { uuid: String(last.row_uuid) } : {})
                 })
                 : null
         };

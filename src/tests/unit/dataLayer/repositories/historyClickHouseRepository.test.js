@@ -48,10 +48,17 @@ describe('HistoryClickHouseRepository', () => {
             expect(HistoryClickHouseRepository.decodeCursor(token)).toEqual(position);
         });
 
+        test('round-trips a type-level position that carries the resource uuid', () => {
+            const position = { recordedMs: 1761640215123, versionNumber: 7, uuid: 'u9' };
+            const token = HistoryClickHouseRepository.encodeCursor(position);
+            expect(HistoryClickHouseRepository.decodeCursor(token)).toEqual(position);
+        });
+
         test.each([
             ['not base64 json', '%%%'],
             ['json without fields', Buffer.from('{}').toString('base64url')],
             ['non-numeric field', Buffer.from('{"r":"x","v":1}').toString('base64url')],
+            ['non-string uuid', Buffer.from('{"r":1,"v":1,"u":5}').toString('base64url')],
             ['negative version', Buffer.from('{"r":1,"v":-1}').toString('base64url')]
         ])('rejects a cursor that is %s', (_name, token) => {
             expect(() => HistoryClickHouseRepository.decodeCursor(token)).toThrow('_historyCursor is not valid');
@@ -109,7 +116,6 @@ describe('HistoryClickHouseRepository', () => {
 
         test.each([
             ['resource type', { resourceType: '', uuid: 'u1', limit: 1 }],
-            ['_uuid', { resourceType: 'Patient', uuid: '', limit: 1 }],
             ['positive limit', { resourceType: 'Patient', uuid: 'u1', limit: 0 }]
         ])('requires %s', async (_name, args) => {
             await expect(repo.findPageAsync(args)).rejects.toThrow();
@@ -139,6 +145,45 @@ describe('HistoryClickHouseRepository', () => {
                 repo.findPageAsync({ resourceType: 'Patient', uuid: 'u1', limit: 5 })
             ).rejects.toThrow('Error reading history from ClickHouse');
             expect(metrics.recordHistoryClickHouseRead).toHaveBeenCalledWith('Patient', false, 0, expect.any(Number));
+        });
+    });
+
+    describe('findPageAsync, type level (no _uuid)', () => {
+        test('filters on resource type only and orders by _recorded, _uuid, version', async () => {
+            await repo.findPageAsync({ resourceType: 'Patient', limit: 10 });
+
+            const { query, query_params } = queryAsync.mock.calls[0][0];
+            expect(query).not.toContain('_uuid = {uuid:String}');
+            expect(query).toContain('ORDER BY _recorded DESC, _uuid DESC, toUInt64OrZero(version_id) DESC');
+            expect(query_params).toEqual({ resource_type: 'Patient', limit: 11 });
+        });
+
+        test('continues strictly after the (recorded, uuid, version) cursor', async () => {
+            const cursor = HistoryClickHouseRepository.encodeCursor({ recordedMs: 2000, versionNumber: 2, uuid: 'u2' });
+
+            await repo.findPageAsync({ resourceType: 'Patient', limit: 2, cursor });
+
+            const { query, query_params } = queryAsync.mock.calls[0][0];
+            expect(query).toContain('(_recorded, _uuid, toUInt64OrZero(version_id)) <');
+            expect(query_params).toMatchObject({ recorded_ms: 2000, version_number: 2, cursor_uuid: 'u2' });
+        });
+
+        test('next cursor carries the uuid of the last row', async () => {
+            queryAsync.mockResolvedValue([
+                { ...row(3, 3000), row_uuid: 'ua' }, { ...row(2, 2000), row_uuid: 'ub' }, { ...row(1, 1000), row_uuid: 'uc' }
+            ]);
+
+            const { nextCursor } = await repo.findPageAsync({ resourceType: 'Patient', limit: 2 });
+
+            expect(HistoryClickHouseRepository.decodeCursor(nextCursor)).toEqual({ recordedMs: 2000, versionNumber: 2, uuid: 'ub' });
+        });
+
+        test('rejects an instance-style cursor without a uuid', async () => {
+            const cursor = HistoryClickHouseRepository.encodeCursor({ recordedMs: 2000, versionNumber: 2 });
+
+            await expect(repo.findPageAsync({ resourceType: 'Patient', limit: 2, cursor }))
+                .rejects.toThrow('_historyCursor is not valid');
+            expect(queryAsync).not.toHaveBeenCalled();
         });
     });
 

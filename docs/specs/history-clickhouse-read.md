@@ -23,9 +23,16 @@ MongoDB. Checked against a local ClickHouse; not yet confirmed for ClickPipes.
 
 - The URL `{id}` must be the resource `_uuid` (checked with `isUuid`): `/{type}/{uuid}/_history` and
   `/{type}/{uuid}/_history/{versionId}`. There is no `_uuid` query parameter. A request whose id is
-  not a uuid (a source id, `id|owner`, or a type-level `/{type}/_history` with no id) is rejected with
-  400 before any query runs. No id-to-uuid lookup is done, so there is no MongoDB read. The resource
-  type comes from the route. No scan across resource types or across all ids is possible.
+  not a uuid (a source id or `id|owner`) is rejected with 400 before any query runs. No id-to-uuid
+  lookup is done, so there is no MongoDB read. The resource type comes from the route, so no scan
+  across resource types is possible.
+- Type-level `/{type}/_history` (no id) is also served: it pages through the history of every
+  resource of the type, newest first (`_recorded DESC, _uuid DESC, version DESC`), with the same
+  keyset cursor (which also carries the last row's `_uuid`). `id`/`_id` arguments are rejected with
+  400. It has no time window, so each page scans the type's history in `_recorded` order (the table
+  is ordered by `resource_type, _uuid`); it can be slow on large types and is bounded only by
+  `CLICKHOUSE_REQUEST_TIMEOUT`. Access is the same as instance history: only non-tenant `access/*`
+  scopes pass, with no `access_tags` predicate.
 - Arguments the read cannot honour (for example `_lastUpdated`) are rejected with 400 instead of being
   dropped. `_historyCursor` is accepted only for flagged resource types, and are not
   added to the global strict-mode allow-list.
