@@ -1026,7 +1026,7 @@ class FhirOperationsManager {
     }
 
     /**
-     * Parses the args of a history read. `_historyCursor` is only meaningful when the
+     * Parses the args of a history read. `_historyCursor` and `_since` are only meaningful when the
      * resource type is read from ClickHouse, so they are taken out before parsing and attached
      * afterwards; for any other type they stay ordinary (unknown) arguments, as before.
      * @param {Object} params
@@ -1040,11 +1040,12 @@ class FhirOperationsManager {
         if (!this.configManager.resourceHistoryClickHouseReadResources.includes(resourceType)) {
             return await this.getParsedArgsAsync({ args, resourceType, headers, operation: READ, requestInfo });
         }
-        const { _historyCursor, ...rest } = args;
+        const { _historyCursor, _since, ...rest } = args;
         const parsedArgs = await this.getParsedArgsAsync({
             args: rest, resourceType, headers, operation: READ, requestInfo
         });
         parsedArgs._historyCursor = _historyCursor;
+        parsedArgs._since = _since;
         return parsedArgs;
     }
 

@@ -1,7 +1,7 @@
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const {
-    assertSupportedHistoryArgs, assertHistoryIdIsUuid, assertNoCloudStorageStubs
+    assertSupportedHistoryArgs, assertHistoryIdIsUuid, assertNoCloudStorageStubs, parseSinceArg
 } = require('./historyClickHouseGuards');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -445,6 +445,7 @@ class BaseHistoryOperationProcessor {
                 assertHistoryIdIsUuid({ id: uuid, resourceType });
             }
             assertSupportedHistoryArgs(parsedArgs, { allowIdArgs: isInstanceRead });
+            const sinceMs = parseSinceArg(parsedArgs._since);
             const requested = Number(parsedArgs._count);
             const limit = Math.min(
                 Number.isInteger(requested) && requested > 0 ? requested : DB_SEARCH_LIMIT,
@@ -454,6 +455,7 @@ class BaseHistoryOperationProcessor {
                 resourceType,
                 uuid,
                 limit,
+                sinceMs,
                 cursor: typeof cursor === 'string' ? cursor : undefined
             });
             if (entries.length === 0 && !cursor) {

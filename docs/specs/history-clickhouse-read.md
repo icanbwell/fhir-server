@@ -40,6 +40,9 @@ MongoDB. Checked against a local ClickHouse; not yet confirmed for ClickPipes.
   fails with 500.
 - `_count` is the page size; it defaults to `DB_SEARCH_LIMIT` (100) and is capped by
   `RESOURCE_HISTORY_CLICKHOUSE_MAX_PAGE_SIZE` (default 100).
+- `_since` (optional, instance and type-level) is an ISO 8601 date or instant; only versions recorded
+  (`_recorded`) at or after it are returned. It bounds the scan of a type-level read. Not a valid
+  date, or repeated: 400. Not supported on a single-version read (400). It stays in the `next` link.
 - `_historyCursor` is the opaque continuation token from the previous page's `next` link.
 - `_history/{versionId}` reads one version by `version_id`; 404 when it is not in ClickHouse.
 

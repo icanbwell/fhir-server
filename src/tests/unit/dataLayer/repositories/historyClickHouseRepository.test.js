@@ -187,6 +187,25 @@ describe('HistoryClickHouseRepository', () => {
         });
     });
 
+    describe('findPageAsync with _since', () => {
+        test.each([
+            ['instance', { uuid: 'u1' }],
+            ['type-level', {}]
+        ])('adds a _recorded lower bound for a %s read', async (_name, extra) => {
+            await repo.findPageAsync({ resourceType: 'Patient', limit: 5, sinceMs: 1761640215123, ...extra });
+
+            const { query, query_params } = queryAsync.mock.calls[0][0];
+            expect(query).toContain('_recorded >= fromUnixTimestamp64Milli({since_ms:Int64}');
+            expect(query_params.since_ms).toBe(1761640215123);
+        });
+
+        test('adds no lower bound without _since', async () => {
+            await repo.findPageAsync({ resourceType: 'Patient', limit: 5 });
+
+            expect(queryAsync.mock.calls[0][0].query).not.toContain('since_ms');
+        });
+    });
+
     describe('findVersionAsync', () => {
         test('looks up one version by resource type, _uuid and version_id', async () => {
             queryAsync.mockResolvedValue([{ raw: { id: 'entry-2' } }]);

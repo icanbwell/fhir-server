@@ -645,6 +645,13 @@ describe('SearchByVersionIdOperation', () => {
             expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
         });
 
+        test('rejects _since on a single-version read', async () => {
+            mockParsedArgs._since = '2026-01-01T00:00:00.000Z';
+
+            await expect(run()).rejects.toMatchObject({ statusCode: 400 });
+            expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+        });
+
         test('accepts _metaUuid, which fhir-server-ui always sends', async () => {
             mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({ _metaUuid: '1' });
 

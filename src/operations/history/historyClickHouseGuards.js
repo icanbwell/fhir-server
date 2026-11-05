@@ -5,7 +5,7 @@ const { isUuid } = require('../../utils/uid.util');
 /**
  * Arguments a ClickHouse history read honours or can safely ignore. Anything else (for example
  * `_lastUpdated`) would be dropped silently and change what the caller gets, so it is rejected.
- * `_historyCursor` is not a parsed argument; it is attached by the operations manager.
+ * `_historyCursor` and `_since` are not parsed arguments; they are attached by the operations manager.
  * @type {Set<string>}
  */
 const SUPPORTED_ARGS = new Set([
@@ -46,6 +46,24 @@ function assertHistoryIdIsUuid({ id, resourceType }) {
 }
 
 /**
+ * Parses the optional `_since` argument of a ClickHouse history read: an ISO 8601 date or instant,
+ * applied to the time the version was recorded.
+ * @param {*} value
+ * @return {number|undefined} epoch milliseconds, or undefined when `_since` was not sent
+ * @throws {BadRequestError} when it is repeated or not a valid date
+ */
+function parseSinceArg(value) {
+    if (value === undefined) {
+        return undefined;
+    }
+    const ms = typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value) ? Date.parse(value) : NaN;
+    if (Number.isNaN(ms)) {
+        throw new BadRequestError(new Error('_since must be a single ISO 8601 date or instant'));
+    }
+    return ms;
+}
+
+/**
  * A history entry that was moved to cloud storage is only a stub; its body cannot be served from
  * ClickHouse, so fail loudly instead of returning an empty entry.
  * @param {Object[]} entries history BundleEntry objects
@@ -60,5 +78,6 @@ function assertNoCloudStorageStubs(entries) {
 module.exports = {
     assertSupportedHistoryArgs,
     assertHistoryIdIsUuid,
+    parseSinceArg,
     assertNoCloudStorageStubs
 };

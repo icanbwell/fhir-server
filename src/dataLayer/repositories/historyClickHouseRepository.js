@@ -56,10 +56,11 @@ class HistoryClickHouseRepository {
      * @param {string} params.resourceType
      * @param {string} [params.uuid] resource `_uuid`; omit for a type-level read
      * @param {number} params.limit page size
+     * @param {number} [params.sinceMs] only versions recorded at or after this epoch-millisecond time
      * @param {string} [params.cursor] token from the previous page
      * @return {Promise<{entries: Object[], nextCursor: string|null}>}
      */
-    async findPageAsync({ resourceType, uuid, limit, cursor }) {
+    async findPageAsync({ resourceType, uuid, limit, sinceMs, cursor }) {
         assertIsValid(resourceType, 'resourceType is required');
         assertIsValid(Number.isInteger(limit) && limit > 0, 'limit must be a positive integer');
         const typeLevel = !uuid;
@@ -83,6 +84,7 @@ class HistoryClickHouseRepository {
             FROM ${TABLES.RESOURCE_HISTORY} FINAL
             WHERE resource_type = {resource_type:String}
               ${typeLevel ? '' : 'AND _uuid = {uuid:String}'}
+              ${sinceMs === undefined ? '' : 'AND _recorded >= fromUnixTimestamp64Milli({since_ms:Int64}, \'UTC\')'}
               ${position ? `AND ${keyColumns} < ${keyValues}` : ''}
             ORDER BY _recorded DESC, ${typeLevel ? '_uuid DESC, ' : ''}toUInt64OrZero(version_id) DESC
             LIMIT {limit:UInt32}
@@ -94,6 +96,7 @@ class HistoryClickHouseRepository {
                 resource_type: resourceType,
                 ...(typeLevel ? {} : { uuid }),
                 limit: limit + 1,
+                ...(sinceMs === undefined ? {} : { since_ms: sinceMs }),
                 ...(position
                     ? {
                         recorded_ms: position.recordedMs,

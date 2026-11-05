@@ -37,8 +37,8 @@ describe('HistoryOperation reading from ClickHouse', () => {
     const makeArgs = (values = {}) => {
         const args = Object.create(ParsedArgs.prototype);
         Object.assign(args, { base_version: '4_0_0', _explain: false, _debug: false, ...values });
-        // _historyCursor is attached by the operations manager, not parsed
-        const { _historyCursor, ...parsed } = values;
+        // _historyCursor and _since are attached by the operations manager, not parsed
+        const { _historyCursor, _since, ...parsed } = values;
         args.getRawArgs = jest.fn().mockReturnValue(parsed);
         return args;
     };
@@ -144,6 +144,23 @@ describe('HistoryOperation reading from ClickHouse', () => {
         await run(makeArgs({ id: UUID, _count: count }));
 
         expect(repository.findPageAsync).toHaveBeenCalledWith(expect.objectContaining({ limit: expected }));
+    });
+
+    test('passes a valid _since to the repository as epoch milliseconds', async () => {
+        await run(makeArgs({ id: UUID, _since: '2026-01-01T00:00:00.000Z' }));
+
+        expect(repository.findPageAsync).toHaveBeenCalledWith(
+            expect.objectContaining({ sinceMs: Date.parse('2026-01-01T00:00:00.000Z') })
+        );
+    });
+
+    test.each([
+        ['not a date', 'yesterday'],
+        ['repeated', ['2026-01-01', '2026-02-01']],
+        ['empty', '']
+    ])('rejects a _since that is %s without querying', async (_name, _since) => {
+        await expect(run(makeArgs({ id: UUID, _since }))).rejects.toMatchObject({ statusCode: 400 });
+        expect(repository.findPageAsync).not.toHaveBeenCalled();
     });
 
     describe('type-level history (no id)', () => {

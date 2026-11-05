@@ -154,6 +154,9 @@ class SearchByVersionIdOperation {
             throw new BadRequestError(new Error('version_id must be a string'));
         }
         assertSupportedHistoryArgs(parsedArgs);
+        if (parsedArgs._since !== undefined) {
+            throw new BadRequestError(new Error('_since is not supported when reading a single version'));
+        }
         const raw = await this.historyClickHouseRepository.findVersionAsync({ resourceType, uuid, versionId });
         if (!raw) {
             return null;
