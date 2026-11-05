@@ -55,15 +55,17 @@ class HistoryClickHouseRepository {
      * @param {Object} params
      * @param {string} params.resourceType
      * @param {string} [params.uuid] resource `_uuid`; omit for a type-level read
+     * @param {string[]} [params.uuids] several resource `_uuid` values for one interleaved read (ignored when `uuid` is set)
      * @param {number} params.limit page size
      * @param {number} [params.sinceMs] only versions recorded at or after this epoch-millisecond time
      * @param {string} [params.cursor] token from the previous page
      * @return {Promise<{entries: Object[], nextCursor: string|null}>}
      */
-    async findPageAsync({ resourceType, uuid, limit, sinceMs, cursor }) {
+    async findPageAsync({ resourceType, uuid, uuids, limit, sinceMs, cursor }) {
         assertIsValid(resourceType, 'resourceType is required');
         assertIsValid(Number.isInteger(limit) && limit > 0, 'limit must be a positive integer');
         const typeLevel = !uuid;
+        const listed = typeLevel && Array.isArray(uuids) && uuids.length > 0;
         const position = cursor ? HistoryClickHouseRepository.decodeCursor(cursor) : null;
         if (position && typeLevel && !position.uuid) {
             throw new BadRequestError(new Error('_historyCursor is not valid'));
@@ -84,6 +86,7 @@ class HistoryClickHouseRepository {
             FROM ${TABLES.RESOURCE_HISTORY} FINAL
             WHERE resource_type = {resource_type:String}
               ${typeLevel ? '' : 'AND _uuid = {uuid:String}'}
+              ${typeLevel && listed ? 'AND _uuid IN {uuids:Array(String)}' : ''}
               ${sinceMs === undefined ? '' : 'AND _recorded >= fromUnixTimestamp64Milli({since_ms:Int64}, \'UTC\')'}
               ${position ? `AND ${keyColumns} < ${keyValues}` : ''}
             ORDER BY _recorded DESC, ${typeLevel ? '_uuid DESC, ' : ''}toUInt64OrZero(version_id) DESC
@@ -95,6 +98,7 @@ class HistoryClickHouseRepository {
             query_params: {
                 resource_type: resourceType,
                 ...(typeLevel ? {} : { uuid }),
+                ...(listed ? { uuids } : {}),
                 limit: limit + 1,
                 ...(sinceMs === undefined ? {} : { since_ms: sinceMs }),
                 ...(position

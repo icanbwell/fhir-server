@@ -12,6 +12,9 @@ const CLICKPIPE_KAFKA_TOPIC_PREFIX = 'fhir_server';
 module.exports = {
     CLICKPIPE_KAFKA_TOPIC_PREFIX,
 
+    // Most ids one type-level `_history?_id=a,b,...` read accepts
+    HISTORY_MAX_IDS: 100,
+
     // Table names
     TABLES: {
         GROUP_MEMBER_EVENTS: 'fhir.Group_4_0_0_MemberEvents',

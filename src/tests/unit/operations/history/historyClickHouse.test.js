@@ -212,11 +212,35 @@ describe('HistoryOperation reading from ClickHouse', () => {
 
         test.each([
             ['a source id', 'p1'],
-            ['a comma list', `${UUID},${UUID}`],
-            ['repeated', [UUID, UUID]]
+            ['a list with a source id', `${UUID},p1`],
+            ['an empty entry', `${UUID},`],
+            ['more than the maximum', Array.from({ length: 101 }, (_v, i) => generateUUIDv5(`p${i}|c`)).join(',')]
         ])('rejects an _id that is %s', async (_name, value) => {
             await expect(run(makeArgs({ _id: value }))).rejects.toMatchObject({ statusCode: 400 });
             expect(repository.findPageAsync).not.toHaveBeenCalled();
+        });
+
+        const UUID2 = '22222222-2222-4222-8222-222222222222';
+
+        test.each([
+            ['a comma list', `${UUID},${UUID2}`],
+            ['a repeated _id', [UUID, UUID2]],
+            ['a list mixing uuid and id|owner', `${UUID},p1|client-1`]
+        ])('reads several resources for %s', async (_name, value) => {
+            await run(makeArgs({ _id: value }));
+
+            const expected = value === `${UUID},p1|client-1` ? [UUID, generateUUIDv5('p1|client-1')] : [UUID, UUID2];
+            expect(repository.findPageAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ uuid: undefined, uuids: expected })
+            );
+        });
+
+        test('a list that names one resource twice is a single-resource read', async () => {
+            await run(makeArgs({ _id: `${UUID},${UUID}` }));
+
+            expect(repository.findPageAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ uuid: UUID, uuids: undefined })
+            );
         });
 
         test('rejects id, which is only the URL form', async () => {

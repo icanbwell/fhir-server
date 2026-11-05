@@ -158,6 +158,15 @@ describe('HistoryClickHouseRepository', () => {
             expect(query_params).toEqual({ resource_type: 'Patient', limit: 11 });
         });
 
+        test('restricts to the listed resources with an IN clause', async () => {
+            await repo.findPageAsync({ resourceType: 'Patient', uuids: ['u1', 'u2'], limit: 5 });
+
+            const { query, query_params } = queryAsync.mock.calls[0][0];
+            expect(query).toContain('_uuid IN {uuids:Array(String)}');
+            expect(query).toContain('ORDER BY _recorded DESC, _uuid DESC');
+            expect(query_params).toEqual({ resource_type: 'Patient', uuids: ['u1', 'u2'], limit: 6 });
+        });
+
         test('continues strictly after the (recorded, uuid, version) cursor', async () => {
             const cursor = HistoryClickHouseRepository.encodeCursor({ recordedMs: 2000, versionNumber: 2, uuid: 'u2' });
 

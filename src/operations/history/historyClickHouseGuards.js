@@ -2,6 +2,7 @@ const { BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
 const { RESOURCE_CLOUD_STORAGE_PATH_KEY, AUTH_USER_TYPES } = require('../../constants');
 const { generateUUIDv5, isUuid } = require('../../utils/uid.util');
 const { IdParser } = require('../../utils/idParser');
+const { HISTORY_MAX_IDS } = require('../../constants/clickHouseConstants');
 
 /**
  * Arguments a ClickHouse history read honours or can safely ignore. Anything else (for example
@@ -62,6 +63,24 @@ function resolveHistoryUuid({ id, resourceType }) {
 }
 
 /**
+ * Resolves the `_id` of a type-level read, which may list several ids (`_id=a,b` or a repeated `_id`).
+ * Each is a uuid or `id|owner`, converted as in resolveHistoryUuid.
+ * @param {Object} params
+ * @param {string|string[]|undefined} params.idValue the `_id` argument
+ * @param {string} params.resourceType
+ * @return {string[]} distinct resource `_uuid` values, in request order
+ * @throws {BadRequestError} when an id is invalid, or more than HISTORY_MAX_IDS are listed
+ */
+function resolveHistoryUuids({ idValue, resourceType }) {
+    const ids = (Array.isArray(idValue) ? idValue : [idValue])
+        .flatMap((value) => (typeof value === 'string' ? value.split(',') : [value]));
+    if (ids.length > HISTORY_MAX_IDS) {
+        throw new BadRequestError(new Error(`_id may list at most ${HISTORY_MAX_IDS} ids`));
+    }
+    return [...new Set(ids.map((id) => resolveHistoryUuid({ id, resourceType })))];
+}
+
+/**
  * The MongoDB history path hides versions a delegated actor has no consent for (the sensitive-data
  * exclusion on `meta.security`). ClickHouse reads do not apply that filter, so a delegated user
  * must not be served from ClickHouse.
@@ -111,6 +130,7 @@ function assertNoCloudStorageStubs(entries) {
 module.exports = {
     assertSupportedHistoryArgs,
     resolveHistoryUuid,
+    resolveHistoryUuids,
     assertNotDelegatedUser,
     parseSinceArg,
     assertNoCloudStorageStubs

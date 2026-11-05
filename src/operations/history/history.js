@@ -2,7 +2,7 @@ const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/
 const { HistoryReadRouter } = require('./historyReadRouter');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const {
-    assertSupportedHistoryArgs, resolveHistoryUuid, assertNotDelegatedUser, assertNoCloudStorageStubs, parseSinceArg
+    assertSupportedHistoryArgs, resolveHistoryUuid, resolveHistoryUuids, assertNotDelegatedUser, assertNoCloudStorageStubs, parseSinceArg
 } = require('./historyClickHouseGuards');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -450,9 +450,15 @@ class BaseHistoryOperationProcessor {
             }
             assertNotDelegatedUser({ userType: requestInfo.userType, resourceType });
             assertSupportedHistoryArgs(parsedArgs, { isInstanceRead });
-            // `/{type}/_history?_id=x` is the same read as `/{type}/x/_history`
-            const hasIdFilter = isInstanceRead || parsedArgs.getRawArgs()._id !== undefined;
-            const uuid = hasIdFilter ? resolveHistoryUuid({ id: parsedArgs.id, resourceType }) : undefined;
+            // `/{type}/_history?_id=x` is the same read as `/{type}/x/_history`; `_id=x,y` reads several
+            let uuid;
+            let uuids;
+            if (isInstanceRead) {
+                uuid = resolveHistoryUuid({ id: parsedArgs.id, resourceType });
+            } else if (parsedArgs.getRawArgs()._id !== undefined) {
+                const resolved = resolveHistoryUuids({ idValue: parsedArgs.id, resourceType });
+                [uuid, uuids] = resolved.length === 1 ? [resolved[0], undefined] : [undefined, resolved];
+            }
             const sinceMs = parseSinceArg(parsedArgs._since);
             const requested = Number(parsedArgs._count);
             const limit = Math.min(
@@ -462,6 +468,7 @@ class BaseHistoryOperationProcessor {
             const { entries, nextCursor } = await this.historyClickHouseRepository.findPageAsync({
                 resourceType,
                 uuid,
+                uuids,
                 limit,
                 sinceMs,
                 cursor: typeof cursor === 'string' ? cursor : undefined
@@ -478,7 +485,7 @@ class BaseHistoryOperationProcessor {
                 historyResources: entries,
                 downloadedData: {},
                 collectionName: TABLES.RESOURCE_HISTORY,
-                query: { resource_type: resourceType, ...(uuid ? { _uuid: uuid } : {}) },
+                query: { resource_type: resourceType, ...(uuid ? { _uuid: uuid } : {}), ...(uuids ? { _uuid: { $in: uuids } } : {}) },
                 options: {},
                 explanations: [],
                 lastResourceLastUpdated: null,
