@@ -571,7 +571,7 @@ describe('FastDatabaseUpdateManager', () => {
             expect(mocks.databaseQueryManager.findAsync).toHaveBeenCalledTimes(1);
             const { query, options } = mocks.databaseQueryManager.findAsync.mock.calls[0][0];
             expect(query).toEqual({ _uuid: { $in: ['u1', 'u2'] } });
-            expect(options.readPreference.mode).toBe('primary');
+            expect(options.readPreference).toBe('primary');
             expect(result.get('u1')).toMatchObject({ id: 'r1', _uuid: 'u1' });
             expect(result.get('u2')).toMatchObject({ id: 'r2', _uuid: 'u2' });
             expect(result.size).toBe(2);

@@ -941,21 +941,29 @@ describe('MongoBulkWriteExecutor', () => {
 
     // ----------- Tests that do not vary by strategy -----------
 
-    // _updateResourcesOneByOneAsync: resource saved -> updates entry; resource null -> marks skipped
+    // _updateResourcesOneByOneAsync: only a {_uuid}-only write whose document is missing is replayed
+    // one by one; resource saved -> updates entry; resource null -> marks skipped
     describe('_updateResourcesOneByOneAsync', () => {
+        const makeUuidOnlyReplaceEntry = () => makeEntry({
+            operationType: 'replace',
+            isCreateOperation: false,
+            isUpdateOperation: true,
+            id: 'p1',
+            uuid: 'uuid-p1',
+            resourceType: 'Patient',
+            operation: {
+                replaceOne: { filter: { _uuid: 'uuid-p1' }, replacement: { id: 'p1', _uuid: 'uuid-p1', resourceType: 'Patient' } }
+            }
+        });
+
         test('updates entry resource when replaceOneAsync returns a savedResource', async () => {
             // Arrange
-            const insertEntry = makeEntry({
-                operationType: 'insertUniqueId',
-                isCreateOperation: true,
-                isUpdateOperation: false,
-                id: 'p1',
-                uuid: 'uuid-p1',
-                resourceType: 'Patient'
-            });
+            const entry = makeUuidOnlyReplaceEntry();
 
             const savedResource = { id: 'p1', resourceType: 'Patient', meta: { versionId: '2' } };
             const mockUpdateManager = {
+                // the document is missing, so detection hands the entry to the one-by-one path
+                findLatestByUuidsAsync: jest.fn().mockResolvedValue(new Map()),
                 replaceOneAsync: jest.fn().mockResolvedValue({
                     savedResource,
                     patches: [{ op: 'replace', path: '/meta/versionId', value: '2' }]
@@ -994,28 +1002,23 @@ describe('MongoBulkWriteExecutor', () => {
                 resourceType: 'Patient',
                 base_version,
                 useHistoryCollection: false,
-                operations: [insertEntry],
+                operations: [entry],
                 requestInfo,
                 insertOneHistoryFn: jest.fn().mockResolvedValue(undefined)
             });
 
             // Assert: the entry resource was replaced with the saved one
-            expect(insertEntry.resource).toEqual(savedResource);
-            expect(insertEntry.patches).toEqual([{ op: 'replace', path: '/meta/versionId', value: '2' }]);
+            expect(mockUpdateManager.replaceOneAsync).toHaveBeenCalledTimes(1);
+            expect(entry.resource).toEqual(savedResource);
+            expect(entry.patches).toEqual([{ op: 'replace', path: '/meta/versionId', value: '2' }]);
         });
 
         test('marks entry as skipped when replaceOneAsync returns null savedResource', async () => {
             // Arrange
-            const insertEntry = makeEntry({
-                operationType: 'insertUniqueId',
-                isCreateOperation: true,
-                isUpdateOperation: false,
-                id: 'p1',
-                uuid: 'uuid-p1',
-                resourceType: 'Patient'
-            });
+            const entry = makeUuidOnlyReplaceEntry();
 
             const mockUpdateManager = {
+                findLatestByUuidsAsync: jest.fn().mockResolvedValue(new Map()),
                 replaceOneAsync: jest.fn().mockResolvedValue({
                     savedResource: null,
                     patches: null
@@ -1054,13 +1057,14 @@ describe('MongoBulkWriteExecutor', () => {
                 resourceType: 'Patient',
                 base_version,
                 useHistoryCollection: false,
-                operations: [insertEntry],
+                operations: [entry],
                 requestInfo,
                 insertOneHistoryFn: jest.fn().mockResolvedValue(undefined)
             });
 
             // Assert: the entry was marked as skipped
-            expect(insertEntry.skipped).toBe(true);
+            expect(mockUpdateManager.replaceOneAsync).toHaveBeenCalledTimes(1);
+            expect(entry.skipped).toBe(true);
         });
     });
 

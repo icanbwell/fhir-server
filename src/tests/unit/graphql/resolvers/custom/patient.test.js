@@ -3,7 +3,6 @@ const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 const patientResolvers = require('../../../../../graphql/resolvers/custom/patient');
 const { MergeOperation } = require('../../../../../operations/merge/merge');
 const { R4ArgsParser } = require('../../../../../operations/query/r4ArgsParser');
-const { BadRequestError } = require('../../../../../utils/httpErrors');
 
 describe('graphql/resolvers/custom/patient', () => {
     let mockContext;
@@ -269,7 +268,7 @@ describe('graphql/resolvers/custom/patient', () => {
         test.each([
             ['an issue', { issue: { severity: 'error', code: 'conflict', diagnostics: 'modified concurrently' } }],
             ['an operationOutcome', { operationOutcome: { resourceType: 'OperationOutcome', issue: [{ code: 'forbidden' }] } }]
-        ])('throws BadRequestError when the merge result carries %s', async (_label, mergeResult) => {
+        ])('throws a 400 when the merge result carries %s', async (_label, mergeResult) => {
             const mergeOperation = Object.create(MergeOperation.prototype);
             mergeOperation.mergeAsync = jest.fn().mockResolvedValue([mergeResult]);
             const r4ArgsParser = Object.create(R4ArgsParser.prototype);
@@ -285,7 +284,8 @@ describe('graphql/resolvers/custom/patient', () => {
                 mockInfo
             );
 
-            await expect(promise).rejects.toThrow(BadRequestError);
+            // ServerError resets every subclass instance's prototype, so check the 400 instead of instanceof
+            await expect(promise).rejects.toMatchObject({ statusCode: 400 });
             await expect(promise).rejects.toThrow('Unable to update patient p1');
         });
     });

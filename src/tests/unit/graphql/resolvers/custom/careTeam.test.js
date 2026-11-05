@@ -4,7 +4,6 @@ const careTeamResolvers = require('../../../../../graphql/resolvers/custom/careT
 const { MergeOperation } = require('../../../../../operations/merge/merge');
 const { R4ArgsParser } = require('../../../../../operations/query/r4ArgsParser');
 const { SimpleContainer } = require('../../../../../utils/simpleContainer');
-const { BadRequestError } = require('../../../../../utils/httpErrors');
 
 describe('graphql/resolvers/custom/careTeam', () => {
     describe('Mutation.updatePreferredProviders merge result', () => {
@@ -19,7 +18,7 @@ describe('graphql/resolvers/custom/careTeam', () => {
                 { operationOutcome: { resourceType: 'OperationOutcome', issue: [{ code: 'forbidden', diagnostics: 'no access' }] } },
                 'no access'
             ]
-        ])('throws BadRequestError when the merge result carries %s', async (_label, mergeResult, diagnostics) => {
+        ])('throws a 400 when the merge result carries %s', async (_label, mergeResult, diagnostics) => {
             const container = Object.create(SimpleContainer.prototype);
             container.mergeOperation = Object.create(MergeOperation.prototype);
             container.mergeOperation.mergeAsync = jest.fn().mockResolvedValue([mergeResult]);
@@ -39,7 +38,8 @@ describe('graphql/resolvers/custom/careTeam', () => {
 
             const promise = careTeamResolvers.Mutation.updatePreferredProviders(null, args, context, { fieldName: 'test' });
 
-            await expect(promise).rejects.toThrow(BadRequestError);
+            // ServerError resets every subclass instance's prototype, so check the 400 instead of instanceof
+            await expect(promise).rejects.toMatchObject({ statusCode: 400 });
             await expect(promise).rejects.toThrow(`Unable to update care team data for p1: ${diagnostics}`);
         });
     });

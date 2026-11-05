@@ -54,6 +54,10 @@ const { MongoInvalidArgumentError } = require('mongodb');
 const { MONGO_ERROR, ACCESS_LOGS_COLLECTION_NAME } = require('../../../../constants');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 const { WriteConflictDetector } = require('../../../../dataLayer/concurrency/writeConflictDetector');
+const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+
+// the real WriteConflictDetector compares documents through the write serializers, which read this
+BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
 /**
  * A mongodb BulkWriteResult test double.
