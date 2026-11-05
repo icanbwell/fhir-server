@@ -19,6 +19,36 @@ column stores any string that looks like a fractional-second timestamp as `DateT
 padded to nanoseconds (`…995Z` becomes `…995000000Z`, `+00:00` becomes `Z`), so reads would differ from
 MongoDB. Checked against a local ClickHouse; not yet confirmed for ClickPipes.
 
+## Supported and not supported (flag on)
+
+Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need an `access/*.read` (or
+`access/*.*`) scope.
+
+| Request | Result |
+|---|---|
+| `GET /4_0_0/Patient/{uuid}/_history` | Supported. Newest first, first page of `_count` (default 100). |
+| `GET /4_0_0/Patient/{uuid}/_history?_count=50` | Supported. Capped at `RESOURCE_HISTORY_CLICKHOUSE_MAX_PAGE_SIZE`. |
+| `GET /4_0_0/Patient/{uuid}/_history?_historyCursor=<token>` | Supported. Token from the previous `next` link. |
+| `GET /4_0_0/Patient/{uuid}/_history?_since=2026-01-01T00:00:00Z` | Supported. Versions recorded at or after it. |
+| `GET /4_0_0/Patient/{uuid}/_history/2` | Supported. One version; 404 if not in ClickHouse. |
+| `GET /4_0_0/Patient/_history` | Supported. History of every `Patient`, paged by cursor; slow without `_since` on large types. |
+| `GET /4_0_0/Patient/_history?_since=2026-01-01&_count=100` | Supported. Bounded type-level read. |
+| `GET /4_0_0/Patient/{uuid}/_history?_metaUuid=1` | Supported. `_metaUuid` is accepted (sent by fhir-server-ui). |
+| `GET /4_0_0/Patient/abc/_history` | 400. The id is not a uuid (a source id). |
+| `GET /4_0_0/Patient/abc\|client-1/_history` | 400. The `id\|owner` form is not a uuid. |
+| `GET /4_0_0/Patient/{uuid}/_history?_uuid={uuid}` | 400. There is no `_uuid` parameter; the URL id is the uuid. |
+| `GET /4_0_0/Patient/_history?_id={uuid}` or `?id=` | 400. An id filter on a type-level read would be ignored. |
+| `GET /4_0_0/Patient/{uuid}/_history?_lastUpdated=gt2026-01-01` | 400. Unsupported arguments are rejected, not dropped. |
+| `GET /4_0_0/Patient/{uuid}/_history?_since=yesterday` | 400. `_since` must be an ISO 8601 date or instant. |
+| `GET /4_0_0/Patient/{uuid}/_history/2?_since=2026-01-01` | 400. `_since` is not supported on a single-version read. |
+| `GET /4_0_0/Patient/{uuid}/_history?_historyCursor=garbage` | 400. Invalid cursor. |
+| `GET /4_0_0/Patient/{uuid}/_history` with a tenant scope (`access/client-1.read`) | 403. Needs a non-tenant `access/*` scope. |
+| `GET /4_0_0/Patient/{uuid}/_history` with a `patient/*` scope | 403. |
+| `GET /4_0_0/Group/{uuid}/_history` or `GroupMember` | Not supported. Do not enable these types (13-month retention). |
+| Versions older than 13 months, or a version stored in cloud storage | Not returned (404 for a version read), or 500 for a cloud storage stub. |
+| ClickHouse error or timeout | 500. No MongoDB fallback. |
+| A type not in the flag list | Unchanged: MongoDB; none of the rules above apply. |
+
 ## Request contract (flag on)
 
 - The URL `{id}` must be the resource `_uuid` (checked with `isUuid`): `/{type}/{uuid}/_history` and
