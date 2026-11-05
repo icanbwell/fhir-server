@@ -44,6 +44,7 @@ Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need a
 | `GET /4_0_0/Patient/{uuid}/_history?_historyCursor=garbage` | 400. Invalid cursor. |
 | `GET /4_0_0/Patient/{uuid}/_history` with a tenant scope (`access/client-1.read`) | 403. Needs a non-tenant `access/*` scope. |
 | `GET /4_0_0/Patient/{uuid}/_history` with a `patient/*` scope | 403. |
+| Any ClickHouse history read by a delegated user | 403. The MongoDB path hides versions a delegated actor has no consent for; the ClickHouse path has no such filter, so it is refused. |
 | `GET /4_0_0/Group/{uuid}/_history` or `GroupMember` | Not supported. Do not enable these types (13-month retention). |
 | Versions older than 13 months, or a version stored in cloud storage | Not returned (404 for a version read), or 500 for a cloud storage stub. |
 | ClickHouse error or timeout | 500. No MongoDB fallback. |

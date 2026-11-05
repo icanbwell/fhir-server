@@ -1,5 +1,5 @@
-const { BadRequestError } = require('../../utils/httpErrors');
-const { RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
+const { BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
+const { RESOURCE_CLOUD_STORAGE_PATH_KEY, AUTH_USER_TYPES } = require('../../constants');
 const { generateUUIDv5, isUuid } = require('../../utils/uid.util');
 const { IdParser } = require('../../utils/idParser');
 
@@ -58,6 +58,23 @@ function resolveHistoryUuid({ id, resourceType }) {
 }
 
 /**
+ * The MongoDB history path hides versions a delegated actor has no consent for (the sensitive-data
+ * exclusion on `meta.security`). ClickHouse reads do not apply that filter, so a delegated user
+ * must not be served from ClickHouse.
+ * @param {Object} params
+ * @param {string|undefined} params.userType requestInfo.userType
+ * @param {string} params.resourceType
+ * @throws {ForbiddenError} when the caller is a delegated user
+ */
+function assertNotDelegatedUser({ userType, resourceType }) {
+    if (userType === AUTH_USER_TYPES.delegatedUser) {
+        throw new ForbiddenError(
+            `delegated access is not allowed to read ${resourceType} history from ClickHouse`
+        );
+    }
+}
+
+/**
  * Parses the optional `_since` argument of a ClickHouse history read: an ISO 8601 date or instant,
  * applied to the time the version was recorded.
  * @param {*} value
@@ -90,6 +107,7 @@ function assertNoCloudStorageStubs(entries) {
 module.exports = {
     assertSupportedHistoryArgs,
     resolveHistoryUuid,
+    assertNotDelegatedUser,
     parseSinceArg,
     assertNoCloudStorageStubs
 };

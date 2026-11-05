@@ -1,7 +1,7 @@
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const {
-    assertSupportedHistoryArgs, resolveHistoryUuid, assertNoCloudStorageStubs, parseSinceArg
+    assertSupportedHistoryArgs, resolveHistoryUuid, assertNotDelegatedUser, assertNoCloudStorageStubs, parseSinceArg
 } = require('./historyClickHouseGuards');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -440,6 +440,7 @@ class BaseHistoryOperationProcessor {
                     `ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`
                 );
             }
+            assertNotDelegatedUser({ userType: requestInfo.userType, resourceType });
             const uuid = isInstanceRead ? resolveHistoryUuid({ id: parsedArgs.id, resourceType }) : undefined;
             assertSupportedHistoryArgs(parsedArgs, { allowIdArgs: isInstanceRead });
             const sinceMs = parseSinceArg(parsedArgs._since);

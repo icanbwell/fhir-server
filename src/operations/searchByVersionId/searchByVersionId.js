@@ -1,7 +1,7 @@
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const {
-    assertSupportedHistoryArgs, resolveHistoryUuid, assertNoCloudStorageStubs
+    assertSupportedHistoryArgs, resolveHistoryUuid, assertNotDelegatedUser, assertNoCloudStorageStubs
 } = require('../history/historyClickHouseGuards');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
@@ -140,12 +140,14 @@ class SearchByVersionIdOperation {
      * Reads one version from ClickHouse (resource types listed in
      * RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES). The URL id must be the resource `_uuid` or `id|owner`.
      * @param {Object} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @param {string} params.resourceType
      * @param {ParsedArgs} params.parsedArgs
      * @return {Promise<{resource: object, collectionName: string}|null>} null when the version is not in ClickHouse
      */
-    async findVersionInClickHouseAsync ({ resourceType, parsedArgs }) {
+    async findVersionInClickHouseAsync ({ requestInfo, resourceType, parsedArgs }) {
         const { version_id: versionId } = parsedArgs;
+        assertNotDelegatedUser({ userType: requestInfo.userType, resourceType });
         if (!this.historyClickHouseRepository) {
             throw new Error(`ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`);
         }
@@ -250,7 +252,7 @@ class SearchByVersionIdOperation {
              */
             let result;
             if (this.configManager.resourceHistoryClickHouseReadResources.includes(resourceType)) {
-                result = await this.findVersionInClickHouseAsync({ resourceType, parsedArgs });
+                result = await this.findVersionInClickHouseAsync({ requestInfo, resourceType, parsedArgs });
             } else {
                 /**
                  * @type {boolean}
