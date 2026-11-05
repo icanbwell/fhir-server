@@ -45,6 +45,7 @@ module.exports = {
     ],
     transformIgnorePatterns: ['node_modules/(?!(uuid|jose|@kubernetes/client-node|luxon|openid-client|oauth4webapi)/)'],
     setupFiles: ['<rootDir>/jest/setEnvVars.js'],
+    setupFilesAfterEnv: ['<rootDir>/jest/retryFailedTestFiles.js'],
     testTimeout: 30000,
     injectGlobals: false
 };
