@@ -81,9 +81,8 @@ function resolveHistoryUuids({ idValue, resourceType }) {
 }
 
 /**
- * The MongoDB history path hides versions a delegated actor has no consent for (the sensitive-data
- * exclusion on `meta.security`). ClickHouse reads do not apply that filter, so a delegated user
- * must not be served from ClickHouse.
+ * History cannot be filtered per delegated-actor consent on either store (MongoDB or ClickHouse), so a
+ * delegated user may not read it.
  * @param {Object} params
  * @param {string|undefined} params.userType requestInfo.userType
  * @param {string} params.resourceType
@@ -92,7 +91,7 @@ function resolveHistoryUuids({ idValue, resourceType }) {
 function assertNotDelegatedUser({ userType, resourceType }) {
     if (userType === AUTH_USER_TYPES.delegatedUser) {
         throw new ForbiddenError(
-            `delegated access is not allowed to read ${resourceType} history from ClickHouse`
+            `delegated access is not allowed to read ${resourceType} history`
         );
     }
 }

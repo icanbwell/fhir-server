@@ -161,13 +161,19 @@ describe('HistoryOperation reading from ClickHouse', () => {
         );
     });
 
-    test('refuses a delegated user, since the ClickHouse read has no consent filtering', async () => {
+    test.each([
+        ['ClickHouse', ['Patient']],
+        ['MongoDB', ['Observation']]
+    ])('refuses a delegated user with 403 on the %s path', async (_store, flagged) => {
+        configManager.resourceHistoryClickHouseReadResources = flagged;
         const delegated = { ...requestInfo, userType: 'delegatedUser', actor: { sub: 'a' } };
 
         await expect(op.fetchHistoryAsync({
             requestInfo: delegated, parsedArgs: makeArgs({ id: UUID }), resourceType: 'Patient'
         })).rejects.toMatchObject({ statusCode: 403 });
         expect(repository.findPageAsync).not.toHaveBeenCalled();
+        expect(mongoFindAsync).not.toHaveBeenCalled();
+        expect(fhirLoggingManager.logOperationFailureAsync).toHaveBeenCalled();
     });
 
     test('passes a valid _since to the repository as epoch milliseconds', async () => {

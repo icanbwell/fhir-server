@@ -659,11 +659,19 @@ describe('SearchByVersionIdOperation', () => {
             );
         });
 
-        test('refuses a delegated user, since the ClickHouse read has no consent filtering', async () => {
+        test.each([
+            ['ClickHouse', ['Patient']],
+            ['MongoDB', ['Observation']]
+        ])('refuses a delegated user with 403 on the %s path', async (_store, flagged) => {
+            Object.defineProperty(mocks.configManager, 'resourceHistoryClickHouseReadResources', {
+                get: () => flagged, configurable: true
+            });
+
             await expect(searchByVersionIdOp.searchByVersionIdAsync({
                 requestInfo: { ...requestInfo, userType: 'delegatedUser' }, parsedArgs: mockParsedArgs, resourceType: 'Patient'
             })).rejects.toMatchObject({ statusCode: 403 });
             expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+            expect(mocks.databaseHistoryFactory.createDatabaseHistoryManager).not.toHaveBeenCalled();
         });
 
         test('rejects _since on a single-version read', async () => {

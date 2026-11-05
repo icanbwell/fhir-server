@@ -242,6 +242,22 @@ class BaseHistoryOperationProcessor {
             throw forbiddenError;
         }
 
+        // A delegated user may not read history on either store: the MongoDB path has no
+        // delegated-consent filtering for versions, and neither does the ClickHouse path.
+        try {
+            assertNotDelegatedUser({ userType, resourceType });
+        } catch (error) {
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs?.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error
+            });
+            throw error;
+        }
+
         // SEC-1580 SAE-1: see ScopesManager.hasHistoryAccess for why a tenant-scoped access
         // code is never sufficient to read history.
         const accessRequested = currentOperationName === 'historyById' ? 'r' : 's';
@@ -448,7 +464,6 @@ class BaseHistoryOperationProcessor {
                     `ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`
                 );
             }
-            assertNotDelegatedUser({ userType: requestInfo.userType, resourceType });
             assertSupportedHistoryArgs(parsedArgs, { isInstanceRead });
             // `/{type}/_history?_id=x` is the same read as `/{type}/x/_history`; `_id=x,y` reads several
             let uuid;

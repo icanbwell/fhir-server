@@ -147,14 +147,12 @@ class SearchByVersionIdOperation {
      * Reads one version from ClickHouse (resource types listed in
      * RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES). The URL id must be the resource `_uuid` or `id|owner`.
      * @param {Object} params
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @param {string} params.resourceType
      * @param {ParsedArgs} params.parsedArgs
      * @return {Promise<{resource: object, collectionName: string}|null>} null when the version is not in ClickHouse
      */
-    async findVersionInClickHouseAsync ({ requestInfo, resourceType, parsedArgs }) {
+    async findVersionInClickHouseAsync ({ resourceType, parsedArgs }) {
         const { version_id: versionId } = parsedArgs;
-        assertNotDelegatedUser({ userType: requestInfo.userType, resourceType });
         if (!this.historyClickHouseRepository) {
             throw new Error(`ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`);
         }
@@ -222,6 +220,22 @@ class SearchByVersionIdOperation {
             throw forbiddenError;
         }
 
+        // A delegated user may not read history on either store: the MongoDB path has no
+        // delegated-consent filtering for versions, and neither does the ClickHouse path.
+        try {
+            assertNotDelegatedUser({ userType, resourceType });
+        } catch (error) {
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs?.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error
+            });
+            throw error;
+        }
+
         // SEC-1580 SAE-1: see ScopesManager.hasHistoryAccess for why a tenant-scoped access
         // code is never sufficient to read a specific historical version.
         if (!this.scopesManager.hasHistoryAccess({ resourceType, scope, accessRequested: 'r' })) {
@@ -259,7 +273,7 @@ class SearchByVersionIdOperation {
              */
             let result;
             if (this.historyReadRouter.readsFromClickHouse(resourceType)) {
-                result = await this.findVersionInClickHouseAsync({ requestInfo, resourceType, parsedArgs });
+                result = await this.findVersionInClickHouseAsync({ resourceType, parsedArgs });
             } else {
                 /**
                  * @type {boolean}
