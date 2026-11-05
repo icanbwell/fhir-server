@@ -428,7 +428,8 @@ class BaseHistoryOperationProcessor {
     /**
      * Serves a history read for a resource type whose history lives in ClickHouse. For an instance
      * read the URL id must be the resource `_uuid` or `id|owner` (converted to the uuid here); anything
-     * else is rejected with 400 before a query runs. A type-level read (no id) pages through the history of every resource of the type. The scope checks
+     * else is rejected with 400 before a query runs. A type-level read takes the same id from `_id`;
+     * with no `_id` it pages through the history of every resource of the type. The scope checks
      * have already run in fetchHistoryAsync.
      * @param {Object} params
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
@@ -448,8 +449,10 @@ class BaseHistoryOperationProcessor {
                 );
             }
             assertNotDelegatedUser({ userType: requestInfo.userType, resourceType });
-            const uuid = isInstanceRead ? resolveHistoryUuid({ id: parsedArgs.id, resourceType }) : undefined;
-            assertSupportedHistoryArgs(parsedArgs, { allowIdArgs: isInstanceRead });
+            assertSupportedHistoryArgs(parsedArgs, { isInstanceRead });
+            // `/{type}/_history?_id=x` is the same read as `/{type}/x/_history`
+            const hasIdFilter = isInstanceRead || parsedArgs.getRawArgs()._id !== undefined;
+            const uuid = hasIdFilter ? resolveHistoryUuid({ id: parsedArgs.id, resourceType }) : undefined;
             const sinceMs = parseSinceArg(parsedArgs._since);
             const requested = Number(parsedArgs._count);
             const limit = Math.min(

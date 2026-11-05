@@ -39,6 +39,10 @@ describe('HistoryOperation reading from ClickHouse', () => {
     const makeArgs = (values = {}) => {
         const args = Object.create(ParsedArgs.prototype);
         Object.assign(args, { base_version: '4_0_0', _explain: false, _debug: false, ...values });
+        // ParsedArgs exposes `_id` as `id` too
+        if (values._id !== undefined && values.id === undefined) {
+            args.id = values._id;
+        }
         // _historyCursor and _since are attached by the operations manager, not parsed
         const { _historyCursor, _since, ...parsed } = values;
         args.getRawArgs = jest.fn().mockReturnValue(parsed);
@@ -197,9 +201,33 @@ describe('HistoryOperation reading from ClickHouse', () => {
             expect(mongoFindAsync).not.toHaveBeenCalled();
         });
 
-        test.each(['id', '_id'])('rejects %s instead of dropping it', async (name) => {
-            await expect(run(makeArgs({ [name]: UUID }))).rejects.toMatchObject({ statusCode: 400 });
+        test.each([
+            ['a uuid', UUID, UUID],
+            ['id|owner', 'p1|client-1', generateUUIDv5('p1|client-1')]
+        ])('treats _id as %s, the same as the instance read', async (_name, value, expectedUuid) => {
+            await run(makeArgs({ _id: value }));
+
+            expect(repository.findPageAsync).toHaveBeenCalledWith(expect.objectContaining({ uuid: expectedUuid }));
+        });
+
+        test.each([
+            ['a source id', 'p1'],
+            ['a comma list', `${UUID},${UUID}`],
+            ['repeated', [UUID, UUID]]
+        ])('rejects an _id that is %s', async (_name, value) => {
+            await expect(run(makeArgs({ _id: value }))).rejects.toMatchObject({ statusCode: 400 });
             expect(repository.findPageAsync).not.toHaveBeenCalled();
+        });
+
+        test('rejects id, which is only the URL form', async () => {
+            await expect(run(makeArgs({ id: UUID }))).rejects.toMatchObject({ statusCode: 400 });
+            expect(repository.findPageAsync).not.toHaveBeenCalled();
+        });
+
+        test('rejects _id on an instance read, where the URL already names the resource', async () => {
+            op.currentOperationName = 'historyById';
+
+            await expect(run(makeArgs({ id: UUID, _id: UUID }))).rejects.toMatchObject({ statusCode: 400 });
         });
     });
 

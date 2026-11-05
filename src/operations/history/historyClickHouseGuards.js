@@ -10,18 +10,21 @@ const { IdParser } = require('../../utils/idParser');
  * @type {Set<string>}
  */
 const SUPPORTED_ARGS = new Set([
-    'base_version', 'id', 'version_id', '_count', '_format', '_pretty', '_prefer', '_bundle',
+    'base_version', 'id', '_id', 'version_id', '_count', '_format', '_pretty', '_prefer', '_bundle',
     '_keepOldUI', '_metaUuid', '_explain', '_debug', '_useAccessIndex', '_setIndexHint', '_streamResponse', 'streamResponse'
 ]);
 
 /**
  * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
- * @param {{allowIdArgs?: boolean}} [options] false for a type-level read, where an id filter would be ignored
+ * @param {{isInstanceRead?: boolean}} [options] false for a type-level read, which takes its id from `_id`
  * @throws {BadRequestError} when an argument the ClickHouse history read cannot honour is present
  */
-function assertSupportedHistoryArgs(parsedArgs, { allowIdArgs = true } = {}) {
+function assertSupportedHistoryArgs(parsedArgs, { isInstanceRead = true } = {}) {
+    // The id comes from the URL on an instance read and from `_id` on a type-level read; the other
+    // form would be a second, conflicting id, so it is rejected rather than ignored.
+    const idArgNotAllowed = isInstanceRead ? '_id' : 'id';
     const unsupported = Object.keys(parsedArgs.getRawArgs()).filter(
-        (name) => !SUPPORTED_ARGS.has(name) || (!allowIdArgs && (name === 'id' || name === '_id'))
+        (name) => !SUPPORTED_ARGS.has(name) || name === idArgNotAllowed
     );
     if (unsupported.length > 0) {
         throw new BadRequestError(new Error(
@@ -42,7 +45,8 @@ function assertSupportedHistoryArgs(parsedArgs, { allowIdArgs = true } = {}) {
  * @throws {BadRequestError} when the id is neither a uuid nor `id|owner`
  */
 function resolveHistoryUuid({ id, resourceType }) {
-    if (typeof id === 'string' && id.length > 0) {
+    // a comma list is several ids, which one history read cannot serve
+    if (typeof id === 'string' && id.length > 0 && !id.includes(',')) {
         if (isUuid(id)) {
             return id;
         }
