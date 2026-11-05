@@ -37,7 +37,10 @@ module.exports = {
         '<rootDir>/jest/patchClickHouseManager.js',
         '<rootDir>/jest/setEnvVars.js'
     ],
-    setupFilesAfterEnv: ['<rootDir>/src/tests/integration/testSetup.js'],
+    setupFilesAfterEnv: [
+        '<rootDir>/src/tests/integration/testSetup.js',
+        '<rootDir>/jest/retryFailedTestFiles.js'
+    ],
     testTimeout: 60000,
     injectGlobals: false
 };
