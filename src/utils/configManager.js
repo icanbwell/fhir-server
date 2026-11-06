@@ -1411,6 +1411,27 @@ class ConfigManager {
     }
 
     /**
+     * Resource types whose `_history` reads are served from ClickHouse instead of MongoDB.
+     * Empty (default) leaves every type on MongoDB.
+     * Configuration: RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES=Observation,Condition
+     * @return {string[]}
+     */
+    get resourceHistoryClickHouseReadResources() {
+        return this._parseCommaSeparatedList(env.RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES, []).filter(Boolean);
+    }
+
+    /**
+     * Largest `_count` a ClickHouse `_history` read honours.
+     * Configuration: RESOURCE_HISTORY_CLICKHOUSE_MAX_PAGE_SIZE (default 100). Anything that is not a
+     * positive integer falls back to the default.
+     * @return {number}
+     */
+    get resourceHistoryClickHouseMaxPageSize() {
+        const value = parseInt(env.RESOURCE_HISTORY_CLICKHOUSE_MAX_PAGE_SIZE, 10);
+        return Number.isInteger(value) && value > 0 ? value : 100;
+    }
+
+    /**
      * Resource types whose MongoDB history write is replaced by the Kafka produce. Only takes effect
      * for types also listed in RESOURCE_HISTORY_KAFKA_RESOURCES. A history document whose produce
      * fails is still written to MongoDB. Enable a type only once its history reads are served
