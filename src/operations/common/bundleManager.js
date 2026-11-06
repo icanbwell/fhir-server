@@ -145,6 +145,7 @@ class BundleManager {
      * @param {import('../../queryRewriters/rewriters/queryRewriter').AdditionalRewriteQuery[]} [additionalRewriteQueries] queries query rewriters ran on their own, listed in the `_debug` / `_explain` tags
      * @param {string | null} [lastResourceLastUpdated]
      * @param {string|undefined} [externalReqUrlPrefix]
+     * @param {string|null|undefined} [historyCursor] token of the next page of a ClickHouse history read
      * @return {Bundle}
      */
     createRawBundleFromEntries (
@@ -171,7 +172,8 @@ class BundleManager {
             allCollectionsToSearch,
             additionalRewriteQueries,
             lastResourceLastUpdated,
-            externalReqUrlPrefix
+            externalReqUrlPrefix,
+            historyCursor
     }) {
 
         if (Array.isArray(originalQuery)) {
@@ -204,7 +206,7 @@ class BundleManager {
                 return `${protocol}`.concat('://', `${host}`, `${path}`);
             };
 
-            if (last_id || lastResourceLastUpdated) {
+            if (last_id || lastResourceLastUpdated || historyCursor) {
                 // have to use a base url or URL() errors
                 const baseUrl = 'https://example.org';
                 /**
@@ -215,6 +217,9 @@ class BundleManager {
                 // add pagination param
                 if (last_id) {
                     nextUrl.searchParams.set('id:above', `${last_id}`);
+                }
+                else if (historyCursor) {
+                    nextUrl.searchParams.set('_historyCursor', historyCursor);
                 }
                 else if (lastResourceLastUpdated) {
                     nextUrl.searchParams.set('_lastUpdated', `lt${lastResourceLastUpdated}`);

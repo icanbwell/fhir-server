@@ -31,9 +31,11 @@ const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAtt
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { CloudStorageClient } = require('../../../../utils/cloudStorageClient');
+const { HistoryReadRouter } = require('../../../../operations/history/historyReadRouter');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { AuditLogger } = require('../../../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../../utils/mongoGroupExtendedTag');
 
 function createMockInstance(ClassType) {
@@ -52,6 +54,7 @@ describe('SearchByVersionIdOperation', () => {
             scopesValidator: createMockInstance(ScopesValidator),
             enrichmentManager: createMockInstance(EnrichmentManager),
             configManager: createMockInstance(ConfigManager),
+            historyReadRouter: null,
             searchManager: createMockInstance(SearchManager),
             scopesManager: createMockInstance(ScopesManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
@@ -88,6 +91,7 @@ describe('SearchByVersionIdOperation', () => {
         mockParsedArgs._useAccessIndex = false;
         mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({});
 
+        mocks.historyReadRouter = new HistoryReadRouter({ configManager: mocks.configManager });
         searchByVersionIdOp = new SearchByVersionIdOperation(mocks);
     });
 
@@ -563,6 +567,155 @@ describe('SearchByVersionIdOperation', () => {
 
             expect(mocks.searchManager.streamGroupMemberArrayAsync).not.toHaveBeenCalled();
             expect(result).toBeDefined();
+        });
+    });
+
+    describe('reading from ClickHouse', () => {
+        const requestInfo = {
+            user: 'admin', scope: 'access/*.read', requestId: 'r1', isUser: false,
+            personIdFromJwtToken: null, actor: null, userType: 'user'
+        };
+        const UUID = '11111111-1111-4111-8111-111111111111';
+        let historyClickHouseRepository;
+
+        const run = () => searchByVersionIdOp.searchByVersionIdAsync({
+            requestInfo, parsedArgs: mockParsedArgs, resourceType: 'Patient'
+        });
+
+        beforeEach(() => {
+            Object.defineProperty(mocks.configManager, 'resourceHistoryClickHouseReadResources', {
+                get: () => ['Patient'], configurable: true
+            });
+            historyClickHouseRepository = {
+                findVersionAsync: jest.fn().mockResolvedValue({
+                    id: 'e1',
+                    resource: { resourceType: 'Patient', id: 'test-id', _uuid: UUID, meta: { versionId: '2', lastUpdated: '2026-01-01T00:00:00.000Z' } }
+                })
+            };
+            mockParsedArgs.id = UUID;
+            searchByVersionIdOp = new SearchByVersionIdOperation({ ...mocks, historyClickHouseRepository });
+        });
+
+        test('reads the version by resource type, _uuid and version_id and never queries MongoDB', async () => {
+            const result = await run();
+
+            expect(historyClickHouseRepository.findVersionAsync).toHaveBeenCalledWith({
+                resourceType: 'Patient', uuid: UUID, versionId: '2'
+            });
+            expect(mocks.databaseHistoryFactory.createDatabaseHistoryManager).not.toHaveBeenCalled();
+            expect(mocks.searchManager.constructQueryAsync).not.toHaveBeenCalled();
+            expect(result).toBeDefined();
+        });
+
+        test('passes an extended Group member lookup a Date even though ClickHouse returns an ISO string', async () => {
+            Object.defineProperty(mocks.configManager, 'resourceHistoryClickHouseReadResources', {
+                get: () => ['Group'], configurable: true
+            });
+            Object.defineProperty(mocks.configManager, 'enableExtendedGroup', { get: () => true, configurable: true });
+            historyClickHouseRepository.findVersionAsync.mockResolvedValue({
+                id: 'e1',
+                resource: {
+                    resourceType: 'Group', id: 'test-id', _uuid: UUID, [MONGO_GROUP_EXTENDED_FIELD]: true,
+                    meta: { versionId: '2', lastUpdated: '2026-01-01T00:00:00.000Z' }
+                }
+            });
+            mocks.mongoGroupMemberRepository.getMemberCursorAtAsync = jest.fn().mockResolvedValue({});
+            mocks.searchManager.streamGroupMemberArrayAsync = jest.fn().mockResolvedValue(undefined);
+
+            await searchByVersionIdOp.searchByVersionIdAsync({
+                requestInfo, parsedArgs: mockParsedArgs, resourceType: 'Group', res: {}
+            });
+
+            expect(mocks.mongoGroupMemberRepository.getMemberCursorAtAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ targetLastUpdated: new Date('2026-01-01T00:00:00.000Z') })
+            );
+        });
+
+        test('returns 404 when the version is not in ClickHouse', async () => {
+            historyClickHouseRepository.findVersionAsync.mockResolvedValue(null);
+
+            await expect(run()).rejects.toMatchObject({ statusCode: 404 });
+        });
+
+        test.each([
+            ['missing', undefined],
+            ['empty', ''],
+            ['a source id', 'test-id'],
+            ['an id with an empty owner', 'test-id|']
+        ])('rejects a request whose id is %s without querying', async (_name, id) => {
+            mockParsedArgs.id = id;
+
+            await expect(run()).rejects.toMatchObject({ statusCode: 400 });
+            expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+        });
+
+        test('converts id|owner to the uuid on the server', async () => {
+            mockParsedArgs.id = 'test-id|client-1';
+
+            await run();
+
+            expect(historyClickHouseRepository.findVersionAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ uuid: generateUUIDv5('test-id|client-1') })
+            );
+        });
+
+        test.each([
+            ['ClickHouse', ['Patient']],
+            ['MongoDB', ['Observation']]
+        ])('refuses a delegated user with 403 on the %s path', async (_store, flagged) => {
+            Object.defineProperty(mocks.configManager, 'resourceHistoryClickHouseReadResources', {
+                get: () => flagged, configurable: true
+            });
+
+            await expect(searchByVersionIdOp.searchByVersionIdAsync({
+                requestInfo: { ...requestInfo, userType: 'delegatedUser' }, parsedArgs: mockParsedArgs, resourceType: 'Patient'
+            })).rejects.toMatchObject({ statusCode: 403 });
+            expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+            expect(mocks.databaseHistoryFactory.createDatabaseHistoryManager).not.toHaveBeenCalled();
+        });
+
+        test('rejects _since on a single-version read', async () => {
+            mockParsedArgs._since = '2026-01-01T00:00:00.000Z';
+
+            await expect(run()).rejects.toMatchObject({ statusCode: 400 });
+            expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+        });
+
+        test('accepts _metaUuid, which fhir-server-ui always sends', async () => {
+            mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({ _metaUuid: '1' });
+
+            await expect(run()).resolves.toBeDefined();
+        });
+
+        test('rejects an argument the ClickHouse read cannot honour', async () => {
+            mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({ _lastUpdated: 'gt2026-01-01' });
+
+            await expect(run()).rejects.toMatchObject({ statusCode: 400 });
+            expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+        });
+
+        test('fails clearly when the version is a cloud storage stub', async () => {
+            historyClickHouseRepository.findVersionAsync.mockResolvedValue({ id: 'e1', _ref: 'path' });
+
+            await expect(run()).rejects.toThrow('cloud storage');
+        });
+
+        test('a ClickHouse failure is rethrown with no MongoDB fallback', async () => {
+            historyClickHouseRepository.findVersionAsync.mockRejectedValue(new Error('clickhouse down'));
+
+            await expect(run()).rejects.toThrow('clickhouse down');
+            expect(mocks.databaseHistoryFactory.createDatabaseHistoryManager).not.toHaveBeenCalled();
+        });
+
+        test('a type outside the flag list still reads from MongoDB', async () => {
+            Object.defineProperty(mocks.configManager, 'resourceHistoryClickHouseReadResources', {
+                get: () => ['Observation'], configurable: true
+            });
+
+            await run().catch(() => {});
+
+            expect(historyClickHouseRepository.findVersionAsync).not.toHaveBeenCalled();
+            expect(mocks.databaseHistoryFactory.createDatabaseHistoryManager).toHaveBeenCalled();
         });
     });
 });

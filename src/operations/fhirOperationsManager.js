@@ -38,6 +38,7 @@ const {DB_SEARCH_LIMIT_FOR_IDS} = require('../constants');
 const {vulcanIgSearchQueries} = require('./query/customQueries');
 const {getNestedValueByPath} = require('../utils/object');
 const {ConfigManager} = require('../utils/configManager');
+const { HistoryReadRouter } = require('./history/historyReadRouter');
 const {SummaryOperation} = require("./summary/summary");
 const { ResponseStreamerFactory } = require('../utils/responseStreamerFactory');
 const { BadRequestError } = require('../utils/httpErrors');
@@ -71,6 +72,7 @@ class FhirOperationsManager {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ConfigManager} configManager
+     * @param {HistoryReadRouter} historyReadRouter
      * @param {OperationAccessManager} accessManager
      * @param {CMSManager} cmsManager
      * @param {AccessHistoryOperation} accessHistoryOperation
@@ -100,6 +102,7 @@ class FhirOperationsManager {
             r4ArgsParser,
             queryRewriterManager,
             configManager,
+            historyReadRouter,
             accessManager,
             cmsManager,
             accessHistoryOperation,
@@ -219,6 +222,11 @@ class FhirOperationsManager {
          * @type {ConfigManager}
          */
         this.configManager = configManager;
+        /**
+         * @type {HistoryReadRouter}
+         */
+        this.historyReadRouter = historyReadRouter;
+        assertTypeEquals(historyReadRouter, HistoryReadRouter);
         assertTypeEquals(configManager, ConfigManager);
 
         /**
@@ -1026,6 +1034,30 @@ class FhirOperationsManager {
     }
 
     /**
+     * Parses the args of a history read. `_historyCursor` and `_since` are only meaningful when the
+     * resource type is read from ClickHouse, so they are taken out before parsing and attached
+     * afterwards; for any other type they stay ordinary (unknown) arguments, as before.
+     * @param {Object} params
+     * @param {Object} params.args
+     * @param {string} params.resourceType
+     * @param {Object} params.headers
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @return {Promise<ParsedArgs>}
+     */
+    async getHistoryParsedArgsAsync({ args, resourceType, headers, requestInfo }) {
+        if (!this.historyReadRouter.readsFromClickHouse(resourceType)) {
+            return await this.getParsedArgsAsync({ args, resourceType, headers, operation: READ, requestInfo });
+        }
+        const { _historyCursor, _since, ...rest } = args;
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: rest, resourceType, headers, operation: READ, requestInfo
+        });
+        parsedArgs._historyCursor = _historyCursor;
+        parsedArgs._since = _since;
+        return parsedArgs;
+    }
+
+    /**
      * does a FHIR Search By Version
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
@@ -1045,10 +1077,9 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
-        }
-        );
+        const parsedArgs = await this.getHistoryParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, requestInfo
+        });
         return await this.searchByVersionIdOperation.searchByVersionIdAsync(
             {
                 requestInfo: requestInfo,
@@ -1079,10 +1110,9 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
-        }
-        );
+        const parsedArgs = await this.getHistoryParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, requestInfo
+        });
 
         return await this.historyOperation.historyAsync(
             {
@@ -1113,10 +1143,9 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
-        }
-        );
+        const parsedArgs = await this.getHistoryParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, requestInfo
+        });
         return await this.historyByIdOperation.historyByIdAsync(
             {
                 requestInfo: requestInfo,

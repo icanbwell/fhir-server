@@ -12,6 +12,9 @@ const CLICKPIPE_KAFKA_TOPIC_PREFIX = 'fhir_server';
 module.exports = {
     CLICKPIPE_KAFKA_TOPIC_PREFIX,
 
+    // Most ids one type-level `_history?_id=a,b,...` read accepts
+    HISTORY_MAX_IDS: 100,
+
     // Table names
     TABLES: {
         GROUP_MEMBER_EVENTS: 'fhir.Group_4_0_0_MemberEvents',
@@ -19,7 +22,8 @@ module.exports = {
         GROUP_MEMBER_CURRENT_BY_ENTITY: 'fhir.Group_4_0_0_MemberCurrentByEntity',
         AUDIT_EVENT: 'fhir.AuditEvent_4_0_0',
         AUDIT_ACCESS_AGG: 'fhir.AUDIT_ACCESS_AGG',
-        ACCESS_LOG: 'fhir.AccessLog'
+        ACCESS_LOG: 'fhir.AccessLog',
+        RESOURCE_HISTORY: 'fhir.Resource_4_0_0_History'
     },
 
     // Event types for CRUD operations
