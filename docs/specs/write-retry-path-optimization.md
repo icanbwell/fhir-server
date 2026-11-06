@@ -54,8 +54,8 @@ Runs only when the first `bulkWrite` falls short.
 **Updates.**
 
 1. `modifiedCount` equals the number of update entries: every update won, and nothing is read. Each versioned replacement carries a new `versionId` and `lastUpdated`, so a successful replace always counts as modified.
-2. Otherwise, one `findLatestByUuidsAsync` call reads the update entries and the lost creates: `_uuid $in`, primary read preference, through `DatabaseQueryManager`, so `storageProvider` routing applies. It is a new method; the only fast read today, `fastFindOneAsync`, returns one document. An update **won** if its stored document equals the replacement it sent: `fast-deep-equal` on `FhirResourceWriteSerializer.serialize(deepcopy(toWriteDocument(stored)))` and `FhirResourceWriteSerializer.serialize(deepcopy(replacement))`, with `_id` removed. Both sides go through the write serializer so the same empty-value rules apply to each, and both are copied because the serializers delete properties in place and the replacement is also the document written to history and events. It **lost** if the stored document differs or no longer exists.
-3. `toWriteDocument` is the conversion each update manager applies before `collection.replaceOne`: `toJSONInternal()` in `DatabaseUpdateManager` (the class path, `ENABLE_*_FAST_SERIALIZER=false`) and the document as is in `FastDatabaseUpdateManager`. Both paths are covered.
+2. Otherwise, one `findLatestByUuidsAsync` call reads the update entries and the lost creates: `_uuid $in`, primary read preference, through `DatabaseQueryManager`, so `storageProvider` routing applies. It is a new method; the only fast read today, `fastFindOneAsync`, returns one document. An update **won** if its stored document is at the replacement's `versionId` and equals the replacement it sent: `fast-deep-equal` on `FhirResourceWriteSerializer.serialize(deepcopy(stored))` and `FhirResourceWriteSerializer.serialize(deepcopy(replacement))`, with `_id` removed. Both sides go through the write serializer so the same empty-value rules apply to each, and both are copied because the serializers delete properties in place and the replacement is also the document written to history and events. It **lost** if the stored document is at another version, differs, or no longer exists.
+3. `matchedCount` counts the lost creates (their upsert found the document), the `{_uuid}`-only writes whose document exists, and the versioned updates that won. When it leaves no match for the versioned updates, a stored document equal to one of them is another request's identical write, so every such update lost.
 
 The version number alone can't identify the winner. Two writers that both read version 4 both send version 5, and only one filter matches. After the race the stored document is version 5 with the winner's content, so comparing content tells each entry whether that version 5 is its own.
 
@@ -67,7 +67,7 @@ For each round, while losers remain:
 
 1. Wait for the backoff.
 2. Rebase each loser on the document from the last detection read. The rebase is the same merge the legacy retry runs: `mergeResourceAsync` / `fastMergeResourceAsync` with the entry's `smartMerge`, base64 reconciliation, then `preSaveAsync` on a clone. `insertOneAsync` gains a `smartMerge` parameter (default `true`) that it stores on the entry, and PUT passes `false` for a create, so a PUT that loses its create replaces the stored document as a PUT on an existing resource does.
-3. Authorize the rebased write. The request's own checks ran against what it read before its first write, and the rebase writes onto a document another writer changed or created since. So before persisting, the resolver re-runs the update access checks against the rebase target and the fully merged document: `isAccessToResourceAllowedByAccessAndPatientScopes` on the target, then `isAccessTagChangeAllowedByAccessScopes` from the target to the merged document, with `ignoreRemovals` set from the merge mode. These are the same two `ScopesValidator` calls, with the same arguments, that `WriteAllowedByScopesValidator` makes for a found resource. The resolver gets the registered `scopesValidator` through its constructor. The first call runs `preSaveAsync` on the resource it is given, so it gets a copy of the target.
+3. Authorize the rebased write. The request's own checks ran against what it read before its first write, and the rebase writes onto a document another writer changed or created since. So the resolver re-runs the update access checks against the rebase target and the fully merged document: `isAccessToResourceAllowedByAccessAndPatientScopes` on the target before the rebase, so a `skipped` entry never returns a document the caller can't update, then `isAccessTagChangeAllowedByAccessScopes` from the target to the merged document, with `ignoreRemovals` set from the merge mode. These are the same two `ScopesValidator` calls, with the same arguments, that `WriteAllowedByScopesValidator` makes for a found resource. The resolver gets the registered `scopesValidator` through its constructor. The first call runs `preSaveAsync` on the resource it is given, so it gets a copy of the target.
 4. Write the rebased losers in one `bulkWrite({ ordered: false })`. A server write error makes the call reject with `MongoBulkWriteError` after the round has run. The resolver catches it, gives each entry at `writeErrors[].index` an `exception` issue, and takes the round's `BulkWriteResult` from `error.result`.
 5. Run detection on that write, excluding entries that got a write error. Its read is the next round's rebase base, so each round costs one read and one write.
 
@@ -114,8 +114,8 @@ Conflict issue (synthetic ids):
 ### Preconditions and switches
 
 - `If-None-Match: *` is still checked before detection and returns 412 on a lost create.
-- `SKIP_HANDLE_CONCURRENCY=true` disables detection, resolution and the one-by-one fallback, as today.
-- Writes filtered on `{_uuid}` alone can't lose a version race: `replaceOneAsync` (PUT on an existing resource, PATCH, Group member patch), a `mergeOneAsync` with no previous version, an `updateOne $set`, and a `replaceOne` with `filter: null` from a folded repeat write. Detection reads them with the update entries and counts them as won when their document exists, so they are not replayed. Only an entry whose document is missing keeps the one-by-one path.
+- `SKIP_HANDLE_CONCURRENCY=true` disables detection and resolution.
+- Writes filtered on `{_uuid}` alone can't lose a version race: `replaceOneAsync` (PUT on an existing resource, PATCH, Group member patch), a `mergeOneAsync` with no previous version, an `updateOne $set`, and a `replaceOne` with `filter: null` from a folded repeat write. Detection reads them with the update entries and counts them as won when their document exists, so they are not replayed. One whose document was deleted concurrently is a loser and gets a `conflict` issue; it is not recreated.
 - With `If-Match`, a `replaceOneAsync` filter is `{_uuid, 'meta.versionId': {$in}}`, and a miss is a 412.
 
 ## Callers
@@ -126,7 +126,7 @@ Every issue the executor puts on an entry has `severity: 'error'`, and every cal
 |---|---|
 | `$merge` (`merge.js`) | returns the entry with its issue |
 | PUT (`update.js`) | `conflict` throws `ConflictError`, `forbidden` throws `ForbiddenError`, other issues keep `BadRequestError`; a `skipped` entry with no issue returns 200 with the stored document |
-| `$import` flush (`flushBatchAsync`, `bulkImport/handler.js`) | reads the flush results and records each entry with an issue as a failed line, replacing the created or updated count and audit for that line |
+| `$import` flush (`flushBatchAsync`, `bulkImport/handler.js`) | reads the flush results and records each entry with an issue as a failed line, replacing the created or updated count and audit for that line; a line counted created whose flush result is not `created` is counted and audited as updated |
 | GraphQL `updateGeneralPractitioner` (`patient.js`) and `updatePreferredProviders` (`careTeam.js`) | check `result[0].issue` as well as `result[0].operationOutcome` |
 | `bulkImportTaskStateMachine`, `adminResourceWriter`, `mongoGroupMemberRepository` | already fail on any `issue` |
 | POST (`create.js`), PATCH, Group member patch, access and audit loggers | no new issue: POST ids are server-generated, the patches use `replaceOneAsync`, and the loggers only insert |
@@ -140,12 +140,13 @@ Every issue the executor puts on an entry has `severity: 'error'`, and every cal
 | GraphQL mutation: the resource keeps conflicting | GraphQL error (500 underneath) | GraphQL error from the resolver's `issue` check |
 | `$import`: a resource keeps conflicting | the range fails with `ImportRangeFailed` | that line is reported as failed; the rest of the range is imported |
 | a winner in a batch that had a conflict | `updated: false`, no history, no event | `updated: true`, with history and event |
+| PUT or PATCH on an existing resource deleted concurrently | the resource is recreated | 409 with a `conflict` OperationOutcome |
 | a create that lost to a concurrent create and was saved as an update (`$merge`, `$import`, PUT on a new id) | `created: true` and event type `C` for every concurrent creator; PUT returns 201 | `updated: true` and event type `U`; PUT returns 200; only the inserting request reports `created` and emits `C` |
 
 ## Constraints
 
 - **Tenancy:** the only new read is `_uuid $in`, in the same collection the write used. `_uuid` is derived from the id and `sourceAssigningAuthority`, so a stored document found for a lost create has the same owner. Its access tags and patient can still differ, and a concurrent writer can change the access tags of a document a lost update was authorized against, so every rebased write re-runs the update access checks first (Resolution rounds, step 3).
 - **PHI:** none in logs, metrics, issues or fixtures.
-- **Public contract:** 500 becomes 409 for a PUT create that keeps losing, 500 becomes a per-entry issue for `$merge`, and a create saved as an update after losing is reported as an update.
+- **Public contract:** 500 becomes 409 for a PUT create that keeps losing, a PUT or PATCH racing a DELETE gets 409 instead of recreating the resource, 500 becomes a per-entry issue for `$merge`, and a create saved as an update after losing is reported as an update.
 - **Events:** schemas unchanged. Winners now emit the change events legacy dropped, and a create saved as an update after losing emits `U` instead of a second `C` for the same resource, which consumers of the change events need to know.
 - **Dependencies:** none new; `fast-deep-equal` is already used by `resourceMerger`.
