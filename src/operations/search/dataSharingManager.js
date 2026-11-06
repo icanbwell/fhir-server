@@ -18,6 +18,7 @@ const { isUuid } = require('../../utils/uid.util');
 const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
 const { DelegatedAccessRulesManager } = require('../../utils/delegatedAccessRulesManager');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const httpContext = require('express-http-context');
 
 class DataSharingManager {
@@ -824,6 +825,39 @@ class DataSharingManager {
         };
 
         return MongoQuerySimplifier.simplifyFilter({ filter: combinedQuery });
+    }
+
+    /**
+     * Restricts the search query to resources tagged with one of the delegated actor's
+     * allowed connection types (from the entitlement Consent's provision.securityLabel).
+     * Returns the query unchanged when the actor has no connection-type restriction.
+     *
+     * @param {Object} params
+     * @param {import('mongodb').Document} params.query
+     * @param {import('../../utils/fhirRequestInfo').JwtActor} params.actor
+     * @param {string} params.resourceType
+     * @returns {import('mongodb').Document}
+     */
+    updateQueryForDelegatedAccessConnectionTypes ({ query, actor, resourceType }) {
+        const allowedConnectionTypes = actor?.allowedConnectionTypes;
+        // Person carries no connectionType tag and patient scope already limits it to the
+        // token's linked Persons, so filtering it here would drop the client Person.
+        if (!Array.isArray(allowedConnectionTypes) || resourceType === 'Person') {
+            return query;
+        }
+        // MongoQuerySimplifier drops an empty `$in`, which would match every connectionType.
+        if (allowedConnectionTypes.length === 0) {
+            return { _uuid: '__invalid__' };
+        }
+        const connectionTypeFilter = {
+            'meta.security': {
+                $elemMatch: {
+                    system: SecurityTagSystem.connectionType,
+                    code: { $in: allowedConnectionTypes }
+                }
+            }
+        };
+        return MongoQuerySimplifier.simplifyFilter({ filter: { $and: [query, connectionTypeFilter] } });
     }
 }
 
