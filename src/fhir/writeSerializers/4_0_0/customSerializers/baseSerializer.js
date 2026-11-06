@@ -40,7 +40,8 @@ class BaseSerializer {
      * @param {Function} isEmpty
      */
     baseSerialize(serializerClass, propertyToSerializerMap, obj, context, isEmpty = this.isEmptyFunction) {
-        Object.entries(obj).forEach(([propertyName, value]) => {
+        Object.keys(obj).forEach((propertyName) => {
+            const value = obj[propertyName];
             // Remove property if not defined in the serializer map
             if (!(propertyName in propertyToSerializerMap)) {
                 delete obj[propertyName];
