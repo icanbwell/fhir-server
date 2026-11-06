@@ -70,7 +70,7 @@ function bulkWriteResult ({ modifiedCount = 0, upsertedIds = {} } = {}) {
     return { modifiedCount, upsertedIds };
 }
 
-const noLosers = { losers: [], latestByUuid: new Map(), ifMatchMisses: [], missingUuidOnly: [] };
+const noLosers = { losers: [], latestByUuid: new Map() };
 
 describe('ConcurrentWriteResolver', () => {
     let configManager;
@@ -98,7 +98,6 @@ describe('ConcurrentWriteResolver', () => {
                 updatedResource: { ...currentResource, meta: { ...currentResource.meta, versionId: `${parseInt(currentResource.meta.versionId) + 1}` } },
                 patches: [{ op: 'replace', path: '/gender' }]
             })),
-            toWriteDocument: jest.fn((doc) => doc),
             findLatestByUuidsAsync: jest.fn()
         };
         collection = { bulkWrite: jest.fn().mockResolvedValue(bulkWriteResult({ modifiedCount: 1 })) };
@@ -204,6 +203,20 @@ describe('ConcurrentWriteResolver', () => {
         expect(entry.resource).toBe(stored);
         expect(entry.issue).toBeNull();
         expect(collection.bulkWrite).not.toHaveBeenCalled();
+    });
+
+    test('a rebase that would find no change is refused before the rebase when the caller cannot update the stored document', async () => {
+        scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes.mockRejectedValue(new ForbiddenError('no'));
+        updateManager.rebaseOnLatestAsync.mockResolvedValue({ updatedResource: null, patches: null });
+        const entry = makeUpdateEntry(makePatient());
+        const stored = makePatient({ gender: 'female' });
+
+        await resolve([entry], new Map([['u-1', stored]]));
+
+        expect(updateManager.rebaseOnLatestAsync).not.toHaveBeenCalled();
+        expect(entry.issue.code).toBe('forbidden');
+        expect(entry.skipped).toBe(false);
+        expect(entry.resource).not.toBe(stored);
     });
 
     test('a lost create whose document vanished is re-queued as an insertUniqueId upsert', async () => {

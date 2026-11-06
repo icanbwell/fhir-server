@@ -576,6 +576,20 @@ describe('FastDatabaseUpdateManager', () => {
             expect(result.get('u2')).toMatchObject({ id: 'r2', _uuid: 'u2' });
             expect(result.size).toBe(2);
         });
+
+        test('returns the documents through the write serializer, without _id or empty values', async () => {
+            const stored = { ...createMockDoc({ id: 'r1', _uuid: 'u1' }), _id: 'mongo-object-id', birthDate: null, name: [] };
+            const cursor = { toArrayAsync: jestObj.fn().mockResolvedValue([stored]) };
+            mocks.databaseQueryManager.findAsync = jestObj.fn().mockResolvedValue(cursor);
+
+            const result = await manager.findLatestByUuidsAsync({ uuids: ['u1'] });
+
+            const document = result.get('u1');
+            expect(document).toMatchObject({ id: 'r1', _uuid: 'u1' });
+            expect(document).not.toHaveProperty('_id');
+            expect(document).not.toHaveProperty('birthDate');
+            expect(document).not.toHaveProperty('name');
+        });
     });
 
     describe('rebaseOnLatestAsync', () => {
@@ -640,14 +654,6 @@ describe('FastDatabaseUpdateManager', () => {
             expect(mocks.base64DataManager.resolveWriteForExternalizedDataChange).toHaveBeenCalledWith(
                 merged, currentResource, info, manager._forceBase64Write
             );
-        });
-    });
-
-    describe('toWriteDocument', () => {
-        test('returns the document as the replace writes it', () => {
-            const doc = createMockDoc();
-
-            expect(manager.toWriteDocument(doc)).toBe(doc);
         });
     });
 });

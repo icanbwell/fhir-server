@@ -355,15 +355,11 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                      * @type {number}
                      */
                     const actualInsertsByUniqueIdCount = bulkWriteResult.upsertedCount;
-                    // fewer upserts than expected: a concurrent writer created at least one of
-                    // these resources first
+
+                    // 1. check if we got same number of inserts as we expected
+                    //      If we did not, it means someone else inserted this resource.  Then we have to use update instead of insert
                     const insertsFellShort = expectedInsertsByUniqueIdCount > 0 &&
                         expectedInsertsByUniqueIdCount > actualInsertsByUniqueIdCount;
-                    // fewer modified than expected: a concurrent writer updated at least one of
-                    // these resources first, so its versioned filter matched nothing
-                    const updatesFellShort = expectedUpdatesCount > 0 &&
-                        bulkWriteResult.modifiedCount < expectedUpdatesCount;
-
                     // The insertUniqueId operation (fastDatabaseBulkInserter.js) is itself an atomic
                     // updateOne-with-upsert, so upsertedCount < expected here means a concurrent
                     // writer's create won the race for at least one of these resources -- exactly
@@ -374,7 +370,24 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                     ) {
                         throw new PreconditionFailedError('Version conflict: If-None-Match: * was provided but resource already exists.');
                     }
+                    // 2. Now check if we got the same number of updates as we expected.
+                    //      If we did not, it means someone else updated the version of the resources we were updating
+                    // NOTE: Mongo does NOT return ids of updated resources so we have to go through each
+                    //       document to see if it is same in db as we have it
+                    // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
+                    // nMatched: The number of existing documents selected for update or replacement.
+                    // If the update/replacement operation results in no change to an existing document,
+                    // e.g. $set expression updates the value to the current value,
+                    // nMatched can be greater than nModified.
+                    // insertsByUniqueId are also matches so subtract that count to get count of matches for updates
+                    /**
+                     * @type {number}
+                     */
+                    const actualUpdatesCount = bulkWriteResult.modifiedCount;
+                    const updatesFellShort = expectedUpdatesCount > 0 && actualUpdatesCount < expectedUpdatesCount;
                     if (this.configManager.handleConcurrency && (insertsFellShort || updatesFellShort)) {
+                        // concurrency check failed (another parallel process inserted or updated at least one
+                        // resource): find the entries that lost and resolve only those
                         await logTraceSystemEventAsync(
                             {
                                 event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
@@ -384,7 +397,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                                     collectionName,
                                     actualInsertsByUniqueIdCount,
                                     expectedInsertsByUniqueIdCount,
-                                    actualUpdatesCount: bulkWriteResult.modifiedCount,
+                                    actualUpdatesCount,
                                     expectedUpdatesCount
                                 }
                             }
@@ -611,8 +624,8 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
 
     /**
      * Finds the entries of this collection's bulk write that lost a concurrency race and
-     * resolves them: losers are rebased and rewritten in bulk, an If-Match update that lost
-     * fails the request, and a {_uuid}-only write whose document is missing is replayed one by one
+     * resolves them: losers are rebased and rewritten in bulk, and an If-Match update that lost
+     * fails the request
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
@@ -631,13 +644,16 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
         bulkWriteResult
     }) {
         const updateManager = this.createUpdateManager({ resourceType, base_version: '4_0_0' });
-        const { losers, latestByUuid, ifMatchMisses, missingUuidOnly } = await this.writeConflictDetector.detectAsync({
+        const { losers, latestByUuid } = await this.writeConflictDetector.detectAsync({
             entries: operationsByCollection.map((entry, index) => ({ entry, index })),
             bulkWriteResult,
             updateManager
         });
-        if (ifMatchMisses.length > 0) {
-            const ifMatchVersionIds = ifMatchMisses[0].writePrecondition?.ifMatchVersionIds || [];
+        // An If-Match write that lost fails the request instead of being rebased, as If-None-Match: *
+        // does for a lost create
+        const ifMatchLoser = losers.find((entry) => entry.writePrecondition?.ifMatchVersionIds?.length > 0);
+        if (ifMatchLoser) {
+            const ifMatchVersionIds = ifMatchLoser.writePrecondition.ifMatchVersionIds;
             throw new PreconditionFailedError(
                 `Version conflict: If-Match does not match current resource version. If-Match: ${ifMatchVersionIds.join(', ')}`
             );
@@ -652,64 +668,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                 updateManager,
                 cloneResource: this.cloneResource
             });
-        }
-        if (missingUuidOnly.length > 0) {
-            await this._updateResourcesOneByOneAsync({
-                base_version,
-                requestInfo,
-                bulkInsertUpdateEntries: missingUuidOnly
-            });
-        }
-    }
-
-    /**
-     * Updates resources one by one
-     * @param {string} base_version
-     * @param {FhirRequestInfo} requestInfo
-     * @param {BulkInsertUpdateEntry[]} bulkInsertUpdateEntries
-     * @returns {Promise<void>}
-     * @private
-     */
-    async _updateResourcesOneByOneAsync ({ base_version, requestInfo, bulkInsertUpdateEntries }) {
-        // let i = 0;
-        for (const /* @type {BulkInsertUpdateEntry} */ bulkInsertUpdateEntry of bulkInsertUpdateEntries) {
-            // i += 1;
-            await logTraceSystemEventAsync(
-                {
-                    event: 'updateResourcesOneByOneAsync',
-                    message: 'Updating resources one by one',
-                    args: {
-                        expectedUpdates: bulkInsertUpdateEntries
-                    }
-                }
-            );
-            /**
-             * @type {FastDatabaseUpdateManager}
-             */
-            const databaseUpdateManager = this.createUpdateManager(
-                {
-                    resourceType: bulkInsertUpdateEntry.resourceType,
-                    base_version: '4_0_0'
-                }
-            );
-            /**
-             * @type {Resource|Object|null}
-             */
-            const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync(
-                {
-                    base_version,
-                    requestInfo,
-                    doc: bulkInsertUpdateEntry.resource,
-                    smartMerge: bulkInsertUpdateEntry.smartMerge,
-                    ifMatchVersionIds: bulkInsertUpdateEntry.writePrecondition?.ifMatchVersionIds
-                }
-            );
-            if (savedResource) {
-                bulkInsertUpdateEntry.resource = savedResource;
-                bulkInsertUpdateEntry.patches = patches;
-            } else { // resource was same as what was in the database
-                bulkInsertUpdateEntry.skipped = true;
-            }
         }
     }
 }

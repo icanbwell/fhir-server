@@ -959,6 +959,7 @@ class BulkImportHandler {
             hasFlushedThisAttempt = true;
             sinceLastFlush = 0;
             recordUnsavedLines({ flushStart, flushResults: flushResults || [] });
+            recordCreatesSavedAsUpdates({ flushStart, flushResults: flushResults || [] });
         };
 
         /**
@@ -1003,6 +1004,42 @@ class BulkImportHandler {
                         operationOutcome
                     }).withSourceByteOffset(lineEntry.sourceByteOffset);
                 }
+            }
+        };
+
+        /**
+         * A line counted as created whose create lost to another writer is saved as an update of
+         * that writer's document, or skipped when it adds nothing to it. Either way the resource
+         * already existed, so the line is reported updated, like a line whose resource existed
+         * before the flush.
+         * @param {Object} params
+         * @param {number} params.flushStart - index of this flush's first entry in mergeResultEntries
+         * @param {MergeResultEntry[]} params.flushResults
+         * @returns {void}
+         */
+        const recordCreatesSavedAsUpdates = ({ flushStart, flushResults }) => {
+            // _uuid hashes id and source assigning authority, not the resource type
+            const keyOf = (entry) => `${entry.resourceType}|${entry._uuid}`;
+            const createdKeys = new Set(flushResults.filter((r) => r.created).map(keyOf));
+            const existingKeys = new Set(flushResults.filter((r) => !r.issue && !r.created).map(keyOf));
+            for (let i = flushStart; i < mergeResultEntries.length; i++) {
+                const lineEntry = mergeResultEntries[i];
+                const key = keyOf(lineEntry);
+                if (!lineEntry.created || createdKeys.has(key) || !existingKeys.has(key)) {
+                    continue;
+                }
+                created--;
+                updated++;
+                mergeResultEntries[i] = new MergeResultEntry({
+                    id: lineEntry.id,
+                    uuid: lineEntry._uuid,
+                    sourceAssigningAuthority: lineEntry._sourceAssigningAuthority,
+                    resourceType: lineEntry.resourceType,
+                    created: false,
+                    updated: true,
+                    issue: null,
+                    operationOutcome: null
+                }).withSourceByteOffset(lineEntry.sourceByteOffset);
             }
         };
 

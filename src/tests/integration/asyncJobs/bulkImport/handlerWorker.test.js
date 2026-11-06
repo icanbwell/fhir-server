@@ -598,6 +598,58 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         ]);
     });
 
+    test('a line whose create loses to another writer and is saved as an update is reported updated', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-lost-create' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+        const db = await container.mongoDatabaseManager.getClientDbAsync();
+
+        // Another writer creates the line's resource just before its create, once
+        const realBulkWrite = Collection.prototype.bulkWrite;
+        let concurrentlyCreated = false;
+        jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(async function (ops, options) {
+            const op = this.collectionName === 'Patient_4_0_0' && Array.isArray(ops)
+                ? ops.find((o) => o.updateOne?.update?.$setOnInsert?.id === 'bulk-import-lost-create')
+                : null;
+            if (op && !concurrentlyCreated) {
+                concurrentlyCreated = true;
+                const { _id, ...doc } = op.updateOne.update.$setOnInsert;
+                await db.collection('Patient_4_0_0').insertOne({ ...doc, gender: 'female' });
+            }
+            return realBulkWrite.call(this, ops, options);
+        });
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-lost-create', name: [{ family: 'LostCreate' }] },
+            { resourceType: 'Patient', id: 'bulk-import-created', name: [{ family: 'Created' }] }
+        ]);
+
+        try {
+            await processRangeAsync(handler, container, {
+                key: 'import-consumer-lost-create-0',
+                value: makeCloudEvent({ taskId: 'import-consumer-lost-create' }),
+                headers: []
+            });
+        } finally {
+            Collection.prototype.bulkWrite.mockRestore();
+        }
+
+        expect(concurrentlyCreated).toBe(true);
+        expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
+            'fhir_import.resources_created': 1,
+            'fhir_import.resources_updated': 1,
+            'fhir_import.resources_failed': 0
+        });
+    });
+
     test('a conflict on one resource type does not fail a line of another type with the same id', async () => {
         const request = await createTestRequest();
 

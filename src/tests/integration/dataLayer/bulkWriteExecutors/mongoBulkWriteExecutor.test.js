@@ -477,7 +477,7 @@ describe('MongoBulkWriteExecutor', () => {
             expect(caught.nested).toBe(originalError);
         });
 
-        // 4. Concurrency: insert count mismatch triggers one-by-one fallback
+        // 4. Concurrency: insert count mismatch sends the lost creates to the resolver
         test('lost creates go to the concurrency resolver when upsertedCount < expected', async () => {
             // Arrange
             const createOperation = (uuid) => ({
@@ -528,8 +528,7 @@ describe('MongoBulkWriteExecutor', () => {
             ]);
             const mockUpdateManager = {
                 replaceOneAsync: jest.fn(),
-                findLatestByUuidsAsync: jest.fn().mockResolvedValue(stored),
-                toWriteDocument: (doc) => doc
+                findLatestByUuidsAsync: jest.fn().mockResolvedValue(stored)
             };
             const localCreateUpdateManager = jest.fn().mockReturnValue(mockUpdateManager);
 
@@ -560,8 +559,8 @@ describe('MongoBulkWriteExecutor', () => {
             expect(result.mergeResultEntries).toHaveLength(2);
         });
 
-        // 5. Concurrency: update count mismatch triggers one-by-one fallback
-        test('{_uuid}-only writes whose documents are missing are replayed one by one', async () => {
+        // 5. Concurrency: update count mismatch sends the writes whose documents were deleted to the resolver
+        test('{_uuid}-only writes whose documents are missing go to the concurrency resolver', async () => {
             // Arrange
             const replaceOperation = (uuid) => ({ replaceOne: { filter: { _uuid: uuid }, replacement: { _uuid: uuid } } });
             const updateEntry1 = makeEntry({
@@ -603,12 +602,8 @@ describe('MongoBulkWriteExecutor', () => {
             Object.defineProperty(mockConfigManager, 'handleConcurrency', { get: () => true });
 
             const mockUpdateManager = {
-                replaceOneAsync: jest.fn().mockResolvedValue({
-                    savedResource: { id: 'p1', resourceType: 'Patient' },
-                    patches: []
-                }),
-                findLatestByUuidsAsync: jest.fn().mockResolvedValue(new Map()),
-                toWriteDocument: (doc) => doc
+                replaceOneAsync: jest.fn(),
+                findLatestByUuidsAsync: jest.fn().mockResolvedValue(new Map())
             };
             const localCreateUpdateManager = jest.fn().mockReturnValue(mockUpdateManager);
 
@@ -629,10 +624,12 @@ describe('MongoBulkWriteExecutor', () => {
                 insertOneHistoryFn: jest.fn().mockResolvedValue(undefined)
             });
 
-            // Assert: one detection manager, then one manager per one-by-one replay
-            expect(localCreateUpdateManager).toHaveBeenCalledTimes(3);
-            expect(mockUpdateManager.replaceOneAsync).toHaveBeenCalledTimes(2);
-            expect(concurrentWriteResolver.resolveAsync).not.toHaveBeenCalled();
+            // Assert: both reach the resolver without a stored document, and nothing re-inserts them
+            expect(localCreateUpdateManager).toHaveBeenCalledTimes(1);
+            const call = concurrentWriteResolver.resolveAsync.mock.calls[0][0];
+            expect(call.losers).toEqual([updateEntry1, updateEntry2]);
+            expect(call.latestByUuid.size).toBe(0);
+            expect(mockUpdateManager.replaceOneAsync).not.toHaveBeenCalled();
             expect(result.error).toBeNull();
         });
 
@@ -940,133 +937,6 @@ describe('MongoBulkWriteExecutor', () => {
     });
 
     // ----------- Tests that do not vary by strategy -----------
-
-    // _updateResourcesOneByOneAsync: only a {_uuid}-only write whose document is missing is replayed
-    // one by one; resource saved -> updates entry; resource null -> marks skipped
-    describe('_updateResourcesOneByOneAsync', () => {
-        const makeUuidOnlyReplaceEntry = () => makeEntry({
-            operationType: 'replace',
-            isCreateOperation: false,
-            isUpdateOperation: true,
-            id: 'p1',
-            uuid: 'uuid-p1',
-            resourceType: 'Patient',
-            operation: {
-                replaceOne: { filter: { _uuid: 'uuid-p1' }, replacement: { id: 'p1', _uuid: 'uuid-p1', resourceType: 'Patient' } }
-            }
-        });
-
-        test('updates entry resource when replaceOneAsync returns a savedResource', async () => {
-            // Arrange
-            const entry = makeUuidOnlyReplaceEntry();
-
-            const savedResource = { id: 'p1', resourceType: 'Patient', meta: { versionId: '2' } };
-            const mockUpdateManager = {
-                // the document is missing, so detection hands the entry to the one-by-one path
-                findLatestByUuidsAsync: jest.fn().mockResolvedValue(new Map()),
-                replaceOneAsync: jest.fn().mockResolvedValue({
-                    savedResource,
-                    patches: [{ op: 'replace', path: '/meta/versionId', value: '2' }]
-                })
-            };
-
-            const mockCollection = makeMockCollection({
-                bulkWriteImpl: jest.fn().mockResolvedValue({
-                    insertedCount: 0,
-                    upsertedCount: 0,
-                    modifiedCount: 0,
-                    matchedCount: 0,
-                    hasWriteErrors: () => false,
-                    getWriteErrors: () => []
-                })
-            });
-
-            const mockResourceLocator = {
-                getCollectionNameForResource: jest.fn().mockReturnValue('Patient_4_0_0'),
-                getCollectionByNameAsync: jest.fn().mockResolvedValue(mockCollection)
-            };
-
-            const mockConfigManager = Object.create(ConfigManager.prototype);
-            Object.defineProperty(mockConfigManager, 'handleConcurrency', { get: () => true });
-
-            const localCreateUpdateManager = jest.fn().mockReturnValue(mockUpdateManager);
-
-            const { executor } = makeExecutor({
-                resourceLocator: mockResourceLocator,
-                configManager: mockConfigManager,
-                createUpdateManager: localCreateUpdateManager
-            });
-
-            // Act
-            await executor.executeBulkAsync({
-                resourceType: 'Patient',
-                base_version,
-                useHistoryCollection: false,
-                operations: [entry],
-                requestInfo,
-                insertOneHistoryFn: jest.fn().mockResolvedValue(undefined)
-            });
-
-            // Assert: the entry resource was replaced with the saved one
-            expect(mockUpdateManager.replaceOneAsync).toHaveBeenCalledTimes(1);
-            expect(entry.resource).toEqual(savedResource);
-            expect(entry.patches).toEqual([{ op: 'replace', path: '/meta/versionId', value: '2' }]);
-        });
-
-        test('marks entry as skipped when replaceOneAsync returns null savedResource', async () => {
-            // Arrange
-            const entry = makeUuidOnlyReplaceEntry();
-
-            const mockUpdateManager = {
-                findLatestByUuidsAsync: jest.fn().mockResolvedValue(new Map()),
-                replaceOneAsync: jest.fn().mockResolvedValue({
-                    savedResource: null,
-                    patches: null
-                })
-            };
-
-            const mockCollection = makeMockCollection({
-                bulkWriteImpl: jest.fn().mockResolvedValue({
-                    insertedCount: 0,
-                    upsertedCount: 0,
-                    modifiedCount: 0,
-                    matchedCount: 0,
-                    hasWriteErrors: () => false,
-                    getWriteErrors: () => []
-                })
-            });
-
-            const mockResourceLocator = {
-                getCollectionNameForResource: jest.fn().mockReturnValue('Patient_4_0_0'),
-                getCollectionByNameAsync: jest.fn().mockResolvedValue(mockCollection)
-            };
-
-            const mockConfigManager = Object.create(ConfigManager.prototype);
-            Object.defineProperty(mockConfigManager, 'handleConcurrency', { get: () => true });
-
-            const localCreateUpdateManager = jest.fn().mockReturnValue(mockUpdateManager);
-
-            const { executor } = makeExecutor({
-                resourceLocator: mockResourceLocator,
-                configManager: mockConfigManager,
-                createUpdateManager: localCreateUpdateManager
-            });
-
-            // Act
-            await executor.executeBulkAsync({
-                resourceType: 'Patient',
-                base_version,
-                useHistoryCollection: false,
-                operations: [entry],
-                requestInfo,
-                insertOneHistoryFn: jest.fn().mockResolvedValue(undefined)
-            });
-
-            // Assert: the entry was marked as skipped
-            expect(mockUpdateManager.replaceOneAsync).toHaveBeenCalledTimes(1);
-            expect(entry.skipped).toBe(true);
-        });
-    });
 
     // Outer catch block: logs and wraps prep-phase errors in RethrownError exactly once
     describe('outer catch block', () => {

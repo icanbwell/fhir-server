@@ -388,15 +388,6 @@ class FastDatabaseUpdateManager {
     }
 
     /**
-     * The document collection.replaceOne writes for this resource
-     * @param {Object} doc
-     * @return {Object}
-     */
-    toWriteDocument(doc) {
-        return doc;
-    }
-
-    /**
      * Force-write strategy for `resolveWriteForExternalizedDataChange`: a version-bumped copy of the
      * current DB resource, used when the diff saw no field change but this request's externalized
      * data still diverges (the divergent leaf is reconciled onto it afterward). Built from

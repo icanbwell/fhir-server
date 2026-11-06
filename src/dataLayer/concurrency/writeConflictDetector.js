@@ -3,16 +3,6 @@ const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 
 /**
- * How an entry's write can lose a concurrency race, by the filter of its operation
- */
-const ENTRY_CLASS = Object.freeze({
-    CREATE: 'create',
-    VERSIONED_UPDATE: 'versionedUpdate',
-    IF_MATCH_UPDATE: 'ifMatchUpdate',
-    UUID_ONLY_WRITE: 'uuidOnlyWrite'
-});
-
-/**
  * @typedef {Object} IndexedEntry
  * @property {import('../bulkInsertUpdateEntry').BulkInsertUpdateEntry} entry
  * @property {number} index - position of the entry's operation in the bulk write
@@ -21,12 +11,8 @@ const ENTRY_CLASS = Object.freeze({
 /**
  * @typedef {Object} DetectionResult
  * @property {import('../bulkInsertUpdateEntry').BulkInsertUpdateEntry[]} losers - creates and
- *   versioned updates whose write did not land
+ *   versioned updates whose write did not land, and {_uuid}-only writes whose document is missing
  * @property {Map<string, Object>} latestByUuid - stored documents of the losers
- * @property {import('../bulkInsertUpdateEntry').BulkInsertUpdateEntry[]} ifMatchMisses - If-Match
- *   updates whose write did not land
- * @property {import('../bulkInsertUpdateEntry').BulkInsertUpdateEntry[]} missingUuidOnly -
- *   {_uuid}-only writes whose document does not exist
  */
 
 /**
@@ -35,29 +21,6 @@ const ENTRY_CLASS = Object.freeze({
  */
 class WriteConflictDetector {
     /**
-     * @param {import('../bulkInsertUpdateEntry').BulkInsertUpdateEntry} entry
-     * @returns {string|null} an ENTRY_CLASS value, or null for a write that can't lose (insertOne)
-     */
-    classify (entry) {
-        const operation = entry.operation;
-        if (operation.insertOne) {
-            return null;
-        }
-        if (entry.operationType === 'insertUniqueId' && operation.updateOne?.upsert && operation.updateOne.update?.$setOnInsert) {
-            return ENTRY_CLASS.CREATE;
-        }
-        const versionClause = operation.replaceOne?.filter?.$and?.find(
-            (clause) => clause && Object.prototype.hasOwnProperty.call(clause, 'meta.versionId')
-        );
-        if (versionClause) {
-            return typeof versionClause['meta.versionId'] === 'object'
-                ? ENTRY_CLASS.IF_MATCH_UPDATE
-                : ENTRY_CLASS.VERSIONED_UPDATE;
-        }
-        return ENTRY_CLASS.UUID_ONLY_WRITE;
-    }
-
-    /**
      * @param {IndexedEntry[]} entries
      * @param {import('mongodb').BulkWriteResult} bulkWriteResult - from an ordered write, or one
      *   whose operations are all update-kind, so upsertedIds keys are the entry indices
@@ -65,23 +28,23 @@ class WriteConflictDetector {
      * @returns {Promise<DetectionResult>}
      */
     async detectAsync ({ entries, bulkWriteResult, updateManager }) {
-        const result = { losers: [], latestByUuid: new Map(), ifMatchMisses: [], missingUuidOnly: [] };
+        const result = { losers: [], latestByUuid: new Map() };
         const upsertedIds = bulkWriteResult.upsertedIds || {};
 
+        // the same tests the executor uses to count the creates and updates it expects
         const lostCreates = [];
         const updates = [];
         for (const { entry, index } of entries) {
-            const entryClass = this.classify(entry);
-            if (entryClass === ENTRY_CLASS.CREATE) {
+            if (entry.operationType === 'insertUniqueId') {
                 if (!Object.prototype.hasOwnProperty.call(upsertedIds, index)) {
                     lostCreates.push(entry);
                 }
-            } else if (entryClass) {
-                updates.push({ entry, entryClass });
+            } else if (entry.isUpdateOperation) {
+                updates.push(entry);
             }
         }
         const updatesFellShort = updates.length > 0 && bulkWriteResult.modifiedCount < updates.length;
-        const entriesToRead = [...lostCreates, ...(updatesFellShort ? updates.map((u) => u.entry) : [])];
+        const entriesToRead = [...lostCreates, ...(updatesFellShort ? updates : [])];
         if (entriesToRead.length === 0) {
             return result;
         }
@@ -100,21 +63,25 @@ class WriteConflictDetector {
         if (!updatesFellShort) {
             return result;
         }
-        for (const { entry, entryClass } of updates) {
-            const stored = latest.get(entry.uuid);
-            if (entryClass === ENTRY_CLASS.UUID_ONLY_WRITE) {
-                if (!stored) {
-                    result.missingUuidOnly.push(entry);
-                }
-                continue;
-            }
-            const won = stored && this._isSameDocument(updateManager.toWriteDocument(stored), entry.operation.replaceOne.replacement);
-            if (won) {
-                continue;
-            }
-            if (entryClass === ENTRY_CLASS.IF_MATCH_UPDATE) {
-                result.ifMatchMisses.push(entry);
+        const versionedUpdates = [];
+        let uuidOnlyMatched = 0;
+        for (const entry of updates) {
+            if (this._hasVersionCheck(entry.operation.replaceOne.filter)) {
+                versionedUpdates.push(entry);
+            } else if (latest.has(entry.uuid)) {
+                // filtered on _uuid alone: it can't lose a version race, only lose its document
+                uuidOnlyMatched++;
             } else {
+                addLoser(entry);
+            }
+        }
+        // matchedCount also counts the lost creates (their upsert found the document) and the
+        // {_uuid}-only writes. With nothing left for the versioned updates, none of them landed, even
+        // one whose stored document equals its replacement: that is another request's identical write.
+        const noVersionedUpdateLanded = typeof bulkWriteResult.matchedCount === 'number' &&
+            bulkWriteResult.matchedCount - lostCreates.length - uuidOnlyMatched <= 0;
+        for (const entry of versionedUpdates) {
+            if (noVersionedUpdateLanded || !this._isOwnWrite(latest.get(entry.uuid), entry.operation.replaceOne.replacement)) {
                 addLoser(entry);
             }
         }
@@ -122,25 +89,44 @@ class WriteConflictDetector {
     }
 
     /**
-     * Compares a stored document with a replacement after both go through the write serializer,
-     * so the same empty-value rules apply to each. Both are copied because the serializer deletes
-     * properties in place.
-     * @param {Object} stored
+     * Whether the replace filter checks meta.versionId. It doesn't for a write filtered on _uuid
+     * alone (PUT or PATCH on an existing resource, If-Match: *, a $merge with no previous version)
+     * or for a repeat write in the same batch, whose filter is null.
+     * @param {Object|null} filter
+     * @returns {boolean}
+     * @private
+     */
+    _hasVersionCheck (filter) {
+        return !!filter?.$and?.some((clause) => clause && Object.prototype.hasOwnProperty.call(clause, 'meta.versionId'));
+    }
+
+    /**
+     * A versioned update won when the stored document is at its version with its content
+     * @param {Object|undefined} stored
+     * @param {Object} replacement
+     * @returns {boolean}
+     * @private
+     */
+    _isOwnWrite (stored, replacement) {
+        return !!stored &&
+            `${stored.meta?.versionId}` === `${replacement.meta?.versionId}` &&
+            this._isSameDocument(stored, replacement);
+    }
+
+    /**
+     * findLatestByUuidsAsync already returns the stored document through the write serializer,
+     * which drops _id and empty values. The replacement goes through it too, on a copy because
+     * the serializer deletes properties in place and the entry still uses it.
+     * @param {Object} stored - as returned by findLatestByUuidsAsync
      * @param {Object} replacement
      * @returns {boolean}
      * @private
      */
     _isSameDocument (stored, replacement) {
-        const normalize = (doc) => {
-            const copy = deepcopy(doc);
-            delete copy._id;
-            return FhirResourceWriteSerializer.serialize({ obj: copy });
-        };
-        return deepEqual(normalize(stored), normalize(replacement));
+        return deepEqual(stored, FhirResourceWriteSerializer.serialize({ obj: deepcopy(replacement) }));
     }
 }
 
 module.exports = {
-    WriteConflictDetector,
-    ENTRY_CLASS
+    WriteConflictDetector
 };

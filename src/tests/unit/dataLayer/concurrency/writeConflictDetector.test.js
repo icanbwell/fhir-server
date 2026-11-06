@@ -1,5 +1,5 @@
 const { describe, test, expect, jest } = require('@jest/globals');
-const { WriteConflictDetector, ENTRY_CLASS } = require('../../../../dataLayer/concurrency/writeConflictDetector');
+const { WriteConflictDetector } = require('../../../../dataLayer/concurrency/writeConflictDetector');
 const { BulkInsertUpdateEntry } = require('../../../../dataLayer/bulkInsertUpdateEntry');
 
 function makePatient ({ uuid = 'u-1', versionId = '2', gender = 'male', extra = {} } = {}) {
@@ -54,7 +54,7 @@ function versionedEntry (resource, previousVersionId = '1') {
 }
 
 function ifMatchEntry (resource) {
-    return makeEntry({
+    const entry = makeEntry({
         operationType: 'replace',
         resource,
         operation: {
@@ -65,6 +65,8 @@ function ifMatchEntry (resource) {
             }
         }
     });
+    entry.writePrecondition = { ifMatchVersionIds: ['1'] };
+    return entry;
 }
 
 function uuidOnlyReplaceEntry (resource) {
@@ -72,14 +74,6 @@ function uuidOnlyReplaceEntry (resource) {
         operationType: 'replace',
         resource,
         operation: { replaceOne: { filter: { _uuid: resource._uuid }, upsert: false, replacement: resource } }
-    });
-}
-
-function patchEntry (resource) {
-    return makeEntry({
-        operationType: 'merge',
-        resource,
-        operation: { updateOne: { filter: { _uuid: resource._uuid }, update: { $set: { gender: 'other' } } } }
     });
 }
 
@@ -93,32 +87,12 @@ function nullFilterEntry (resource) {
 
 function makeUpdateManager (stored = []) {
     return {
-        findLatestByUuidsAsync: jest.fn().mockResolvedValue(new Map(stored.map((d) => [d._uuid, d]))),
-        toWriteDocument: jest.fn((doc) => doc)
+        findLatestByUuidsAsync: jest.fn().mockResolvedValue(new Map(stored.map((d) => [d._uuid, d])))
     };
 }
 
 describe('WriteConflictDetector', () => {
     const detector = new WriteConflictDetector();
-
-    describe('classify', () => {
-        const resource = makePatient();
-        test.each([
-            ['an insertUniqueId upsert', createEntry(resource), ENTRY_CLASS.CREATE],
-            ['a replaceOne on _uuid and a previous version', versionedEntry(resource), ENTRY_CLASS.VERSIONED_UPDATE],
-            ['a replaceOne on _uuid and If-Match versions', ifMatchEntry(resource), ENTRY_CLASS.IF_MATCH_UPDATE],
-            ['a replaceOne on _uuid alone', uuidOnlyReplaceEntry(resource), ENTRY_CLASS.UUID_ONLY_WRITE],
-            ['an updateOne $set on _uuid', patchEntry(resource), ENTRY_CLASS.UUID_ONLY_WRITE],
-            ['a replaceOne with a null filter', nullFilterEntry(resource), ENTRY_CLASS.UUID_ONLY_WRITE],
-            [
-                'an insertOne',
-                makeEntry({ operationType: 'insert', isCreateOperation: true, resource, operation: { insertOne: { document: resource } } }),
-                null
-            ]
-        ])('%s', (_name, entry, expected) => {
-            expect(detector.classify(entry)).toBe(expected);
-        });
-    });
 
     describe('detectAsync', () => {
         const winner = makePatient({ uuid: 'u-1', versionId: '2', gender: 'male' });
@@ -172,15 +146,15 @@ describe('WriteConflictDetector', () => {
                 name: 'a versioned update that differs only by values the write serializer drops as won',
                 entry: versionedEntry(makePatient({ uuid: 'u-1', extra: { birthDate: undefined, name: [] } })),
                 bulkWriteResult: { upsertedIds: {}, modifiedCount: 0 },
-                stored: [makePatient({ uuid: 'u-1', extra: { _id: 'mongo-object-id', birthDate: null } })],
+                stored: [makePatient({ uuid: 'u-1' })],
                 expected: { losers: 0 }
             },
             {
-                name: 'an If-Match update whose stored document differs as an If-Match miss',
+                name: 'an If-Match update whose stored document differs as lost',
                 entry: ifMatchEntry(winner),
                 bulkWriteResult: { upsertedIds: {}, modifiedCount: 0 },
                 stored: [otherWriter],
-                expected: { losers: 0, ifMatchMisses: 1 }
+                expected: { losers: 1, latest: otherWriter }
             },
             {
                 name: 'a {_uuid}-only replace whose document exists as won',
@@ -190,11 +164,46 @@ describe('WriteConflictDetector', () => {
                 expected: { losers: 0 }
             },
             {
-                name: 'a {_uuid}-only $set whose document is missing as missing',
-                entry: patchEntry(winner),
+                name: 'a {_uuid}-only replace whose document was deleted as lost, without a stored document',
+                entry: uuidOnlyReplaceEntry(winner),
                 bulkWriteResult: { upsertedIds: {}, modifiedCount: 0 },
                 stored: [],
-                expected: { losers: 0, missingUuidOnly: 1 }
+                expected: { losers: 1, latest: undefined }
+            },
+            {
+                name: 'a repeat write with a null filter whose document exists as won',
+                entry: nullFilterEntry(winner),
+                bulkWriteResult: { upsertedIds: {}, modifiedCount: 0 },
+                stored: [otherWriter],
+                expected: { losers: 0 }
+            },
+            {
+                name: 'an If-Match: * replace whose document was deleted as lost',
+                entry: Object.assign(uuidOnlyReplaceEntry(winner), { writePrecondition: { ifMatchVersionIds: ['*'] } }),
+                bulkWriteResult: { upsertedIds: {}, modifiedCount: 0 },
+                stored: [],
+                expected: { losers: 1, latest: undefined }
+            },
+            {
+                name: 'a versioned update equal to the stored document when matchedCount is 0 as lost (an identical write by another request)',
+                entry: versionedEntry(winner),
+                bulkWriteResult: { upsertedIds: {}, modifiedCount: 0, matchedCount: 0 },
+                stored: [makePatient({ uuid: 'u-1', versionId: '2', gender: 'male' })],
+                expected: { losers: 1, latest: expect.objectContaining({ _uuid: 'u-1' }) }
+            },
+            {
+                name: 'a versioned update equal to the stored document when matchedCount is 1 as won',
+                entry: versionedEntry(winner),
+                bulkWriteResult: { upsertedIds: {}, modifiedCount: 0, matchedCount: 1 },
+                stored: [makePatient({ uuid: 'u-1', versionId: '2', gender: 'male' })],
+                expected: { losers: 0 }
+            },
+            {
+                name: 'an If-Match update equal to the stored document when matchedCount is 0 as lost',
+                entry: ifMatchEntry(winner),
+                bulkWriteResult: { upsertedIds: {}, modifiedCount: 0, matchedCount: 0 },
+                stored: [makePatient({ uuid: 'u-1', versionId: '2', gender: 'male' })],
+                expected: { losers: 1, latest: expect.objectContaining({ _uuid: 'u-1' }) }
             }
         ])('classifies $name', async ({ entry, bulkWriteResult, stored, expected }) => {
             const updateManager = makeUpdateManager(stored);
@@ -202,11 +211,24 @@ describe('WriteConflictDetector', () => {
             const result = await detector.detectAsync({ entries: [{ entry, index: 0 }], bulkWriteResult, updateManager });
 
             expect(result.losers).toHaveLength(expected.losers);
-            expect(result.ifMatchMisses).toHaveLength(expected.ifMatchMisses || 0);
-            expect(result.missingUuidOnly).toHaveLength(expected.missingUuidOnly || 0);
             if (expected.losers > 0) {
-                expect(result.latestByUuid.get('u-1')).toBe(expected.latest);
+                expect(result.latestByUuid.get('u-1')).toEqual(expected.latest);
             }
+        });
+
+        test('never reads for an insertOne, which can\'t lose', async () => {
+            const resource = makePatient();
+            const updateManager = makeUpdateManager();
+            const entry = makeEntry({
+                operationType: 'insert', isCreateOperation: true, resource, operation: { insertOne: { document: resource } }
+            });
+
+            const result = await detector.detectAsync({
+                entries: [{ entry, index: 0 }], bulkWriteResult: { upsertedIds: {}, modifiedCount: 0 }, updateManager
+            });
+
+            expect(updateManager.findLatestByUuidsAsync).not.toHaveBeenCalled();
+            expect(result.losers).toHaveLength(0);
         });
 
         test('reads nothing when every create inserted and modifiedCount covers the updates', async () => {
@@ -250,6 +272,27 @@ describe('WriteConflictDetector', () => {
             expect(updateManager.findLatestByUuidsAsync.mock.calls[0][0].uuids).toEqual(['u-1']);
         });
 
+        test('counts the lost creates and {_uuid}-only writes in matchedCount before the versioned updates', async () => {
+            const won = makePatient({ uuid: 'u-3' });
+            const updateManager = makeUpdateManager([
+                makePatient({ uuid: 'u-1', gender: 'female' }),
+                makePatient({ uuid: 'u-2' }),
+                { ...won }
+            ]);
+            const entries = [
+                { entry: createEntry(makePatient({ uuid: 'u-1' })), index: 0 },
+                { entry: uuidOnlyReplaceEntry(makePatient({ uuid: 'u-2' })), index: 1 },
+                { entry: versionedEntry(won), index: 2 }
+            ];
+
+            // the lost create's upsert and the {_uuid}-only write matched, so 2 is no versioned match
+            const result = await detector.detectAsync({
+                entries, bulkWriteResult: { upsertedIds: {}, modifiedCount: 1, matchedCount: 2 }, updateManager
+            });
+
+            expect(result.losers.map((e) => e.uuid)).toEqual(['u-1', 'u-3']);
+        });
+
         test('keeps only the losers in latestByUuid', async () => {
             const won = makePatient({ uuid: 'u-1' });
             const lost = makePatient({ uuid: 'u-2', gender: 'male' });
@@ -263,10 +306,9 @@ describe('WriteConflictDetector', () => {
             expect([...result.latestByUuid.keys()]).toEqual(['u-2']);
         });
 
-        test('leaves the entry replacement and the stored document unchanged', async () => {
+        test('leaves the entry replacement unchanged', async () => {
             const replacement = makePatient({ uuid: 'u-1', extra: { birthDate: undefined } });
-            const stored = makePatient({ uuid: 'u-1', extra: { _id: 'mongo-object-id' } });
-            const updateManager = makeUpdateManager([stored]);
+            const updateManager = makeUpdateManager([makePatient({ uuid: 'u-1' })]);
 
             await detector.detectAsync({
                 entries: [{ entry: versionedEntry(replacement), index: 0 }],
@@ -275,7 +317,6 @@ describe('WriteConflictDetector', () => {
             });
 
             expect(Object.prototype.hasOwnProperty.call(replacement, 'birthDate')).toBe(true);
-            expect(stored._id).toBe('mongo-object-id');
         });
     });
 });

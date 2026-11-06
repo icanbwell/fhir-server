@@ -8,6 +8,7 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { buildOperationOutcomeFromIssues, buildOperationOutcomeIssue } = require('../../utils/operationOutcomeBuilder');
 const { MONGO_ERROR } = require('../../constants');
 const { logInfo } = require('../../operations/common/logging');
+const { logTraceSystemEventAsync } = require('../../operations/common/systemEventLogging');
 
 /**
  * The driver rejects a whole bulkWrite on the client when one operation reaches this size
@@ -87,6 +88,11 @@ class ConcurrentWriteResolver {
         this._recordLosses(pending, latest, mayHaveCommitted);
         for (let round = 1; round <= rounds && pending.length > 0; round++) {
             roundsUsed = round;
+            await logTraceSystemEventAsync({
+                event: 'concurrentWriteResolution' + `_${losers[0].resourceType}`,
+                message: `Resolving concurrent writes, round ${round} of ${rounds}`,
+                args: { requestId: requestInfo.requestId, round, pendingUuids: pending.map((entry) => entry.uuid) }
+            });
             await this.sleep(this.random() * backoffMs * 2 ** (round - 1));
             const queued = [];
             for (const entry of pending) {
@@ -153,7 +159,7 @@ class ConcurrentWriteResolver {
                 entry.operation = {
                     updateOne: {
                         filter: { _uuid: entry.uuid },
-                        update: { $setOnInsert: updateManager.toWriteDocument(entry.resource) },
+                        update: { $setOnInsert: entry.resource },
                         upsert: true
                     }
                 };
@@ -170,6 +176,17 @@ class ConcurrentWriteResolver {
             return false;
         }
 
+        // checked before the rebase: a skipped entry is reported with the stored document
+        const refusal = { requestInfo, mayHaveCommitted, entry, currentResource };
+        if (await this._isRefusedAsync({
+            ...refusal,
+            checkAsync: async () => this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                resource: cloneResource(currentResource), requestInfo, base_version, accessRequested: 'u'
+            })
+        })) {
+            return false;
+        }
+
         const { updatedResource, patches } = await updateManager.rebaseOnLatestAsync({
             base_version, requestInfo, doc: entry.resource, currentResource, smartMerge: entry.smartMerge
         });
@@ -180,26 +197,16 @@ class ConcurrentWriteResolver {
             return false;
         }
 
-        try {
-            await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                resource: cloneResource(currentResource), requestInfo, base_version, accessRequested: 'u'
-            });
-            this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+        if (await this._isRefusedAsync({
+            ...refusal,
+            checkAsync: async () => this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
                 requestInfo,
                 currentResource,
                 updatedResource,
                 ignoreRemovals: entry.smartMerge,
                 accessRequested: 'u'
-            });
-        } catch (error) {
-            if (error.statusCode !== 403) {
-                throw error;
-            }
-            const operationOutcome = buildOperationOutcomeFromIssues(error.issue);
-            entry.operationOutcome = operationOutcome;
-            await this._finishAsync({
-                requestInfo, mayHaveCommitted, entry, storedResource: currentResource, issue: operationOutcome.issue[0]
-            });
+            })
+        })) {
             return false;
         }
 
@@ -212,7 +219,7 @@ class ConcurrentWriteResolver {
         entry.operation = {
             replaceOne: {
                 filter: { $and: [{ _uuid: entry.uuid }, { 'meta.versionId': `${currentResource.meta.versionId}` }] },
-                replacement: updateManager.toWriteDocument(updatedResource)
+                replacement: updatedResource
             }
         };
         if (BSON.calculateObjectSize(entry.operation) >= MAX_BSON_OBJECT_SIZE) {
@@ -226,6 +233,28 @@ class ConcurrentWriteResolver {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Runs one access check. A 403 gives the entry a forbidden issue instead of failing the request.
+     * @returns {Promise<boolean>} true when the check refused the entry
+     * @private
+     */
+    async _isRefusedAsync ({ requestInfo, mayHaveCommitted, entry, currentResource, checkAsync }) {
+        try {
+            await checkAsync();
+            return false;
+        } catch (error) {
+            if (error.statusCode !== 403) {
+                throw error;
+            }
+            const operationOutcome = buildOperationOutcomeFromIssues(error.issue);
+            entry.operationOutcome = operationOutcome;
+            await this._finishAsync({
+                requestInfo, mayHaveCommitted, entry, storedResource: currentResource, issue: operationOutcome.issue[0]
+            });
+            return true;
+        }
     }
 
     /**
