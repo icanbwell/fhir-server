@@ -75,7 +75,8 @@ flowchart TD
     ConfR --> Delegated{"§10: userType == delegatedUser?"}
     Delegated -- yes --> SensExcl["§10: AND exclude actor's denied sensitive categories + unclassified"]
     Delegated -- no --> Merge
-    SensExcl --> Merge
+    SensExcl --> ConnType["§10: AND restrict to the actor's Consent connection types (if any; not Person)"]
+    ConnType --> Merge
 
     Branch -- no --> Wildcard{"§7: caller holds access/* wildcard scope?"}
     Wildcard -- yes --> NoTagFilter["No meta.security filter — every tenant's resources visible"]
@@ -320,7 +321,9 @@ These apply regardless of scope type, on top of everything above:
   `_includeHidden=true`. Does not apply to by-id lookups, history, `DELETE`, or `AuditEvent`.
 - **Connection-type tag** (`.../connectionType`) — used by
   `DataSharingManager.getConnectionTypeFilteredQuery` to restrict the PROA/IAS consent-driven query
-  branch (§6a) to an allow-listed set of connection types.
+  branch (§6a) to an allow-listed set of connection types, and by
+  `DataSharingManager.updateQueryForDelegatedAccessConnectionTypes` to restrict a delegated actor to
+  the connection types its entitlement Consent lists (§10).
 
 The other two `meta.security` tags that gate access independent of tenant/consent — the
 confidentiality restriction tag and the `unclassified` sensitivity tag — classify a resource by
@@ -393,6 +396,8 @@ sequenceDiagram
             DSM->>DARM: getFilteringRulesAsync() (cached per request)
             DARM-->>DSM: deniedSensitiveCategories[]
             DSM-->>SM: AND NOT(denied categories, unclassified)
+            SM->>DSM: updateQueryForDelegatedAccessConnectionTypes()
+            DSM-->>SM: AND connectionType in actor.allowedConnectionTypes<br/>(skipped for Person or when unset)
             SM-->>C: filtered Bundle
             Enrich->>Enrich: strip Consent-denied-category sections<br/>plus the hardcoded unclassified code<br/>from any returned Composition
         end
@@ -430,6 +435,11 @@ sequenceDiagram
      `sensitivity-category` `securityLabel` into a denied-code list, and ANDs a
      `meta.security` `$not`/`$elemMatch` exclusion for those codes **plus** the hardcoded
      `unclassified` code (§9) onto the query.
+   - then `DataSharingManager.updateQueryForDelegatedAccessConnectionTypes` ANDs a
+     `meta.security` `$elemMatch` on the connection-type tag (§8) when the actor carries
+     `allowedConnectionTypes`. Those come from the entitlement Consent's `provision.securityLabel`,
+     read in `AuthService.processUserInfo`. `Person` is exempt, and an empty list (a malformed
+     label) returns the impossible query.
 6. **Content-level filtering (enrichment-time — not a resource inclusion/exclusion decision)** —
    `CompositionSectionFilterEnrichmentProvider`
    (`src/enrich/providers/compositionSectionFilterEnrichmentProvider.js`) reuses the actor's
@@ -456,7 +466,9 @@ For a given caller and resource, the resource is returned only if **all** of the
 3. The resource is not `hidden`-tagged, unless explicitly requested (§8).
 4. If the caller is patient-scoped, the resource is not confidentiality-`R`-restricted (§9).
 5. If the caller is a delegated actor or CMS partner, the resource passes that caller type's
-   consent-driven filter and is not `unclassified` for delegated actors (§6b, §9, §10).
+   consent-driven filter and is not `unclassified` for delegated actors (§6b, §9, §10). For a
+   delegated actor whose entitlement Consent lists connection types, the resource (other than
+   `Person`) also carries one of those connection types (§10).
 6. If the requesting client relies on consent-based data-sharing expansion (§6a) or the patient
    has an active data-view-control exclusion (§6d), those results are included/excluded
    accordingly.
