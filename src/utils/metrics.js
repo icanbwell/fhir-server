@@ -258,6 +258,19 @@ const historyKafkaProduceDurationHistogram = meter.createHistogram('fhir_history
     unit: 's'
 });
 
+const historyClickHouseReadsCounter = meter.createCounter('fhir_history_clickhouse_reads_total', {
+    description: 'ClickHouse-backed _history reads, by resource_type and outcome (success/error).'
+});
+
+const historyClickHouseReadDurationHistogram = meter.createHistogram('fhir_history_clickhouse_read_duration_seconds', {
+    description: 'Wall-clock duration of one ClickHouse _history query, by resource_type.',
+    unit: 's'
+});
+
+const historyClickHouseReadRowsHistogram = meter.createHistogram('fhir_history_clickhouse_read_rows', {
+    description: 'History rows returned by one ClickHouse _history query, by resource_type.'
+});
+
 const historyMongoFallbackCounter = meter.createCounter('fhir_history_mongo_fallback_total', {
     description: 'History documents written to MongoDB because the Kafka produce failed while the MongoDB history write is disabled, by resource_type and reason.'
 });
@@ -496,6 +509,22 @@ function recordHistoryKafkaProduce (resourceType, count, success, durationSecond
 }
 
 /**
+ * Record one ClickHouse-backed _history query.
+ * @param {string} resourceType
+ * @param {boolean} success
+ * @param {number} rows rows returned (0 on failure)
+ * @param {number} durationSeconds
+ */
+function recordHistoryClickHouseRead (resourceType, success, rows, durationSeconds) {
+    const labels = { [LABEL.RESOURCE_TYPE]: resourceType || UNKNOWN };
+    historyClickHouseReadsCounter.add(1, { ...labels, [LABEL.OUTCOME]: success ? 'success' : OUTCOME.ERROR });
+    historyClickHouseReadDurationHistogram.record(durationSeconds, labels);
+    if (success) {
+        historyClickHouseReadRowsHistogram.record(rows, labels);
+    }
+}
+
+/**
  * Emit fhir_import_operations_triggered_total once per TaskCreated event the
  * orchestrator begins processing.
  */
@@ -681,6 +710,7 @@ module.exports = {
     recordOutboundEverything,
     recordKafkaRetryExhausted,
     recordHistoryKafkaProduce,
+    recordHistoryClickHouseRead,
     recordHistoryMongoFallback,
     recordImportOperationTriggered,
     recordImportResourceOutcomes,

@@ -1,4 +1,9 @@
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
+const { HistoryReadRouter } = require('../history/historyReadRouter');
+const { TABLES } = require('../../constants/clickHouseConstants');
+const {
+    assertSupportedHistoryArgs, resolveHistoryUuid, assertNotDelegatedUser, assertNoCloudStorageStubs
+} = require('../history/historyClickHouseGuards');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -48,9 +53,21 @@ class SearchByVersionIdOperation {
             historyResourceCloudStorageClient,
             mongoGroupMemberRepository,
             auditLogger,
-            postRequestProcessor
+            postRequestProcessor,
+            historyClickHouseRepository,
+            historyReadRouter
         }
     ) {
+        /**
+         * null when ClickHouse is not enabled
+         * @type {import('../../dataLayer/repositories/historyClickHouseRepository').HistoryClickHouseRepository | null}
+         */
+        this.historyClickHouseRepository = historyClickHouseRepository || null;
+        /**
+         * @type {HistoryReadRouter}
+         */
+        this.historyReadRouter = historyReadRouter;
+        assertTypeEquals(historyReadRouter, HistoryReadRouter);
         /**
          * @type {DatabaseHistoryFactory}
          */
@@ -127,6 +144,35 @@ class SearchByVersionIdOperation {
     }
 
     /**
+     * Reads one version from ClickHouse (resource types listed in
+     * RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES). The URL id must be the resource `_uuid` or `id|owner`.
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {ParsedArgs} params.parsedArgs
+     * @return {Promise<{resource: object, collectionName: string}|null>} null when the version is not in ClickHouse
+     */
+    async findVersionInClickHouseAsync ({ resourceType, parsedArgs }) {
+        const { version_id: versionId } = parsedArgs;
+        if (!this.historyClickHouseRepository) {
+            throw new Error(`ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`);
+        }
+        const uuid = resolveHistoryUuid({ id: parsedArgs.id, resourceType });
+        if (typeof versionId !== 'string') {
+            throw new BadRequestError(new Error('version_id must be a string'));
+        }
+        assertSupportedHistoryArgs(parsedArgs);
+        if (parsedArgs._since !== undefined) {
+            throw new BadRequestError(new Error('_since is not supported when reading a single version'));
+        }
+        const raw = await this.historyClickHouseRepository.findVersionAsync({ resourceType, uuid, versionId });
+        if (!raw) {
+            return null;
+        }
+        assertNoCloudStorageStubs([raw]);
+        return { resource: raw, collectionName: TABLES.RESOURCE_HISTORY };
+    }
+
+    /**
      * does a FHIR Search By Version
      * @param {Object} params
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
@@ -174,6 +220,22 @@ class SearchByVersionIdOperation {
             throw forbiddenError;
         }
 
+        // A delegated user may not read history on either store: the MongoDB path has no
+        // delegated-consent filtering for versions, and neither does the ClickHouse path.
+        try {
+            assertNotDelegatedUser({ userType, resourceType });
+        } catch (error) {
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs?.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error
+            });
+            throw error;
+        }
+
         // SEC-1580 SAE-1: see ScopesManager.hasHistoryAccess for why a tenant-scoped access
         // code is never sufficient to read a specific historical version.
         if (!this.scopesManager.hasHistoryAccess({ resourceType, scope, accessRequested: 'r' })) {
@@ -207,65 +269,69 @@ class SearchByVersionIdOperation {
             );
 
             /**
-             * @type {boolean}
-             */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
-
-            /**
-             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
-             */
-            let {
-                /** @type {import('mongodb').Document}**/
-                query
-                // /** @type {Set} **/
-                // columns
-            } = await this.searchManager.constructQueryAsync({
-                user,
-                scope,
-                isUser,
-                userType,
-                resourceType,
-                useAccessIndex,
-                personIdFromJwtToken,
-                parsedArgs,
-                useHistoryTable: true,
-                operation: READ,
-                accessRequested: 'r',
-                actor
-            });
-
-            if (typeof version_id !== 'string') {
-                throw new BadRequestError('version_id must be a string');
-            }
-            const queryForVersionId = {
-                'resource.meta.versionId': version_id
-            };
-
-            if (query.$and) {
-                query.$and.push(queryForVersionId);
-            } else {
-                query = {
-                    $and: [
-                        query,
-                        queryForVersionId
-                    ]
-                };
-            }
-            /**
              * @type {{resource: object, collectionName: string}|null}
              */
             let result;
-            try {
-                const databaseHistoryManager = this.databaseHistoryFactory.createDatabaseHistoryManager(
-                    {
-                        resourceType, base_version
-                    }
-                );
-                result = await databaseHistoryManager.findOneAsync({
+            if (this.historyReadRouter.readsFromClickHouse(resourceType)) {
+                result = await this.findVersionInClickHouseAsync({ resourceType, parsedArgs });
+            } else {
+                /**
+                 * @type {boolean}
+                 */
+                const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
+
+                /**
+                 * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+                 */
+                let {
+                    /** @type {import('mongodb').Document}**/
                     query
+                    // /** @type {Set} **/
+                    // columns
+                } = await this.searchManager.constructQueryAsync({
+                    user,
+                    scope,
+                    isUser,
+                    userType,
+                    resourceType,
+                    useAccessIndex,
+                    personIdFromJwtToken,
+                    parsedArgs,
+                    useHistoryTable: true,
+                    operation: READ,
+                    accessRequested: 'r',
+                    actor
                 });
-            } catch (e) {
-                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
+
+                if (typeof version_id !== 'string') {
+                    throw new BadRequestError('version_id must be a string');
+                }
+                const queryForVersionId = {
+                    'resource.meta.versionId': version_id
+                };
+
+                if (query.$and) {
+                    query.$and.push(queryForVersionId);
+                } else {
+                    query = {
+                        $and: [
+                            query,
+                            queryForVersionId
+                        ]
+                    };
+                }
+                try {
+                    const databaseHistoryManager = this.databaseHistoryFactory.createDatabaseHistoryManager(
+                        {
+                            resourceType, base_version
+                        }
+                    );
+                    result = await databaseHistoryManager.findOneAsync({
+                        query
+                    });
+                } catch (e) {
+                    throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
+                }
             }
 
             if (result) {
@@ -298,7 +364,10 @@ class SearchByVersionIdOperation {
                 // searchById.js's identical pattern with resourceUuid).
                 const groupUuid = historyResource._uuid;
                 const resourceUuid = groupUuid;
-                const targetLastUpdated = historyResource.meta.lastUpdated;
+                // ClickHouse returns meta.lastUpdated as an ISO string; the group member lookup needs a Date
+                const targetLastUpdated = typeof historyResource.meta.lastUpdated === 'string'
+                    ? new Date(historyResource.meta.lastUpdated)
+                    : historyResource.meta.lastUpdated;
                 const isExtendedGroup = resourceType === 'Group' &&
                     historyResource[MONGO_GROUP_EXTENDED_FIELD] === true &&
                     this.configManager.enableExtendedGroup;
