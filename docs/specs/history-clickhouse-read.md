@@ -37,11 +37,11 @@ Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need a
 | `GET /4_0_0/Patient/{uuid}/_history?_metaUuid=1` | Supported. `_metaUuid` is accepted (sent by fhir-server-ui). |
 | `GET /4_0_0/Patient/abc/_history` | 400. A bare source id with no owner is ambiguous across owners; use the uuid or `id\|owner`. |
 | `GET /4_0_0/Patient/{uuid}/_history?_uuid={uuid}` | 400. There is no `_uuid` parameter; the URL id is the uuid. |
+| `GET /4_0_0/Patient/{uuid}/_history?_id={uuid}` | Supported; same read. |
+| `GET /4_0_0/Patient/{uuid}/_history?_id={other}` or `?_id:not=...` | 400. The URL already names the resource; a different `_id`, or any `_id`/`id` with a modifier, is rejected. |
 | `GET /4_0_0/Patient/_history?_id={uuid}` | Supported. Same read as `/Patient/{uuid}/_history`; `_id` may also be `id\|owner`. |
 | `GET /4_0_0/Patient/_history?_id={uuid1},{uuid2}` | Supported. Several resources in one read (also a repeated `_id`, or `id\|owner` entries); up to 100 ids, interleaved newest first. |
 | `GET /4_0_0/Patient/_history?_id=abc` or `?_id={uuid},abc` | 400. Every `_id` entry must be a uuid or `id\|owner`; more than 100 ids is also 400. |
-| `GET /4_0_0/Patient/_history?id={uuid}` | 400. `id` is only the URL form; use `_id` on a type-level read. |
-| `GET /4_0_0/Patient/{uuid}/_history?_id={uuid}` | 400. The URL already names the resource. |
 | `GET /4_0_0/Patient/{uuid}/_history?_lastUpdated=gt2026-01-01` | 400. Unsupported arguments are rejected, not dropped. |
 | `GET /4_0_0/Patient/{uuid}/_history?_since=yesterday` | 400. `_since` must be an ISO 8601 date or instant. |
 | `GET /4_0_0/Patient/{uuid}/_history/2?_since=2026-01-01` | 400. `_since` is not supported on a single-version read. |
@@ -64,7 +64,7 @@ Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need a
 - Type-level `/{type}/_history` (no id) is also served: it pages through the history of every
   resource of the type, newest first (`_recorded DESC, _uuid DESC, version DESC`), with the same
   keyset cursor (which also carries the last row's `_uuid`). With `_id` (one uuid or `id|owner`) it is the
-  same read as the instance route; with a list it filters on `_uuid IN (...)` (at most 100 ids, de-duplicated); `id` is rejected with 400. It has no time window, so each page scans the type's history in `_recorded` order (the table
+  same read as the instance route; with a list it filters on `_uuid IN (...)` (at most 100 ids, de-duplicated). It has no time window, so each page scans the type's history in `_recorded` order (the table
   is ordered by `resource_type, _uuid`); it can be slow on large types and is bounded only by
   `CLICKHOUSE_REQUEST_TIMEOUT`. Access is the same as instance history: only non-tenant `access/*`
   scopes pass, with no `access_tags` predicate.
