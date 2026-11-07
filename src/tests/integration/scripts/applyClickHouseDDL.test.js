@@ -296,6 +296,43 @@ describe('applyClickHouseDDL admin runner', () => {
             expect(rows.map((r) => r._uuid)).toEqual(['synthetic-new']);
         }, 60000);
 
+        test('09 migrates a table that still has the original table-wide TTL, and can be re-run', async () => {
+            await selectAsync(`DROP TABLE ${TABLE}`);
+            await clickHouseClientManager.queryAsync({
+                query: `CREATE TABLE ${TABLE} (
+                    resource_type LowCardinality(String), _uuid String, _recorded DateTime64(3, 'UTC'),
+                    version_id String, access_tags Array(String), raw JSON(max_dynamic_paths=256)
+                ) ENGINE = ReplacingMergeTree()
+                ORDER BY (resource_type, _uuid, _recorded, version_id)
+                PARTITION BY toYYYYMM(_recorded)
+                TTL toDateTime(_recorded) + INTERVAL 13 MONTH DELETE
+                SETTINGS ttl_only_drop_parts = 1`
+            });
+            const migration = makeRunner({
+                clickHouseClientManager,
+                mongoDatabaseManager,
+                file: path.join(DDL_DIR, '09-resource-history-ttl.sql')
+            });
+            await migration.processAsync();
+            await expect(migration.processAsync()).resolves.not.toThrow();
+
+            const ddl = Object.values((await selectAsync(`SHOW CREATE TABLE ${TABLE}`))[0])[0];
+            expect(ddl).toContain('resource_type IN');
+
+            const old = new Date();
+            old.setUTCMonth(old.getUTCMonth() - 14);
+            await clickHouseClientManager.insertAsync({
+                table: TABLE,
+                values: [
+                    row({ resource_type: 'Consent', _uuid: 'synthetic-consent', _recorded: toClickHouseTime(old) }),
+                    row({ _uuid: 'synthetic-patient', _recorded: toClickHouseTime(old) })
+                ]
+            });
+            await clickHouseClientManager.queryAsync({ query: `OPTIMIZE TABLE ${TABLE} FINAL` });
+
+            expect((await selectAsync(`SELECT _uuid FROM ${TABLE}`)).map((r) => r._uuid)).toEqual(['synthetic-consent']);
+        }, 60000);
+
         test.each([
             ['Consent', 'kept'],
             ['Group', 'kept'],

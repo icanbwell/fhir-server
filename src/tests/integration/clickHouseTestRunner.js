@@ -12,7 +12,8 @@ const SCHEMA_FILES = [
     '02-audit-event.sql',
     '04-access-log.sql',
     '05-audit-access-mv.sql',
-    '08-resource-history.sql'
+    '08-resource-history.sql',
+    '09-resource-history-ttl.sql'
 ];
 
 /**
