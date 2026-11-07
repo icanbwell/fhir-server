@@ -37,6 +37,8 @@ Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need a
 | `GET /4_0_0/Patient/{uuid}/_history?_metaUuid=1` | Supported. `_metaUuid` is accepted (sent by fhir-server-ui). |
 | `GET /4_0_0/Patient/abc/_history` | 400. A bare source id with no owner is ambiguous across owners; use the uuid or `id\|owner`. |
 | `GET /4_0_0/Patient/{uuid}/_history?_uuid={uuid}` | 400. There is no `_uuid` parameter; the URL id is the uuid. |
+| `GET /4_0_0/Patient/{uuid}/_history?_id={uuid}` | Supported; same read. |
+| `GET /4_0_0/Patient/{uuid}/_history?_id={other}` or `?_id:not=...` | 400. The URL already names the resource; a different `_id`, or any `_id`/`id` with a modifier, is rejected. |
 | `GET /4_0_0/Patient/_history?_id={uuid}` | Supported. Same read as `/Patient/{uuid}/_history`; `_id` may also be `id\|owner`. |
 | `GET /4_0_0/Patient/_history?_id={uuid1},{uuid2}` | Supported. Several resources in one read (also a repeated `_id`, or `id\|owner` entries); up to 100 ids, interleaved newest first. |
 | `GET /4_0_0/Patient/_history?_id=abc` or `?_id={uuid},abc` | 400. Every `_id` entry must be a uuid or `id\|owner`; more than 100 ids is also 400. |

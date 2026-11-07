@@ -42,6 +42,7 @@ const { HistoryReadRouter } = require('./history/historyReadRouter');
 const {SummaryOperation} = require("./summary/summary");
 const { ResponseStreamerFactory } = require('../utils/responseStreamerFactory');
 const { BadRequestError } = require('../utils/httpErrors');
+const { assertNoConflictingInstanceIdArgs } = require('./history/historyClickHouseGuards');
 const { ResponseHandlerFactory } = require('../utils/responseHandler/responseHandlerFactory');
 const { CMSManager } = require('../utils/cmsManager');
 const { OperationAccessManager } = require('../utils/operationAccessManager');
@@ -1044,9 +1045,12 @@ class FhirOperationsManager {
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @return {Promise<ParsedArgs>}
      */
-    async getHistoryParsedArgsAsync({ args, resourceType, headers, requestInfo }) {
+    async getHistoryParsedArgsAsync({ args, resourceType, headers, requestInfo, isInstanceRead = false }) {
         if (!this.historyReadRouter.readsFromClickHouse(resourceType)) {
             return await this.getParsedArgsAsync({ args, resourceType, headers, operation: READ, requestInfo });
+        }
+        if (isInstanceRead) {
+            assertNoConflictingInstanceIdArgs(args);
         }
         const { _historyCursor, _since, ...rest } = args;
         const parsedArgs = await this.getParsedArgsAsync({
@@ -1078,7 +1082,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getHistoryParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, requestInfo
+            args: combined_args, resourceType, headers: req.headers, requestInfo, isInstanceRead: true
         });
         return await this.searchByVersionIdOperation.searchByVersionIdAsync(
             {
@@ -1144,7 +1148,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getHistoryParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, requestInfo
+            args: combined_args, resourceType, headers: req.headers, requestInfo, isInstanceRead: true
         });
         return await this.historyByIdOperation.historyByIdAsync(
             {
