@@ -65,35 +65,6 @@ class NotFoundError extends ServerError {
     }
 }
 
-class NotAllowedError extends ServerError {
-    constructor (message, options = {}) {
-        super(message, {
-            // Set this to make the HTTP status code 409
-            statusCode: 409,
-            // Add any normal operation outcome stuff here
-            issue: [
-                {
-                    severity: 'error',
-                    code: 'forbidden',
-                    details: { text: message }
-                }
-            ]
-        });
-        this.logLevel = 'info';
-
-        // You can attach relevant information to the error instance
-        // (e.g.. the username)
-
-        for (const [key, value] of Object.entries(options)) {
-            this[`${key}`] = value;
-        }
-    }
-
-    get statusCode () {
-        return 409;
-    }
-}
-
 class NotValidatedError extends ServerError {
     /**
      * constructor
@@ -283,6 +254,32 @@ class PayloadTooLargeError extends ServerError {
     }
 }
 
+/**
+ * 409 for a write that kept losing a concurrency race. Carries the issue it is given (code
+ * `conflict`).
+ */
+class ConflictError extends ServerError {
+    /**
+     * @param {OperationOutcomeIssue|Object} issue
+     * @param {Object} [options]
+     */
+    constructor (issue, options = {}) {
+        super(issue.diagnostics || issue.details?.text, {
+            statusCode: 409,
+            issue: [issue]
+        });
+        this.logLevel = 'info';
+
+        for (const [key, value] of Object.entries(options)) {
+            this[`${key}`] = value;
+        }
+    }
+
+    get statusCode () {
+        return 409;
+    }
+}
+
 class UnsupportedMediaTypeError extends ServerError {
     constructor (message, options = {}) {
         super(message, {
@@ -309,8 +306,8 @@ class UnsupportedMediaTypeError extends ServerError {
 
 module.exports = {
     BadRequestError,
+    ConflictError,
     NotFoundError,
-    NotAllowedError,
     NotValidatedError,
     UnauthorizedError,
     ForbiddenError,

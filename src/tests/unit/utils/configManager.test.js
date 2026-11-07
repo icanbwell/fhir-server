@@ -357,6 +357,33 @@ describe('ConfigManager', () => {
         });
     });
 
+    // ========== concurrency resolution ==========
+    describe('concurrencyResolutionRounds', () => {
+        test.each([
+            [undefined, 3],
+            ['5', 5],
+            ['0', 3],
+            ['abc', 3],
+            ['-1', 3]
+        ])('CONCURRENCY_RESOLUTION_ROUNDS=%s gives %s', (value, expected) => {
+            setEnv('CONCURRENCY_RESOLUTION_ROUNDS', value);
+            expect(new ConfigManager().concurrencyResolutionRounds).toBe(expected);
+        });
+    });
+
+    describe('concurrencyResolutionBackoffMs', () => {
+        test.each([
+            [undefined, 25],
+            ['0', 0],
+            ['40', 40],
+            ['x', 25],
+            ['-5', 25]
+        ])('CONCURRENCY_RESOLUTION_BACKOFF_MS=%s gives %s', (value, expected) => {
+            setEnv('CONCURRENCY_RESOLUTION_BACKOFF_MS', value);
+            expect(new ConfigManager().concurrencyResolutionBackoffMs).toBe(expected);
+        });
+    });
+
     // ========== defaultSortId ==========
     describe('defaultSortId', () => {
         test('defaults to _uuid', () => {

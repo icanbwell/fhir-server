@@ -1458,7 +1458,7 @@ module.exports = {
                     parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args: args1 }),
                     resourceType: 'Patient'
                 });
-                if (result && result[0].operationOutcome) {
+                if (result && (result[0].issue || result[0].operationOutcome)) {
                     // Client-caused failure (e.g. missing access scope on the merge),
                     // not an internal-error leak; use BadRequestError (4xx) so
                     // getSafeErrorMessage doesn't redact this descriptive message.

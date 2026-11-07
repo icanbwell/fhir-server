@@ -349,9 +349,10 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {Object} doc
      * @param {Object|null} contextData - Optional context data for resource-specific handling
      * @param {boolean} [rejectIfExists] - fail with 412 instead of folding a lost create race into an update
+     * @param {boolean} [smartMerge] - merge mode used if this create loses a race and is rebased as an update
      * @returns {Promise<void>}
      */
-    async insertOneAsync({ base_version, requestInfo, resourceType, doc, contextData = null, rejectIfExists = false }) {
+    async insertOneAsync({ base_version, requestInfo, resourceType, doc, contextData = null, rejectIfExists = false, smartMerge = true }) {
         try {
             if (!doc.meta) {
                 doc.meta = {};
@@ -391,7 +392,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     doc,
                     previousVersionId: `${previousVersionId}`,
                     patches: null,
-                    contextData
+                    contextData,
+                    smartMerge
                 });
             } else {
                 // else insert it
@@ -437,7 +439,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
                         operationType: 'insertUniqueId',
                         patches: null,
                         contextData,
-                        writePrecondition: rejectIfExists ? { rejectIfExists: true } : null
+                        writePrecondition: rejectIfExists ? { rejectIfExists: true } : null,
+                        smartMerge
                     });
                 }
             }

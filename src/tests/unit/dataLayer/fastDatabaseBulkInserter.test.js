@@ -124,6 +124,18 @@ describe('FastDatabaseBulkInserter', () => {
             // Should not double-add a separate operation for second insert
             expect(map.get('Patient').length).toBeGreaterThanOrEqual(1);
         });
+
+        test.each([
+            [undefined, true],
+            [true, true],
+            [false, false]
+        ])('stores smartMerge %s on the insertUniqueId entry as %s', async (smartMerge, expected) => {
+            const doc = { resourceType: 'Patient', id: 'p-sm', _uuid: 'u-sm', _sourceAssigningAuthority: 'a', meta: { versionId: '1' } };
+            const requestInfo = createMockFhirRequestInfo();
+            await inserter.insertOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', doc, smartMerge });
+            const map = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId });
+            expect(map.get('Patient')[0].smartMerge).toBe(expected);
+        });
     });
 
     describe('insertOneHistoryAsync _recorded', () => {

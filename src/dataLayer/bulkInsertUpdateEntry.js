@@ -29,6 +29,9 @@ class BulkInsertUpdateEntry {
      * @param {string} sourceAssigningAuthority
      * @param {Object|null} [contextData] - Optional context data for resource-specific handling (e.g., Group members)
      * @param {WritePrecondition|null} [writePrecondition]
+     * @param {boolean} [smartMerge]
+     * @param {OperationOutcomeIssue|null} [issue] - set when the write was not saved; the entry is reported with it
+     * @param {OperationOutcome|null} [operationOutcome] - set with issue when the write was refused for access
      */
     constructor ({
                     operationType,
@@ -44,7 +47,9 @@ class BulkInsertUpdateEntry {
                     sourceAssigningAuthority,
                     contextData = null,
                     writePrecondition = null,
-                    smartMerge = true
+                    smartMerge = true,
+                    issue = null,
+                    operationOutcome = null
                 }
     ) {
         /**
@@ -100,6 +105,14 @@ class BulkInsertUpdateEntry {
          */
         this.writePrecondition = writePrecondition;
         this.smartMerge = smartMerge;
+        /**
+         * @type {OperationOutcomeIssue|null}
+         */
+        this.issue = issue;
+        /**
+         * @type {OperationOutcome|null}
+         */
+        this.operationOutcome = operationOutcome;
     }
 }
 
