@@ -460,6 +460,9 @@ class SearchManager {
                 query = await this.dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                     base_version, query, actor, personIdFromJwtToken
                 });
+                query = this.dataSharingManager.updateQueryForDelegatedAccessConnectionTypes({
+                    query, actor, resourceType
+                });
             }
 
 

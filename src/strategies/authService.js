@@ -359,7 +359,8 @@ class AuthService {
                         );
                         if (consentReferences.length > 0) {
                             const resolvedPurposeOfUse = await this.delegatedAccessRulesManager.resolvePurposeOfEventCodesAsync({
-                                entitlements: jwt_payload.entitlements
+                                entitlements: jwt_payload.entitlements,
+                                actor: context.actor
                             });
                             // null = Consent genuinely unresolvable -> fail closed (401). A
                             // transient lookup error rejects instead (503 via verify()'s catch).

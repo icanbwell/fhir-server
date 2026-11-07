@@ -823,7 +823,8 @@ describe('AuthService', () => {
             });
 
             expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).toHaveBeenCalledWith({
-                entitlements: ['Consent/consent-uuid-123']
+                entitlements: ['Consent/consent-uuid-123'],
+                actor: expect.any(Object)
             });
             expect(done).toHaveBeenCalledWith(
                 null,

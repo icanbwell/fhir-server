@@ -1674,7 +1674,8 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
             done: (err, user, info) => {
                 expect(err).toBeNull();
                 expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).toHaveBeenCalledWith({
-                    entitlements: ['Consent/consent-uuid-123']
+                    entitlements: ['Consent/consent-uuid-123'],
+                    actor: expect.any(Object)
                 });
                 // The raw reference must never leak into purposeOfUse -- only the resolved code.
                 expect(info.context.purposeOfUse).toEqual(['TREAT']);

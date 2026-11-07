@@ -259,7 +259,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             });
 
             expect(mockDelegatedAccessRulesManagerForAuth.resolvePurposeOfEventCodesAsync).toHaveBeenCalledWith({
-                entitlements: ['Consent/consent-uuid-1']
+                entitlements: ['Consent/consent-uuid-1'],
+                actor: expect.any(Object)
             });
             expect(done).toHaveBeenCalledWith(
                 null,
