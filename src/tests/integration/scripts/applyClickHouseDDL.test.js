@@ -16,6 +16,7 @@ const { AdminLogger } = require('../../../admin/adminLogger');
 const { ApplyClickHouseDDLRunner } = require('../../../admin/runners/applyClickHouseDDLRunner');
 
 const DDL_DIR = path.resolve(__dirname, '../../../../clickhouse-init');
+const MIGRATIONS_DIR = path.resolve(__dirname, '../../../../clickhouse-migrations');
 
 const EXPECTED_TABLES = [
     'Group_4_0_0_MemberEvents',
@@ -296,7 +297,7 @@ describe('applyClickHouseDDL admin runner', () => {
             expect(rows.map((r) => r._uuid)).toEqual(['synthetic-new']);
         }, 60000);
 
-        test('09 migrates a table that still has the original table-wide TTL, and can be re-run', async () => {
+        test('the TTL migration moves a table that still has the original table-wide TTL, and can be re-run', async () => {
             await selectAsync(`DROP TABLE ${TABLE}`);
             await clickHouseClientManager.queryAsync({
                 query: `CREATE TABLE ${TABLE} (
@@ -311,7 +312,7 @@ describe('applyClickHouseDDL admin runner', () => {
             const migration = makeRunner({
                 clickHouseClientManager,
                 mongoDatabaseManager,
-                file: path.join(DDL_DIR, '09-resource-history-ttl.sql')
+                file: path.join(MIGRATIONS_DIR, '08-resource-history-ttl-migration.sql')
             });
             await migration.processAsync();
             await expect(migration.processAsync()).resolves.not.toThrow();
@@ -324,13 +325,18 @@ describe('applyClickHouseDDL admin runner', () => {
             await clickHouseClientManager.insertAsync({
                 table: TABLE,
                 values: [
-                    row({ resource_type: 'Consent', _uuid: 'synthetic-consent', _recorded: toClickHouseTime(old) }),
+                    row({
+                        resource_type: 'Consent',
+                        _uuid: 'synthetic-consent',
+                        _recorded: toClickHouseTime(old)
+                    }),
                     row({ _uuid: 'synthetic-patient', _recorded: toClickHouseTime(old) })
                 ]
             });
             await clickHouseClientManager.queryAsync({ query: `OPTIMIZE TABLE ${TABLE} FINAL` });
 
-            expect((await selectAsync(`SELECT _uuid FROM ${TABLE}`)).map((r) => r._uuid)).toEqual(['synthetic-consent']);
+            const remaining = await selectAsync(`SELECT _uuid FROM ${TABLE}`);
+            expect(remaining.map((r) => r._uuid)).toEqual(['synthetic-consent']);
         }, 60000);
 
         test.each([
@@ -343,7 +349,13 @@ describe('applyClickHouseDDL admin runner', () => {
             old.setUTCMonth(old.getUTCMonth() - 14);
             await clickHouseClientManager.insertAsync({
                 table: TABLE,
-                values: [row({ resource_type: resourceType, _uuid: 'synthetic-old', _recorded: toClickHouseTime(old) })]
+                values: [
+                    row({
+                        resource_type: resourceType,
+                        _uuid: 'synthetic-old',
+                        _recorded: toClickHouseTime(old)
+                    })
+                ]
             });
 
             await clickHouseClientManager.queryAsync({ query: `OPTIMIZE TABLE ${TABLE} FINAL` });
