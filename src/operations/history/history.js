@@ -464,7 +464,7 @@ class BaseHistoryOperationProcessor {
                     `ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`
                 );
             }
-            assertSupportedHistoryArgs(parsedArgs, { isInstanceRead });
+            assertSupportedHistoryArgs(parsedArgs);
             // `/{type}/_history?_id=x` is the same read as `/{type}/x/_history`; `_id=x,y` reads several
             let uuid;
             let uuids;

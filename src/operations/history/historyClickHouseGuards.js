@@ -17,16 +17,10 @@ const SUPPORTED_ARGS = new Set([
 
 /**
  * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
- * @param {{isInstanceRead?: boolean}} [options] false for a type-level read, which takes its id from `_id`
  * @throws {BadRequestError} when an argument the ClickHouse history read cannot honour is present
  */
-function assertSupportedHistoryArgs(parsedArgs, { isInstanceRead = true } = {}) {
-    // The id comes from the URL on an instance read and from `_id` on a type-level read; the other
-    // form would be a second, conflicting id, so it is rejected rather than ignored.
-    const idArgNotAllowed = isInstanceRead ? '_id' : 'id';
-    const unsupported = Object.keys(parsedArgs.getRawArgs()).filter(
-        (name) => !SUPPORTED_ARGS.has(name) || name === idArgNotAllowed
-    );
+function assertSupportedHistoryArgs(parsedArgs) {
+    const unsupported = Object.keys(parsedArgs.getRawArgs()).filter((name) => !SUPPORTED_ARGS.has(name));
     if (unsupported.length > 0) {
         throw new BadRequestError(new Error(
             `${unsupported.join(', ')} not supported when history is read from ClickHouse`
