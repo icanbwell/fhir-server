@@ -48,8 +48,16 @@ const waitQueueTimeoutMS = resolveWaitQueueTimeoutMS({
  * configured as their own clusters. Those tasks run after the response is sent and
  * postRequestProcessor logs and drops a failed task, so a checkout timeout there silently loses
  * the record. Fallback 0 keeps the driver's unbounded wait for them; the request path above
- * still fails fast. When one of those URLs is unset the writes share the primary client and its
- * wait above.
+ * still fails fast.
+ *
+ * This only protects a pool that exists. mongoDatabaseManager falls back to the primary client
+ * when AUDIT_EVENT_MONGO_URL / RESOURCE_HISTORY_MONGO_URL is unset (access logs follow the audit
+ * client), and those writes then share the primary pool and its fail-fast wait above. In prod
+ * every deployment sets RESOURCE_HISTORY_MONGO_URL, and AuditEvents go to Kafka -> ClickPipes
+ * (ENABLE_AUDIT_EVENT_CLICKPIPE + ENABLE_EVENTS_KAFKA_V2) rather than Mongo, so no post-request
+ * write lands on the primary pool. A deployment missing either of those (fhir-proa-server in
+ * non-prod today) writes audits to the primary pool, where a saturation-time checkout timeout
+ * drops the record; mongoDatabaseManager.connectAsync logs a warning at startup for that case.
  * @type {number}
  */
 const BACKGROUND_WAIT_QUEUE_TIMEOUT_FALLBACK_MS = 0;
