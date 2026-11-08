@@ -264,12 +264,14 @@ class MongoReadableStream extends Readable {
                 // through to the generic non-retryable error handling below instead.
                 const canRetry = Boolean(this.params.rebuildCursorAsync || this.params.resourceType);
                 if (e.code === 50 && !hasRetried && this.lastUUID && canRetry) {
-                    if (this.destroyed || this.signal.aborted) {
-                        // nobody is reading any more: do not build a cursor that would never be closed
+                    // nobody is reading any more: do not build a cursor that would never be closed
+                    if (this.destroyed) {
                         await this.closeCursorAsync('retry');
-                        if (!this.destroyed) {
-                            this.push(null);
-                        }
+                        return;
+                    }
+                    if (this.signal.aborted) {
+                        await this.closeCursorAsync('retry');
+                        this.push(null);
                         return;
                     }
                     logInfo(
