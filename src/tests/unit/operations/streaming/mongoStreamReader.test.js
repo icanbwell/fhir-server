@@ -54,7 +54,8 @@ describe('MongoReadableStream', () => {
 
         mockCursor = {
             hasNext: jest.fn(),
-            next: jest.fn()
+            next: jest.fn(),
+            close: jest.fn().mockResolvedValue(undefined)
         };
 
         mockSignal = { aborted: false };
@@ -141,7 +142,7 @@ describe('MongoReadableStream', () => {
             expect(collected[2]).toBeNull();
         });
 
-        test('should stop when signal is aborted', async () => {
+        test('should close the cursor and end the stream when signal is already aborted', async () => {
             mockCursor.hasNext.mockResolvedValue(true);
             mockCursor.next.mockResolvedValue({ id: '1', _uuid: 'uuid-1' });
             mockSignal.aborted = true;
@@ -155,8 +156,72 @@ describe('MongoReadableStream', () => {
 
             await stream.readCursorAsync({ size: 10 });
 
-            // Should not push anything when aborted
-            expect(collected).toHaveLength(0);
+            // no resources are read, the cursor is released and EOF is signalled so the
+            // pipeline completes instead of hanging on a client that is gone
+            expect(mockCursor.next).not.toHaveBeenCalled();
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+            expect(collected).toEqual([null]);
+        });
+
+        test('should close the cursor when the signal aborts while waiting on hasNext', async () => {
+            mockCursor.hasNext.mockImplementation(() => {
+                mockSignal.aborted = true; // client disconnects during the Mongo round trip
+                return Promise.resolve(true);
+            });
+            mockCursor.next.mockResolvedValue({ id: '1', _uuid: 'uuid-1' });
+
+            const stream = createStream();
+            const collected = [];
+            stream.push = jest.fn((data) => {
+                collected.push(data);
+                return true;
+            });
+
+            await stream.readCursorAsync({ size: 10 });
+
+            expect(mockCursor.next).not.toHaveBeenCalled();
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+            expect(collected).toEqual([null]);
+        });
+
+        test.each([
+            ['no close method', (cursor) => { delete cursor.close; }],
+            ['close rejects', (cursor) => { cursor.close.mockRejectedValue(new Error('already closed')); }]
+        ])('abort still ends the stream when the cursor has %s', async (_label, arrange) => {
+            arrange(mockCursor);
+            mockSignal.aborted = true;
+
+            const stream = createStream();
+            const collected = [];
+            stream.push = jest.fn((data) => {
+                collected.push(data);
+                return true;
+            });
+
+            await expect(stream.readCursorAsync({ size: 10 })).resolves.toBeUndefined();
+
+            expect(collected).toEqual([null]);
+        });
+
+        test('closeCursorAsync is idempotent per cursor', async () => {
+            const stream = createStream();
+
+            await stream.closeCursorAsync('abort');
+            await stream.closeCursorAsync('destroy');
+
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+        });
+
+        test('does not close the cursor on a normal, exhausted read', async () => {
+            mockCursor.hasNext.mockResolvedValue(false);
+
+            const stream = createStream();
+            stream.push = jest.fn(() => true);
+
+            await stream.readCursorAsync({ size: 10 });
+
+            // a fully iterated cursor is closed by the driver itself
+            expect(mockCursor.close).not.toHaveBeenCalled();
         });
 
         test('BUG #33: cursor.next() returns null - stream must be terminated with push(null)', async () => {
@@ -202,6 +267,49 @@ describe('MongoReadableStream', () => {
             expect(mockSearchManager.getCursorForQueryAsync).toHaveBeenCalled();
             // After retry, the new cursor returns no results so push(null) is called
             expect(collected).toContainEqual(null);
+        });
+
+        test('closes the timed-out cursor before switching to the rebuilt one', async () => {
+            const timeoutError = new Error('cursor timeout');
+            timeoutError.code = 50;
+            mockCursor.hasNext.mockRejectedValueOnce(timeoutError);
+
+            const newCursor = {
+                hasNext: jest.fn().mockResolvedValue(false),
+                next: jest.fn(),
+                close: jest.fn().mockResolvedValue(undefined)
+            };
+            mockSearchManager.getCursorForQueryAsync.mockResolvedValue({ cursor: newCursor });
+
+            const stream = createStream();
+            stream.lastUUID = 'last-uuid';
+            stream.push = jest.fn(() => true);
+
+            await stream.readCursorAsync({ size: 10 });
+
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+            // the replacement cursor is a fresh one and must still be closable later
+            expect(newCursor.close).not.toHaveBeenCalled();
+            expect(stream.cursorClosed).toBe(false);
+            expect(stream.cursor).toBe(newCursor);
+        });
+
+        test('closes the cursor on a non-retryable error before writing the OperationOutcome', async () => {
+            mockCursor.hasNext.mockRejectedValueOnce(new Error('boom'));
+
+            const stream = createStream();
+            const collected = [];
+            stream.push = jest.fn((data) => {
+                collected.push(data);
+                return true;
+            });
+
+            await stream.readCursorAsync({ size: 10 });
+
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+            expect(mockResponse.statusCode).toBe(500);
+            expect(collected).toHaveLength(2); // OperationOutcome + null
+            expect(collected[1]).toBeNull();
         });
 
         test('skips retry and terminates gracefully on timeout when params is neither ' +
@@ -479,6 +587,33 @@ describe('MongoReadableStream', () => {
 
             // EXPECTED: correct behavior (will fail until bug is fixed)
             expect(stream.isFetchingData).toBe(false);
+        });
+    });
+
+    describe('_destroy', () => {
+        test('closes the cursor when the stream is destroyed by the pipeline', async () => {
+            const stream = createStream();
+
+            await new Promise((resolve) => {
+                stream.on('close', resolve);
+                stream.destroy();
+            });
+
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+        });
+
+        test('still emits the destroy error when closing the cursor fails', async () => {
+            mockCursor.close.mockRejectedValue(new Error('close failed'));
+            const stream = createStream();
+            const pipelineError = new Error('premature close');
+
+            const emitted = await new Promise((resolve) => {
+                stream.on('error', resolve);
+                stream.destroy(pipelineError);
+            });
+
+            expect(emitted).toBe(pipelineError);
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
         });
     });
 });

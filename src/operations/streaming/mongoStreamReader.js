@@ -9,6 +9,14 @@ const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { RETRIEVE } = require('../../constants').GRIDFS;
 const { BLOB_OP } = require('../../constants');
 
+/**
+ * Upper bound on waiting for cursor.close(). Closing an abandoned cursor is best-effort; if the
+ * connection it is pinned to is unresponsive we would rather give up and end the stream than
+ * hang the request on cleanup.
+ * @type {number}
+ */
+const CURSOR_CLOSE_TIMEOUT_MS = 5000;
+
 // https://thenewstack.io/node-js-readable-streams-explained/
 // https://github.com/logdna/tail-file-node/blob/ee0389ba34cb2037de776541f800842bb98df6b3/lib/tail-file.js#L22
 // https://2ality.com/2019/11/nodejs-streams-async-iteration.html
@@ -87,6 +95,74 @@ class MongoReadableStream extends Readable {
         this.lastUUID = null;
 
         this.params = params;
+
+        /**
+         * true once close() has been requested on the current cursor
+         * @type {boolean}
+         */
+        this.cursorClosed = false;
+    }
+
+    /**
+     * Closes the current cursor so the server-side cursor and, in load-balanced mode, the
+     * connection pinned to it are released. Without this an abandoned streaming search keeps
+     * its connection checked out for the life of the cursor, and five of them exhaust a worker's
+     * pool (INC-357). Safe to call more than once and on cursors that have no close().
+     * @param {string} reason
+     * @returns {Promise<void>}
+     */
+    async closeCursorAsync (reason) {
+        if (this.cursorClosed || !this.cursor || typeof this.cursor.close !== 'function') {
+            return;
+        }
+        this.cursorClosed = true;
+        let timer;
+        const timeout = new Promise((resolve) => {
+            timer = setTimeout(() => resolve('timeout'), CURSOR_CLOSE_TIMEOUT_MS);
+        });
+        try {
+            const outcome = await Promise.race([
+                Promise.resolve(this.cursor.close()).then(() => 'closed'),
+                timeout
+            ]);
+            if (outcome === 'timeout') {
+                logError(`mongoStreamReader: cursor close timed out after ${CURSOR_CLOSE_TIMEOUT_MS}ms on ${reason}`, { reason });
+            } else if (this.configManager.logStreamSteps) {
+                logInfo('mongoStreamReader: cursor closed', { reason });
+            }
+        } catch (e) {
+            // best-effort: the cursor is already abandoned, there is nothing to recover
+            logError(`mongoStreamReader: error closing cursor on ${reason}: ${e.message}`, { error: e, reason });
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
+    /**
+     * Ends the stream after the request was aborted (client disconnected): closes the cursor
+     * and signals EOF so the pipeline completes instead of hanging.
+     * @param {number} size
+     * @returns {Promise<void>}
+     */
+    async endAbortedStreamAsync ({ size }) {
+        if (this.configManager.logStreamSteps) {
+            logInfo('mongoStreamReader: aborted', { size });
+        }
+        await this.closeCursorAsync('abort');
+        this.push(null);
+    }
+
+    /**
+     * Called when the stream is destroyed (pipeline error or explicit destroy): release the cursor.
+     * @param {Error|null} error
+     * @param {function(Error|null): void} callback
+     * @private
+     */
+    _destroy (error, callback) {
+        this.closeCursorAsync('destroy').then(
+            () => callback(error),
+            () => callback(error)
+        );
     }
 
     async _read (size) {
@@ -114,11 +190,13 @@ class MongoReadableStream extends Readable {
         let count = 0;
         while (count <= size) {
             try {
+                if (this.signal.aborted) {
+                    await this.endAbortedStreamAsync({ size });
+                    return;
+                }
                 if (await this.cursor.hasNext()) {
                     if (this.signal.aborted) {
-                        if (this.configManager.logStreamSteps) {
-                            logInfo('mongoStreamReader: aborted', { size });
-                        }
+                        await this.endAbortedStreamAsync({ size });
                         return;
                     }
                     count++;
@@ -167,6 +245,9 @@ class MongoReadableStream extends Readable {
                     // Increasing maxMongoTimeMS to ensure streaming process to continue for an extended period.
                     this.params.maxMongoTimeMS = this.configManager.mongoStreamingTimeout;
 
+                    // release the timed-out cursor before replacing it
+                    await this.closeCursorAsync('retry');
+
                     if (this.params.rebuildCursorAsync) {
                         // Caller-supplied resumption -- for a cursor this class didn't build
                         // itself (e.g. an aggregation pipeline, which doesn't fit
@@ -196,10 +277,12 @@ class MongoReadableStream extends Readable {
                         });
                         this.cursor = __ret.cursor;
                     }
+                    this.cursorClosed = false;
                     await this.readCursorAsync({size, hasRetried: true}); // Pass true to indicate that retry has happened
                     return;
                 }
 
+                await this.closeCursorAsync('error');
                 const error = new RethrownError({ message: e.message, error: e, args: {}, source: 'readAsync' });
                 logError(`MongoReadableStream readAsync: error: ${e.message}`, {
                     error: e,
