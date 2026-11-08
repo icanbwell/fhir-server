@@ -22,6 +22,28 @@ mongoUrl = encodeURI(mongoUrl);
 const queryParams = getQueryParams(mongoUrl);
 const writeConcern = queryParams.w ?? 'majority';
 delete queryParams.w;
+/**
+ * How long a request may wait for a pooled connection before the driver throws
+ * MongoWaitQueueTimeoutError. The driver default (0) waits forever, so a worker whose
+ * pool is exhausted (e.g. by cursors left open after client disconnects) hangs every
+ * later request until the caller gives up (INC-357). Failing fast surfaces the error
+ * and lets the caller retry on another pod. Precedence: env var, then the connection
+ * string's waitQueueTimeoutMS, then 30s.
+ * @type {number}
+ */
+const waitQueueTimeoutMS = env.MONGO_WAIT_QUEUE_TIMEOUT
+    ? parseInt(env.MONGO_WAIT_QUEUE_TIMEOUT)
+    : (queryParams.waitQueueTimeoutMS ?? 30 * 1000);
+/**
+ * Wait for the pools that only serve post-request work (audit, access-log and resource-history
+ * writes). Those tasks run after the response is sent and postRequestProcessor logs and drops a
+ * failed task, so a checkout timeout there silently loses the record. Default 0 keeps the
+ * driver's unbounded wait for them; the request path above still fails fast.
+ * @type {number}
+ */
+const backgroundWaitQueueTimeoutMS = env.MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT
+    ? parseInt(env.MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT)
+    : 0;
 // noinspection JSValidateTypes
 /**
  * https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
@@ -38,12 +60,7 @@ const options = {
     // https://medium.com/@kyle_martin/mongodb-in-production-how-connection-pool-size-can-bottleneck-application-scale-439c6e5a8424
     minPoolSize: env.MONGO_MIN_POOL_SIZE ? parseInt(env.MONGO_MIN_POOL_SIZE) : 10,
     maxPoolSize: env.MONGO_MAX_POOL_SIZE ? parseInt(env.MONGO_MAX_POOL_SIZE) : 100,
-    // How long a request may wait for a pooled connection before the driver throws
-    // MongoWaitQueueTimeoutError. The driver default (0) waits forever, so a worker whose
-    // pool is exhausted (e.g. by cursors left open after client disconnects) hangs every
-    // later request until the caller gives up (INC-357). Failing fast surfaces the error
-    // and lets the caller retry on another pod.
-    waitQueueTimeoutMS: env.MONGO_WAIT_QUEUE_TIMEOUT ? parseInt(env.MONGO_WAIT_QUEUE_TIMEOUT) : 30 * 1000,
+    waitQueueTimeoutMS,
     writeConcern: {
         w: writeConcern
     }
@@ -95,6 +112,7 @@ if (env.AUDIT_EVENT_MONGO_URL) {
             ...auditQueryParams,
             minPoolSize: env.AUDIT_EVENT_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MIN_POOL_SIZE) : options.minPoolSize,
             maxPoolSize: env.AUDIT_EVENT_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MAX_POOL_SIZE) : options.maxPoolSize,
+            waitQueueTimeoutMS: auditQueryParams.waitQueueTimeoutMS ?? backgroundWaitQueueTimeoutMS,
             writeConcern: {
                 w: auditWriteConcern
             }
@@ -173,7 +191,8 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
             ...accessLogsQueryParams,
             writeConcern: { w: accessLogsWriteConcern },
             maxPoolSize: env.ACCESS_LOGS_MAX_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MAX_POOL_SIZE) : 10,
-            minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1
+            minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1,
+            waitQueueTimeoutMS: accessLogsQueryParams.waitQueueTimeoutMS ?? backgroundWaitQueueTimeoutMS
         }
     };
     // This accessLogsMongoConfig is used to access Logs using FHIR Admin only
@@ -213,6 +232,7 @@ if (env.RESOURCE_HISTORY_MONGO_URL) {
             ...resourceHistoryQueryParams,
             minPoolSize: env.RESOURCE_HISTORY_MIN_POOL_SIZE ? parseInt(env.RESOURCE_HISTORY_MIN_POOL_SIZE) : options.minPoolSize,
             maxPoolSize: env.RESOURCE_HISTORY_MAX_POOL_SIZE ? parseInt(env.RESOURCE_HISTORY_MAX_POOL_SIZE) : options.maxPoolSize,
+            waitQueueTimeoutMS: resourceHistoryQueryParams.waitQueueTimeoutMS ?? backgroundWaitQueueTimeoutMS,
             writeConcern: {
                 w: resourceHistoryWriteConcern
             }

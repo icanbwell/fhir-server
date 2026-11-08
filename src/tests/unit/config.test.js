@@ -22,7 +22,7 @@ const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/g
 const MONGO_KEYS = [
     'MONGO_URL', 'MONGO_HOSTNAME', 'MONGO_PORT', 'MONGO_USERNAME', 'MONGO_PASSWORD',
     'MONGO_DB_NAME', 'MONGO_CONNECT_TIMEOUT', 'MONGO_SOCKET_TIMEOUT', 'MONGO_IDLE_TIMEOUT',
-    'MONGO_WAIT_QUEUE_TIMEOUT', 'MONGO_MIN_POOL_SIZE', 'MONGO_MAX_POOL_SIZE',
+    'MONGO_WAIT_QUEUE_TIMEOUT', 'MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT', 'MONGO_MIN_POOL_SIZE', 'MONGO_MAX_POOL_SIZE',
     'AUDIT_EVENT_MONGO_URL', 'AUDIT_EVENT_MONGO_USERNAME', 'AUDIT_EVENT_MONGO_PASSWORD',
     'AUDIT_EVENT_MONGO_DB_NAME', 'AUDIT_EVENT_MIN_POOL_SIZE', 'AUDIT_EVENT_MAX_POOL_SIZE',
     'AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL',
@@ -164,20 +164,73 @@ describe('config.js', () => {
             expect(mongoConfig.options.waitQueueTimeoutMS).toBe(5000);
         });
 
-        test.each([
-            ['auditEventMongoConfig', { AUDIT_EVENT_MONGO_URL: 'mongodb://audit:27017', AUDIT_EVENT_MONGO_DB_NAME: 'fhir_audit' }],
-            ['auditEventReadOnlyMongoConfig', {
-                AUDIT_EVENT_MONGO_URL: 'mongodb://audit:27017', AUDIT_EVENT_MONGO_DB_NAME: 'fhir_audit',
-                AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL: 'mongodb://archive:27017'
-            }],
-            ['accessLogsMongoConfig', { ACCESS_LOGS_CLUSTER_MONGO_URL: 'mongodb://accesslogs:27017', ACCESS_LOGS_MONGO_DB_NAME: 'fhir_access_logs' }],
-            ['resourceHistoryMongoConfig', { RESOURCE_HISTORY_MONGO_URL: 'mongodb://history:27017', RESOURCE_HISTORY_MONGO_DB_NAME: 'fhir_history' }]
-        ])('%s inherits waitQueueTimeoutMS from the primary options', (configName, extraEnv) => {
-            const config = loadConfig({
-                MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir', MONGO_WAIT_QUEUE_TIMEOUT: '7000', ...extraEnv
+        test('waitQueueTimeoutMS from the connection string applies when the env var is unset', () => {
+            const { mongoConfig } = loadConfig({
+                MONGO_URL: 'mongodb://primary:27017/?waitQueueTimeoutMS=12000', MONGO_DB_NAME: 'fhir'
             });
-            expect(config[configName].options.waitQueueTimeoutMS).toBe(7000);
+            expect(mongoConfig.options.waitQueueTimeoutMS).toBe(12000);
         });
+
+        test('MONGO_WAIT_QUEUE_TIMEOUT wins over the connection string value', () => {
+            const { mongoConfig } = loadConfig({
+                MONGO_URL: 'mongodb://primary:27017/?waitQueueTimeoutMS=12000', MONGO_DB_NAME: 'fhir',
+                MONGO_WAIT_QUEUE_TIMEOUT: '5000'
+            });
+            expect(mongoConfig.options.waitQueueTimeoutMS).toBe(5000);
+        });
+
+        const AUDIT_READONLY_ENV = {
+            AUDIT_EVENT_MONGO_URL: 'mongodb://audit:27017', AUDIT_EVENT_MONGO_DB_NAME: 'fhir_audit',
+            AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL: 'mongodb://archive:27017'
+        };
+
+        test('request-path audit read-only pool inherits the primary fail-fast wait', () => {
+            const { auditEventReadOnlyMongoConfig } = loadConfig({
+                MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir', MONGO_WAIT_QUEUE_TIMEOUT: '7000',
+                ...AUDIT_READONLY_ENV
+            });
+            expect(auditEventReadOnlyMongoConfig.options.waitQueueTimeoutMS).toBe(7000);
+        });
+
+        const BACKGROUND_POOLS = [
+            ['auditEventMongoConfig', 'AUDIT_EVENT_MONGO_URL', 'mongodb://audit:27017', { AUDIT_EVENT_MONGO_DB_NAME: 'fhir_audit' }],
+            ['accessLogsMongoConfig', 'ACCESS_LOGS_CLUSTER_MONGO_URL', 'mongodb://accesslogs:27017', { ACCESS_LOGS_MONGO_DB_NAME: 'fhir_access_logs' }],
+            ['resourceHistoryMongoConfig', 'RESOURCE_HISTORY_MONGO_URL', 'mongodb://history:27017', { RESOURCE_HISTORY_MONGO_DB_NAME: 'fhir_history' }]
+        ];
+
+        test.each(BACKGROUND_POOLS)(
+            '%s keeps an unbounded wait by default so post-request flushes are not dropped',
+            (configName, urlKey, url, extraEnv) => {
+                const config = loadConfig({
+                    MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir', MONGO_WAIT_QUEUE_TIMEOUT: '7000',
+                    [urlKey]: url, ...extraEnv
+                });
+                expect(config[configName].options.waitQueueTimeoutMS).toBe(0);
+            }
+        );
+
+        test.each(BACKGROUND_POOLS)(
+            '%s takes MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT when set',
+            (configName, urlKey, url, extraEnv) => {
+                const config = loadConfig({
+                    MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir',
+                    MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT: '120000', [urlKey]: url, ...extraEnv
+                });
+                expect(config[configName].options.waitQueueTimeoutMS).toBe(120000);
+            }
+        );
+
+        test.each(BACKGROUND_POOLS)(
+            '%s honours waitQueueTimeoutMS from its own connection string',
+            (configName, urlKey, url, extraEnv) => {
+                const config = loadConfig({
+                    MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir',
+                    MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT: '120000',
+                    [urlKey]: `${url}/?waitQueueTimeoutMS=9000`, ...extraEnv
+                });
+                expect(config[configName].options.waitQueueTimeoutMS).toBe(9000);
+            }
+        );
 
         test('writeConcern defaults to "majority" and no stray `w` key is left at the options root', () => {
             const { mongoConfig } = loadConfig({ MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir' });
