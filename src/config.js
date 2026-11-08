@@ -38,13 +38,18 @@ const options = {
     // https://medium.com/@kyle_martin/mongodb-in-production-how-connection-pool-size-can-bottleneck-application-scale-439c6e5a8424
     minPoolSize: env.MONGO_MIN_POOL_SIZE ? parseInt(env.MONGO_MIN_POOL_SIZE) : 10,
     maxPoolSize: env.MONGO_MAX_POOL_SIZE ? parseInt(env.MONGO_MAX_POOL_SIZE) : 100,
+    // How long a request may wait for a pooled connection before the driver throws
+    // MongoWaitQueueTimeoutError. The driver default (0) waits forever, so a worker whose
+    // pool is exhausted (e.g. by cursors left open after client disconnects) hangs every
+    // later request until the caller gives up (INC-357). Failing fast surfaces the error
+    // and lets the caller retry on another pod.
+    waitQueueTimeoutMS: env.MONGO_WAIT_QUEUE_TIMEOUT ? parseInt(env.MONGO_WAIT_QUEUE_TIMEOUT) : 30 * 1000,
     writeConcern: {
         w: writeConcern
     }
     // keepAliveInitialDelay: 0,
     // heartbeatFrequencyMS: 30 * 1000,
     // serverSelectionTimeoutMS: 30 * 1000,
-    // waitQueueTimeoutMS: 30 * 1000
 };
 /**
  * @name mongoConfig

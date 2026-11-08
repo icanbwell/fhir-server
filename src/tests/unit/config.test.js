@@ -22,7 +22,7 @@ const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/g
 const MONGO_KEYS = [
     'MONGO_URL', 'MONGO_HOSTNAME', 'MONGO_PORT', 'MONGO_USERNAME', 'MONGO_PASSWORD',
     'MONGO_DB_NAME', 'MONGO_CONNECT_TIMEOUT', 'MONGO_SOCKET_TIMEOUT', 'MONGO_IDLE_TIMEOUT',
-    'MONGO_MIN_POOL_SIZE', 'MONGO_MAX_POOL_SIZE',
+    'MONGO_WAIT_QUEUE_TIMEOUT', 'MONGO_MIN_POOL_SIZE', 'MONGO_MAX_POOL_SIZE',
     'AUDIT_EVENT_MONGO_URL', 'AUDIT_EVENT_MONGO_USERNAME', 'AUDIT_EVENT_MONGO_PASSWORD',
     'AUDIT_EVENT_MONGO_DB_NAME', 'AUDIT_EVENT_MIN_POOL_SIZE', 'AUDIT_EVENT_MAX_POOL_SIZE',
     'AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL',
@@ -150,6 +150,33 @@ describe('config.js', () => {
             expect(mongoConfig.options.maxIdleTimeMS).toBe(3000);
             expect(mongoConfig.options.minPoolSize).toBe(3);
             expect(mongoConfig.options.maxPoolSize).toBe(5);
+        });
+
+        test('waitQueueTimeoutMS defaults to 30s so an exhausted pool fails fast instead of hanging', () => {
+            const { mongoConfig } = loadConfig({ MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir' });
+            expect(mongoConfig.options.waitQueueTimeoutMS).toBe(30 * 1000);
+        });
+
+        test('MONGO_WAIT_QUEUE_TIMEOUT overrides waitQueueTimeoutMS as an integer', () => {
+            const { mongoConfig } = loadConfig({
+                MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir', MONGO_WAIT_QUEUE_TIMEOUT: '5000'
+            });
+            expect(mongoConfig.options.waitQueueTimeoutMS).toBe(5000);
+        });
+
+        test.each([
+            ['auditEventMongoConfig', { AUDIT_EVENT_MONGO_URL: 'mongodb://audit:27017', AUDIT_EVENT_MONGO_DB_NAME: 'fhir_audit' }],
+            ['auditEventReadOnlyMongoConfig', {
+                AUDIT_EVENT_MONGO_URL: 'mongodb://audit:27017', AUDIT_EVENT_MONGO_DB_NAME: 'fhir_audit',
+                AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL: 'mongodb://archive:27017'
+            }],
+            ['accessLogsMongoConfig', { ACCESS_LOGS_CLUSTER_MONGO_URL: 'mongodb://accesslogs:27017', ACCESS_LOGS_MONGO_DB_NAME: 'fhir_access_logs' }],
+            ['resourceHistoryMongoConfig', { RESOURCE_HISTORY_MONGO_URL: 'mongodb://history:27017', RESOURCE_HISTORY_MONGO_DB_NAME: 'fhir_history' }]
+        ])('%s inherits waitQueueTimeoutMS from the primary options', (configName, extraEnv) => {
+            const config = loadConfig({
+                MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir', MONGO_WAIT_QUEUE_TIMEOUT: '7000', ...extraEnv
+            });
+            expect(config[configName].options.waitQueueTimeoutMS).toBe(7000);
         });
 
         test('writeConcern defaults to "majority" and no stray `w` key is left at the options root', () => {
