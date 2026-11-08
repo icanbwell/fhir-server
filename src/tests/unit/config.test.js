@@ -23,6 +23,7 @@ const MONGO_KEYS = [
     'MONGO_URL', 'MONGO_HOSTNAME', 'MONGO_PORT', 'MONGO_USERNAME', 'MONGO_PASSWORD',
     'MONGO_DB_NAME', 'MONGO_CONNECT_TIMEOUT', 'MONGO_SOCKET_TIMEOUT', 'MONGO_IDLE_TIMEOUT',
     'MONGO_WAIT_QUEUE_TIMEOUT', 'MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT', 'MONGO_MIN_POOL_SIZE', 'MONGO_MAX_POOL_SIZE',
+    'FHIR_NOTES_MONGO_URL', 'FHIR_NOTES_MONGO_WAIT_QUEUE_TIMEOUT',
     'AUDIT_EVENT_MONGO_URL', 'AUDIT_EVENT_MONGO_USERNAME', 'AUDIT_EVENT_MONGO_PASSWORD',
     'AUDIT_EVENT_MONGO_DB_NAME', 'AUDIT_EVENT_MIN_POOL_SIZE', 'AUDIT_EVENT_MAX_POOL_SIZE',
     'AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL',
@@ -184,12 +185,30 @@ describe('config.js', () => {
             AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL: 'mongodb://archive:27017'
         };
 
-        test('request-path audit read-only pool inherits the primary fail-fast wait', () => {
+        test.each([
+            ['env var set, no URL value', { MONGO_WAIT_QUEUE_TIMEOUT: '7000' }, 'mongodb://archive:27017', 7000],
+            ['URL value, env var unset', {}, 'mongodb://archive:27017/?waitQueueTimeoutMS=9000', 9000],
+            ['env var wins over URL value', { MONGO_WAIT_QUEUE_TIMEOUT: '7000' }, 'mongodb://archive:27017/?waitQueueTimeoutMS=9000', 7000],
+            ['neither: primary default', {}, 'mongodb://archive:27017', 30 * 1000]
+        ])('request-path audit read-only pool follows env > URL > default (%s)', (_label, extraEnv, archiveUrl, expected) => {
             const { auditEventReadOnlyMongoConfig } = loadConfig({
-                MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir', MONGO_WAIT_QUEUE_TIMEOUT: '7000',
-                ...AUDIT_READONLY_ENV
+                MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir',
+                ...AUDIT_READONLY_ENV, AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL: archiveUrl, ...extraEnv
             });
-            expect(auditEventReadOnlyMongoConfig.options.waitQueueTimeoutMS).toBe(7000);
+            expect(auditEventReadOnlyMongoConfig.options.waitQueueTimeoutMS).toBe(expected);
+        });
+
+        test.each([
+            ['default 5s, not the primary 30s', {}, 'mongodb://notes:27017', 5000],
+            ['own env var', { FHIR_NOTES_MONGO_WAIT_QUEUE_TIMEOUT: '2000' }, 'mongodb://notes:27017', 2000],
+            ['URL value when its env var is unset', {}, 'mongodb://notes:27017/?waitQueueTimeoutMS=4000', 4000],
+            ['primary env var does not leak in', { MONGO_WAIT_QUEUE_TIMEOUT: '7000' }, 'mongodb://notes:27017', 5000]
+        ])('fhir-notes pool waits at most 5s by default (%s)', (_label, extraEnv, notesUrl, expected) => {
+            const { fhirNotesMongoConfig } = loadConfig({
+                MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir',
+                FHIR_NOTES_MONGO_URL: notesUrl, ...extraEnv
+            });
+            expect(fhirNotesMongoConfig.options.waitQueueTimeoutMS).toBe(expected);
         });
 
         const BACKGROUND_POOLS = [
@@ -221,14 +240,25 @@ describe('config.js', () => {
         );
 
         test.each(BACKGROUND_POOLS)(
-            '%s honours waitQueueTimeoutMS from its own connection string',
+            '%s honours waitQueueTimeoutMS from its own connection string when the env var is unset',
+            (configName, urlKey, url, extraEnv) => {
+                const config = loadConfig({
+                    MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir',
+                    [urlKey]: `${url}/?waitQueueTimeoutMS=9000`, ...extraEnv
+                });
+                expect(config[configName].options.waitQueueTimeoutMS).toBe(9000);
+            }
+        );
+
+        test.each(BACKGROUND_POOLS)(
+            '%s: MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT wins over its connection string, same rule as the primary pool',
             (configName, urlKey, url, extraEnv) => {
                 const config = loadConfig({
                     MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir',
                     MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT: '120000',
                     [urlKey]: `${url}/?waitQueueTimeoutMS=9000`, ...extraEnv
                 });
-                expect(config[configName].options.waitQueueTimeoutMS).toBe(9000);
+                expect(config[configName].options.waitQueueTimeoutMS).toBe(120000);
             }
         );
 

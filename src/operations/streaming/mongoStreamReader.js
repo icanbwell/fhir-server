@@ -101,6 +101,13 @@ class MongoReadableStream extends Readable {
          * @type {boolean}
          */
         this.cursorClosed = false;
+
+        /**
+         * Set when the stream is destroyed while a driver call is in flight; the cursor is
+         * then closed after that call returns (see _destroy) instead of concurrently with it.
+         * @type {boolean}
+         */
+        this.closeCursorAfterRead = false;
     }
 
     /**
@@ -153,12 +160,21 @@ class MongoReadableStream extends Readable {
     }
 
     /**
-     * Called when the stream is destroyed (pipeline error or explicit destroy): release the cursor.
+     * Called when the stream is destroyed (pipeline error, explicit destroy, or autoDestroy after
+     * EOF): release the cursor. If a driver call (hasNext/next/rebuild) is still in flight the
+     * close is deferred to _read's finally block so killCursors is never written on the pinned
+     * connection while a getMore reply is pending; the destroy callback is not held up by that,
+     * so the pipeline settles and res.end() runs without waiting on Mongo.
      * @param {Error|null} error
      * @param {function(Error|null): void} callback
      * @private
      */
     _destroy (error, callback) {
+        if (this.isFetchingData) {
+            this.closeCursorAfterRead = true;
+            callback(error);
+            return;
+        }
         this.closeCursorAsync('destroy').then(
             () => callback(error),
             () => callback(error)
@@ -177,6 +193,10 @@ class MongoReadableStream extends Readable {
                 this.push(null); // Signal the end of the stream
             } finally {
                 this.isFetchingData = false;
+                if (this.closeCursorAfterRead) {
+                    this.closeCursorAfterRead = false;
+                    await this.closeCursorAsync('destroy');
+                }
             }
         }
     }
@@ -190,11 +210,18 @@ class MongoReadableStream extends Readable {
         let count = 0;
         while (count <= size) {
             try {
+                if (this.destroyed) {
+                    // the pipeline already tore the stream down; _read's finally closes the cursor
+                    return;
+                }
                 if (this.signal.aborted) {
                     await this.endAbortedStreamAsync({ size });
                     return;
                 }
                 if (await this.cursor.hasNext()) {
+                    if (this.destroyed) {
+                        return;
+                    }
                     if (this.signal.aborted) {
                         await this.endAbortedStreamAsync({ size });
                         return;
@@ -237,6 +264,14 @@ class MongoReadableStream extends Readable {
                 // through to the generic non-retryable error handling below instead.
                 const canRetry = Boolean(this.params.rebuildCursorAsync || this.params.resourceType);
                 if (e.code === 50 && !hasRetried && this.lastUUID && canRetry) {
+                    if (this.destroyed || this.signal.aborted) {
+                        // nobody is reading any more: do not build a cursor that would never be closed
+                        await this.closeCursorAsync('retry');
+                        if (!this.destroyed) {
+                            this.push(null);
+                        }
+                        return;
+                    }
                     logInfo(
                         'MongoReadableStream readAsync: Retrying with new cursor due to mongo query timeout',
                         { e }
@@ -278,6 +313,12 @@ class MongoReadableStream extends Readable {
                         this.cursor = __ret.cursor;
                     }
                     this.cursorClosed = false;
+                    if (this.destroyed) {
+                        // destroyed while the replacement cursor was being built: release it now,
+                        // _destroy already ran and will not see it
+                        await this.closeCursorAsync('destroy');
+                        return;
+                    }
                     await this.readCursorAsync({size, hasRetried: true}); // Pass true to indicate that retry has happened
                     return;
                 }

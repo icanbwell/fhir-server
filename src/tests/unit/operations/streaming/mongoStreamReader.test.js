@@ -212,7 +212,7 @@ describe('MongoReadableStream', () => {
             expect(mockCursor.close).toHaveBeenCalledTimes(1);
         });
 
-        test('does not close the cursor on a normal, exhausted read', async () => {
+        test('readCursorAsync itself does not close an exhausted cursor; autoDestroy does that once after EOF', async () => {
             mockCursor.hasNext.mockResolvedValue(false);
 
             const stream = createStream();
@@ -220,8 +220,100 @@ describe('MongoReadableStream', () => {
 
             await stream.readCursorAsync({ size: 10 });
 
-            // a fully iterated cursor is closed by the driver itself
             expect(mockCursor.close).not.toHaveBeenCalled();
+        });
+
+        test('a normally completed stream closes its cursor exactly once via autoDestroy', async () => {
+            mockCursor.hasNext.mockResolvedValue(false);
+            const stream = createStream();
+            const closed = new Promise((resolve) => stream.on('close', resolve));
+
+            const collected = [];
+            for await (const chunk of stream) {
+                collected.push(chunk);
+            }
+            await closed;
+
+            expect(collected).toEqual([]);
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+        });
+
+        test('destroy while hasNext is in flight defers the close until the driver call returns', async () => {
+            let releaseHasNext;
+            mockCursor.hasNext.mockImplementation(() => new Promise((resolve) => { releaseHasNext = resolve; }));
+            const stream = createStream();
+            stream.on('error', () => {});
+
+            const reading = stream._read(10);
+            await new Promise((resolve) => setImmediate(resolve));
+            const closed = new Promise((resolve) => stream.on('close', resolve));
+            stream.destroy(new Error('premature close'));
+            await closed;
+
+            // the destroy callback did not wait on Mongo, and close was not racing the getMore
+            expect(mockCursor.close).not.toHaveBeenCalled();
+            releaseHasNext(false);
+            await reading;
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+        });
+
+        test('destroy during a code-50 retry does not leave the rebuilt cursor open', async () => {
+            const timeoutError = new Error('cursor timeout');
+            timeoutError.code = 50;
+            mockCursor.hasNext.mockRejectedValueOnce(timeoutError);
+
+            const newCursor = {
+                hasNext: jest.fn().mockResolvedValue(true),
+                next: jest.fn().mockResolvedValue({ id: '2', _uuid: 'uuid-2' }),
+                close: jest.fn().mockResolvedValue(undefined)
+            };
+            let stream;
+            mockSearchManager.getCursorForQueryAsync.mockImplementation(async () => {
+                stream.destroy(); // the pipeline tears the stream down while the cursor is being rebuilt
+                await new Promise((resolve) => setImmediate(resolve));
+                return { cursor: newCursor };
+            });
+
+            stream = createStream();
+            stream.lastUUID = 'last-uuid';
+            await stream._read(10);
+
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+            expect(newCursor.close).toHaveBeenCalledTimes(1);
+            expect(newCursor.hasNext).not.toHaveBeenCalled();
+        });
+
+        test('a code-50 error on an already destroyed stream does not rebuild a cursor', async () => {
+            const timeoutError = new Error('cursor timeout');
+            timeoutError.code = 50;
+            let rejectHasNext;
+            mockCursor.hasNext.mockImplementation(() => new Promise((_, reject) => { rejectHasNext = reject; }));
+            const stream = createStream();
+            stream.lastUUID = 'last-uuid';
+
+            const reading = stream._read(10);
+            await new Promise((resolve) => setImmediate(resolve));
+            stream.destroy();
+            rejectHasNext(timeoutError);
+            await reading;
+
+            expect(mockSearchManager.getCursorForQueryAsync).not.toHaveBeenCalled();
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+        });
+
+        test('abort ends the stream so a pipeline over it settles instead of hanging', async () => {
+            const { pipeline, Writable } = require('stream');
+            mockCursor.hasNext.mockImplementation(() => {
+                mockSignal.aborted = true;
+                return Promise.resolve(true);
+            });
+            const stream = createStream();
+            const sink = new Writable({ objectMode: true, write (_chunk, _enc, cb) { cb(); } });
+
+            await new Promise((resolve, reject) => pipeline(stream, sink, (err) => (err ? reject(err) : resolve())));
+
+            expect(mockCursor.next).not.toHaveBeenCalled();
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
         });
 
         test('BUG #33: cursor.next() returns null - stream must be terminated with push(null)', async () => {
