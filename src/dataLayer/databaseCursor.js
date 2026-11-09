@@ -114,17 +114,6 @@ class DatabaseCursor {
     }
 
     /**
-     * Closes the underlying cursor, releasing the server-side cursor and, in load-balanced mode,
-     * the connection pinned to it. Call this when iteration is abandoned before exhaustion
-     * (e.g. the client disconnected mid-stream). The driver ignores close() on an already
-     * closed cursor, so this is idempotent.
-     * @return {Promise<void>}
-     */
-    async close() {
-        await this.cursor.close();
-    }
-
-    /**
      * Sets a field projection for the query
      * @param { import('mongodb').SchemaMember<import('mongodb').DefaultSchema, any>} projection
      * @return {DatabaseCursor}
