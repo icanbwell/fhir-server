@@ -64,7 +64,9 @@ jestObj.mock('../../../operations/common/systemEventLogging', () => ({
 }));
 
 jestObj.mock('../../../operations/common/logging', () => ({
-    logError: jestObj.fn()
+    logError: jestObj.fn(),
+    logInfo: jestObj.fn(),
+    logWarn: jestObj.fn()
 }));
 
 jestObj.mock('../../../utils/rethrownError', () => ({
@@ -353,6 +355,46 @@ describe('KafkaClientV2', () => {
                     message: 'Retrying sending the CloudEvent message by creating new client'
                 })
             );
+        });
+    });
+
+    describe('ensureProducerConnectedAsync / warmUpAsync', () => {
+        test('concurrent callers share a single connect', async () => {
+            let resolveConnect;
+            mockProducerConnect.mockImplementation(() => new Promise((resolve) => { resolveConnect = resolve; }));
+            const first = kafkaClient.ensureProducerConnectedAsync();
+            const second = kafkaClient.ensureProducerConnectedAsync();
+            resolveConnect();
+            await Promise.all([first, second]);
+            expect(mockProducerConnect).toHaveBeenCalledTimes(1);
+            expect(kafkaClient.producerConnected).toBe(true);
+        });
+
+        test('a failed connect can be retried', async () => {
+            mockProducerConnect.mockRejectedValueOnce(new Error('Connection refused'));
+            await expect(kafkaClient.ensureProducerConnectedAsync()).rejects.toThrow(
+                'Error in connecting producer to kafka v2'
+            );
+            expect(kafkaClient.producerConnected).toBe(false);
+            await kafkaClient.ensureProducerConnectedAsync();
+            expect(mockProducerConnect).toHaveBeenCalledTimes(2);
+            expect(kafkaClient.producerConnected).toBe(true);
+        });
+
+        test('warmUpAsync connects the producer before the first send', async () => {
+            await kafkaClient.warmUpAsync();
+            expect(mockProducerConnect).toHaveBeenCalledTimes(1);
+            await kafkaClient.sendCloudEventMessageHelperAsync({
+                topic: 'test-topic',
+                messages: [{ key: 'k', value: 'v' }]
+            });
+            expect(mockProducerConnect).toHaveBeenCalledTimes(1);
+        });
+
+        test('warmUpAsync does not throw when the connect fails', async () => {
+            mockProducerConnect.mockRejectedValueOnce(new Error('Connection refused'));
+            await expect(kafkaClient.warmUpAsync()).resolves.toBeUndefined();
+            expect(kafkaClient.producerConnected).toBe(false);
         });
     });
 
