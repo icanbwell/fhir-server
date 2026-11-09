@@ -1,8 +1,10 @@
 const { Transform } = require('stream');
 const httpContext = require('express-http-context');
+const bytesParse = require('bytes');
 const { ACCESS_LOGS_ENTRY_DATA, STREAM_ACCESS_LOG_BODY_LIMIT } = require('../../constants');
 const { ConfigManager } = require('../../utils/configManager');
 const { assertTypeEquals } = require('../../utils/assertType');
+const { PayloadTooLargeError } = require('../../utils/httpErrors');
 
 class NdjsonParser extends Transform {
     /**
@@ -18,9 +20,17 @@ class NdjsonParser extends Transform {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+        this._maxBytes = bytesParse(configManager.payloadLimit) || bytesParse('50mb');
+        this._bytesSeen = 0;
     }
 
     _transform(chunk, encoding, callback) {
+        this._bytesSeen += chunk.length;
+        if (this._bytesSeen > this._maxBytes) {
+            return callback(new PayloadTooLargeError(new Error(
+                `Streaming $merge body exceeds the maximum allowed size of ${this._maxBytes} bytes`
+            )));
+        }
         this._buffer += chunk.toString();
 
         let lines = this._buffer.split('\n');
