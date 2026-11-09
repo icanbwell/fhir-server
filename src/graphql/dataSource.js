@@ -16,6 +16,7 @@ const { getSerializer } = require('../fhir/baseFhirResourceSerializer');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../utils/mongoGroupExtendedTag');
 const { SearchBundleOperation } = require('../operations/search/searchBundle');
+const { PatientDataViewControlExclusion } = require('../utils/patientDataViewControlExclusion');
 const { isBinaryReadableViaCodeSystem, removePatientScopes } = require('../utils/binaryCodeSystemOwnership');
 
 /**
@@ -29,6 +30,7 @@ class FhirDataSource {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ConfigManager} configManager
      * @param {OperationAccessManager} accessManager
+     * @param {PatientDataViewControlExclusion} patientDataViewControlExclusion
      */
     constructor (
         {
@@ -37,7 +39,8 @@ class FhirDataSource {
             r4ArgsParser,
             queryRewriterManager,
             configManager,
-            accessManager
+            accessManager,
+            patientDataViewControlExclusion
         }
     ) {
         assertIsValid(requestInfo !== undefined);
@@ -55,6 +58,11 @@ class FhirDataSource {
          */
         this.accessManager = accessManager;
         assertTypeEquals(this.accessManager, OperationAccessManager);
+        /**
+         * @type {PatientDataViewControlExclusion}
+         */
+        this.patientDataViewControlExclusion = patientDataViewControlExclusion;
+        assertTypeEquals(this.patientDataViewControlExclusion, PatientDataViewControlExclusion);
         /**
          * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
          */
@@ -794,6 +802,11 @@ class FhirDataSource {
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
+        // hide resources blocked by the patient's dataConnectionViewControl Consent (user tokens of
+        // enrolled clients only); memoized per request, so this is one Consent lookup per request
+        await this.patientDataViewControlExclusion.applyAsync({
+            parsedArgs, resourceType, base_version, requestInfo: requestInfo || this.requestInfo
+        });
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {

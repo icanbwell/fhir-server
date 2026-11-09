@@ -47,6 +47,7 @@ const { ResponseHandlerFactory } = require('../utils/responseHandler/responseHan
 const { CMSManager } = require('../utils/cmsManager');
 const { OperationAccessManager } = require('../utils/operationAccessManager');
 const { CustomTracer } = require('../utils/customTracer');
+const { PatientDataViewControlExclusion } = require('../utils/patientDataViewControlExclusion');
 
 class FhirOperationsManager {
     /**
@@ -72,6 +73,7 @@ class FhirOperationsManager {
      * @param importOperation
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
+     * @param {PatientDataViewControlExclusion} patientDataViewControlExclusion
      * @param {ConfigManager} configManager
      * @param {HistoryReadRouter} historyReadRouter
      * @param {OperationAccessManager} accessManager
@@ -102,6 +104,7 @@ class FhirOperationsManager {
             importOperation,
             r4ArgsParser,
             queryRewriterManager,
+            patientDataViewControlExclusion,
             configManager,
             historyReadRouter,
             accessManager,
@@ -220,6 +223,12 @@ class FhirOperationsManager {
         assertTypeEquals(queryRewriterManager, QueryRewriterManager);
 
         /**
+         * @type {PatientDataViewControlExclusion}
+         */
+        this.patientDataViewControlExclusion = patientDataViewControlExclusion;
+        assertTypeEquals(patientDataViewControlExclusion, PatientDataViewControlExclusion);
+
+        /**
          * @type {ConfigManager}
          */
         this.configManager = configManager;
@@ -316,9 +325,11 @@ class FhirOperationsManager {
      * @param {string} operation
      * @param {boolean} [allowMultipleIds=true]
      * @param {FhirRequestInfo} [requestInfo]
+     * @param {boolean} [applyDataViewControl=false] hide resources the patient's dataConnectionViewControl
+     *   Consent blocks (user tokens of enrolled clients only). Set by REST search/streaming/read-by-id.
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({ args, resourceType, headers, operation, allowMultipleIds = true, requestInfo }) {
+    async getParsedArgsAsync({ args, resourceType, headers, operation, allowMultipleIds = true, requestInfo, applyDataViewControl = false }) {
         const { base_version } = args;
 
         this.limitReqForExternalServices({ args, headers, requestInfo });
@@ -331,6 +342,13 @@ class FhirOperationsManager {
 
         if (!allowMultipleIds && parsedArgs.id?.includes(',')) {
             throw new BadRequestError(new Error('Multiple IDs are not allowed'));
+        }
+
+        if (applyDataViewControl) {
+            // before the rewriters so id|sourceAssigningAuthority forms get normalized like any other _id
+            await this.patientDataViewControlExclusion.applyAsync({
+                parsedArgs, resourceType, base_version, requestInfo
+            });
         }
 
         // see if any query rewriters want to rewrite the args
@@ -372,7 +390,8 @@ class FhirOperationsManager {
                 },
                 resourceType,
                 operation: READ,
-                requestInfo
+                requestInfo,
+                applyDataViewControl: true
             });
             const bundle = await this.searchBundleOperation.searchBundleAsync({
                 requestInfo,
@@ -427,7 +446,8 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo,
+            applyDataViewControl: true
         }
         );
         return await this.searchBundleOperation.searchBundleAsync(
@@ -461,7 +481,8 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo,
+            applyDataViewControl: true
         });
 
         if (this.configManager.enableVulcanIgQuery) {
@@ -616,7 +637,8 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo,
+            applyDataViewControl: true
         }
         );
         return await this.searchByIdOperation.searchByIdAsync(

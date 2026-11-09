@@ -92,7 +92,8 @@ const graphql = async (fnGetContainer) => {
                     r4ArgsParser: container.r4ArgsParser,
                     queryRewriterManager: container.queryRewriterManager,
                     configManager: container.configManager,
-                    accessManager: container.accessManager
+                    accessManager: container.accessManager,
+                    patientDataViewControlExclusion: container.patientDataViewControlExclusion
                 }
             ),
             container

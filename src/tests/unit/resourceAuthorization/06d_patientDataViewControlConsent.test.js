@@ -279,14 +279,16 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
         });
     });
 
-    describe('scoping to $everything and GraphQLv2 only (confirmed by scanning the real source tree)', () => {
+    describe('scoping to $everything, GraphQLv2, /mcp, and (via PatientDataViewControlExclusion) REST search/read-by-id and GraphQL v1 (confirmed by scanning the real source tree)', () => {
         /**
-         * The doc claims this mechanism only ever runs for `$everything` and GraphQLv2 — not REST
-         * search, not GraphQL v1. Rather than trust that claim, this walks the actual `src/`
-         * (excluding `src/tests`) and asserts the exact, closed set of files that reference
-         * `PatientDataViewControlManager`. If a future change wires this consent check into
-         * `searchBundle.js`, `searchStreaming.js`, or the GraphQL v1 `dataSource.js`, this test
-         * fails and the doc's scoping claim must be re-verified.
+         * This mechanism runs for `$everything`, GraphQLv2 and `/mcp` (each calling `getConsentAsync`
+         * directly) and, since TIP-8113, for REST search / read-by-id (`fhirOperationsManager.js`) and
+         * GraphQL v1 (`graphql/dataSource.js`) through the single wrapper
+         * `utils/patientDataViewControlExclusion.js`. Rather than trust prose, this walks the actual
+         * `src/` (excluding `src/tests`) and asserts the exact, closed set of files that reference
+         * `PatientDataViewControlManager`. If a future change wires the consent check into another
+         * path (e.g. `searchBundle.js`, `searchStreaming.js`), this test fails and the scoping claim
+         * must be re-verified.
          */
         function findFilesReferencing (rootDir, needle) {
             const matches = [];
@@ -310,7 +312,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             return matches.sort();
         }
 
-        test('PatientDataViewControlManager is only referenced by its own definition, its IoC wiring, everythingHelper.js, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js', () => {
+        test('PatientDataViewControlManager is only referenced by its own definition, its IoC wiring, the exclusion wrapper, everythingHelper.js, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js', () => {
             const srcDir = path.resolve(__dirname, '../../../../src');
 
             const referencingFiles = findFilesReferencing(srcDir, 'PatientDataViewControlManager');
@@ -320,11 +322,12 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                 'graphqlv2/dataSource.js',
                 'mcp/mcpToolHandler.js',
                 'operations/everything/everythingHelper.js',
+                'utils/patientDataViewControlExclusion.js',
                 'utils/patientDataViewController.js'
             ]);
         });
 
-        test('getConsentAsync is only called from everythingHelper.js, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js — not from REST search or GraphQL v1', () => {
+        test('getConsentAsync is only called from everythingHelper.js, graphqlv2/dataSource.js, mcp/mcpToolHandler.js and the exclusion wrapper — REST search/GraphQL v1 reach it only through that wrapper', () => {
             const srcDir = path.resolve(__dirname, '../../../../src');
 
             const callSites = findFilesReferencing(srcDir, '.getConsentAsync(')
@@ -333,15 +336,20 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             expect(callSites).toEqual([
                 'graphqlv2/dataSource.js',
                 'mcp/mcpToolHandler.js',
-                'operations/everything/everythingHelper.js'
+                'operations/everything/everythingHelper.js',
+                'utils/patientDataViewControlExclusion.js'
             ]);
 
-            // Explicitly confirm the REST search path and GraphQL v1 do NOT call it.
+            // REST search/read-by-id and GraphQL v1 go through the wrapper, never the manager directly.
+            for (const file of ['operations/fhirOperationsManager.js', 'graphql/dataSource.js']) {
+                const contents = fs.readFileSync(path.join(srcDir, file), 'utf8');
+                expect(contents).toContain('patientDataViewControlExclusion.applyAsync');
+                expect(contents).not.toContain('getConsentAsync');
+            }
+            // The search execution layers themselves stay consent-agnostic.
             expect(fs.readFileSync(path.join(srcDir, 'operations/search/searchBundle.js'), 'utf8'))
                 .not.toContain('getConsentAsync');
             expect(fs.readFileSync(path.join(srcDir, 'operations/search/searchStreaming.js'), 'utf8'))
-                .not.toContain('getConsentAsync');
-            expect(fs.readFileSync(path.join(srcDir, 'graphql/dataSource.js'), 'utf8'))
                 .not.toContain('getConsentAsync');
         });
     });

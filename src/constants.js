@@ -169,6 +169,7 @@ module.exports = {
     HTTP_CONTEXT_KEYS: {
         LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-',
         PERSON_OWNER_PREFIX: 'personOwnerFor-',
+        PATIENT_VIEW_CONTROL_EXCLUDE_PREFIX: 'patientViewControlExcludeFor-',
         CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',

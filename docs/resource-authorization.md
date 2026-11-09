@@ -291,9 +291,11 @@ Person's Consent to the grantee actor and drives a sensitivity-based (§9) denyl
 of the §5 patient-scope query. Full model, including the read-only operation restriction: §10.
 
 **d. Patient Data View Control consent** — lets a patient exclude specific resources from their
-own `$everything`/GraphQLv2 result via a `dataConnectionViewControl`-category Consent referencing
-the resource(s) to hide. `src/utils/patientDataViewController.js`
-(`PatientDataViewControlManager.getConsentAsync`), gated by
+own `$everything`/GraphQLv2/`/mcp`/GraphQL v1/REST search and read-by-id result via a
+`dataConnectionViewControl`-category Consent referencing the resource(s) to hide (user tokens of
+enrolled clients only; history/version reads are not filtered and are rejected for user tokens).
+`src/utils/patientDataViewController.js` (`PatientDataViewControlManager.getConsentAsync`), applied to
+REST/GraphQL v1 through `src/utils/patientDataViewControlExclusion.js`, gated by
 `configManager.clientsWithDataConnectionViewControl`. Full detail:
 `readme/patientDataViewControl.md`.
 
