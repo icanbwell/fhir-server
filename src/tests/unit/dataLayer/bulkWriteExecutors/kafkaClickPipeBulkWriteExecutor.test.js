@@ -33,6 +33,7 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
         };
 
         mockKafkaClientV2 = {
+            ensureProducerConnectedAsync: jestGlobal.fn().mockResolvedValue(undefined),
             sendCloudEventMessageAsync: jestGlobal.fn().mockResolvedValue(undefined)
         };
 
@@ -188,6 +189,36 @@ describe('KafkaClickPipeBulkWriteExecutor', () => {
             // the timed-out send may still deliver, so it is never resent
             expect(mockKafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
             expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledTimes(1);
+            expect(result.error).toBeNull();
+        });
+
+        test('connect time does not count against the produce timeout', async () => {
+            // connect takes longer than produceTimeoutMs, but the produce itself is fast
+            mockKafkaClientV2.ensureProducerConnectedAsync.mockImplementation(
+                () => new Promise((resolve) => setTimeout(resolve, 60))
+            );
+
+            const executorWithTimeout = new KafkaClickPipeBulkWriteExecutor({
+                kafkaClientV2: mockKafkaClientV2,
+                schemaRegistry: mockSchemaRegistry,
+                fallbackExecutor: mockFallbackExecutor,
+                maxRetries: 3,
+                initialRetryDelayMs: 0,
+                produceTimeoutMs: 20
+            });
+
+            const result = await executorWithTimeout.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations: [makeEntry({ id: 'r1', uuid: 'u1' })],
+                requestInfo: { requestId: 'req-slow-connect-1' },
+                base_version: '4_0_0'
+            });
+
+            expect(mockKafkaClientV2.ensureProducerConnectedAsync).toHaveBeenCalledTimes(1);
+            expect(mockKafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
+            expect(mockKafkaClientV2.ensureProducerConnectedAsync.mock.invocationCallOrder[0])
+                .toBeLessThan(mockKafkaClientV2.sendCloudEventMessageAsync.mock.invocationCallOrder[0]);
+            expect(mockFallbackExecutor.executeBulkAsync).not.toHaveBeenCalled();
             expect(result.error).toBeNull();
         });
 

@@ -211,11 +211,18 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
 
         try {
             await retryWithBackoff({
-                fn: () => withProduceTimeoutAsync(this.kafkaClientV2.sendCloudEventMessageAsync({
-                    topic: schema.kafkaTopic,
-                    messages,
-                    compression: this.compression
-                }), this.produceTimeoutMs),
+                fn: async () => {
+                    // Connect outside the produce timeout: the lazy first connect (TLS, SASL/IAM auth,
+                    // metadata) can exceed it on a freshly started pod and was being reported as a
+                    // timed-out produce. The connect is bounded by kafkajs' own connection/auth
+                    // timeouts, and a failure here is a normal, retryable error.
+                    await this.kafkaClientV2.ensureProducerConnectedAsync();
+                    await withProduceTimeoutAsync(this.kafkaClientV2.sendCloudEventMessageAsync({
+                        topic: schema.kafkaTopic,
+                        messages,
+                        compression: this.compression
+                    }), this.produceTimeoutMs);
+                },
                 maxRetries: this.maxRetries,
                 initialDelayMs: this.initialRetryDelayMs,
                 // Resending the same chunk cannot fix a chunk-specific error, and a timed-out send may still
