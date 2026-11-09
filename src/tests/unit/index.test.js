@@ -90,7 +90,10 @@ describe('index.js (process entry point)', () => {
         const cronTasksProcessor = {
             initiateTasks: jestGlobal.fn(cronImpl || (() => { order.push('cron'); return Promise.resolve(); }))
         };
-        const container = { cronTasksProcessor };
+        const kafkaClientV2 = {
+            warmUpAsync: jestGlobal.fn(() => { order.push('warmUp'); return Promise.resolve(); })
+        };
+        const container = { cronTasksProcessor, kafkaClientV2 };
         const createContainerMock = jestGlobal.fn(() => { order.push('createContainer'); return container; });
         const preWarmMock = jestGlobal.fn(() => order.push('preWarm'));
         const createServerMock = jestGlobal.fn(
@@ -118,6 +121,7 @@ describe('index.js (process entry point)', () => {
             createContainerMock,
             container,
             cronTasksProcessor,
+            kafkaClientV2,
             initializeMock,
             preWarmMock,
             order
@@ -131,8 +135,8 @@ describe('index.js (process entry point)', () => {
         expect(initSentryMock).toHaveBeenCalledWith({ validateOpenTelemetry: true });
     });
 
-    test('worker path: runs initialize -> createContainer -> preWarm -> createServer -> cronTasksProcessor.initiateTasks, in that exact order', async () => {
-        const { initializeMock, createContainerMock, preWarmMock, createServerMock, cronTasksProcessor, order } =
+    test('worker path: runs initialize -> createContainer -> preWarm -> createServer -> kafkaClientV2.warmUpAsync -> cronTasksProcessor.initiateTasks, in that exact order', async () => {
+        const { initializeMock, createContainerMock, preWarmMock, createServerMock, cronTasksProcessor, kafkaClientV2, order } =
             loadIndex();
 
         await flush();
@@ -141,8 +145,9 @@ describe('index.js (process entry point)', () => {
         expect(createContainerMock).toHaveBeenCalledTimes(1);
         expect(preWarmMock).toHaveBeenCalledTimes(1);
         expect(createServerMock).toHaveBeenCalledTimes(1);
+        expect(kafkaClientV2.warmUpAsync).toHaveBeenCalledTimes(1);
         expect(cronTasksProcessor.initiateTasks).toHaveBeenCalledTimes(1);
-        expect(order).toEqual(['initialize', 'createContainer', 'preWarm', 'createServer', 'cron']);
+        expect(order).toEqual(['initialize', 'createContainer', 'preWarm', 'createServer', 'warmUp', 'cron']);
     });
 
     test('worker path: createServer is invoked with a callback that resolves to the SAME container instance createContainer() produced', async () => {
