@@ -52,7 +52,8 @@ jest.mock('../../../utils/assertType', () => ({
 jest.mock('../../../operations/common/logging', () => ({
     logError: jest.fn(),
     logInfo: jest.fn(),
-    logDebug: jest.fn()
+    logDebug: jest.fn(),
+    logWarn: jest.fn()
 }));
 
 const { S3Client } = require('../../../utils/s3Client');
