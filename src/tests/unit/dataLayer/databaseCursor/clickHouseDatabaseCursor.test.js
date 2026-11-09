@@ -36,6 +36,19 @@ describe('ClickHouseDatabaseCursor', () => {
             expect(await cursor.hasNext()).toBe(false);
         });
 
+        test('close drops the remaining rows so the cursor reads as exhausted', async () => {
+            const cursor = createCursor([
+                { _fhir_resource: JSON.stringify(fhirDoc1) },
+                { _fhir_resource: JSON.stringify(fhirDoc2) }
+            ]);
+            await cursor.next();
+
+            await cursor.close();
+
+            expect(await cursor.hasNext()).toBe(false);
+            expect(await cursor.next()).toBeNull();
+        });
+
         test('next returns null after exhaustion', async () => {
             const cursor = createCursor([{ _fhir_resource: JSON.stringify(fhirDoc1) }]);
             await cursor.next();

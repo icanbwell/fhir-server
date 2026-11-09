@@ -33,7 +33,8 @@ function createMockCursor(docs = []) {
         batchSize: jest.fn().mockReturnThis(),
         hint: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
-        explain: jest.fn(async () => ({ queryPlanner: {} }))
+        explain: jest.fn(async () => ({ queryPlanner: {} })),
+        close: jest.fn(async () => undefined)
     };
     return cursor;
 }
@@ -257,14 +258,17 @@ describe('DatabaseCursor', () => {
         });
     });
 
-    describe('resource leak - no close method', () => {
-        test('DatabaseCursor does not expose a close method for cursor cleanup', () => {
-            // BUG: There is no close() method on DatabaseCursor.
-            // If iteration is abandoned (e.g., after finding a result mid-way through),
-            // the underlying MongoDB cursor is never closed, causing server-side resource leak.
-            expect(dbCursor.close).toBeUndefined();
-            // The underlying MongoDB FindCursor has a close method but it's inaccessible
-            // through the DatabaseCursor wrapper without directly accessing .cursor
+    describe('close', () => {
+        test('closes the underlying cursor so abandoned iteration releases its connection', async () => {
+            await dbCursor.close();
+
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+        });
+
+        test('propagates close errors to the caller', async () => {
+            mockCursor.close.mockRejectedValueOnce(new Error('socket gone'));
+
+            await expect(dbCursor.close()).rejects.toThrow('socket gone');
         });
     });
 });
