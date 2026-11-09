@@ -376,7 +376,7 @@ prior versions of all resource types (current resources stay in MongoDB). It is 
 | Engine | `ReplacingMergeTree()`: duplicates on the sort key collapse on merge; read with `FINAL` |
 | Sort key | `(resource_type, _uuid, _recorded, version_id)` |
 | Partition | `toYYYYMM(_recorded)` (month only, as AuditEvent; `resource_type` leads the sort key so type-filtered reads still prune by primary index) |
-| Retention | `TTL toDateTime(_recorded) + INTERVAL 13 MONTH DELETE`, `ttl_only_drop_parts = 1` |
+| Retention | `TTL toDateTime(_recorded) + INTERVAL 13 MONTH DELETE WHERE resource_type IN (<expiring types>)`, `ttl_only_drop_parts = 1`. Only the listed types expire; all others (Consent, Group, ...) are kept. Because of the `WHERE`, expired rows are removed by rewriting parts. `08` only creates the table; an existing table is moved to this TTL by `clickhouse-migrations/08-resource-history-ttl-migration.sql` (`ALTER TABLE ... MODIFY TTL`, re-runnable), then `ALTER TABLE ... MATERIALIZE TTL` once by hand. Keep the list identical in both files. Rows already deleted are not restored. |
 
 Because the sort key includes `_recorded`, two rows only dedup when all four key columns match.
 Partitioning by month only keeps a mixed-type ClickPipes batch well under the default
