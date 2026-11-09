@@ -1,6 +1,6 @@
 const { mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig, resourceHistoryMongoConfig, fhirNotesMongoConfig } = require('../config');
 const { isTrue } = require('./isTrue');
-const { logInfo, logError, logWarn } = require('../operations/common/logging');
+const { logInfo, logError } = require('../operations/common/logging');
 const { logSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { MongoClient, GridFSBucket } = require('mongodb');
 const { ConfigManager } = require('./configManager');
@@ -305,42 +305,6 @@ class MongoDatabaseManager {
     }
 
     /**
-     * Post-request writes (audit, resource history) run after the response is sent and a failure
-     * there is logged and dropped by postRequestProcessor. Their own pools wait without limit for
-     * a connection, but when a pool's URL is unset the writes fall back to the primary client,
-     * whose waitQueueTimeoutMS fails fast (DCON-6517). Returns one warning per write path that is
-     * in that state, so an operator can see at startup that saturation would drop those records.
-     * @param {{connection?: string}} auditConfig
-     * @param {{connection?: string}} resourceHistoryConfig
-     * @param {{waitQueueTimeoutMS?: number}} primaryOptions
-     * @returns {string[]}
-     */
-    postRequestWritesOnPrimaryPoolWarnings ({ auditConfig, resourceHistoryConfig, primaryOptions }) {
-        const warnings = [];
-        if (!primaryOptions?.waitQueueTimeoutMS) {
-            return warnings;
-        }
-        const auditGoesToClickPipe = this.configManager.enableAuditEventClickPipe
-            && this.configManager.kafkaV2EnableEvents;
-        if (!auditConfig?.connection && !auditGoesToClickPipe) {
-            warnings.push(
-                'AuditEvent writes use the primary Mongo pool: AUDIT_EVENT_MONGO_URL is unset and the ' +
-                'Kafka -> ClickPipes route is off (ENABLE_AUDIT_EVENT_CLICKPIPE and ENABLE_EVENTS_KAFKA_V2). ' +
-                `Under pool saturation an audit flush fails after waitQueueTimeoutMS=${primaryOptions.waitQueueTimeoutMS} ` +
-                'and postRequestProcessor drops it. Set AUDIT_EVENT_MONGO_URL or enable the ClickPipe route.'
-            );
-        }
-        if (!resourceHistoryConfig?.connection) {
-            warnings.push(
-                'Resource history writes use the primary Mongo pool: RESOURCE_HISTORY_MONGO_URL is unset. ' +
-                `Under pool saturation a history flush fails after waitQueueTimeoutMS=${primaryOptions.waitQueueTimeoutMS} ` +
-                'and postRequestProcessor drops it. Set RESOURCE_HISTORY_MONGO_URL.'
-            );
-        }
-        return warnings;
-    }
-
-    /**
      * @return {Promise<void>}
      */
     async connectAsync () {
@@ -349,14 +313,6 @@ class MongoDatabaseManager {
         }
         const clientConfig = await this.getClientConfigAsync();
         const client = await this.createClientAsync(clientConfig);
-
-        for (const warning of this.postRequestWritesOnPrimaryPoolWarnings({
-            auditConfig: await this.getAuditConfigAsync(),
-            resourceHistoryConfig: await this.getResourceHistoryConfigAsync(),
-            primaryOptions: clientConfig.options
-        })) {
-            logWarn(warning, { source: 'MongoDatabaseManager.connectAsync' });
-        }
 
         clientConnection = client;
         clientDb = client.db(clientConfig.db_name);
