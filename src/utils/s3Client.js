@@ -16,7 +16,8 @@ const {
 const { Upload } = require('@aws-sdk/lib-storage');
 const { RethrownError } = require('./rethrownError');
 const { assertIsValid } = require('./assertType');
-const { logError } = require('../operations/common/logging');
+const { logError, logWarn } = require('../operations/common/logging');
+const { retryWithBackoff } = require('./retryWithBackoff');
 const { CloudStorageClient } = require('./cloudStorageClient');
 
 class S3Client extends CloudStorageClient {
@@ -163,22 +164,65 @@ class S3Client extends CloudStorageClient {
     }
 
     /**
-     * Download file from s3 for provided path
+     * Whether a download error is transient (socket reset/abort mid-body, timeout, 5xx) and worth
+     * retrying. The AWS SDK retries only up to the response headers, not while the body is read.
+     * @param {Error} err
+     * @returns {boolean}
+     * @private
+     */
+    _isRetryableDownloadError(err) {
+        if (err instanceof NoSuchKey) {
+            return false;
+        }
+        const status = err?.$metadata?.httpStatusCode;
+        if (status >= 500) {
+            return true;
+        }
+        if (status >= 400) {
+            return false;
+        }
+        const code = err?.code;
+        return (
+            err?.name === 'AbortError' ||
+            err?.name === 'TimeoutError' ||
+            err?.message === 'aborted' ||
+            ['ECONNRESET', 'ETIMEDOUT', 'EPIPE', 'ECONNABORTED', 'ERR_STREAM_PREMATURE_CLOSE'].includes(code)
+        );
+    }
+
+    /**
+     * Download file from s3 for provided path.
+     * Retries the whole GetObject + body read on transient errors with jittered backoff.
      * @param {string} filePath
      * @returns {object|null}
      */
     async downloadAsync(filePath) {
         try {
-            const response = await this.client.send(
-                new GetObjectCommand({
-                    Bucket: this.bucketName,
-                    Key: filePath
-                })
-            );
-            if (!response.Body) {
-                return null;
-            }
-            return await response.Body.transformToString();
+            return await retryWithBackoff({
+                fn: async () => {
+                    const response = await this.client.send(
+                        new GetObjectCommand({
+                            Bucket: this.bucketName,
+                            Key: filePath
+                        })
+                    );
+                    if (!response.Body) {
+                        return null;
+                    }
+                    return await response.Body.transformToString();
+                },
+                maxRetries: 2,
+                initialDelayMs: 200,
+                jitter: true,
+                shouldRetry: (err) => this._isRetryableDownloadError(err),
+                onRetry: ({ attempt, maxRetries, delay, error }) =>
+                    logWarn(`Retrying S3 download (${attempt}/${maxRetries}) in ${delay}ms`, {
+                        filePath,
+                        errorName: error?.name,
+                        errorCode: error?.code,
+                        errorMessage: error?.message
+                    })
+            });
         } catch (err) {
             if (err instanceof NoSuchKey) {
                 logError(`No file found for path: ${filePath}`, { err });
@@ -187,7 +231,12 @@ class S3Client extends CloudStorageClient {
             throw new RethrownError({
                 message: `Error in downloadAsync: ${err.message}`,
                 error: err,
-                source: 'S3Client'
+                source: 'S3Client',
+                args: {
+                    filePath,
+                    errorName: err?.name,
+                    errorCode: err?.code
+                }
             });
         }
     }

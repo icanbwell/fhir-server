@@ -110,6 +110,50 @@ describe('S3Client', () => {
         });
     });
 
+    describe('downloadAsync - transient failure retry', () => {
+        test('retries when body read is aborted and then succeeds', async () => {
+            mockSend
+                .mockResolvedValueOnce({
+                    Body: { transformToString: jest.fn().mockRejectedValue(new Error('aborted')) }
+                })
+                .mockResolvedValueOnce({
+                    Body: { transformToString: jest.fn().mockResolvedValue('ok') }
+                });
+
+            const result = await s3Client.downloadAsync('some/path');
+            expect(result).toBe('ok');
+            expect(mockSend).toHaveBeenCalledTimes(2);
+        });
+
+        test('gives up after retries are exhausted and rethrows', async () => {
+            mockSend.mockResolvedValue({
+                Body: { transformToString: jest.fn().mockRejectedValue(new Error('aborted')) }
+            });
+
+            await expect(s3Client.downloadAsync('some/path')).rejects.toThrow(
+                'Error in downloadAsync: aborted'
+            );
+            expect(mockSend).toHaveBeenCalledTimes(3);
+        });
+
+        test('does not retry non-transient errors', async () => {
+            const err = new Error('Access Denied');
+            err.$metadata = { httpStatusCode: 403 };
+            mockSend.mockRejectedValue(err);
+
+            await expect(s3Client.downloadAsync('some/path')).rejects.toThrow(
+                'Error in downloadAsync: Access Denied'
+            );
+            expect(mockSend).toHaveBeenCalledTimes(1);
+        });
+
+        test('does not retry NoSuchKey', async () => {
+            mockSend.mockRejectedValue(new NoSuchKey({ message: 'x', $metadata: {} }));
+            expect(await s3Client.downloadAsync('missing')).toBeNull();
+            expect(mockSend).toHaveBeenCalledTimes(1);
+        });
+    });
+
     describe('downloadInBatchAsync - null Body bug', () => {
         // EXPECTED: correct behavior (will fail until bug is fixed)
         test('should handle null Body in batch download gracefully', async () => {
