@@ -349,5 +349,94 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             expect(fs.readFileSync(path.join(srcDir, 'operations/search/searchStreaming.js'), 'utf8'))
                 .not.toContain('getConsentAsync');
         });
+
+        /**
+         * FhirOperationsManager.getParsedArgsAsync applies the view-control filter only when a call site
+         * passes `applyDataViewControl: true`. A new read path that forgot it would return blocked
+         * resources, so every call site must be listed here as applying the filter or skipping it with
+         * a reason. An unlisted or changed call site fails this test until someone decides.
+         */
+        const getParsedArgsCallSites = (source, callee) => {
+            const sites = [];
+            const lines = source.split('\n');
+            let method = null;
+            for (let i = 0; i < lines.length; i++) {
+                const methodMatch = lines[i].match(/^ {4}async ([A-Za-z_]+)\s*\(/);
+                if (methodMatch) {
+                    method = methodMatch[1];
+                }
+                const start = lines[i].indexOf(callee);
+                if (start === -1 || /^\s*(\/\/|\*)/.test(lines[i])) {
+                    continue;
+                }
+                // the call's argument text, up to its closing parenthesis
+                let depth = 0;
+                let text = '';
+                for (let j = i, from = start; j < lines.length && (depth > 0 || j === i); j++, from = 0) {
+                    for (const ch of lines[j].slice(from)) {
+                        text += ch;
+                        if (ch === '(') {
+                            depth++;
+                        } else if (ch === ')' && --depth === 0) {
+                            break;
+                        }
+                    }
+                }
+                sites.push({ method, appliesViewControl: /applyDataViewControl:\s*true/.test(text) });
+            }
+            return sites;
+        };
+
+        test('every FhirOperationsManager.getParsedArgsAsync call site declares whether it applies view control', () => {
+            const srcDir = path.resolve(__dirname, '../../../../src');
+            const APPLIES = true;
+            const SKIPS = false;
+            // [method, applies, reason it skips], in source order
+            const expected = {
+                'operations/fhirOperationsManager.js': [
+                    ['searchResourceForChainAsync', APPLIES],
+                    ['search', APPLIES],
+                    ['searchStreaming', APPLIES],
+                    ['searchStreaming', SKIPS, 'Vulcan IG child lookup; research queries use service tokens'],
+                    ['searchStreaming', SKIPS, 'Vulcan IG: builds one filter item that is copied into the main query'],
+                    ['searchById', APPLIES],
+                    ['create', SKIPS, 'write'],
+                    ['update', SKIPS, 'write'],
+                    ['merge', SKIPS, 'write'],
+                    ['everything', SKIPS, '$everything applies view control itself, through the wrapper'],
+                    ['summary', SKIPS, '$summary is covered by a separate ticket'],
+                    ['remove', SKIPS, 'write'],
+                    ['remove_by_query', SKIPS, 'write'],
+                    ['getHistoryParsedArgsAsync', SKIPS, 'history and version reads reject patient scope'],
+                    ['getHistoryParsedArgsAsync', SKIPS, 'history and version reads reject patient scope'],
+                    ['patch', SKIPS, 'write'],
+                    ['validate', SKIPS, '$validate returns an OperationOutcome, not stored resources'],
+                    ['graph', SKIPS, '$graph is covered by a separate ticket'],
+                    ['accessHistory', SKIPS, 'returns access-log aggregates for the caller\'s own Person, not resources']
+                ],
+                'admin/adminExportManager.js': [
+                    ['updateExportStatus', SKIPS, 'admin export, admin tokens only'],
+                    ['triggerExportJob', SKIPS, 'admin export, admin tokens only']
+                ]
+            };
+
+            const toCompare = (rows) => rows.map(([method, appliesViewControl]) => ({ method, appliesViewControl }));
+            for (const [file, rows] of Object.entries(expected)) {
+                const source = fs.readFileSync(path.join(srcDir, file), 'utf8');
+                const callee = file === 'operations/fhirOperationsManager.js'
+                    ? 'this.getParsedArgsAsync('
+                    : 'fhirOperationsManager.getParsedArgsAsync(';
+                expect({ file, sites: getParsedArgsCallSites(source, callee) })
+                    .toEqual({ file, sites: toCompare(rows) });
+            }
+            // no other file calls FhirOperationsManager.getParsedArgsAsync
+            expect(findFilesReferencing(srcDir, 'fhirOperationsManager.getParsedArgsAsync(')
+                .filter((file) => !(file in expected))
+                .filter((file) => !fs.readFileSync(path.join(srcDir, file), 'utf8')
+                    .split('\n')
+                    .filter((l) => l.includes('fhirOperationsManager.getParsedArgsAsync('))
+                    .every((l) => /^\s*(\/\/|\*)/.test(l))))
+                .toEqual([]);
+        });
     });
 });

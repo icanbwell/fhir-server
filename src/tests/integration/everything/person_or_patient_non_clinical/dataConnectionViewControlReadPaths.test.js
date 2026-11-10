@@ -1,10 +1,11 @@
 /**
- * TIP-8113: the patient's `dataConnectionViewControl` Consent must hide the blocked resource on
- * every user-token read path, not only $everything / GraphQL v2 / MCP:
+ * The patient's `dataConnectionViewControl` Consent must hide the blocked resource on every
+ * user-token read path:
  *   - GraphQL v1 (/$graphql)             - REST search (bundle and streaming)
- *   - REST read-by-id (404 as if missing) - GraphQL v2 (regression guard)
- * Only user tokens of clients listed in CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL are affected.
- * All data is synthetic.
+ *   - REST read-by-id (404 as if missing) - GraphQL v2, $everything and /mcp
+ * Every path loads the Consent once per request and fails the request when the caller's Person has
+ * no owner tag. Only user tokens of clients listed in CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL are
+ * affected. All data is synthetic.
  */
 const { describe, beforeEach, afterEach, test, expect, jest: jestObj } = require('@jest/globals');
 const { PatientDataViewControlManager } = require('../../../../utils/patientDataViewController');
@@ -240,6 +241,65 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             } finally {
                 spy.mockRestore();
             }
+        });
+
+        test.each([
+            ['REST search', (r) => r.get('/4_0_0/CarePlan').set(userHeaders()),
+                (resp) => expect(resp.status).toBeGreaterThanOrEqual(500)],
+            ['GraphQL v1', () => gqlV1('query { carePlan { entry { resource { id } } } }'),
+                (resp) => expect(resp.body.errors).toBeDefined()]
+        ])('a failed Consent lookup fails the request and returns no data: %s', async (_name, send, assertFailed) => {
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync')
+                .mockRejectedValue(new Error('consent store unavailable'));
+            try {
+                const resp = await send(request);
+                assertFailed(resp);
+                const body = String(resp.text);
+                expect(body).not.toContain(BLOCKED);
+                expect(body).not.toContain(UNBLOCKED);
+                // the internal error message is not sent to the caller
+                expect(body).not.toContain('consent store unavailable');
+            } finally {
+                spy.mockRestore();
+            }
+        });
+
+        // _include/_revinclude are accepted but not implemented: no search returns included resources,
+        // so they are not a path around the Consent. The service-token rows prove that (a service
+        // token is not filtered, so it would get the included CarePlan if includes worked). If they
+        // are ever implemented these rows fail, and the included resources need the view-control
+        // filter too.
+        describe('_include/_revinclude aimed at the blocked CarePlan', () => {
+            beforeEach(async () => {
+                const security = ['access', 'owner', 'sourceAssigningAuthority'].map((tag) => ({
+                    system: `https://www.icanbwell.com/${tag}`,
+                    code: 'healthsystem1'
+                }));
+                await merge('Procedure', {
+                    resourceType: 'Procedure',
+                    id: 'procedure-based-on-blocked',
+                    meta: { source: 'healthsystem1', security },
+                    status: 'completed',
+                    subject: { reference: 'Patient/patient1' },
+                    basedOn: [{ reference: `CarePlan/${BLOCKED}` }]
+                });
+            });
+
+            const resourcesOf = (body) => (body.entry || []).map((e) => e.resource);
+            test.each([
+                ['_include', '/4_0_0/Procedure?_id=procedure-based-on-blocked&_include=Procedure:based-on&_bundle=1', 'Procedure'],
+                ['_revinclude', '/4_0_0/Patient?_id=patient1&_revinclude=CarePlan:subject&_bundle=1', 'Patient']
+            ])('%s returns no included resources at all, even for a service token', async (_name, url, primaryType) => {
+                for (const headers of [getHeaders(), userHeaders()]) {
+                    const resp = await request.get(url).set(headers);
+                    expect(resp.status).toBe(200);
+                    const resources = resourcesOf(resp.body);
+                    expect(resources.length).toBeGreaterThan(0);
+                    expect(resources.map((r) => r.resourceType)).toEqual(resources.map(() => primaryType));
+                    expect(allIdValues(resp.body)).not.toEqual(expect.arrayContaining([BLOCKED]));
+                    expect(allIdValues(resp.body)).not.toEqual(expect.arrayContaining([BLOCKED_UUID]));
+                }
+            });
         });
 
         test('resource types the Consent does not mention are unaffected', async () => {
