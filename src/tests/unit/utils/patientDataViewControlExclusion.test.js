@@ -66,6 +66,10 @@ describe('PatientDataViewControlExclusion', () => {
         expect(getPatientIdsFromScopeAsync).toHaveBeenCalledWith(
             expect.objectContaining({ addPersonOwnerToContext: true, personIdFromJwtToken: 'person-1' })
         );
+        // a Person with no owner tag fails the request rather than being treated as enrolled
+        expect(getConsentAsync).toHaveBeenCalledWith(
+            expect.objectContaining({ raiseErrorForMissingUserOwner: true })
+        );
     });
 
     test('folds a caller-supplied _id:not into the exclusion instead of overwriting it', async () => {

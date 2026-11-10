@@ -16,7 +16,8 @@ const {
     getHeadersWithAdmin,
     createTestRequest,
     getHeadersWithCustomPayload,
-    getCustomGraphQLHeaders
+    getCustomGraphQLHeaders,
+    getTestContainer
 } = require('../../common');
 
 const fx = (p) => require(`./fixtures/${p}`);
@@ -264,6 +265,56 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             await seed();
             const search = await request.get('/4_0_0/CarePlan').set(userHeaders());
             expect(idsOf(search.body)).toContain(BLOCKED);
+        });
+    });
+
+    describe('caller Person has no owner tag', () => {
+        // Writes reject a resource without an owner tag, so this state only arises from data
+        // written around the API; strip the tag in Mongo to reproduce it.
+        const stripPersonOwnerTag = async () => {
+            const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+            const result = await db.collection('Person_4_0_0').updateOne(
+                { _uuid: PERSON_ID },
+                { $pull: { 'meta.security': { system: 'https://www.icanbwell.com/owner' } } }
+            );
+            expect(result.modifiedCount).toBe(1);
+        };
+
+        test.each([
+            ['REST search', (r) => r.get('/4_0_0/CarePlan').set(userHeaders())],
+            ['REST streaming search', (r) => r.get('/4_0_0/CarePlan?_streamResponse=1').set(userHeaders())],
+            ['REST read-by-id', (r) => r.get(`/4_0_0/CarePlan/${UNBLOCKED_UUID}`).set(userHeaders())],
+            ['GraphQL v1', () => gqlV1('query { carePlan { entry { resource { id } } } }')]
+        ])('a user token of an enrolled deployment fails the request instead of returning data: %s', async (name, send) => {
+            await seed();
+            await stripPersonOwnerTag();
+            const resp = await send(request);
+            const body = typeof resp.body === 'object' ? JSON.stringify(resp.body) : String(resp.text);
+            // no CarePlan may come back, blocked or not: the request must not succeed
+            expect(body).not.toContain(BLOCKED);
+            expect(body).not.toContain(UNBLOCKED);
+            if (name === 'GraphQL v1') {
+                expect(resp.body.errors).toBeDefined();
+            } else {
+                expect(resp.status).toBeGreaterThanOrEqual(400);
+            }
+        });
+
+        test('a service token is unaffected', async () => {
+            await seed();
+            await stripPersonOwnerTag();
+            const resp = await request.get('/4_0_0/CarePlan').set(getHeaders());
+            expect(resp.status).toBe(200);
+            expect(idsOf(resp.body).sort()).toEqual([BLOCKED, UNBLOCKED]);
+        });
+
+        test('a user token is unaffected when no client is enrolled', async () => {
+            delete process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+            await seed();
+            await stripPersonOwnerTag();
+            const resp = await request.get('/4_0_0/CarePlan').set(userHeaders());
+            expect(resp.status).toBe(200);
+            expect(idsOf(resp.body)).toContain(BLOCKED);
         });
     });
 

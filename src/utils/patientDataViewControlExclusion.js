@@ -67,12 +67,14 @@ class PatientDataViewControlExclusion {
             addPersonOwnerToContext: true,
             requestInfo
         });
+        // Every Person has an owner tag (writes reject a resource without one), and enrollment is
+        // decided by it. A missing owner is bad data, not "enrolled", so fail the request.
         const { viewControlResourceToExcludeMap } =
             await this.patientDataViewControlManager.getConsentAsync({
                 requestInfo,
                 base_version,
                 patientFilterReferences: null,
-                raiseErrorForMissingUserOwner: false
+                raiseErrorForMissingUserOwner: true
             });
         return viewControlResourceToExcludeMap;
     }

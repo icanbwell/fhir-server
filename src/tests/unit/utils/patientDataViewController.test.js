@@ -113,7 +113,8 @@ describe('PatientDataViewControlManager', () => {
                         patientFilterReferences: null,
                         raiseErrorForMissingUserOwner: true
                     })
-                ).rejects.toThrow();
+                ).rejects.toThrow('has no owner tag');
+                expect(mockSearchManager.fetchResourcesByArgsAsync).not.toHaveBeenCalled();
             });
 
             test('does NOT throw when owner is null and raiseErrorForMissingUserOwner is false', async () => {

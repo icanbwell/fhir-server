@@ -68,7 +68,10 @@ class PatientDataViewControlManager {
         let userOwnerFromContext = httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personIdFromJwtToken}`);
 
         if (raiseErrorForMissingUserOwner) {
-            assertIsValid(userOwnerFromContext);
+            assertIsValid(
+                userOwnerFromContext,
+                'dataConnectionViewControl: the caller\'s Person has no owner tag, so client enrollment cannot be decided'
+            );
         }
 
         if (
