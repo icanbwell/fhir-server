@@ -19,6 +19,7 @@ const {
     getCustomGraphQLHeaders,
     getTestContainer
 } = require('../../common');
+const { callMcpTool, parseMcpRpcResponse } = require('../../mcp/mcpTestHelpers');
 
 const fx = (p) => require(`./fixtures/${p}`);
 const SEED = [
@@ -78,6 +79,22 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
         Array.isArray(body) ? body.map((r) => r.id) : (body.entry || []).map((e) => e.resource.id);
     const gqlV1 = (query, headers = userGraphqlHeaders()) =>
         request.post('/$graphql').send({ operationName: null, variables: {}, query }).set(headers);
+    /** every value of an `id` key anywhere in a response body: the ids of the resources returned */
+    const allIdValues = (body) => {
+        const ids = [];
+        const walk = (node) => {
+            if (Array.isArray(node)) {
+                node.forEach(walk);
+            } else if (node && typeof node === 'object') {
+                if (typeof node.id === 'string') {
+                    ids.push(node.id);
+                }
+                Object.values(node).forEach(walk);
+            }
+        };
+        walk(body);
+        return ids;
+    };
     const gqlV1Ids = (resp) => {
         expect(resp.body.errors).toBeUndefined();
         const field = Object.values(resp.body.data)[0];
@@ -199,6 +216,32 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             }
         });
 
+        test.each([
+            ['GraphQL v2 with several resolvers', (r) => r.post('/4_0_0/$graphqlv2').send({
+                operationName: null,
+                variables: {},
+                query: `query {
+                    carePlans { entry { resource { id } } }
+                    conditions { entry { resource { id } } }
+                    procedures { entry { resource { id } } }
+                }`
+            }).set(userGraphqlHeaders())],
+            ['$everything', (r) => r.get(`/4_0_0/Patient/person.${PERSON_ID}/$everything`).set(userHeaders())]
+        ])('the Consent is loaded once per request: %s', async (_name, send) => {
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync');
+            try {
+                const resp = await send(request);
+                expect(resp.status).toBe(200);
+                // the member's own Consent may come back and name the blocked CarePlan in its
+                // provision; what must not come back is the blocked resource itself
+                expect(allIdValues(resp.body)).not.toEqual(expect.arrayContaining([BLOCKED_UUID]));
+                expect(allIdValues(resp.body)).not.toEqual(expect.arrayContaining([BLOCKED]));
+                expect(spy).toHaveBeenCalledTimes(1);
+            } finally {
+                spy.mockRestore();
+            }
+        });
+
         test('resource types the Consent does not mention are unaffected', async () => {
             const resp = await request.get('/4_0_0/Condition').set(userHeaders());
             expect(resp.status).toBe(200);
@@ -280,24 +323,37 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             expect(result.modifiedCount).toBe(1);
         };
 
+        const httpError = (resp) => expect(resp.status).toBeGreaterThanOrEqual(400);
+        const graphqlError = (resp) => expect(resp.body.errors).toBeDefined();
+        const mcpError = (resp) => expect(parseMcpRpcResponse(resp).result?.isError).toBe(true);
+        // $everything streams the base Patient before the Consent lookup and reports a failed
+        // lookup as an OperationOutcome entry rather than an HTTP error
+        const everythingError = (resp) => expect(JSON.stringify(resp.body)).toContain('OperationOutcome');
+        const userToken = () => userHeaders().Authorization.replace(/^Bearer /, '');
+
         test.each([
-            ['REST search', (r) => r.get('/4_0_0/CarePlan').set(userHeaders())],
-            ['REST streaming search', (r) => r.get('/4_0_0/CarePlan?_streamResponse=1').set(userHeaders())],
-            ['REST read-by-id', (r) => r.get(`/4_0_0/CarePlan/${UNBLOCKED_UUID}`).set(userHeaders())],
-            ['GraphQL v1', () => gqlV1('query { carePlan { entry { resource { id } } } }')]
-        ])('a user token of an enrolled deployment fails the request instead of returning data: %s', async (name, send) => {
+            ['REST search', (r) => r.get('/4_0_0/CarePlan').set(userHeaders()), httpError],
+            ['REST streaming search', (r) => r.get('/4_0_0/CarePlan?_streamResponse=1').set(userHeaders()), httpError],
+            ['REST read-by-id', (r) => r.get(`/4_0_0/CarePlan/${UNBLOCKED_UUID}`).set(userHeaders()), httpError],
+            ['GraphQL v1', () => gqlV1('query { carePlan { entry { resource { id } } } }'), graphqlError],
+            ['GraphQL v2', (r) => r.post('/4_0_0/$graphqlv2')
+                .send({ operationName: null, variables: {}, query: 'query { carePlans { entry { resource { id } } } }' })
+                .set(userGraphqlHeaders()), graphqlError],
+            ['$everything', (r) => r.get(`/4_0_0/Patient/person.${PERSON_ID}/$everything`).set(userHeaders()), everythingError],
+            ['/mcp', async (r) => (await callMcpTool(r, userToken(), 'search_care_plan', {})).resp, mcpError]
+        ])('a user token of an enrolled deployment fails the request instead of returning data: %s', async (_name, send, assertFailed) => {
             await seed();
             await stripPersonOwnerTag();
             const resp = await send(request);
-            const body = typeof resp.body === 'object' ? JSON.stringify(resp.body) : String(resp.text);
+            // raw text, not resp.body: /mcp answers with text/event-stream, which supertest leaves
+            // out of resp.body, so a body-only check would pass without looking at anything
+            const body = String(resp.text);
+            expect(body.length).toBeGreaterThan(0);
             // no CarePlan may come back, blocked or not: the request must not succeed
             expect(body).not.toContain(BLOCKED);
             expect(body).not.toContain(UNBLOCKED);
-            if (name === 'GraphQL v1') {
-                expect(resp.body.errors).toBeDefined();
-            } else {
-                expect(resp.status).toBeGreaterThanOrEqual(400);
-            }
+            expect(body).not.toContain(UNBLOCKED_UUID);
+            assertFailed(resp);
         });
 
         test('a service token is unaffected', async () => {

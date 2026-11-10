@@ -15,14 +15,10 @@ const { SearchBundleOperation } = require('../operations/search/searchBundle');
 const { parseResolveInfo } = require('graphql-parse-resolve-info');
 const { getSerializer } = require('../fhir/baseFhirResourceSerializer');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
-const { PatientDataViewControlManager } = require('../utils/patientDataViewController');
+const { PatientDataViewControlExclusion } = require('../utils/patientDataViewControlExclusion');
 const { CustomTracer } = require('../utils/customTracer');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
-const { PatientScopeManager } = require('../operations/security/patientScopeManager');
 const { ParsedArgs } = require('../operations/query/parsedArgs');
-const { ParsedArgsItem } = require('../operations/query/parsedArgsItem');
-const { QueryParameterValue } = require('../operations/query/queryParameterValue');
-const { searchParameterQueries } = require('../searchParameters/searchParameters');
 const { mongoQueryAndOptionsStringify } = require('../utils/mongoQueryStringify');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../utils/mongoGroupExtendedTag');
 const { OperationAccessManager } = require('../utils/operationAccessManager');
@@ -38,9 +34,8 @@ class FhirDataSource {
      * @property {R4ArgsParser} r4ArgsParser
      * @property {QueryRewriterManager} queryRewriterManager
      * @property {ConfigManager} configManager
-     * @property {PatientDataViewControlManager} patientDataViewControlManager
+     * @property {PatientDataViewControlExclusion} patientDataViewControlExclusion
      * @property {CustomTracer} customTracer
-     * @property {PatientScopeManager} patientScopeManager
      * @property {OperationAccessManager} accessManager
      * @param {FhirDataSourceParams} params
      */
@@ -51,9 +46,8 @@ class FhirDataSource {
             r4ArgsParser,
             queryRewriterManager,
             configManager,
-            patientDataViewControlManager,
+            patientDataViewControlExclusion,
             customTracer,
-            patientScopeManager,
             accessManager
         }
     ) {
@@ -95,22 +89,16 @@ class FhirDataSource {
         assertTypeEquals(this.configManager, ConfigManager);
 
         /**
-         * @type {PatientDataViewControlManager}
+         * @type {PatientDataViewControlExclusion}
          */
-        this.patientDataViewControlManager = patientDataViewControlManager;
-        assertTypeEquals(this.patientDataViewControlManager, PatientDataViewControlManager);
+        this.patientDataViewControlExclusion = patientDataViewControlExclusion;
+        assertTypeEquals(this.patientDataViewControlExclusion, PatientDataViewControlExclusion);
 
         /**
          * @type {CustomTracer}
          */
         this.customTracer = customTracer;
         assertTypeEquals(this.customTracer, CustomTracer);
-
-        /**
-         * @type {PatientScopeManager}
-         */
-        this.patientScopeManager = patientScopeManager;
-        assertTypeEquals(this.patientScopeManager, PatientScopeManager);
 
         /**
          * @type {OperationAccessManager}
@@ -131,10 +119,10 @@ class FhirDataSource {
         this.resourceProjections = null;
 
         /**
-         * contains list of ids to be excluded for each resource
-         * @type {{[resourceType: string]: string[]}|null}
+         * whether this request's view-control Consent lookup has been started (traced once)
+         * @type {boolean}
          */
-        this.patientViewControlResourceExcludeIds = null;
+        this.viewControlLookupStarted = false;
     }
 
     /**
@@ -761,82 +749,40 @@ class FhirDataSource {
             }
         );
 
-        // This will run once per request
-        if (this.patientViewControlResourceExcludeIds === null && this.requestInfo.isUser) {
-            const { isUser, personIdFromJwtToken } = this.requestInfo;
-
-            // this is needed to get person owner in context for fetching consent.
-            // Its called later too in the request lifecycle but as its result is cached,
-            // it will not be executed again
-            await this.patientScopeManager.getPatientIdsFromScopeAsync({
-                base_version,
-                isUser,
-                personIdFromJwtToken,
-                addPersonOwnerToContext: true,
-                // Apply the caller's access-tag security filter while traversing Person.link so a
-                // Person/Patient reachable only via a cross-tenant link on the caller's own Person is
-                // not silently included in the patient-scope filter.
-                requestInfo: this.requestInfo
-            });
-
-            await this.customTracer.trace({
+        // Hide resources blocked by the caller's dataConnectionViewControl Consent (user tokens of
+        // enrolled clients only). The lookup is shared by every read path and loaded once per request,
+        // even when GraphQL resolvers run concurrently: applyAsync below awaits that shared lookup.
+        // Only the first call traces it and adds it to the debug meta.
+        if (this.requestInfo.isUser && !this.viewControlLookupStarted) {
+            this.viewControlLookupStarted = true;
+            const { viewControlConsentQueries, viewControlConsentQueryOptions } = await this.customTracer.trace({
                 name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
-                func: async () => {
-                    let {
-                        viewControlResourceToExcludeMap,
-                        viewControlConsentQueries,
-                        viewControlConsentQueryOptions
-                    } = await this.patientDataViewControlManager.getConsentAsync({
-                        requestInfo: this.requestInfo,
-                        base_version,
-                        raiseErrorForMissingUserOwner: false
-                    })
-                    if (this.debugMode && viewControlConsentQueries.length > 0){
-                        this.metaList.push({
-                            tag: [
-                                {
-                                    system: 'https://www.icanbwell.com/query',
-                                    display: mongoQueryAndOptionsStringify({
-                                        query: viewControlConsentQueries[0],
-                                        options: viewControlConsentQueryOptions[0]
-                                    })
-                                },
-                                {
-                                    system: 'https://www.icanbwell.com/queryCollection',
-                                    code: viewControlConsentQueries[0].collectionName
-                                }
-                            ]
-                        });
-                    }
-
-                    this.patientViewControlResourceExcludeIds = viewControlResourceToExcludeMap;
-                }
-            });
-        }
-
-        let resourceExcludeIds = this.patientViewControlResourceExcludeIds?.[resourceType] || [];
-        if (resourceExcludeIds && resourceExcludeIds.length > 0) {
-            if (parsedArgs["_id:not"]) {
-                let existingExcludeIds = parsedArgs["_id:not"];
-                if (!Array.isArray(existingExcludeIds)) {
-                    existingExcludeIds = [existingExcludeIds];
-                }
-                resourceExcludeIds.push(...existingExcludeIds);
-            }
-
-            parsedArgs["_id:not"] = resourceExcludeIds;
-            parsedArgs.add(
-                new ParsedArgsItem({
-                    queryParameter: '_id',
-                    queryParameterValue: new QueryParameterValue({
-                        value: resourceExcludeIds,
-                        operator: '$and'
-                    }),
-                    propertyObj: searchParameterQueries['Resource']['_id'],
-                    modifiers: ['not']
+                func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                    requestInfo: this.requestInfo,
+                    base_version
                 })
-            )
+            });
+            if (this.debugMode && viewControlConsentQueries.length > 0) {
+                this.metaList.push({
+                    tag: [
+                        {
+                            system: 'https://www.icanbwell.com/query',
+                            display: mongoQueryAndOptionsStringify({
+                                query: viewControlConsentQueries[0],
+                                options: viewControlConsentQueryOptions[0]
+                            })
+                        },
+                        {
+                            system: 'https://www.icanbwell.com/queryCollection',
+                            code: viewControlConsentQueries[0].collectionName
+                        }
+                    ]
+                });
+            }
         }
+        await this.patientDataViewControlExclusion.applyAsync({
+            parsedArgs, resourceType, base_version, requestInfo: this.requestInfo
+        });
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {

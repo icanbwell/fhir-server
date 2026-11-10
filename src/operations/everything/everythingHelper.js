@@ -52,7 +52,7 @@ const { isFalseWithFallback } = require('../../utils/isFalse');
 const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const { CustomTracer } = require('../../utils/customTracer');
-const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
+const { PatientDataViewControlExclusion } = require('../../utils/patientDataViewControlExclusion');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
@@ -131,7 +131,7 @@ class EverythingHelper {
      * @property {Base64DataManager} base64DataManager
      * @property {SearchParametersManager} searchParametersManager
      * @property {CustomTracer} customTracer
-     * @property {PatientDataViewControlManager} patientDataViewControlManager
+     * @property {PatientDataViewControlExclusion} patientDataViewControlExclusion
      * @property {MongoGroupMemberRepository} mongoGroupMemberRepository
      * @property {AuditLogger} auditLogger
      * @property {PostRequestProcessor} postRequestProcessor
@@ -153,7 +153,7 @@ class EverythingHelper {
         searchParametersManager,
         everythingRelatedResourceMapper,
         customTracer,
-        patientDataViewControlManager,
+        patientDataViewControlExclusion,
         mongoGroupMemberRepository,
         auditLogger,
         postRequestProcessor,
@@ -227,10 +227,10 @@ class EverythingHelper {
         assertTypeEquals(everythingRelatedResourceMapper, EverythingRelatedResourcesMapper);
 
         /**
-         * @type {PatientDataViewControlManager}
+         * @type {PatientDataViewControlExclusion}
          * */
-        this.patientDataViewControlManager = patientDataViewControlManager;
-        assertTypeEquals(patientDataViewControlManager, PatientDataViewControlManager);
+        this.patientDataViewControlExclusion = patientDataViewControlExclusion;
+        assertTypeEquals(patientDataViewControlExclusion, PatientDataViewControlExclusion);
 
         /**
          * @type {MongoGroupMemberRepository}
@@ -940,11 +940,10 @@ class EverythingHelper {
 
             let resourceToExcludeIdsMap = {};
 
-            let patientReference = baseResourceIdentifiers.map(patientIdentifier => {
-                return `${PATIENT_REFERENCE_PREFIX}${patientIdentifier._uuid}`;
-            });
-
-            // get Consent resource containing resources marked as deleted to exclude
+            // Resources blocked by the caller's dataConnectionViewControl Consent (user tokens of
+            // enrolled clients only). This is the lookup every read path shares, loaded once per
+            // request; it covers all of the member's view-control Consents, not only those whose actor
+            // is one of the requested patients.
             if (requestInfo.isUser) {
                 let {
                     viewControlResourceToExcludeMap,
@@ -952,10 +951,9 @@ class EverythingHelper {
                     viewControlConsentQueryOptions
                 } = await this.customTracer.trace({
                     name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
-                    func: async () => await this.patientDataViewControlManager.getConsentAsync({
+                    func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
                         requestInfo,
-                        base_version,
-                        patientFilterReferences: patientReference
+                        base_version
                     })
                 });
 

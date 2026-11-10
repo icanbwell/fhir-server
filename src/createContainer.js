@@ -781,7 +781,7 @@ const createContainer = function () {
         searchParametersManager: c.searchParametersManager,
         everythingRelatedResourceMapper: c.everythingRelatedResourceMapper,
         customTracer: c.customTracer,
-        patientDataViewControlManager: c.patientDataViewControlManager,
+        patientDataViewControlExclusion: c.patientDataViewControlExclusion,
         mongoGroupMemberRepository: c.mongoGroupMemberRepository,
         auditLogger: c.auditLogger,
         postRequestProcessor: c.postRequestProcessor,
@@ -1245,8 +1245,7 @@ const createContainer = function () {
     container.register('mcpToolHandler', (c) => new McpToolHandler({
         searchBundleOperation: c.searchBundleOperation,
         r4ArgsParser: c.r4ArgsParser,
-        patientDataViewControlManager: c.patientDataViewControlManager,
-        patientScopeManager: c.patientScopeManager,
+        patientDataViewControlExclusion: c.patientDataViewControlExclusion,
         queryRewriterManager: c.queryRewriterManager
     }));
 

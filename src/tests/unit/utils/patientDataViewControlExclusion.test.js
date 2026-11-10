@@ -127,6 +127,54 @@ describe('PatientDataViewControlExclusion', () => {
         expect(getPatientIdsFromScopeAsync).toHaveBeenCalledTimes(1);
     });
 
+    test('getConsentLookupAsync returns the Consent queries and options alongside the exclude map', async () => {
+        getConsentAsync.mockResolvedValue({
+            viewControlResourceToExcludeMap: { CarePlan: [UUID_A] },
+            viewControlConsentQueries: [{ collectionName: 'Consent_4_0_0' }],
+            viewControlConsentQueryOptions: [{ limit: 10 }]
+        });
+        const lookup = await exclusion.getConsentLookupAsync({ requestInfo: user, base_version: '4_0_0' });
+        expect(lookup).toEqual({
+            viewControlResourceToExcludeMap: { CarePlan: [UUID_A] },
+            viewControlConsentQueries: [{ collectionName: 'Consent_4_0_0' }],
+            viewControlConsentQueryOptions: [{ limit: 10 }]
+        });
+    });
+
+    test('the shared lookup is frozen, so one consumer cannot change another consumer\'s filter', async () => {
+        const lookup = await exclusion.getConsentLookupAsync({ requestInfo: user, base_version: '4_0_0' });
+        // array methods throw on a frozen array in strict and non-strict code alike
+        expect(() => lookup.viewControlResourceToExcludeMap.CarePlan.push('caller-excluded')).toThrow(TypeError);
+        // plain assignment throws only in strict mode (this file); most consumers are not strict,
+        // where it is silently ignored. Either way the shared lookup must be unchanged.
+        const tryAssign = (fn) => {
+            try {
+                fn();
+            } catch {
+                // rejected in strict mode
+            }
+        };
+        tryAssign(() => { lookup.viewControlResourceToExcludeMap.Condition = ['x']; });
+        tryAssign(() => { lookup.viewControlResourceToExcludeMap.CarePlan[0] = 'replaced'; });
+        const again = await exclusion.getConsentLookupAsync({ requestInfo: user, base_version: '4_0_0' });
+        expect(again.viewControlResourceToExcludeMap).toEqual({ CarePlan: [UUID_A, 'source-id-1'] });
+    });
+
+    test.each([
+        ['service token', { isUser: false, personIdFromJwtToken: 'person-1' }],
+        ['user token without a person id', { isUser: true }],
+        ['no requestInfo', undefined]
+    ])('getConsentLookupAsync returns an empty result without any lookup: %s', async (_name, requestInfo) => {
+        const lookup = await exclusion.getConsentLookupAsync({ requestInfo, base_version: '4_0_0' });
+        expect(lookup).toEqual({
+            viewControlResourceToExcludeMap: {},
+            viewControlConsentQueries: [],
+            viewControlConsentQueryOptions: []
+        });
+        expect(getConsentAsync).not.toHaveBeenCalled();
+        expect(getPatientIdsFromScopeAsync).not.toHaveBeenCalled();
+    });
+
     test('fails closed: a Consent lookup error propagates and is not memoized', async () => {
         getConsentAsync.mockRejectedValueOnce(new Error('mongo down'));
         await expect(

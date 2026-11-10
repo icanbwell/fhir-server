@@ -15,9 +15,8 @@ const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
 const { QueryRewriterManager } = require('../../../queryRewriters/queryRewriterManager');
 const { ConfigManager } = require('../../../utils/configManager');
 const { SearchBundleOperation } = require('../../../operations/search/searchBundle');
-const { PatientDataViewControlManager } = require('../../../utils/patientDataViewController');
+const { PatientDataViewControlExclusion } = require('../../../utils/patientDataViewControlExclusion');
 const { CustomTracer } = require('../../../utils/customTracer');
-const { PatientScopeManager } = require('../../../operations/security/patientScopeManager');
 const { OperationAccessManager } = require('../../../utils/operationAccessManager');
 
 function createDataSource(overrides = {}) {
@@ -34,10 +33,13 @@ function createDataSource(overrides = {}) {
     const configManager = createPrototypedMock(ConfigManager);
     defineGetter(configManager, 'graphQLFetchResourceBatchSize', 100);
     defineGetter(configManager, 'enableMongoProjectionsInGraphQLv2', false);
-    const patientDataViewControlManager = createPrototypedMock(PatientDataViewControlManager);
+    const patientDataViewControlExclusion = createPrototypedMock(PatientDataViewControlExclusion);
+    patientDataViewControlExclusion.getConsentLookupAsync = jestGlobal.fn().mockResolvedValue({
+        viewControlResourceToExcludeMap: {}, viewControlConsentQueries: [], viewControlConsentQueryOptions: []
+    });
+    patientDataViewControlExclusion.applyAsync = jestGlobal.fn().mockImplementation(async ({ parsedArgs }) => parsedArgs);
     const customTracer = createPrototypedMock(CustomTracer);
     customTracer.trace = jestGlobal.fn().mockImplementation(async ({ func }) => await func());
-    const patientScopeManager = createPrototypedMock(PatientScopeManager);
     const accessManager = overrides.accessManager || createPrototypedMock(OperationAccessManager);
     if (!overrides.accessManager) {
         accessManager.verifyGraphQLReadAccess = jestGlobal.fn();
@@ -49,9 +51,8 @@ function createDataSource(overrides = {}) {
         r4ArgsParser,
         queryRewriterManager,
         configManager,
-        patientDataViewControlManager,
+        patientDataViewControlExclusion,
         customTracer,
-        patientScopeManager,
         accessManager
     });
 }

@@ -279,16 +279,16 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
         });
     });
 
-    describe('scoping to $everything, GraphQLv2, /mcp, and (via PatientDataViewControlExclusion) REST search/read-by-id and GraphQL v1 (confirmed by scanning the real source tree)', () => {
+    describe('every read path reaches the Consent through PatientDataViewControlExclusion (confirmed by scanning the real source tree)', () => {
         /**
-         * This mechanism runs for `$everything`, GraphQLv2 and `/mcp` (each calling `getConsentAsync`
-         * directly) and, since TIP-8113, for REST search / read-by-id (`fhirOperationsManager.js`) and
-         * GraphQL v1 (`graphql/dataSource.js`) through the single wrapper
-         * `utils/patientDataViewControlExclusion.js`. Rather than trust prose, this walks the actual
-         * `src/` (excluding `src/tests`) and asserts the exact, closed set of files that reference
-         * `PatientDataViewControlManager`. If a future change wires the consent check into another
-         * path (e.g. `searchBundle.js`, `searchStreaming.js`), this test fails and the scoping claim
-         * must be re-verified.
+         * REST search / read-by-id (`fhirOperationsManager.js`), GraphQL v1 (`graphql/dataSource.js`),
+         * GraphQL v2 (`graphqlv2/dataSource.js`), `$everything` (`everythingHelper.js`) and `/mcp`
+         * (`mcpToolHandler.js`) all get the caller's view-control Consent from the single wrapper
+         * `utils/patientDataViewControlExclusion.js`, which loads it once per request. Rather than
+         * trust prose, this walks the actual `src/` (excluding `src/tests`) and asserts the exact,
+         * closed set of files that reference `PatientDataViewControlManager` or call
+         * `getConsentAsync`. If a future change looks the Consent up some other way, this test fails
+         * and the once-per-request and owner-tag guarantees must be re-verified.
          */
         function findFilesReferencing (rootDir, needle) {
             const matches = [];
@@ -312,39 +312,36 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             return matches.sort();
         }
 
-        test('PatientDataViewControlManager is only referenced by its own definition, its IoC wiring, the exclusion wrapper, everythingHelper.js, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js', () => {
+        test('PatientDataViewControlManager is only referenced by its own definition, its IoC wiring, and the exclusion wrapper', () => {
             const srcDir = path.resolve(__dirname, '../../../../src');
 
             const referencingFiles = findFilesReferencing(srcDir, 'PatientDataViewControlManager');
 
             expect(referencingFiles).toEqual([
                 'createContainer.js',
-                'graphqlv2/dataSource.js',
-                'mcp/mcpToolHandler.js',
-                'operations/everything/everythingHelper.js',
                 'utils/patientDataViewControlExclusion.js',
                 'utils/patientDataViewController.js'
             ]);
         });
 
-        test('getConsentAsync is only called from everythingHelper.js, graphqlv2/dataSource.js, mcp/mcpToolHandler.js and the exclusion wrapper — REST search/GraphQL v1 reach it only through that wrapper', () => {
+        test('getConsentAsync is only called from the exclusion wrapper, and every read path uses the wrapper', () => {
             const srcDir = path.resolve(__dirname, '../../../../src');
 
             const callSites = findFilesReferencing(srcDir, '.getConsentAsync(')
                 .filter((file) => file !== 'utils/patientDataViewController.js');
 
-            expect(callSites).toEqual([
-                'graphqlv2/dataSource.js',
-                'mcp/mcpToolHandler.js',
-                'operations/everything/everythingHelper.js',
-                'utils/patientDataViewControlExclusion.js'
-            ]);
+            expect(callSites).toEqual(['utils/patientDataViewControlExclusion.js']);
 
-            // REST search/read-by-id and GraphQL v1 go through the wrapper, never the manager directly.
-            for (const file of ['operations/fhirOperationsManager.js', 'graphql/dataSource.js']) {
+            for (const file of [
+                'operations/fhirOperationsManager.js',
+                'graphql/dataSource.js',
+                'graphqlv2/dataSource.js',
+                'operations/everything/everythingHelper.js',
+                'mcp/mcpToolHandler.js'
+            ]) {
                 const contents = fs.readFileSync(path.join(srcDir, file), 'utf8');
-                expect(contents).toContain('patientDataViewControlExclusion.applyAsync');
-                expect(contents).not.toContain('getConsentAsync');
+                expect(contents).toContain('this.patientDataViewControlExclusion.');
+                expect(contents).not.toContain('getConsentAsync(');
             }
             // The search execution layers themselves stay consent-agnostic.
             expect(fs.readFileSync(path.join(srcDir, 'operations/search/searchBundle.js'), 'utf8'))

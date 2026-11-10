@@ -8,6 +8,8 @@ const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
 const { PatientDataViewControlManager } = require('../../../utils/patientDataViewController');
 const { PatientScopeManager } = require('../../../operations/security/patientScopeManager');
 const { QueryRewriterManager } = require('../../../queryRewriters/queryRewriterManager');
+const { PatientDataViewControlExclusion } = require('../../../utils/patientDataViewControlExclusion');
+const { ConfigManager } = require('../../../utils/configManager');
 const { MCP_REQUEST_INFO_CONTEXT_KEY, OPERATIONS: { READ } } = require('../../../constants');
 const { ParsedArgs } = require('../../../operations/query/parsedArgs');
 const { ParsedArgsItem } = require('../../../operations/query/parsedArgsItem');
@@ -41,11 +43,19 @@ function createHandler () {
     queryRewriterManager.rewriteArgsAsync = jestGlobal.fn().mockImplementation(
         async ({ parsedArgs }) => parsedArgs
     );
+    // the real exclusion wrapper over the mocked Consent/Person lookups, so these tests exercise
+    // the actual gating and _id:not merge that /mcp now shares with every other read path
+    const configManager = createPrototypedMock(ConfigManager);
+    Object.defineProperty(configManager, 'clientsWithDataConnectionViewControl', { get: () => ['client'] });
+    const patientDataViewControlExclusion = new PatientDataViewControlExclusion({
+        configManager,
+        patientDataViewControlManager,
+        patientScopeManager
+    });
     const handler = new McpToolHandler({
         searchBundleOperation,
         r4ArgsParser,
-        patientDataViewControlManager,
-        patientScopeManager,
+        patientDataViewControlExclusion,
         queryRewriterManager
     });
     return {
@@ -150,13 +160,19 @@ describe('McpToolHandler', () => {
             });
             expect(patientScopeManager.getPatientIdsFromScopeAsync.mock.invocationCallOrder[0])
                 .toBeLessThan(patientDataViewControlManager.getConsentAsync.mock.invocationCallOrder[0]);
+            // a Person with no owner tag fails the request rather than being treated as enrolled
             expect(patientDataViewControlManager.getConsentAsync).toHaveBeenCalledWith(
-                expect.objectContaining({ requestInfo: fhirRequestInfo })
+                expect.objectContaining({ requestInfo: fhirRequestInfo, raiseErrorForMissingUserOwner: true })
+            );
+            expect(parsedArgs.add).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    queryParameter: '_id',
+                    modifiers: ['not'],
+                    queryParameterValue: expect.objectContaining({ values: ['hidden-obs-1'] })
+                })
             );
             expect(searchBundleOperation.searchBundleAsync).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parsedArgs: expect.objectContaining({ '_id:not': ['hidden-obs-1'] })
-                })
+                expect.objectContaining({ parsedArgs })
             );
         });
 
@@ -168,7 +184,7 @@ describe('McpToolHandler', () => {
             // parsedArgItems -- the same internal state buildR4SearchQuery reads -- so a regression
             // back to a bracket-only assignment would be caught here.
             const { handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager } = createHandler();
-            const fhirRequestInfo = { user: 'test-patient-user', isUser: true };
+            const fhirRequestInfo = { user: 'test-patient-user', isUser: true, personIdFromJwtToken: 'person-123' };
             jestGlobal.spyOn(httpContext, 'get').mockImplementation(
                 (key) => (key === MCP_REQUEST_INFO_CONTEXT_KEY ? fhirRequestInfo : undefined)
             );
