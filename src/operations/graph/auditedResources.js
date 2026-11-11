@@ -7,14 +7,21 @@
  */
 
 /**
- * Lists a resource and any resources contained in it
+ * Lists a resource and any resources contained in it. Only resources that carry an internal id are listed:
+ * a resource contained natively in a stored resource has none, and is not a resource the caller read on its own.
  * @param {Resource} resource
+ * @param {WeakMap<Object, string>} [knownUuids] internal ids seen so far, by resource object. Serializing a
+ *  resource strips its id in place, and one related resource object can be written under several parents.
  * @return {AuditedResource[]}
  */
-function getAuditedResources (resource) {
+function getAuditedResources (resource, knownUuids = new WeakMap()) {
+    if (resource._uuid) {
+        knownUuids.set(resource, resource._uuid);
+    }
+    const _uuid = knownUuids.get(resource);
     return [
-        { _uuid: resource._uuid, resourceType: resource.resourceType },
-        ...(resource.contained || []).flatMap((contained) => getAuditedResources(contained))
+        ...(_uuid ? [{ _uuid, resourceType: resource.resourceType }] : []),
+        ...(resource.contained || []).flatMap((contained) => getAuditedResources(contained, knownUuids))
     ];
 }
 
@@ -36,12 +43,16 @@ function getAuditedResourcesFromBundle (bundle) {
  * @return {BaseResponseStreamer}
  */
 function recordStreamedResources ({ responseStreamer, auditedResources }) {
+    /**
+     * @type {WeakMap<Object, string>}
+     */
+    const knownUuids = new WeakMap();
     return new Proxy(responseStreamer, {
         get: (target, property) => {
             if (property === 'writeBundleEntryAsync') {
                 return async ({ bundleEntry }) => {
                     // read the ids first: serializing the entry can strip them from the resource
-                    const written = getAuditedResources(bundleEntry.resource);
+                    const written = getAuditedResources(bundleEntry.resource, knownUuids);
                     await target.writeBundleEntryAsync({ bundleEntry });
                     auditedResources.push(...written);
                 };

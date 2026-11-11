@@ -470,6 +470,20 @@ describe('AuditLogger', () => {
             );
         });
 
+        test('lists a resource that appears more than once a single time', async () => {
+            queueReadAuditEntries({
+                resources: [
+                    { resourceType: 'Practitioner', _uuid: 'pr1' },
+                    { resourceType: 'Practitioner', _uuid: 'pr1' },
+                    { resourceType: 'Practitioner', _uuid: 'pr2' }
+                ]
+            });
+            await runQueuedTasksAsync();
+
+            expect(auditLogger.logAuditEntryAsync).toHaveBeenCalledTimes(1);
+            expect(auditLogger.logAuditEntryAsync.mock.calls[0][0].ids).toEqual(['pr1', 'pr2']);
+        });
+
         test('audits the requested type with no ids when an error outcome has nothing returned', async () => {
             queueReadAuditEntries({ resources: [], outcome: '4', outcomeDesc: 'bad request' });
             await runQueuedTasksAsync();

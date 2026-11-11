@@ -310,20 +310,24 @@ class AuditLogger {
         requestInfo, base_version, resourceType, args, resources, outcome, outcomeDesc
     }) {
         /**
-         * @type {Map<string, string[]>}
+         * @type {Map<string, Set<string>>}
          */
         const idsByType = new Map();
         for (const { resourceType: type, _uuid } of resources) {
             if (type === 'AuditEvent') {
                 continue;
             }
-            idsByType.set(type, [...(idsByType.get(type) || []), _uuid]);
+            if (!idsByType.has(type)) {
+                idsByType.set(type, new Set());
+            }
+            idsByType.get(type).add(_uuid);
         }
         if (idsByType.size === 0 && outcome !== undefined && resourceType !== 'AuditEvent') {
-            idsByType.set(resourceType, []);
+            idsByType.set(resourceType, new Set());
         }
 
-        for (const [type, ids] of idsByType.entries()) {
+        for (const [type, idSet] of idsByType.entries()) {
+            const ids = [...idSet];
             this.postRequestProcessor.add({
                 requestId: requestInfo.requestId,
                 fnTask: async () => {

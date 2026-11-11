@@ -136,4 +136,52 @@ describe('$graph read audit', () => {
         expect(returnedReferences).toHaveLength(1);
         expect(getAuditedReferences(await getReadAuditLogsAsync())).toEqual(returnedReferences);
     });
+
+    test.each([
+        ['contained=true', '&contained=true'],
+        ['contained=false', '']
+    ])('POST $graph (%s) audits a resource shared by several returned resources once, with its id', async (_, query) => {
+        const security = [
+            { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
+            { system: 'https://www.icanbwell.com/access', code: 'bwell' },
+            { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'bwell' }
+        ];
+        const sharedPractitioner = {
+            resourceType: 'Practitioner',
+            id: 'shared-practitioner',
+            meta: { source: 'test', security },
+            name: [{ family: 'Shared' }]
+        };
+        const patients = ['shared-patient-1', 'shared-patient-2'].map((id) => ({
+            resourceType: 'Patient',
+            id,
+            meta: { source: 'test', security },
+            generalPractitioner: [{ reference: 'Practitioner/shared-practitioner' }]
+        }));
+        for (const resource of [sharedPractitioner, ...patients]) {
+            const merged = await request
+                .post(`/4_0_0/${resource.resourceType}/1/$merge`)
+                .send(resource)
+                .set(getHeaders());
+            expect(merged).toHaveMergeResponse({ created: true });
+        }
+        await auditEventCollection.deleteMany({});
+
+        const resp = await request
+            .post(`/4_0_0/Patient/$graph?id=shared-patient-1,shared-patient-2${query}`)
+            .set(getHeaders())
+            .send({
+                resourceType: 'GraphDefinition',
+                id: 'patient-to-practitioner',
+                name: 'patient_to_practitioner',
+                status: 'active',
+                start: 'Patient',
+                link: [{ path: 'generalPractitioner', target: [{ type: 'Practitioner' }] }]
+            });
+        expect(resp).toHaveStatusCode(200);
+
+        const auditedReferences = getAuditedReferences(await getReadAuditLogsAsync());
+        expect(auditedReferences.filter((r) => r.endsWith('undefined'))).toEqual([]);
+        expect(auditedReferences).toEqual([...new Set(getReturnedReferences(resp.body))].sort());
+    });
 });

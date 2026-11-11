@@ -29,6 +29,24 @@ describe('auditedResources', () => {
         });
     });
 
+    describe('getAuditedResources with natively contained resources', () => {
+        test('skips a contained resource that has no internal id but keeps ones that do', () => {
+            expect(
+                getAuditedResources({
+                    resourceType: 'MedicationRequest',
+                    _uuid: 'm1',
+                    contained: [
+                        { resourceType: 'Medication', id: 'med1' },
+                        { resourceType: 'Practitioner', _uuid: 'pr1' }
+                    ]
+                })
+            ).toEqual([
+                { resourceType: 'MedicationRequest', _uuid: 'm1' },
+                { resourceType: 'Practitioner', _uuid: 'pr1' }
+            ]);
+        });
+    });
+
     describe('getAuditedResourcesFromBundle', () => {
         test.each([
             ['a bundle without entries', {}, []],
@@ -84,6 +102,31 @@ describe('auditedResources', () => {
             });
 
             expect(auditedResources).toEqual([{ resourceType: 'Patient', _uuid: 'p1' }]);
+        });
+
+        test('records a resource shared by several entries after the first write stripped its id', async () => {
+            const sharedPractitioner = { resourceType: 'Practitioner', _uuid: 'pr1' };
+            responseStreamer.writeBundleEntryAsync.mockImplementation(async ({ bundleEntry }) => {
+                delete bundleEntry.resource._uuid;
+                (bundleEntry.resource.contained || []).forEach((c) => delete c._uuid);
+            });
+            const entryFor = (_uuid) => ({
+                resource: {
+                    resourceType: 'Patient',
+                    _uuid,
+                    contained: [sharedPractitioner]
+                }
+            });
+
+            await wrapped.writeBundleEntryAsync({ bundleEntry: entryFor('p1') });
+            await wrapped.writeBundleEntryAsync({ bundleEntry: entryFor('p2') });
+
+            expect(auditedResources).toEqual([
+                { resourceType: 'Patient', _uuid: 'p1' },
+                { resourceType: 'Practitioner', _uuid: 'pr1' },
+                { resourceType: 'Patient', _uuid: 'p2' },
+                { resourceType: 'Practitioner', _uuid: 'pr1' }
+            ]);
         });
 
         test('does not record a resource the streamer failed to write', async () => {
