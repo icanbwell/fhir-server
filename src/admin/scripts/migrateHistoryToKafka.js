@@ -50,7 +50,8 @@ Usage: node src/admin/scripts/migrateHistoryToKafka.js --start <DD-MM-YYYYTHH:MM
 Times are UTC; --start is inclusive and --end exclusive. Records are selected by
 resource.meta.lastUpdated in 1-minute windows. MongoDB and Kafka connections come from the
 standard FHIR server environment. The resource type must be listed in
-RESOURCE_HISTORY_KAFKA_RESOURCES and ENABLE_EVENTS_KAFKA_V2 must be on. Types whose history
+RESOURCE_HISTORY_KAFKA_RESOURCES and RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES, and
+ENABLE_EVENTS_KAFKA_V2 must be on. Types whose history
 is kept in cloud storage (CLOUD_STORAGE_HISTORY_RESOURCES) are refused, and for types with a
 ClickHouse history TTL --start must be within the last 13 months.
 
@@ -342,6 +343,44 @@ function windowFilter (window) {
 }
 
 /**
+ * Why the script must not run for this type and range, or null when it may. A dry run changes nothing, so
+ * it is never refused.
+ * @param {Object} params
+ * @param {string} params.resourceType
+ * @param {Date} params.start
+ * @param {boolean} params.dryRun
+ * @param {Date|null} params.retentionCutoff
+ * @param {{isEnabledFor: (resourceType: string) => boolean}} params.historyKafkaProducer
+ * @param {{readsFromClickHouse: (resourceType: string) => boolean}} params.historyReadRouter
+ * @param {{cloudStorageHistoryResources: string[]}} params.configManager
+ * @returns {string|null}
+ */
+function findRefusalReason ({
+    resourceType, start, dryRun, retentionCutoff, historyKafkaProducer, historyReadRouter, configManager
+}) {
+    if (dryRun) {
+        return null;
+    }
+    if (!historyKafkaProducer.isEnabledFor(resourceType)) {
+        return 'history Kafka produce is not enabled for this resource type; set ENABLE_EVENTS_KAFKA_V2 and add ' +
+            'it to RESOURCE_HISTORY_KAFKA_RESOURCES';
+    }
+    // Deleted records are gone from MongoDB, so _history and vread must already be served from ClickHouse.
+    if (!historyReadRouter.readsFromClickHouse(resourceType)) {
+        return 'history reads for this resource type still come from MongoDB; add it to ' +
+            'RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES first';
+    }
+    if (configManager.cloudStorageHistoryResources.includes(resourceType)) {
+        return 'history of this resource type is kept in cloud storage and cannot be read from ClickHouse';
+    }
+    if (retentionCutoff && start < retentionCutoff) {
+        return `--start is older than the ClickHouse history retention (${retentionCutoff.toISOString()}); ` +
+            'records that old would be dropped by the TTL after leaving MongoDB';
+    }
+    return null;
+}
+
+/**
  * Migrates (or, on a dry run, counts) the records of one window.
  * @param {Object} params
  * @param {{start: Date, end: Date}} params.window
@@ -443,22 +482,18 @@ async function main () {
     const { mongoDatabaseManager, kafkaClientV2, historyKafkaProducer } = container;
     const { resourceType } = options;
 
-    if (!options.dryRun && !historyKafkaProducer.isEnabledFor(resourceType)) {
-        logError('History Kafka produce is not enabled for this resource type; set ENABLE_EVENTS_KAFKA_V2 and ' +
-            'add it to RESOURCE_HISTORY_KAFKA_RESOURCES', { resourceType });
-        return 1;
-    }
-    if (container.configManager.cloudStorageHistoryResources.includes(resourceType)) {
-        logError('History of this resource type is kept in cloud storage and cannot be read from ClickHouse; ' +
-            'refusing to migrate it', { resourceType });
-        return 1;
-    }
     const retentionCutoff = historyRetentionCutoff(resourceType);
-    if (retentionCutoff && options.start < retentionCutoff) {
-        logError('--start is older than the ClickHouse history retention for this resource type; records that old ' +
-            'would be dropped by the TTL after leaving MongoDB', {
-            resourceType, start: options.start.toISOString(), oldestAllowed: retentionCutoff.toISOString()
-        });
+    const refusal = findRefusalReason({
+        resourceType,
+        start: options.start,
+        dryRun: options.dryRun,
+        retentionCutoff,
+        historyKafkaProducer,
+        historyReadRouter: container.historyReadRouter,
+        configManager: container.configManager
+    });
+    if (refusal) {
+        logError(`Refusing to migrate: ${refusal}`, { resourceType, start: options.start.toISOString() });
         return 1;
     }
 
@@ -551,6 +586,7 @@ module.exports = {
     buildWindows,
     resolveRecorded,
     historyRetentionCutoff,
+    findRefusalReason,
     toHistoryEntry,
     processDocsAsync,
     migrateWindowAsync,

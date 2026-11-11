@@ -14,6 +14,7 @@ const {
     buildWindows,
     resolveRecorded,
     historyRetentionCutoff,
+    findRefusalReason,
     processDocsAsync,
     migrateWindowAsync,
     runWorkersAsync
@@ -129,6 +130,38 @@ describe('migrateHistoryToKafka script', () => {
     ])('historyRetentionCutoff: %s', (_name, resourceType, expected) => {
         const cutoff = historyRetentionCutoff(resourceType, new Date('2026-11-12T08:30:00.000Z'));
         expect(cutoff ? cutoff.toISOString() : null).toBe(expected);
+    });
+
+    describe('findRefusalReason', () => {
+        const allowed = {
+            resourceType: 'Composition',
+            start: new Date('2026-11-01T00:00:00Z'),
+            dryRun: false,
+            retentionCutoff: new Date('2025-10-12T00:00:00Z'),
+            historyKafkaProducer: { isEnabledFor: () => true },
+            historyReadRouter: { readsFromClickHouse: () => true },
+            configManager: { cloudStorageHistoryResources: ['Binary'] }
+        };
+
+        test.each([
+            ['every condition holds', {}, null],
+            ['Kafka produce is off for the type', { historyKafkaProducer: { isEnabledFor: () => false } }, 'RESOURCE_HISTORY_KAFKA_RESOURCES'],
+            ['history is still read from MongoDB', { historyReadRouter: { readsFromClickHouse: () => false } }, 'RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES'],
+            ['history is kept in cloud storage', { resourceType: 'Binary' }, 'cloud storage'],
+            ['--start is past the ClickHouse retention', { start: new Date('2025-01-01T00:00:00Z') }, 'retention'],
+            ['a dry run, even when nothing else holds', {
+                dryRun: true,
+                historyKafkaProducer: { isEnabledFor: () => false },
+                historyReadRouter: { readsFromClickHouse: () => false }
+            }, null]
+        ])('when %s', (_name, overrides, expected) => {
+            const reason = findRefusalReason({ ...allowed, ...overrides });
+            if (expected === null) {
+                expect(reason).toBeNull();
+            } else {
+                expect(reason).toContain(expected);
+            }
+        });
     });
 
     describe('with the live HistoryKafkaProducer', () => {
