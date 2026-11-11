@@ -382,6 +382,22 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
         });
     });
 
+    describe('Consent status', () => {
+        // only an active view-control Consent hides data, as with the other Consent lookups; the
+        // lookup filters on status so it can use the {status, patient._uuid} index
+        test.each(['inactive', 'draft', 'rejected', 'entered-in-error'])(
+            'a view-control Consent with status %s hides nothing', async (status) => {
+                const consent = deepcopy(fx('Consent/consent1.json'));
+                consent.status = status;
+                await seed(consent);
+                const search = await request.get('/4_0_0/CarePlan').set(userHeaders());
+                expect(idsOf(search.body).sort()).toEqual([BLOCKED, UNBLOCKED]);
+                const everything = await request.get(`/4_0_0/Patient/person.${PERSON_ID}/$everything`).set(userHeaders());
+                expect(allIdValues(everything.body)).toContain(BLOCKED_UUID);
+            }
+        );
+    });
+
     describe('caller Person has no owner tag', () => {
         const httpError = (resp) => expect(resp.status).toBeGreaterThanOrEqual(400);
         const graphqlError = (resp) => expect(resp.body.errors).toBeDefined();

@@ -84,6 +84,9 @@ class PatientDataViewControlManager {
 
         let consentArgs = {
             base_version,
+            // only an active Consent applies, as in the other Consent lookups; status also lets the
+            // query use the {status, patient._uuid} index instead of scanning the collection
+            status: 'active',
             patient: `Patient/person.${personId}`,
             category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
         };
