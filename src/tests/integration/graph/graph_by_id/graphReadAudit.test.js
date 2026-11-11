@@ -218,7 +218,10 @@ describe('$graph read audit', () => {
         expect(auditedReferences).toEqual(expectedReferences);
     });
 
-    test('POST $graph does not audit an id planted inside a stored contained element', async () => {
+    test.each([
+        ['contained=true', '?contained=true'],
+        ['contained=false', '']
+    ])('POST $graph (%s) does not audit an id planted inside a stored contained element', async (_, query) => {
         const security = [
             { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
             { system: 'https://www.icanbwell.com/access', code: 'bwell' },
@@ -260,7 +263,7 @@ describe('$graph read audit', () => {
         await auditEventCollection.deleteMany({});
 
         const resp = await request
-            .post('/4_0_0/Patient/forge-host/$graph')
+            .post(`/4_0_0/Patient/forge-host/$graph${query}`)
             .set(getHeaders())
             .send(graphPatientToObservation);
         expect(resp).toHaveStatusCode(200);

@@ -21,6 +21,7 @@ const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ReferenceParser} = require('../../utils/referenceParser');
 const {QueryItem} = require('./queryItem');
 const {ProcessMultipleIdsAsyncResult} = require('../common/processMultipleIdsAsyncResult');
+const {ReturnedResources} = require('./returnedResources');
 const {logError, logInfo, logWarn} = require('../common/logging');
 const {isExtendedGroupMemberPath} = require('../../utils/mongoGroupExtendedTag');
 const {MongoGroupMemberRepository} = require('../../dataLayer/repositories/mongoGroupMemberRepository');
@@ -1556,7 +1557,8 @@ class GraphHelper {
             supportLegacyId = true,
             proxyPatientIds = [],
             proxyPatientResources = [],
-            graphChunkIndex
+            graphChunkIndex,
+            returnedResources = new ReturnedResources()
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1713,6 +1715,15 @@ class GraphHelper {
             // adding proxy patient resources to top level as no parent resource
             allRelatedEntries = allRelatedEntries.concat(proxyPatientResources);
 
+            // note the ids now, before anything is written: writing strips them, and a related resource can be shared
+            parentResources.forEach((resource) => returnedResources.remember(resource));
+            for (const entity of allRelatedEntries) {
+                returnedResources.remember(entity.resource);
+                entity.containedEntries
+                    .flatMap((e) => this.getRecursiveContainedEntities(e))
+                    .forEach((e) => returnedResources.remember(e.resource));
+            }
+
             /**
              * @type {ResourceIdentifier[]}
              */
@@ -1731,6 +1742,10 @@ class GraphHelper {
                     id: topLevelResource.id,
                     resource: topLevelResource
                 });
+                /**
+                 * @type {Resource[]} the related resources this graph attaches to the top level resource
+                 */
+                let attachedContained = [];
 
                 if (entity.containedEntries.length > 0) {
                     /**
@@ -1741,7 +1756,8 @@ class GraphHelper {
                     );
 
                     if (contained) {
-                        topLevelResource.contained = recursiveEntries.map(e => e.resource);
+                        attachedContained = recursiveEntries.map(e => e.resource);
+                        topLevelResource.contained = attachedContained;
                     } else {
                         bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.concat(recursiveEntries);
                     }
@@ -1777,27 +1793,25 @@ class GraphHelper {
                     );
                 }
 
-                if (responseStreamer) {
-                    for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
-                        const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
+                // the one place an entry is returned: whatever is returned here is also reported for auditing
+                for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
+                    const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
 
-                        if (!idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
+                    if (!idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
+                        if (responseStreamer) {
                             await responseStreamer.writeBundleEntryAsync(
                                 {
                                     bundleEntry: bundleEntry1
                                 }
                             );
-                            idsOfBundleEntriesProcessed.push(resourceIdentifier);
-                        }
-                    }
-                } else {
-                    for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
-                        const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
-
-                        if (!idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
+                        } else {
                             entries.push(bundleEntry1);
-                            idsOfBundleEntriesProcessed.push(resourceIdentifier);
                         }
+                        returnedResources.add(
+                            bundleEntry1.resource,
+                            bundleEntry1.resource === topLevelResource ? attachedContained : []
+                        );
+                        idsOfBundleEntriesProcessed.push(resourceIdentifier);
                     }
                 }
             }
@@ -1862,7 +1876,8 @@ class GraphHelper {
             contained,
             responseStreamer,
             parsedArgs,
-            supportLegacyId = true
+            supportLegacyId = true,
+            returnedResources = new ReturnedResources()
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1957,7 +1972,8 @@ class GraphHelper {
                         supportLegacyId,
                         proxyPatientIds,
                         proxyPatientResources,
-                        graphChunkIndex: graphChunkIndex++
+                        graphChunkIndex: graphChunkIndex++,
+                        returnedResources
                     }
                 );
                 entries = entries.concat(entries1);

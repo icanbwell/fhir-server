@@ -12,7 +12,7 @@ const { ResourceValidator } = require('../common/resourceValidator');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { AuditLogger, sanitizeOutcomeDesc } = require('../../utils/auditLogger');
-const { getAuditedResourcesFromBundle, recordStreamedResources } = require('./auditedResources');
+const { ReturnedResources } = require('./returnedResources');
 
 class GraphOperation {
     /**
@@ -94,10 +94,7 @@ class GraphOperation {
             supportLegacyId
         }
     ) {
-        /**
-         * @type {import('./auditedResources').AuditedResource[]}
-         */
-        const streamedResources = [];
+        const returnedResources = new ReturnedResources();
         const auditArgs = { requestInfo, base_version, resourceType, args: parsedArgs.getRawArgs() };
         try {
             const resultBundle = await this.graphHelper.processGraphAsync(
@@ -107,22 +104,15 @@ class GraphOperation {
                     resourceType,
                     graphDefinitionJson,
                     contained,
-                    responseStreamer: responseStreamer
-                        ? recordStreamedResources({
-                            responseStreamer,
-                            auditedResources: streamedResources,
-                            includeContained: contained
-                        })
-                        : responseStreamer,
+                    responseStreamer,
                     parsedArgs,
-                    supportLegacyId
+                    supportLegacyId,
+                    returnedResources
                 }
             );
             this.auditLogger.queueReadAuditEntries({
                 ...auditArgs,
-                resources: responseStreamer
-                    ? streamedResources
-                    : getAuditedResourcesFromBundle(resultBundle, { includeContained: contained })
+                resources: returnedResources.resources
             });
             return resultBundle;
         } catch (err) {
@@ -130,7 +120,7 @@ class GraphOperation {
                 const statusCode = err.statusCode || 500;
                 this.auditLogger.queueReadAuditEntries({
                     ...auditArgs,
-                    resources: streamedResources,
+                    resources: returnedResources.resources,
                     outcome: statusCode >= 500 ? '8' : '4',
                     outcomeDesc: sanitizeOutcomeDesc({ error: err, statusCode })
                 });

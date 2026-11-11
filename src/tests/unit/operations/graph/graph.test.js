@@ -450,37 +450,20 @@ describe('GraphOperation', () => {
             ...overrides
         });
 
-        const streamResourcesAsync = (responseStreamer, resources) =>
-            async ({ responseStreamer: streamer }) => {
-                for (const resource of resources) {
-                    await streamer.writeBundleEntryAsync({ bundleEntry: { resource } });
-                }
-                return { resourceType: 'Bundle', type: 'searchset', entry: [] };
-            };
-
-        const bundleWithContained = {
-            resourceType: 'Bundle',
-            entry: [{
-                resource: {
-                    resourceType: 'Claim',
-                    _uuid: 'c1',
-                    contained: [{ resourceType: 'Practitioner', _uuid: 'pr1' }]
-                }
-            }]
+        // the helper reports what it returned to the collector it is given
+        const returnsAsync = (resources, error) => async ({ returnedResources }) => {
+            resources.forEach((resource) => returnedResources.add(resource));
+            if (error) {
+                throw error;
+            }
+            return { resourceType: 'Bundle', type: 'searchset', entry: [] };
         };
 
-        test('audits the resources in the returned bundle, including contained ones when asked', async () => {
-            Object.defineProperty(mockParsedArgs, 'contained', { value: true, configurable: true });
-            mockGraphHelper.processGraphAsync.mockResolvedValue({
-                resourceType: 'Bundle',
-                entry: [{
-                    resource: {
-                        resourceType: 'Claim',
-                        _uuid: 'c1',
-                        contained: [{ resourceType: 'Practitioner', _uuid: 'pr1' }]
-                    }
-                }]
-            });
+        test('audits the resources the helper reported', async () => {
+            mockGraphHelper.processGraphAsync.mockImplementation(returnsAsync([
+                { resourceType: 'Claim', _uuid: 'c1' },
+                { resourceType: 'Practitioner', _uuid: 'pr1' }
+            ]));
 
             await graphAsync();
 
@@ -497,25 +480,17 @@ describe('GraphOperation', () => {
             expect(params.outcome).toBeUndefined();
         });
 
-        test('does not take ids from a stored contained array when contained was not requested', async () => {
-            mockGraphHelper.processGraphAsync.mockResolvedValue(bundleWithContained);
-
-            await graphAsync();
-
-            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledWith(
-                expect.objectContaining({ resources: [{ resourceType: 'Claim', _uuid: 'c1' }] })
-            );
-        });
-
-        test('audits the resources streamed to the client', async () => {
-            const responseStreamer = { writeBundleEntryAsync: jest.fn().mockResolvedValue(undefined) };
-            mockGraphHelper.processGraphAsync.mockImplementation(streamResourcesAsync(responseStreamer, [
+        test('audits when streaming to the client as well', async () => {
+            const responseStreamer = { writeBundleEntryAsync: jest.fn() };
+            mockGraphHelper.processGraphAsync.mockImplementation(returnsAsync([
                 { resourceType: 'Observation', _uuid: 'o1' }
             ]));
 
             await graphAsync({ responseStreamer });
 
-            expect(responseStreamer.writeBundleEntryAsync).toHaveBeenCalledTimes(1);
+            expect(mockGraphHelper.processGraphAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ responseStreamer })
+            );
             expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledWith(
                 expect.objectContaining({
                     resources: [{ resourceType: 'Observation', _uuid: 'o1' }]
@@ -534,16 +509,12 @@ describe('GraphOperation', () => {
         test.each([
             ['an unexpected error', new Error('boom'), '8'],
             ['a client error', Object.assign(new Error('bad'), { statusCode: 400 }), '4']
-        ])('audits what was already streamed with the outcome for %s', async (_, error, outcome) => {
-            const responseStreamer = { writeBundleEntryAsync: jest.fn().mockResolvedValue(undefined) };
-            mockGraphHelper.processGraphAsync.mockImplementation(async (params) => {
-                await streamResourcesAsync(responseStreamer, [
-                    { resourceType: 'Observation', _uuid: 'o1' }
-                ])(params);
-                throw error;
-            });
+        ])('audits what was already reported with the outcome for %s', async (_, error, outcome) => {
+            mockGraphHelper.processGraphAsync.mockImplementation(returnsAsync([
+                { resourceType: 'Observation', _uuid: 'o1' }
+            ], error));
 
-            await expect(graphAsync({ responseStreamer })).rejects.toThrow(error.message);
+            await expect(graphAsync({ responseStreamer: {} })).rejects.toThrow(error.message);
 
             expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledTimes(1);
             expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledWith(

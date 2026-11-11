@@ -897,6 +897,97 @@ describe('GraphHelper - branch coverage & security (Category A)', () => {
             expect(result.entries).toEqual([]);
         });
 
+        describe('reporting the resources it returns', () => {
+            const { ReturnedResources } = require('../../../../operations/graph/returnedResources');
+            const link = { link: [{ params: 'patient={ref}', target: [{ type: 'Condition', params: 'patient={ref}' }] }] };
+
+            const runAsync = async ({ contained, responseStreamer, graphDefinition = link, ids = [] }) => {
+                const returnedResources = new ReturnedResources();
+                await graphHelper.processMultipleIdsAsync({
+                    base_version: '4_0_0',
+                    requestInfo,
+                    resourceType: 'Patient',
+                    graphDefinition,
+                    contained,
+                    parsedArgs: createParsedArgs(),
+                    responseStreamer,
+                    idsAlreadyProcessed: ids,
+                    supportLegacyId: false,
+                    returnedResources
+                });
+                return returnedResources.resources;
+            };
+
+            const condition = (n) => ({
+                resourceType: 'Condition', id: `c${n}`, _uuid: `cond-${n}`, subject: { _uuid: 'Patient/pat-1' }
+            });
+
+            // writing an entry strips the internal id from the resource, as the real streamer does
+            const strippingStreamer = () => ({
+                writeBundleEntryAsync: jest.fn().mockImplementation(async ({ bundleEntry }) => {
+                    delete bundleEntry.resource._uuid;
+                    (bundleEntry.resource.contained || []).forEach((c) => delete c._uuid);
+                })
+            });
+
+            test.each([
+                ['not streaming', undefined],
+                ['streaming', strippingStreamer()]
+            ])('contained=false reports the top level resource and each related resource (%s)', async (_, responseStreamer) => {
+                docsByResourceType.Patient = [{ resourceType: 'Patient', id: 'p1', _uuid: 'pat-1' }];
+                docsByResourceType.Condition = [condition(1), condition(2)];
+
+                const returned = await runAsync({ contained: false, responseStreamer });
+
+                expect(returned.map((r) => `${r.resourceType}/${r._uuid}`).sort()).toEqual([
+                    'Condition/cond-1', 'Condition/cond-2', 'Patient/pat-1'
+                ]);
+            });
+
+            test.each([
+                ['not streaming', undefined],
+                ['streaming', strippingStreamer()]
+            ])('contained=true reports the top level resource and the resources attached to it (%s)', async (_, responseStreamer) => {
+                docsByResourceType.Patient = [{ resourceType: 'Patient', id: 'p1', _uuid: 'pat-1' }];
+                docsByResourceType.Condition = [condition(1), condition(2)];
+
+                const returned = await runAsync({ contained: true, responseStreamer });
+
+                expect(returned.map((r) => `${r.resourceType}/${r._uuid}`).sort()).toEqual([
+                    'Condition/cond-1', 'Condition/cond-2', 'Patient/pat-1'
+                ]);
+            });
+
+            test.each([
+                ['contained=true', true],
+                ['contained=false', false]
+            ])('%s does not report an id planted in a stored contained element when nothing is attached', async (_, contained) => {
+                docsByResourceType.Patient = [{
+                    resourceType: 'Patient',
+                    id: 'p1',
+                    _uuid: 'pat-1',
+                    contained: [{ resourceType: 'Organization', id: 'planted', _uuid: 'victim-uuid' }]
+                }];
+
+                const returned = await runAsync({ contained, graphDefinition: { link: [] } });
+
+                expect(returned).toEqual([{ resourceType: 'Patient', _uuid: 'pat-1' }]);
+            });
+
+            test('does not report a resource that is not written because it was already processed', async () => {
+                docsByResourceType.Patient = [{ resourceType: 'Patient', id: 'p1', _uuid: 'pat-1' }];
+                const { ResourceIdentifier } = require('../../../../fhir/resourceIdentifier');
+
+                const returned = await runAsync({
+                    contained: false,
+                    graphDefinition: { link: [] },
+                    ids: [new ResourceIdentifier({ resourceType: 'Patient', id: 'p1', _uuid: 'pat-1' })]
+                });
+
+                expect(returned).toEqual([]);
+            });
+        });
+
         test('loop boundary: ids beyond graphBatchSize are split into chunks', async () => {
             mockConfigManager.graphBatchSize = 2;
             graphHelper.processMultipleIdsAsync = jest.fn().mockResolvedValue({
