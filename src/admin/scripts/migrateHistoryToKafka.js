@@ -60,7 +60,7 @@ Options:
   --end <time>            End of the range, e.g. 02-11-2026T00:00 (required)
   --resource-type <type>  Resource type to migrate (default: Composition)
   --workers <n>           Windows processed in parallel (default: 4)
-  --read-batch-size <n>   Documents read from MongoDB per batch (default: 500)
+  --read-batch-size <n>   Documents read from MongoDB per batch (default: 100)
   --dry-run               Count the records per window without producing or deleting
   --help, -h              Show this help
 `;
@@ -113,7 +113,7 @@ function parseArgs (argv) {
         end: undefined,
         resourceType: 'Composition',
         workers: 4,
-        readBatchSize: 500,
+        readBatchSize: 100,
         dryRun: false,
         help: false
     };

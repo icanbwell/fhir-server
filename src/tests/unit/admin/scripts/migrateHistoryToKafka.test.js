@@ -86,6 +86,12 @@ describe('migrateHistoryToKafka script', () => {
             expect(options.end.toISOString()).toBe('2026-11-01T01:00:00.000Z');
         });
 
+        test('defaults to Composition, 4 workers and 100 documents per read batch', () => {
+            expect(parseArgs(['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00'])).toMatchObject({
+                resourceType: 'Composition', workers: 4, readBatchSize: 100, dryRun: false
+            });
+        });
+
         test.each([
             ['missing --end', ['--start', '01-11-2026T00:00'], '--start and --end are required'],
             ['start not before end', ['--start', '01-11-2026T01:00', '--end', '01-11-2026T01:00'], 'before'],
