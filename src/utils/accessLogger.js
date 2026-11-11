@@ -10,7 +10,6 @@ const { getCircularReplacer } = require('./getCircularReplacer');
 const {
     OPERATIONS: { READ, WRITE }
 } = require('../constants');
-const { ScopesManager } = require('../operations/security/scopesManager');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { FastDatabaseBulkInserter } = require('../dataLayer/fastDatabaseBulkInserter');
 const { AccessLogClickHouseWriter } = require('./accessLogClickHouseWriter');
@@ -21,7 +20,6 @@ class AccessLogger {
     /**
      * constructor
      * @typedef {Object} params
-     * @property {ScopesManager} scopesManager
      * @property {FhirOperationsManager} fhirOperationsManager
      * @property {string} base_version
      * @property {string|null} imageVersion
@@ -32,7 +30,6 @@ class AccessLogger {
      * @param {params}
      */
     constructor({
-        scopesManager,
         fhirOperationsManager,
         base_version = '4_0_0',
         imageVersion,
@@ -40,11 +37,6 @@ class AccessLogger {
         databaseBulkInserter,
         accessLogClickHouseWriter = null
     }) {
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {FhirOperationsManager}
          */
@@ -308,8 +300,6 @@ class AccessLogger {
             if (this.mongoEnabled) {
                 operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).push(
                     this.databaseBulkInserter.getOperationForResourceAsync({
-                        requestId: entry.requestInfo.requestId,
-                        ACCESS_LOGS_COLLECTION_NAME,
                         doc,
                         operationType: 'insert',
                         operation: {

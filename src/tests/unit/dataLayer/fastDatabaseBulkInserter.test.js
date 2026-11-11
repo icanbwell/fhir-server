@@ -13,14 +13,10 @@ function defineGetter(obj, prop, value) {
     Object.defineProperty(obj, prop, { get: () => value, configurable: true });
 }
 
-const { ResourceManager } = require('../../../operations/common/resourceManager');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
-const { ResourceLocatorFactory } = require('../../../operations/common/resourceLocatorFactory');
 const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
-const { DatabaseUpdateFactory } = require('../../../dataLayer/databaseUpdateFactory');
 const { ResourceMerger } = require('../../../operations/common/resourceMerger');
 const { ConfigManager } = require('../../../utils/configManager');
-const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
 const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 const { CustomTracer } = require('../../../utils/customTracer');
@@ -35,19 +31,15 @@ function createMockFhirRequestInfo(overrides = {}) {
 }
 
 function createFastInserter(overrides = {}) {
-    const resourceManager = createPrototypedMock(ResourceManager);
     const postRequestProcessor = createPrototypedMock(PostRequestProcessor);
     postRequestProcessor.add = jestGlobal.fn();
-    const resourceLocatorFactory = createPrototypedMock(ResourceLocatorFactory);
     const preSaveManager = createPrototypedMock(PreSaveManager);
     preSaveManager.preSaveAsync = jestGlobal.fn().mockImplementation(async ({ resource }) => resource);
     const requestSpecificCache = overrides.requestSpecificCache || new RequestSpecificCache();
-    const databaseUpdateFactory = createPrototypedMock(DatabaseUpdateFactory);
     const resourceMerger = createPrototypedMock(ResourceMerger);
-    resourceMerger.fastMergeResourceAsync = jestGlobal.fn().mockResolvedValue({ updatedResource: null, patches: [] });
+    resourceMerger.fastMergeResourceAsync = jestGlobal.fn().mockResolvedValue({ updatedResource: null });
     const configManager = createPrototypedMock(ConfigManager);
     defineGetter(configManager, 'handleConcurrency', true);
-    const postSaveProcessor = createPrototypedMock(PostSaveProcessor);
     const base64DataManager = createPrototypedMock(Base64DataManager);
     base64DataManager.transformHistoryAsync = jestGlobal.fn().mockImplementation(async (doc) => doc);
     const customTracer = createPrototypedMock(CustomTracer);
@@ -64,15 +56,11 @@ function createFastInserter(overrides = {}) {
     };
 
     const inst = new FastDatabaseBulkInserter({
-        resourceManager,
         postRequestProcessor,
-        resourceLocatorFactory,
         preSaveManager,
         requestSpecificCache,
-        databaseUpdateFactory,
         resourceMerger,
         configManager,
-        postSaveProcessor,
         base64DataManager,
         bulkWriteExecutors: overrides.bulkWriteExecutors || [mockExecutor],
         customTracer
@@ -158,7 +146,7 @@ describe('FastDatabaseBulkInserter', () => {
         test('creates replaceOne with $and filter when previousVersionId > 0', async () => {
             const requestInfo = createMockFhirRequestInfo();
             const doc = { resourceType: 'Patient', id: 'pm', _uuid: 'um', _sourceAssigningAuthority: 'a', meta: { versionId: '2' } };
-            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '1', doc, patches: null });
+            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '1', doc });
             const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
             expect(ops[0].operation.replaceOne.filter.$and).toBeDefined();
         });
@@ -170,7 +158,7 @@ describe('FastDatabaseBulkInserter', () => {
         ])('records smartMerge=%s on the queued entry as %s', async (smartMerge, expectedSmartMerge) => {
             const requestInfo = createMockFhirRequestInfo();
             const doc = { resourceType: 'Patient', id: 'ps', _uuid: 'us', _sourceAssigningAuthority: 'a', meta: { versionId: '2' } };
-            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '1', doc, patches: null, smartMerge });
+            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '1', doc, smartMerge });
             const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
             expect(ops[0].smartMerge).toBe(expectedSmartMerge);
         });
@@ -178,30 +166,23 @@ describe('FastDatabaseBulkInserter', () => {
         test('uses simple _uuid filter when previousVersionId is 0', async () => {
             const requestInfo = createMockFhirRequestInfo();
             const doc = { resourceType: 'Patient', id: 'pz', _uuid: 'uz', _sourceAssigningAuthority: 'a', meta: { versionId: '1' } };
-            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '0', doc, patches: null });
+            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '0', doc });
             const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
             expect(ops[0].operation.replaceOne.filter._uuid).toBe('uz');
         });
 
-        test('merges with pending update in place when first merge has null patches', async () => {
+        test('folds a second merge for the same uuid into the pending update', async () => {
             const requestInfo = createMockFhirRequestInfo();
             const doc1 = { resourceType: 'Observation', id: 'o1', _uuid: 'uo', _sourceAssigningAuthority: 'a', meta: { versionId: '2' } };
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // First merge with patches: null should not crash on second merge
-            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Observation', previousVersionId: '1', doc: doc1, patches: null });
+            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Observation', previousVersionId: '1', doc: doc1 });
 
             const updatedDoc = { resourceType: 'Observation', id: 'o1', _uuid: 'uo', _sourceAssigningAuthority: 'a', meta: { versionId: '2' }, status: 'final' };
-            inserter.resourceMerger.fastMergeResourceAsync.mockResolvedValueOnce({
-                updatedResource: updatedDoc,
-                patches: [{ op: 'replace', path: '/status', value: 'final' }]
-            });
+            inserter.resourceMerger.fastMergeResourceAsync.mockResolvedValueOnce({ updatedResource: updatedDoc });
             const doc2 = { resourceType: 'Observation', id: 'o1', _uuid: 'uo', _sourceAssigningAuthority: 'a', meta: { versionId: '3' }, status: 'final' };
-            // Should handle null patches gracefully (treat null as empty array), not throw TypeError
-            await expect(
-                inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Observation', previousVersionId: '2', doc: doc2, patches: null })
-            ).resolves.not.toThrow();
+            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Observation', previousVersionId: '2', doc: doc2 });
             const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Observation');
             expect(ops.length).toBe(1);
+            expect(ops[0].resource.status).toBe('final');
         }, 10000);
     });
 
@@ -209,7 +190,7 @@ describe('FastDatabaseBulkInserter', () => {
         test('creates replaceOne operation filtered by _uuid', async () => {
             const requestInfo = createMockFhirRequestInfo();
             const doc = { resourceType: 'Patient', id: 'pr', _uuid: 'ur', _sourceAssigningAuthority: 'a', meta: { versionId: '2' } };
-            await inserter.replaceOneAsync({ requestInfo, resourceType: 'Patient', uuid: 'ur', doc, patches: null });
+            await inserter.replaceOneAsync({ requestInfo, resourceType: 'Patient', uuid: 'ur', doc });
             const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
             expect(ops[0].operationType).toBe('replace');
             expect(ops[0].operation.replaceOne.filter._uuid).toBe('ur');
@@ -218,9 +199,9 @@ describe('FastDatabaseBulkInserter', () => {
         test('replaces a pending update in place and drops its version filter', async () => {
             const requestInfo = createMockFhirRequestInfo();
             const doc1 = { resourceType: 'Patient', id: 'pr2', _uuid: 'ur2', _sourceAssigningAuthority: 'a', meta: { versionId: '2' } };
-            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '1', doc: doc1, patches: null });
+            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '1', doc: doc1 });
             const doc2 = { resourceType: 'Patient', id: 'pr2', _uuid: 'ur2', _sourceAssigningAuthority: 'a', meta: { versionId: '3' } };
-            await inserter.replaceOneAsync({ requestInfo, resourceType: 'Patient', uuid: 'ur2', doc: doc2, patches: null });
+            await inserter.replaceOneAsync({ requestInfo, resourceType: 'Patient', uuid: 'ur2', doc: doc2 });
             const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
             expect(ops.length).toBe(1);
             expect(ops[0].operation.replaceOne.filter).toBeNull();

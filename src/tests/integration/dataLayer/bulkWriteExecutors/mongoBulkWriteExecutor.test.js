@@ -82,7 +82,6 @@ function makeEntry ({
         sourceAssigningAuthority,
         resource: { id, _uuid: uuid, resourceType },
         operation: { insertOne: { document: { id } } },
-        patches: null,
         skipped,
         contextData
     });
@@ -509,8 +508,7 @@ describe('MongoBulkWriteExecutor', () => {
 
             const mockUpdateManager = {
                 replaceOneAsync: jest.fn().mockResolvedValue({
-                    savedResource: { id: 'p1', resourceType: 'Patient' },
-                    patches: []
+                    savedResource: { id: 'p1', resourceType: 'Patient' }
                 })
             };
             const localCreateUpdateManager = jest.fn().mockReturnValue(mockUpdateManager);
@@ -580,8 +578,7 @@ describe('MongoBulkWriteExecutor', () => {
 
             const mockUpdateManager = {
                 replaceOneAsync: jest.fn().mockResolvedValue({
-                    savedResource: { id: 'p1', resourceType: 'Patient' },
-                    patches: []
+                    savedResource: { id: 'p1', resourceType: 'Patient' }
                 })
             };
             const localCreateUpdateManager = jest.fn().mockReturnValue(mockUpdateManager);
@@ -930,8 +927,7 @@ describe('MongoBulkWriteExecutor', () => {
             const savedResource = { id: 'p1', resourceType: 'Patient', meta: { versionId: '2' } };
             const mockUpdateManager = {
                 replaceOneAsync: jest.fn().mockResolvedValue({
-                    savedResource,
-                    patches: [{ op: 'replace', path: '/meta/versionId', value: '2' }]
+                    savedResource
                 })
             };
 
@@ -974,7 +970,6 @@ describe('MongoBulkWriteExecutor', () => {
 
             // Assert: the entry resource was replaced with the saved one
             expect(insertEntry.resource).toEqual(savedResource);
-            expect(insertEntry.patches).toEqual([{ op: 'replace', path: '/meta/versionId', value: '2' }]);
         });
 
         test('marks entry as skipped when replaceOneAsync returns null savedResource', async () => {
@@ -990,8 +985,7 @@ describe('MongoBulkWriteExecutor', () => {
 
             const mockUpdateManager = {
                 replaceOneAsync: jest.fn().mockResolvedValue({
-                    savedResource: null,
-                    patches: null
+                    savedResource: null
                 })
             };
 

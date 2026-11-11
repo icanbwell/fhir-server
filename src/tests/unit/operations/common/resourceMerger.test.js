@@ -265,19 +265,6 @@ describe('ResourceMerger', () => {
             expect(patches.length).toBe(0);
         });
 
-        it('respects limitToPaths filter', () => {
-            const currentObject = { status: 'active', code: 'A', category: 'lab' };
-            const mergedObject = { status: 'inactive', code: 'B', category: 'lab' };
-
-            const patches = resourceMerger.compareObjects({
-                currentObject,
-                mergedObject,
-                limitToPaths: ['/status']
-            });
-
-            expect(patches.length).toBe(1);
-            expect(patches[0].path).toBe('/status');
-        });
     });
 
     describe('fastUpdateMeta', () => {

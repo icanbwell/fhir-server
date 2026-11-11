@@ -132,7 +132,7 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
      * @param {boolean} params.maintainOrder - ignored
      * @param {boolean} params.isAccessLogOperation - ignored
      * @param {Function} params.insertOneHistoryFn - ignored (no history for append-only)
-     * @returns {Promise<BulkResultEntry>}
+     * @returns {Promise<BulkWriteExecutionResult>}
      */
     async executeBulkAsync (params) {
         const { resourceType, operations, requestInfo } = params;
@@ -179,7 +179,7 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
      * exhausted is the chunk handed to the fallback executor.
      *
      * @param {Object} params - same as executeBulkAsync, with `operations` limited to one chunk
-     * @returns {Promise<{result: BulkResultEntry, kafkaUnavailableError: Error|null}>}
+     * @returns {Promise<{result: BulkWriteExecutionResult, kafkaUnavailableError: Error|null}>}
      *   kafkaUnavailableError is set when the failure is not chunk-specific
      */
     async _executeChunkAsync (params) {
@@ -290,7 +290,7 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
      *
      * @param {Object} params - chunk params (same shape as executeBulkAsync)
      * @param {Error} err
-     * @returns {Promise<BulkResultEntry>}
+     * @returns {Promise<BulkWriteExecutionResult>}
      */
     async _failChunkAsync (params, err) {
         const { resourceType, operations, requestInfo } = params;

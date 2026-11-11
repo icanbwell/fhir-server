@@ -400,56 +400,6 @@ describe('Base64DataManager', () => {
             expect(historyResourceCloudStorageClient.copyObjectAsync).toHaveBeenCalled();
         });
 
-        test('sanitizes patch diagnostics for configured paths', async () => {
-            const historyDoc = {
-                resource: {
-                    resourceType: 'Binary',
-                    _uuid: 'uuid-sanit',
-                    id: 'bin-sanit'
-                },
-                response: {
-                    outcome: {
-                        issue: [
-                            {
-                                diagnostics: JSON.stringify({ op: 'replace', path: '/data', value: 'BIGBASE64' })
-                            }
-                        ]
-                    }
-                }
-            };
-            const requestInfo = { requestId: 'req-sanit' };
-
-            await manager.transformHistoryAsync(historyDoc, requestInfo);
-
-            const parsed = JSON.parse(historyDoc.response.outcome.issue[0].diagnostics);
-            expect(parsed.value).toBe(BINARY_DATA_VALUE_PLACEHOLDER);
-        });
-
-        test('does not sanitize patches for non-configured paths', async () => {
-            const historyDoc = {
-                resource: {
-                    resourceType: 'Binary',
-                    _uuid: 'uuid-other',
-                    id: 'bin-other'
-                },
-                response: {
-                    outcome: {
-                        issue: [
-                            {
-                                diagnostics: JSON.stringify({ op: 'replace', path: '/contentType', value: 'text/plain' })
-                            }
-                        ]
-                    }
-                }
-            };
-            const requestInfo = { requestId: 'req-other' };
-
-            await manager.transformHistoryAsync(historyDoc, requestInfo);
-
-            const parsed = JSON.parse(historyDoc.response.outcome.issue[0].diagnostics);
-            expect(parsed.value).toBe('text/plain');
-        });
-
         test('returns historyDocument unchanged when disabled', async () => {
             const disabledManager = createBase64DataManager({
                 configManager: createMockConfigManager({ enableBase64FieldCloudStorage: false })

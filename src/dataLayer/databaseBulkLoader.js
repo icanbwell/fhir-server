@@ -4,7 +4,6 @@ const { DatabaseQueryFactory } = require('./databaseQueryFactory');
 const { assertTypeEquals } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
-const { ConfigManager } = require('../utils/configManager');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 
 /**
@@ -15,12 +14,10 @@ class DatabaseBulkLoader {
      * Constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {RequestSpecificCache} requestSpecificCache
-     * @param {ConfigManager} configManager
      */
     constructor ({
                     databaseQueryFactory,
-                    requestSpecificCache,
-                    configManager
+                    requestSpecificCache
                 }) {
         /**
          * @type {RequestSpecificCache}
@@ -32,12 +29,6 @@ class DatabaseBulkLoader {
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
 
         /**
          * @type {string}
@@ -70,7 +61,7 @@ class DatabaseBulkLoader {
                 Object.entries(groupByResourceType),
                 async x => await this.getResourcesAsync(
                     {
-                        requestId, base_version, resourceType: x[0], resources: x[1]
+                        base_version, resourceType: x[0], resources: x[1]
                     }
                 )
             );
@@ -101,14 +92,13 @@ class DatabaseBulkLoader {
 
     /**
      * Get resources by id for this resourceType
-     * @param {string} requestId
      * @param {string} base_version
      * @param {string} resourceType
      * @param {Resource[]} resources
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
 
-    async getResourcesAsync ({ requestId, base_version, resourceType, resources }) {
+    async getResourcesAsync ({ base_version, resourceType, resources }) {
         try {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {

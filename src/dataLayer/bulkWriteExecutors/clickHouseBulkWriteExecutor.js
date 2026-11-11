@@ -80,7 +80,7 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
      * @param {boolean} params.maintainOrder - ignored (ClickHouse inserts are atomic)
      * @param {boolean} params.isAccessLogOperation - ignored
      * @param {Function} params.insertOneHistoryFn - ignored (no history for append-only)
-     * @returns {Promise<BulkResultEntry>}
+     * @returns {Promise<BulkWriteExecutionResult>}
      */
     async executeBulkAsync ({
         resourceType,

@@ -26,8 +26,6 @@ const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
 const httpContext = require('express-http-context');
-const { PATCH_PATHS, PATCH_OPERATIONS } = require('../../constants/groupConstants');
-const { createTooCostlyError } = require('../../utils/fhirErrorFactory');
 const { GroupMemberPatchStrategy } = require('./strategies/groupMemberPatchStrategy');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
@@ -318,8 +316,6 @@ class PatchOperation {
             const {
                 /** @type {import('mongodb').Document}**/
                 query
-                // /** @type {Set} **/
-                // columns
             } = await this.searchManager.constructQueryAsync({
                 user,
                 scope,
@@ -359,9 +355,6 @@ class PatchOperation {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
             foundResource = resources[0];
-            if (!foundResource) {
-                throw new NotFoundError('Resource not found');
-            }
 
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                 requestInfo, resource: foundResource, base_version, accessRequested: 'u'
@@ -390,7 +383,6 @@ class PatchOperation {
 
                 const updatedResource = await this.groupMemberPatchStrategy.executeMemberOperations({
                     requestInfo,
-                    parsedArgs,
                     resourceType,
                     id,
                     base_version,
@@ -399,14 +391,7 @@ class PatchOperation {
                 });
                 // If only member operations, update metadata and return
                 if (hasOnlyMemberOperations) {
-                    return await this.groupMemberPatchStrategy.buildMemberPatchResponse({
-                        requestInfo,
-                        parsedArgs,
-                        resourceType,
-                        id,
-                        base_version,
-                        updatedResource
-                    });
+                    return await this.groupMemberPatchStrategy.buildMemberPatchResponse({ updatedResource });
                 }
                 // Mixed operations: continue with non-member patch below
             } else if (groupMemberType === 'extended') {
@@ -499,7 +484,6 @@ class PatchOperation {
                     accessRequested: 'u',
                     base_version,
                     requestInfo,
-                    id: resource.id,
                     resourceType: resource.resourceType,
                     resourceToValidate,
                     path,
@@ -616,20 +600,10 @@ class PatchOperation {
 
                 await this.databaseBulkInserter.replaceOneAsync(
                     {
-                        base_version,
                         requestInfo,
                         resourceType,
                         doc: resource,
                         uuid: resource._uuid,
-                        patches: effectivePatchContent.map(
-                            p => {
-                                return {
-                                    op: p.op,
-                                    path: p.path,
-                                    value: p.value
-                                };
-                            }
-                        ),
                         contextData
                     }
                 );

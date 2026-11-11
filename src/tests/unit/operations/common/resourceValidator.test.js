@@ -945,7 +945,6 @@ describe('ResourceValidator', () => {
             requestInfo.scope = 'system/*.*';
 
             await resourceValidator.upsertProfileInRemoteServer({
-                base_version: '4_0_0',
                 requestInfo,
                 profile: 'http://example.com/profile',
                 resourceType: 'Patient'
@@ -980,7 +979,6 @@ describe('ResourceValidator', () => {
             requestInfo.scope = 'system/*.*';
 
             await expect(resourceValidator.upsertProfileInRemoteServer({
-                base_version: '4_0_0',
                 requestInfo,
                 profile: 'http://example.com/missing-profile',
                 resourceType: 'Patient'
@@ -1011,7 +1009,6 @@ describe('ResourceValidator', () => {
             requestInfo.scope = 'system/*.*';
 
             await resourceValidator.upsertProfileInRemoteServer({
-                base_version: '4_0_0',
                 requestInfo,
                 profile: 'http://example.com/profile',
                 resourceType: 'Patient'
