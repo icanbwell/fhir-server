@@ -319,6 +319,21 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             expect(idsOf(resp.body).length).toBeGreaterThan(0);
         });
 
+        // The mutation's Patient lookup resolves the caller's linked patients without recording the
+        // Person owner; the Practitioner lookup that follows applies view control in the same
+        // request and must still find the owner.
+        test('GraphQL v1 updateGeneralPractitioner succeeds after an earlier linked-patient lookup', async () => {
+            await merge('Practitioner', fx('Practitioner/practitioner.json'));
+            const resp = await gqlV1(`mutation {
+                updateGeneralPractitioner(patientId: "patient1", practitionerId: "1679033641", remove: false) {
+                    id
+                    generalPractitioner { ... on Practitioner { id } }
+                }
+            }`);
+            expect(resp.body.errors).toBeUndefined();
+            expect(resp.body.data.updateGeneralPractitioner.generalPractitioner).toEqual([{ id: '1679033641' }]);
+        });
+
         test('service token (no user) still sees the blocked resource everywhere', async () => {
             const search = await request.get('/4_0_0/CarePlan').set(getHeaders());
             expect(idsOf(search.body)).toContain(BLOCKED);
