@@ -67,18 +67,6 @@ class PatientDataViewControlExclusion {
     }
 
     /**
-     * Resource ids hidden by the subject's Consent, by resourceType (see getConsentLookupAsync).
-     * @param {import('./fhirRequestInfo').FhirRequestInfo|undefined} requestInfo
-     * @param {string} base_version
-     * @param {ViewControlSubject|null} [subject] defaults to the member in the token
-     * @return {Promise<Readonly<{[resourceType: string]: ReadonlyArray<string>}>>}
-     */
-    async getExcludedIdsByResourceTypeAsync({ requestInfo, base_version, subject }) {
-        const { viewControlResourceToExcludeMap } = await this.getConsentLookupAsync({ requestInfo, base_version, subject });
-        return viewControlResourceToExcludeMap;
-    }
-
-    /**
      * @private
      * @return {Promise<ViewControlConsentLookup>}
      */
@@ -154,7 +142,9 @@ class PatientDataViewControlExclusion {
      * @return {Promise<import('../operations/query/parsedArgs').ParsedArgs>}
      */
     async applyAsync({ parsedArgs, resourceType, base_version, requestInfo, subject }) {
-        const excludeMap = await this.getExcludedIdsByResourceTypeAsync({ requestInfo, base_version, subject });
+        const { viewControlResourceToExcludeMap: excludeMap } = await this.getConsentLookupAsync({
+            requestInfo, base_version, subject
+        });
         // recorded whatever the resourceType, so results can drop Composition sections that reference
         // a hidden resource of another type
         parsedArgs.viewControlExcludeMap = excludeMap;
@@ -162,8 +152,9 @@ class PatientDataViewControlExclusion {
         if (consentExcludedIds.length === 0) {
             return parsedArgs;
         }
-        // ParsedArgs.add() REPLACES an existing item with the same parameter+modifiers, so fold in any
-        // `_id:not` the caller supplied rather than overwrite it.
+        // Fold any `_id:not` / `id:not` the caller supplied into one `_id:not` item. ParsedArgs.add()
+        // replaces the caller's `_id:not` item; the caller's `id:not` item is dropped here, or the
+        // same ids would be excluded twice.
         const isIdNotItem = (a) =>
             (a.queryParameter === '_id' || a.queryParameter === 'id') &&
             a.modifiers?.length === 1 &&
@@ -171,6 +162,9 @@ class PatientDataViewControlExclusion {
         const callerExcludedIds = parsedArgs.parsedArgItems
             .filter(isIdNotItem)
             .flatMap((a) => a.queryParameterValue.values || []);
+        parsedArgs.parsedArgItems = parsedArgs.parsedArgItems.filter(
+            (a) => !(isIdNotItem(a) && a.queryParameter === 'id')
+        );
         parsedArgs.add(
             new ParsedArgsItem({
                 queryParameter: '_id',

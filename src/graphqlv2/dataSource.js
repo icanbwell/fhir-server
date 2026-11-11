@@ -119,10 +119,11 @@ class FhirDataSource {
         this.resourceProjections = null;
 
         /**
-         * whether this request's view-control Consent lookup has been started (traced once)
-         * @type {boolean}
+         * this request's traced view-control Consent lookup, shared by concurrent resolvers;
+         * cleared if it fails, so the retry is traced too
+         * @type {Promise<void>|undefined}
          */
-        this.viewControlLookupStarted = false;
+        this.tracedViewControlLookup = undefined;
     }
 
     /**
@@ -730,6 +731,47 @@ class FhirDataSource {
     }
 
     /**
+     * Traces this request's view-control Consent lookup and adds it to the debug meta, once per
+     * successful lookup. Concurrent resolvers share the traced promise; a failed lookup clears it, so
+     * the resolver that retries traces the retry and records its query.
+     * @param {{ base_version: string }} params
+     * @return {Promise<void>}
+     */
+    traceViewControlLookupOnceAsync ({ base_version }) {
+        if (!this.tracedViewControlLookup) {
+            this.tracedViewControlLookup = this.customTracer.trace({
+                name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
+                func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                    requestInfo: this.requestInfo,
+                    base_version
+                })
+            }).then(({ viewControlConsentQueries, viewControlConsentQueryOptions }) => {
+                if (this.debugMode && viewControlConsentQueries.length > 0) {
+                    this.metaList.push({
+                        tag: [
+                            {
+                                system: 'https://www.icanbwell.com/query',
+                                display: mongoQueryAndOptionsStringify({
+                                    query: viewControlConsentQueries[0],
+                                    options: viewControlConsentQueryOptions[0]
+                                })
+                            },
+                            {
+                                system: 'https://www.icanbwell.com/queryCollection',
+                                code: viewControlConsentQueries[0].collectionName
+                            }
+                        ]
+                    });
+                }
+            });
+            this.tracedViewControlLookup.catch(() => {
+                this.tracedViewControlLookup = undefined;
+            });
+        }
+        return this.tracedViewControlLookup;
+    }
+
+    /**
      * Parse arguments
      * @param {Object} args
      * @param {string} resourceType
@@ -751,34 +793,9 @@ class FhirDataSource {
 
         // Hide resources blocked by the caller's dataConnectionViewControl Consent (user tokens of
         // enrolled clients only). The lookup is shared by every read path and loaded once per request,
-        // even when GraphQL resolvers run concurrently: applyAsync below awaits that shared lookup.
-        // Only the first call traces it and adds it to the debug meta.
-        if (this.requestInfo.isUser && !this.viewControlLookupStarted) {
-            this.viewControlLookupStarted = true;
-            const { viewControlConsentQueries, viewControlConsentQueryOptions } = await this.customTracer.trace({
-                name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
-                func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
-                    requestInfo: this.requestInfo,
-                    base_version
-                })
-            });
-            if (this.debugMode && viewControlConsentQueries.length > 0) {
-                this.metaList.push({
-                    tag: [
-                        {
-                            system: 'https://www.icanbwell.com/query',
-                            display: mongoQueryAndOptionsStringify({
-                                query: viewControlConsentQueries[0],
-                                options: viewControlConsentQueryOptions[0]
-                            })
-                        },
-                        {
-                            system: 'https://www.icanbwell.com/queryCollection',
-                            code: viewControlConsentQueries[0].collectionName
-                        }
-                    ]
-                });
-            }
+        // even when GraphQL resolvers run concurrently; applyAsync below reuses the loaded lookup.
+        if (this.requestInfo.isUser) {
+            await this.traceViewControlLookupOnceAsync({ base_version });
         }
         await this.patientDataViewControlExclusion.applyAsync({
             parsedArgs, resourceType, base_version, requestInfo: this.requestInfo

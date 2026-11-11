@@ -1,5 +1,8 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
-const { filterCompositionBlockedReferenceSections } = require('../../utils/compositionSectionFilter');
+const {
+    buildBlockedIdSetByType,
+    filterCompositionBlockedReferenceSections
+} = require('../../utils/compositionSectionFilter');
 
 /**
  * Removes Composition sections that reference a resource the subject's dataConnectionViewControl
@@ -20,12 +23,13 @@ class DataViewControlCompositionEnrichmentProvider extends EnrichmentProvider {
      * @returns {Promise<Resource[]>}
      */
     async enrichAsync({ resources, enrichmentContext }) {
-        const excludeMap = enrichmentContext?.viewControlExcludeMap;
-        if (!excludeMap || Object.keys(excludeMap).length === 0) {
+        // built once per call, not once per Composition: the exclude map can list thousands of ids
+        const blockedIdSetByType = buildBlockedIdSetByType(enrichmentContext?.viewControlExcludeMap);
+        if (Object.keys(blockedIdSetByType).length === 0) {
             return resources;
         }
         for (const resource of resources) {
-            this.filterResource(resource, excludeMap);
+            this.filterResource(resource, blockedIdSetByType);
         }
         return resources;
     }
@@ -49,14 +53,14 @@ class DataViewControlCompositionEnrichmentProvider extends EnrichmentProvider {
     /**
      * Filters a Composition and any Composition among its contained resources, in place.
      * @param {Object} resource
-     * @param {Readonly<{[resourceType: string]: ReadonlyArray<string>}>} excludeMap
+     * @param {{[resourceType: string]: Set<string>}} blockedIdSetByType
      */
-    filterResource(resource, excludeMap) {
+    filterResource(resource, blockedIdSetByType) {
         if (resource?.resourceType === 'Composition') {
-            filterCompositionBlockedReferenceSections(resource, excludeMap);
+            filterCompositionBlockedReferenceSections(resource, blockedIdSetByType);
         }
         for (const contained of resource?.contained || []) {
-            this.filterResource(contained, excludeMap);
+            this.filterResource(contained, blockedIdSetByType);
         }
     }
 }

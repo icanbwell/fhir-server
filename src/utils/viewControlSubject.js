@@ -13,7 +13,7 @@ const VIEW_CONTROL_SUBJECT_SOURCE = Object.freeze({
 
 /**
  * The Person whose dataConnectionViewControl Consent and owner a read is checked against.
- * Immutable, with equality by value.
+ * Immutable; identified by toString(), which the request-scoped lookup cache keys on.
  *
  * Callers decide the subject; the view-control lookup only uses it. A member read uses the Person in
  * the token. Person $everything uses the Person in the URL when a service token opts in, and other
@@ -67,14 +67,6 @@ class ViewControlSubject {
     /** @return {boolean} */
     get isUrlPerson() {
         return this.source === VIEW_CONTROL_SUBJECT_SOURCE.URL_PERSON;
-    }
-
-    /**
-     * @param {ViewControlSubject|null|undefined} other
-     * @return {boolean}
-     */
-    equals(other) {
-        return other instanceof ViewControlSubject && other.personId === this.personId && other.source === this.source;
     }
 
     /**

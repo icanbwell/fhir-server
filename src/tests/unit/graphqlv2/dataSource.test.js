@@ -357,5 +357,50 @@ describe('FhirDataSource (graphqlv2)', () => {
             expect(dataSource.r4ArgsParser.parseArgs).toHaveBeenCalled();
             expect(dataSource.queryRewriterManager.rewriteArgsAsync).toHaveBeenCalled();
         });
+
+        describe('view-control lookup tracing for a member', () => {
+            const LOOKUP = {
+                viewControlResourceToExcludeMap: {},
+                viewControlConsentQueries: [{ query: {}, collectionName: 'Consent_4_0_0' }],
+                viewControlConsentQueryOptions: [{}]
+            };
+            const parse = () => dataSource.getParsedArgsAsync({ args: { base_version: '4_0_0' }, resourceType: 'Patient' });
+            const consentQueryMeta = () => dataSource.metaList.filter((meta) =>
+                meta.tag.some((tag) => tag.code === 'Consent_4_0_0'));
+
+            beforeEach(() => {
+                dataSource = createDataSource({ requestInfo: { requestId: 'req-1', headers: {}, isUser: true } });
+                dataSource.debugMode = true;
+            });
+
+            test('concurrent resolvers trace the lookup and record its query once', async () => {
+                dataSource.patientDataViewControlExclusion.getConsentLookupAsync.mockResolvedValue(LOOKUP);
+
+                await Promise.all([parse(), parse(), parse()]);
+
+                expect(dataSource.customTracer.trace).toHaveBeenCalledTimes(1);
+                expect(consentQueryMeta()).toHaveLength(1);
+                expect(dataSource.patientDataViewControlExclusion.applyAsync).toHaveBeenCalledTimes(3);
+            });
+
+            test('a retry after a failed lookup is traced and its query recorded', async () => {
+                dataSource.patientDataViewControlExclusion.getConsentLookupAsync
+                    .mockRejectedValueOnce(new Error('consent store unavailable'))
+                    .mockResolvedValue(LOOKUP);
+
+                await expect(parse()).rejects.toThrow('consent store unavailable');
+                await parse();
+                await parse();
+
+                expect(dataSource.customTracer.trace).toHaveBeenCalledTimes(2);
+                expect(consentQueryMeta()).toHaveLength(1);
+            });
+
+            test('a non-member token does not trace a lookup', async () => {
+                dataSource = createDataSource();
+                await parse();
+                expect(dataSource.customTracer.trace).not.toHaveBeenCalled();
+            });
+        });
     });
 });

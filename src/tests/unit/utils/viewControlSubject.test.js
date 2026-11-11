@@ -25,12 +25,10 @@ describe('ViewControlSubject', () => {
         expect(subject.isUrlPerson).toBe(true);
     });
 
-    test('equality is by value, and the same person from a different source is a different subject', () => {
+    test('identity (the lookup cache key) is by value, and the same person from a different source differs', () => {
         const a = ViewControlSubject.fromUrlPerson({ personId: 'person-1' });
-        expect(a.equals(ViewControlSubject.fromUrlPerson({ personId: 'person-1' }))).toBe(true);
-        expect(a.equals(ViewControlSubject.fromUrlPerson({ personId: 'person-2' }))).toBe(false);
-        expect(a.equals(ViewControlSubject.fromToken({ isUser: true, personIdFromJwtToken: 'person-1' }))).toBe(false);
-        expect(a.equals(null)).toBe(false);
+        expect(String(a)).toEqual(String(ViewControlSubject.fromUrlPerson({ personId: 'person-1' })));
+        expect(String(a)).not.toEqual(String(ViewControlSubject.fromUrlPerson({ personId: 'person-2' })));
         expect(String(a)).not.toEqual(String(ViewControlSubject.fromToken({ isUser: true, personIdFromJwtToken: 'person-1' })));
     });
 

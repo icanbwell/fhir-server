@@ -130,20 +130,30 @@ function referencesBlockedResource({ section, blockedIdSetByType }) {
 }
 
 /**
- * Removes, in place, every Composition section with an entry referencing a resource the
- * dataConnectionViewControl Consent hides. The whole section goes, because its narrative and
- * remaining entries describe the hidden resource; nested sections are judged on their own entries.
- * @param {Object} resource
+ * The hidden ids as sets by resourceType, for filterCompositionBlockedReferenceSections. Build them
+ * once and reuse them for every Composition filtered with the same exclude map.
  * @param {Readonly<{[resourceType: string]: ReadonlyArray<string>}>|undefined} excludeMap hidden ids
  *  (uuid or source id) by resourceType, as returned by PatientDataViewControlExclusion
+ * @return {{[resourceType: string]: Set<string>}} empty when nothing is hidden
  */
-function filterCompositionBlockedReferenceSections(resource, excludeMap) {
+function buildBlockedIdSetByType(excludeMap) {
     const blockedIdSetByType = {};
     for (const [resourceType, ids] of Object.entries(excludeMap || {})) {
         if (ids?.length) {
             blockedIdSetByType[resourceType] = new Set(ids);
         }
     }
+    return blockedIdSetByType;
+}
+
+/**
+ * Removes, in place, every Composition section with an entry referencing a resource the
+ * dataConnectionViewControl Consent hides. The whole section goes, because its narrative and
+ * remaining entries describe the hidden resource; nested sections are judged on their own entries.
+ * @param {Object} resource
+ * @param {{[resourceType: string]: Set<string>}} blockedIdSetByType from buildBlockedIdSetByType
+ */
+function filterCompositionBlockedReferenceSections(resource, blockedIdSetByType) {
     if (Object.keys(blockedIdSetByType).length === 0) {
         return;
     }
@@ -155,5 +165,6 @@ function filterCompositionBlockedReferenceSections(resource, excludeMap) {
 
 module.exports = {
     filterCompositionSensitiveSections,
+    buildBlockedIdSetByType,
     filterCompositionBlockedReferenceSections
 };

@@ -81,21 +81,26 @@ describe('PatientDataViewControlExclusion', () => {
         );
     });
 
-    test('folds a caller-supplied _id:not into the exclusion instead of overwriting it', async () => {
-        const parsedArgs = newParsedArgs();
-        parsedArgs.add(new ParsedArgsItem({
-            queryParameter: '_id',
-            queryParameterValue: new QueryParameterValue({ value: 'caller-excluded', operator: '$or' }),
-            propertyObj: searchParameterQueries.Resource._id,
-            modifiers: ['not']
-        }));
-        await exclusion.applyAsync({ parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user });
-        const items = idNotItems(parsedArgs);
-        expect(items).toHaveLength(1);
-        expect(items[0].queryParameterValue.values).toEqual(
-            expect.arrayContaining([UUID_A, 'source-id-1', 'caller-excluded'])
-        );
-    });
+    test.each(['_id', 'id'])(
+        'folds a caller-supplied %s:not into one exclusion instead of overwriting or repeating it',
+        async (queryParameter) => {
+            const parsedArgs = newParsedArgs();
+            parsedArgs.add(new ParsedArgsItem({
+                queryParameter,
+                queryParameterValue: new QueryParameterValue({ value: 'caller-excluded', operator: '$or' }),
+                propertyObj: searchParameterQueries.Resource._id,
+                modifiers: ['not']
+            }));
+            await exclusion.applyAsync({ parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user });
+            const items = parsedArgs.parsedArgItems.filter(
+                (i) => ['_id', 'id'].includes(i.queryParameter) && i.modifiers.includes('not')
+            );
+            expect(items).toHaveLength(1);
+            expect(items[0].queryParameterValue.values).toEqual(
+                expect.arrayContaining([UUID_A, 'source-id-1', 'caller-excluded'])
+            );
+        }
+    );
 
     test.each([
         ['resource type not mentioned in the Consent', { resourceType: 'Condition', requestInfo: user }],
