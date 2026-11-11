@@ -1,23 +1,39 @@
 # Patient Data View Control
 
-If there is any specific resources, that the patient needs to exclude from their patient $everything operation, a data view control Consent resource can be made for same. For any resource that is referenced in the Consent, will be excluded from the result.
+A member can hide specific resources (for example the records from one data connection) with a
+data view control Consent. Every resource the Consent references is left out of what the member
+reads, on every read path the member can use.
 
-Data is excluded for patient scoped request only and person inside jwt is matched with the [proxy patient](proxyPatient.md) in `patient.reference` field.
+## Who it applies to
 
-## Format of Consent
+- **Member tokens** (patient-scoped tokens with a person id) whose Person's owner is listed in
+  `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`. The owner is the Person's `owner` security tag.
+  Members of other clients are unaffected, and with no client listed the feature is off.
+- **Service and admin tokens are not filtered.** Pipelines, deletion and other internal flows need
+  the full record. A service reading on a member's behalf can opt in on Person `$everything` with
+  `_applyDataViewControl=true`; the Person in the URL is then filtered as the member would be. See
+  [patientEverything.md](patientEverything.md#_applydataviewcontrol) and
+  `docs/adr/0004-service-token-opt-in-for-data-view-control-on-person-everything.md`.
 
-- `patient.reference` should contain uuid reference of proxy patient.
-- `provision.data.reference` should contain uuid reference of patient whose linked resource needs to be excluded.
-- `provision.provision.data.reference` should contain the reference of resource that needs to be excluded from $everything operation.
-- `category.coding` should contain following element:
+## Format of the Consent
+
+- `status`: `active`. A Consent with any other status (`inactive`, `draft`, `rejected`,
+  `entered-in-error`, ...) hides nothing.
+- `category.coding` contains:
 ```
 {
   "system": "http://www.icanbwell.com/consent-category",
   "code": "dataConnectionViewControl"
 }
 ```
+- `patient.reference`: the member's [proxy patient](proxyPatient.md), `Patient/person.<person uuid>`.
+- `provision.data[].reference.reference`: each resource to hide, as `<ResourceType>/<id>`. The id
+  can be the resource's uuid or its source id.
 
-Example Consent Resource for excluding resources
+All of the Person's active view control Consents apply, whichever patient they name in
+`provision.actor`.
+
+Example Consent:
 ```
 {
   "resourceType": "Consent",
@@ -28,7 +44,7 @@ Example Consent Resource for excluding resources
     "coding": [
       {
         "system": "http://terminology.hl7.org/CodeSystem/consentscope",
-        "code": "patient-privacy"       
+        "code": "patient-privacy"
       }
     ]
   },
@@ -73,4 +89,63 @@ Example Consent Resource for excluding resources
 }
 ```
 
-Patient $everything request using patient jwt for above consent: `<base_url>/Patient/3c776efa-e42f-4351-a850-fdc203a2bf5f/$everything`. The Encounter resource with id `24753e41-956d-4c4a-86f4-130920d7ea68` will be excluded from the result of patient $everything operation.
+With this Consent, the member's reads never return `Encounter/24753e41-956d-4c4a-86f4-130920d7ea68`.
+
+## Read paths
+
+| Path | Behaviour |
+|---|---|
+| REST search (array, `_bundle`, streaming, ndjson) | the hidden resources are left out |
+| REST read-by-id | a hidden resource is a 404, identical to a missing one |
+| GraphQL v1 (`/$graphql`) and v2 (`/$graphqlv2`) | left out, including nested reference resolution |
+| `/mcp` search tools | left out |
+| Patient and Person `$everything` | left out, including responses served from the Redis cache |
+| Composition sections | see below |
+
+Not filtered:
+- History and version reads (`_history`): rejected for member tokens, so they can't return a hidden
+  resource.
+- `$graph` and `$summary`: not covered yet.
+- `_include` and `_revinclude`: accepted but not implemented, so no search returns included
+  resources. If they are implemented, the included resources need this filter too (a test fails
+  when that happens).
+
+The filter is added to the query as an `_id:not` of the hidden ids. A caller's own `_id:not` is
+kept alongside it.
+
+## Composition sections
+
+A Composition section with an `entry` that references a hidden resource is removed, whether the
+entry uses the uuid or the source id. The whole section goes, because its narrative and other
+entries describe the hidden resource. So a section that mixes hidden and visible resources is
+removed too.
+- Nested sections are judged on their own entries: a hidden child is removed and its parent stays.
+- The Composition itself is still returned, without `section` if every section was removed.
+- Compositions in `contained` are filtered the same way.
+- Only `section.entry` is checked, not `section.focus`, and the Composition's top-level `text` is
+  not changed.
+
+This applies on every path above, including `_elements`, and to `$everything` responses replayed from the
+Redis cache.
+
+## Loading the Consent
+
+The Consent is looked up once per request, however many resolvers or queries the request runs,
+and only for members of enrolled clients. The lookup uses the `consent_of_linked_person`
+`{status, patient._uuid}` index.
+
+The `$everything` cache stores entries before this filtering, so a cached response is filtered when
+it is replayed. Writing a Consent invalidates the Person's `$everything` cache. Adding a client to
+`CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL` does not: responses cached before the change can be
+served unfiltered until they expire (`EVERYTHING_CACHE_TTL_SECONDS`, 300 seconds by default).
+
+## Failures
+
+The filter fails closed: if the block can't be determined, no data is returned.
+- The member's Person has no owner tag: the request fails (an error status on REST, an `errors`
+  entry on GraphQL, an error result on `/mcp`).
+- The Consent lookup fails: REST returns an error status, and GraphQL returns `errors`.
+- Member `$everything` writes the response as it goes, so a failure there is a 200 with an error
+  OperationOutcome and no clinical resources.
+- With the service-token opt-in, the Person and Consent are loaded before the response starts, so a
+  failure is an HTTP error.

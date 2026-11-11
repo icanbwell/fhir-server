@@ -91,16 +91,19 @@ flowchart TD
     CmsCheck -- no --> RunQuery
     CmsFilter --> RunQuery[("Run MongoDB query")]
 
-    RunQuery --> PdvcCheck{"§6d: $everything/GraphQLv2 with a data-view-control Consent?"}
-    PdvcCheck -- yes --> PdvcExcl["Exclude the patient-hidden resource reference(s)"]
+    RunQuery --> PdvcCheck{"§6d: member of an enrolled client, or a service token opting in on Person $everything, with an active data-view-control Consent?"}
+    PdvcCheck -- yes --> PdvcExcl["Exclude the hidden resources (an _id:not added to the query on every member read path)"]
     PdvcCheck -- no --> PersonCheck
     PdvcExcl --> PersonCheck{"§5: Person $everything?"}
     PersonCheck -- yes --> PersonNarrow["Narrow result set to only the requested Person id(s)"]
     PersonCheck -- no --> CompCheck
     PersonNarrow --> CompCheck{"§10: delegated actor and resource is a Composition?"}
     CompCheck -- yes --> SectionStrip["Strip Consent-denied-category sections, plus the hardcoded unclassified code (enrichment-time, not exclusion)"]
-    CompCheck -- no --> Returned(["Resource returned"])
-    SectionStrip --> Returned
+    CompCheck -- no --> PdvcCompCheck
+    SectionStrip --> PdvcCompCheck{"§6d: view control applies and resource is a Composition?"}
+    PdvcCompCheck -- yes --> PdvcSectionStrip["Remove sections whose entries reference a hidden resource (enrichment-time)"]
+    PdvcCompCheck -- no --> Returned(["Resource returned"])
+    PdvcSectionStrip --> Returned
 ```
 
 ---
@@ -290,14 +293,30 @@ is found.
 Person's Consent to the grantee actor and drives a sensitivity-based (§9) denylist layered on top
 of the §5 patient-scope query. Full model, including the read-only operation restriction: §10.
 
-**d. Patient Data View Control consent** — lets a patient exclude specific resources from their
-own `$everything`/GraphQLv2/`/mcp`/GraphQL v1/REST search and read-by-id result via a
-`dataConnectionViewControl`-category Consent referencing the resource(s) to hide (user tokens of
-enrolled clients only; history/version reads are not filtered and are rejected for user tokens).
-`src/utils/patientDataViewController.js` (`PatientDataViewControlManager.getConsentAsync`), applied to
-REST/GraphQL v1 through `src/utils/patientDataViewControlExclusion.js`, gated by
-`configManager.clientsWithDataConnectionViewControl`. Full detail:
-`readme/patientDataViewControl.md`.
+**d. Patient Data View Control consent** — lets a member hide specific resources with an active
+`dataConnectionViewControl`-category Consent whose `provision.data` references them. It applies to
+member tokens whose Person's owner is in `configManager.clientsWithDataConnectionViewControl`
+(env `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`), on every member read path: REST search and
+read-by-id (a hidden resource is a 404), GraphQL v1 and v2, `/mcp`, and Patient/Person
+`$everything` (including cache replays). History/version reads are not filtered and are rejected
+for user tokens; `$graph` and `$summary` are not covered yet.
+- *Where:* `PatientDataViewControlExclusion` (`src/utils/patientDataViewControlExclusion.js`) loads
+  the Consent once per request per subject Person, using
+  `PatientDataViewControlManager.getConsentAsync` (`src/utils/patientDataViewController.js`), and
+  adds an `_id:not` of the hidden ids to the query (`applyAsync`). `$everything` uses the same
+  lookup in `everythingHelper.js`.
+- *Subject Person:* the member in the token (`ViewControlSubject.fromToken`). Service and admin
+  tokens are not filtered, except a service token sending `_applyDataViewControl=true` on Person
+  `$everything`, which is filtered by the Person in the URL (`ViewControlSubject.fromUrlPerson`,
+  read through the caller's access filter; see
+  `docs/adr/0004-service-token-opt-in-for-data-view-control-on-person-everything.md`).
+- *Composition sections:* `DataViewControlCompositionEnrichmentProvider` removes sections whose
+  entries reference a hidden resource, using the exclude map the read path passes in the
+  enrichment context (§10's section filter is a separate, sensitivity-based rule).
+- *Fails closed:* a Person without an owner tag or a failed Consent lookup fails the request
+  instead of returning unfiltered data.
+
+Full detail: `readme/patientDataViewControl.md`.
 
 ## 7. Admin scope and the wildcard bypass
 
@@ -459,9 +478,9 @@ For a given caller and resource, the resource is returned only if **all** of the
 4. If the caller is patient-scoped, the resource is not confidentiality-`R`-restricted (§9).
 5. If the caller is a delegated actor or CMS partner, the resource passes that caller type's
    consent-driven filter and is not `unclassified` for delegated actors (§6b, §9, §10).
-6. If the requesting client relies on consent-based data-sharing expansion (§6a) or the patient
-   has an active data-view-control exclusion (§6d), those results are included/excluded
-   accordingly.
+6. If the requesting client relies on consent-based data-sharing expansion (§6a) or the member
+   has an active data-view-control Consent (§6d), those results are included/excluded
+   accordingly, and Composition sections referencing a hidden resource are removed.
 
 Any code path that reaches the database without going through `SearchManager.constructQueryAsync`
 — or that fetches by raw id/uuid and defers the access check to after the fetch — is a
