@@ -390,5 +390,98 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                     .every((l) => /^\s*(\/\/|\*)/.test(l))))
                 .toEqual([]);
         });
+
+        /**
+         * Every read path ends in SearchBundleOperation.searchBundleAsync or
+         * SearchStreamingOperation.searchStreamingAsync. The view-control filter is added before that
+         * call (by the caller's own args parser, or by the /mcp tool), so every call site is listed
+         * here as applying it or skipping it with a reason. A new or moved call site fails this test
+         * until someone decides.
+         */
+        const searchOperationCallSites = (source) => {
+            const sites = [];
+            let method = null;
+            source.split('\n').forEach((line) => {
+                const methodMatch = line.match(/^ {4}async ([A-Za-z_]+)\s*\(/);
+                if (methodMatch) {
+                    method = methodMatch[1];
+                }
+                if (/^\s*(\/\/|\*)/.test(line)) {
+                    return;
+                }
+                for (const callee of ['searchBundleAsync', 'searchStreamingAsync']) {
+                    if (line.includes(`.${callee}(`)) {
+                        sites.push({ method, callee });
+                    }
+                }
+            });
+            return sites;
+        };
+
+        test('every search operation call site declares whether it applies view control', () => {
+            const srcDir = path.resolve(__dirname, '../../../../src');
+            const APPLIES = true;
+            const SKIPS = false;
+            // [method, callee, applies, how it applies or why it skips], in source order
+            const expected = {
+                'graphql/dataSource.js': [
+                    ['getResourcesInBatch', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync'],
+                    ['findBinaryForCodeSystemAsync', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync'],
+                    ['getResources', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync'],
+                    ['getResourcesForMutation', 'searchBundleAsync', APPLIES, 'getParsedArgsForMutationAsync'],
+                    ['getResourcesBundle', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync']
+                ],
+                'graphqlv2/dataSource.js': [
+                    ['getResourcesInBatch', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync'],
+                    ['getResources', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync'],
+                    ['getResourcesBundle', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync']
+                ],
+                'mcp/mcpToolHandler.js': [
+                    ['handleSearchToolCall', 'searchBundleAsync', APPLIES, 'applyAsync in the same method']
+                ],
+                'operations/fhirOperationsManager.js': [
+                    // decided per getParsedArgsAsync call site by the test above
+                    ['searchResourceForChainAsync', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync'],
+                    ['search', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync'],
+                    ['searchStreaming', 'searchBundleAsync', SKIPS, 'Vulcan IG child lookup; research queries use service tokens'],
+                    ['searchStreaming', 'searchStreamingAsync', APPLIES, 'getParsedArgsAsync']
+                ],
+                'operations/summary/summary.js': [
+                    ['summaryBundleAsync', 'searchBundleAsync', SKIPS, '$summary is covered by a separate ticket']
+                ]
+            };
+
+            const callingFiles = [
+                ...findFilesReferencing(srcDir, '.searchBundleAsync('),
+                ...findFilesReferencing(srcDir, '.searchStreamingAsync(')
+            ].filter((file) => searchOperationCallSites(fs.readFileSync(path.join(srcDir, file), 'utf8')).length > 0);
+            expect([...new Set(callingFiles)].sort()).toEqual(Object.keys(expected).sort());
+
+            for (const [file, rows] of Object.entries(expected)) {
+                const source = fs.readFileSync(path.join(srcDir, file), 'utf8');
+                expect({ file, sites: searchOperationCallSites(source) })
+                    .toEqual({ file, sites: rows.map(([method, callee]) => ({ method, callee })) });
+            }
+        });
+
+        /** the source of a 4-space-indented method, from its signature to its closing brace */
+        const methodSource = (source, method) => {
+            const lines = source.split('\n');
+            const start = lines.findIndex((line) => new RegExp(`^ {4}async ${method}\\s*\\(`).test(line));
+            expect(start).toBeGreaterThanOrEqual(0);
+            const end = lines.findIndex((line, i) => i > start && line === '    }');
+            return lines.slice(start, end + 1).join('\n');
+        };
+
+        test.each([
+            ['graphql/dataSource.js', 'getParsedArgsAsync'],
+            ['graphql/dataSource.js', 'getParsedArgsForMutationAsync'],
+            ['graphqlv2/dataSource.js', 'getParsedArgsAsync'],
+            ['mcp/mcpToolHandler.js', 'handleSearchToolCall']
+        ])('%s %s, which the search call sites above rely on, applies view control', (file, method) => {
+            const srcDir = path.resolve(__dirname, '../../../../src');
+            const source = fs.readFileSync(path.join(srcDir, file), 'utf8');
+            expect(methodSource(source, method)).toContain('this.patientDataViewControlExclusion.applyAsync(');
+        });
     });
 });

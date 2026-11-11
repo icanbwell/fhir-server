@@ -555,7 +555,8 @@ class FhirDataSource {
                         {
                             args: args1,
                             resourceType,
-                            headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
+                            headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined,
+                            requestInfo: context.fhirRequestInfo
                         }
                     ),
                     useAggregationPipeline: false
@@ -820,13 +821,14 @@ class FhirDataSource {
     }
 
     /**
-     * Parse arguments
+     * Parse arguments for the lookup a mutation does before it changes a resource
      * @param {Object} args
      * @param {string} resourceType
      * @param {Object|undefined} headers
+     * @param {FhirRequestInfo} [requestInfo]
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsForMutationAsync ({ args, resourceType, headers }) {
+    async getParsedArgsForMutationAsync ({ args, resourceType, headers, requestInfo }) {
         /**
          * @type {ParsedArgs}
          */
@@ -837,6 +839,11 @@ class FhirDataSource {
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
+        // A mutation changes and returns the resource it finds here, so it must not find one the
+        // member's dataConnectionViewControl Consent hides (user tokens of enrolled clients only).
+        await this.patientDataViewControlExclusion.applyAsync({
+            parsedArgs, resourceType, base_version: args.base_version, requestInfo: requestInfo || this.requestInfo
+        });
         if (headers) {
             parsedArgs.headers = headers;
         }

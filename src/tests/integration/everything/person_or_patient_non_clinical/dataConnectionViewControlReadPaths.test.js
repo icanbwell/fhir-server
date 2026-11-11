@@ -377,6 +377,40 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
         });
     });
 
+    // GraphQL v1 mutations look up the resource they change; that lookup must not find what the
+    // member's Consent hides, or the mutation would change it and return it.
+    describe('GraphQL v1 mutation on a resource the Consent hides', () => {
+        const UPDATE_GP = `mutation {
+            updateGeneralPractitioner(patientId: "patient1", practitionerId: "1679033641", remove: false) {
+                id
+                generalPractitioner { ... on Practitioner { id } }
+            }
+        }`;
+
+        test('updateGeneralPractitioner does not find, change or return the hidden Patient', async () => {
+            await seed(consentBlocking(['Patient/patient1']));
+            await merge('Practitioner', fx('Practitioner/practitioner.json'));
+
+            const resp = await gqlV1(UPDATE_GP);
+
+            expect(resp.body.errors?.[0]?.message).toBe('Patient not found patient1');
+            expect(resp.body.data?.updateGeneralPractitioner ?? null).toBeNull();
+            const patient = await request.get('/4_0_0/Patient/patient1').set(getHeaders());
+            expect(patient.status).toBe(200);
+            expect(patient.body.generalPractitioner).toBeUndefined();
+        });
+
+        test('updateGeneralPractitioner still changes a Patient the Consent does not hide', async () => {
+            await seed(consentBlocking([`CarePlan/${BLOCKED_UUID}`]));
+            await merge('Practitioner', fx('Practitioner/practitioner.json'));
+
+            const resp = await gqlV1(UPDATE_GP);
+
+            expect(resp.body.errors).toBeUndefined();
+            expect(resp.body.data.updateGeneralPractitioner.generalPractitioner).toEqual([{ id: '1679033641' }]);
+        });
+    });
+
     describe('non-enrolled client', () => {
         test('user token of a client that is not enrolled still sees the blocked resource', async () => {
             process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'some-other-client';

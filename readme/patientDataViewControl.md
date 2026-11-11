@@ -98,6 +98,7 @@ With this Consent, the member's reads never return `Encounter/24753e41-956d-4c4a
 | REST search (array, `_bundle`, streaming, ndjson) | the hidden resources are left out |
 | REST read-by-id | a hidden resource is a 404, identical to a missing one |
 | GraphQL v1 (`/$graphql`) and v2 (`/$graphqlv2`) | left out, including nested reference resolution |
+| GraphQL v1 mutations (`updateGeneralPractitioner`, the CareTeam mutation) | the resource to change is looked up with the filter, so a hidden one is reported as not found and is not changed |
 | `/mcp` search tools | left out |
 | Patient and Person `$everything` | left out, including responses served from the Redis cache |
 | Composition sections | see below |
@@ -109,6 +110,10 @@ Not filtered:
 - `_include` and `_revinclude`: accepted but not implemented, so no search returns included
   resources. If they are implemented, the included resources need this filter too (a test fails
   when that happens).
+
+A unit test (`06d_patientDataViewControlConsent.test.js`) lists every call to the search operations
+that read paths end in, and requires each to apply the filter or name why it skips it. A new read
+path fails that test until someone decides.
 
 The filter is added to the query as an `_id:not` of the hidden ids. A caller's own `_id:not` is
 kept alongside it.
