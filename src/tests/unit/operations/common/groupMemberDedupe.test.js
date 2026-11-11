@@ -1,7 +1,7 @@
 const { describe, test, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 const { applyPatch } = require('fast-json-patch');
-const { consolidateAddedMembers, storedMemberEntriesOf } = require('../../../../operations/common/groupMemberDedupe');
+const { consolidateAddedMembers, memberEntriesAddedBy } = require('../../../../operations/common/groupMemberDedupe');
 const { enrichMemberReferences } = require('../../../../utils/referenceEnricher');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
@@ -25,10 +25,10 @@ function groupWithMembers(members) {
  * Applies the PATCH the way patch.js does: plain JSON Patch, then consolidateAddedMembers.
  */
 function applyPatchToGroup(group, patchContent) {
-    const groupToPatch = deepcopy(group);
-    const storedMemberEntries = storedMemberEntriesOf(groupToPatch);
-    const patchedGroup = applyPatch(groupToPatch, deepcopy(patchContent)).newDocument;
-    return consolidateAddedMembers({ patchedGroup, storedMemberEntries });
+    const patchContentToApply = deepcopy(patchContent);
+    const addedMemberEntries = memberEntriesAddedBy(patchContentToApply);
+    const patchedGroup = applyPatch(deepcopy(group), patchContentToApply).newDocument;
+    return consolidateAddedMembers({ patchedGroup, addedMemberEntries });
 }
 
 function memberReferences(group) {
@@ -144,6 +144,30 @@ describe('consolidateAddedMembers', () => {
         expect(result.member).toEqual([storedMember('Patient/x'), expectedMember]);
     });
 
+    test.each([
+        ['without |owner is a different member, as on save', 'Patient/y', 2],
+        ['with the stored entry\'s |owner is the same member', 'Patient/y|other-owner', 1]
+    ])(
+        'for a stored entry stamped with another sourceAssigningAuthority, an add %s',
+        (_label, addedReference, expectedEntryCount) => {
+            const storedUnderOtherOwner = {
+                entity: {
+                    reference: 'Patient/y',
+                    _uuid: `Patient/${generateUUIDv5('y|other-owner')}`,
+                    _sourceId: 'Patient/y',
+                    _sourceAssigningAuthority: 'other-owner'
+                }
+            };
+            const group = groupWithMembers([storedUnderOtherOwner]);
+
+            const result = applyPatchToGroup(group, [
+                { op: 'add', path: '/member/-', value: { entity: { reference: addedReference } } }
+            ]);
+
+            expect(result.member).toHaveLength(expectedEntryCount);
+        }
+    );
+
     test('members the PATCH does not add are left as they are, including duplicates already stored', () => {
         const group = groupWithMembers([
             storedMember('Patient/a', { period: { start: '2025-01-01' } }),
@@ -161,9 +185,25 @@ describe('consolidateAddedMembers', () => {
     test.each([
         ['no member ops', [{ op: 'add', path: '/active', value: true }]],
         ['an add of a field of a member', [{ op: 'add', path: '/member/0/period', value: { start: '2026-01-01' } }]],
+        ['a replace of a field of a member', [{ op: 'replace', path: '/member/0/entity/reference', value: 'Patient/x' }]],
+        ['a remove of a member', [{ op: 'remove', path: '/member/0' }]],
+        ['a move of a member', [{ op: 'move', from: '/member/0', path: '/member/-' }]],
+        [
+            'a replace of a member with a member already in member[]',
+            [{ op: 'replace', path: '/member/0', value: { entity: { reference: 'Patient/b' }, inactive: true } }]
+        ],
+        [
+            'a replace of member[] with the same member twice',
+            [{ op: 'replace', path: '/member', value: [{ entity: { reference: 'Patient/x' } }, { entity: { reference: 'Patient/x' } }] }]
+        ],
+        [
+            'an add of member[] itself with the same member twice',
+            [{ op: 'add', path: '/member', value: [{ entity: { reference: 'Patient/x' } }, { entity: { reference: 'Patient/x' } }] }]
+        ],
+        ['a copy of a member to member[]', [{ op: 'copy', from: '/member/0', path: '/member/-' }]],
         ['an add without entity.reference', [{ op: 'add', path: '/member/-', value: { entity: { display: 'no reference' } } }]]
     ])('leaves the patched Group as plain JSON Patch left it for %s', (_label, patchContent) => {
-        const group = groupWithMembers([storedMember('Patient/a')]);
+        const group = groupWithMembers([storedMember('Patient/a'), storedMember('Patient/b')]);
         const plainResult = applyPatch(deepcopy(group), deepcopy(patchContent)).newDocument;
 
         const result = applyPatchToGroup(group, patchContent);

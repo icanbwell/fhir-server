@@ -34,7 +34,7 @@ const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
 const { promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
-const { consolidateAddedMembers, storedMemberEntriesOf } = require('../common/groupMemberDedupe');
+const { consolidateAddedMembers, memberEntriesAddedBy } = require('../common/groupMemberDedupe');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
@@ -454,17 +454,18 @@ class PatchOperation {
             }
             // Make the changes indicated in the patch
             const resourceToPatch = deepcopy(foundResource);
-            const storedMemberEntries = groupMemberType === 'embedded' ? storedMemberEntriesOf(resourceToPatch) : null;
+            const patchContentToApply = deepcopy(effectivePatchContent);
+            const addedMemberEntries = groupMemberType === 'embedded' ? memberEntriesAddedBy(patchContentToApply) : null;
             /**
              * @type {Object}
              */
             const resource_incoming = this.resourceMerger.fastApplyPatch({
-                currentResource: resourceToPatch, patchContent: deepcopy(effectivePatchContent)
+                currentResource: resourceToPatch, patchContent: patchContentToApply
             });
-            // A member of an embedded Group appears once: an add of a member already in member[]
-            // replaces it with the entry the add created, so a retried add changes nothing.
+            // A member added to an embedded Group appears once: an add of a member already in
+            // member[] replaces it with the entry the add created, so a retried add changes nothing.
             if (groupMemberType === 'embedded') {
-                consolidateAddedMembers({ patchedGroup: resource_incoming, storedMemberEntries });
+                consolidateAddedMembers({ patchedGroup: resource_incoming, addedMemberEntries });
             }
             /**
              * @type {Object}
