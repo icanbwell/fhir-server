@@ -369,7 +369,9 @@ const createContainer = function () {
     container.register('cmsManager', (c) => new CMSManager({
         configManager: c.configManager
     }));
-    container.register('delegatedAccessManager', () => new DelegatedAccessManager());
+    container.register('delegatedAccessManager', (c) => new DelegatedAccessManager({
+        configManager: c.configManager
+    }));
     container.register('resourceOperationAccessProvider', () => new ResourceOperationAccessProvider());
     container.register('accessManager', (c) => new OperationAccessManager({
         accessProviders: [

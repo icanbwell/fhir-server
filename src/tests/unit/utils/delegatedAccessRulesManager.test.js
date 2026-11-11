@@ -887,8 +887,8 @@ describe('DelegatedAccessRulesManager', () => {
             };
 
             it.each([
-                ['no securityLabel', undefined, undefined],
-                ['only non-connectionType labels', [{ system: 'https://www.icanbwell.com/other', code: 'x' }], undefined],
+                ['no securityLabel (fails closed)', undefined, []],
+                ['only non-connectionType labels (fails closed)', [{ system: 'https://www.icanbwell.com/other', code: 'x' }], []],
                 ['one connection type', [{ system: connectionTypeSystem, code: 'treatment' }], ['treatment']],
                 [
                     'several connection types',

@@ -879,7 +879,7 @@ describe('DataSharingManager', () => {
         it.each([
             ['the resource is Person', 'Person', { reference: 'Organization/org-1', allowedConnectionTypes: ['treatment'] }],
             ['the resource is Person and the list is empty', 'Person', { reference: 'Organization/org-1', allowedConnectionTypes: [] }],
-            ['the actor has no connection-type restriction', 'Observation', { reference: 'Organization/org-1' }],
+            ['a RelatedPerson actor has no connection-type restriction', 'Observation', { reference: 'RelatedPerson/rp-1' }],
             ['there is no actor', 'Observation', undefined]
         ])('returns the query unchanged when %s', (_label, resourceType, actor) => {
             const query = { resourceType };
@@ -889,8 +889,11 @@ describe('DataSharingManager', () => {
             expect(result).toBe(query);
         });
 
-        it('returns an impossible query when allowedConnectionTypes is empty (malformed Consent label)', () => {
-            const result = run('Observation', { reference: 'Organization/org-1', allowedConnectionTypes: [] });
+        it.each([
+            ['allowedConnectionTypes is empty', { reference: 'Organization/org-1', allowedConnectionTypes: [] }],
+            ['an Organization actor has no allowedConnectionTypes', { reference: 'Organization/org-1' }]
+        ])('returns an impossible query when %s', (_label, actor) => {
+            const result = run('Observation', actor);
 
             expect(result).toEqual({ _uuid: '__invalid__' });
         });

@@ -180,7 +180,7 @@ When `DelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync` dereferences 
 
 | Consent `provision.securityLabel` | `actor.allowedConnectionTypes` | Result |
 |---|---|---|
-| No `connectionType` label | unset | No connection-type filtering (unchanged behavior) |
+| No `connectionType` label | `[]` | Nothing connection-typed is returned (fail closed) |
 | One or more valid `connectionType` labels | the codes | Only resources tagged with one of those connection types are returned |
 | A `connectionType` label with a missing or empty code | `[]` | Nothing connection-typed is returned (fail closed; a warning is logged with the Consent id) |
 
@@ -188,7 +188,8 @@ When `DelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync` dereferences 
 - **Untagged resources are excluded** once a label is present, including the client's own Patient and its data.
 - An empty allowed list returns the impossible query (`_uuid: '__invalid__'`) rather than an empty `$in`, because `MongoQuerySimplifier` drops an empty `$in` and the filter would then match every connection type.
 - If no Patient survives the filter, `Person/$everything` returns an empty bundle, because the top-level query runs on `Patient`.
-- If `entitlements` names several Consents, any Consent with labels restricts the request, and the allowed list is the union of their codes.
+- If `entitlements` names several Consents, the allowed list is the union of their codes.
+- An `Organization` actor with no Consent in `entitlements` (so no allowed list at all) also gets no data. A `RelatedPerson` actor without an allowed list is not filtered by connection type.
 
 ## Operation Access Control
 
@@ -207,6 +208,21 @@ Delegated users are restricted to **read-only** operations. Access is enforced b
 | | `graphql mutation` |
 
 Any denied operation returns **403 Forbidden**. GraphQL mutations return an error in the GraphQL response body.
+
+### Organization actors
+
+By default an `Organization` actor can only call **`Person/<id>/$everything`**. `DelegatedAccessManager.verifyAccess` rejects every other REST operation and resource type with 403, including `Patient/$everything`, the proxy-patient form `Patient/person.<id>/$everything`, search, read and `$graph`.
+
+The allowed list is set by `DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS`: comma-separated `<ResourceType>:<operation>` pairs, where `*` matches any resource type. The operation names are the ones `fhirOperationsManager` passes to `verifyAccess` (`everything`, `search`, `searchById`, `graph`). The default is `Person:everything`.
+
+```bash
+# Person $everything plus Observation search
+DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS=Person:everything,Observation:search
+```
+
+- This list can only narrow the read-only operations above. A write such as `Person:create` is still rejected.
+- Connection-type filtering still applies to every allowed operation.
+- The GraphQL v1, GraphQL v2 and MCP routers reject `Organization` actors with 403 whatever this list says (`forbidDelegatedOrganizationActor` middleware in `src/app.js`).
 
 ## Redis Caching
 
@@ -346,4 +362,5 @@ Filtering happens at the **enrichment level** via `EnrichmentManager`, across al
 
 ## Config
 
+- `DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS`: `<ResourceType>:<operation>` pairs an `Organization` actor may call (default `Person:everything`). See "Organization actors" above.
 - `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**, including Composition section filtering. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules (including Composition section filtering), copies any JWT `entitlements` into `context.purposeOfUse` (recorded as `purposeOfEvent` on the audit event), and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.

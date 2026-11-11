@@ -388,7 +388,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
         let delegatedAccessManager;
 
         beforeEach(() => {
-            delegatedAccessManager = new DelegatedAccessManager();
+            delegatedAccessManager = new DelegatedAccessManager({ configManager: new ConfigManager() });
         });
 
         test.each(DELEGATED_ACCESS.ALLOWED_OPERATIONS)(

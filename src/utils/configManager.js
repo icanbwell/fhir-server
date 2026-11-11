@@ -458,6 +458,18 @@ class ConfigManager {
      * Specifies allowed connection types for consent data sharing.
      * @return {string[]}
      */
+    /**
+     * `<ResourceType>:<operation>` pairs a delegated Organization actor may call; `*` matches any
+     * resource type. Can only narrow DELEGATED_ACCESS.ALLOWED_OPERATIONS, never widen it.
+     * @return {Set<string>}
+     */
+    get delegatedOrganizationActorAllowedOperations() {
+        return new Set(
+            this._parseCommaSeparatedList(env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS, ['Person:everything'])
+                .filter(Boolean)
+        );
+    }
+
     get getConsentConnectionTypesList() {
         return env.CONSENT_CONNECTION_TYPES_LIST ? env.CONSENT_CONNECTION_TYPES_LIST.split(',') : ['proa'];
     }

@@ -1,6 +1,9 @@
 const { ForbiddenError } = require('./httpErrors');
 const { AUTH_USER_TYPES, DELEGATED_ACCESS } = require('../constants');
 const { FhirRequestInfo } = require('./fhirRequestInfo');
+const { ReferenceParser } = require('./referenceParser');
+const { ConfigManager } = require('./configManager');
+const { assertTypeEquals } = require('./assertType');
 
 const ALLOWED_OPERATIONS = new Set(DELEGATED_ACCESS.ALLOWED_OPERATIONS);
 
@@ -17,6 +20,18 @@ const ALLOWED_OPERATIONS = new Set(DELEGATED_ACCESS.ALLOWED_OPERATIONS);
  *   dataSource (getResourcesForMutation). GraphQL v2 has no mutations.
  */
 class DelegatedAccessManager {
+    /**
+     * @param {Object} params
+     * @param {ConfigManager} params.configManager
+     */
+    constructor ({ configManager }) {
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+    }
+
     /**
      * Returns whether the given request is from a delegated access user
      * @param {FhirRequestInfo} requestInfo
@@ -43,6 +58,34 @@ class DelegatedAccessManager {
                 `User does not have access to ${operation.toUpperCase()} method`
             );
         }
+
+        if (this.isOrganizationActor(requestInfo) &&
+            !this.isOrganizationActorOperationAllowed({ resourceType, operation })) {
+            throw new ForbiddenError(
+                `Organization actor does not have access to ${resourceType} ${operation}`
+            );
+        }
+    }
+
+    /**
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {string} params.operation
+     * @returns {boolean}
+     */
+    isOrganizationActorOperationAllowed ({ resourceType, operation }) {
+        const allowed = this.configManager.delegatedOrganizationActorAllowedOperations;
+        return allowed.has(`${resourceType}:${operation}`) || allowed.has(`*:${operation}`);
+    }
+
+    /**
+     * Returns whether the request is from a delegated user whose actor is an Organization
+     * @param {FhirRequestInfo} requestInfo
+     * @returns {boolean}
+     */
+    isOrganizationActor (requestInfo) {
+        return this.isDelegatedUser(requestInfo) &&
+            ReferenceParser.parseReference(requestInfo.actor?.reference).resourceType === 'Organization';
     }
 }
 

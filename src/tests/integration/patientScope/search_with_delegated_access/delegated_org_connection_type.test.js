@@ -129,15 +129,6 @@ describe('Delegated Organization actor connection-type filtering', () => {
         }
     };
 
-    const ALL_CLIENT_RESOURCES = [
-        `Person/${CLIENT_PERSON_ID}`,
-        `Patient/${TREATMENT_PATIENT_ID}`,
-        `Patient/${PROA_PATIENT_ID}`,
-        `Observation/${OBS_TREATMENT_ID}`,
-        `Observation/${OBS_PROA_ID}`,
-        `Observation/${OBS_UNTAGGED_ID}`
-    ];
-
     test.each([
         [
             'a treatment connectionType label returns the client Person and only treatment-tagged data',
@@ -145,9 +136,25 @@ describe('Delegated Organization actor connection-type filtering', () => {
             [`Person/${CLIENT_PERSON_ID}`, `Patient/${TREATMENT_PATIENT_ID}`, `Observation/${OBS_TREATMENT_ID}`]
         ],
         [
-            'no connectionType label keeps the existing unfiltered behavior',
+            'both connection types return both Patients and their tagged data, not untagged data',
+            [{ system: connectionTypeSystem, code: 'treatment' }, { system: connectionTypeSystem, code: 'proa' }],
+            [
+                `Person/${CLIENT_PERSON_ID}`,
+                `Patient/${TREATMENT_PATIENT_ID}`,
+                `Patient/${PROA_PATIENT_ID}`,
+                `Observation/${OBS_TREATMENT_ID}`,
+                `Observation/${OBS_PROA_ID}`
+            ]
+        ],
+        [
+            'no connectionType label fails closed with an empty bundle',
             undefined,
-            ALL_CLIENT_RESOURCES
+            []
+        ],
+        [
+            'only a non-connectionType label fails closed with an empty bundle',
+            [{ system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode', code: 'PSY' }],
+            []
         ],
         [
             'a malformed connectionType label fails closed with an empty bundle',
@@ -175,7 +182,57 @@ describe('Delegated Organization actor connection-type filtering', () => {
         expect(returned).not.toContain(`Patient/${OTHER_PATIENT_ID}`);
     });
 
-    test('Observation search applies the same connection-type restriction', async () => {
+    test.each([
+        ['Observation search', 'get', '/4_0_0/Observation/'],
+        ['Observation read', 'get', `/4_0_0/Observation/${OBS_TREATMENT_ID}`],
+        ['Person read', 'get', `/4_0_0/Person/${CLIENT_PERSON_ID}`],
+        ['Patient $everything', 'get', `/4_0_0/Patient/${TREATMENT_PATIENT_ID}/$everything`],
+        ['proxy-patient $everything', 'get', `/4_0_0/Patient/person.${CLIENT_PERSON_ID}/$everything`],
+        ['Person $graph', 'post', `/4_0_0/Person/$graph?id=${CLIENT_PERSON_ID}`]
+    ])('rejects %s with 403', async (_label, method, url) => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request, clientConsent([{ system: connectionTypeSystem, code: 'treatment' }]));
+
+        const resp = await request[`${method}`](url).send({}).set(getHeadersWithCustomPayload(delegatedOrgPayload));
+
+        expect(resp.status).toBe(403);
+        expect(resp.body.resourceType).toBe('OperationOutcome');
+    });
+
+    test('an operation allowed by DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS still applies connection-type filtering', async () => {
+        const originalValue = process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS;
+        process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS = 'Person:everything,Observation:search';
+        try {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            await seedData(request, clientConsent([{ system: connectionTypeSystem, code: 'treatment' }]));
+
+            const searchResp = await request.get('/4_0_0/Observation/').set(getHeadersWithCustomPayload(delegatedOrgPayload));
+            const readResp = await request
+                .get(`/4_0_0/Observation/${OBS_TREATMENT_ID}`)
+                .set(getHeadersWithCustomPayload(delegatedOrgPayload));
+
+            expect(searchResp.status).toBe(200);
+            expect(searchResp.body.entry.map((e) => e.resource.id)).toEqual([OBS_TREATMENT_ID]);
+            expect(readResp.status).toBe(403);
+        } finally {
+            if (originalValue === undefined) {
+                delete process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS;
+            } else {
+                process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS = originalValue;
+            }
+        }
+    });
+
+    test.each([
+        ['GraphQL v1', '/$graphql'],
+        ['GraphQL v2', '/4_0_0/$graphqlv2']
+    ])('rejects %s with 403', async (_label, url) => {
         const request = await createTestRequest((c) => {
             c.register('configManager', () => new MockConfigManager());
             return c;
@@ -183,10 +240,30 @@ describe('Delegated Organization actor connection-type filtering', () => {
         await seedData(request, clientConsent([{ system: connectionTypeSystem, code: 'treatment' }]));
 
         const resp = await request
-            .get('/4_0_0/Observation/')
+            .post(url)
+            .send({ query: '{ patients { entry { resource { id } } } }' })
             .set(getHeadersWithCustomPayload(delegatedOrgPayload));
 
-        expect(resp.status).toBe(200);
-        expect(resp.body.entry.map((e) => e.resource.id)).toEqual([OBS_TREATMENT_ID]);
+        expect(resp.status).toBe(403);
+    });
+
+    test('rejects MCP with 403', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request, clientConsent([{ system: connectionTypeSystem, code: 'treatment' }]));
+
+        const resp = await request
+            .post('/mcp')
+            .set({
+                ...getHeadersWithCustomPayload(delegatedOrgPayload),
+                'Content-Type': 'application/json',
+                Accept: 'application/json, text/event-stream'
+            })
+            .send({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'search_patient', arguments: {} } });
+
+        expect(resp.status).toBe(403);
+        expect(resp.body.issue[0].details.text).toBe('Organization actor does not have access to this endpoint');
     });
 });

@@ -407,9 +407,9 @@ class DelegatedAccessRulesManager {
      * treat that as an auth failure. Rejects instead of returning `null` on a transient lookup
      * error (see resolveEntitlementConsentAsync); callers must let that propagate.
      *
-     * When `actor` is passed and any resolved Consent carries `connectionType` securityLabels,
-     * sets `actor.allowedConnectionTypes` to their codes (`[]` if any label is malformed, which
-     * denies all connection-typed data). Left unset when no Consent restricts connection types.
+     * When `actor` is passed and a Consent is resolved, sets `actor.allowedConnectionTypes` to the
+     * union of the Consents' `connectionType` securityLabel codes. It is `[]` (no data) when no
+     * Consent lists a connection type or any label is malformed.
      *
      * @param {Object} params
      * @param {string[]|null} [params.entitlements]
@@ -437,8 +437,8 @@ class DelegatedAccessRulesManager {
                     return null;
                 }
                 resolvedCodes.push(...resolved.purposeCodes);
+                allowedConnectionTypes ??= new Set();
                 if (resolved.connectionTypes) {
-                    allowedConnectionTypes ??= new Set();
                     resolved.connectionTypes.codes.forEach(code => allowedConnectionTypes.add(code));
                     hasMalformedConnectionType ||= resolved.connectionTypes.malformed;
                 }

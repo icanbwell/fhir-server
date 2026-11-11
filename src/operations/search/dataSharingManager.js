@@ -830,7 +830,8 @@ class DataSharingManager {
     /**
      * Restricts the search query to resources tagged with one of the delegated actor's
      * allowed connection types (from the entitlement Consent's provision.securityLabel).
-     * Returns the query unchanged when the actor has no connection-type restriction.
+     * An Organization actor without an allowed list gets no data. Other actors without one
+     * are not restricted.
      *
      * @param {Object} params
      * @param {import('mongodb').Document} params.query
@@ -839,10 +840,17 @@ class DataSharingManager {
      * @returns {import('mongodb').Document}
      */
     updateQueryForDelegatedAccessConnectionTypes ({ query, actor, resourceType }) {
-        const allowedConnectionTypes = actor?.allowedConnectionTypes;
         // Person carries no connectionType tag and patient scope already limits it to the
         // token's linked Persons, so filtering it here would drop the client Person.
-        if (!Array.isArray(allowedConnectionTypes) || resourceType === 'Person') {
+        if (resourceType === 'Person') {
+            return query;
+        }
+        const isOrganizationActor =
+            ReferenceParser.parseReference(actor?.reference).resourceType === 'Organization';
+        const allowedConnectionTypes = Array.isArray(actor?.allowedConnectionTypes)
+            ? actor.allowedConnectionTypes
+            : (isOrganizationActor ? [] : null);
+        if (!allowedConnectionTypes) {
             return query;
         }
         // MongoQuerySimplifier drops an empty `$in`, which would match every connectionType.
