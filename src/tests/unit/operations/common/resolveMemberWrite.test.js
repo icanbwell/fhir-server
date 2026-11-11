@@ -1,4 +1,5 @@
 const { describe, test, expect } = require('@jest/globals');
+const deepcopy = require('deepcopy');
 const { resolveMemberWrite } = require('../../../../operations/common/resolveMemberWrite');
 
 describe('resolveMemberWrite', () => {
@@ -29,12 +30,24 @@ describe('resolveMemberWrite', () => {
         expect(result.member.entity.display).toBe('new');
     });
 
-    test('add with no changes over an existing active member classifies as none', () => {
+    test.each([
+        ['an active member stored without inactive', {}],
+        ['an active member stored with inactive:false', { inactive: false }]
+    ])('add with no changes over %s classifies as none', (_label, extra) => {
+        const existing = { entity: { reference: 'Patient/1' }, ...extra };
+        const result = resolveMemberWrite(existing, {
+            entity: { reference: 'Patient/1' }, ...extra, op: 'add'
+        });
+        expect(result.writeType).toBe('none');
+    });
+
+    test('add without inactive over a member stored with inactive:false classifies as update and clears it', () => {
         const existing = { entity: { reference: 'Patient/1' }, inactive: false };
         const result = resolveMemberWrite(existing, {
             entity: { reference: 'Patient/1' }, op: 'add'
         });
-        expect(result.writeType).toBe('none');
+        expect(result.writeType).toBe('update');
+        expect(result.member).toEqual({ entity: { reference: 'Patient/1' } });
     });
 
     test('add with a changed period over an existing active member classifies as update', () => {
@@ -201,7 +214,7 @@ describe('resolveMemberWrite', () => {
             entity: { reference: 'Patient/1', _uuid: 'Patient/uuid-1', _sourceId: 'Patient/1', _sourceAssigningAuthority: 'test-owner' },
             period: { start: '2026-01-01' }
         };
-        const result = resolveMemberWrite(existing, { ...structuredClone(existing), op: 'add' });
+        const result = resolveMemberWrite(existing, { ...deepcopy(existing), op: 'add' });
 
         expect(result.writeType).toBe('none');
     });
@@ -209,8 +222,8 @@ describe('resolveMemberWrite', () => {
     test('add does not modify the existing member or the write request', () => {
         const existing = { id: 'member-1', entity: { reference: 'Patient/1' }, inactive: true };
         const writeRequest = { entity: { reference: 'Patient/1' }, op: 'add' };
-        const existingBefore = structuredClone(existing);
-        const writeRequestBefore = structuredClone(writeRequest);
+        const existingBefore = deepcopy(existing);
+        const writeRequestBefore = deepcopy(writeRequest);
 
         resolveMemberWrite(existing, writeRequest);
 

@@ -1,168 +1,113 @@
-const { applyOperation, JsonPatchError } = require('fast-json-patch');
-const deepcopy = require('deepcopy');
-const { resolveMemberWrite } = require('./resolveMemberWrite');
 const { enrichMemberReferences } = require('../../utils/referenceEnricher');
-const { PATCH_OPERATIONS } = require('../../constants/groupConstants');
+const { logInfo } = require('./logging');
 
 /**
- * Paths that add one whole member to an embedded Group's member[]: append (`/member/-`), the
- * empty index (`/member/`, which fast-json-patch treats as index 0) and an explicit index.
+ * The entries of member[] of a Group a PATCH is about to be applied to. fast-json-patch applies
+ * ops to that same object in place, so after the PATCH an entry still in this set is a stored
+ * entry (possibly edited by an op), and any other entry is one the PATCH created.
+ *
+ * @param {Object} groupToPatch - the object the PATCH will be applied to
+ * @returns {Set<Object>}
  */
-const SINGLE_MEMBER_PATH = /^\/member\/(\d*|-)$/;
-
-/**
- * @param {Object} op
- * @returns {boolean}
- */
-function isSingleMemberAdd(op) {
-    return op?.op === PATCH_OPERATIONS.ADD &&
-        typeof op.path === 'string' &&
-        SINGLE_MEMBER_PATH.test(op.path) &&
-        op.value !== null &&
-        typeof op.value === 'object' &&
-        !Array.isArray(op.value) &&
-        typeof op.value.entity?.reference === 'string';
+function storedMemberEntriesOf(groupToPatch) {
+    return new Set(Array.isArray(groupToPatch?.member) ? groupToPatch.member : []);
 }
 
 /**
- * The uuid an entity reference resolves to, computed from the reference alone the way
- * referenceGlobalIdHandler stamps entity._uuid on save. Any _uuid the client sent is ignored.
+ * Makes a member the PATCH added appear once in an embedded Group's member[].
  *
- * @param {string} reference
- * @param {string} sourceAssigningAuthority - the Group's own sourceAssigningAuthority
- * @returns {string}
- */
-function uuidForReference(reference, sourceAssigningAuthority) {
-    const probe = [{ entity: { reference } }];
-    enrichMemberReferences(probe, sourceAssigningAuthority);
-    return probe[0].entity._uuid;
-}
-
-/**
- * The member an add writes: op.value with the reference fields the server stamps on save
- * (entity._uuid/_sourceId/_sourceAssigningAuthority) computed from the reference, so it has the
- * same shape as a stored member. Any of those fields the client sent are replaced.
- *
- * @param {Object} value - op.value of a single-member add
- * @param {string} sourceAssigningAuthority - the Group's own sourceAssigningAuthority
- * @returns {Object}
- */
-function memberFromAdd(value, sourceAssigningAuthority) {
-    const member = deepcopy(value);
-    delete member.entity._uuid;
-    delete member.entity._sourceId;
-    delete member.entity._sourceAssigningAuthority;
-    enrichMemberReferences([member], sourceAssigningAuthority);
-    return member;
-}
-
-/**
- * Key of a member already in member[]: the stored entity._uuid, or, for a member added earlier in
- * the same PATCH, the uuid its reference resolves to.
- *
- * @param {Object} member
- * @param {string} sourceAssigningAuthority
- * @returns {string|null}
- */
-function memberKey(member, sourceAssigningAuthority) {
-    if (member?.entity?._uuid) {
-        return member.entity._uuid;
-    }
-    return member?.entity?.reference
-        ? uuidForReference(member.entity.reference, sourceAssigningAuthority)
-        : null;
-}
-
-/**
- * Rewrites the add ops of an embedded Group PATCH so that adding a member who is already in
- * member[] (matched by the uuid of member.entity) never creates a second entry:
- * - an add equal to the stored member is dropped;
- * - any other add becomes a `replace` of that member at its current index with the value sent,
- *   so fields not sent are cleared (resolveMemberWrite, the same rules the extended Group path
- *   uses).
- * Adds of new members and every other op are kept as sent. The ops are simulated in order on a
- * copy of the Group, so a member added earlier in the same PATCH, or an index shifted by an
- * earlier op, is taken into account.
- *
- * If an op cannot be applied, the original ops are returned unchanged, so the caller's own
- * JSON Patch validation reports the same error the client would have got before.
+ * Runs on the Group after the PATCH has been applied as plain JSON Patch, where an add of a member
+ * already in member[] has left a second entry for it. For each member (matched by the uuid its
+ * entity.reference resolves to) that has more than one entry, one of them created by the PATCH:
+ * the last entry the PATCH created, as later ops left it, replaces all of the member's entries in
+ * the position of its first entry. The add replaces the whole member, so its stored entry, any
+ * edit made to that entry, and any earlier entry the PATCH created for it are not kept.
+ * Members with no entry created by the PATCH, and entries with no resolvable entity.reference (each
+ * one logged), are left as they are.
  *
  * @param {Object} params
- * @param {Object[]} params.patchContent - JSON Patch ops
- * @param {Object} params.currentResource - the stored Group; not modified
- * @returns {Object[]} the ops to apply
+ * @param {Object} params.patchedGroup - the Group with the PATCH applied; member[] is replaced
+ * @param {Set<Object>} params.storedMemberEntries - from storedMemberEntriesOf, before the PATCH
+ * @returns {Object} patchedGroup
  */
-function rewriteMemberAddOperations({ patchContent, currentResource }) {
-    const sourceAssigningAuthority = currentResource?._sourceAssigningAuthority;
-    if (!sourceAssigningAuthority || !patchContent.some(isSingleMemberAdd)) {
-        return patchContent;
+function consolidateAddedMembers({ patchedGroup, storedMemberEntries }) {
+    if (!Array.isArray(patchedGroup.member)) {
+        return patchedGroup;
+    }
+    const memberUuidOf = memberUuidResolver(patchedGroup._sourceAssigningAuthority);
+
+    /** @type {Map<string, number>} member uuid -> number of its entries */
+    const entryCountByMemberUuid = new Map();
+    /** @type {Map<string, Object>} member uuid -> its last entry the PATCH created */
+    const lastCreatedEntryByMemberUuid = new Map();
+    for (const [memberIndex, entry] of patchedGroup.member.entries()) {
+        const memberUuid = memberUuidOf(entry);
+        if (!memberUuid) {
+            logInfo('Group member with no resolvable entity.reference skipped in consolidation', {
+                groupId: patchedGroup.id,
+                memberIndex
+            });
+            continue;
+        }
+        entryCountByMemberUuid.set(memberUuid, (entryCountByMemberUuid.get(memberUuid) ?? 0) + 1);
+        if (!storedMemberEntries.has(entry)) {
+            lastCreatedEntryByMemberUuid.set(memberUuid, entry);
+        }
     }
 
-    const working = deepcopy(currentResource);
-    /** @type {Map<string, Object>|null} member key -> member object in working.member */
-    let membersByKey = null;
-    const indexMembers = () => {
-        membersByKey = new Map();
-        for (const member of Array.isArray(working.member) ? working.member : []) {
-            const key = memberKey(member, sourceAssigningAuthority);
-            if (key && !membersByKey.has(key)) {
-                membersByKey.set(key, member);
-            }
+    /** @type {Map<string, Object>} member uuid -> the entry all of its entries are replaced by */
+    const keptEntryByMemberUuid = new Map();
+    for (const [memberUuid, lastCreatedEntry] of lastCreatedEntryByMemberUuid) {
+        if (entryCountByMemberUuid.get(memberUuid) > 1) {
+            keptEntryByMemberUuid.set(memberUuid, lastCreatedEntry);
         }
+    }
+    if (keptEntryByMemberUuid.size === 0) {
+        return patchedGroup;
+    }
+
+    const placedMemberUuids = new Set();
+    patchedGroup.member = patchedGroup.member.flatMap((entry) => {
+        const memberUuid = memberUuidOf(entry);
+        if (!keptEntryByMemberUuid.has(memberUuid)) {
+            return [entry];
+        }
+        if (placedMemberUuids.has(memberUuid)) {
+            return [];
+        }
+        placedMemberUuids.add(memberUuid);
+        return [keptEntryByMemberUuid.get(memberUuid)];
+    });
+    return patchedGroup;
+}
+
+/**
+ * Returns a function giving the uuid a member's entity.reference resolves to, computed the way
+ * referenceGlobalIdHandler stamps entity._uuid on save, so `Patient/x`, `Patient/x|<owner>` and
+ * `Patient/<uuid>` are the same member. A stored entity._uuid is not used, since an op in the
+ * PATCH may have changed the reference it was computed from. Results are cached per reference.
+ *
+ * @param {string} sourceAssigningAuthority - the Group's own sourceAssigningAuthority
+ * @returns {function(*): (string|null)}
+ */
+function memberUuidResolver(sourceAssigningAuthority) {
+    /** @type {Map<string, string>} entity.reference -> member uuid */
+    const memberUuidByReference = new Map();
+    return (member) => {
+        const reference = member?.entity?.reference;
+        if (typeof reference !== 'string') {
+            return null;
+        }
+        if (!memberUuidByReference.has(reference)) {
+            const referenceToEnrich = [{ entity: { reference } }];
+            enrichMemberReferences(referenceToEnrich, sourceAssigningAuthority);
+            memberUuidByReference.set(reference, referenceToEnrich[0].entity._uuid);
+        }
+        return memberUuidByReference.get(reference);
     };
-
-    const rewritten = [];
-    try {
-        for (const op of patchContent) {
-            if (!isSingleMemberAdd(op)) {
-                rewritten.push(op);
-                applyOperation(working, deepcopy(op), true, true);
-                if (op.path?.startsWith('/member')) {
-                    membersByKey = null;
-                }
-                continue;
-            }
-
-            if (!membersByKey) {
-                indexMembers();
-            }
-            const added = memberFromAdd(op.value, sourceAssigningAuthority);
-            const key = added.entity._uuid;
-            const existing = membersByKey.get(key);
-
-            if (!existing) {
-                rewritten.push(op);
-                applyOperation(working, { ...op, value: added }, true, true);
-                membersByKey.set(key, added);
-                continue;
-            }
-
-            const { writeType, member } = resolveMemberWrite(
-                existing,
-                { ...added, op: PATCH_OPERATIONS.ADD }
-            );
-            if (writeType === 'none') {
-                continue;
-            }
-            const replaceOp = {
-                op: 'replace',
-                path: `/member/${working.member.indexOf(existing)}`,
-                value: member
-            };
-            rewritten.push(replaceOp);
-            const applied = deepcopy(replaceOp);
-            applyOperation(working, applied, true, true);
-            membersByKey.set(key, applied.value);
-        }
-    } catch (e) {
-        if (e instanceof JsonPatchError) {
-            return patchContent;
-        }
-        throw e;
-    }
-    return rewritten;
 }
 
 module.exports = {
-    rewriteMemberAddOperations
+    storedMemberEntriesOf,
+    consolidateAddedMembers
 };

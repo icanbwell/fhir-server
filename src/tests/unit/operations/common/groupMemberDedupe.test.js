@@ -1,6 +1,7 @@
 const { describe, test, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
-const { rewriteMemberAddOperations } = require('../../../../operations/common/groupMemberDedupe');
+const { applyPatch } = require('fast-json-patch');
+const { consolidateAddedMembers, storedMemberEntriesOf } = require('../../../../operations/common/groupMemberDedupe');
 const { enrichMemberReferences } = require('../../../../utils/referenceEnricher');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
@@ -16,185 +17,169 @@ function storedMember(reference, extra = {}) {
     return member;
 }
 
-function groupWith(members) {
+function groupWithMembers(members) {
     return { resourceType: 'Group', id: 'g1', _sourceAssigningAuthority: SAA, member: members };
 }
 
-describe('rewriteMemberAddOperations', () => {
+/**
+ * Applies the PATCH the way patch.js does: plain JSON Patch, then consolidateAddedMembers.
+ */
+function applyPatchToGroup(group, patchContent) {
+    const groupToPatch = deepcopy(group);
+    const storedMemberEntries = storedMemberEntriesOf(groupToPatch);
+    const patchedGroup = applyPatch(groupToPatch, deepcopy(patchContent)).newDocument;
+    return consolidateAddedMembers({ patchedGroup, storedMemberEntries });
+}
+
+function memberReferences(group) {
+    return group.member.map((member) => member.entity?.reference);
+}
+
+describe('consolidateAddedMembers', () => {
     test.each([
-        ['/member/-'],
-        ['/member/'],
-        ['/member/0']
-    ])('drops an add on %s that re-adds an existing member unchanged', (path) => {
-        const currentResource = groupWith([storedMember('Patient/a'), storedMember('Patient/b')]);
-        const patchContent = [{ op: 'add', path, value: { entity: { reference: 'Patient/b' } } }];
+        ['/member/-', ['Patient/a', 'Patient/b']],
+        ['/member/', ['Patient/b', 'Patient/a']],
+        ['/member/0', ['Patient/b', 'Patient/a']]
+    ])('an unchanged re-add on %s keeps one entry, where the member first appears', (path, expectedReferences) => {
+        const group = groupWithMembers([storedMember('Patient/a'), storedMember('Patient/b')]);
 
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
+        const result = applyPatchToGroup(group, [{ op: 'add', path, value: { entity: { reference: 'Patient/b' } } }]);
 
-        expect(result).toEqual([]);
+        expect(memberReferences(result)).toEqual(expectedReferences);
+        expect(result.member.find((member) => member.entity.reference === 'Patient/b')).toEqual({ entity: { reference: 'Patient/b' } });
     });
 
-    test('turns an add that changes an existing member into a replace with exactly the value sent', () => {
-        const currentResource = groupWith([
-            storedMember('Patient/a'),
-            storedMember('Patient/b', { id: 'm-b', inactive: true })
+    test('a re-add of an existing member with changes replaces it where it is with exactly the value sent', () => {
+        const group = groupWithMembers([storedMember('Patient/a'), storedMember('Patient/b', { id: 'm-b', inactive: true })]);
+
+        const result = applyPatchToGroup(group, [
+            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/b' }, period: { start: '2026-01-01' } } }
         ]);
-        const patchContent = [{
-            op: 'add',
-            path: '/member/-',
-            value: { entity: { reference: 'Patient/b' }, period: { start: '2026-01-01' } }
-        }];
 
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
-
-        expect(result).toEqual([{
-            op: 'replace',
-            path: '/member/1',
-            value: storedMember('Patient/b', { period: { start: '2026-01-01' } })
-        }]);
-    });
-
-    test('an add at an index for an existing member updates it where it is instead of inserting', () => {
-        const currentResource = groupWith([storedMember('Patient/a'), storedMember('Patient/b')]);
-        const patchContent = [{ op: 'add', path: '/member/0', value: { entity: { reference: 'Patient/b' }, id: 'new-id' } }];
-
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
-
-        expect(result).toEqual([
-            expect.objectContaining({ op: 'replace', path: '/member/1' })
-        ]);
-        expect(result[0].value.id).toBe('new-id');
-    });
-
-    test('re-adding an inactive member without inactive clears inactive', () => {
-        const currentResource = groupWith([storedMember('Patient/a', { inactive: true })]);
-        const patchContent = [{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' } } }];
-
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
-
-        expect(result).toHaveLength(1);
-        expect(result[0].value).toEqual(storedMember('Patient/a'));
-    });
-
-    test('drops a retry that resends the stored member with reference fields the client set', () => {
-        const currentResource = groupWith([storedMember('Patient/a', { period: { start: '2026-01-01' } })]);
-        const patchContent = [{
-            op: 'add',
-            path: '/member/-',
-            value: {
-                entity: { reference: 'Patient/a', _uuid: 'Patient/spoofed', _sourceId: 'Patient/x' },
-                period: { start: '2026-01-01' }
-            }
-        }];
-
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
-
-        expect(result).toEqual([]);
-    });
-
-    test('leaves an add for a new member unchanged', () => {
-        const currentResource = groupWith([storedMember('Patient/a')]);
-        const patchContent = [{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/new' } } }];
-
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
-
-        expect(result).toEqual(patchContent);
+        expect(memberReferences(result)).toEqual(['Patient/a', 'Patient/b']);
+        expect(result.member[1]).toEqual({ entity: { reference: 'Patient/b' }, period: { start: '2026-01-01' } });
     });
 
     test.each([
         ['the same id', 'Patient/a'],
         ['id|sourceAssigningAuthority', `Patient/a|${SAA}`],
         ['the uuid', `Patient/${generateUUIDv5(`a|${SAA}`)}`]
-    ])('matches an existing member referenced by %s', (_label, reference) => {
-        const currentResource = groupWith([storedMember('Patient/a', { period: { start: '2025-01-01' } })]);
-        const patchContent = [{ op: 'add', path: '/member/-', value: { entity: { reference }, period: { start: '2026-01-01' } } }];
+    ])('a re-add referencing an existing member by %s updates that member', (_label, reference) => {
+        const group = groupWithMembers([storedMember('Patient/a', { period: { start: '2025-01-01' } })]);
 
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
+        const result = applyPatchToGroup(group, [
+            { op: 'add', path: '/member/-', value: { entity: { reference }, period: { start: '2026-01-01' } } }
+        ]);
 
-        expect(result).toEqual([expect.objectContaining({ op: 'replace', path: '/member/0' })]);
-        expect(result[0].value.entity.reference).toBe(reference);
-    });
-
-    test('a member added twice in one PATCH is appended once and then updated in place', () => {
-        const currentResource = groupWith([storedMember('Patient/a')]);
-        const patchContent = [
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/new' } } },
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/new' } } },
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/new' }, period: { start: '2026-01-01' } } }
-        ];
-
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
-
-        expect(result).toHaveLength(2);
-        expect(result[0]).toEqual(patchContent[0]);
-        expect(result[1]).toEqual(expect.objectContaining({ op: 'replace', path: '/member/1' }));
-        expect(result[1].value.period).toEqual({ start: '2026-01-01' });
-    });
-
-    test('resolves the index after earlier ops in the same PATCH have shifted member[]', () => {
-        const currentResource = groupWith([storedMember('Patient/a'), storedMember('Patient/b')]);
-        const patchContent = [
-            { op: 'remove', path: '/member/0' },
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/b' }, period: { start: '2026-01-01' } } }
-        ];
-
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
-
-        expect(result[0]).toEqual(patchContent[0]);
-        expect(result[1]).toEqual(expect.objectContaining({ op: 'replace', path: '/member/0' }));
-    });
-
-    test('ignores a client-supplied entity._uuid when matching', () => {
-        const currentResource = groupWith([storedMember('Patient/a')]);
-        const spoofedUuid = currentResource.member[0].entity._uuid;
-        const patchContent = [{
-            op: 'add',
-            path: '/member/-',
-            value: { entity: { reference: 'Patient/other', _uuid: spoofedUuid } }
-        }];
-
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
-
-        expect(result).toEqual(patchContent);
-    });
-
-    test('does not mutate the current resource or the incoming ops', () => {
-        const currentResource = groupWith([storedMember('Patient/a')]);
-        const patchContent = [
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/new' } } },
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' }, period: { start: '2026-01-01' } } }
-        ];
-        const resourceBefore = deepcopy(currentResource);
-        const patchBefore = deepcopy(patchContent);
-
-        rewriteMemberAddOperations({ patchContent, currentResource });
-
-        expect(currentResource).toEqual(resourceBefore);
-        expect(patchContent).toEqual(patchBefore);
+        expect(result.member).toEqual([{ entity: { reference }, period: { start: '2026-01-01' } }]);
     });
 
     test.each([
-        ['no member add ops', [{ op: 'replace', path: '/active', value: true }]],
-        ['an add without entity.reference', [{ op: 'add', path: '/member/-', value: { entity: { display: 'no reference' } } }]],
-        ['an add of a nested member field', [{ op: 'add', path: '/member/0/period', value: { start: '2026-01-01' } }]],
-        ['an op that cannot be applied', [
-            { op: 'remove', path: '/member/9' },
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' } } }
-        ]]
-    ])('returns the ops unchanged for %s', (_label, patchContent) => {
-        const currentResource = groupWith([storedMember('Patient/a')]);
+        ['a new member', [storedMember('Patient/a')], ['Patient/a', 'Patient/b']],
+        ['an existing member', [storedMember('Patient/a'), storedMember('Patient/b', { id: 'm-b' })], ['Patient/a', 'Patient/b']]
+    ])('adds of %s twice in one PATCH keep only the last one', (_label, storedMembers, expectedReferences) => {
+        const group = groupWithMembers(storedMembers);
 
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
+        const result = applyPatchToGroup(group, [
+            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/b' }, period: { start: '2026-01-01' } } },
+            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/b' }, inactive: true } }
+        ]);
 
-        expect(result).toEqual(patchContent);
+        expect(memberReferences(result)).toEqual(expectedReferences);
+        expect(result.member[1]).toEqual({ entity: { reference: 'Patient/b' }, inactive: true });
     });
 
-    test('adds to a Group that has no member array yet are left unchanged', () => {
-        const currentResource = groupWith(undefined);
-        const patchContent = [{ op: 'add', path: '/member', value: [] }, { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' } } }];
+    test.each([
+        [
+            'a re-add of the old patient adds it back',
+            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' } } },
+            ['Patient/b', 'Patient/a']
+        ],
+        [
+            'an add of the new patient keeps one entry',
+            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/b' } } },
+            ['Patient/b']
+        ]
+    ])('after a member is re-pointed in the same PATCH, %s', (_label, addOp, expectedReferences) => {
+        const group = groupWithMembers([storedMember('Patient/a')]);
 
-        const result = rewriteMemberAddOperations({ patchContent, currentResource });
+        const result = applyPatchToGroup(group, [
+            { op: 'replace', path: '/member/0/entity/reference', value: 'Patient/b' },
+            addOp
+        ]);
 
-        expect(result).toEqual(patchContent);
+        expect(memberReferences(result)).toEqual(expectedReferences);
+    });
+
+    test('a member added and then removed in the same PATCH stays removed', () => {
+        const group = groupWithMembers([storedMember('Patient/x')]);
+
+        const result = applyPatchToGroup(group, [
+            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' } } },
+            { op: 'remove', path: '/member/1' }
+        ]);
+
+        expect(memberReferences(result)).toEqual(['Patient/x']);
+    });
+
+    test.each([
+        [
+            'an edit to the entry the add created is kept',
+            '/member/2/period',
+            { entity: { reference: 'Patient/a' }, inactive: true, period: { start: '2026-02-01' } }
+        ],
+        [
+            'an edit to the stored entry is replaced by the add',
+            '/member/1/period',
+            { entity: { reference: 'Patient/a' }, inactive: true }
+        ]
+    ])('after a re-add of an existing member, %s', (_label, editPath, expectedMember) => {
+        const group = groupWithMembers([storedMember('Patient/x'), storedMember('Patient/a')]);
+
+        const result = applyPatchToGroup(group, [
+            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' }, inactive: true } },
+            { op: 'add', path: editPath, value: { start: '2026-02-01' } }
+        ]);
+
+        expect(result.member).toEqual([storedMember('Patient/x'), expectedMember]);
+    });
+
+    test('members the PATCH does not add are left as they are, including duplicates already stored', () => {
+        const group = groupWithMembers([
+            storedMember('Patient/a', { period: { start: '2025-01-01' } }),
+            storedMember('Patient/x'),
+            storedMember('Patient/a', { period: { start: '2025-02-01' } })
+        ]);
+
+        const result = applyPatchToGroup(group, [
+            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/y' } } }
+        ]);
+
+        expect(memberReferences(result)).toEqual(['Patient/a', 'Patient/x', 'Patient/a', 'Patient/y']);
+    });
+
+    test.each([
+        ['no member ops', [{ op: 'add', path: '/active', value: true }]],
+        ['an add of a field of a member', [{ op: 'add', path: '/member/0/period', value: { start: '2026-01-01' } }]],
+        ['an add without entity.reference', [{ op: 'add', path: '/member/-', value: { entity: { display: 'no reference' } } }]]
+    ])('leaves the patched Group as plain JSON Patch left it for %s', (_label, patchContent) => {
+        const group = groupWithMembers([storedMember('Patient/a')]);
+        const plainResult = applyPatch(deepcopy(group), deepcopy(patchContent)).newDocument;
+
+        const result = applyPatchToGroup(group, patchContent);
+
+        expect(result).toEqual(plainResult);
+    });
+
+    test('does not modify the PATCH ops', () => {
+        const group = groupWithMembers([storedMember('Patient/a')]);
+        const patchContent = [
+            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' }, period: { start: '2026-01-01' } } }
+        ];
+        const patchBefore = deepcopy(patchContent);
+
+        applyPatchToGroup(group, patchContent);
+
+        expect(patchContent).toEqual(patchBefore);
     });
 });

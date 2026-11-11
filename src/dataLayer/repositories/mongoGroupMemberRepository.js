@@ -36,7 +36,7 @@ const CASCADE_MAX_NO_PROGRESS_PASSES = 10;
  * /member. This is a plain resource write, not an event log: each requested write resolves to
  * a real create/update/delete of a GroupMember_4_0_0 document. Writes go through
  * FastDatabaseBulkInserter -- insertOneAsync() for a fresh member, replaceOneAsync() for an
- * update/reactivation (see applyResolvedMemberWritesAsync for why the split matters); reads use
+ * update of an existing one (see applyResolvedMemberWritesAsync for why the split matters); reads use
  * the raw-document path, not toObjectArrayAsync().
  *
  * Callers always call resolveMemberWritesAsync() first (a read-only lookup against the live
@@ -193,7 +193,7 @@ class MongoGroupMemberRepository {
      * Resolving always requires a DB read (to know what's already there), so there's no reason
      * to pay for that read twice per PATCH request. Callers that need to know ahead of time
      * whether a batch of requested writes is a genuine no-op (e.g. removing an already-absent
-     * member, or re-adding one with identical period/type/display/inactive -- both resolve to
+     * member, or re-adding one identical to the stored member -- both resolve to
      * 'none') call this once, and -- if it isn't a no-op -- pass the very same Map into
      * applyResolvedMemberWritesAsync to actually write it, instead of resolving a second time.
      *

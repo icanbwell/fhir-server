@@ -34,7 +34,7 @@ const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
 const { promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
-const { rewriteMemberAddOperations } = require('../common/groupMemberDedupe');
+const { consolidateAddedMembers, storedMemberEntriesOf } = require('../common/groupMemberDedupe');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
@@ -372,9 +372,9 @@ class PatchOperation {
             // Now that we've validated the resource exists and user has access, determine which
             // group member type (if any) should handle the member ops. A plain embedded Group
             // determines to 'embedded' and falls through to the standard patch flow below, which
-            // applies its member[] ops as ordinary JSON Patch, except that an add of a member
-            // already in member[] updates that member instead of duplicating it (see
-            // rewriteMemberAddOperations below). 'extended' and 'externalStorage' are two entirely
+            // applies its ops as ordinary JSON Patch and then keeps one entry per added member, so
+            // an add of a member already in member[] updates that member instead of duplicating it
+            // (see consolidateAddedMembers below). 'extended' and 'externalStorage' are two entirely
             // separate branches below, each calling its own dedicated strategy
             // method -- they don't share a commit path, so a change to one type's write
             // semantics can't silently affect the other.
@@ -443,16 +443,6 @@ class PatchOperation {
                 foundResource, BLOB_OP.RETRIEVE, requestInfo
             );
 
-            // A member in an embedded Group appears once, matched by member.entity._uuid: an add
-            // of an existing member becomes a replace of it, or is dropped if nothing changes,
-            // so a retried add does not duplicate the member or bump the version.
-            if (groupMemberType === 'embedded') {
-                effectivePatchContent = rewriteMemberAddOperations({
-                    patchContent: effectivePatchContent,
-                    currentResource: foundResource
-                });
-            }
-
             // Validate the patch
             const errors = validate(
                 effectivePatchContent,
@@ -463,12 +453,19 @@ class PatchOperation {
                 throw new BadRequestError(error);
             }
             // Make the changes indicated in the patch
+            const resourceToPatch = deepcopy(foundResource);
+            const storedMemberEntries = groupMemberType === 'embedded' ? storedMemberEntriesOf(resourceToPatch) : null;
             /**
              * @type {Object}
              */
             const resource_incoming = this.resourceMerger.fastApplyPatch({
-                currentResource: deepcopy(foundResource), patchContent: deepcopy(effectivePatchContent)
+                currentResource: resourceToPatch, patchContent: deepcopy(effectivePatchContent)
             });
+            // A member of an embedded Group appears once: an add of a member already in member[]
+            // replaces it with the entry the add created, so a retried add changes nothing.
+            if (groupMemberType === 'embedded') {
+                consolidateAddedMembers({ patchedGroup: resource_incoming, storedMemberEntries });
+            }
             /**
              * @type {Object}
              */

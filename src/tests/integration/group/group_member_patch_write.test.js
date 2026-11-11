@@ -144,8 +144,8 @@ describe('Group member PATCH write path (DCON-5527)', () => {
         ])('PATCH add on %s of a member already in member[] keeps one entry and does not bump the version', async (path) => {
             const created = await createGroup({
                 member: [
-                    { entity: { reference: 'Patient/embedded-other' } },
-                    { entity: { reference: 'Patient/embedded-retry' } }
+                    { entity: { reference: 'Patient/embedded-retry' } },
+                    { entity: { reference: 'Patient/embedded-other' } }
                 ]
             });
 
@@ -155,8 +155,8 @@ describe('Group member PATCH write path (DCON-5527)', () => {
 
             expect(patchResp.status).toBe(200);
             expect(patchResp.body.member.map((m) => m.entity.reference)).toEqual([
-                'Patient/embedded-other',
-                'Patient/embedded-retry'
+                'Patient/embedded-retry',
+                'Patient/embedded-other'
             ]);
             expect(patchResp.body.meta.versionId).toBe(created.meta.versionId);
         });
@@ -237,6 +237,116 @@ describe('Group member PATCH write path (DCON-5527)', () => {
                 'Patient/embedded-single',
                 'Patient/embedded-twice'
             ]);
+        });
+
+        test('PATCH add of an existing member followed by an edit of the entry it added keeps the edit', async () => {
+            const created = await createGroup({
+                member: [
+                    { entity: { reference: 'Patient/embedded-edit-other' } },
+                    { entity: { reference: 'Patient/embedded-edit' } }
+                ]
+            });
+
+            const patchResp = await patchGroup(created.id, [
+                {
+                    op: 'add',
+                    path: '/member/-',
+                    value: { entity: { reference: 'Patient/embedded-edit' }, inactive: true }
+                },
+                { op: 'add', path: '/member/2/period', value: { start: '2026-01-01' } }
+            ]);
+
+            expect(patchResp.status).toBe(200);
+            expect(patchResp.body.member.map((m) => m.entity.reference)).toEqual([
+                'Patient/embedded-edit-other',
+                'Patient/embedded-edit'
+            ]);
+            expect(patchResp.body.member[1].inactive).toBe(true);
+            expect(patchResp.body.member[1].period).toEqual({ start: '2026-01-01' });
+        });
+
+        test('PATCH with an add of an existing member and an op that cannot be applied is rejected and writes nothing', async () => {
+            const created = await createGroup({
+                member: [{ entity: { reference: 'Patient/embedded-reject' } }]
+            });
+
+            const patchResp = await patchGroup(created.id, [
+                {
+                    op: 'add',
+                    path: '/member/-',
+                    value: { entity: { reference: 'Patient/embedded-reject' }, period: { start: '2026-01-01' } }
+                },
+                { op: 'remove', path: '/member/9' }
+            ]);
+            const readResp = await request.get(`/4_0_0/Group/${created.id}`).set(getHeaders());
+
+            expect(patchResp.status).toBe(400);
+            expect(readResp.status).toBe(200);
+            expect(readResp.body.member).toHaveLength(1);
+            expect(readResp.body.member[0].period).toBeUndefined();
+            expect(readResp.body.meta.versionId).toBe(created.meta.versionId);
+        });
+
+        test('a member already stored twice that the PATCH does not add is left as it is', async () => {
+            const created = await createGroup({
+                member: [
+                    { entity: { reference: 'Patient/embedded-dup' }, period: { start: '2025-01-01' } },
+                    { entity: { reference: 'Patient/embedded-dup-other' } },
+                    { entity: { reference: 'Patient/embedded-dup' }, period: { start: '2025-02-01' } }
+                ]
+            });
+
+            const patchResp = await patchGroup(created.id, [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-dup-new' } } }
+            ]);
+
+            expect(patchResp.status).toBe(200);
+            expect(patchResp.body.member.map((m) => m.entity.reference)).toEqual([
+                'Patient/embedded-dup',
+                'Patient/embedded-dup-other',
+                'Patient/embedded-dup',
+                'Patient/embedded-dup-new'
+            ]);
+        });
+
+        test.each([
+            ['re-adding the old patient adds it back', 'Patient/embedded-repoint-old', ['Patient/embedded-repoint-new', 'Patient/embedded-repoint-old']],
+            ['adding the new patient keeps one entry', 'Patient/embedded-repoint-new', ['Patient/embedded-repoint-new']]
+        ])('PATCH that re-points a member and then adds a member matches by the new reference: %s', async (_label, addedReference, expectedReferences) => {
+            const created = await createGroup({
+                member: [{ entity: { reference: 'Patient/embedded-repoint-old' } }]
+            });
+
+            const patchResp = await patchGroup(created.id, [
+                { op: 'replace', path: '/member/0/entity/reference', value: 'Patient/embedded-repoint-new' },
+                { op: 'add', path: '/member/-', value: { entity: { reference: addedReference } } }
+            ]);
+
+            expect(patchResp.status).toBe(200);
+            expect(patchResp.body.member.map((m) => m.entity.reference)).toEqual(expectedReferences);
+        });
+
+        test('PATCH with a test op on a member added in the same PATCH still de-duplicates a later re-add', async () => {
+            const created = await createGroup({
+                member: [{ entity: { reference: 'Patient/embedded-tested' } }]
+            });
+
+            const patchResp = await patchGroup(created.id, [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-tested-new' } } },
+                { op: 'test', path: '/member/1', value: { entity: { reference: 'Patient/embedded-tested-new' } } },
+                {
+                    op: 'add',
+                    path: '/member/-',
+                    value: { entity: { reference: 'Patient/embedded-tested' }, period: { start: '2026-01-01' } }
+                }
+            ]);
+
+            expect(patchResp.status).toBe(200);
+            expect(patchResp.body.member.map((m) => m.entity.reference)).toEqual([
+                'Patient/embedded-tested',
+                'Patient/embedded-tested-new'
+            ]);
+            expect(patchResp.body.member[0].period).toEqual({ start: '2026-01-01' });
         });
     });
 

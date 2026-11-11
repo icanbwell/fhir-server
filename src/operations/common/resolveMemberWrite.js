@@ -4,9 +4,8 @@ const deepEqual = require('fast-deep-equal');
  * Resolves a single requested member write (add/remove) against the current membership, if
  * any, into the actual write it requires: create/update/none, plus hard-remove (delete/none).
  *
- * Used by the Mongo-native (extended) regime, via MongoGroupMemberRepository, and by
- * groupMemberDedupe.js, which applies the same rules when an embedded Group's PATCH adds a member
- * already in member[].
+ * Used by the Mongo-native (extended) regime, via MongoGroupMemberRepository. An embedded Group
+ * applies the same add semantics in consolidateAddedMembers (groupMemberDedupe.js).
  *
  * An add replaces the member: the resolved member is exactly the write request without its `op`
  * routing field. Fields the client does not send are not kept, so a re-add without `id`,
@@ -14,7 +13,7 @@ const deepEqual = require('fast-deep-equal');
  * whole value at the target. An add equal to the stored member resolves to 'none', so a retried
  * add writes nothing.
  *
- * Both callers build writeRequest by spreading the client's op.value (plus `op`) after
+ * The caller builds writeRequest by spreading the client's op.value (plus `op`) after
  * enrichMemberReferences has set entity._uuid/_sourceId/_sourceAssigningAuthority, so the request
  * has the same shape as a stored member and an identical retry deep-equals it.
  *
