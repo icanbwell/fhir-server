@@ -211,7 +211,8 @@ function toHistoryEntry (doc, resourceType) {
 }
 
 /**
- * Produces a batch of history documents and deletes from MongoDB the ones Kafka acked.
+ * Produces a batch of history documents, deletes from MongoDB the ones Kafka acked, and logs the batch
+ * with the `resource._uuid` of its first and last record.
  * @param {Object} params
  * @param {Object[]} params.docs
  * @param {string} params.resourceType
@@ -221,6 +222,23 @@ function toHistoryEntry (doc, resourceType) {
  * @returns {Promise<{produced: number, deleted: number, failed: number}>}
  */
 async function processDocsAsync ({ docs, resourceType, collection, historyKafkaProducer, requestId }) {
+    const result = await produceAndDeleteAsync({ docs, resourceType, collection, historyKafkaProducer, requestId });
+    logInfo('Batch done', {
+        resourceType,
+        requestId,
+        records: docs.length,
+        firstUuid: docs[0]?.resource?._uuid,
+        lastUuid: docs[docs.length - 1]?.resource?._uuid,
+        ...result
+    });
+    return result;
+}
+
+/**
+ * @param {Object} params same as processDocsAsync
+ * @returns {Promise<{produced: number, deleted: number, failed: number}>}
+ */
+async function produceAndDeleteAsync ({ docs, resourceType, collection, historyKafkaProducer, requestId }) {
     // produceAsync treats a type it is not enabled for as "nothing to send" and reports no failures,
     // which here would delete records that never reached Kafka.
     if (!historyKafkaProducer.isEnabledFor(resourceType)) {

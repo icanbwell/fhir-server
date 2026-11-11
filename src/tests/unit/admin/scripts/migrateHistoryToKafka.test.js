@@ -1,6 +1,12 @@
 'use strict';
 
 const { describe, test, beforeEach, afterEach, expect, jest } = require('@jest/globals');
+
+jest.mock('../../../../operations/common/logging', () => ({
+    ...jest.requireActual('../../../../operations/common/logging'),
+    logInfo: jest.fn()
+}));
+const { logInfo } = require('../../../../operations/common/logging');
 const {
     parseWindowTime,
     parseArgs,
@@ -159,6 +165,9 @@ describe('migrateHistoryToKafka script', () => {
             expect(body.raw._id).toBeUndefined();
             expect(collection.deleteMany).toHaveBeenCalledWith({ _id: { $in: ['m1', 'm2'] } });
             expect(docs[1]._recorded).toBeUndefined();
+            expect(logInfo).toHaveBeenCalledWith('Batch done', expect.objectContaining({
+                records: 2, firstUuid: 'u1', lastUuid: 'u2', produced: 2, deleted: 2, failed: 0
+            }));
         });
 
         test('leaves records in MongoDB when Kafka does not accept them', async () => {
