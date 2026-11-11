@@ -4,14 +4,16 @@ const { describe, test, beforeEach, afterEach, expect, jest } = require('@jest/g
 
 jest.mock('../../../../operations/common/logging', () => ({
     ...jest.requireActual('../../../../operations/common/logging'),
-    logInfo: jest.fn()
+    logInfo: jest.fn(),
+    logError: jest.fn()
 }));
-const { logInfo } = require('../../../../operations/common/logging');
+const { logInfo, logError } = require('../../../../operations/common/logging');
 const {
     parseWindowTime,
     parseArgs,
     buildWindows,
     resolveRecorded,
+    historyRetentionCutoff,
     processDocsAsync,
     migrateWindowAsync,
     runWorkersAsync
@@ -121,6 +123,14 @@ describe('migrateHistoryToKafka script', () => {
         });
     });
 
+    test.each([
+        ['a type with a ClickHouse TTL gets now minus 13 months', 'Composition', '2025-10-12T08:30:00.000Z'],
+        ['a type without a TTL has no cutoff', 'Consent', null]
+    ])('historyRetentionCutoff: %s', (_name, resourceType, expected) => {
+        const cutoff = historyRetentionCutoff(resourceType, new Date('2026-11-12T08:30:00.000Z'));
+        expect(cutoff ? cutoff.toISOString() : null).toBe(expected);
+    });
+
     describe('with the live HistoryKafkaProducer', () => {
         let savedEnv;
         let kafkaClientV2;
@@ -195,6 +205,24 @@ describe('migrateHistoryToKafka script', () => {
 
             expect(result).toEqual({ produced: 1, deleted: 1, failed: 1 });
             expect(collection.deleteMany).toHaveBeenCalledWith({ _id: { $in: ['m2'] } });
+        });
+
+        test.each([
+            ['a cloud-storage stub', (doc) => Object.assign(doc, { _ref: 'synthetic-blob-pointer' }), 'cloud storage'],
+            ['a record older than the ClickHouse retention', (doc) => Object.assign(doc, { _recorded: new Date('2024-01-01T00:00:00Z') }), 'retention']
+        ])('leaves %s in MongoDB and still moves the rest', async (_name, makeBad, error) => {
+            const collection = fakeCollection();
+
+            const result = await processDocsAsync({
+                docs: [makeBad(historyDoc({ mongoId: 'bad', uuid: 'u1' })), historyDoc({ mongoId: 'm2', uuid: 'u2' })],
+                resourceType: 'Composition', collection, historyKafkaProducer: producer, requestId: 'r1',
+                retentionCutoff: new Date('2025-10-01T00:00:00Z')
+            });
+
+            expect(result).toEqual({ produced: 1, deleted: 1, failed: 1 });
+            expect(collection.deleteMany).toHaveBeenCalledWith({ _id: { $in: ['m2'] } });
+            expect(kafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0].messages.map((m) => m.key)).toEqual(['Composition:u2']);
+            expect(logError.mock.calls.some(([, args]) => args?.mongoId === 'bad' && args.error.includes(error))).toBe(true);
         });
 
         test('refuses to delete anything when the produce is not enabled for the type', async () => {

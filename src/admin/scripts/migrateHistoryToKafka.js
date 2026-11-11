@@ -18,16 +18,30 @@
  * broker rejection, timeout with an unknown outcome) stays in MongoDB and is logged by its MongoDB `_id`
  * only. Re-running is safe: the key, `ce_id` and `_recorded` are derived from the document, so a
  * record sent twice collapses into one row in ClickHouse.
+ * A cloud-storage stub, or a record older than the ClickHouse history TTL for its type, is also left in
+ * MongoDB: the first cannot be read from ClickHouse and the second would be dropped there.
  *
  * Usage:
  *   node src/admin/scripts/migrateHistoryToKafka.js --start 01-11-2026T00:00 --end 02-11-2026T00:00
  */
 
 const { BulkInsertUpdateEntry } = require('../../dataLayer/bulkInsertUpdateEntry');
+const { RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
 const { logInfo, logError, logWarn } = require('../../operations/common/logging');
 
 const WINDOW_MS = 60 * 1000;
 const DELETE_RECORDED_OFFSET_MS = 5;
+// Retention of fhir.Resource_4_0_0_History (clickhouse-init/08-resource-history.sql): rows of these types are
+// dropped once `_recorded` is older than 13 months. Keep this list in step with the TTL clause there.
+const HISTORY_TTL_MONTHS = 13;
+const HISTORY_TTL_RESOURCE_TYPES = new Set([
+    'Composition', 'MedicationStatement', 'ExplanationOfBenefit', 'Provenance',
+    'Observation', 'AllergyIntolerance', 'Person', 'Patient',
+    'QuestionnaireResponse', 'Condition', 'Schedule', 'DocumentReference',
+    'Binary', 'Coverage', 'SubscriptionStatus', 'Task',
+    'CoverageEligibilityResponse', 'Specimen', 'Slot', 'ServiceRequest',
+    'HealthcareService'
+]);
 const WINDOW_ARG_PATTERN = /^(\d{2})-(\d{2})-(\d{4})T(\d{2}):(\d{2})$/;
 
 const USAGE = `
@@ -36,7 +50,9 @@ Usage: node src/admin/scripts/migrateHistoryToKafka.js --start <DD-MM-YYYYTHH:MM
 Times are UTC; --start is inclusive and --end exclusive. Records are selected by
 resource.meta.lastUpdated in 1-minute windows. MongoDB and Kafka connections come from the
 standard FHIR server environment. The resource type must be listed in
-RESOURCE_HISTORY_KAFKA_RESOURCES and ENABLE_EVENTS_KAFKA_V2 must be on.
+RESOURCE_HISTORY_KAFKA_RESOURCES and ENABLE_EVENTS_KAFKA_V2 must be on. Types whose history
+is kept in cloud storage (CLOUD_STORAGE_HISTORY_RESOURCES) are refused, and for types with a
+ClickHouse history TTL --start must be within the last 13 months.
 
 Options:
   --start <time>          Start of the range, e.g. 01-11-2026T00:00 (required)
@@ -179,14 +195,35 @@ function resolveRecorded (doc) {
 }
 
 /**
+ * The oldest `_recorded` ClickHouse keeps for a resource type, or null when the type has no TTL. A record
+ * older than this would be dropped by the TTL right after it lands, so it must stay in MongoDB.
+ * @param {string} resourceType
+ * @param {Date} [now]
+ * @returns {Date|null}
+ */
+function historyRetentionCutoff (resourceType, now = new Date()) {
+    if (!HISTORY_TTL_RESOURCE_TYPES.has(resourceType)) {
+        return null;
+    }
+    const cutoff = new Date(now.getTime());
+    cutoff.setUTCMonth(cutoff.getUTCMonth() - HISTORY_TTL_MONTHS);
+    return cutoff;
+}
+
+/**
  * Wraps a MongoDB history document in the entry HistoryKafkaProducer takes. The document is copied with
  * the resolved `_recorded`; the MongoDB document itself is not changed.
  * @param {Object} doc
  * @param {string} resourceType
+ * @param {Date|null} [retentionCutoff] records whose `_recorded` is older are refused
  * @returns {BulkInsertUpdateEntry}
  * @throws {Error} when the document cannot become a history message
  */
-function toHistoryEntry (doc, resourceType) {
+function toHistoryEntry (doc, resourceType, retentionCutoff = null) {
+    // A cloud-storage stub holds a pointer instead of the resource, and ClickHouse history reads reject it.
+    if (doc[RESOURCE_CLOUD_STORAGE_PATH_KEY]) {
+        throw new Error('history entry is stored in cloud storage');
+    }
     const resource = doc.resource;
     if (!resource?._uuid) {
         throw new Error('resource._uuid is missing');
@@ -194,7 +231,11 @@ function toHistoryEntry (doc, resourceType) {
     if (resource.meta?.versionId === undefined || resource.meta?.versionId === null) {
         throw new Error('resource.meta.versionId is missing');
     }
-    const document = { ...doc, _recorded: resolveRecorded(doc) };
+    const recorded = resolveRecorded(doc);
+    if (retentionCutoff && recorded < retentionCutoff) {
+        throw new Error('_recorded is older than the ClickHouse history retention');
+    }
+    const document = { ...doc, _recorded: recorded };
     return new BulkInsertUpdateEntry({
         operationType: 'insert',
         isCreateOperation: false,
@@ -219,10 +260,13 @@ function toHistoryEntry (doc, resourceType) {
  * @param {import('mongodb').Collection} params.collection
  * @param {import('../../dataLayer/historyKafkaProducer').HistoryKafkaProducer} params.historyKafkaProducer
  * @param {string} params.requestId
+ * @param {Date|null} [params.retentionCutoff] records older than this stay in MongoDB
  * @returns {Promise<{produced: number, deleted: number, failed: number}>}
  */
-async function processDocsAsync ({ docs, resourceType, collection, historyKafkaProducer, requestId }) {
-    const result = await produceAndDeleteAsync({ docs, resourceType, collection, historyKafkaProducer, requestId });
+async function processDocsAsync ({ docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff = null }) {
+    const result = await produceAndDeleteAsync({
+        docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff
+    });
     logInfo('Batch done', {
         resourceType,
         requestId,
@@ -238,7 +282,7 @@ async function processDocsAsync ({ docs, resourceType, collection, historyKafkaP
  * @param {Object} params same as processDocsAsync
  * @returns {Promise<{produced: number, deleted: number, failed: number}>}
  */
-async function produceAndDeleteAsync ({ docs, resourceType, collection, historyKafkaProducer, requestId }) {
+async function produceAndDeleteAsync ({ docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff }) {
     // produceAsync treats a type it is not enabled for as "nothing to send" and reports no failures,
     // which here would delete records that never reached Kafka.
     if (!historyKafkaProducer.isEnabledFor(resourceType)) {
@@ -248,7 +292,7 @@ async function produceAndDeleteAsync ({ docs, resourceType, collection, historyK
     const entries = [];
     for (const doc of docs) {
         try {
-            entries.push(toHistoryEntry(doc, resourceType));
+            entries.push(toHistoryEntry(doc, resourceType, retentionCutoff));
         } catch (error) {
             failed++;
             logError('History record cannot be converted; left in MongoDB', {
@@ -306,9 +350,12 @@ function windowFilter (window) {
  * @param {import('../../dataLayer/historyKafkaProducer').HistoryKafkaProducer} params.historyKafkaProducer
  * @param {number} params.readBatchSize
  * @param {boolean} params.dryRun
+ * @param {Date|null} [params.retentionCutoff] records older than this stay in MongoDB
  * @returns {Promise<{read: number, produced: number, deleted: number, failed: number}>}
  */
-async function migrateWindowAsync ({ window, resourceType, collection, historyKafkaProducer, readBatchSize, dryRun }) {
+async function migrateWindowAsync ({
+    window, resourceType, collection, historyKafkaProducer, readBatchSize, dryRun, retentionCutoff = null
+}) {
     const totals = { read: 0, produced: 0, deleted: 0, failed: 0 };
     if (dryRun) {
         totals.read = await collection.countDocuments(windowFilter(window));
@@ -317,7 +364,9 @@ async function migrateWindowAsync ({ window, resourceType, collection, historyKa
     const requestId = `history-migration-${window.start.toISOString()}`;
     const cursor = collection.find(windowFilter(window)).batchSize(readBatchSize);
     const flushAsync = async (docs) => {
-        const result = await processDocsAsync({ docs, resourceType, collection, historyKafkaProducer, requestId });
+        const result = await processDocsAsync({
+            docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff
+        });
         totals.produced += result.produced;
         totals.deleted += result.deleted;
         totals.failed += result.failed;
@@ -399,6 +448,19 @@ async function main () {
             'add it to RESOURCE_HISTORY_KAFKA_RESOURCES', { resourceType });
         return 1;
     }
+    if (container.configManager.cloudStorageHistoryResources.includes(resourceType)) {
+        logError('History of this resource type is kept in cloud storage and cannot be read from ClickHouse; ' +
+            'refusing to migrate it', { resourceType });
+        return 1;
+    }
+    const retentionCutoff = historyRetentionCutoff(resourceType);
+    if (retentionCutoff && options.start < retentionCutoff) {
+        logError('--start is older than the ClickHouse history retention for this resource type; records that old ' +
+            'would be dropped by the TTL after leaving MongoDB', {
+            resourceType, start: options.start.toISOString(), oldestAllowed: retentionCutoff.toISOString()
+        });
+        return 1;
+    }
 
     const windows = buildWindows(options.start, options.end);
     const collectionName = `${resourceType}_4_0_0_History`;
@@ -440,7 +502,8 @@ async function main () {
                     collection,
                     historyKafkaProducer,
                     readBatchSize: options.readBatchSize,
-                    dryRun: options.dryRun
+                    dryRun: options.dryRun,
+                    retentionCutoff
                 });
                 totals.windows++;
                 totals.read += result.read;
@@ -487,6 +550,7 @@ module.exports = {
     parseArgs,
     buildWindows,
     resolveRecorded,
+    historyRetentionCutoff,
     toHistoryEntry,
     processDocsAsync,
     migrateWindowAsync,
