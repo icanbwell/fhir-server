@@ -7,15 +7,18 @@ const { ParsedArgsItem } = require('../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../operations/query/queryParameterValue');
 const { searchParameterQueries } = require('../searchParameters/searchParameters');
 const { HTTP_CONTEXT_KEYS } = require('../constants');
+const { ViewControlSubject } = require('./viewControlSubject');
 
 /**
- * Applies the patient's `dataConnectionViewControl` Consent to a parsed read request by adding an
- * `_id:not` filter for every resource the Consent hides (REST search, REST read-by-id and
- * GraphQL v1). It reuses PatientDataViewControlManager (enrollment gate + Consent lookup) and loads
- * the Consent at most once per request.
+ * Applies a Person's `dataConnectionViewControl` Consent to a read: the lookup every read path shares
+ * (REST, GraphQL v1 and v2, $everything, /mcp), and the `_id:not` filter for the resources it hides.
+ * It reuses PatientDataViewControlManager (enrollment gate + Consent lookup) and loads the Consent at
+ * most once per subject per request.
  *
- * Only user (patient-scoped) tokens are affected; service/admin tokens and callers whose Person
- * owner is not in configManager.clientsWithDataConnectionViewControl are returned untouched.
+ * The subject Person is chosen by the caller (see ViewControlSubject). When a caller passes none, it
+ * is the member in the token, so service and admin tokens are unaffected unless a caller opts in with
+ * a URL Person. Subjects whose owner is not in configManager.clientsWithDataConnectionViewControl are
+ * returned untouched.
  */
 class PatientDataViewControlExclusion {
     /**
@@ -41,24 +44,21 @@ class PatientDataViewControlExclusion {
      * shares. Memoized per request: the promise is stored in the request-scoped httpContext, so
      * concurrent GraphQL resolvers share one lookup. The result is frozen because it is shared.
      *
-     * Service/admin tokens, user tokens without a person id, and deployments with no enrolled client
-     * get an empty result without any lookup.
+     * With no subject (a service or admin token that didn't opt in, or a member token without a person
+     * id), or no enrolled client, the result is empty and no lookup runs.
      * @param {import('./fhirRequestInfo').FhirRequestInfo|undefined} requestInfo
      * @param {string} base_version
+     * @param {ViewControlSubject|null} [subject] defaults to the member in the token
      * @return {Promise<ViewControlConsentLookup>}
      */
-    async getConsentLookupAsync({ requestInfo, base_version }) {
-        if (
-            !requestInfo?.isUser ||
-            !requestInfo.personIdFromJwtToken ||
-            this.configManager.clientsWithDataConnectionViewControl.length === 0
-        ) {
+    async getConsentLookupAsync({ requestInfo, base_version, subject = ViewControlSubject.fromToken(requestInfo) }) {
+        if (!subject || this.configManager.clientsWithDataConnectionViewControl.length === 0) {
             return emptyLookup();
         }
-        const cacheKey = `${HTTP_CONTEXT_KEYS.PATIENT_VIEW_CONTROL_EXCLUDE_PREFIX}${requestInfo.personIdFromJwtToken}`;
+        const cacheKey = `${HTTP_CONTEXT_KEYS.PATIENT_VIEW_CONTROL_EXCLUDE_PREFIX}${subject}`;
         let pending = httpContext.get(cacheKey);
         if (!pending) {
-            pending = this.loadAsync({ requestInfo, base_version });
+            pending = this.loadAsync({ requestInfo, base_version, subject });
             httpContext.set(cacheKey, pending);
             // never memoize a failure: the next call retries (and fails closed again if still broken)
             pending.catch(() => httpContext.set(cacheKey, undefined));
@@ -67,13 +67,14 @@ class PatientDataViewControlExclusion {
     }
 
     /**
-     * Resource ids hidden by the caller's Consent, by resourceType (see getConsentLookupAsync).
+     * Resource ids hidden by the subject's Consent, by resourceType (see getConsentLookupAsync).
      * @param {import('./fhirRequestInfo').FhirRequestInfo|undefined} requestInfo
      * @param {string} base_version
+     * @param {ViewControlSubject|null} [subject] defaults to the member in the token
      * @return {Promise<Readonly<{[resourceType: string]: ReadonlyArray<string>}>>}
      */
-    async getExcludedIdsByResourceTypeAsync({ requestInfo, base_version }) {
-        const { viewControlResourceToExcludeMap } = await this.getConsentLookupAsync({ requestInfo, base_version });
+    async getExcludedIdsByResourceTypeAsync({ requestInfo, base_version, subject }) {
+        const { viewControlResourceToExcludeMap } = await this.getConsentLookupAsync({ requestInfo, base_version, subject });
         return viewControlResourceToExcludeMap;
     }
 
@@ -81,24 +82,20 @@ class PatientDataViewControlExclusion {
      * @private
      * @return {Promise<ViewControlConsentLookup>}
      */
-    async loadAsync({ requestInfo, base_version }) {
-        const { isUser, personIdFromJwtToken } = requestInfo;
-        // getConsentAsync reads the caller's Person owner from httpContext; this populates it
-        await this.patientScopeManager.getPatientIdsFromScopeAsync({
-            base_version,
-            isUser,
-            personIdFromJwtToken,
-            addPersonOwnerToContext: true,
-            requestInfo
-        });
+    async loadAsync({ requestInfo, base_version, subject }) {
+        const { personId, owner } = subject.isUrlPerson
+            ? await this.loadUrlPersonAsync({ requestInfo, base_version, subject })
+            : await this.loadTokenPersonAsync({ requestInfo, base_version, subject });
         // Every Person has an owner tag (writes reject a resource without one), and enrollment is
-        // decided by it. A missing owner is bad data, not "enrolled", so fail the request.
+        // decided by it. A missing owner is bad data, not "enrolled", so getConsentAsync fails the
+        // request.
         const { viewControlResourceToExcludeMap, viewControlConsentQueries, viewControlConsentQueryOptions } =
             await this.patientDataViewControlManager.getConsentAsync({
                 requestInfo,
                 base_version,
-                patientFilterReferences: null,
-                raiseErrorForMissingUserOwner: true
+                personId,
+                owner,
+                patientFilterReferences: null
             });
         return freezeLookup({
             viewControlResourceToExcludeMap: viewControlResourceToExcludeMap || {},
@@ -108,15 +105,51 @@ class PatientDataViewControlExclusion {
     }
 
     /**
+     * The member in the token: walking their Person records its owner in httpContext.
+     * @private
+     * @return {Promise<{ personId: string, owner: string|undefined }>}
+     */
+    async loadTokenPersonAsync({ requestInfo, base_version, subject }) {
+        await this.patientScopeManager.getPatientIdsFromScopeAsync({
+            base_version,
+            isUser: requestInfo.isUser,
+            personIdFromJwtToken: subject.personId,
+            addPersonOwnerToContext: true,
+            requestInfo
+        });
+        return {
+            personId: subject.personId,
+            owner: httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${subject.personId}`)
+        };
+    }
+
+    /**
+     * A Person named in the URL: read through the caller's access filter, so a Person the caller can't
+     * see is a 404 like a missing one. The Consent is keyed on the Person's uuid, whatever id form the
+     * URL used.
+     * @private
+     * @return {Promise<{ personId: string, owner: string|undefined }>}
+     */
+    async loadUrlPersonAsync({ requestInfo, base_version, subject }) {
+        const { uuid, owner } = await this.patientDataViewControlManager.findPersonAsync({
+            requestInfo,
+            base_version,
+            personId: subject.personId
+        });
+        return { personId: uuid, owner };
+    }
+
+    /**
      * Adds the Consent-driven `_id:not` filter to parsedArgs (in place).
      * @param {import('../operations/query/parsedArgs').ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {string} base_version
      * @param {import('./fhirRequestInfo').FhirRequestInfo|undefined} requestInfo
+     * @param {ViewControlSubject|null} [subject] defaults to the member in the token
      * @return {Promise<import('../operations/query/parsedArgs').ParsedArgs>}
      */
-    async applyAsync({ parsedArgs, resourceType, base_version, requestInfo }) {
-        const excludeMap = await this.getExcludedIdsByResourceTypeAsync({ requestInfo, base_version });
+    async applyAsync({ parsedArgs, resourceType, base_version, requestInfo, subject }) {
+        const excludeMap = await this.getExcludedIdsByResourceTypeAsync({ requestInfo, base_version, subject });
         const consentExcludedIds = excludeMap?.[resourceType] || [];
         if (consentExcludedIds.length === 0) {
             return parsedArgs;

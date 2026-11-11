@@ -95,11 +95,13 @@ class EverythingOperation {
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {import('../../utils/viewControlSubject').ViewControlSubject|null} [viewControlSubject] -
+     *  whose view-control block filters the result; defaults to the member in the token
      *
      * @param {everythingAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds, isPersonEverything}) {
+    async everythingAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds, isPersonEverything, viewControlSubject}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -116,7 +118,8 @@ class EverythingOperation {
                 resourceType,
                 responseStreamer, // disable response streaming if we are answering a question
                 scopedPersonIds,
-                isPersonEverything
+                isPersonEverything,
+                viewControlSubject
             });
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
@@ -143,11 +146,13 @@ class EverythingOperation {
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {import('../../utils/viewControlSubject').ViewControlSubject|null} [viewControlSubject] -
+     *  whose view-control block filters the result; defaults to the member in the token
      *
      * @param {everythingBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds, isPersonEverything}) {
+    async everythingBundleAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds, isPersonEverything, viewControlSubject}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -270,7 +275,8 @@ class EverythingOperation {
                     parsedArgs,
                     includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true),
                     scopedPersonIds,
-                    isPersonEverything
+                    isPersonEverything,
+                    viewControlSubject
                 });
             } else {
                 // Grab an instance of our DB and collection

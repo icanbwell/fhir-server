@@ -17,6 +17,7 @@ const { ParsedArgs } = require('../../../operations/query/parsedArgs');
 const { ParsedArgsItem } = require('../../../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../../../operations/query/queryParameterValue');
 const { searchParameterQueries } = require('../../../searchParameters/searchParameters');
+const { ViewControlSubject } = require('../../../utils/viewControlSubject');
 
 const UUID_A = '5f1e3b2a-1111-4c2b-9d3e-000000000001';
 
@@ -28,6 +29,7 @@ describe('PatientDataViewControlExclusion', () => {
     let exclusion;
     let getConsentAsync;
     let getPatientIdsFromScopeAsync;
+    let findPersonAsync;
     let enrolled;
     const user = { isUser: true, personIdFromJwtToken: 'person-1' };
 
@@ -45,8 +47,14 @@ describe('PatientDataViewControlExclusion', () => {
         });
         const manager = mockOf(PatientDataViewControlManager);
         manager.getConsentAsync = getConsentAsync;
+        findPersonAsync = jest.fn().mockResolvedValue({ uuid: 'url-person-uuid', owner: 'clientA' });
+        manager.findPersonAsync = findPersonAsync;
         const scopeManager = mockOf(PatientScopeManager);
-        getPatientIdsFromScopeAsync = jest.fn().mockResolvedValue([]);
+        // walking the member's Person records its owner in httpContext, as PersonToPatientIdsExpander does
+        getPatientIdsFromScopeAsync = jest.fn().mockImplementation(async ({ personIdFromJwtToken }) => {
+            mockStore.set(`personOwnerFor-${personIdFromJwtToken}`, 'clientA');
+            return [];
+        });
         scopeManager.getPatientIdsFromScopeAsync = getPatientIdsFromScopeAsync;
         exclusion = new PatientDataViewControlExclusion({
             configManager,
@@ -66,9 +74,10 @@ describe('PatientDataViewControlExclusion', () => {
         expect(getPatientIdsFromScopeAsync).toHaveBeenCalledWith(
             expect.objectContaining({ addPersonOwnerToContext: true, personIdFromJwtToken: 'person-1' })
         );
-        // a Person with no owner tag fails the request rather than being treated as enrolled
+        // the member's Person and the owner recorded by walking it; getConsentAsync fails the request
+        // when the owner is missing
         expect(getConsentAsync).toHaveBeenCalledWith(
-            expect.objectContaining({ raiseErrorForMissingUserOwner: true })
+            expect.objectContaining({ personId: 'person-1', owner: 'clientA' })
         );
     });
 
@@ -173,6 +182,62 @@ describe('PatientDataViewControlExclusion', () => {
         });
         expect(getConsentAsync).not.toHaveBeenCalled();
         expect(getPatientIdsFromScopeAsync).not.toHaveBeenCalled();
+    });
+
+    describe('a URL Person subject (service-token opt-in)', () => {
+        const service = { isUser: false };
+        const urlSubject = ViewControlSubject.fromUrlPerson({ personId: 'person-from-url' });
+
+        test('reads the URL Person through the caller\'s access filter and keys the Consent on its uuid', async () => {
+            const parsedArgs = newParsedArgs();
+            await exclusion.applyAsync({
+                parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: service, subject: urlSubject
+            });
+            expect(findPersonAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ requestInfo: service, personId: 'person-from-url' })
+            );
+            expect(getConsentAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ personId: 'url-person-uuid', owner: 'clientA' })
+            );
+            // the service token has no member Person to walk
+            expect(getPatientIdsFromScopeAsync).not.toHaveBeenCalled();
+            expect(idNotItems(parsedArgs)).toHaveLength(1);
+        });
+
+        test('a service token without a subject is unaffected (no lookup)', async () => {
+            const parsedArgs = newParsedArgs();
+            await exclusion.applyAsync({ parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: service });
+            expect(idNotItems(parsedArgs)).toHaveLength(0);
+            expect(findPersonAsync).not.toHaveBeenCalled();
+            expect(getConsentAsync).not.toHaveBeenCalled();
+        });
+
+        test('an explicit null subject turns the filter off, even for a member token', async () => {
+            const parsedArgs = newParsedArgs();
+            await exclusion.applyAsync({
+                parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user, subject: null
+            });
+            expect(idNotItems(parsedArgs)).toHaveLength(0);
+            expect(getConsentAsync).not.toHaveBeenCalled();
+        });
+
+        test('each subject is looked up once per request, separately from the member in the token', async () => {
+            await Promise.all([
+                exclusion.getConsentLookupAsync({ requestInfo: user, base_version: '4_0_0', subject: urlSubject }),
+                exclusion.getConsentLookupAsync({ requestInfo: user, base_version: '4_0_0', subject: urlSubject }),
+                exclusion.getConsentLookupAsync({ requestInfo: user, base_version: '4_0_0' })
+            ]);
+            expect(findPersonAsync).toHaveBeenCalledTimes(1);
+            expect(getConsentAsync).toHaveBeenCalledTimes(2);
+        });
+
+        test('a Person the caller cannot see fails the lookup (404 from findPersonAsync)', async () => {
+            findPersonAsync.mockRejectedValueOnce(Object.assign(new Error('Person not found'), { statusCode: 404 }));
+            await expect(exclusion.getConsentLookupAsync({
+                requestInfo: service, base_version: '4_0_0', subject: urlSubject
+            })).rejects.toMatchObject({ statusCode: 404 });
+            expect(getConsentAsync).not.toHaveBeenCalled();
+        });
     });
 
     test('fails closed: a Consent lookup error propagates and is not memoized', async () => {

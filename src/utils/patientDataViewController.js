@@ -1,8 +1,9 @@
-const httpContext = require('express-http-context');
 const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ReferenceParser } = require('../utils/referenceParser');
 const { QueryItem } = require('../operations/graph/queryItem');
-const { CONSENT_CATEGORY, HTTP_CONTEXT_KEYS } = require('../constants');
+const { CONSENT_CATEGORY } = require('../constants');
+const { SecurityTagSystem } = require('./securityTagSystem');
+const { NotFoundError, BadRequestError } = require('./httpErrors');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ConfigManager } = require('./configManager');
 const { SearchManager } = require('../operations/search/searchManager');
@@ -38,46 +39,39 @@ class PatientDataViewControlManager {
     }
 
     /**
-     * Fetch the Consent resources for data connection view control
+     * Fetch a Person's dataConnectionViewControl Consents and the resources they hide.
      *
-     * When this function is called, it expects that context have been set with
-     * person's owner. And this must be ensured before calling this function.
+     * The caller passes the Person and that Person's owner (the client the Person belongs to), which
+     * decides enrollment: an owner that isn't in configManager.clientsWithDataConnectionViewControl
+     * gets an empty result without a Consent search.
      * @param {{
      *  requestInfo: FhirRequestInfo,
      *  base_version: string,
-     *  patientFilterReferences: string[] | null,
-     *  raiseErrorForMissingUserOwner: boolean
+     *  personId: string,
+     *  owner: string|null|undefined,
+     *  patientFilterReferences?: string[] | null
      * }}
      * @return {Promise<{
      *  viewControlResourceToExcludeMap: {[resourceType: string]: string[]},
      *  viewControlConsentQueries: QueryItem[],
      *  viewControlConsentQueryOptions: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]
      * }>}
+     * @throws {AssertionError} when the Person has no owner tag: enrollment can't be decided
      */
     async getConsentAsync({
         requestInfo,
         base_version,
-        patientFilterReferences,
-        raiseErrorForMissingUserOwner = true
+        personId,
+        owner,
+        patientFilterReferences
     }) {
-        const { personIdFromJwtToken } = requestInfo;
+        assertIsValid(personId, 'dataConnectionViewControl: personId is required');
+        assertIsValid(
+            owner,
+            'dataConnectionViewControl: the Person has no owner tag, so client enrollment cannot be decided'
+        );
 
-        /**
-         * @type {string | null}
-         */
-        let userOwnerFromContext = httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personIdFromJwtToken}`);
-
-        if (raiseErrorForMissingUserOwner) {
-            assertIsValid(
-                userOwnerFromContext,
-                'dataConnectionViewControl: the caller\'s Person has no owner tag, so client enrollment cannot be decided'
-            );
-        }
-
-        if (
-            userOwnerFromContext &&
-            !this.configManager.clientsWithDataConnectionViewControl.includes(userOwnerFromContext)
-        ) {
+        if (!this.configManager.clientsWithDataConnectionViewControl.includes(owner)) {
             return {
                 viewControlResourceToExcludeMap: {},
                 viewControlConsentQueries: [],
@@ -90,7 +84,7 @@ class PatientDataViewControlManager {
 
         let consentArgs = {
             base_version,
-            patient: `Patient/person.${personIdFromJwtToken}`,
+            patient: `Patient/person.${personId}`,
             category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
         };
 
@@ -136,6 +130,43 @@ class PatientDataViewControlManager {
             viewControlConsentQueries,
             viewControlConsentQueryOptions
         };
+    }
+
+    /**
+     * Reads a Person through the caller's normal access filter, for a view-control check whose
+     * subject is a Person named in the URL rather than the caller's own.
+     *
+     * A Person the caller can't see and a Person that doesn't exist get the same NotFoundError, so
+     * this can't be used to find out which Persons exist in other tenants.
+     * @param {{ requestInfo: FhirRequestInfo, base_version: string, personId: string }}
+     * @return {Promise<{ uuid: string, owner: string|undefined }>}
+     * @throws {NotFoundError} when no visible Person has this id
+     * @throws {BadRequestError} when the id (a source id) matches more than one visible Person
+     */
+    async findPersonAsync({ requestInfo, base_version, personId }) {
+        const resourceType = 'Person';
+        const { entries } = await this.searchManager.fetchResourcesByArgsAsync({
+            resourceType,
+            base_version,
+            requestInfo,
+            explain: false,
+            debug: false,
+            parsedArgs: this.r4ArgsParser.parseArgs({
+                resourceType,
+                args: { base_version, _id: personId }
+            })
+        });
+        if (entries.length === 0) {
+            throw new NotFoundError('Person not found');
+        }
+        if (entries.length > 1) {
+            throw new BadRequestError(new Error(
+                'The Person id matches more than one Person; use the Person uuid'
+            ));
+        }
+        const person = entries[0].resource;
+        const owner = person.meta?.security?.find((tag) => tag?.system === SecurityTagSystem.owner)?.code;
+        return { uuid: person._uuid, owner };
     }
 }
 

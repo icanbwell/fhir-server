@@ -160,9 +160,9 @@ describe('McpToolHandler', () => {
             });
             expect(patientScopeManager.getPatientIdsFromScopeAsync.mock.invocationCallOrder[0])
                 .toBeLessThan(patientDataViewControlManager.getConsentAsync.mock.invocationCallOrder[0]);
-            // a Person with no owner tag fails the request rather than being treated as enrolled
+            // keyed on the member in the token; getConsentAsync fails the request for a Person with no owner tag
             expect(patientDataViewControlManager.getConsentAsync).toHaveBeenCalledWith(
-                expect.objectContaining({ requestInfo: fhirRequestInfo, raiseErrorForMissingUserOwner: true })
+                expect.objectContaining({ requestInfo: fhirRequestInfo, personId: 'person-123' })
             );
             expect(parsedArgs.add).toHaveBeenCalledWith(
                 expect.objectContaining({

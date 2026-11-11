@@ -127,6 +127,17 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
         await commonAfterEach();
     });
 
+    // Writes reject a resource without an owner tag, so this state only arises from data
+    // written around the API; strip the tag in Mongo to reproduce it.
+    const stripPersonOwnerTag = async () => {
+        const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+        const result = await db.collection('Person_4_0_0').updateOne(
+            { _uuid: PERSON_ID },
+            { $pull: { 'meta.security': { system: 'https://www.icanbwell.com/owner' } } }
+        );
+        expect(result.modifiedCount).toBe(1);
+    };
+
     describe('enrolled client, user token', () => {
         beforeEach(async () => {
             await seed();
@@ -372,17 +383,6 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
     });
 
     describe('caller Person has no owner tag', () => {
-        // Writes reject a resource without an owner tag, so this state only arises from data
-        // written around the API; strip the tag in Mongo to reproduce it.
-        const stripPersonOwnerTag = async () => {
-            const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
-            const result = await db.collection('Person_4_0_0').updateOne(
-                { _uuid: PERSON_ID },
-                { $pull: { 'meta.security': { system: 'https://www.icanbwell.com/owner' } } }
-            );
-            expect(result.modifiedCount).toBe(1);
-        };
-
         const httpError = (resp) => expect(resp.status).toBeGreaterThanOrEqual(400);
         const graphqlError = (resp) => expect(resp.body.errors).toBeDefined();
         const mcpError = (resp) => expect(parseMcpRpcResponse(resp).result?.isError).toBe(true);
@@ -431,6 +431,120 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             const resp = await request.get('/4_0_0/CarePlan').set(userHeaders());
             expect(resp.status).toBe(200);
             expect(idsOf(resp.body)).toContain(BLOCKED);
+        });
+    });
+
+    // A service calling Person/{id}/$everything on a member's behalf can opt in to that Person's
+    // view-control block. Without the opt-in, service tokens are unchanged.
+    describe('service-token opt-in on Person $everything', () => {
+        const OPT_IN = '_applyDataViewControl=true';
+        // ids come back as uuids by default and as source ids when the caller's Prefer header doesn't
+        // ask for global ids, so check both forms
+        const has = (resp, uuid, sourceId) => {
+            const ids = allIdValues(resp.body);
+            return ids.includes(uuid) || ids.includes(sourceId);
+        };
+        const hasBlocked = (resp) => has(resp, BLOCKED_UUID, BLOCKED);
+        const hasUnblocked = (resp) => has(resp, UNBLOCKED_UUID, UNBLOCKED);
+        const personEverything = (query = '', headers = getHeaders()) =>
+            request.get(`/4_0_0/Person/${PERSON_ID}/$everything${query ? `?${query}` : ''}`).set(headers);
+
+        beforeEach(async () => {
+            await seed();
+        });
+
+        test('without the opt-in, a service token still gets the blocked CarePlan', async () => {
+            const resp = await personEverything();
+            expect(resp.status).toBe(200);
+            expect(hasBlocked(resp)).toBe(true);
+            expect(hasUnblocked(resp)).toBe(true);
+        });
+
+        test('with the opt-in, the URL Person\'s block applies to a service token', async () => {
+            const resp = await personEverything(OPT_IN);
+            expect(resp.status).toBe(200);
+            expect(hasUnblocked(resp)).toBe(true);
+            expect(hasBlocked(resp)).toBe(false);
+        });
+
+        test('with the opt-in, a Person whose owner is not enrolled is unchanged', async () => {
+            process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'some-other-client';
+            const resp = await personEverything(OPT_IN);
+            expect(resp.status).toBe(200);
+            expect(hasBlocked(resp)).toBe(true);
+        });
+
+        test('the Consent is loaded once for the request', async () => {
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync');
+            try {
+                const resp = await personEverything(OPT_IN);
+                expect(resp.status).toBe(200);
+                expect(spy).toHaveBeenCalledTimes(1);
+            } finally {
+                spy.mockRestore();
+            }
+        });
+
+        test('a Person the token cannot see and a Person that does not exist both get the same 404', async () => {
+            const otherTenant = getHeaders('user/*.read access/othertenant.read');
+            const hidden = await personEverything(OPT_IN, otherTenant);
+            const missing = await request
+                .get(`/4_0_0/Person/00000000-0000-5000-8000-000000000000/$everything?${OPT_IN}`)
+                .set(otherTenant);
+            expect(hidden.status).toBe(404);
+            expect(missing.status).toBe(404);
+            const issueTexts = (resp) => JSON.stringify(resp.body).replace(/[0-9a-f-]{36}/g, '<id>');
+            expect(issueTexts(hidden)).toEqual(issueTexts(missing));
+            expect(hasUnblocked(hidden)).toBe(false);
+        });
+
+        test('more than one Person id with the opt-in is a 400, checked before visibility', async () => {
+            const resp = await request
+                .get(`/4_0_0/Person/${PERSON_ID},00000000-0000-5000-8000-000000000000/$everything?${OPT_IN}`)
+                .set(getHeaders('user/*.read access/othertenant.read'));
+            expect(resp.status).toBe(400);
+        });
+
+        test('a failed Consent lookup is an HTTP error with no data', async () => {
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync')
+                .mockRejectedValue(new Error('consent store unavailable'));
+            try {
+                const resp = await personEverything(OPT_IN);
+                expect(resp.status).toBeGreaterThanOrEqual(500);
+                expect(hasUnblocked(resp)).toBe(false);
+                expect(String(resp.text)).not.toContain('consent store unavailable');
+            } finally {
+                spy.mockRestore();
+            }
+        });
+
+        test('with the opt-in, a Person with no owner tag fails the request', async () => {
+            await stripPersonOwnerTag();
+            const resp = await personEverything(OPT_IN);
+            expect(resp.status).toBeGreaterThanOrEqual(500);
+            expect(hasUnblocked(resp)).toBe(false);
+        });
+
+        test('the opt-in is accepted under strict search handling', async () => {
+            const resp = await personEverything(OPT_IN, { ...getHeaders(), Prefer: 'handling=strict' });
+            expect(resp.status).toBe(200);
+            expect(hasUnblocked(resp)).toBe(true);
+            expect(hasBlocked(resp)).toBe(false);
+        });
+
+        // decision made while building this: the opt-in is only defined for Person $everything, so
+        // asking for it elsewhere is an error rather than silently returning unfiltered data
+        test('the opt-in on Patient $everything is a 400', async () => {
+            const resp = await request.get(`/4_0_0/Patient/patient1/$everything?${OPT_IN}`).set(getHeaders());
+            expect(resp.status).toBe(400);
+        });
+
+        // decision made while building this: member tokens are always filtered, so the opt-in
+        // changes nothing for them (and its single-Person rule doesn't apply)
+        test('a member token is filtered with or without the opt-in', async () => {
+            const resp = await personEverything(OPT_IN, userHeaders());
+            expect(resp.status).toBe(200);
+            expect(hasBlocked(resp)).toBe(false);
         });
     });
 

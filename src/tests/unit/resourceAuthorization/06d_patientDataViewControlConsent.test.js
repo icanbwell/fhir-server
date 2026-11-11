@@ -22,17 +22,11 @@ const fs = require('fs');
 const path = require('path');
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
-jest.mock('express-http-context', () => ({
-    get: jest.fn(),
-    set: jest.fn()
-}));
-
-const httpContext = require('express-http-context');
 const { PatientDataViewControlManager } = require('../../../utils/patientDataViewController');
 const { ConfigManager } = require('../../../utils/configManager');
 const { SearchManager } = require('../../../operations/search/searchManager');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
-const { CONSENT_CATEGORY, HTTP_CONTEXT_KEYS } = require('../../../constants');
+const { CONSENT_CATEGORY } = require('../../../constants');
 
 /**
  * Creates an object that passes `instanceof ClassType` (satisfying the real
@@ -87,55 +81,27 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
     }
 
     describe('gating by configManager.clientsWithDataConnectionViewControl', () => {
-        test('throws (assertIsValid) when no person-owner is in request context and raiseErrorForMissingUserOwner defaults true', async () => {
-            httpContext.get.mockReturnValue(null);
-
-            await expect(
-                manager.getConsentAsync({
-                    requestInfo: requestInfo('person-1'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                })
-            ).rejects.toThrow();
-
-            expect(mockSearchManager.fetchResourcesByArgsAsync).not.toHaveBeenCalled();
+        // the caller passes the Person and that Person's owner; the manager no longer reads either
+        // from the token or httpContext
+        const getConsent = (overrides = {}) => manager.getConsentAsync({
+            requestInfo: requestInfo('person-1'),
+            base_version: '4_0_0',
+            personId: 'person-1',
+            owner: 'clientA',
+            patientFilterReferences: null,
+            ...overrides
         });
 
-        test('does not throw and returns empty result when owner is missing and raiseErrorForMissingUserOwner is explicitly false', async () => {
-            httpContext.get.mockReturnValue(null);
-
-            const result = await manager.getConsentAsync({
-                requestInfo: requestInfo('person-1'),
-                base_version: '4_0_0',
-                patientFilterReferences: null,
-                raiseErrorForMissingUserOwner: false
-            });
-
-            expect(result.viewControlResourceToExcludeMap).toEqual({});
-        });
-
-        test('reads the person-owner from httpContext keyed by the JWT person id', async () => {
-            httpContext.get.mockReturnValue('clientA');
-
-            await manager.getConsentAsync({
-                requestInfo: requestInfo('person-123'),
-                base_version: '4_0_0',
-                patientFilterReferences: null
-            });
-
-            expect(httpContext.get).toHaveBeenCalledWith(
-                `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}person-123`
-            );
-        });
+        test.each([['null', null], ['undefined', undefined]])(
+            'throws (assertIsValid) when the Person has no owner tag (%s), without querying Consent',
+            async (_name, owner) => {
+                await expect(getConsent({ owner })).rejects.toThrow('has no owner tag');
+                expect(mockSearchManager.fetchResourcesByArgsAsync).not.toHaveBeenCalled();
+            }
+        );
 
         test('owner NOT in clientsWithDataConnectionViewControl → returns empty result without querying Consent', async () => {
-            httpContext.get.mockReturnValue('someOtherClient');
-
-            const result = await manager.getConsentAsync({
-                requestInfo: requestInfo('person-1'),
-                base_version: '4_0_0',
-                patientFilterReferences: null
-            });
+            const result = await getConsent({ owner: 'someOtherClient' });
 
             expect(result).toEqual({
                 viewControlResourceToExcludeMap: {},
@@ -145,14 +111,8 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             expect(mockSearchManager.fetchResourcesByArgsAsync).not.toHaveBeenCalled();
         });
 
-        test('owner IS in clientsWithDataConnectionViewControl → queries for the dataConnectionViewControl Consent', async () => {
-            httpContext.get.mockReturnValue('clientA');
-
-            await manager.getConsentAsync({
-                requestInfo: requestInfo('person-1'),
-                base_version: '4_0_0',
-                patientFilterReferences: null
-            });
+        test('owner IS in clientsWithDataConnectionViewControl → queries the passed Person\'s dataConnectionViewControl Consent', async () => {
+            await getConsent({ requestInfo: requestInfo('token-person'), personId: 'url-person-uuid' });
 
             expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -161,36 +121,25 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                     applyPatientFilter: false
                 })
             );
+            // keyed on the Person passed in, not the Person in the token
             expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith({
                 resourceType: 'Consent',
                 args: expect.objectContaining({
-                    patient: 'Patient/person.person-1',
+                    patient: 'Patient/person.url-person-uuid',
                     category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
                 })
             });
         });
 
         test('passes patientFilterReferences through as the Consent search actor filter, joined by comma', async () => {
-            httpContext.get.mockReturnValue('clientA');
-
-            await manager.getConsentAsync({
-                requestInfo: requestInfo('person-1'),
-                base_version: '4_0_0',
-                patientFilterReferences: ['Patient/p1', 'Patient/p2']
-            });
+            await getConsent({ patientFilterReferences: ['Patient/p1', 'Patient/p2'] });
 
             const { args } = mockR4ArgsParser.parseArgs.mock.calls[0][0];
             expect(args.actor).toBe('Patient/p1,Patient/p2');
         });
 
         test('omits the actor filter entirely when patientFilterReferences is null or empty', async () => {
-            httpContext.get.mockReturnValue('clientA');
-
-            await manager.getConsentAsync({
-                requestInfo: requestInfo('person-1'),
-                base_version: '4_0_0',
-                patientFilterReferences: []
-            });
+            await getConsent({ patientFilterReferences: [] });
 
             const { args } = mockR4ArgsParser.parseArgs.mock.calls[0][0];
             expect(args.actor).toBeUndefined();
@@ -199,7 +148,6 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
 
     describe('turning the Consent.provision.data references into the resource-exclusion map', () => {
         test('groups excluded resource references by resourceType', async () => {
-            httpContext.get.mockReturnValue('clientA');
             mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
                 entries: [
                     {
@@ -221,6 +169,8 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             const result = await manager.getConsentAsync({
                 requestInfo: requestInfo('person-1'),
                 base_version: '4_0_0',
+                personId: 'person-1',
+                owner: 'clientA',
                 patientFilterReferences: null
             });
 
@@ -233,7 +183,6 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
         });
 
         test('skips provision.data entries with no reference.reference', async () => {
-            httpContext.get.mockReturnValue('clientA');
             mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
                 entries: [
                     {
@@ -255,6 +204,8 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             const result = await manager.getConsentAsync({
                 requestInfo: requestInfo('person-1'),
                 base_version: '4_0_0',
+                personId: 'person-1',
+                owner: 'clientA',
                 patientFilterReferences: null
             });
 
@@ -262,7 +213,6 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
         });
 
         test('a Consent with no provision.data produces an empty exclusion map (not an error)', async () => {
-            httpContext.get.mockReturnValue('clientA');
             mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
                 entries: [{ resource: {} }],
                 queryItems: [],
@@ -272,6 +222,8 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             const result = await manager.getConsentAsync({
                 requestInfo: requestInfo('person-1'),
                 base_version: '4_0_0',
+                personId: 'person-1',
+                owner: 'clientA',
                 patientFilterReferences: null
             });
 
