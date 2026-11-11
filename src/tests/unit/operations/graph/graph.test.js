@@ -29,6 +29,7 @@ const { ScopesValidator } = require('../../../../operations/security/scopesValid
 const { ResourceValidator } = require('../../../../operations/common/resourceValidator');
 const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+const { AuditLogger } = require('../../../../utils/auditLogger');
 
 function createMockInstance(ClassRef, methods = {}) {
     const instance = Object.create(ClassRef.prototype);
@@ -43,6 +44,7 @@ describe('GraphOperation', () => {
     let mockScopesValidator;
     let mockResourceValidator;
     let mockResourceLocatorFactory;
+    let mockAuditLogger;
     let mockParsedArgs;
     let mockRequestInfo;
 
@@ -82,6 +84,10 @@ describe('GraphOperation', () => {
             createResourceLocator: jest.fn()
         });
 
+        mockAuditLogger = createMockInstance(AuditLogger, {
+            queueReadAuditEntries: jest.fn()
+        });
+
         mockParsedArgs = createMockInstance(ParsedArgs, {
             get: jest.fn().mockReturnValue(undefined),
             getRawArgs: jest.fn().mockReturnValue({}),
@@ -111,7 +117,8 @@ describe('GraphOperation', () => {
             fhirLoggingManager: mockFhirLoggingManager,
             scopesValidator: mockScopesValidator,
             resourceValidator: mockResourceValidator,
-            resourceLocatorFactory: mockResourceLocatorFactory
+            resourceLocatorFactory: mockResourceLocatorFactory,
+            auditLogger: mockAuditLogger
         });
     });
 
@@ -431,6 +438,106 @@ describe('GraphOperation', () => {
                     error
                 })
             );
+        });
+
+    });
+
+    describe('read auditing', () => {
+        const graphAsync = (overrides = {}) => graphOperation.graph({
+            requestInfo: mockRequestInfo,
+            parsedArgs: mockParsedArgs,
+            resourceType: 'Patient',
+            ...overrides
+        });
+
+        const streamResourcesAsync = (responseStreamer, resources) =>
+            async ({ responseStreamer: streamer }) => {
+                for (const resource of resources) {
+                    await streamer.writeBundleEntryAsync({ bundleEntry: { resource } });
+                }
+                return { resourceType: 'Bundle', type: 'searchset', entry: [] };
+            };
+
+        test('audits the resources in the returned bundle, including contained ones', async () => {
+            mockGraphHelper.processGraphAsync.mockResolvedValue({
+                resourceType: 'Bundle',
+                entry: [{
+                    resource: {
+                        resourceType: 'Claim',
+                        _uuid: 'c1',
+                        contained: [{ resourceType: 'Practitioner', _uuid: 'pr1' }]
+                    }
+                }]
+            });
+
+            await graphAsync();
+
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledTimes(1);
+            const params = mockAuditLogger.queueReadAuditEntries.mock.calls[0][0];
+            expect(params).toEqual(expect.objectContaining({
+                resourceType: 'Patient',
+                args: {},
+                resources: [
+                    { resourceType: 'Claim', _uuid: 'c1' },
+                    { resourceType: 'Practitioner', _uuid: 'pr1' }
+                ]
+            }));
+            expect(params.outcome).toBeUndefined();
+        });
+
+        test('audits the resources streamed to the client', async () => {
+            const responseStreamer = { writeBundleEntryAsync: jest.fn().mockResolvedValue(undefined) };
+            mockGraphHelper.processGraphAsync.mockImplementation(streamResourcesAsync(responseStreamer, [
+                { resourceType: 'Observation', _uuid: 'o1' }
+            ]));
+
+            await graphAsync({ responseStreamer });
+
+            expect(responseStreamer.writeBundleEntryAsync).toHaveBeenCalledTimes(1);
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resources: [{ resourceType: 'Observation', _uuid: 'o1' }]
+                })
+            );
+        });
+
+        test('does not audit a read for DELETE', async () => {
+            mockRequestInfo.method = 'DELETE';
+
+            await graphAsync();
+
+            expect(mockAuditLogger.queueReadAuditEntries).not.toHaveBeenCalled();
+        });
+
+        test.each([
+            ['an unexpected error', new Error('boom'), '8'],
+            ['a client error', Object.assign(new Error('bad'), { statusCode: 400 }), '4']
+        ])('audits what was already streamed with the outcome for %s', async (_, error, outcome) => {
+            const responseStreamer = { writeBundleEntryAsync: jest.fn().mockResolvedValue(undefined) };
+            mockGraphHelper.processGraphAsync.mockImplementation(async (params) => {
+                await streamResourcesAsync(responseStreamer, [
+                    { resourceType: 'Observation', _uuid: 'o1' }
+                ])(params);
+                throw error;
+            });
+
+            await expect(graphAsync({ responseStreamer })).rejects.toThrow(error.message);
+
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledTimes(1);
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resources: [{ resourceType: 'Observation', _uuid: 'o1' }],
+                    outcome
+                })
+            );
+        });
+
+        test('does not audit a failed request that has not streamed anything to the client', async () => {
+            mockGraphHelper.processGraphAsync.mockRejectedValue(new Error('boom'));
+
+            await expect(graphAsync()).rejects.toThrow('boom');
+
+            expect(mockAuditLogger.queueReadAuditEntries).not.toHaveBeenCalled();
         });
     });
 });
