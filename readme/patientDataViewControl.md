@@ -144,6 +144,9 @@ served unfiltered until they expire (`EVERYTHING_CACHE_TTL_SECONDS`, 300 seconds
 The filter fails closed: if the block can't be determined, no data is returned.
 - The member's Person has no owner tag: the request fails (an error status on REST, an `errors`
   entry on GraphQL, an error result on `/mcp`).
+- The member's Person does not exist (for example, a token issued before the Person is created):
+  this is not a failure. The member is linked to no Patient and has no Consent, so the read runs
+  with nothing hidden and returns only what the patient scope allows.
 - The Consent lookup fails: REST returns an error status, and GraphQL returns `errors`.
 - Member `$everything` writes the response as it goes, so a failure there is a 200 with an error
   OperationOutcome and no clinical resources.

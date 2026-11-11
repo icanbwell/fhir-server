@@ -546,7 +546,7 @@ class PersonToPatientIdsExpander {
                 }
             }
 
-            if (addPersonOwnerToContext && person.meta && person.meta.security && person.meta.security.length > 0) {
+            if (addPersonOwnerToContext) {
                 // The consent-enrollment gate's getConsentAsync reads this key back as
                 // `personOwnerFor-<personIdFromJwtToken>` -- the raw JWT claim, never the resolved
                 // _uuid. `personId` above is only reassigned to the raw id when
@@ -562,15 +562,17 @@ class PersonToPatientIdsExpander {
                 // so the consent exclusion applies unconditionally regardless of
                 // configManager.clientsWithDataConnectionViewControl (review.md SS D: don't conflate
                 // "owner unknown" with "owner known and applicable").
+                //
+                // A Person that was found but has no owner tag is recorded as null, so readers can
+                // tell it apart from a Person that was never found (key left undefined).
                 const rawPersonId = personIds.find((id) => id === person._uuid || id === person._sourceId) ?? personId;
-                person.meta.security.forEach((security) => {
-                    if (security.system === SecurityTagSystem.owner) {
-                        httpContext.set(
-                            `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${rawPersonId}`,
-                            security.code
-                        );
-                    }
-                });
+                const ownerTag = person.meta?.security?.findLast(
+                    (security) => security.system === SecurityTagSystem.owner
+                );
+                httpContext.set(
+                    `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${rawPersonId}`,
+                    ownerTag?.code ?? null
+                );
             }
         }
 

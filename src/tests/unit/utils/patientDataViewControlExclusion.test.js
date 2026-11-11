@@ -136,6 +136,29 @@ describe('PatientDataViewControlExclusion', () => {
         expect(getConsentAsync).not.toHaveBeenCalled();
     });
 
+    test('a member whose Person was not found gets an empty result without a Consent search', async () => {
+        // the Person walk found nothing, so it recorded no owner
+        getPatientIdsFromScopeAsync.mockResolvedValue([]);
+        const parsedArgs = newParsedArgs();
+        await exclusion.applyAsync({ parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user });
+        expect(getConsentAsync).not.toHaveBeenCalled();
+        expect(parsedArgs.viewControlExcludeMap).toEqual({});
+        expect(idNotItems(parsedArgs)).toHaveLength(0);
+    });
+
+    test('a member whose Person has no owner tag still reaches getConsentAsync, which fails the request', async () => {
+        // the Person walk found the Person and recorded that it has no owner
+        getPatientIdsFromScopeAsync.mockImplementation(async ({ personIdFromJwtToken }) => {
+            mockStore.set(`personOwnerFor-${personIdFromJwtToken}`, null);
+            return [];
+        });
+        getConsentAsync.mockRejectedValue(new Error('the Person has no owner tag'));
+        await expect(exclusion.applyAsync({
+            parsedArgs: newParsedArgs(), resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user
+        })).rejects.toThrow('no owner tag');
+        expect(getConsentAsync).toHaveBeenCalledWith(expect.objectContaining({ personId: 'person-1', owner: null }));
+    });
+
     test('enrollment of the caller is delegated to getConsentAsync: an empty map changes nothing', async () => {
         getConsentAsync.mockResolvedValue({ viewControlResourceToExcludeMap: {} });
         const parsedArgs = newParsedArgs();

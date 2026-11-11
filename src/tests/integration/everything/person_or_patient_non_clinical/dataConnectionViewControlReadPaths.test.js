@@ -465,6 +465,50 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
         });
     });
 
+    // A member whose Person does not exist yet (e.g. a newly provisioned token) has no owner to decide
+    // enrollment by and nothing for a Consent to hide, so reads behave as with view control off.
+    describe('caller has no Person record', () => {
+        const MISSING_PERSON_PAYLOAD = {
+            ...USER_PAYLOAD,
+            clientFhirPersonId: '0d6b1c1e-0000-5000-8000-000000000000',
+            clientFhirPatientId: '0d6b1c1e-0000-5000-8000-000000000001'
+        };
+        const headers = () => getHeadersWithCustomPayload(MISSING_PERSON_PAYLOAD);
+        const graphqlHeaders = () => getCustomGraphQLHeaders(MISSING_PERSON_PAYLOAD);
+        const httpOk = (resp) => expect(resp.status).toBe(200);
+        const graphqlOk = (resp) => {
+            expect(resp.status).toBe(200);
+            expect(resp.body.errors).toBeUndefined();
+        };
+        // a successful tool call leaves isError unset
+        const mcpOk = (resp) => {
+            const { result } = parseMcpRpcResponse(resp);
+            expect(result).toBeDefined();
+            expect(result.isError).not.toBe(true);
+        };
+
+        test.each([
+            ['REST search', (r) => r.get('/4_0_0/CarePlan').set(headers()), httpOk],
+            ['REST streaming search', (r) => r.get('/4_0_0/CarePlan?_streamResponse=1').set(headers()), httpOk],
+            ['GraphQL v1', () => gqlV1('query { carePlan { entry { resource { id } } } }', graphqlHeaders()), graphqlOk],
+            ['GraphQL v2', (r) => r.post('/4_0_0/$graphqlv2')
+                .send({ operationName: null, variables: {}, query: 'query { carePlans { entry { resource { id } } } }' })
+                .set(graphqlHeaders()), graphqlOk],
+            ['/mcp', async (r) => (await callMcpTool(
+                r, headers().Authorization.replace(/^Bearer /, ''), 'search_care_plan', {}
+            )).resp, mcpOk]
+        ])('a user token of an enrolled deployment gets an empty result, not an error: %s', async (_name, send, assertOk) => {
+            await seed();
+            const resp = await send(request);
+            assertOk(resp);
+            // the member is linked to no Patient, so no CarePlan is theirs to see
+            const body = String(resp.text);
+            expect(body).not.toContain(BLOCKED);
+            expect(body).not.toContain(UNBLOCKED);
+            expect(body).not.toContain(UNBLOCKED_UUID);
+        });
+    });
+
     // A service calling Person/{id}/$everything on a member's behalf can opt in to that Person's
     // view-control block. Without the opt-in, service tokens are unchanged.
     describe('service-token opt-in on Person $everything', () => {

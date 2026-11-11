@@ -10,7 +10,7 @@ const { PatientScopeManager } = require('../../../operations/security/patientSco
 const { QueryRewriterManager } = require('../../../queryRewriters/queryRewriterManager');
 const { PatientDataViewControlExclusion } = require('../../../utils/patientDataViewControlExclusion');
 const { ConfigManager } = require('../../../utils/configManager');
-const { MCP_REQUEST_INFO_CONTEXT_KEY, OPERATIONS: { READ } } = require('../../../constants');
+const { MCP_REQUEST_INFO_CONTEXT_KEY, HTTP_CONTEXT_KEYS, OPERATIONS: { READ } } = require('../../../constants');
 const { ParsedArgs } = require('../../../operations/query/parsedArgs');
 const { ParsedArgsItem } = require('../../../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../../../operations/query/queryParameterValue');
@@ -20,6 +20,21 @@ const { FilterParameters } = require('../../../operations/query/filters/filterPa
 const { FieldMapper } = require('../../../operations/query/filters/fieldMapper');
 const { fhirBundleOutputSchema } = require('../../../mcp/fhirBundleOutputSchema');
 const { RethrownError } = require('../../../utils/rethrownError');
+
+/**
+ * Stubs the request-scoped httpContext for a member whose Person was found: the MCP request info,
+ * plus the owner the Person walk records for the member in the token.
+ * @param {{personIdFromJwtToken: string}} fhirRequestInfo
+ */
+function mockMemberHttpContext (fhirRequestInfo) {
+    const ownerKey = `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${fhirRequestInfo.personIdFromJwtToken}`;
+    jestGlobal.spyOn(httpContext, 'get').mockImplementation((key) => {
+        if (key === MCP_REQUEST_INFO_CONTEXT_KEY) {
+            return fhirRequestInfo;
+        }
+        return key === ownerKey ? 'clientA' : undefined;
+    });
+}
 
 function createPrototypedMock (RealClass) {
     return Object.create(RealClass.prototype);
@@ -133,9 +148,7 @@ describe('McpToolHandler', () => {
             const fhirRequestInfo = {
                 user: 'test-patient-user', isUser: true, personIdFromJwtToken: 'person-123'
             };
-            jestGlobal.spyOn(httpContext, 'get').mockImplementation(
-                (key) => (key === MCP_REQUEST_INFO_CONTEXT_KEY ? fhirRequestInfo : undefined)
-            );
+            mockMemberHttpContext(fhirRequestInfo);
             const parsedArgs = { parsedArgItems: [], add: jestGlobal.fn() };
             r4ArgsParser.parseArgs.mockReturnValue(parsedArgs);
             patientDataViewControlManager.getConsentAsync.mockResolvedValue({
@@ -185,9 +198,7 @@ describe('McpToolHandler', () => {
             // back to a bracket-only assignment would be caught here.
             const { handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager } = createHandler();
             const fhirRequestInfo = { user: 'test-patient-user', isUser: true, personIdFromJwtToken: 'person-123' };
-            jestGlobal.spyOn(httpContext, 'get').mockImplementation(
-                (key) => (key === MCP_REQUEST_INFO_CONTEXT_KEY ? fhirRequestInfo : undefined)
-            );
+            mockMemberHttpContext(fhirRequestInfo);
             const parsedArgs = new ParsedArgs({ base_version: '4_0_0', parsedArgItems: [] });
             r4ArgsParser.parseArgs.mockReturnValue(parsedArgs);
             patientDataViewControlManager.getConsentAsync.mockResolvedValue({
@@ -221,9 +232,7 @@ describe('McpToolHandler', () => {
             const fhirRequestInfo = {
                 user: 'test-patient-user', isUser: true, personIdFromJwtToken: 'person-123'
             };
-            jestGlobal.spyOn(httpContext, 'get').mockImplementation(
-                (key) => (key === MCP_REQUEST_INFO_CONTEXT_KEY ? fhirRequestInfo : undefined)
-            );
+            mockMemberHttpContext(fhirRequestInfo);
             const consentHiddenUuid = '5f1e3b2a-1111-4c2b-9d3e-000000000001';
             const parsedArgs = new ParsedArgs({ base_version: '4_0_0', parsedArgItems: [] });
             // The caller's own '_id:not' filter, in NON-uuid (source-id) form.

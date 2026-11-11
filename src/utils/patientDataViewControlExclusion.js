@@ -83,12 +83,18 @@ class PatientDataViewControlExclusion {
      * @return {Promise<ViewControlConsentLookup>}
      */
     async loadAsync({ requestInfo, base_version, subject }) {
-        const { personId, owner } = subject.isUrlPerson
+        const person = subject.isUrlPerson
             ? await this.loadUrlPersonAsync({ requestInfo, base_version, subject })
             : await this.loadTokenPersonAsync({ requestInfo, base_version, subject });
+        // The token's Person was not found (e.g. not provisioned yet): the member is linked to no
+        // Patient and has no Consent, so there is nothing to hide.
+        if (!person) {
+            return emptyLookup();
+        }
+        const { personId, owner } = person;
         // Every Person has an owner tag (writes reject a resource without one), and enrollment is
-        // decided by it. A missing owner is bad data, not "enrolled", so getConsentAsync fails the
-        // request.
+        // decided by it. A Person without one is bad data, not "enrolled", so getConsentAsync fails
+        // the request.
         const { viewControlResourceToExcludeMap, viewControlConsentQueries, viewControlConsentQueryOptions } =
             await this.patientDataViewControlManager.getConsentAsync({
                 requestInfo,
@@ -105,9 +111,10 @@ class PatientDataViewControlExclusion {
     }
 
     /**
-     * The member in the token: walking their Person records its owner in httpContext.
+     * The member in the token: walking their Person records its owner in httpContext, as null for a
+     * Person without an owner tag. Nothing is recorded when the Person was not found.
      * @private
-     * @return {Promise<{ personId: string, owner: string|undefined }>}
+     * @return {Promise<{ personId: string, owner: string|null }|null>} null when the Person was not found
      */
     async loadTokenPersonAsync({ requestInfo, base_version, subject }) {
         await this.patientScopeManager.getPatientIdsFromScopeAsync({
@@ -117,10 +124,8 @@ class PatientDataViewControlExclusion {
             addPersonOwnerToContext: true,
             requestInfo
         });
-        return {
-            personId: subject.personId,
-            owner: httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${subject.personId}`)
-        };
+        const owner = httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${subject.personId}`);
+        return owner === undefined ? null : { personId: subject.personId, owner };
     }
 
     /**
