@@ -4,8 +4,12 @@ jestObj.mock('../../../operations/common/logging', () => ({
     logInfo: jestObj.fn()
 }));
 
-const { filterCompositionSensitiveSections } = require('../../../utils/compositionSectionFilter');
+const {
+    filterCompositionSensitiveSections,
+    filterCompositionBlockedReferenceSections
+} = require('../../../utils/compositionSectionFilter');
 const { SENSITIVE_CATEGORY } = require('../../../constants');
+const { IdentifierSystem } = require('../../../utils/identifierSystem');
 
 describe('filterCompositionSensitiveSections', () => {
     const SYSTEM = SENSITIVE_CATEGORY.SYSTEM;
@@ -437,5 +441,125 @@ describe('filterCompositionSensitiveSections', () => {
             expect(resource.section).toHaveLength(1);
             expect(resource.section[0].id).toBe('section-visible');
         });
+    });
+});
+
+describe('filterCompositionBlockedReferenceSections', () => {
+    const BLOCKED_UUID = '11111111-1111-5111-8111-111111111111';
+    const OTHER_UUID = '22222222-2222-5222-8222-222222222222';
+    const sourceIdExt = (value) => ({ id: 'sourceId', url: IdentifierSystem.sourceId, valueString: value });
+    const uuidExt = (value) => ({ id: 'uuid', url: IdentifierSystem.uuid, valueString: value });
+    const composition = (section) => ({ resourceType: 'Composition', _uuid: 'comp-1', section });
+    const sectionIds = (sections) => (sections || []).map((s) => s.id);
+
+    test.each([
+        ['the entry reference is the blocked uuid', { reference: `CarePlan/${BLOCKED_UUID}` }],
+        ['the entry reference is the blocked source id', { reference: 'CarePlan/care-plan-1' }],
+        ['the entry reference carries an owner suffix', { reference: 'CarePlan/care-plan-1|client-a' }],
+        ['the stored _uuid matches', { reference: 'CarePlan/other', _uuid: `CarePlan/${BLOCKED_UUID}` }],
+        ['the stored _sourceId matches', { reference: `CarePlan/${OTHER_UUID}`, _sourceId: 'CarePlan/care-plan-1' }],
+        ['the uuid extension matches', { reference: 'CarePlan/other', extension: [uuidExt(`CarePlan/${BLOCKED_UUID}`)] }],
+        ['the sourceId extension matches', {
+            reference: `CarePlan/${OTHER_UUID}`, extension: [sourceIdExt('CarePlan/care-plan-1')]
+        }]
+    ])('removes a section when %s', (_name, entry) => {
+        const resource = composition([
+            { id: 'blocked', entry: [entry] },
+            { id: 'kept', entry: [{ reference: 'CarePlan/care-plan-3' }] }
+        ]);
+
+        filterCompositionBlockedReferenceSections(resource, { CarePlan: [BLOCKED_UUID, 'care-plan-1'] });
+
+        expect(sectionIds(resource.section)).toEqual(['kept']);
+    });
+
+    test.each([
+        ['the same id on a different resource type', { reference: 'Observation/care-plan-1' }],
+        ['an extension with another url', {
+            reference: 'CarePlan/care-plan-3', extension: [{ url: 'https://example.com/other', valueString: 'CarePlan/care-plan-1' }]
+        }],
+        ['an entry with no reference', { display: 'no reference' }],
+        ['a contained (#) reference', { reference: '#care-plan-1' }]
+    ])('keeps a section for %s', (_name, entry) => {
+        const resource = composition([{ id: 'kept', entry: [entry] }]);
+
+        filterCompositionBlockedReferenceSections(resource, { CarePlan: ['care-plan-1'] });
+
+        expect(sectionIds(resource.section)).toEqual(['kept']);
+    });
+
+    test('removes a whole multi-entry section when any one entry is blocked', () => {
+        const resource = composition([
+            { id: 'mixed', entry: [{ reference: 'CarePlan/care-plan-3' }, { reference: 'CarePlan/care-plan-1' }] }
+        ]);
+
+        filterCompositionBlockedReferenceSections(resource, { CarePlan: ['care-plan-1'] });
+
+        expect(resource.section).toBeUndefined();
+    });
+
+    test('removes a blocked nested section and keeps its parent', () => {
+        const resource = composition([{
+            id: 'parent',
+            entry: [{ reference: 'CarePlan/care-plan-3' }],
+            section: [
+                { id: 'child-blocked', entry: [{ reference: 'CarePlan/care-plan-1' }] },
+                { id: 'child-kept', entry: [{ reference: 'CarePlan/care-plan-4' }] }
+            ]
+        }]);
+
+        filterCompositionBlockedReferenceSections(resource, { CarePlan: ['care-plan-1'] });
+
+        expect(sectionIds(resource.section)).toEqual(['parent']);
+        expect(sectionIds(resource.section[0].section)).toEqual(['child-kept']);
+    });
+
+    test('keeps a parent whose only child is removed, without an empty section array', () => {
+        const resource = composition([{
+            id: 'parent',
+            section: [{ id: 'child-blocked', entry: [{ reference: 'CarePlan/care-plan-1' }] }]
+        }]);
+
+        filterCompositionBlockedReferenceSections(resource, { CarePlan: ['care-plan-1'] });
+
+        expect(sectionIds(resource.section)).toEqual(['parent']);
+        expect(resource.section[0].section).toBeUndefined();
+    });
+
+    test('deletes section when every section is removed', () => {
+        const resource = composition([{ id: 'blocked', entry: [{ reference: 'CarePlan/care-plan-1' }] }]);
+
+        filterCompositionBlockedReferenceSections(resource, { CarePlan: ['care-plan-1'] });
+
+        expect(resource).not.toHaveProperty('section');
+    });
+
+    test.each([
+        ['an empty exclude map', {}],
+        ['no exclude map', undefined],
+        ['an exclude map for other types only', { Observation: ['care-plan-1'] }]
+    ])('leaves the Composition untouched for %s', (_name, excludeMap) => {
+        const resource = composition([{ id: 's1', entry: [{ reference: 'CarePlan/care-plan-1' }] }]);
+        const before = JSON.parse(JSON.stringify(resource));
+
+        filterCompositionBlockedReferenceSections(resource, excludeMap);
+
+        expect(resource).toEqual(before);
+    });
+
+    test.each([
+        ['null', null],
+        ['a Composition with no section', { resourceType: 'Composition', _uuid: 'comp-1' }]
+    ])('does nothing for %s', (_name, resource) => {
+        expect(() => filterCompositionBlockedReferenceSections(resource, { CarePlan: ['care-plan-1'] })).not.toThrow();
+    });
+
+    test('accepts a frozen exclude map (the shared lookup is frozen)', () => {
+        const resource = composition([{ id: 'blocked', entry: [{ reference: 'CarePlan/care-plan-1' }] }]);
+        const excludeMap = Object.freeze({ CarePlan: Object.freeze(['care-plan-1']) });
+
+        filterCompositionBlockedReferenceSections(resource, excludeMap);
+
+        expect(resource.section).toBeUndefined();
     });
 });
