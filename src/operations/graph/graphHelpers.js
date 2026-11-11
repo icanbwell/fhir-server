@@ -1797,22 +1797,23 @@ class GraphHelper {
                 for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
                     const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
 
-                    if (!idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
-                        if (responseStreamer) {
-                            await responseStreamer.writeBundleEntryAsync(
-                                {
-                                    bundleEntry: bundleEntry1
-                                }
-                            );
-                        } else {
-                            entries.push(bundleEntry1);
-                        }
-                        returnedResources.add(
-                            bundleEntry1.resource,
-                            bundleEntry1.resource === topLevelResource ? attachedContained : []
-                        );
-                        idsOfBundleEntriesProcessed.push(resourceIdentifier);
+                    if (idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
+                        continue;
                     }
+                    if (responseStreamer) {
+                        await responseStreamer.writeBundleEntryAsync(
+                            {
+                                bundleEntry: bundleEntry1
+                            }
+                        );
+                    } else {
+                        entries.push(bundleEntry1);
+                    }
+                    returnedResources.add(
+                        bundleEntry1.resource,
+                        bundleEntry1.resource === topLevelResource ? attachedContained : []
+                    );
+                    idsOfBundleEntriesProcessed.push(resourceIdentifier);
                 }
             }
 
