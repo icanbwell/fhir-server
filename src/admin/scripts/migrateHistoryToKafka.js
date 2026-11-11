@@ -61,6 +61,7 @@ Options:
   --resource-type <type>  Resource type to migrate (default: Composition)
   --workers <n>           Windows processed in parallel (default: 4)
   --read-batch-size <n>   Documents read from MongoDB per batch (default: 100)
+  --kafka-batch-size <n>  Messages per Kafka produce call (default: RESOURCE_HISTORY_KAFKA_BATCH_SIZE, 50)
   --dry-run               Count the records per window without producing or deleting
   --help, -h              Show this help
 `;
@@ -114,6 +115,7 @@ function parseArgs (argv) {
         resourceType: 'Composition',
         workers: 4,
         readBatchSize: 100,
+        kafkaBatchSize: null,
         dryRun: false,
         help: false
     };
@@ -133,6 +135,9 @@ function parseArgs (argv) {
                 break;
             case '--read-batch-size':
                 options.readBatchSize = parsePositiveInt('--read-batch-size', argv[++i]);
+                break;
+            case '--kafka-batch-size':
+                options.kafkaBatchSize = parsePositiveInt('--kafka-batch-size', argv[++i]);
                 break;
             case '--dry-run':
                 options.dryRun = true;
@@ -262,11 +267,14 @@ function toHistoryEntry (doc, resourceType, retentionCutoff = null) {
  * @param {import('../../dataLayer/historyKafkaProducer').HistoryKafkaProducer} params.historyKafkaProducer
  * @param {string} params.requestId
  * @param {Date|null} [params.retentionCutoff] records older than this stay in MongoDB
+ * @param {number|null} [params.kafkaBatchSize] messages per produce call; null uses the producer's setting
  * @returns {Promise<{produced: number, deleted: number, failed: number}>}
  */
-async function processDocsAsync ({ docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff = null }) {
+async function processDocsAsync ({
+    docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff = null, kafkaBatchSize = null
+}) {
     const result = await produceAndDeleteAsync({
-        docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff
+        docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff, kafkaBatchSize
     });
     logInfo('Batch done', {
         resourceType,
@@ -283,7 +291,9 @@ async function processDocsAsync ({ docs, resourceType, collection, historyKafkaP
  * @param {Object} params same as processDocsAsync
  * @returns {Promise<{produced: number, deleted: number, failed: number}>}
  */
-async function produceAndDeleteAsync ({ docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff }) {
+async function produceAndDeleteAsync ({
+    docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff, kafkaBatchSize
+}) {
     // produceAsync treats a type it is not enabled for as "nothing to send" and reports no failures,
     // which here would delete records that never reached Kafka.
     if (!historyKafkaProducer.isEnabledFor(resourceType)) {
@@ -306,7 +316,7 @@ async function produceAndDeleteAsync ({ docs, resourceType, collection, historyK
     }
 
     const failedEntries = new Set(await historyKafkaProducer.produceAsync({
-        resourceType, operations: entries, requestId, stopOnBrokerFailure: true
+        resourceType, operations: entries, requestId, stopOnBrokerFailure: true, batchSize: kafkaBatchSize
     }));
     const deliveredIds = [];
     for (const entry of entries) {
@@ -390,10 +400,12 @@ function findRefusalReason ({
  * @param {number} params.readBatchSize
  * @param {boolean} params.dryRun
  * @param {Date|null} [params.retentionCutoff] records older than this stay in MongoDB
+ * @param {number|null} [params.kafkaBatchSize] messages per produce call; null uses the producer's setting
  * @returns {Promise<{read: number, produced: number, deleted: number, failed: number}>}
  */
 async function migrateWindowAsync ({
-    window, resourceType, collection, historyKafkaProducer, readBatchSize, dryRun, retentionCutoff = null
+    window, resourceType, collection, historyKafkaProducer, readBatchSize, dryRun, retentionCutoff = null,
+    kafkaBatchSize = null
 }) {
     const totals = { read: 0, produced: 0, deleted: 0, failed: 0 };
     if (dryRun) {
@@ -404,7 +416,7 @@ async function migrateWindowAsync ({
     const cursor = collection.find(windowFilter(window)).batchSize(readBatchSize);
     const flushAsync = async (docs) => {
         const result = await processDocsAsync({
-            docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff
+            docs, resourceType, collection, historyKafkaProducer, requestId, retentionCutoff, kafkaBatchSize
         });
         totals.produced += result.produced;
         totals.deleted += result.deleted;
@@ -507,6 +519,7 @@ async function main () {
         windows: windows.length,
         workers: options.workers,
         readBatchSize: options.readBatchSize,
+        kafkaBatchSize: options.kafkaBatchSize ?? container.configManager.resourceHistoryKafkaBatchSize,
         dryRun: options.dryRun
     });
 
@@ -538,7 +551,8 @@ async function main () {
                     historyKafkaProducer,
                     readBatchSize: options.readBatchSize,
                     dryRun: options.dryRun,
-                    retentionCutoff
+                    retentionCutoff,
+                    kafkaBatchSize: options.kafkaBatchSize
                 });
                 totals.windows++;
                 totals.read += result.read;

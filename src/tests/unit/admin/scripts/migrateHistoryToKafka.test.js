@@ -78,23 +78,24 @@ describe('migrateHistoryToKafka script', () => {
         test('reads every option', () => {
             const options = parseArgs([
                 '--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00', '--resource-type', 'Observation',
-                '--workers', '8', '--read-batch-size', '100', '--dry-run'
+                '--workers', '8', '--read-batch-size', '100', '--kafka-batch-size', '25', '--dry-run'
             ]);
             expect(options).toMatchObject({
-                resourceType: 'Observation', workers: 8, readBatchSize: 100, dryRun: true
+                resourceType: 'Observation', workers: 8, readBatchSize: 100, kafkaBatchSize: 25, dryRun: true
             });
             expect(options.end.toISOString()).toBe('2026-11-01T01:00:00.000Z');
         });
 
         test('defaults to Composition, 4 workers and 100 documents per read batch', () => {
             expect(parseArgs(['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00'])).toMatchObject({
-                resourceType: 'Composition', workers: 4, readBatchSize: 100, dryRun: false
+                resourceType: 'Composition', workers: 4, readBatchSize: 100, kafkaBatchSize: null, dryRun: false
             });
         });
 
         test.each([
             ['missing --end', ['--start', '01-11-2026T00:00'], '--start and --end are required'],
             ['start not before end', ['--start', '01-11-2026T01:00', '--end', '01-11-2026T01:00'], 'before'],
+            ['zero Kafka batch size', ['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00', '--kafka-batch-size', '0'], '--kafka-batch-size'],
             ['zero workers', ['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00', '--workers', '0'], '--workers'],
             ['unknown argument', ['--foo'], 'Unknown argument'],
             ['bad resource type', ['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00', '--resource-type', 'x;y'], 'resource type']
@@ -217,6 +218,21 @@ describe('migrateHistoryToKafka script', () => {
             expect(logInfo).toHaveBeenCalledWith('Batch done', expect.objectContaining({
                 records: 2, firstUuid: 'u1', lastUuid: 'u2', produced: 2, deleted: 2, failed: 0
             }));
+        });
+
+        test.each([
+            ['the producer setting (50) when --kafka-batch-size is not given', null, [5]],
+            ['--kafka-batch-size when given', 2, [2, 2, 1]]
+        ])('sends Kafka batches of %s', async (_name, kafkaBatchSize, expectedSizes) => {
+            const collection = fakeCollection();
+            const docs = ['u1', 'u2', 'u3', 'u4', 'u5'].map((uuid, i) => historyDoc({ mongoId: `m${i}`, uuid }));
+
+            const result = await processDocsAsync({
+                docs, resourceType: 'Composition', collection, historyKafkaProducer: producer, requestId: 'r1', kafkaBatchSize
+            });
+
+            expect(result).toEqual({ produced: 5, deleted: 5, failed: 0 });
+            expect(kafkaClientV2.sendCloudEventMessageAsync.mock.calls.map((c) => c[0].messages.length)).toEqual(expectedSizes);
         });
 
         test('leaves records in MongoDB when Kafka does not accept them', async () => {

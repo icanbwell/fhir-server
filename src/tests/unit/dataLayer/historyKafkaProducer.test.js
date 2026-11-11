@@ -164,6 +164,14 @@ describe('HistoryKafkaProducer', () => {
         expect(calls.every((c) => c.topic === 'test.history')).toBe(true);
     });
 
+    test('a batchSize passed to produceAsync overrides RESOURCE_HISTORY_KAFKA_BATCH_SIZE', async () => {
+        setEnv({ RESOURCE_HISTORY_KAFKA_BATCH_SIZE: '2' });
+        const operations = ['a', 'b', 'c', 'd', 'e'].map((u) => historyOperation('Observation', u));
+        await producer.produceAsync({ resourceType: 'Observation', operations, requestId: 'r1', batchSize: 3 });
+        const sizes = kafkaClientV2.sendCloudEventMessageAsync.mock.calls.map((c) => c[0].messages.length);
+        expect(sizes).toEqual([3, 2]);
+    });
+
     test('Kafka failure: retries, never throws, counts the failure', async () => {
         kafkaClientV2.sendCloudEventMessageAsync.mockRejectedValue(new Error('broker down'));
         const failedOperation = historyOperation('Observation', 'u1');
