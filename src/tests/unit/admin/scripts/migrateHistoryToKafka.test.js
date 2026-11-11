@@ -213,7 +213,10 @@ describe('migrateHistoryToKafka script', () => {
             const body = JSON.parse(messages[1].value);
             expect(body).toMatchObject({ resource_type: 'Composition', _uuid: 'u2', _recorded: '2026-11-01T10:00:30.005Z', version_id: '2' });
             expect(body.raw._id).toBeUndefined();
-            expect(collection.deleteMany).toHaveBeenCalledWith({ _id: { $in: ['m1', 'm2'] } });
+            // Carries the hashed shard key so mongos targets only the owning shards.
+            expect(collection.deleteMany).toHaveBeenCalledWith({
+                'resource._uuid': { $in: ['u1', 'u2'] }, _id: { $in: ['m1', 'm2'] }
+            });
             expect(docs[1]._recorded).toBeUndefined();
             expect(logInfo).toHaveBeenCalledWith('Batch done', expect.objectContaining({
                 records: 2, firstUuid: 'u1', lastUuid: 'u2', produced: 2, deleted: 2, failed: 0
@@ -233,6 +236,21 @@ describe('migrateHistoryToKafka script', () => {
 
             expect(result).toEqual({ produced: 5, deleted: 5, failed: 0 });
             expect(kafkaClientV2.sendCloudEventMessageAsync.mock.calls.map((c) => c[0].messages.length)).toEqual(expectedSizes);
+        });
+
+        test('deletes every version of a resource with its shard key listed once', async () => {
+            const collection = fakeCollection();
+            const docs = [
+                historyDoc({ mongoId: 'm1', uuid: 'u1' }),
+                historyDoc({ mongoId: 'm2', uuid: 'u1', method: 'DELETE' }),
+                historyDoc({ mongoId: 'm3', uuid: 'u3' })
+            ];
+
+            await processDocsAsync({ docs, resourceType: 'Composition', collection, historyKafkaProducer: producer, requestId: 'r1' });
+
+            expect(collection.deleteMany).toHaveBeenCalledWith({
+                'resource._uuid': { $in: ['u1', 'u3'] }, _id: { $in: ['m1', 'm2', 'm3'] }
+            });
         });
 
         test('leaves records in MongoDB when Kafka does not accept them', async () => {
@@ -259,7 +277,7 @@ describe('migrateHistoryToKafka script', () => {
             });
 
             expect(result).toEqual({ produced: 1, deleted: 1, failed: 1 });
-            expect(collection.deleteMany).toHaveBeenCalledWith({ _id: { $in: ['m2'] } });
+            expect(collection.deleteMany).toHaveBeenCalledWith({ 'resource._uuid': { $in: ['u2'] }, _id: { $in: ['m2'] } });
         });
 
         test.each([
@@ -275,7 +293,7 @@ describe('migrateHistoryToKafka script', () => {
             });
 
             expect(result).toEqual({ produced: 1, deleted: 1, failed: 1 });
-            expect(collection.deleteMany).toHaveBeenCalledWith({ _id: { $in: ['m2'] } });
+            expect(collection.deleteMany).toHaveBeenCalledWith({ 'resource._uuid': { $in: ['u2'] }, _id: { $in: ['m2'] } });
             expect(kafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0].messages.map((m) => m.key)).toEqual(['Composition:u2']);
             expect(logError.mock.calls.some(([, args]) => args?.mongoId === 'bad' && args.error.includes(error))).toBe(true);
         });

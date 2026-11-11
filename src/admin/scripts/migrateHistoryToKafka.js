@@ -4,7 +4,9 @@
  * to the history Kafka topic, then delete each record from MongoDB once Kafka has acked it.
  *
  * The time range [--start, --end) is split into 1-minute windows on `resource.meta.lastUpdated` (the
- * indexed field of every `*_History` collection; `_recorded` has no index). A pool of workers takes the
+ * indexed field of every `*_History` collection; `_recorded` has no index). The collections are sharded on
+ * `{ 'resource._uuid': 'hashed' }`, so a window read goes to every shard, each using its own
+ * lastUpdated index, and deletes carry the shard key so they reach only the shards that own the records. A pool of workers takes the
  * next window off a shared list until none are left, so windows are processed in parallel.
  *
  * Messages go through the live HistoryKafkaProducer, so topic, key, CloudEvent headers, body, chunk size,
@@ -258,6 +260,18 @@ function toHistoryEntry (doc, resourceType, retentionCutoff = null) {
 }
 
 /**
+ * MongoDB filter for the delivered records. `*_History` collections are sharded on
+ * `{ 'resource._uuid': 'hashed' }`, so the shard key lets mongos send the delete only to the shards that
+ * own these records instead of every shard. `_id` alone picks the exact documents.
+ * @param {unknown[]} ids MongoDB `_id`s of the delivered records
+ * @param {Set<string>} uuids their `resource._uuid`s
+ * @returns {Object}
+ */
+function deliveredFilter (ids, uuids) {
+    return { 'resource._uuid': { $in: [...uuids] }, _id: { $in: ids } };
+}
+
+/**
  * Produces a batch of history documents, deletes from MongoDB the ones Kafka acked, and logs the batch
  * with the `resource._uuid` of its first and last record.
  * @param {Object} params
@@ -319,6 +333,7 @@ async function produceAndDeleteAsync ({
         resourceType, operations: entries, requestId, stopOnBrokerFailure: true, batchSize: kafkaBatchSize
     }));
     const deliveredIds = [];
+    const deliveredUuids = new Set();
     for (const entry of entries) {
         const mongoId = entry.operation.insertOne.document._id;
         if (failedEntries.has(entry)) {
@@ -328,12 +343,13 @@ async function produceAndDeleteAsync ({
             });
         } else {
             deliveredIds.push(mongoId);
+            deliveredUuids.add(entry.uuid);
         }
     }
 
     let deleted = 0;
     if (deliveredIds.length > 0) {
-        const result = await collection.deleteMany({ _id: { $in: deliveredIds } });
+        const result = await collection.deleteMany(deliveredFilter(deliveredIds, deliveredUuids));
         deleted = result.deletedCount;
         if (deleted !== deliveredIds.length) {
             logWarn('Deleted fewer history records than were delivered', {
