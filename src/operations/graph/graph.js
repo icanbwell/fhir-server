@@ -110,7 +110,8 @@ class GraphOperation {
                     responseStreamer: responseStreamer
                         ? recordStreamedResources({
                             responseStreamer,
-                            auditedResources: streamedResources
+                            auditedResources: streamedResources,
+                            includeContained: contained
                         })
                         : responseStreamer,
                     parsedArgs,
@@ -121,7 +122,7 @@ class GraphOperation {
                 ...auditArgs,
                 resources: responseStreamer
                     ? streamedResources
-                    : getAuditedResourcesFromBundle(resultBundle)
+                    : getAuditedResourcesFromBundle(resultBundle, { includeContained: contained })
             });
             return resultBundle;
         } catch (err) {

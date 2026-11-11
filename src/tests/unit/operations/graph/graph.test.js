@@ -458,7 +458,19 @@ describe('GraphOperation', () => {
                 return { resourceType: 'Bundle', type: 'searchset', entry: [] };
             };
 
-        test('audits the resources in the returned bundle, including contained ones', async () => {
+        const bundleWithContained = {
+            resourceType: 'Bundle',
+            entry: [{
+                resource: {
+                    resourceType: 'Claim',
+                    _uuid: 'c1',
+                    contained: [{ resourceType: 'Practitioner', _uuid: 'pr1' }]
+                }
+            }]
+        };
+
+        test('audits the resources in the returned bundle, including contained ones when asked', async () => {
+            Object.defineProperty(mockParsedArgs, 'contained', { value: true, configurable: true });
             mockGraphHelper.processGraphAsync.mockResolvedValue({
                 resourceType: 'Bundle',
                 entry: [{
@@ -483,6 +495,16 @@ describe('GraphOperation', () => {
                 ]
             }));
             expect(params.outcome).toBeUndefined();
+        });
+
+        test('does not take ids from a stored contained array when contained was not requested', async () => {
+            mockGraphHelper.processGraphAsync.mockResolvedValue(bundleWithContained);
+
+            await graphAsync();
+
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledWith(
+                expect.objectContaining({ resources: [{ resourceType: 'Claim', _uuid: 'c1' }] })
+            );
         });
 
         test('audits the resources streamed to the client', async () => {

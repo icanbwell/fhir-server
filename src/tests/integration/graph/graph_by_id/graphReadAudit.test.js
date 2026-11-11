@@ -10,6 +10,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersJsonPatch,
     createTestRequest,
     getTestContainer
 } = require('../../common');
@@ -64,8 +65,18 @@ describe('$graph read audit', () => {
     };
 
     /**
+     * For asserting that nothing is written: nothing can be polled for, so give a queued task time to land
+     * @returns {Promise<Object[]>}
+     */
+    const getReadAuditLogsAfterSettlingAsync = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        return await readAuditLogsAsync();
+    };
+
+    /**
      * waitTillAllRequestsDoneAsync returns before the last post-request task finishes, so poll until the
-     * expected references have been written (or the deadline passes, and the assertion shows the difference)
+     * expected references have been written (or the deadline passes, and the assertion shows the difference).
+     * Then settle and read once more, so an extra entry queued after the expected ones is still seen.
      * @param {string[]} expectedReferences
      * @returns {Promise<Object[]>}
      */
@@ -79,16 +90,7 @@ describe('$graph read audit', () => {
             await new Promise((resolve) => setTimeout(resolve, 200));
             auditLogs = await readAuditLogsAsync();
         }
-        return auditLogs;
-    };
-
-    /**
-     * For asserting that nothing is written: nothing can be polled for, so give a queued task time to land
-     * @returns {Promise<Object[]>}
-     */
-    const getReadAuditLogsAfterSettlingAsync = async () => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        return await readAuditLogsAsync();
+        return await getReadAuditLogsAfterSettlingAsync();
     };
 
     /**
@@ -214,5 +216,61 @@ describe('$graph read audit', () => {
         const auditedReferences = getAuditedReferences(await getReadAuditLogsAsync(expectedReferences));
         expect(auditedReferences.filter((r) => r.endsWith('undefined'))).toEqual([]);
         expect(auditedReferences).toEqual(expectedReferences);
+    });
+
+    test('POST $graph does not audit an id planted inside a stored contained element', async () => {
+        const security = [
+            { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
+            { system: 'https://www.icanbwell.com/access', code: 'bwell' },
+            { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'bwell' }
+        ];
+        for (const resource of [
+            { resourceType: 'Organization', id: 'forge-victim' },
+            {
+                resourceType: 'Patient',
+                id: 'forge-host',
+                managingOrganization: { reference: 'Organization/forge-victim' }
+            }
+        ]) {
+            const merged = await request
+                .post(`/4_0_0/${resource.resourceType}/1/$merge`)
+                .send({ ...resource, meta: { source: 'test', security } })
+                .set(getHeaders());
+            expect(merged).toHaveMergeResponse({ created: true });
+        }
+        const victim = await request.get('/4_0_0/Organization/forge-victim').set(getHeaders());
+        const victimUuid = victim.body.identifier.find((i) => i.system.endsWith('/uuid')).value;
+
+        // PATCH refuses a _uuid in an operation value, but a copy of a stored reference carries its _uuid
+        // into contained, where it is stored as given
+        const patched = await request
+            .patch('/4_0_0/Patient/forge-host')
+            .send([
+                { op: 'add', path: '/contained', value: [] },
+                { op: 'copy', from: '/managingOrganization', path: '/contained/-' },
+                { op: 'remove', path: '/contained/0/reference' },
+                { op: 'add', path: '/contained/0/resourceType', value: 'Organization' },
+                { op: 'add', path: '/contained/0/id', value: 'planted' },
+                { op: 'add', path: '/link', value: [{ other: { reference: '#planted' }, type: 'seealso' }] }
+            ])
+            .set(getHeadersJsonPatch());
+        expect(patched).toHaveStatusCode(200);
+        // the GET above queued its own read audit: let it land before clearing, so it is not mistaken for ours
+        await getReadAuditLogsAfterSettlingAsync();
+        await auditEventCollection.deleteMany({});
+
+        const resp = await request
+            .post('/4_0_0/Patient/forge-host/$graph')
+            .set(getHeaders())
+            .send(graphPatientToObservation);
+        expect(resp).toHaveStatusCode(200);
+        expect(resp.body.entry[0].resource.contained).toHaveLength(1);
+
+        const returnedReferences = getReturnedReferences({
+            entry: resp.body.entry.map((e) => ({ resource: { ...e.resource, contained: undefined } }))
+        });
+        const auditedReferences = getAuditedReferences(await getReadAuditLogsAsync(returnedReferences));
+        expect(auditedReferences).toEqual(returnedReferences);
+        expect(auditedReferences.join(',')).not.toContain(victimUuid);
     });
 });
