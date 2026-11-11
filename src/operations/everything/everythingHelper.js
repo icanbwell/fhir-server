@@ -394,7 +394,10 @@ class EverythingHelper {
                 isPersonId: isProxyPatient,
                 parsedArgs: parsedArgs,
                 scope: requestInfo.scope,
-                isPersonEverything
+                isPersonEverything,
+                // a Patient can be linked to more than one member, and each member's view-control
+                // Consent hides different resources; a proxy-patient key is already the member's own
+                personId: isProxyPatient ? undefined : requestInfo.personIdFromJwtToken
             })
             : undefined;
     }

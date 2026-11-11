@@ -379,6 +379,30 @@ describe('CachedFhirResponseStreamer', () => {
             });
         });
 
+        test('drops the entries the view-control exclude map hides, in every batch', async () => {
+            const hiddenUuid = 'f49c5e15-81b5-57a9-bade-77e9e744fb2e';
+            const visible1 = { resource: { _uuid: 'uuid-1', resourceType: 'CarePlan' } };
+            const hidden1 = { resource: { _uuid: hiddenUuid, resourceType: 'CarePlan' } };
+            const hidden2 = { resource: { _uuid: 'uuid-3', id: 'obs-1', resourceType: 'Observation' } };
+            const visible2 = { resource: { _uuid: 'uuid-4', resourceType: 'Observation' } };
+            mockRedisStreamManager.readBundleEntriesFromStream
+                .mockResolvedValueOnce({ entries: [visible1, hidden1], hasMore: true, lastId: '1-0' })
+                .mockResolvedValueOnce({ entries: [hidden2, visible2], hasMore: false, lastId: '2-0' });
+            const enrichmentContext = { viewControlExcludeMap: { CarePlan: [hiddenUuid], Observation: ['obs-1'] } };
+
+            const streamed = await cachedStreamer.streamFromCacheAsync({ enrichmentContext });
+
+            expect(mockResponseStreamer.writeBundleEntryAsync.mock.calls.map(([arg]) => arg.bundleEntry))
+                .toEqual([visible1, visible2]);
+            expect(mockEnrichmentManager.enrichBundleEntriesAsync).toHaveBeenNthCalledWith(1, {
+                entries: [visible1], parsedArgs: mockParsedArgs, enrichmentContext
+            });
+            expect(streamed).toEqual([
+                { _uuid: 'uuid-1', resourceType: 'CarePlan' },
+                { _uuid: 'uuid-4', resourceType: 'Observation' }
+            ]);
+        });
+
         test('uses lastId from previous batch for next read', async () => {
             const batch1 = [
                 { resource: { _uuid: 'uuid-1', resourceType: 'Patient' } }

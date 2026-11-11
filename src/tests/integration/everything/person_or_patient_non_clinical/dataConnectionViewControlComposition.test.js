@@ -5,7 +5,7 @@
  * Sections are matched by the entry's reference, whichever id form it uses (source id or uuid).
  * All data is synthetic.
  */
-const { describe, beforeAll, afterAll, test, expect, jest: jestObj } = require('@jest/globals');
+const { describe, beforeAll, beforeEach, afterAll, test, expect, jest: jestObj } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 const {
     commonBeforeEach,
@@ -230,6 +230,72 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
         beforeAll(() => {
             savedCacheEnv = CACHE_ENV.map((name) => process.env[name]);
             CACHE_ENV.forEach((name) => { process.env[name] = '1'; });
+        });
+
+        // a second member linked to the same Patient, with no Consent of their own
+        const OTHER_MEMBER_PERSON_ID = generateUUIDv5('person-with-common-patient|healthsystem1');
+        const otherMemberEverything = () => request.get(`/4_0_0/Patient/${PATIENT_UUID}/$everything`)
+            .set({
+                ...getHeadersNdJson(),
+                Authorization: getHeadersWithCustomPayload({
+                    ...USER_PAYLOAD, clientFhirPersonId: OTHER_MEMBER_PERSON_ID
+                }).Authorization
+            });
+        /** CarePlan ids (source id or uuid) in an ndjson $everything response */
+        const carePlanIdsIn = (text) => [parse(text)].flat()
+            .filter((r) => r?.resourceType === 'CarePlan')
+            .flatMap((r) => [r.id, r._uuid].filter(Boolean));
+        const BLOCKED_IDS = ['care-plan-1', BLOCKED_UUID];
+        const expectBlockedCarePlanAbsent = (text) =>
+            BLOCKED_IDS.forEach((id) => expect(carePlanIdsIn(text)).not.toContain(id));
+        const expectBlockedCarePlanPresent = (text) =>
+            expect(carePlanIdsIn(text).some((id) => BLOCKED_IDS.includes(id))).toBe(true);
+
+        beforeAll(async () => {
+            await merge('Person', fx('Person/personWithCommonPatient.json'));
+        });
+
+        beforeEach(() => {
+            getTestContainer().redisClient.streams.clear();
+        });
+
+        test('a cache hit drops resources the Consent now hides, even if they were cached', async () => {
+            // the entry is cached while the Consent hides nothing (as before the Consent was written)
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync')
+                .mockResolvedValue({
+                    viewControlResourceToExcludeMap: {}, viewControlConsentQueries: [], viewControlConsentQueryOptions: []
+                });
+            try {
+                const miss = await memberEverything();
+                expect(miss.headers).toHaveProperty('x-cache', 'Miss');
+                expectBlockedCarePlanPresent(miss.text);
+            } finally {
+                spy.mockRestore();
+            }
+
+            const hit = await memberEverything();
+            expect(hit.headers).toHaveProperty('x-cache', 'Hit');
+            expectBlockedCarePlanAbsent(hit.text);
+            expect(sectionIdsIn(parse(hit.text))).toEqual(VISIBLE_SECTIONS);
+        });
+
+        test('a member never gets another member\'s cached response for a Patient they share', async () => {
+            const other = await otherMemberEverything();
+            expect(other.status).toBe(200);
+            expectBlockedCarePlanPresent(other.text);
+
+            const member = await memberEverything();
+            expect(member.status).toBe(200);
+            expectBlockedCarePlanAbsent(member.text);
+        });
+
+        test('a member without a Consent is not limited by another member\'s cached response', async () => {
+            const member = await memberEverything();
+            expectBlockedCarePlanAbsent(member.text);
+
+            const other = await otherMemberEverything();
+            expect(other.status).toBe(200);
+            expectBlockedCarePlanPresent(other.text);
         });
 
         afterAll(() => {

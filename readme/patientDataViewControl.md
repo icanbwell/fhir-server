@@ -134,10 +134,16 @@ The Consent is looked up once per request, however many resolvers or queries the
 and only for members of enrolled clients. The lookup uses the `consent_of_linked_person`
 `{status, patient._uuid}` index.
 
-The `$everything` cache stores entries before this filtering, so a cached response is filtered when
-it is replayed. Writing a Consent invalidates the Person's `$everything` cache. Adding a client to
-`CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL` does not: responses cached before the change can be
-served unfiltered until they expire (`EVERYTHING_CACHE_TTL_SECONDS`, 300 seconds by default).
+A replayed `$everything` response from the Redis cache is filtered with the Consent as it is when
+the response is replayed: hidden resources are dropped, and so are the Composition sections that reference them.
+This holds even when the response was cached before the Consent was written or before the client
+was enrolled in `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`. Each member has their own cache entry,
+including for a Patient linked to more than one member, so one member's Consent never shapes
+another member's response.
+
+A Consent write invalidates the Person's own `$everything` cache (`Patient/person.<id>`), but not
+the cache of `Patient/<id>/$everything`. When a Consent stops hiding a resource, that response can
+leave it out until the cache entry expires (`EVERYTHING_CACHE_TTL_SECONDS`, 300 seconds by default).
 
 ## Failures
 
