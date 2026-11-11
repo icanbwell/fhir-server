@@ -8,8 +8,9 @@ class ParsedArgs {
      * @param {string} base_version
      * @param {ParsedArgsItem[]} [parsedArgItems]
      * @param {Object|undefined} [headers]
+     * @param {Readonly<{[resourceType: string]: ReadonlyArray<string>}>|undefined} [viewControlExcludeMap]
      */
-    constructor ({ base_version, parsedArgItems = [], headers }) {
+    constructor ({ base_version, parsedArgItems = [], headers, viewControlExcludeMap }) {
         assertIsValid(base_version, 'base_version is missing');
         this.base_version = base_version;
         /**
@@ -30,6 +31,14 @@ class ParsedArgs {
          * @type {Object|undefined}
          */
         this.headers = headers;
+
+        /**
+         * Resource ids the dataConnectionViewControl Consent hides, by resourceType, set when view
+         * control is applied to this query (PatientDataViewControlExclusion.applyAsync). The result
+         * enrichment uses it to remove Composition sections that reference a hidden resource.
+         * @type {Readonly<{[resourceType: string]: ReadonlyArray<string>}>|undefined}
+         */
+        this.viewControlExcludeMap = viewControlExcludeMap;
     }
 
     /**
@@ -156,7 +165,9 @@ class ParsedArgs {
             {
                 base_version: this.base_version,
                 parsedArgItems: this.parsedArgItems.map(p => p.clone()),
-                headers: this.headers
+                headers: this.headers,
+                // frozen and shared by the whole request, so the clone can share it too
+                viewControlExcludeMap: this.viewControlExcludeMap
             }
         );
     }

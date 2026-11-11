@@ -2,6 +2,8 @@
  * @typedef {Object} EnrichmentContext
  * @property {string|undefined} userType
  * @property {import('../../utils/fhirRequestInfo').JwtActor|undefined|null} actor
+ * @property {Readonly<{[resourceType: string]: ReadonlyArray<string>}>|undefined} [viewControlExcludeMap]
+ *  ids the dataConnectionViewControl Consent hides, by resourceType; set only where view control applies
  */
 
 /**

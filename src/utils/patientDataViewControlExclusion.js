@@ -150,6 +150,9 @@ class PatientDataViewControlExclusion {
      */
     async applyAsync({ parsedArgs, resourceType, base_version, requestInfo, subject }) {
         const excludeMap = await this.getExcludedIdsByResourceTypeAsync({ requestInfo, base_version, subject });
+        // recorded whatever the resourceType, so results can drop Composition sections that reference
+        // a hidden resource of another type
+        parsedArgs.viewControlExcludeMap = excludeMap;
         const consentExcludedIds = excludeMap?.[resourceType] || [];
         if (consentExcludedIds.length === 0) {
             return parsedArgs;

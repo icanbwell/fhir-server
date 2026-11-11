@@ -108,6 +108,25 @@ describe('PatientDataViewControlExclusion', () => {
         expect(idNotItems(parsedArgs)).toHaveLength(0);
     });
 
+    test.each([
+        ['a blocked resource type', 'CarePlan'],
+        // a Composition search still needs the CarePlan ids, to drop sections that reference them
+        ['a resource type the Consent does not mention', 'Composition']
+    ])('records the whole exclude map on parsedArgs for %s', async (_name, resourceType) => {
+        const parsedArgs = newParsedArgs();
+        await exclusion.applyAsync({ parsedArgs, resourceType, base_version: '4_0_0', requestInfo: user });
+        expect(parsedArgs.viewControlExcludeMap).toEqual({ CarePlan: [UUID_A, 'source-id-1'] });
+        expect(Object.isFrozen(parsedArgs.viewControlExcludeMap)).toBe(true);
+    });
+
+    test('records an empty exclude map for a service token', async () => {
+        const parsedArgs = newParsedArgs();
+        await exclusion.applyAsync({
+            parsedArgs, resourceType: 'Composition', base_version: '4_0_0', requestInfo: { isUser: false }
+        });
+        expect(parsedArgs.viewControlExcludeMap).toEqual({});
+    });
+
     test('does no work at all when no client is enrolled (no Person traversal, no Consent search)', async () => {
         enrolled = [];
         await exclusion.applyAsync({

@@ -1171,7 +1171,8 @@ class EverythingHelper {
                                 everythingChunkIndex,
                                 scopedPersonIds,
                                 isPersonEverything,
-                                streamedResources
+                                streamedResources,
+                                viewControlExcludeMap: resourceToExcludeIdsMap
                             });
 
                             depthParallelProcess.push(result);
@@ -1222,7 +1223,8 @@ class EverythingHelper {
                     parsedArgs,
                     enrichmentContext: {
                         userType: requestInfo.userType,
-                        actor: requestInfo.actor
+                        actor: requestInfo.actor,
+                        viewControlExcludeMap: resourceToExcludeIdsMap
                     }
                 });
             }
@@ -1278,6 +1280,8 @@ class EverythingHelper {
      * @property {{_uuid: string, resourceType: string}[]} [streamedResources] - accumulator for
      *  audit logging, pushed into directly at write time so it survives a throw from any level
      *  of this call chain
+     * @property {{[resourceType: string]: string[]}} [viewControlExcludeMap] - ids the
+     *  dataConnectionViewControl Consent hides, used to remove Composition sections that reference them
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -1301,7 +1305,8 @@ class EverythingHelper {
         everythingChunkIndex,
         scopedPersonIds,
         isPersonEverything,
-        streamedResources = []
+        streamedResources = [],
+        viewControlExcludeMap = {}
     }) {
 
         /**
@@ -1425,7 +1430,8 @@ class EverythingHelper {
                 useUuidProjection,
                 resourceMapper,
                 cachedStreamer,
-                streamedResources
+                streamedResources,
+                viewControlExcludeMap
             });
 
             pushAll(entries, bundleEntries);
@@ -1815,7 +1821,8 @@ class EverythingHelper {
                 cachedStreamer,
                 personResourceIdentifierMap,
                 personResourceIdentifiers,
-                streamedResources
+                streamedResources,
+                viewControlExcludeMap: resourceToExcludeIdsMap
             })
 
             parallelProcess.push(promiseResult)
@@ -1900,6 +1907,7 @@ class EverythingHelper {
      *  personResourceIdentifierMap?: Map<string, ResourceIdentifier>|null,
      *  personResourceIdentifiers?: ResourceIdentifier[],
      *  streamedResources?: {_uuid: string, resourceType: string}[],
+     *  viewControlExcludeMap?: {[resourceType: string]: string[]},
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
@@ -1921,7 +1929,8 @@ class EverythingHelper {
         cachedStreamer = null,
         personResourceIdentifierMap = null,
         personResourceIdentifiers = [],
-        streamedResources = []
+        streamedResources = [],
+        viewControlExcludeMap = {}
     }) {
         /**
          * @type {BundleEntry[]}
@@ -2116,7 +2125,8 @@ class EverythingHelper {
                                     parsedArgs: parentParsedArgs,
                                     enrichmentContext: {
                                         userType: requestInfo.userType,
-                                        actor: requestInfo.actor
+                                        actor: requestInfo.actor,
+                                        viewControlExcludeMap
                                     }
                                 });
 

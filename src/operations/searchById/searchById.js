@@ -258,7 +258,9 @@ class SearchByIdOperation {
                 resource = (await this.enrichmentManager.enrichAsync({
                             resources: [resource],
                             parsedArgs,
-                            enrichmentContext: { userType, actor }
+                            enrichmentContext: {
+                                userType, actor, viewControlExcludeMap: parsedArgs.viewControlExcludeMap
+                            }
                         }
                     )
                 )[0];

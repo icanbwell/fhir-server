@@ -503,6 +503,8 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
                 .get(`/4_0_0/Person/${PERSON_ID},00000000-0000-5000-8000-000000000000/$everything?${OPT_IN}`)
                 .set(getHeaders('user/*.read access/othertenant.read'));
             expect(resp.status).toBe(400);
+            expect(resp.body.resourceType).toBe('OperationOutcome');
+            expect(JSON.stringify(resp.body.issue)).toContain('one Person per request');
         });
 
         test('a failed Consent lookup is an HTTP error with no data', async () => {

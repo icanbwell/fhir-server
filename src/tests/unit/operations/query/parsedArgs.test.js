@@ -408,6 +408,15 @@ describe('ParsedArgs', () => {
             expect(args.parsedArgItems[0].queryParameterValue.value).toBe('active');
         });
 
+        test('keeps the view-control exclude map, so a clone still filters Composition sections', () => {
+            const args = new ParsedArgs({ base_version: '4_0_0', parsedArgItems: [] });
+            const excludeMap = Object.freeze({ CarePlan: Object.freeze(['care-plan-1']) });
+            args.viewControlExcludeMap = excludeMap;
+
+            expect(args.clone().viewControlExcludeMap).toBe(excludeMap);
+            expect(new ParsedArgs({ base_version: '4_0_0' }).viewControlExcludeMap).toBeUndefined();
+        });
+
         test('preserves headers in clone', () => {
             const headers = { 'x-request-id': 'abc' };
             const args = new ParsedArgs({ base_version: '4_0_0', headers });
