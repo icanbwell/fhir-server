@@ -54,7 +54,10 @@ function recordStreamedResources ({ responseStreamer, auditedResources }) {
                     // read the ids first: serializing the entry can strip them from the resource
                     const written = getAuditedResources(bundleEntry.resource, knownUuids);
                     await target.writeBundleEntryAsync({ bundleEntry });
-                    auditedResources.push(...written);
+                    // not push(...written): spreading a very large list into call arguments throws a RangeError
+                    for (const resource of written) {
+                        auditedResources.push(resource);
+                    }
                 };
             }
             const value = Reflect.get(target, property, target);

@@ -57,12 +57,38 @@ describe('$graph read audit', () => {
         await commonAfterEach();
     });
 
-    const getReadAuditLogsAsync = async () => {
+    const readAuditLogsAsync = async () => {
         await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 10 });
-        // the last post-request task is dequeued before it finishes, so give it time to queue its entry
-        await new Promise((resolve) => setTimeout(resolve, 500));
         await auditLogger.flushAsync();
         return await auditEventCollection.find({ action: 'R' }).toArray();
+    };
+
+    /**
+     * waitTillAllRequestsDoneAsync returns before the last post-request task finishes, so poll until the
+     * expected references have been written (or the deadline passes, and the assertion shows the difference)
+     * @param {string[]} expectedReferences
+     * @returns {Promise<Object[]>}
+     */
+    const getReadAuditLogsAsync = async (expectedReferences) => {
+        const deadline = Date.now() + 15000;
+        let auditLogs = await readAuditLogsAsync();
+        while (
+            getAuditedReferences(auditLogs).length < expectedReferences.length &&
+            Date.now() < deadline
+        ) {
+            await new Promise((resolve) => setTimeout(resolve, 200));
+            auditLogs = await readAuditLogsAsync();
+        }
+        return auditLogs;
+    };
+
+    /**
+     * For asserting that nothing is written: nothing can be polled for, so give a queued task time to land
+     * @returns {Promise<Object[]>}
+     */
+    const getReadAuditLogsAfterSettlingAsync = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        return await readAuditLogsAsync();
     };
 
     /**
@@ -100,7 +126,9 @@ describe('$graph read audit', () => {
             'ExplanationOfBenefit',
             'Practitioner'
         ]);
-        expect(getAuditedReferences(await getReadAuditLogsAsync())).toEqual(returnedReferences);
+        expect(getAuditedReferences(await getReadAuditLogsAsync(returnedReferences))).toEqual(
+            returnedReferences
+        );
     });
 
     test('POST $graph on a missing resource writes no AuditEvent', async () => {
@@ -112,7 +140,7 @@ describe('$graph read audit', () => {
             .send(graphDefinitionResource);
         expect(resp).toHaveStatusCode(200);
 
-        expect(await getReadAuditLogsAsync()).toHaveLength(0);
+        expect(await getReadAuditLogsAfterSettlingAsync()).toHaveLength(0);
     });
 
     test('POST $graph audits only the resources the caller can read, not other tenants resources', async () => {
@@ -134,7 +162,9 @@ describe('$graph read audit', () => {
 
         const returnedReferences = getReturnedReferences(resp.body);
         expect(returnedReferences).toHaveLength(1);
-        expect(getAuditedReferences(await getReadAuditLogsAsync())).toEqual(returnedReferences);
+        expect(getAuditedReferences(await getReadAuditLogsAsync(returnedReferences))).toEqual(
+            returnedReferences
+        );
     });
 
     test.each([
@@ -180,8 +210,9 @@ describe('$graph read audit', () => {
             });
         expect(resp).toHaveStatusCode(200);
 
-        const auditedReferences = getAuditedReferences(await getReadAuditLogsAsync());
+        const expectedReferences = [...new Set(getReturnedReferences(resp.body))].sort();
+        const auditedReferences = getAuditedReferences(await getReadAuditLogsAsync(expectedReferences));
         expect(auditedReferences.filter((r) => r.endsWith('undefined'))).toEqual([]);
-        expect(auditedReferences).toEqual([...new Set(getReturnedReferences(resp.body))].sort());
+        expect(auditedReferences).toEqual(expectedReferences);
     });
 });

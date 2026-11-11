@@ -129,6 +129,19 @@ describe('auditedResources', () => {
             ]);
         });
 
+        test('records an entry with a very large contained list without throwing', async () => {
+            const contained = Array.from({ length: 300000 }, (_, i) => ({
+                resourceType: 'Observation',
+                _uuid: `o${i}`
+            }));
+
+            await wrapped.writeBundleEntryAsync({
+                bundleEntry: { resource: { resourceType: 'Patient', _uuid: 'p1', contained } }
+            });
+
+            expect(auditedResources).toHaveLength(300001);
+        });
+
         test('does not record a resource the streamer failed to write', async () => {
             responseStreamer.writeBundleEntryAsync.mockRejectedValue(new Error('closed'));
 
