@@ -65,6 +65,24 @@ describe('$graph read audit', () => {
         return await auditEventCollection.find({ action: 'R' }).toArray();
     };
 
+    /**
+     * The Type/uuid references of every resource in a $graph response, contained resources included
+     * @param {Object} body
+     * @returns {string[]}
+     */
+    const getReturnedReferences = (body) => {
+        const collect = (resource) => [
+            `${resource.resourceType}/${
+                resource.identifier.find((i) => i.system.endsWith('/uuid')).value
+            }`,
+            ...(resource.contained || []).flatMap(collect)
+        ];
+        return body.entry.flatMap((e) => collect(e.resource)).sort();
+    };
+
+    const getAuditedReferences = (auditLogs) =>
+        auditLogs.flatMap((log) => log.entity.map((e) => e.what.reference)).sort();
+
     test.each([
         ['contained=true', '?contained=true'],
         ['contained=false', '']
@@ -77,11 +95,12 @@ describe('$graph read audit', () => {
             .send(graphDefinitionResource);
         expect(resp).toHaveStatusCode(200);
 
-        const auditLogs = await getReadAuditLogsAsync();
-        const referencedTypes = auditLogs
-            .flatMap((log) => log.entity.map((e) => e.what.reference.split('/')[0]))
-            .sort();
-        expect(referencedTypes).toEqual(['ExplanationOfBenefit', 'Practitioner']);
+        const returnedReferences = getReturnedReferences(resp.body);
+        expect(returnedReferences.map((r) => r.split('/')[0])).toEqual([
+            'ExplanationOfBenefit',
+            'Practitioner'
+        ]);
+        expect(getAuditedReferences(await getReadAuditLogsAsync())).toEqual(returnedReferences);
     });
 
     test('POST $graph on a missing resource writes no AuditEvent', async () => {
@@ -113,10 +132,8 @@ describe('$graph read audit', () => {
         expect(resp).toHaveStatusCode(200);
         expect(resp.body.entry.map((e) => e.resource.resourceType)).toEqual(['Patient']);
 
-        const auditLogs = await getReadAuditLogsAsync();
-        const referencedTypes = auditLogs.flatMap((log) =>
-            log.entity.map((e) => e.what.reference.split('/')[0])
-        );
-        expect(referencedTypes).toEqual(['Patient']);
+        const returnedReferences = getReturnedReferences(resp.body);
+        expect(returnedReferences).toHaveLength(1);
+        expect(getAuditedReferences(await getReadAuditLogsAsync())).toEqual(returnedReferences);
     });
 });

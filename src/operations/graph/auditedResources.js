@@ -40,8 +40,10 @@ function recordStreamedResources ({ responseStreamer, auditedResources }) {
         get: (target, property) => {
             if (property === 'writeBundleEntryAsync') {
                 return async ({ bundleEntry }) => {
+                    // read the ids first: serializing the entry can strip them from the resource
+                    const written = getAuditedResources(bundleEntry.resource);
                     await target.writeBundleEntryAsync({ bundleEntry });
-                    auditedResources.push(...getAuditedResources(bundleEntry.resource));
+                    auditedResources.push(...written);
                 };
             }
             const value = Reflect.get(target, property, target);

@@ -74,6 +74,18 @@ describe('auditedResources', () => {
             expect(auditedResources).toEqual([{ resourceType: 'Patient', _uuid: 'p1' }]);
         });
 
+        test('records the ids even when writing the entry strips them from the resource', async () => {
+            responseStreamer.writeBundleEntryAsync.mockImplementation(async ({ bundleEntry }) => {
+                delete bundleEntry.resource._uuid;
+            });
+
+            await wrapped.writeBundleEntryAsync({
+                bundleEntry: { resource: { resourceType: 'Patient', _uuid: 'p1' } }
+            });
+
+            expect(auditedResources).toEqual([{ resourceType: 'Patient', _uuid: 'p1' }]);
+        });
+
         test('does not record a resource the streamer failed to write', async () => {
             responseStreamer.writeBundleEntryAsync.mockRejectedValue(new Error('closed'));
 
