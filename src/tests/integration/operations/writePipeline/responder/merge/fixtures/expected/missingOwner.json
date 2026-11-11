@@ -1,0 +1,26 @@
+{
+  "operationOutcome": {
+    "resourceType": "OperationOutcome",
+    "issue": [
+      {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+          "text": "Resource Patient/5c1f0c1e-9f54-4a53-8a3c-1d6a3a0a7e11 is missing a security access tag with system: https://www.icanbwell.com/owner"
+        }
+      }
+    ]
+  },
+  "issue": {
+    "severity": "error",
+    "code": "invalid",
+    "details": {
+      "text": "Resource Patient/5c1f0c1e-9f54-4a53-8a3c-1d6a3a0a7e11 is missing a security access tag with system: https://www.icanbwell.com/owner"
+    }
+  },
+  "created": false,
+  "id": "5c1f0c1e-9f54-4a53-8a3c-1d6a3a0a7e11",
+  "uuid": "5c1f0c1e-9f54-4a53-8a3c-1d6a3a0a7e11",
+  "resourceType": "Patient",
+  "updated": false
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "created": true,
+    "id": "parity-bundle-2",
+    "uuid": "90d17e83-62e8-58ed-b240-52b10d013f0f",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "parity-bundle-1",
+    "uuid": "d535070d-b99d-5c34-8434-f8d058e36423",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  }
+]

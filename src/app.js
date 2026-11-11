@@ -102,6 +102,7 @@ function createApp({fnGetContainer}) {
      * @type {import('./utils/configManager').ConfigManager}
      */
     const configManager = container.configManager;
+    container.writePipelineSwitch.assertValidConfiguration();
 
     const accessLogger = container.accessLogger;
 

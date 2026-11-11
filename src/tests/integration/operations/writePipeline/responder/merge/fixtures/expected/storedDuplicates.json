@@ -1,0 +1,46 @@
+{
+  "gender": "male",
+  "id": "parity-dup",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client",
+        "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client",
+        "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client",
+        "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+      }
+    ],
+    "versionId": "1"
+  },
+  "name": [
+    {
+      "family": "Parity",
+      "given": [
+        "Alpha"
+      ]
+    }
+  ],
+  "resourceType": "Patient",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "parity-dup"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "c8626911-e6a2-5ed6-a7a7-98ec841eab1b"
+    }
+  ]
+}

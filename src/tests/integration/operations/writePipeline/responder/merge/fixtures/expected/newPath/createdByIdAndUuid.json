@@ -1,0 +1,10 @@
+[
+  {
+    "created": true,
+    "id": "parity-new",
+    "uuid": "8663589d-de5c-578d-a20c-2dc956ef39a9",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  }
+]

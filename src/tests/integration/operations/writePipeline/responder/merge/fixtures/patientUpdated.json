@@ -1,0 +1,26 @@
+{
+  "resourceType": "Patient",
+  "id": "parity-1",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "Parity",
+      "given": [
+        "Beta"
+      ]
+    }
+  ],
+  "gender": "female"
+}

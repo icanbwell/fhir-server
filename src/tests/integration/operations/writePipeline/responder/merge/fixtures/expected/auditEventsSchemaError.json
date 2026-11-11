@@ -1,0 +1,32 @@
+[
+    {
+        "action": "E",
+        "outcome": "4",
+        "outcomeDesc": "Patient/parity-bad-date: Bad Request",
+        "type": {
+            "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+            "code": "rest"
+        },
+        "subtype": [],
+        "agent": [
+            {
+                "altId": "imran",
+                "requestor": true,
+                "networkType": "2"
+            }
+        ],
+        "entity": [
+            {
+                "detail": [
+                    {
+                        "type": "requestUrl",
+                        "valueString": "/4_0_0/Patient/$merge"
+                    },
+                    {
+                        "type": "requestId"
+                    }
+                ]
+            }
+        ]
+    }
+]

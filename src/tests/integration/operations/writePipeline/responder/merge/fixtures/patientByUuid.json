@@ -1,0 +1,25 @@
+{
+  "resourceType": "Patient",
+  "id": "75bd8b65-de8a-55c6-b4e9-67776a776cd2",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "Parity",
+      "given": [
+        "Alpha"
+      ]
+    }
+  ]
+}

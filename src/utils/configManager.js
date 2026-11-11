@@ -368,6 +368,18 @@ class ConfigManager {
     }
 
     /**
+     * operations listed to use the shared write pipeline, read from the comma-separated
+     * WRITE_PIPELINE_OPERATIONS; empty by default
+     * @returns {string[]}
+     */
+    get writePipelineOperations() {
+        return (env.WRITE_PIPELINE_OPERATIONS || '')
+            .split(',')
+            .map((operation) => operation.trim())
+            .filter((operation) => operation.length > 0);
+    }
+
+    /**
      * whether to return data as bundle
      * @return {boolean}
      */
