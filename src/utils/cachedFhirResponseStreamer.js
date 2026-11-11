@@ -57,13 +57,15 @@ class CachedFhirResponseStreamer {
      * Process a batch of entries
      * @param {Array} entries
      * @param {Array} streamedResources
+     * @param {import('../enrich/providers/enrichmentProvider').EnrichmentContext|undefined} [enrichmentContext]
      * @returns {Promise<void>}
      */
-    async processEntriesBatch({ entries, streamedResources }) {
+    async processEntriesBatch({ entries, streamedResources, enrichmentContext }) {
         if (this.enrichmentManager) {
             await this.enrichmentManager.enrichBundleEntriesAsync({
                 entries: entries,
-                parsedArgs: this.parsedArgs
+                parsedArgs: this.parsedArgs,
+                enrichmentContext
             });
         }
         for (const bundleEntry of entries) {
@@ -77,16 +79,19 @@ class CachedFhirResponseStreamer {
      * Stream from Redis cache
      * @param {Array} [streamedResources] - accumulator pushed into by reference (by
      *  processEntriesBatch) so it survives a throw from any batch after the first
+     * @param {import('../enrich/providers/enrichmentProvider').EnrichmentContext|undefined} [enrichmentContext]
+     *  for the enrichment of each replayed entry. Entries are cached before enrichment, so
+     *  request-specific filtering (such as view control's Composition sections) happens here.
      * @returns {Promise<object[]>}
      */
-    async streamFromCacheAsync({ streamedResources = [] } = {}) {
+    async streamFromCacheAsync({ streamedResources = [], enrichmentContext } = {}) {
         let { entries, hasMore, lastId } = await this.redisStreamManager.readBundleEntriesFromStream(this.cacheKey, '0-0');
         this.responseStreamer.response.setHeader('X-Cache', 'Hit');
-        await this.processEntriesBatch({ entries, streamedResources });
+        await this.processEntriesBatch({ entries, streamedResources, enrichmentContext });
         this.writeFromRedisStarted = true;
         while (hasMore){
             ({ entries, hasMore, lastId } = await this.redisStreamManager.readBundleEntriesFromStream(this.cacheKey, lastId));
-            await this.processEntriesBatch({ entries, streamedResources });
+            await this.processEntriesBatch({ entries, streamedResources, enrichmentContext });
         }
         return streamedResources;
     }

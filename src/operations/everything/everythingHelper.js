@@ -598,7 +598,25 @@ class EverythingHelper {
             let fallbackToMongo = false;
             if (readFromCache) {
                 try {
-                    await cachedStreamer.streamFromCacheAsync({ streamedResources });
+                    // Entries are cached before enrichment, so the subject's view-control lookup
+                    // (memoized per request) is loaded here to filter Composition sections on replay.
+                    // A failed lookup throws before anything is written and falls back to MongoDB.
+                    const viewControlExcludeMap = viewControlSubject
+                        ? (await this.customTracer.trace({
+                            name: 'EverythingHelper.cachedReplay.patientDataViewControlExclusion.getConsentLookupAsync',
+                            func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                                requestInfo, base_version, subject: viewControlSubject
+                            })
+                        })).viewControlResourceToExcludeMap
+                        : undefined;
+                    await cachedStreamer.streamFromCacheAsync({
+                        streamedResources,
+                        enrichmentContext: {
+                            userType: requestInfo.userType,
+                            actor: requestInfo.actor,
+                            viewControlExcludeMap
+                        }
+                    });
                 } catch (err) {
                     fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
                     logError('Error reading everything response from cache', { error: err, cacheKey });

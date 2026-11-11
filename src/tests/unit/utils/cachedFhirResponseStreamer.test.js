@@ -361,6 +361,24 @@ describe('CachedFhirResponseStreamer', () => {
             ]);
         });
 
+        test('passes the enrichment context to the enrichment of every batch', async () => {
+            const batch1 = [{ resource: { _uuid: 'uuid-1', resourceType: 'Composition' } }];
+            const batch2 = [{ resource: { _uuid: 'uuid-2', resourceType: 'Composition' } }];
+            mockRedisStreamManager.readBundleEntriesFromStream
+                .mockResolvedValueOnce({ entries: batch1, hasMore: true, lastId: '1-0' })
+                .mockResolvedValueOnce({ entries: batch2, hasMore: false, lastId: '2-0' });
+            const enrichmentContext = { viewControlExcludeMap: { CarePlan: ['care-plan-1'] } };
+
+            await cachedStreamer.streamFromCacheAsync({ enrichmentContext });
+
+            expect(mockEnrichmentManager.enrichBundleEntriesAsync).toHaveBeenNthCalledWith(1, {
+                entries: batch1, parsedArgs: mockParsedArgs, enrichmentContext
+            });
+            expect(mockEnrichmentManager.enrichBundleEntriesAsync).toHaveBeenNthCalledWith(2, {
+                entries: batch2, parsedArgs: mockParsedArgs, enrichmentContext
+            });
+        });
+
         test('uses lastId from previous batch for next read', async () => {
             const batch1 = [
                 { resource: { _uuid: 'uuid-1', resourceType: 'Patient' } }

@@ -5,7 +5,7 @@
  * Sections are matched by the entry's reference, whichever id form it uses (source id or uuid).
  * All data is synthetic.
  */
-const { describe, beforeAll, afterAll, test, expect } = require('@jest/globals');
+const { describe, beforeAll, afterAll, test, expect, jest: jestObj } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 const {
     commonBeforeEach,
@@ -15,8 +15,10 @@ const {
     getHeadersWithCustomPayload,
     getCustomGraphQLHeaders,
     getGraphQLHeaders,
-    getHeadersNdJson
+    getHeadersNdJson,
+    getTestContainer
 } = require('../../common');
+const { PatientDataViewControlManager } = require('../../../../utils/patientDataViewController');
 const { callMcpTool, bundleFromToolResult } = require('../../mcp/mcpTestHelpers');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
@@ -212,6 +214,66 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
         const resp = await send(request);
         expect(resp.status).toBe(200);
         expect(sectionIdsIn(resp.body)).toEqual(ALL_SECTIONS);
+    });
+
+    describe('$everything served from the Redis cache', () => {
+        const CACHE_ENV = [
+            'ENABLE_REDIS',
+            'ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION',
+            'ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION'
+        ];
+        let savedCacheEnv;
+        // the cache is only used for streamed member reads with a single id
+        const memberEverything = () => request.get(`/4_0_0/Patient/${PATIENT_UUID}/$everything`)
+            .set({ ...getHeadersNdJson(), Authorization: userHeaders().Authorization });
+
+        beforeAll(() => {
+            savedCacheEnv = CACHE_ENV.map((name) => process.env[name]);
+            CACHE_ENV.forEach((name) => { process.env[name] = '1'; });
+        });
+
+        afterAll(() => {
+            CACHE_ENV.forEach((name, i) => {
+                if (savedCacheEnv[i] === undefined) {
+                    delete process.env[name];
+                } else {
+                    process.env[name] = savedCacheEnv[i];
+                }
+            });
+            getTestContainer().redisClient.streams.clear();
+        });
+
+        test('a cache hit removes the sections that reference the blocked CarePlan', async () => {
+            const miss = await memberEverything();
+            expect(miss.status).toBe(200);
+            expect(miss.headers).toHaveProperty('x-cache', 'Miss');
+            expect(getTestContainer().redisClient.streams.size).toBeGreaterThan(0);
+
+            const hit = await memberEverything();
+            expect(hit.status).toBe(200);
+            expect(hit.headers).toHaveProperty('x-cache', 'Hit');
+            expect(sectionIdsIn(parse(hit.text))).toEqual(VISIBLE_SECTIONS);
+            expect(hit.text).not.toContain(BLOCKED_TEXT);
+        });
+
+        test('a cache hit whose Consent lookup fails returns no clinical data', async () => {
+            await memberEverything();
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync')
+                .mockRejectedValue(new Error('consent store unavailable'));
+            try {
+                const resp = await memberEverything();
+                expect(resp.text).toContain('OperationOutcome');
+                expect(resp.text).not.toContain('"resourceType":"Composition"');
+                expect(resp.text).not.toContain('"resourceType":"CarePlan"');
+                expect(resp.text).not.toContain('consent store unavailable');
+            } finally {
+                spy.mockRestore();
+            }
+            // the failed request leaves no partial cache entry behind to replay
+            const next = await memberEverything();
+            expect(next.headers).toHaveProperty('x-cache', 'Miss');
+            expect(sectionIdsIn(parse(next.text))).toEqual(VISIBLE_SECTIONS);
+        });
     });
 });
 
