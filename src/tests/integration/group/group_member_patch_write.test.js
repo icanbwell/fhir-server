@@ -4,7 +4,8 @@
  * Roster changes for a Group go exclusively through standard PATCH /4_0_0/Group/{id} with
  * RFC 6902 JSON Patch ops on /member -- there is no more $member-add/$member-remove operation.
  * GroupMemberPatchStrategy.determineGroupMemberType() picks the group member type once the Group is loaded:
- * - embedded (default): zero special-casing, ops flow through the ordinary fast-json-patch flow.
+ * - embedded (default): ops flow through the ordinary fast-json-patch flow, except that adding a
+ *   member already in member[] (same entity) updates it instead of duplicating it.
  * - mongoNative ("extended", DCON-5527): rows are written to GroupMember_4_0_0 /
  *   GroupMember_4_0_0_History via MongoGroupMemberRepository.
  *
@@ -15,6 +16,7 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, 
 const { GROUP_MEMBER_COLLECTION_NAME, GROUP_MEMBER_HISTORY_COLLECTION_NAME } = require('../../../constants');
 const { assertTooCostlyOperationOutcome, getMaxPatchOperations } = require('./groupTestHelpers');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../../utils/mongoGroupExtendedTag');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 const GROUP_COLLECTION_NAME = 'Group_4_0_0';
 
@@ -133,6 +135,108 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             expect(patchResp.status).toBe(200);
             expect(patchResp.body.member).toHaveLength(1);
             expect(patchResp.body.member[0].entity.reference).toBe('Patient/embedded-keep');
+        });
+
+        test.each([
+            ['/member/-'],
+            ['/member/'],
+            ['/member/0']
+        ])('PATCH add on %s of a member already in member[] keeps one entry and does not bump the version', async (path) => {
+            const created = await createGroup({
+                member: [
+                    { entity: { reference: 'Patient/embedded-other' } },
+                    { entity: { reference: 'Patient/embedded-retry' } }
+                ]
+            });
+
+            const patchResp = await patchGroup(created.id, [
+                { op: 'add', path, value: { entity: { reference: 'Patient/embedded-retry' } } }
+            ]);
+
+            expect(patchResp.status).toBe(200);
+            expect(patchResp.body.member.map((m) => m.entity.reference)).toEqual([
+                'Patient/embedded-other',
+                'Patient/embedded-retry'
+            ]);
+            expect(patchResp.body.meta.versionId).toBe(created.meta.versionId);
+        });
+
+        test('a retried PATCH add of a new member adds it once', async () => {
+            const created = await createGroup({
+                member: [{ entity: { reference: 'Patient/embedded-base' } }]
+            });
+            const addOps = [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-once' } } }
+            ];
+
+            const firstResp = await patchGroup(created.id, addOps);
+            const retryResp = await patchGroup(created.id, addOps);
+
+            expect(firstResp.status).toBe(200);
+            expect(retryResp.status).toBe(200);
+            expect(retryResp.body.member.map((m) => m.entity.reference)).toEqual([
+                'Patient/embedded-base',
+                'Patient/embedded-once'
+            ]);
+            expect(retryResp.body.meta.versionId).toBe(firstResp.body.meta.versionId);
+        });
+
+        test('PATCH add of an existing member with a changed field replaces it in place with the value sent', async () => {
+            const created = await createGroup({
+                member: [
+                    { id: 'm-a', entity: { reference: 'Patient/embedded-update' } },
+                    { entity: { reference: 'Patient/embedded-update-other' } }
+                ]
+            });
+
+            const patchResp = await patchGroup(created.id, [
+                {
+                    op: 'add',
+                    path: '/member/-',
+                    value: { entity: { reference: 'Patient/embedded-update' }, period: { start: '2026-01-01' } }
+                }
+            ]);
+
+            expect(patchResp.status).toBe(200);
+            expect(patchResp.body.member).toHaveLength(2);
+            expect(patchResp.body.member[0].id).toBeUndefined();
+            expect(patchResp.body.member[0].period).toEqual({ start: '2026-01-01' });
+            expect(patchResp.body.member[0].entity.reference).toBe('Patient/embedded-update');
+            expect(Number(patchResp.body.meta.versionId)).toBe(Number(created.meta.versionId) + 1);
+        });
+
+        test.each([
+            ['id|sourceAssigningAuthority', 'Patient/embedded-form|test-owner'],
+            ['uuid', `Patient/${generateUUIDv5('embedded-form|test-owner')}`]
+        ])('PATCH add referencing an existing member by %s does not add a second entry', async (_label, reference) => {
+            const created = await createGroup({
+                member: [{ entity: { reference: 'Patient/embedded-form' } }]
+            });
+
+            const patchResp = await patchGroup(created.id, [
+                { op: 'add', path: '/member/-', value: { entity: { reference }, period: { start: '2026-01-01' } } }
+            ]);
+
+            expect(patchResp.status).toBe(200);
+            expect(patchResp.body.member).toHaveLength(1);
+            expect(patchResp.body.member[0].period).toEqual({ start: '2026-01-01' });
+        });
+
+        test('the same new member added twice in one PATCH is stored once', async () => {
+            const created = await createGroup({
+                member: [{ entity: { reference: 'Patient/embedded-single' } }]
+            });
+
+            const patchResp = await patchGroup(created.id, [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-twice' } } },
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-twice' } } }
+            ]);
+
+            expect(patchResp.status).toBe(200);
+            expect(patchResp.body.member.map((m) => m.entity.reference)).toEqual([
+                'Patient/embedded-single',
+                'Patient/embedded-twice'
+            ]);
         });
     });
 
@@ -257,13 +361,13 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             expect(rowAfterDeactivate.member.inactive).toBe(true);
         });
 
-        test('PATCH add with inactive:true followed by a bare re-add reactivates the member', async () => {
+        test('PATCH add with id and inactive:true followed by a bare re-add replaces the member, clearing both', async () => {
             const created = await createGroup();
             await markGroupExtended(created.id);
             const memberRef = 'Patient/extended-reactivate';
 
             const addResp = await patchGroup(created.id, [
-                { op: 'add', path: '/member/-', value: { entity: { reference: memberRef }, inactive: true } }
+                { op: 'add', path: '/member/-', value: { id: 'm-x', entity: { reference: memberRef }, inactive: true } }
             ]);
             expect(addResp.status).toBe(200);
 
@@ -279,7 +383,8 @@ describe('Group member PATCH write path (DCON-5527)', () => {
 
             const rowAfterReactivate = await memberCollection.findOne({ groupUuid, 'member.entity.reference': memberRef });
             expect(rowAfterReactivate).not.toBeNull();
-            expect(rowAfterReactivate.member.inactive).toBe(false);
+            expect(rowAfterReactivate.member.id).toBeUndefined();
+            expect(rowAfterReactivate.member.inactive).toBeUndefined();
         });
 
         test('PATCH remove hard-deletes the row and writes a DELETE tombstone history entry', async () => {

@@ -429,8 +429,8 @@ describe('GroupMemberPatchStrategy', () => {
                 base_version: '4_0_0',
                 groupUuid: 'group-1-uuid',
                 // inactive is undefined here (not coerced to false), unlike the ClickHouse branch's
-                // events -- resolveMemberWrite needs to tell "not supplied" apart from "explicitly
-                // false" (see resolveMemberWrite.js).
+                // events -- resolveMemberWrite stores the member exactly as sent, so a field the
+                // client did not send stays unset (see resolveMemberWrite.js).
                 writeRequests: [
                     { entity: enrichedEntity('Patient/1'), period: undefined, inactive: undefined, op: 'add' },
                     { entity: enrichedEntity('Patient/2'), period: undefined, inactive: undefined, op: 'remove' }
