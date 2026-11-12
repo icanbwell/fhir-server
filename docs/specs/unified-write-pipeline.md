@@ -409,7 +409,12 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
   `oldWrite` copies and the parity tests only. The coverage report the CI merges across its jobs
   shows how much of it they keep; more test files get `oldWrite` copies until the old path's
   coverage is close to what the full suite gave it before the switch. The `oldWrite` copies and
-  their fixtures are deleted with the old path.
+  their fixtures are deleted with the old path. For `$merge`, the first run with the switch on
+  lost coverage only in `mergeManager.js`: 9 statements and 14 branches (the size pre-check, the
+  extended Group member rejection, the meta and schema failures on update, and keeping the stored
+  members of an externally stored Group). `oldWrite` copies of `auditEventSizeMerge`,
+  `group_extended_put_merge_rejection`, `group_mongo_member_preservation` and `merge_meta` cover
+  all of it again.
 - **New tests:**
   - Integration tests for PUT and PATCH concurrency with the switch on: two concurrent writes both
     land, the version goes up by two, no PATCH operation is lost, and a write that keeps losing gets
