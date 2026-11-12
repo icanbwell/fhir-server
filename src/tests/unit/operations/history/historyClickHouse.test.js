@@ -101,6 +101,9 @@ describe('HistoryOperation reading from ClickHouse', () => {
             compositionSectionFilterEnrichmentProvider: {
                 enrichBundleEntriesAsync: jest.fn().mockImplementation(async ({ entries }) => entries)
             },
+            groupExtendedTagEnrichmentProvider: {
+                enrichBundleEntriesAsync: jest.fn().mockImplementation(async ({ entries }) => entries)
+            },
             historyResourceCloudStorageClient: null,
             currentOperationName: 'historyById',
             errorMessagePostfix: 'for Patient resources'
