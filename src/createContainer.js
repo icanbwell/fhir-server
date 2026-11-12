@@ -252,7 +252,8 @@ const createContainer = function () {
             enrichmentManager: c.enrichmentManager,
             resourceManager: c.resourceManager,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
+            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
         }
     ));
     container.register('preSaveManager', (c) => new PreSaveManager({
@@ -951,6 +952,7 @@ const createContainer = function () {
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
             auditLogger: c.auditLogger,
             postRequestProcessor: c.postRequestProcessor,
             historyClickHouseRepository: c.historyClickHouseRepository,
@@ -973,6 +975,7 @@ const createContainer = function () {
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
             auditLogger: c.auditLogger,
             postRequestProcessor: c.postRequestProcessor,
             historyClickHouseRepository: c.historyClickHouseRepository,
