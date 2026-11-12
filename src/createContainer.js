@@ -720,6 +720,7 @@ const createContainer = function () {
         }));
     container.register('auditLogger', (c) => new AuditLogger(
             {
+                postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.fastDatabaseBulkInserter,
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager
@@ -1029,7 +1030,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             resourceValidator: c.resourceValidator,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            auditLogger: c.auditLogger
         }
     ));
     container.register('expandOperation', (c) => new ExpandOperation(

@@ -29,6 +29,7 @@ const { ScopesValidator } = require('../../../../operations/security/scopesValid
 const { ResourceValidator } = require('../../../../operations/common/resourceValidator');
 const { ResourceLocatorFactory } = require('../../../../operations/common/resourceLocatorFactory');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+const { AuditLogger } = require('../../../../utils/auditLogger');
 
 function createMockInstance(ClassRef, methods = {}) {
     const instance = Object.create(ClassRef.prototype);
@@ -43,6 +44,7 @@ describe('GraphOperation', () => {
     let mockScopesValidator;
     let mockResourceValidator;
     let mockResourceLocatorFactory;
+    let mockAuditLogger;
     let mockParsedArgs;
     let mockRequestInfo;
 
@@ -82,6 +84,10 @@ describe('GraphOperation', () => {
             createResourceLocator: jest.fn()
         });
 
+        mockAuditLogger = createMockInstance(AuditLogger, {
+            queueReadAuditEntries: jest.fn()
+        });
+
         mockParsedArgs = createMockInstance(ParsedArgs, {
             get: jest.fn().mockReturnValue(undefined),
             getRawArgs: jest.fn().mockReturnValue({}),
@@ -111,7 +117,8 @@ describe('GraphOperation', () => {
             fhirLoggingManager: mockFhirLoggingManager,
             scopesValidator: mockScopesValidator,
             resourceValidator: mockResourceValidator,
-            resourceLocatorFactory: mockResourceLocatorFactory
+            resourceLocatorFactory: mockResourceLocatorFactory,
+            auditLogger: mockAuditLogger
         });
     });
 
@@ -431,6 +438,110 @@ describe('GraphOperation', () => {
                     error
                 })
             );
+        });
+
+    });
+
+    describe('read auditing', () => {
+        const graphAsync = (overrides = {}) => graphOperation.graph({
+            requestInfo: mockRequestInfo,
+            parsedArgs: mockParsedArgs,
+            resourceType: 'Patient',
+            ...overrides
+        });
+
+        // the helper reports what it returned to the collector it is given
+        const returnsAsync = (resources, error) => async ({ returnedResources }) => {
+            resources.forEach((resource) => returnedResources.add(resource));
+            if (error) {
+                throw error;
+            }
+            return { resourceType: 'Bundle', type: 'searchset', entry: [] };
+        };
+
+        test('audits the resources the helper reported', async () => {
+            mockGraphHelper.processGraphAsync.mockImplementation(returnsAsync([
+                { resourceType: 'Claim', _uuid: 'c1' },
+                { resourceType: 'Practitioner', _uuid: 'pr1' }
+            ]));
+
+            await graphAsync();
+
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledTimes(1);
+            const params = mockAuditLogger.queueReadAuditEntries.mock.calls[0][0];
+            expect(params).toEqual(expect.objectContaining({
+                resourceType: 'Patient',
+                args: {},
+                resources: [
+                    { resourceType: 'Claim', _uuid: 'c1' },
+                    { resourceType: 'Practitioner', _uuid: 'pr1' }
+                ]
+            }));
+            expect(params.outcome).toBeUndefined();
+        });
+
+        test('audits when streaming to the client as well', async () => {
+            const responseStreamer = { writeBundleEntryAsync: jest.fn() };
+            mockGraphHelper.processGraphAsync.mockImplementation(returnsAsync([
+                { resourceType: 'Observation', _uuid: 'o1' }
+            ]));
+
+            await graphAsync({ responseStreamer });
+
+            expect(mockGraphHelper.processGraphAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ responseStreamer })
+            );
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resources: [{ resourceType: 'Observation', _uuid: 'o1' }]
+                })
+            );
+        });
+
+        test('does not audit a read for DELETE', async () => {
+            mockRequestInfo.method = 'DELETE';
+
+            await graphAsync();
+
+            expect(mockAuditLogger.queueReadAuditEntries).not.toHaveBeenCalled();
+        });
+
+        test.each([
+            ['an unexpected error', new Error('boom'), '8'],
+            ['a client error', Object.assign(new Error('bad'), { statusCode: 400 }), '4']
+        ])('audits what was already reported with the outcome for %s', async (_, error, outcome) => {
+            mockGraphHelper.processGraphAsync.mockImplementation(returnsAsync([
+                { resourceType: 'Observation', _uuid: 'o1' }
+            ], error));
+
+            await expect(graphAsync({ responseStreamer: {} })).rejects.toThrow(error.message);
+
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledTimes(1);
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resources: [{ resourceType: 'Observation', _uuid: 'o1' }],
+                    outcome
+                })
+            );
+        });
+
+        test('records a failed streaming request that sent nothing, for the requested type with no ids', async () => {
+            mockGraphHelper.processGraphAsync.mockRejectedValue(new Error('boom'));
+
+            await expect(graphAsync({ responseStreamer: {} })).rejects.toThrow('boom');
+
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledTimes(1);
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Patient', resources: [], outcome: '8' })
+            );
+        });
+
+        test('does not audit a failed non-streaming request, which returns nothing', async () => {
+            mockGraphHelper.processGraphAsync.mockRejectedValue(new Error('boom'));
+
+            await expect(graphAsync()).rejects.toThrow('boom');
+
+            expect(mockAuditLogger.queueReadAuditEntries).not.toHaveBeenCalled();
         });
     });
 });
