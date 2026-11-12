@@ -270,6 +270,7 @@ Every step is one shared class, and `WritePipeline.processAsync` calls them expl
     - A thrown error in a per-item strategy fails only that item, with `error` set.
     - The subject defaults to `WriteFailure.subjectOf(item.incoming)` at the moment of failure.
   - `runInChunks({ items, chunkSize, func })`: `async.mapLimit` per chunk, with `setImmediate` between chunks.
+  - `runInOrderInChunks({ items, chunkSize, func })`: the same chunks and `setImmediate`, but the items of a chunk run one at a time in order.
   - In `responder/merge.js`: `class MergeResponder`.
     - `readAsync({ requestInfo, parsedArgs, resourceType }) -> Promise<{ context, items, wasIncomingAList, requestErrors }>`:
       - It builds the `WriteContext` (`smartMerge = isTrue(parsedArgs.smartMerge ?? true)`, `operationName: 'merge'`) and reads `parsedArgs.resource` or else the body.
@@ -302,7 +303,7 @@ Each step mirrors the old code it replaces. Cite the base branch's `merge.js`, `
 | validateResult | `ValidateResultStep`, with `profile.accessRequested`; same chunks | Skips null candidates.<ul><li>**Update:** `validateResourceMetaSync(candidate)`, then `validateResourceAsync({ accessRequested: profile.accessRequested, ..., resourceToValidate: normalized deepcopy, resourceObj: candidate, currentResource: item.stored })`.</li><li>**Insert:** the same call without `currentResource`.</li></ul>An outcome or a thrown error fails the item. | `resultValidation` |
 | attachments | `AttachmentsStep`; same chunks | Skips null candidates.<ul><li>**Update:** mirrors `performMergeDbUpdateAsync` up to, but not including, `mergeOneAsync`: preSave, attachments, base64 `INSERT`, `buildContextDataForHybridStorage(..., { smartMerge })`, the external-storage member rule and the `meta.security` dedupe.</li><li>**Insert:** mirrors `performMergeDbInsertAsync`. The preSave result is not reassigned, and contextData has no options.</li></ul>Errors are wrapped as `new RethrownError({ message: \`Error updating: resource_uuid=${uuid}\` /* or Error inserting */, error })`. | `attachments` |
 | noOpCheck | `NoOpStep` | – | – |
-| write | `WriteStep` | <ul><li>**Update:** `databaseBulkInserter.mergeOneAsync({ requestInfo, resourceType, doc: candidate, previousVersionId: stored.meta.versionId, contextData, smartMerge })`.</li><li>**Insert:** `insertOneAsync({ requestInfo, resourceType, doc: candidate, contextData })`.</li></ul>Then `markQueued()`. Errors are wrapped as in attachments. | `write` |
+| write | `WriteStep`; one at a time in request order with `runInOrderInChunks`, chunks of `configManager.mergeParallelChunkSize` | <ul><li>**Update:** `databaseBulkInserter.mergeOneAsync({ requestInfo, resourceType, doc: candidate, previousVersionId: stored.meta.versionId, contextData, smartMerge })`.</li><li>**Insert:** `insertOneAsync({ requestInfo, resourceType, doc: candidate, contextData })`.</li></ul>Then `markQueued()`. Errors are wrapped as in attachments. | `write` |
 | (respond) | `MergeResponder` (`$merge` only) | See Interfaces. | – |
 | (audit) | `WriteAuditor.auditAsync` (shared) | A copy of `MergeManager.logAuditEntriesForMergeResults`, run on the results with the request's `requestId`, `base_version` and `parsedArgs`. | – |
 
@@ -390,14 +391,14 @@ Each step mirrors the old code it replaces. Cite the base branch's `merge.js`, `
   Expected: PASS.
 - [ ] **Step 3: Triage any failure.**
   - A difference outside the accepted ones is a bug in the new path: fix it, and add a parity case that would have caught it.
-  - A test that fails only on an accepted difference, such as a request that fails two checks and now gets the other error, or results and change events in request order, gets its fixtures updated to the new behavior. No test is skipped. Copy the file to `oldWrite<Name>.test.js` next to it: the copy sets `WRITE_PIPELINE_OPERATIONS` to `''` for its file and requires the old fixtures, moved to an `oldWrite/` folder next to each changed fixture.
+  - A test that fails only on an accepted difference, such as a request that fails two checks and now gets the other error, or results and change events in request order, gets its fixtures updated to the new behavior. No test is skipped. Copy the file to `oldWrite<Name>.test.js` next to it, with the original name in camelCase (`_x` becomes `X`): the copy sets `WRITE_PIPELINE_OPERATIONS` to `''` for its file and requires the old fixtures, moved to an `oldWrite/` folder next to each changed fixture.
 - [ ] **Step 4: Check the old path's coverage** in the merged coverage report of the CI run. Add `oldWrite` copies of more merge-related files until the old path's coverage is close to what the full suite gave it before the switch.
 - [ ] **Step 5: Stage** the files and any fixes.
 
 ### Task 7: ADR, lint and security review
 
 **Files:**
-- Create: `adrs/0001-unified-write-pipeline.md`
+- Create: `docs/adr/0004-unified-write-pipeline.md` (the repo keeps its ADRs in `docs/adr/`)
 
 - [ ] **Step 1: Write the ADR in MADR format.** Sections: Context and Problem Statement, Decision Drivers, Considered Options, Decision Outcome, Consequences. Take the options and the reasoning from the spec's "ADR" section: one pipeline plus profiles (chosen), a subclass per operation, a per-operation step list, and refactoring in place without switches.
 - [ ] **Step 2: Lint.** Run `yarn run lint`. Expected: 0 errors, and no new warnings in the changed files.

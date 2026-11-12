@@ -757,7 +757,10 @@ const createContainer = function () {
             configManager: c.configManager
         }),
         noOpStep: new NoOpStep(),
-        writeStep: new WriteStep({ databaseBulkInserter: c.fastDatabaseBulkInserter }),
+        writeStep: new WriteStep({
+            databaseBulkInserter: c.fastDatabaseBulkInserter,
+            configManager: c.configManager
+        }),
         databaseBulkInserter: c.fastDatabaseBulkInserter,
         writeAuditor: c.writeAuditor,
         fhirLoggingManager: c.fhirLoggingManager,

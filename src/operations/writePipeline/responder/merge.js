@@ -355,67 +355,66 @@ class MergeResponder extends WriteResponder {
             /** @type {Object} */
             headers
         } = requestInfo;
-        if (headers && headers.prefer && headers.prefer === 'return=OperationOutcome') {
-            /**
-             * @type {OperationOutcome[]}
-             */
-            const operationOutcomes = results.map(m => {
-                    if (m.issue) {
-                        return buildOperationOutcomeFromIssues([m.issue], m.id);
-                    }
-                    return buildOperationOutcomeFromIssues([
-                        {
-                            severity: 'information',
-                            code: 'informational',
-                            details: {
-                                coding: [
-                                    {
-                                        system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
-                                        code: m.created ? '201' : m.updated ? '200' : '304',
-                                        display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified'
-                                    }
-                                ]
-                            },
-                            expression: [
-                                `${m.resourceType}/${m.id}`
-                            ]
-                        }
-                    ], m.id);
-                }
-            );
-            /**
-             * @type {Resource[]}
-             */
-            const resources = operationOutcomes;
-            const bundle = this.bundleManager.createRawBundle(
-                {
-                    type: 'batch-response',
-                    requestId: userRequestId,
-                    originalUrl: url,
-                    host,
-                    protocol,
-                    resources,
-                    base_version,
-                    total_count: operationOutcomes.length,
-                    originalQuery: new QueryItem(
-                        {
-                            query: null,
-                            resourceType,
-                            collectionName: null
-                        }
-                    ),
-                    originalOptions: {},
-                    stopTime,
-                    startTime,
-                    user,
-                    explanations: [],
-                    parsedArgs
-                }
-            );
-            return FhirResourceSerializer.serialize(bundle, BundleSerializer);
-        } else {
+        if (headers?.prefer !== 'return=OperationOutcome') {
             return wasIncomingAList ? results : results[0];
         }
+        /**
+         * @type {OperationOutcome[]}
+         */
+        const operationOutcomes = results.map(m => {
+                if (m.issue) {
+                    return buildOperationOutcomeFromIssues([m.issue], m.id);
+                }
+                return buildOperationOutcomeFromIssues([
+                    {
+                        severity: 'information',
+                        code: 'informational',
+                        details: {
+                            coding: [
+                                {
+                                    system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
+                                    code: m.created ? '201' : m.updated ? '200' : '304',
+                                    display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified'
+                                }
+                            ]
+                        },
+                        expression: [
+                            `${m.resourceType}/${m.id}`
+                        ]
+                    }
+                ], m.id);
+            }
+        );
+        /**
+         * @type {Resource[]}
+         */
+        const resources = operationOutcomes;
+        const bundle = this.bundleManager.createRawBundle(
+            {
+                type: 'batch-response',
+                requestId: userRequestId,
+                originalUrl: url,
+                host,
+                protocol,
+                resources,
+                base_version,
+                total_count: operationOutcomes.length,
+                originalQuery: new QueryItem(
+                    {
+                        query: null,
+                        resourceType,
+                        collectionName: null
+                    }
+                ),
+                originalOptions: {},
+                stopTime,
+                startTime,
+                user,
+                explanations: [],
+                parsedArgs
+            }
+        );
+        return FhirResourceSerializer.serialize(bundle, BundleSerializer);
     }
 
     /**

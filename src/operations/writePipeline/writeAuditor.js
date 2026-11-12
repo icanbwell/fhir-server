@@ -40,7 +40,7 @@ class WriteAuditor {
      * @returns {Promise<void>}
      */
     async auditAsync ({ context, results }) {
-        const { requestInfo, base_version, parsedArgs } = context;
+        const { requestInfo } = context;
         try {
             assertIsValid(requestInfo);
             this.postRequestProcessor.add({
@@ -52,66 +52,70 @@ class WriteAuditor {
                     const groupByResourceType = groupByLambda(results, (result) => {
                         return result.resourceType;
                     });
-
                     for (const [resourceType, resultsForResourceType] of Object.entries(
                         groupByResourceType
                     )) {
-                        /**
-                         * @type {Object[]}
-                         */
-                        const failedItems = resultsForResourceType.filter(
-                            (r) => r.issue
-                        );
-                        if (resourceType !== 'AuditEvent') {
-                            /**
-                             * @type {Object[]}
-                             */
-                            const createdItems = resultsForResourceType.filter(
-                                (r) => r.created === true
-                            );
-                            /**
-                             * @type {Object[]}
-                             */
-                            const updatedItems = resultsForResourceType.filter(
-                                (r) => r.updated === true
-                            );
-                            if (createdItems && createdItems.length > 0) {
-                                await this.auditLogger.logAuditEntryAsync({
-                                    requestInfo,
-                                    base_version,
-                                    resourceType,
-                                    operation: 'create',
-                                    args: parsedArgs.getRawArgs(),
-                                    ids: createdItems.map((r) => r._uuid)
-                                });
-                            }
-                            if (updatedItems && updatedItems.length > 0) {
-                                await this.auditLogger.logAuditEntryAsync({
-                                    requestInfo,
-                                    base_version,
-                                    resourceType,
-                                    operation: 'update',
-                                    args: parsedArgs.getRawArgs(),
-                                    ids: updatedItems.map((r) => r._uuid)
-                                });
-                            }
-                        }
-                        if (failedItems && failedItems.length > 0) {
-                            for (const entry of failedItems) {
-                                await this.auditLogger.logErrorAuditEntryAsync({
-                                    requestInfo,
-                                    resourceType,
-                                    errorCode: entry.issue?.code === 'too-long' ? 413 : 400,
-                                    errorMessage: `${resourceType}/${entry.id}: Bad Request`
-                                });
-                            }
-                        }
+                        await this.auditResourceTypeAsync({
+                            context,
+                            resourceType,
+                            results: resultsForResourceType
+                        });
                     }
                 }
             });
         } catch (e) {
             throw new RethrownError({
                 error: e
+            });
+        }
+    }
+
+    /**
+     * Audits the result entries of one resource type: the `create` and `update` audits, unless the
+     * type is AuditEvent, then one error audit per entry with an `issue`.
+     * @param {import('./writeContext').WriteContext} context
+     * @param {string} resourceType
+     * @param {Object[]} results
+     * @returns {Promise<void>}
+     */
+    async auditResourceTypeAsync ({ context, resourceType, results }) {
+        const { requestInfo, base_version, parsedArgs } = context;
+        if (resourceType !== 'AuditEvent') {
+            /**
+             * @type {Object[]}
+             */
+            const createdItems = results.filter((r) => r.created === true);
+            /**
+             * @type {Object[]}
+             */
+            const updatedItems = results.filter((r) => r.updated === true);
+            if (createdItems.length > 0) {
+                await this.auditLogger.logAuditEntryAsync({
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    operation: 'create',
+                    args: parsedArgs.getRawArgs(),
+                    ids: createdItems.map((r) => r._uuid)
+                });
+            }
+            if (updatedItems.length > 0) {
+                await this.auditLogger.logAuditEntryAsync({
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    operation: 'update',
+                    args: parsedArgs.getRawArgs(),
+                    ids: updatedItems.map((r) => r._uuid)
+                });
+            }
+        }
+        for (const entry of results.filter((r) => r.issue)) {
+            await this.auditLogger.logErrorAuditEntryAsync({
+                requestInfo,
+                resourceType,
+                errorCode: entry.issue?.code === 'too-long' ? 413 : 400,
+                errorMessage: `${resourceType}/${entry.id}: Bad Request`
             });
         }
     }

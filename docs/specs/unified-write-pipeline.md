@@ -119,7 +119,7 @@ error.
 | `create` | `CreateOperation.createAsync` (`src/operations/create/create.js`) | POST |
 | `update` | `UpdateOperation.updateAsync` (`src/operations/update/update.js`) | PUT, including create-via-PUT |
 | `patch` | `PatchOperation.patchAsync` (`src/operations/patch/patch.js`) | PATCH (JSON Patch), including the Group member strategy |
-| `merge` | `MergeOperation.mergeAsync` and `mergeAsyncStream` (`src/operations/merge/merge.js`) | `$merge`, plus the GraphQL mutations in `patient.js` and `careTeam.js` that call `mergeAsync` |
+| `merge` | `MergeOperation.mergeAsync` and `mergeAsyncStream` (`src/operations/merge/merge.js`) | `$merge`, plus the GraphQL mutations in `patient.js` and `careTeam.js` that call `mergeAsync`. The first `$merge` PR checks the switch in `mergeAsync` only; streaming (NDJSON) `$merge` stays on the old path until the streaming work adds the check to `mergeAsyncStream` |
 | `import` | the bulk-import handler's per-resource merge (`mergeBufferedResourceAsync` in `src/operations/asyncJobs/bulkImport/handler.js`) and its batch flush | `$import` worker |
 | `admin` | the five admin write operations in `AdminPersonPatientLinkManager` (`src/admin/adminPersonPatientLinkManager.js`) and their route handlers in `src/routeHandlers/admin.js` | see "Admin" |
 
@@ -266,6 +266,14 @@ rounds (`CONCURRENCY_RESOLUTION_ROUNDS`, default 3, with jittered backoff), and 
 still conflicting after the last round a per-entry `conflict` issue. The new path calls the
 resolver and does not add its own retry.
 
+Until the resolver merges, a write that loses the race goes, in both paths, through the one-by-one
+replay in the bulk inserter (`_updateResourcesOneByOneAsync` → `replaceOneAsync`). It merges the
+caller's document into the latest stored version without re-running the access checks, so an
+access tag removed by another writer between the check and the write can come back, and a create
+that loses to another tenant's create of the same `_uuid` is merged into that document (owner and
+source assigning authority stay protected). This is today's behavior, found by the security review
+of the `$merge` PR; the resolver's access re-check closes it.
+
 - **`$merge`, `$import` and the GraphQL mutations** behave in the new path exactly as in the old
   one.
 - **PUT and PATCH updates** filter only on `_uuid` today, so they can't lose a race; the resolver
@@ -399,12 +407,14 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
   the old path's result depends on which retry code is in place, so it is not pinned.
 - **Accepted differences (user decision).** No test is skipped. If an existing test fails on the new
   path only because of one of the accepted differences, its fixtures are updated to the new
-  behavior, and the file is copied next to it as `oldWrite<Name>.test.js`. The copy turns the
-  switch off and keeps the old fixtures, which move to an `oldWrite/` folder next to each changed
-  fixture. For `$merge` that is 26 tests in 25 files, all failing only on accepted difference 5: 24
-  expect results sorted by `_uuid`, one expects the written result first among resources that
-  share one `_uuid`, and one expects change events in the old order. `merge.changeEvents.test.js`
-  checks that both paths send the same change events.
+  behavior, and the file is copied next to it as `oldWrite<Name>.test.js`, with the original name
+  in camelCase (`data_sharing_scenario_1.test.js` becomes `oldWriteDataSharingScenario1.test.js`,
+  following the repo's file naming rule). The copy turns the switch off and keeps the old
+  fixtures, which move to an `oldWrite/` folder next to each changed fixture. For `$merge` that is
+  26 tests in 25 files, all failing only on accepted difference 5: 24 expect results sorted by
+  `_uuid`, one expects the written result first among resources that share one `_uuid`, and one
+  expects change events in the old order. `merge.changeEvents.test.js` checks that both paths send
+  the same change events.
 - **Old path coverage (my call).** With the new path on by default, the old path is run by the
   `oldWrite` copies and the parity tests only. The coverage report the CI merges across its jobs
   shows how much of it they keep; more test files get `oldWrite` copies until the old path's
@@ -511,8 +521,8 @@ today.
 
 ## ADR
 
-This pattern is new to the repo, so it gets an ADR in `adrs/` (MADR format; the folder does not
-exist yet). Options considered:
+This pattern is new to the repo, so it gets an ADR in MADR format:
+`docs/adr/0004-unified-write-pipeline.md`, next to the repo's other ADRs. Options considered:
 
 - **One pipeline plus per-operation profiles (chosen).** The central steps can't be skipped, and
   per-operation differences are data that can be read side by side.
