@@ -127,8 +127,13 @@ removed too.
 - Nested sections are judged on their own entries: a hidden child is removed and its parent stays.
 - The Composition itself is still returned, without `section` if every section was removed.
 - Compositions in `contained` are filtered the same way.
-- Only `section.entry` is checked, not `section.focus`, and the Composition's top-level `text` is
-  not changed.
+- An entry that is an absolute URL (`https://host/fhir/CarePlan/<id>`, with or without `/_history/<v>`)
+  is matched by its trailing `Type/id`, the same as a relative reference.
+- When any section was removed, the Composition's top-level `text` is removed too, and so is the
+  `text` of a kept section that held a removed child, because a narrative is usually generated from
+  the sections and can still describe the hidden resource. Sections that lost nothing keep their `text`.
+- Only `section.entry` is checked, not `section.focus`. Other references on the Composition
+  (`subject`, `author`, `event.detail`, ...) are not checked.
 
 This applies on every path above, including `_elements`, and to `$everything` responses replayed from the
 Redis cache.

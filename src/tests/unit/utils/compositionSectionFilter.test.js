@@ -465,7 +465,13 @@ describe('filterCompositionBlockedReferenceSections', () => {
         ['the uuid extension matches', { reference: 'CarePlan/other', extension: [uuidExt(`CarePlan/${BLOCKED_UUID}`)] }],
         ['the sourceId extension matches', {
             reference: `CarePlan/${OTHER_UUID}`, extension: [sourceIdExt('CarePlan/care-plan-1')]
-        }]
+        }],
+        ['the entry reference is an absolute URL with the blocked uuid',
+            { reference: `https://fhir.example.com/4_0_0/CarePlan/${BLOCKED_UUID}` }],
+        ['the entry reference is an absolute URL with the blocked source id',
+            { reference: 'https://fhir.example.com/4_0_0/CarePlan/care-plan-1' }],
+        ['the absolute URL names a version', { reference: 'https://fhir.example.com/CarePlan/care-plan-1/_history/2' }],
+        ['the absolute URL ends with a slash', { reference: 'http://fhir.example.com/CarePlan/care-plan-1/' }]
     ])('removes a section when %s', (_name, entry) => {
         const resource = composition([
             { id: 'blocked', entry: [entry] },
@@ -483,7 +489,11 @@ describe('filterCompositionBlockedReferenceSections', () => {
             reference: 'CarePlan/care-plan-3', extension: [{ url: 'https://example.com/other', valueString: 'CarePlan/care-plan-1' }]
         }],
         ['an entry with no reference', { display: 'no reference' }],
-        ['a contained (#) reference', { reference: '#care-plan-1' }]
+        ['a contained (#) reference', { reference: '#care-plan-1' }],
+        ['an absolute URL of another resource type', { reference: 'https://fhir.example.com/Observation/care-plan-1' }],
+        ['an absolute URL of another id', { reference: 'https://fhir.example.com/CarePlan/care-plan-3' }],
+        ['an absolute URL with no resource path', { reference: 'https://fhir.example.com/' }],
+        ['a urn reference', { reference: 'urn:uuid:care-plan-1' }]
     ])('keeps a section for %s', (_name, entry) => {
         const resource = composition([{ id: 'kept', entry: [entry] }]);
 
@@ -536,6 +546,80 @@ describe('filterCompositionBlockedReferenceSections', () => {
         filterBlocked(resource, { CarePlan: ['care-plan-1'] });
 
         expect(resource).not.toHaveProperty('section');
+    });
+
+    describe('narrative of a Composition that lost a section', () => {
+        const NARRATIVE = { status: 'generated', div: '<div>mentions the hidden care plan</div>' };
+        const BLOCKED_ENTRY = { reference: 'CarePlan/care-plan-1' };
+        const KEPT_ENTRY = { reference: 'CarePlan/care-plan-3' };
+
+        test('removes the Composition text when a section was removed', () => {
+            const resource = { ...composition([{ id: 'blocked', entry: [BLOCKED_ENTRY] }, { id: 'kept', entry: [KEPT_ENTRY] }]), text: NARRATIVE };
+
+            filterBlocked(resource, { CarePlan: ['care-plan-1'] });
+
+            expect(resource).not.toHaveProperty('text');
+            expect(sectionIds(resource.section)).toEqual(['kept']);
+        });
+
+        test('removes the Composition text when only a nested section was removed', () => {
+            const resource = {
+                ...composition([{ id: 'parent', section: [{ id: 'child', entry: [BLOCKED_ENTRY] }] }]),
+                text: NARRATIVE
+            };
+
+            filterBlocked(resource, { CarePlan: ['care-plan-1'] });
+
+            expect(resource).not.toHaveProperty('text');
+        });
+
+        test('removes the text of a kept section that held a removed one, but not of its siblings', () => {
+            const resource = {
+                ...composition([
+                    {
+                        id: 'parent', text: NARRATIVE, entry: [KEPT_ENTRY],
+                        section: [
+                            { id: 'child-blocked', entry: [BLOCKED_ENTRY] },
+                            { id: 'child-kept', text: NARRATIVE, entry: [KEPT_ENTRY] }
+                        ]
+                    },
+                    { id: 'sibling', text: NARRATIVE, entry: [KEPT_ENTRY] }
+                ])
+            };
+
+            filterBlocked(resource, { CarePlan: ['care-plan-1'] });
+
+            const [parent, sibling] = resource.section;
+            expect(parent).not.toHaveProperty('text');
+            expect(parent.section[0].text).toEqual(NARRATIVE);
+            expect(sibling.text).toEqual(NARRATIVE);
+        });
+
+        test.each([
+            ['no section references a blocked resource', { CarePlan: ['care-plan-9'] }],
+            ['nothing is hidden', {}]
+        ])('keeps the Composition text when %s', (_name, excludeMap) => {
+            const resource = { ...composition([{ id: 'kept', text: NARRATIVE, entry: [KEPT_ENTRY] }]), text: NARRATIVE };
+
+            filterBlocked(resource, excludeMap);
+
+            expect(resource.text).toEqual(NARRATIVE);
+            expect(resource.section[0].text).toEqual(NARRATIVE);
+        });
+
+        test('the sensitive-section filter leaves the Composition text alone (separate rule)', () => {
+            const resource = {
+                ...composition([{
+                    id: 'sensitive',
+                    code: { coding: [{ system: SENSITIVE_CATEGORY.SYSTEM, code: 'denied' }] }
+                }]),
+                text: NARRATIVE
+            };
+
+            filterCompositionSensitiveSections(resource, new Set(['denied']));
+
+            expect(resource.text).toEqual(NARRATIVE);
+        });
     });
 
     test.each([
