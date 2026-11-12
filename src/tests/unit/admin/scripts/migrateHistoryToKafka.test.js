@@ -124,9 +124,9 @@ describe('migrateHistoryToKafka script', () => {
             ['the stored _recorded for a DELETE (no offset)', { recorded: '2026-11-01T10:00:31.123Z', method: 'DELETE' }, '2026-11-01T10:00:31.123Z'],
             ['lastUpdated when _recorded is missing', {}, '2026-11-01T10:00:30.000Z'],
             ['lastUpdated + 5 ms for a DELETE whose _id is not an ObjectId', { method: 'DELETE' }, '2026-11-01T10:00:30.005Z'],
-            ['the _id time for a DELETE deleted after lastUpdated', { method: 'DELETE', mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:05:12.000Z'],
+            ['the _id time for a DELETE', { method: 'DELETE', mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:05:12.000Z'],
             ['the _id time for a DELETE whose _id is a hex string', { method: 'DELETE', mongoId: objectIdAt('2026-11-01T10:05:12.000Z').toHexString() }, '2026-11-01T10:05:12.000Z'],
-            ['lastUpdated + 5 ms for a DELETE in the same second as lastUpdated', { method: 'DELETE', lastUpdated: '2026-11-01T10:00:30.700Z', mongoId: objectIdAt('2026-11-01T10:00:30.900Z') }, '2026-11-01T10:00:30.705Z'],
+            ['the _id time for a DELETE even when it is not later than lastUpdated', { method: 'DELETE', lastUpdated: '2026-11-01T10:00:30.700Z', mongoId: objectIdAt('2026-11-01T10:00:30.900Z') }, '2026-11-01T10:00:30.000Z'],
             ['lastUpdated for a PUT, not the _id time', { mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:00:30.000Z'],
             ['the stored _recorded for a DELETE, not the _id time', { method: 'DELETE', recorded: '2026-11-01T10:00:31.123Z', mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:00:31.123Z']
         ])('uses %s', (_name, fields, expected) => {

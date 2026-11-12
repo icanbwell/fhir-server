@@ -12,12 +12,10 @@
  * Messages go through the live HistoryKafkaProducer, so topic, key, CloudEvent headers, body, chunk size,
  * compression, retries and timeouts are the same as the live history write. The `_recorded` sent is:
  * - the document's `_recorded`, when it has one
- * - otherwise, for a DELETE entry, the creation time in its MongoDB ObjectId `_id` (when the delete
- *   was written), if that is later than `resource.meta.lastUpdated`; else `lastUpdated` plus 5 ms.
- *   A delete history entry carries the same versionId as the last version, so its `_recorded` must
- *   be later than that version's to stay a separate row in the ClickHouse table (ReplacingMergeTree
- *   keyed on resource_type, _uuid, _recorded, version_id). The ObjectId time has 1-second precision,
- *   so a delete in the same second as the last update falls back to the 5 ms offset.
+ * - otherwise, for a DELETE entry, the creation time in its MongoDB ObjectId `_id`, i.e. when the
+ *   delete was written (1-second precision). Only when `_id` is not an ObjectId, `lastUpdated` plus
+ *   5 ms, which keeps the entry a separate, later row than the last version it shares a versionId with
+ *   in the ClickHouse table (ReplacingMergeTree keyed on resource_type, _uuid, _recorded, version_id).
  * - otherwise `resource.meta.lastUpdated`
  *
  * A record is deleted from MongoDB only after its produce succeeded. A record that fails (bad document,
@@ -201,8 +199,7 @@ function objectIdTime (id) {
 
 /**
  * The `_recorded` to send for a history document: its own `_recorded`; else, for a DELETE entry, the
- * `_id` creation time when it is later than `resource.meta.lastUpdated`, otherwise `lastUpdated` + 5 ms;
- * else `resource.meta.lastUpdated`.
+ * `_id` creation time (`lastUpdated` + 5 ms when `_id` is not an ObjectId); else `resource.meta.lastUpdated`.
  * @param {Object} doc MongoDB history document
  * @returns {Date}
  * @throws {Error} when neither value is a valid date
@@ -223,10 +220,7 @@ function resolveRecorded (doc) {
     if (!isDelete) {
         return lastUpdated;
     }
-    const deletedAt = objectIdTime(doc._id);
-    return deletedAt && deletedAt > lastUpdated
-        ? deletedAt
-        : new Date(lastUpdated.getTime() + DELETE_RECORDED_OFFSET_MS);
+    return objectIdTime(doc._id) ?? new Date(lastUpdated.getTime() + DELETE_RECORDED_OFFSET_MS);
 }
 
 /**
