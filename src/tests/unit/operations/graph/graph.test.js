@@ -525,7 +525,18 @@ describe('GraphOperation', () => {
             );
         });
 
-        test('does not audit a failed request that has not streamed anything to the client', async () => {
+        test('records a failed streaming request that sent nothing, for the requested type with no ids', async () => {
+            mockGraphHelper.processGraphAsync.mockRejectedValue(new Error('boom'));
+
+            await expect(graphAsync({ responseStreamer: {} })).rejects.toThrow('boom');
+
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledTimes(1);
+            expect(mockAuditLogger.queueReadAuditEntries).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Patient', resources: [], outcome: '8' })
+            );
+        });
+
+        test('does not audit a failed non-streaming request, which returns nothing', async () => {
             mockGraphHelper.processGraphAsync.mockRejectedValue(new Error('boom'));
 
             await expect(graphAsync()).rejects.toThrow('boom');

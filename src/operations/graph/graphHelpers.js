@@ -1733,6 +1733,8 @@ class GraphHelper {
                  * @type {Resource}
                  */
                 const topLevelResource = entity.resource;
+                // taken before enrichment: a provider can replace the resource object with a copy
+                const topLevelIdentifier = new ResourceIdentifier(topLevelResource);
                 /**
                  * @type {BundleEntry[]}
                  */
@@ -1800,6 +1802,11 @@ class GraphHelper {
                     if (idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
                         continue;
                     }
+                    // reported before it is written: writing strips the internal ids from the resource
+                    returnedResources.add(
+                        bundleEntry1.resource,
+                        resourceIdentifier.equals(topLevelIdentifier) ? attachedContained : []
+                    );
                     if (responseStreamer) {
                         await responseStreamer.writeBundleEntryAsync(
                             {
@@ -1809,10 +1816,6 @@ class GraphHelper {
                     } else {
                         entries.push(bundleEntry1);
                     }
-                    returnedResources.add(
-                        bundleEntry1.resource,
-                        bundleEntry1.resource === topLevelResource ? attachedContained : []
-                    );
                     idsOfBundleEntriesProcessed.push(resourceIdentifier);
                 }
             }

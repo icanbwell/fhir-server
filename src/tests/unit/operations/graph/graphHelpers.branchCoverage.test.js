@@ -974,6 +974,26 @@ describe('GraphHelper - branch coverage & security (Category A)', () => {
                 expect(returned).toEqual([{ resourceType: 'Patient', _uuid: 'pat-1' }]);
             });
 
+            test.each([
+                ['contained=false, not streaming', false, undefined],
+                ['contained=false, streaming', false, strippingStreamer()],
+                ['contained=true, not streaming', true, undefined],
+                ['contained=true, streaming', true, strippingStreamer()]
+            ])('reports the same resources when enrichment replaces the returned resource objects (%s)', async (_, contained, responseStreamer) => {
+                // some enrichment providers return a copy of the resource (for example for tracked Groups)
+                graphHelper.enrichmentManager.enrichBundleEntriesAsync = jest.fn().mockImplementation(
+                    ({ entries }) => Promise.resolve(entries.map((e) => ({ ...e, resource: { ...e.resource } })))
+                );
+                docsByResourceType.Patient = [{ resourceType: 'Patient', id: 'p1', _uuid: 'pat-1' }];
+                docsByResourceType.Condition = [condition(1), condition(2)];
+
+                const returned = await runAsync({ contained, responseStreamer });
+
+                expect(returned.map((r) => `${r.resourceType}/${r._uuid}`).sort()).toEqual([
+                    'Condition/cond-1', 'Condition/cond-2', 'Patient/pat-1'
+                ]);
+            });
+
             test('does not report a resource that is not written because it was already processed', async () => {
                 docsByResourceType.Patient = [{ resourceType: 'Patient', id: 'p1', _uuid: 'pat-1' }];
                 const { ResourceIdentifier } = require('../../../../fhir/resourceIdentifier');
