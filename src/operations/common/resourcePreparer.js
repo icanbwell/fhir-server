@@ -1,6 +1,7 @@
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { CompositionSectionFilterEnrichmentProvider } = require('../../enrich/providers/compositionSectionFilterEnrichmentProvider');
+const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('../security/scopesManager');
 const { AccessIndexManager } = require('./accessIndexManager');
@@ -15,6 +16,7 @@ class ResourcePreparer {
      * @param {ResourceManager} resourceManager
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      * @param {CompositionSectionFilterEnrichmentProvider} compositionSectionFilterEnrichmentProvider
+     * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
      */
     constructor({
         scopesManager,
@@ -22,7 +24,8 @@ class ResourcePreparer {
         enrichmentManager,
         resourceManager,
         identifierEnrichmentProvider,
-        compositionSectionFilterEnrichmentProvider
+        compositionSectionFilterEnrichmentProvider,
+        groupExtendedTagEnrichmentProvider
     }) {
         /**
          * @type {ScopesManager}
@@ -59,6 +62,12 @@ class ResourcePreparer {
          */
         this.compositionSectionFilterEnrichmentProvider = compositionSectionFilterEnrichmentProvider;
         assertTypeEquals(compositionSectionFilterEnrichmentProvider, CompositionSectionFilterEnrichmentProvider);
+
+        /**
+         * @type {GroupExtendedTagEnrichmentProvider}
+         */
+        this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
+        assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
     }
 
     /**
@@ -108,6 +117,11 @@ class ResourcePreparer {
      */
     async prepareResourceAsync({ parsedArgs, element, resourceType, enrichmentContext }) {
         if (parsedArgs.get('_elements') && !parsedArgs.get('_isGraphQLRequest')) {
+            // Before selecting elements: the extended tag is derived from _extended, which
+            // selectSpecificElements drops. When meta isn't requested, the tag goes with meta.
+            [element] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({
+                resources: [element]
+            });
             /**
              * @type {Resource}
              */
