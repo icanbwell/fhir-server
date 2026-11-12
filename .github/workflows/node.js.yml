@@ -70,31 +70,6 @@ jobs:
           path: coverage/coverage-final.json
           if-no-files-found: warn
           retention-days: 1
-  build-write-pipeline:
-    runs-on: ubuntu-latest
-    name: test write pipeline (chunk ${{ matrix.shard }}/${{ strategy.job-total }})
-    strategy:
-      matrix:
-        shard: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ]
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - name: Use Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version-file: '.nvmrc'
-      - name: Enable Corepack
-        run: corepack enable
-      - run: | # retry since mongo memory server fails to download sometimes
-          yarn install || yarn install
-      - name: jest
-        run: |
-          ./node_modules/.bin/jest --config jest.writePipeline.config.js --no-watchman --silent --runInBand --forceExit --logHeapUsage --shard=${{ matrix.shard }}/${{ strategy.job-total }}
-        env:
-          NODE_OPTIONS: "--max-old-space-size=10240 --expose-gc"
-          WRITE_PIPELINE_OPERATIONS: merge
   test-unit:
     runs-on: ubuntu-latest
     name: test (unit)

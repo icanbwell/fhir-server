@@ -76,6 +76,10 @@ Any of these is a failure even if the code works:
        of work.
      - The audit `ids` and the access-log results follow the same order. For batches larger than
        the audit's id limit, that changes which ids share an AuditEvent.
+     - Resources of different types that share one `_uuid` also come back in request order. Today
+       the written one comes first.
+     - Patient and person change events are sent in the order the writes run, so they follow the
+       request order too. The events themselves are the same.
      - Writes are queued in request order, one at a time. The same new resource can be sent twice
        in one request, once by id and owner tag and once by its `_uuid`. Today two parallel inserts
        can both miss each other's pending write and queue two writes, which adds a second
@@ -381,22 +385,31 @@ today two of the three branches send the raw `patientId`.
 
 **Rollout.** Admin callers must send `_uuid`s before the admin switch is turned on. Existing admin
 tests that pass plain ids fail with the switch on. Like the other accepted differences, they are
-excluded by name and replaced by new tests.
+updated to the new behavior and get `oldWrite` copies (see "Testing").
 
 ## Testing
 
-- **Parity.** The full integration suite runs a second time with every finished switch on, unchanged,
-  and must pass. This is a second CI job in `.github/workflows/node.js.yml` that mirrors the existing
-  16-shard `test` job and sets `WRITE_PIPELINE_OPERATIONS` to every switch that has shipped. It runs
-  in parallel on its own runners: twice the runners, same wall-clock time. Each operation's PR adds
-  its name to that job's list. `configManager` reads the environment on each call, so setting the
-  variable on the job is enough.
+- **New path by default in tests (user decision).** `jest/setEnvVars.js` sets
+  `WRITE_PIPELINE_OPERATIONS` to every switch that has shipped, so the full suite in the existing
+  16-shard `test` job, and every local run, uses the new path. Each operation's PR adds its name
+  there. `configManager` reads the environment on each call, so a test file can set the variable
+  for itself.
 - **Retry-dependent case.** The parity case for a new resource sent by id and by `_uuid` in one
   request runs on the new path only. The new path queues one write for it (accepted difference 5);
   the old path's result depends on which retry code is in place, so it is not pinned.
-- **Accepted differences (my call).** If an existing test fails with the switch on only because of
-  one of the accepted differences, it is not edited. It is excluded from the switch-on run by
-  name, with the reason stated next to the exclusion, and a new test covers the new behavior.
+- **Accepted differences (user decision).** No test is skipped. If an existing test fails on the new
+  path only because of one of the accepted differences, its fixtures are updated to the new
+  behavior, and the file is copied next to it as `oldWrite<Name>.test.js`. The copy turns the
+  switch off and keeps the old fixtures, which move to an `oldWrite/` folder next to each changed
+  fixture. For `$merge` that is 26 tests in 25 files, all failing only on accepted difference 5: 24
+  expect results sorted by `_uuid`, one expects the written result first among resources that
+  share one `_uuid`, and one expects change events in the old order. `merge.changeEvents.test.js`
+  checks that both paths send the same change events.
+- **Old path coverage (my call).** With the new path on by default, the old path is run by the
+  `oldWrite` copies and the parity tests only. The coverage report the CI merges across its jobs
+  shows how much of it they keep; more test files get `oldWrite` copies until the old path's
+  coverage is close to what the full suite gave it before the switch. The `oldWrite` copies and
+  their fixtures are deleted with the old path.
 - **New tests:**
   - Integration tests for PUT and PATCH concurrency with the switch on: two concurrent writes both
     land, the version goes up by two, no PATCH operation is lost, and a write that keeps losing gets
@@ -412,8 +425,8 @@ excluded by name and replaced by new tests.
     a missing access check.
   - A `test.each` unit test for parsing `WRITE_PIPELINE_OPERATIONS`, including empty, single,
     several and unknown names.
-- The existing access and tenant-isolation suites for these operations are part of the switch-on
-  parity run.
+- The existing access and tenant-isolation suites for these operations run on the new path in the
+  main CI job.
 
 ## Observability
 
@@ -444,12 +457,13 @@ today.
   order the resources were sent, after any request-level errors such as a Parameters body without
   resources. Today they are sorted by `_uuid`. The audit `ids` and the access-log results follow
   the same order, so for batches larger than the audit's id limit, different ids share an
-  AuditEvent. A new resource sent twice in one request, once by id and owner tag and once by its
+  AuditEvent. Patient and person change events are sent in the same order; the events themselves
+  don't change. A new resource sent twice in one request, once by id and owner tag and once by its
   `_uuid`, now gets one result entry; today it can also get a second
   `created: false, updated: false` entry.
 - **Which error a resource gets** (accepted difference 1). The checks run in one fixed order, so a
   resource that fails two of them may get the other of the two errors than today. The `$merge`
-  parity tests found no such case; the switch-on CI run checks the rest of the suite.
+  parity tests and the full suite, which runs the new path, found no such case.
 - **Schema failure metric.** An incoming resource that fails the schema check now counts in
   `fhir_validation_failure_total` (`validation_stage="schema"`, `path="save"`, with its resource
   type). Today `$merge` only counts schema failures of the merged or new document, which an
@@ -510,7 +524,4 @@ exist yet). Options considered:
   shared-steps rule in "Step order".
 - For each step, whether to call the existing function or a cleaner copy.
 - The mechanism for conflict handling in the new path (see "Concurrency").
-- How the second CI job is wired: a separate job, or a matrix dimension with an explicit shard
-  total. Adding a dimension to the existing matrix would double `strategy.job-total`, which the
-  `--shard` argument uses.
 - Metric and span names.

@@ -91,13 +91,13 @@ describe('Patient Person Change Event Producer Tests', () => {
                 resourceType: 'Patient'
             },
             {
-                changedResourceTypes: ['Account', 'Patient', 'Person'],
-                id: '7b99904f-2f85-51a3-9398-e2eed6854639',
+                changedResourceTypes: ['Person'],
+                id: '9168d18f-8ad4-5f07-8ace-dd2979455b4e',
                 resourceType: 'Person'
             },
             {
-                changedResourceTypes: ['Person'],
-                id: '9168d18f-8ad4-5f07-8ace-dd2979455b4e',
+                changedResourceTypes: ['Account', 'Patient', 'Person'],
+                id: '7b99904f-2f85-51a3-9398-e2eed6854639',
                 resourceType: 'Person'
             },
             {

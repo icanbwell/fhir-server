@@ -234,7 +234,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 { ...clientConsentGivenResource, status: 'inactive' }, clientConsentDeniedResource
             ]).set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{ created: true }, { updated: true }]);
+            expect(resp).toHaveMergeResponse([{ updated: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.c12345')
@@ -274,7 +274,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 { ...client1ConsentGivenResource, status: 'inactive' }, client1ConsentDeniedResource
             ]).set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{ created: true }, { updated: true }]);
+            expect(resp).toHaveMergeResponse([{ updated: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.c123456')

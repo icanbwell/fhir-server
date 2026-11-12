@@ -265,11 +265,11 @@ describe('Person Tests', () => {
         expect(resp).toHaveMergeResponse([
             {
                 created: false,
-                updated: true
+                updated: false
             },
             {
                 created: false,
-                updated: false
+                updated: true
             },
             {
                 created: false,

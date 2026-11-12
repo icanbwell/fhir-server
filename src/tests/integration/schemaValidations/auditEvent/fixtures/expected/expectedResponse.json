@@ -1,5 +1,13 @@
 [
   {
+    "created": true,
+    "id": "1",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "bwell",
+    "updated": false,
+    "uuid": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+  },
+  {
     "created": false,
     "id": "2",
     "issue": {
@@ -32,13 +40,5 @@
     "sourceAssigningAuthority": "bwell",
     "uuid": "27153f78-54c7-5029-889b-1026a9580ebf",
     "updated": false
-  },
-  {
-    "created": true,
-    "id": "1",
-    "resourceType": "AuditEvent",
-    "sourceAssigningAuthority": "bwell",
-    "updated": false,
-    "uuid": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
   }
 ]

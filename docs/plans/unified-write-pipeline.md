@@ -25,7 +25,7 @@
 - Run tests one file at a time:
   - unit: `yarn jest --config jest.unit.config.js --runInBand --forceExit <file>`
   - integration: `yarn jest --runInBand --forceExit <file>`
-  - switch-on: `WRITE_PIPELINE_OPERATIONS=merge yarn jest --config jest.writePipeline.config.js --runInBand --forceExit <file>`
+  - integration tests run the new path by default (`jest/setEnvVars.js`); an `oldWrite<Name>.test.js` copy turns it off for its own file
 - Lint with `yarn run lint`.
 - Stage your own files by explicit path. Never stage the user's unrelated local changes. Commit only when the user asks, with the message `<ticket> <description>`.
 
@@ -36,8 +36,8 @@ These are the failure modes the spec implies but no step obviously exercises. Ea
 1. A Bundle entry with no `resource` is ignored on both paths, as today (200, body `[]`). Parity case `ignores a Bundle entry without a resource` (Task 3).
 2. Entries without a `uuid` (structural and scope failures) are ordered as today in a mixed list. Parity case `orders structural and scope failures as today` (Task 3).
 3. More than 100 NDJSON lines commit in several batches; placeholders and audit stay as today. Parity case `streams more than one batch` (Task 5).
-4. A merge update that loses a concurrency race gets the resolver's `conflict` entry on the new path too. Switch-on run of `bulk_concurrency_resolution.test.js` (Task 6).
-5. The GraphQL mutations that call `mergeAsync` behave the same on the new path. Switch-on run of the `patient.generalPractitioner` and `patient.careteam` suites (Task 6).
+4. A merge update that loses a concurrency race gets the resolver's `conflict` entry on the new path too. `bulk_concurrency_resolution.test.js` on the new path (Task 6).
+5. The GraphQL mutations that call `mergeAsync` behave the same on the new path. The `patient.generalPractitioner` and `patient.careteam` suites on the new path (Task 6).
 
 ---
 
@@ -369,26 +369,14 @@ Each step mirrors the old code it replaces. Cite the base branch's `merge.js`, `
 - [ ] **Step 6: Run the parity test.** Expected: all cases PASS on both paths.
 - [ ] **Step 7: Stage** the files.
 
-### Task 6: Switch-on CI job and the merge suites
+### Task 6: New path by default in tests, and the merge suites
 
 **Files:**
-- Create: `jest.writePipeline.config.js`
-- Create: `src/tests/writePipelineSwitchOnExclusions.js`
-- Modify: `.github/workflows/node.js.yml`
+- Modify: `jest/setEnvVars.js`
+- Create: `oldWrite<Name>.test.js` next to each test file that fails only on an accepted difference, and `oldWrite/` fixture folders next to the fixtures it changes
 
-**Interfaces:**
-- Produces: `writePipelineSwitchOnExclusions: { testName: string, reason: string }[]`, empty to start.
-
-- [ ] **Step 1: Write the config.** `jest.writePipeline.config.js` spreads `require('./jest.config')`.
-  - When the exclusion list isn't empty, it adds `testNamePattern: ^(?!(<escaped full test names joined by \|>)$).*`.
-  - The exclusions file exports the array, with a JSDoc typedef for the entry shape.
-- [ ] **Step 2: Add the CI job.** Add `build-write-pipeline` beside `build`, as a copy of it with these changes:
-  - name `test write pipeline (chunk ${{ matrix.shard }}/${{ strategy.job-total }})`
-  - `--config jest.writePipeline.config.js` in place of `jest.config.js`
-  - `WRITE_PIPELINE_OPERATIONS: merge` added to the job's `env`
-
-  It keeps its own 16-shard matrix, so `strategy.job-total` stays 16.
-- [ ] **Step 3: Run two or three merge-related suites locally with the switch on**, one file at a time, using the switch-on command (user decision). The switch-on CI job runs the rest, on a draft PR. The merge-related suites are:
+- [ ] **Step 1: Turn the switch on for tests.** `jest/setEnvVars.js` sets `WRITE_PIPELINE_OPERATIONS` to `merge` (user decision), so the existing 16-shard `test` job runs the new path. There is no second CI job.
+- [ ] **Step 2: Run two or three merge-related suites locally**, one file at a time (user decision). CI runs the rest, on a draft PR. The merge-related suites are:
   - every file under `src/tests/integration/merge/`
   - `src/tests/integration/accessLog/accessLogs.merge.test.js`
   - `src/tests/integration/bugs/mergeWithMissingId/mergeWithMissingId.test.js`
@@ -400,10 +388,11 @@ Each step mirrors the old code it replaces. Cite the base branch's `merge.js`, `
   - `src/tests/integration/graphql/patient/patient.careteam.test.js`
 
   Expected: PASS.
-- [ ] **Step 4: Triage any failure.**
-  - A difference outside the accepted one is a bug in the new path: fix it, and add a parity case that would have caught it.
-  - A request that fails two checks and now gets the other error is the accepted difference. Add an exclusion with the full test name and the reason, plus a parity case that pins the new behavior.
-- [ ] **Step 5: Stage** the three files and any fixes.
+- [ ] **Step 3: Triage any failure.**
+  - A difference outside the accepted ones is a bug in the new path: fix it, and add a parity case that would have caught it.
+  - A test that fails only on an accepted difference, such as a request that fails two checks and now gets the other error, or results and change events in request order, gets its fixtures updated to the new behavior. No test is skipped. Copy the file to `oldWrite<Name>.test.js` next to it: the copy sets `WRITE_PIPELINE_OPERATIONS` to `''` for its file and requires the old fixtures, moved to an `oldWrite/` folder next to each changed fixture.
+- [ ] **Step 4: Check the old path's coverage** in the merged coverage report of the CI run. Add `oldWrite` copies of more merge-related files until the old path's coverage is close to what the full suite gave it before the switch.
+- [ ] **Step 5: Stage** the files and any fixes.
 
 ### Task 7: ADR, lint and security review
 
@@ -417,7 +406,7 @@ Each step mirrors the old code it replaces. Cite the base branch's `merge.js`, `
 
 ## Follow-on PRs (outline only, one plan each)
 
-Each PR adds its name to the switch-on job and goes through the same parity-test pattern. Each PR runs the one flow in `WritePipeline.processAsync`. Where the spec's Profiles table says an operation does a step differently, the PR adds a named variant to that step, and its profile picks the variant by name, as plain data. Each PR adds `writePipeline/profiles/<operation>.js` and `writePipeline/responder/<operation>.js`, and its operation file passes both to `writePipeline.runAsync`. The first operation that runs access on result (PUT) adds that step's call and its name to `WRITE_STEP_NAMES`; the profiles that don't run it then turn it off. The user-visible changes each PR must announce are in the spec's "Changes to announce".
+Each PR adds its name to `WRITE_PIPELINE_OPERATIONS` in `jest/setEnvVars.js` and goes through the same parity-test and `oldWrite` pattern. Each PR runs the one flow in `WritePipeline.processAsync`. Where the spec's Profiles table says an operation does a step differently, the PR adds a named variant to that step, and its profile picks the variant by name, as plain data. Each PR adds `writePipeline/profiles/<operation>.js` and `writePipeline/responder/<operation>.js`, and its operation file passes both to `writePipeline.runAsync`. The first operation that runs access on result (PUT) adds that step's call and its name to `WRITE_STEP_NAMES`; the profiles that don't run it then turn it off. The user-visible changes each PR must announce are in the spec's "Changes to announce".
 
 1. **`$import` worker.**
    - The profile runs `$merge`'s variants, plus an owner-tag backfill before validation.
