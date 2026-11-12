@@ -86,9 +86,9 @@ class PatientDataViewControlExclusion {
             return emptyLookup();
         }
         const { personId, owner } = person;
-        // Every Person has an owner tag (writes reject a resource without one), and enrollment is
-        // decided by it. A Person without one is bad data, not "enrolled", so getConsentAsync fails
-        // the request.
+        // Every Person should have an owner tag (writes reject a resource without one), and enrollment
+        // is decided by it. For a member, a Person without one is treated as enrolled by getConsentAsync
+        // (the Consent is applied); only an opt-in on a URL Person refuses it, in loadUrlPersonAsync.
         const { viewControlResourceToExcludeMap, viewControlConsentQueries, viewControlConsentQueryOptions } =
             await this.patientDataViewControlManager.getConsentAsync({
                 requestInfo,
@@ -139,6 +139,7 @@ class PatientDataViewControlExclusion {
      * that owner is refused instead of getting an unfiltered record.
      * @private
      * @return {Promise<{ personId: string, owner: string|undefined }>}
+     * @throws {AssertionError} when the Person has no owner tag
      * @throws {ForbiddenError} when the owner is enrolled and the caller can't search its Consents
      */
     async loadUrlPersonAsync({ requestInfo, base_version, subject }) {
@@ -147,6 +148,12 @@ class PatientDataViewControlExclusion {
             base_version,
             personId: subject.personId
         });
+        // An opt-in names one Person on purpose, so a Person that can't be tied to an owner fails the
+        // request rather than guessing: the owner decides enrollment and the scope check below.
+        assertIsValid(
+            owner,
+            'dataConnectionViewControl: the Person has no owner tag, so client enrollment cannot be decided'
+        );
         if (this.configManager.clientsWithDataConnectionViewControl.includes(owner)) {
             this.assertCallerCanSearchOwnerConsents({ requestInfo, owner });
         }

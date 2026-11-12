@@ -79,10 +79,10 @@ describe('PatientDataViewControlManager', () => {
             });
 
             test.each([['null', null], ['undefined', undefined], ['empty', '']])(
-                'throws when the Person has no owner tag (%s), without a Consent search',
+                'treats a Person with no owner tag (%s) as enrolled: the Consent is searched, not failed',
                 async (_name, owner) => {
-                    await expect(getConsent({ owner })).rejects.toThrow('has no owner tag');
-                    expect(mockSearchManager.fetchResourcesByArgsAsync).not.toHaveBeenCalled();
+                    await getConsent({ owner });
+                    expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledTimes(1);
                 }
             );
 

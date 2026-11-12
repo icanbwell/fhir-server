@@ -93,10 +93,12 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
         });
 
         test.each([['null', null], ['undefined', undefined]])(
-            'throws (assertIsValid) when the Person has no owner tag (%s), without querying Consent',
+            'a Person with no owner tag (%s) is treated as enrolled: the Consent is queried, not failed',
             async (_name, owner) => {
-                await expect(getConsent({ owner })).rejects.toThrow('has no owner tag');
-                expect(mockSearchManager.fetchResourcesByArgsAsync).not.toHaveBeenCalled();
+                await getConsent({ owner });
+                expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledWith(
+                    expect.objectContaining({ resourceType: 'Consent' })
+                );
             }
         );
 

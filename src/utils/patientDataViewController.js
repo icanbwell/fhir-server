@@ -43,7 +43,10 @@ class PatientDataViewControlManager {
      *
      * The caller passes the Person and that Person's owner (the client the Person belongs to), which
      * decides enrollment: an owner that isn't in configManager.clientsWithDataConnectionViewControl
-     * gets an empty result without a Consent search.
+     * gets an empty result without a Consent search. A Person with no owner tag (bad data: writes
+     * reject it) can't be shown to be outside the enrolled clients, so it is treated as enrolled and
+     * the Consent is applied. That removes data and never adds it, and it keeps one such Person from
+     * failing every read.
      * @param {{
      *  requestInfo: FhirRequestInfo,
      *  base_version: string,
@@ -56,7 +59,6 @@ class PatientDataViewControlManager {
      *  viewControlConsentQueries: QueryItem[],
      *  viewControlConsentQueryOptions: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]
      * }>}
-     * @throws {AssertionError} when the Person has no owner tag: enrollment can't be decided
      */
     async getConsentAsync({
         requestInfo,
@@ -66,12 +68,9 @@ class PatientDataViewControlManager {
         patientFilterReferences
     }) {
         assertIsValid(personId, 'dataConnectionViewControl: personId is required');
-        assertIsValid(
-            owner,
-            'dataConnectionViewControl: the Person has no owner tag, so client enrollment cannot be decided'
-        );
 
-        if (!this.configManager.clientsWithDataConnectionViewControl.includes(owner)) {
+        // an owner of null/undefined/'' is "enrolled": apply the Consent rather than fail the read
+        if (owner && !this.configManager.clientsWithDataConnectionViewControl.includes(owner)) {
             return {
                 viewControlResourceToExcludeMap: {},
                 viewControlConsentQueries: [],

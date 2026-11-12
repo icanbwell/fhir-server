@@ -313,8 +313,9 @@ for user tokens; `$graph` and `$summary` are not covered yet.
 - *Composition sections:* `DataViewControlCompositionEnrichmentProvider` removes sections whose
   entries reference a hidden resource, using the exclude map the read path passes in the
   enrichment context (§10's section filter is a separate, sensitivity-based rule).
-- *Fails closed:* a Person without an owner tag or a failed Consent lookup fails the request
-  instead of returning unfiltered data.
+- *Fails closed:* a failed Consent lookup fails the request instead of returning unfiltered data. A
+  member's Person without an owner tag is treated as enrolled, so the Consent still applies; the
+  service-token opt-in on a Person without an owner tag fails the request.
 
 Full detail: `readme/patientDataViewControl.md`.
 

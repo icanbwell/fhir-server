@@ -153,8 +153,10 @@ leave it out until the cache entry expires (`EVERYTHING_CACHE_TTL_SECONDS`, 300 
 ## Failures
 
 The filter fails closed: if the block can't be determined, no data is returned.
-- The member's Person has no owner tag: the request fails (an error status on REST, an `errors`
-  entry on GraphQL, an error result on `/mcp`).
+- The member's Person has no owner tag: this is not a failure. Enrollment can't be decided without
+  an owner, so the Person is treated as enrolled and the Consent is applied. The read succeeds with
+  the hidden resources removed. With the service-token opt-in the Person is named on purpose, so
+  there a Person without an owner tag fails the request.
 - The member's Person does not exist (for example, a token issued before the Person is created):
   this is not a failure. The member is linked to no Patient and has no Consent, so the read runs
   with nothing hidden and returns only what the patient scope allows.

@@ -448,37 +448,51 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
     });
 
     describe('caller Person has no owner tag', () => {
-        const httpError = (resp) => expect(resp.status).toBeGreaterThanOrEqual(400);
-        const graphqlError = (resp) => expect(resp.body.errors).toBeDefined();
-        const mcpError = (resp) => expect(parseMcpRpcResponse(resp).result?.isError).toBe(true);
-        // $everything streams the base Patient before the Consent lookup and reports a failed
-        // lookup as an OperationOutcome entry rather than an HTTP error
-        const everythingError = (resp) => expect(JSON.stringify(resp.body)).toContain('OperationOutcome');
         const userToken = () => userHeaders().Authorization.replace(/^Bearer /, '');
 
+        // A Person without an owner tag (bad data) can't be shown to be outside the enrolled clients,
+        // so it is treated as enrolled: the member's Consent is applied and the read still succeeds.
+        // by default the blocked CarePlan must not appear anywhere in the raw text. Two paths differ: a
+        // 404 names the id that was asked for, and $everything returns the member's own Consent, which
+        // names the blocked resource, so those two check the returned resources' ids instead.
+        const noBlockedText = (resp) => {
+            expect(String(resp.text)).not.toContain(BLOCKED);
+            expect(String(resp.text)).not.toContain(BLOCKED_UUID);
+        };
         test.each([
-            ['REST search', (r) => r.get('/4_0_0/CarePlan').set(userHeaders()), httpError],
-            ['REST streaming search', (r) => r.get('/4_0_0/CarePlan?_streamResponse=1').set(userHeaders()), httpError],
-            ['REST read-by-id', (r) => r.get(`/4_0_0/CarePlan/${UNBLOCKED_UUID}`).set(userHeaders()), httpError],
-            ['GraphQL v1', () => gqlV1('query { carePlan { entry { resource { id } } } }'), graphqlError],
+            ['REST search', (r) => r.get('/4_0_0/CarePlan').set(userHeaders()), noBlockedText],
+            ['REST streaming search', (r) => r.get('/4_0_0/CarePlan?_streamResponse=1').set(userHeaders()), noBlockedText],
+            ['REST read-by-id of a blocked resource',
+                (r) => r.get(`/4_0_0/CarePlan/${BLOCKED_UUID}`).set(userHeaders()),
+                (resp) => expect(resp.status).toBe(404)],
+            ['GraphQL v1', () => gqlV1('query { carePlan { entry { resource { id } } } }'), noBlockedText],
             ['GraphQL v2', (r) => r.post('/4_0_0/$graphqlv2')
                 .send({ operationName: null, variables: {}, query: 'query { carePlans { entry { resource { id } } } }' })
-                .set(userGraphqlHeaders()), graphqlError],
-            ['$everything', (r) => r.get(`/4_0_0/Patient/person.${PERSON_ID}/$everything`).set(userHeaders()), everythingError],
-            ['/mcp', async (r) => (await callMcpTool(r, userToken(), 'search_care_plan', {})).resp, mcpError]
-        ])('a user token of an enrolled deployment fails the request instead of returning data: %s', async (_name, send, assertFailed) => {
+                .set(userGraphqlHeaders()), noBlockedText],
+            ['$everything', (r) => r.get(`/4_0_0/Patient/person.${PERSON_ID}/$everything`).set(userHeaders()),
+                (resp) => {
+                    expect(allIdValues(resp.body)).not.toContain(BLOCKED_UUID);
+                    expect(allIdValues(resp.body)).toContain(UNBLOCKED_UUID);
+                }],
+            ['/mcp', async (r) => (await callMcpTool(r, userToken(), 'search_care_plan', {})).resp, noBlockedText]
+        ])('a user token of an enrolled deployment is filtered, not failed: %s', async (_name, send, assertFiltered) => {
             await seed();
             await stripPersonOwnerTag();
             const resp = await send(request);
             // raw text, not resp.body: /mcp answers with text/event-stream, which supertest leaves
             // out of resp.body, so a body-only check would pass without looking at anything
-            const body = String(resp.text);
-            expect(body.length).toBeGreaterThan(0);
-            // no CarePlan may come back, blocked or not: the request must not succeed
-            expect(body).not.toContain(BLOCKED);
-            expect(body).not.toContain(UNBLOCKED);
-            expect(body).not.toContain(UNBLOCKED_UUID);
-            assertFailed(resp);
+            expect(String(resp.text).length).toBeGreaterThan(0);
+            expect(resp.status).toBeLessThan(500);
+            assertFiltered(resp);
+        });
+
+        test('REST search still returns the unblocked CarePlan', async () => {
+            await seed();
+            await stripPersonOwnerTag();
+            const resp = await request.get('/4_0_0/CarePlan').set(userHeaders());
+            expect(resp.status).toBe(200);
+            expect(idsOf(resp.body)).toContain(UNBLOCKED);
+            expect(idsOf(resp.body)).not.toContain(BLOCKED);
         });
 
         test('a service token is unaffected', async () => {

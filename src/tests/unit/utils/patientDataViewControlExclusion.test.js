@@ -171,17 +171,16 @@ describe('PatientDataViewControlExclusion', () => {
         expect(getConsentAsync).not.toHaveBeenCalled();
     });
 
-    test('a member whose Person has no owner tag still reaches getConsentAsync, which fails the request', async () => {
+    test('a member whose Person has no owner tag still reaches getConsentAsync, which applies the Consent', async () => {
         // the Person walk found the Person and recorded that it has no owner
         getPatientIdsFromScopeAsync.mockImplementation(async ({ personIdFromJwtToken }) => {
             mockStore.set(`personOwnerFor-${personIdFromJwtToken}`, null);
             return [];
         });
-        getConsentAsync.mockRejectedValue(new Error('the Person has no owner tag'));
-        await expect(exclusion.applyAsync({
-            parsedArgs: newParsedArgs(), resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user
-        })).rejects.toThrow('no owner tag');
+        const parsedArgs = newParsedArgs();
+        await exclusion.applyAsync({ parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user });
         expect(getConsentAsync).toHaveBeenCalledWith(expect.objectContaining({ personId: 'person-1', owner: null }));
+        expect(idNotItems(parsedArgs)).toHaveLength(1);
     });
 
     test('enrollment of the caller is delegated to getConsentAsync: an empty map changes nothing', async () => {
@@ -327,6 +326,16 @@ describe('PatientDataViewControlExclusion', () => {
             await exclusion.getConsentLookupAsync({ requestInfo: service, base_version: '4_0_0', subject: urlSubject });
             expect(getAccessCodesFromScopes).not.toHaveBeenCalled();
         });
+
+        test.each([['undefined', undefined], ['null', null]])(
+            'an opt-in on a Person with no owner tag (%s) fails the request instead of guessing', async (_name, owner) => {
+                findPersonAsync.mockResolvedValueOnce({ uuid: 'url-person-uuid', owner });
+                await expect(exclusion.getConsentLookupAsync({
+                    requestInfo: service, base_version: '4_0_0', subject: urlSubject
+                })).rejects.toThrow('has no owner tag');
+                expect(getConsentAsync).not.toHaveBeenCalled();
+            }
+        );
 
         test('a Person the caller cannot see fails the lookup (404 from findPersonAsync)', async () => {
             findPersonAsync.mockRejectedValueOnce(Object.assign(new Error('Person not found'), { statusCode: 404 }));
