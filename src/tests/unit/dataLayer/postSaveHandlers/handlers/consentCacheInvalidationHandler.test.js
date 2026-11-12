@@ -15,6 +15,7 @@ const { ConsentCacheInvalidationHandler } = require('../../../../../dataLayer/po
 const { RedisManager } = require('../../../../../utils/redisManager');
 const { BwellPersonFinder } = require('../../../../../utils/bwellPersonFinder');
 const { ConfigManager } = require('../../../../../utils/configManager');
+const { PersonToPatientIdsExpander } = require('../../../../../utils/personToPatientIdsExpander');
 
 jest.mock('../../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -27,12 +28,15 @@ const CLIENT_PERSON_UUID = '22222222-2222-2222-2222-222222222222';
 const MASTER_PERSON_UUID = '33333333-3333-3333-3333-333333333333';
 const PROXY_PERSON_UUID = '44444444-4444-4444-4444-444444444444';
 const INTERMEDIATE_PERSON_UUID = '55555555-5555-5555-5555-555555555555';
+const LINKED_PATIENT_UUID_1 = '66666666-6666-6666-6666-666666666666';
+const LINKED_PATIENT_UUID_2 = '77777777-7777-7777-7777-777777777777';
 
 describe('ConsentCacheInvalidationHandler', () => {
     let handler;
     let mockRedisManager;
     let mockBwellPersonFinder;
     let mockConfigManager;
+    let mockPersonToPatientIdsExpander;
     let bumpedKeys;
 
     beforeEach(() => {
@@ -50,6 +54,11 @@ describe('ConsentCacheInvalidationHandler', () => {
             CLIENT_PERSON_UUID, MASTER_PERSON_UUID
         ]);
 
+        mockPersonToPatientIdsExpander = Object.create(PersonToPatientIdsExpander.prototype);
+        mockPersonToPatientIdsExpander.getAllRelatedPatients = jest.fn().mockResolvedValue([
+            `person.${PROXY_PERSON_UUID}`, LINKED_PATIENT_UUID_1, LINKED_PATIENT_UUID_2
+        ]);
+
         mockConfigManager = Object.create(ConfigManager.prototype);
         Object.defineProperty(mockConfigManager, 'writeToCacheForEverythingOperation', {
             value: true, writable: true, configurable: true
@@ -58,7 +67,8 @@ describe('ConsentCacheInvalidationHandler', () => {
         handler = new ConsentCacheInvalidationHandler({
             redisManager: mockRedisManager,
             bwellPersonFinder: mockBwellPersonFinder,
-            configManager: mockConfigManager
+            configManager: mockConfigManager,
+            personToPatientIdsExpander: mockPersonToPatientIdsExpander
         });
     });
 
@@ -129,6 +139,48 @@ describe('ConsentCacheInvalidationHandler', () => {
         expect(bumpedKeys).toEqual([`ClientPerson:${PROXY_PERSON_UUID}:Everything:Generation`]);
         expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).not.toHaveBeenCalled();
         expect(mockBwellPersonFinder.getPersonIdsInLinkPathToBwellPersonAsync).not.toHaveBeenCalled();
+    });
+
+    describe('dataConnectionViewControl Consent on a Person', () => {
+        const viewControlConsent = () => ({
+            id: 'consent-3',
+            category: [{ coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataConnectionViewControl' }] }],
+            patient: { reference: `Patient/person.${PROXY_PERSON_UUID}` }
+        });
+
+        it('also bumps the Patient generation of every linked Patient, and not the person proxy ids', async () => {
+            await handler.afterSaveAsync({ requestId: 'r1', eventType: 'C', resourceType: 'Consent', doc: viewControlConsent() });
+
+            expect(bumpedKeys).toEqual([
+                `ClientPerson:${PROXY_PERSON_UUID}:Everything:Generation`,
+                `Patient:${LINKED_PATIENT_UUID_1}:Everything:Generation`,
+                `Patient:${LINKED_PATIENT_UUID_2}:Everything:Generation`
+            ]);
+        });
+
+        it.each(['U', 'D'])('does the same for an event of type %s', async (eventType) => {
+            await handler.afterSaveAsync({ requestId: 'r1', eventType, resourceType: 'Consent', doc: viewControlConsent() });
+
+            expect(bumpedKeys).toContain(`Patient:${LINKED_PATIENT_UUID_1}:Everything:Generation`);
+        });
+
+        it('does not look up linked Patients for a Person Consent of another category', async () => {
+            const doc = { id: 'consent-4', patient: { reference: `Patient/person.${PROXY_PERSON_UUID}` } };
+            await handler.afterSaveAsync({ requestId: 'r1', eventType: 'C', resourceType: 'Consent', doc });
+
+            expect(mockPersonToPatientIdsExpander.getAllRelatedPatients).not.toHaveBeenCalled();
+            expect(bumpedKeys).toEqual([`ClientPerson:${PROXY_PERSON_UUID}:Everything:Generation`]);
+        });
+
+        it('keeps the Person key bumped and does not throw when the linked Patient lookup fails', async () => {
+            mockPersonToPatientIdsExpander.getAllRelatedPatients.mockRejectedValue(new Error('mongo down'));
+
+            await expect(
+                handler.afterSaveAsync({ requestId: 'r1', eventType: 'C', resourceType: 'Consent', doc: viewControlConsent() })
+            ).resolves.toBeUndefined();
+
+            expect(bumpedKeys).toEqual([`ClientPerson:${PROXY_PERSON_UUID}:Everything:Generation`]);
+        });
     });
 
     it('still bumps the Patient key when the Person traversal fails (best-effort, never throws)', async () => {

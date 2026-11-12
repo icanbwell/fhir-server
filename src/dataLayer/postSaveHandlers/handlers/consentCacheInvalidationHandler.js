@@ -5,7 +5,8 @@ const { ConfigManager } = require('../../../utils/configManager');
 const { BwellPersonFinder } = require('../../../utils/bwellPersonFinder');
 const { ReferenceParser } = require('../../../utils/referenceParser');
 const { isUuid } = require('../../../utils/uid.util');
-const { PERSON_PROXY_PREFIX } = require('../../../constants');
+const { PersonToPatientIdsExpander } = require('../../../utils/personToPatientIdsExpander');
+const { PERSON_PROXY_PREFIX, CONSENT_CATEGORY } = require('../../../constants');
 const { logDebug, logError } = require('../../../operations/common/logging');
 
 /**
@@ -37,6 +38,11 @@ const { logDebug, logError } = require('../../../operations/common/logging');
  * could realistically be keyed under (the JWT person the caller authenticated as) is bumped,
  * not only the immediate client Person or the top-of-graph master Person.
  *
+ * Data view control: a dataConnectionViewControl Consent has `patient: Patient/person.<id>`, and its
+ * effect reaches the cached `Patient/<uuid>/$everything` of every Patient linked to that Person
+ * (the replay hides what the Consent lists, and the resources reachable only through a hidden one).
+ * So for that category, the Patient generation of every linked Patient is bumped as well.
+ *
  * The traversal adds a bounded per-Consent-write DB cost (the up-graph walk), which is
  * acceptable on this low-frequency write path.
  */
@@ -46,8 +52,9 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
      * @param {RedisManager} params.redisManager
      * @param {BwellPersonFinder} params.bwellPersonFinder
      * @param {ConfigManager} params.configManager
+     * @param {PersonToPatientIdsExpander} params.personToPatientIdsExpander
      */
-    constructor({ redisManager, bwellPersonFinder, configManager }) {
+    constructor({ redisManager, bwellPersonFinder, configManager, personToPatientIdsExpander }) {
         super();
 
         /**
@@ -67,6 +74,12 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PersonToPatientIdsExpander}
+         */
+        this.personToPatientIdsExpander = personToPatientIdsExpander;
+        assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
     }
 
     /**
@@ -109,6 +122,9 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
                     await this.incrementGenerationAsync(`ClientPerson:${personUuid}:Everything:Generation`, {
                         requestId, consentId: doc.id
                     });
+                    if (this.isDataViewControlConsent(doc)) {
+                        await this.bumpLinkedPatientGenerationsAsync({ personUuid, requestId, consentId: doc.id });
+                    }
                 } else {
                     logDebug('ConsentCacheInvalidationHandler: proxy-patient reference did not contain a valid person uuid, skipping', {
                         requestId, consentId: doc.id, referenceValue
@@ -194,6 +210,48 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
             // its TTL expires - the same behavior as before this handler existed.
             logError('ConsentCacheInvalidationHandler: failed to invalidate Everything cache for Consent change', {
                 error, requestId, consentId: doc && doc.id, resourceType, eventType
+            });
+        }
+    }
+
+    /**
+     * @param {Object} doc a Consent
+     * @return {boolean} whether the Consent is a dataConnectionViewControl Consent
+     */
+    isDataViewControlConsent(doc) {
+        const { SYSTEM, CODE } = CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL;
+        return Boolean(doc.category?.some(
+            (category) => category?.coding?.some((coding) => coding?.system === SYSTEM && coding?.code === CODE)
+        ));
+    }
+
+    /**
+     * Bumps Patient:<uuid>:Everything:Generation for every Patient linked to the Person, so cached
+     * Patient $everything entries are rebuilt under the member's new view control. Best-effort, like
+     * the rest of this handler: a failure is logged and the Consent write is not affected.
+     * @param {string} personUuid
+     * @param {string} requestId
+     * @param {string} consentId
+     * @return {Promise<void>}
+     */
+    async bumpLinkedPatientGenerationsAsync({ personUuid, requestId, consentId }) {
+        try {
+            const relatedIds = await this.personToPatientIdsExpander.getAllRelatedPatients({
+                base_version: '4_0_0',
+                idsSet: new Set([personUuid])
+            });
+            // the result also holds the `person.<uuid>` proxy ids of the Persons walked; only Patients matter here
+            const patientUuids = new Set(
+                relatedIds.filter((id) => !id.startsWith(PERSON_PROXY_PREFIX) && isUuid(id))
+            );
+            for (const patientUuid of patientUuids) {
+                await this.incrementGenerationAsync(`Patient:${patientUuid}:Everything:Generation`, {
+                    requestId, consentId, personUuid
+                });
+            }
+        } catch (error) {
+            logError('ConsentCacheInvalidationHandler: failed to look up linked Patients for view control cache invalidation', {
+                error, requestId, consentId, personUuid
             });
         }
     }

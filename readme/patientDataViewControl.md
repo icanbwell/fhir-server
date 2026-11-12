@@ -151,9 +151,12 @@ was enrolled in `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`. Each member has the
 including for a Patient linked to more than one member, so one member's Consent never shapes
 another member's response.
 
-A Consent write invalidates the Person's own `$everything` cache (`Patient/person.<id>`), but not
-the cache of `Patient/<id>/$everything`. When a Consent stops hiding a resource, that response can
-leave it out until the cache entry expires (`EVERYTHING_CACHE_TTL_SECONDS`, 300 seconds by default).
+Saving a dataConnectionViewControl Consent invalidates the Person's own `$everything` cache
+(`Patient/person.<id>`) and the cache of `Patient/<id>/$everything` for every Patient linked to that
+Person, so what the Consent hides or un-hides, including the resources reached only through a hidden
+one (such as the Binary of a hidden DocumentReference), shows up on the next request. The Patient
+caches are cleared on a best-effort basis: if the lookup of the linked Patients fails, the Consent
+write still succeeds and those entries expire after `EVERYTHING_CACHE_TTL_SECONDS` (300 seconds by default).
 
 ## Failures
 

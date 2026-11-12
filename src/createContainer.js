@@ -1271,7 +1271,8 @@ const createContainer = function () {
             new ConsentCacheInvalidationHandler({
                 redisManager: c.redisManager,
                 bwellPersonFinder: c.bwellPersonFinder,
-                configManager: c.configManager
+                configManager: c.configManager,
+                personToPatientIdsExpander: c.personToPatientIdsExpander
             })
         ];
 
