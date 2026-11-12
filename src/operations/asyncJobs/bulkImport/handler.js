@@ -27,6 +27,7 @@ const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { trace } = require('@opentelemetry/api');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
+const { buildOperationOutcomeFromIssues } = require('../../../utils/operationOutcomeBuilder');
 const { logInfo, logError } = require('../../common/logging');
 const {
     recordImportOperationTriggered,
@@ -927,6 +928,8 @@ class BulkImportHandler {
         let claimedIfNoneExistKeys = new Set();
 
         const flushBatchAsync = async () => {
+            // entries from here on belong to lines whose write this flush commits
+            const flushStart = mergeResultEntries.length;
             if (pendingMergeResources.length > 0) {
                 // Pre-load once for the whole batch (grouped by resourceType internally) so
                 // mergeBufferedResourceAsync's getResourceFromExistingList() calls below are
@@ -952,9 +955,92 @@ class BulkImportHandler {
                 }
                 pendingMergeResources = [];
             }
-            await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            const flushResults = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
             hasFlushedThisAttempt = true;
             sinceLastFlush = 0;
+            recordUnsavedLines({ flushStart, flushResults: flushResults || [] });
+            recordCreatesSavedAsUpdates({ flushStart, flushResults: flushResults || [] });
+        };
+
+        /**
+         * A write the flush could not save (e.g. it kept losing a concurrency race) comes back
+         * with an issue: the lines counted as created or updated for it are reported failed instead.
+         * @param {Object} params
+         * @param {number} params.flushStart - index of this flush's first entry in mergeResultEntries
+         * @param {MergeResultEntry[]} params.flushResults
+         * @returns {void}
+         */
+        const recordUnsavedLines = ({ flushStart, flushResults }) => {
+            for (const flushResult of flushResults) {
+                if (!flushResult.issue) {
+                    continue;
+                }
+                for (let i = flushStart; i < mergeResultEntries.length; i++) {
+                    const lineEntry = mergeResultEntries[i];
+                    // _uuid hashes id and source assigning authority, not the resource type
+                    const sameResource = lineEntry._uuid === flushResult._uuid && lineEntry.resourceType === flushResult.resourceType;
+                    if (!sameResource || !(lineEntry.created || lineEntry.updated)) {
+                        continue;
+                    }
+                    if (lineEntry.created) {
+                        created--;
+                    } else {
+                        updated--;
+                    }
+                    failed++;
+                    // copies, so each line's issue carries its own source-byte-offset extension
+                    const issue = { ...flushResult.issue };
+                    const operationOutcome = flushResult.operationOutcome
+                        ? { ...flushResult.operationOutcome, issue: flushResult.operationOutcome.issue.map((i) => ({ ...i })) }
+                        : buildOperationOutcomeFromIssues([issue]);
+                    mergeResultEntries[i] = new MergeResultEntry({
+                        id: lineEntry.id,
+                        uuid: lineEntry._uuid,
+                        sourceAssigningAuthority: lineEntry._sourceAssigningAuthority,
+                        resourceType: lineEntry.resourceType,
+                        created: false,
+                        updated: false,
+                        issue,
+                        operationOutcome
+                    }).withSourceByteOffset(lineEntry.sourceByteOffset);
+                }
+            }
+        };
+
+        /**
+         * A line counted as created whose create lost to another writer is saved as an update of
+         * that writer's document, or skipped when it adds nothing to it. Either way the resource
+         * already existed, so the line is reported updated, like a line whose resource existed
+         * before the flush.
+         * @param {Object} params
+         * @param {number} params.flushStart - index of this flush's first entry in mergeResultEntries
+         * @param {MergeResultEntry[]} params.flushResults
+         * @returns {void}
+         */
+        const recordCreatesSavedAsUpdates = ({ flushStart, flushResults }) => {
+            // _uuid hashes id and source assigning authority, not the resource type
+            const keyOf = (entry) => `${entry.resourceType}|${entry._uuid}`;
+            const createdKeys = new Set(flushResults.filter((r) => r.created).map(keyOf));
+            const existingKeys = new Set(flushResults.filter((r) => !r.issue && !r.created).map(keyOf));
+            for (let i = flushStart; i < mergeResultEntries.length; i++) {
+                const lineEntry = mergeResultEntries[i];
+                const key = keyOf(lineEntry);
+                if (!lineEntry.created || createdKeys.has(key) || !existingKeys.has(key)) {
+                    continue;
+                }
+                created--;
+                updated++;
+                mergeResultEntries[i] = new MergeResultEntry({
+                    id: lineEntry.id,
+                    uuid: lineEntry._uuid,
+                    sourceAssigningAuthority: lineEntry._sourceAssigningAuthority,
+                    resourceType: lineEntry.resourceType,
+                    created: false,
+                    updated: true,
+                    issue: null,
+                    operationOutcome: null
+                }).withSourceByteOffset(lineEntry.sourceByteOffset);
+            }
         };
 
         /**

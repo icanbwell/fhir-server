@@ -1,6 +1,7 @@
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { trace } = require('@opentelemetry/api');
+const { Collection } = require('mongodb');
 
 const makeCloudEvent = (overrides = {}) => {
     const data = {
@@ -524,6 +525,188 @@ describe('BulkImportHandler - ImportRangeRequested (worker)', () => {
         expect(extension).toEqual([
             { url: 'https://www.icanbwell.com/source-byte-offset', valueInteger: 0 }
         ]);
+    });
+
+    test('a line whose write ends with a conflict issue is reported failed and the rest of the range imports', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-conflict' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+        const db = await container.mongoDatabaseManager.getClientDbAsync();
+
+        // Another writer creates the conflicting line's resource first, then keeps updating it
+        // before every retry round, so its write never lands.
+        const realBulkWrite = Collection.prototype.bulkWrite;
+        let concurrentlyCreated = false;
+        const targetsConflictLine = (o) => (o.updateOne?.update?.$setOnInsert || o.replaceOne?.replacement)?.id === 'bulk-import-conflict';
+        jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(async function (ops, options) {
+            const op = this.collectionName === 'Patient_4_0_0' && Array.isArray(ops) ? ops.find(targetsConflictLine) : null;
+            if (op && op.updateOne && !concurrentlyCreated) {
+                concurrentlyCreated = true;
+                const { _id, ...doc } = op.updateOne.update.$setOnInsert;
+                await db.collection('Patient_4_0_0').insertOne({ ...doc, name: [{ family: 'OtherWriter' }] });
+            } else if (op && op.replaceOne) {
+                const current = await db.collection('Patient_4_0_0').findOne({ _uuid: op.replaceOne.replacement._uuid });
+                await db.collection('Patient_4_0_0').updateOne(
+                    { _uuid: current._uuid },
+                    { $set: { 'meta.versionId': `${parseInt(current.meta.versionId) + 1}` } }
+                );
+            }
+            return realBulkWrite.call(this, ops, options);
+        });
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-conflict', name: [{ family: 'Conflict' }] },
+            { resourceType: 'Patient', id: 'bulk-import-saved', name: [{ family: 'Saved' }] }
+        ]);
+
+        try {
+            await processRangeAsync(handler, container, {
+                key: 'import-consumer-conflict-0',
+                value: makeCloudEvent({ taskId: 'import-consumer-conflict' }),
+                headers: []
+            });
+        } finally {
+            Collection.prototype.bulkWrite.mockRestore();
+        }
+
+        expect(concurrentlyCreated).toBe(true);
+        await request
+            .get('/4_0_0/Patient/bulk-import-saved')
+            .set(getHeaders())
+            .expect(200);
+        expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
+            'fhir_import.resources_created': 1,
+            'fhir_import.resources_updated': 0,
+            'fhir_import.resources_failed': 1
+        });
+        const errorWrite = container.s3NdjsonReader.getWriteCalls().find((c) => c.filepath.includes('/output/errors/'));
+        expect(errorWrite).toBeDefined();
+        const errorEntries = errorWrite.data.trim().split('\n').map((line) => JSON.parse(line));
+        expect(errorEntries).toHaveLength(1);
+        expect(errorEntries[0].id).toBe('bulk-import-conflict');
+        expect(errorEntries[0].operationOutcome.issue[0].code).toBe('conflict');
+        expect(errorEntries[0].operationOutcome.issue[0].extension).toEqual([
+            { url: 'https://www.icanbwell.com/source-byte-offset', valueInteger: expect.any(Number) }
+        ]);
+    });
+
+    test('a line whose create loses to another writer and is saved as an update is reported updated', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-lost-create' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+        const db = await container.mongoDatabaseManager.getClientDbAsync();
+
+        // Another writer creates the line's resource just before its create, once
+        const realBulkWrite = Collection.prototype.bulkWrite;
+        let concurrentlyCreated = false;
+        jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(async function (ops, options) {
+            const op = this.collectionName === 'Patient_4_0_0' && Array.isArray(ops)
+                ? ops.find((o) => o.updateOne?.update?.$setOnInsert?.id === 'bulk-import-lost-create')
+                : null;
+            if (op && !concurrentlyCreated) {
+                concurrentlyCreated = true;
+                const { _id, ...doc } = op.updateOne.update.$setOnInsert;
+                await db.collection('Patient_4_0_0').insertOne({ ...doc, gender: 'female' });
+            }
+            return realBulkWrite.call(this, ops, options);
+        });
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-lost-create', name: [{ family: 'LostCreate' }] },
+            { resourceType: 'Patient', id: 'bulk-import-created', name: [{ family: 'Created' }] }
+        ]);
+
+        try {
+            await processRangeAsync(handler, container, {
+                key: 'import-consumer-lost-create-0',
+                value: makeCloudEvent({ taskId: 'import-consumer-lost-create' }),
+                headers: []
+            });
+        } finally {
+            Collection.prototype.bulkWrite.mockRestore();
+        }
+
+        expect(concurrentlyCreated).toBe(true);
+        expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
+            'fhir_import.resources_created': 1,
+            'fhir_import.resources_updated': 1,
+            'fhir_import.resources_failed': 0
+        });
+    });
+
+    test('a conflict on one resource type does not fail a line of another type with the same id', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-shared-id' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../../createTestContainer');
+        const container = createTestContainer();
+        const handler = container.bulkImportHandler;
+        const db = await container.mongoDatabaseManager.getClientDbAsync();
+
+        // Patient/shared and Person/shared get the same _uuid; only the Person keeps conflicting.
+        const realBulkWrite = Collection.prototype.bulkWrite;
+        let concurrentlyCreated = false;
+        jest.spyOn(Collection.prototype, 'bulkWrite').mockImplementation(async function (ops, options) {
+            const op = this.collectionName === 'Person_4_0_0' && Array.isArray(ops) ? ops[0] : null;
+            if (op && op.updateOne && !concurrentlyCreated) {
+                concurrentlyCreated = true;
+                const { _id, ...doc } = op.updateOne.update.$setOnInsert;
+                await db.collection('Person_4_0_0').insertOne({ ...doc, name: [{ family: 'OtherWriter' }] });
+            } else if (op && op.replaceOne) {
+                const current = await db.collection('Person_4_0_0').findOne({ _uuid: op.replaceOne.replacement._uuid });
+                await db.collection('Person_4_0_0').updateOne(
+                    { _uuid: current._uuid },
+                    { $set: { 'meta.versionId': `${parseInt(current.meta.versionId) + 1}` } }
+                );
+            }
+            return realBulkWrite.call(this, ops, options);
+        });
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-shared', name: [{ family: 'Patient' }] },
+            { resourceType: 'Person', id: 'bulk-import-shared', name: [{ family: 'Person' }] }
+        ]);
+
+        try {
+            await processRangeAsync(handler, container, {
+                key: 'import-consumer-shared-id-0',
+                value: makeCloudEvent({ taskId: 'import-consumer-shared-id' }),
+                headers: []
+            });
+        } finally {
+            Collection.prototype.bulkWrite.mockRestore();
+        }
+
+        expect(concurrentlyCreated).toBe(true);
+        expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
+            'fhir_import.resources_created': 1,
+            'fhir_import.resources_updated': 0,
+            'fhir_import.resources_failed': 1
+        });
+        const errorWrite = container.s3NdjsonReader.getWriteCalls().find((c) => c.filepath.includes('/output/errors/'));
+        const errorEntries = errorWrite.data.trim().split('\n').map((line) => JSON.parse(line));
+        expect(errorEntries.map((e) => e.resourceType)).toEqual(['Person']);
     });
 
     test('handleMessageAsync skips an invalid NDJSON line and records it in the error output without failing the range', async () => {

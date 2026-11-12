@@ -186,6 +186,27 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         expect(ctx.client.uploadedData[key1]).toBe('committed-prior1'); // committed prior → kept
     });
 
+    test('deleteOwnUploadedLiveObjectsAsync keeps an own upload that the stored document still references', async () => {
+        const requestInfo = { requestId: 'r-own-referenced' };
+        const uuid = 'uuid-own-referenced';
+        const dataSegments = ['content', '[]', 'attachment', 'data'];
+        const referencedLu = new Date('2026-07-10T00:00:00.000Z');
+        const orphanLu = new Date('2026-07-10T00:00:01.000Z');
+        const referencedKey = `DocRefFake_4_0_0/${uuid}/${referencedLu.getTime()}`;
+        const orphanKey = `DocRefFake_4_0_0/${uuid}/${orphanLu.getTime()}`;
+        ctx.client.uploadedData[referencedKey] = 'own-and-committed';
+        ctx.client.uploadedData[orphanKey] = 'own-orphan';
+        ctx.mgr._stashOriginalData(requestInfo, uuid, dataSegments, [0], { changed: true });
+        ctx.mgr._stashOriginalData(requestInfo, uuid, dataSegments, [1], { changed: true });
+        const doc = makeDoc(uuid, { lastUpdated: referencedLu }, { lastUpdated: orphanLu });
+        const stored = makeDoc(uuid, { lastUpdated: referencedLu }, undefined);
+
+        await ctx.mgr.deleteOwnUploadedLiveObjectsAsync(doc, requestInfo, { keepReferencedBy: stored });
+
+        expect(ctx.client.uploadedData[referencedKey]).toBe('own-and-committed');
+        expect(ctx.client.uploadedData[orphanKey]).toBeUndefined();
+    });
+
     test("deleteOwnUploadedLiveObjectsAsync must NOT sweep an older, still-committed live object under the same uuid prefix", async () => {
         // Regression test: deleteOwnUploadedLiveObjectsAsync must delegate to the narrow, exact-key
         // _deleteExactLiveObjectAsync — never to the sweeping deleteLiveObjectAsync, which deletes

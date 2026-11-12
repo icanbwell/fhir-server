@@ -368,6 +368,24 @@ class ConfigManager {
     }
 
     /**
+     * number of bulk rounds used to rewrite the writes that lost a concurrency race
+     * @returns {number}
+     */
+    get concurrencyResolutionRounds() {
+        const rounds = parseInt(env.CONCURRENCY_RESOLUTION_ROUNDS);
+        return rounds >= 1 ? rounds : 3;
+    }
+
+    /**
+     * base backoff in milliseconds before each concurrency resolution round
+     * @returns {number}
+     */
+    get concurrencyResolutionBackoffMs() {
+        const backoffMs = parseInt(env.CONCURRENCY_RESOLUTION_BACKOFF_MS);
+        return backoffMs >= 0 ? backoffMs : 25;
+    }
+
+    /**
      * whether to return data as bundle
      * @return {boolean}
      */

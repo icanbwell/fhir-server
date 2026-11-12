@@ -133,13 +133,13 @@ module.exports = {
                         resourceType
                     }
                 );
-                if (result && result[0].operationOutcome) {
+                if (result && (result[0].issue || result[0].operationOutcome)) {
                     // Client-caused failure (e.g. missing access scope on the merge), not
                     // an internal-error leak; use BadRequestError (4xx) so
                     // getSafeErrorMessage doesn't redact this descriptive message.
                     throw new BadRequestError(new Error(
                         `Unable to update care team data for ${args.patientId}: ` +
-                        `${result[0].operationOutcome.issue.map(i => i.diagnostics)}`));
+                        `${(result[0].operationOutcome?.issue || [result[0].issue]).map(i => i.diagnostics)}`));
                 }
                 return patientToChange;
             }
