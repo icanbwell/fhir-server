@@ -2,6 +2,7 @@
  * logs audit entries
  */
 const { generateUUID } = require('./uid.util');
+const { PostRequestProcessor } = require('./postRequestProcessor');
 const { assertTypeEquals } = require('./assertType');
 const { SecurityTagSystem } = require('./securityTagSystem');
 const { logError } = require('../operations/common/logging');
@@ -35,6 +36,7 @@ class AuditLogger {
     /**
      * constructor
      * @typedef {Object} params
+     * @property {PostRequestProcessor} postRequestProcessor
      * @property {import('../dataLayer/fastDatabaseBulkInserter').FastDatabaseBulkInserter} databaseBulkInserter
      * @property {PreSaveManager} preSaveManager
      * @property {ConfigManager} configManager
@@ -43,13 +45,20 @@ class AuditLogger {
      * @param {params}
      */
     constructor({
+        postRequestProcessor,
         databaseBulkInserter,
         preSaveManager,
         configManager,
         base_version = '4_0_0'
     }) {
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         assertTypeEquals(preSaveManager, PreSaveManager);
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
 
         /**
          * @type {import('../dataLayer/fastDatabaseBulkInserter').FastDatabaseBulkInserter}

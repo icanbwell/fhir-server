@@ -32,6 +32,7 @@ jestGlobal.mock('../../../dataLayer/bulkWriteRequestContext', () => ({
 }));
 
 const { AuditLogger, sanitizeOutcomeDesc } = require('../../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
 const { ConfigManager } = require('../../../utils/configManager');
 const { logError } = require('../../../operations/common/logging');
@@ -44,11 +45,14 @@ function createMockInstance(ClassType) {
 
 describe('AuditLogger', () => {
     let auditLogger;
+    let mockPostRequestProcessor;
     let mockDatabaseBulkInserter;
     let mockPreSaveManager;
     let mockConfigManager;
 
     beforeEach(() => {
+        mockPostRequestProcessor = createMockInstance(PostRequestProcessor);
+
         mockDatabaseBulkInserter = {
             getOperationForResourceAsync: jestGlobal.fn().mockReturnValue({ op: 'insert' }),
             executeAsync: jestGlobal.fn().mockResolvedValue([])
@@ -63,6 +67,7 @@ describe('AuditLogger', () => {
         Object.defineProperty(mockConfigManager, 'auditEventObserverOrganizationId', { get: () => 'org-123', configurable: true });
 
         auditLogger = new AuditLogger({
+            postRequestProcessor: mockPostRequestProcessor,
             databaseBulkInserter: mockDatabaseBulkInserter,
             preSaveManager: mockPreSaveManager,
             configManager: mockConfigManager,
