@@ -21,6 +21,8 @@
  *  - applyCustomAttributesOnSpan rewrites http.route only for GraphQL spans (http.target
  *    containing '/$graphql'), replacing the FHIR base-version segment with the generic
  *    ':base_version' placeholder used for span aggregation.
+ *  - applyCustomAttributesOnSpan marks a response the client closed before it finished as 499
+ *    with an error span status, instead of the Express default of 200.
  *  - The MongoDB responseHook strips db.statement (which can contain full query bodies/PHI)
  *    for every operation EXCEPT 'find'/'aggregate', and only when db.system is 'mongodb'.
  *  - When NODE_OPTIONS already points at the auto-instrumentation loader, this file must
@@ -207,6 +209,44 @@ describe('otel_instrumentation.js', () => {
         const httpConfig = HttpInstrumentation.mock.calls[0][0];
 
         expect(() => httpConfig.applyCustomAttributesOnSpan({})).not.toThrow();
+    });
+
+    test.each([
+        ['finished response', { writableFinished: true, statusCode: 200 }],
+        ['no response argument', undefined]
+    ])('applyCustomAttributesOnSpan leaves status alone for a %s', (_label, response) => {
+        const { HttpInstrumentation } = loadOtelInstrumentation();
+        const httpConfig = HttpInstrumentation.mock.calls[0][0];
+
+        const span = {
+            attributes: { 'http.target': '/4_0_0/Patient/123' },
+            setAttribute: jestGlobal.fn(),
+            setStatus: jestGlobal.fn()
+        };
+        httpConfig.applyCustomAttributesOnSpan(span, {}, response);
+
+        expect(span.setAttribute).not.toHaveBeenCalled();
+        expect(span.setStatus).not.toHaveBeenCalled();
+    });
+
+    test('applyCustomAttributesOnSpan records 499 and an error status when the client closed the response before it finished', () => {
+        const { HttpInstrumentation } = loadOtelInstrumentation();
+        const httpConfig = HttpInstrumentation.mock.calls[0][0];
+        const { SpanStatusCode } = require('@opentelemetry/api');
+
+        // Express default: statusCode is still 200 because no headers were ever written.
+        const response = { writableFinished: false, statusCode: 200 };
+        const span = {
+            attributes: { 'http.target': '/4_0_0/Patient/123' },
+            setAttribute: jestGlobal.fn(),
+            setStatus: jestGlobal.fn()
+        };
+        httpConfig.applyCustomAttributesOnSpan(span, {}, response);
+
+        expect(span.setAttribute).toHaveBeenCalledWith('http.response.status_code', 499);
+        expect(span.setStatus).toHaveBeenCalledWith(
+            expect.objectContaining({ code: SpanStatusCode.ERROR })
+        );
     });
 
     test('MongoDB responseHook strips db.statement for non-find/aggregate operations on mongodb spans', () => {

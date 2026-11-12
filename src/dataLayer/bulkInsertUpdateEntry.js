@@ -24,7 +24,6 @@ class BulkInsertUpdateEntry {
      * @param {string} uuid
      * @param {Resource} resource
      * @param {import('mongodb').AnyBulkWriteOperation} operation
-     * @param {MergePatchEntry[]|undefined|null} patches
      * @param {boolean|undefined} [skipped]
      * @param {string} sourceAssigningAuthority
      * @param {Object|null} [contextData] - Optional context data for resource-specific handling (e.g., Group members)
@@ -39,7 +38,6 @@ class BulkInsertUpdateEntry {
                     uuid,
                     resource,
                     operation,
-                    patches,
                     skipped,
                     sourceAssigningAuthority,
                     contextData = null,
@@ -83,10 +81,6 @@ class BulkInsertUpdateEntry {
          * @type {import('mongodb').AnyBulkWriteOperation}
          */
         this.operation = operation;
-        /**
-         * @type {MergePatchEntry[]|undefined|null}
-         */
-        this.patches = patches;
         /**
          * @type {boolean|undefined}
          */

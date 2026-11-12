@@ -18,7 +18,6 @@ describe('MergeValidator', () => {
     let mergeValidator;
     let mockValidator1;
     let mockValidator2;
-    let mockConfigManager;
     let mockCustomTracer;
 
     beforeEach(() => {
@@ -35,15 +34,12 @@ describe('MergeValidator', () => {
             validate: jestObj.fn()
         };
 
-        mockConfigManager = {};
-
         mockCustomTracer = {
             trace: jestObj.fn().mockImplementation(({ func }) => func())
         };
 
         mergeValidator = new MergeValidator({
             validators: [mockValidator1, mockValidator2],
-            configManager: mockConfigManager,
             customTracer: mockCustomTracer
         });
     });
@@ -51,10 +47,6 @@ describe('MergeValidator', () => {
     describe('constructor', () => {
         test('stores validators array', () => {
             expect(mergeValidator.validators).toEqual([mockValidator1, mockValidator2]);
-        });
-
-        test('stores configManager', () => {
-            expect(mergeValidator.configManager).toBe(mockConfigManager);
         });
 
         test('stores customTracer', () => {
@@ -232,7 +224,6 @@ describe('MergeValidator', () => {
         test('works with empty validators array', async () => {
             mergeValidator = new MergeValidator({
                 validators: [],
-                configManager: mockConfigManager,
                 customTracer: mockCustomTracer
             });
 

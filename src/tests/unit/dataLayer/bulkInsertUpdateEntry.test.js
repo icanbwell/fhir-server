@@ -11,7 +11,6 @@ describe('BulkInsertUpdateEntry', () => {
         uuid: 'uuid-abc-123',
         resource: { id: 'patient-123', resourceType: 'Patient' },
         operation: { insertOne: { document: {} } },
-        patches: null,
         skipped: false,
         sourceAssigningAuthority: 'https://example.org'
     };
@@ -27,7 +26,6 @@ describe('BulkInsertUpdateEntry', () => {
         expect(entry.uuid).toBe('uuid-abc-123');
         expect(entry.resource).toEqual({ id: 'patient-123', resourceType: 'Patient' });
         expect(entry.operation).toEqual({ insertOne: { document: {} } });
-        expect(entry.patches).toBeNull();
         expect(entry.skipped).toBe(false);
         expect(entry.sourceAssigningAuthority).toBe('https://example.org');
     });
@@ -68,27 +66,6 @@ describe('BulkInsertUpdateEntry', () => {
             operationType: 'merge'
         });
         expect(entry.operationType).toBe('merge');
-    });
-
-    test('should store patches array when provided', () => {
-        const patches = [
-            { op: 'replace', path: '/name/0/given/0', value: 'Jane' },
-            { op: 'add', path: '/telecom/-', value: { system: 'phone', value: '555-1234' } }
-        ];
-        const entry = new BulkInsertUpdateEntry({
-            ...defaultParams,
-            patches
-        });
-        expect(entry.patches).toEqual(patches);
-        expect(entry.patches).toHaveLength(2);
-    });
-
-    test('should allow undefined patches', () => {
-        const entry = new BulkInsertUpdateEntry({
-            ...defaultParams,
-            patches: undefined
-        });
-        expect(entry.patches).toBeUndefined();
     });
 
     test('should allow undefined skipped', () => {

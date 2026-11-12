@@ -23,8 +23,6 @@ const mergedResource = {
     meta: { versionId: '4' }
 };
 
-const patches = [{ op: 'remove', path: '/link/0' }];
-
 function createWriter () {
     const callOrder = [];
 
@@ -40,7 +38,7 @@ function createWriter () {
     const resourceMerger = Object.create(ResourceMerger.prototype);
     resourceMerger.fastMergeResourceAsync = jestObj.fn(async () => {
         callOrder.push('merge');
-        return { updatedResource: mergedResource, patches };
+        return { updatedResource: mergedResource };
     });
 
     const fastDatabaseBulkInserter = Object.create(FastDatabaseBulkInserter.prototype);
@@ -140,16 +138,13 @@ describe('AdminResourceWriter', () => {
             await write();
 
             expect(mocks.resourceMerger.fastMergeResourceAsync).toHaveBeenCalledWith(expect.objectContaining({
-                base_version: '4_0_0',
                 currentResource,
                 resourceToMerge: resource
             }));
             expect(mocks.fastDatabaseBulkInserter.mergeOneAsync).toHaveBeenCalledWith(expect.objectContaining({
-                base_version: '4_0_0',
                 resourceType: 'Person',
                 doc: mergedResource,
-                previousVersionId: '3',
-                patches
+                previousVersionId: '3'
             }));
         });
 
@@ -202,7 +197,7 @@ describe('AdminResourceWriter', () => {
         });
 
         test('writes nothing when the merge finds no change', async () => {
-            mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource: null, patches: null });
+            mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({ updatedResource: null });
 
             await expect(write()).resolves.toBeUndefined();
 
@@ -241,7 +236,7 @@ describe('AdminResourceWriter', () => {
             await write();
 
             const insertArgs = mocks.fastDatabaseBulkInserter.insertOneAsync.mock.calls[0][0];
-            expect(insertArgs).toMatchObject({ base_version: '4_0_0', resourceType: 'Person' });
+            expect(insertArgs).toMatchObject({ resourceType: 'Person' });
             expect(insertArgs.doc).toMatchObject({ id: 'person-1', _uuid: 'person-uuid' });
             expect(insertArgs.doc.meta.lastUpdated).toBeInstanceOf(Date);
             expect(insertArgs.doc.meta.lastUpdated.getTime()).toBeGreaterThanOrEqual(before);

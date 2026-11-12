@@ -1,11 +1,9 @@
 const moment = require('moment');
 const deepcopy = require('deepcopy');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { RethrownError } = require('../../utils/rethrownError');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
-const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { DELETE } = require('../../constants').GRIDFS;
@@ -18,7 +16,6 @@ class RemoveHelper {
     /**
      *
      * @param {ResourceLocatorFactory} resourceLocatorFactory
-     * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {Base64DataManager} base64DataManager
@@ -26,7 +23,6 @@ class RemoveHelper {
      */
     constructor({
         resourceLocatorFactory,
-        databaseQueryFactory,
         databaseAttachmentManager,
         postRequestProcessor,
         postSaveProcessor,
@@ -38,12 +34,6 @@ class RemoveHelper {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
-
-        /**
-         * @type {DatabaseQueryFactory}
-         */
-        this.databaseQueryFactory = databaseQueryFactory;
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
 
         /**
          * @type {DatabaseAttachmentManager}
@@ -79,8 +69,7 @@ class RemoveHelper {
     /**
      * Deletes resources
      * @typedef {Object} DeleteManyAsyncOption
-     * @property {FhirRequestInfo} requestInfo
-     * @property {import('mongodb').DeleteOptions} options
+     * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @property {string} resourceType
      * @property {string} base_version
      * @property {Object[]} resources - plain resource documents as read from Mongo
@@ -104,7 +93,7 @@ class RemoveHelper {
      * @param {DeleteManyAsyncOption}
      * @return {Promise<Number>}
      */
-    async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version, preserveLastUpdated = false, skipAccessLogAndPostSave = false }) {
+    async deleteManyAsync({ requestInfo, resourceType, resources, base_version, preserveLastUpdated = false, skipAccessLogAndPostSave = false }) {
         const { requestId } = requestInfo;
         let uuidList = [];
         let query = {};
@@ -176,7 +165,7 @@ class RemoveHelper {
                 _uuid: { $in: uuidList }
             }
             const collection = await resourceLocator.getCollectionAsync({});
-            const result = await collection.deleteMany(query, options);
+            const result = await collection.deleteMany(query);
 
             // Now that the Mongo delete has committed, clean up any live-bucket objects this
             // resource's base64 leaves referenced — they're superseded by the history-bucket copy
@@ -215,7 +204,7 @@ class RemoveHelper {
             throw new RethrownError({
                 message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`,
                 error: e,
-                args: { query, requestId, options }
+                args: { query, requestId }
             });
         }
     }

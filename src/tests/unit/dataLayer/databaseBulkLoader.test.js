@@ -4,7 +4,6 @@ const { describe, test, beforeEach, expect, jest: jestGlobal } = require('@jest/
 const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
-const { ConfigManager } = require('../../../utils/configManager');
 
 /**
  * CACHE ANALYSIS for DatabaseBulkLoader:
@@ -37,7 +36,6 @@ function defineGetter(obj, prop, value) {
 describe('DatabaseBulkLoader', () => {
     let requestSpecificCache;
     let databaseQueryFactory;
-    let configManager;
     let loader;
     let mockCursor;
     let mockDatabaseQueryManager;
@@ -55,13 +53,9 @@ describe('DatabaseBulkLoader', () => {
         };
         databaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue(mockDatabaseQueryManager);
 
-        // Create mock ConfigManager
-        configManager = createPrototypedMock(ConfigManager);
-
         loader = new DatabaseBulkLoader({
             databaseQueryFactory,
-            requestSpecificCache,
-            configManager
+            requestSpecificCache
         });
     });
 
@@ -225,7 +219,6 @@ describe('DatabaseBulkLoader', () => {
             mockCursor.toArrayAsync.mockResolvedValue([]);
 
             await loader.getResourcesAsync({
-                requestId: 'req-1',
                 base_version: '4_0_0',
                 resourceType: 'Patient',
                 resources: [{ id: '1', resourceType: 'Patient' }]
@@ -244,7 +237,6 @@ describe('DatabaseBulkLoader', () => {
             mockCursor.toArrayAsync.mockResolvedValue(dbResources);
 
             const result = await loader.getResourcesAsync({
-                requestId: 'req-1',
                 base_version: '4_0_0',
                 resourceType: 'Patient',
                 resources: [{ id: '1', resourceType: 'Patient' }]
@@ -260,7 +252,6 @@ describe('DatabaseBulkLoader', () => {
             mockCursor.toArrayAsync.mockResolvedValue([]);
 
             const result = await loader.getResourcesAsync({
-                requestId: 'req-1',
                 base_version: '4_0_0',
                 resourceType: 'Patient',
                 resources: []
@@ -275,7 +266,6 @@ describe('DatabaseBulkLoader', () => {
             mockCursor.toArrayAsync.mockRejectedValue(new Error('DB connection failed'));
 
             await expect(loader.getResourcesAsync({
-                requestId: 'req-1',
                 base_version: '4_0_0',
                 resourceType: 'Patient',
                 resources: []

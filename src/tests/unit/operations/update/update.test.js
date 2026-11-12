@@ -101,7 +101,7 @@ describe('UpdateOperation', () => {
             resourceType: 'Patient', sourceAssigningAuthority: 'bwell'
         }]);
         mocks.resourceMerger.fastMergeResourceAsync = jest.fn().mockResolvedValue({
-            updatedResource: null, patches: []
+            updatedResource: null
         });
         mocks.databaseAttachmentManager.transformAttachments = jest.fn((doc) => Promise.resolve(doc));
         mocks.base64DataManager.transformAsync = jest.fn((doc) => Promise.resolve(doc));
@@ -228,8 +228,7 @@ describe('UpdateOperation', () => {
                 updatedResource: {
                     ...existingResource,
                     meta: { ...existingResource.meta, versionId: '2' }
-                },
-                patches: [{ op: 'replace', path: '/name' }]
+                }
             });
             mocks.fastDatabaseBulkInserter.executeAsync.mockResolvedValue([{
                 created: false, updated: true, id: 'test-id', uuid: 'uuid-1',
@@ -405,8 +404,7 @@ describe('UpdateOperation', () => {
                 })
             });
             mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: null,
-                patches: []
+                updatedResource: null
             });
 
             const requestInfo = {
@@ -470,8 +468,7 @@ describe('UpdateOperation', () => {
                     updatedResource: {
                         ...existingResource,
                         meta: { ...existingResource.meta, versionId: '2' }
-                    },
-                    patches: [{ op: 'replace', path: '/name' }]
+                    }
                 });
             }
             mocks.fastDatabaseBulkInserter.executeAsync.mockResolvedValue([{

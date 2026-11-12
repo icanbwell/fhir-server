@@ -234,7 +234,6 @@ class AdminExportManager {
             }
 
             let { updatedResource } = await this.resourceMerger.fastMergeResourceAsync({
-                base_version: VERSIONS['4_0_0'],
                 requestInfo: requestInfo,
                 currentResource: exportStatusResource,
                 resourceToMerge: exportResource,

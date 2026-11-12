@@ -6,12 +6,11 @@ const {AuditLogger} = require('../../utils/auditLogger');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ConfigManager} = require('../../utils/configManager');
-const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {SearchManager} = require('../search/searchManager');
 const {OPERATIONS: {DELETE}, NON_SEARCH_QUERY_PARAMS} = require('../../constants');
-const {logInfo, logWarn} = require('../common/logging');
+const {logWarn} = require('../common/logging');
 const { RemoveHelper } = require('./removeHelper');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { createExtendedGroupDeleteTooCostlyError } = require('../../utils/fhirErrorFactory');
@@ -25,7 +24,6 @@ class RemoveOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
-     * @param {QueryRewriterManager} queryRewriterManager
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {SearchManager} searchManager
      * @param {RemoveHelper} removeHelper
@@ -38,7 +36,6 @@ class RemoveOperation {
             fhirLoggingManager,
             scopesValidator,
             configManager,
-            queryRewriterManager,
             postRequestProcessor,
             searchManager,
             removeHelper,
@@ -71,12 +68,6 @@ class RemoveOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {QueryRewriterManager}
-         */
-        this.queryRewriterManager = queryRewriterManager;
-        assertTypeEquals(queryRewriterManager, QueryRewriterManager);
 
         /**
          * @type {PostRequestProcessor}

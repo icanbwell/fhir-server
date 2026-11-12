@@ -23,6 +23,9 @@ function createMockDeps() {
         },
         compositionSectionFilterEnrichmentProvider: {
             enrichAsync: jestObj.fn()
+        },
+        groupExtendedTagEnrichmentProvider: {
+            enrichAsync: jestObj.fn(async ({ resources }) => resources)
         }
     };
 }

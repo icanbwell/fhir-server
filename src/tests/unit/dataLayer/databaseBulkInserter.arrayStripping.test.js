@@ -20,7 +20,6 @@ describe('DatabaseBulkInserter - BulkInsertUpdateEntry', () => {
             resource: { resourceType: 'Group', id: 'test-1' },
             operation: { insertOne: { document: {} } },
             operationType: 'insert',
-            patches: null,
             isCreateOperation: true,
             isUpdateOperation: false,
             contextData
@@ -40,7 +39,6 @@ describe('DatabaseBulkInserter - BulkInsertUpdateEntry', () => {
             resource: { resourceType: 'Patient', id: 'test-1' },
             operation: { insertOne: { document: {} } },
             operationType: 'insert',
-            patches: null,
             isCreateOperation: true,
             isUpdateOperation: false
         });

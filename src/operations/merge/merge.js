@@ -453,8 +453,7 @@ class MergeOperation {
                 try {
                     const {
                         /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
-                        /** @type {Resource[]} */ resourcesIncomingArray,
-                        /** @type {boolean} */ wasIncomingAList
+                        /** @type {Resource[]} */ resourcesIncomingArray
                     } = await self.mergeValidator.validateAsync({
                         base_version,
                         incomingObjects:resource,

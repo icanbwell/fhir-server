@@ -672,7 +672,6 @@ describe('AdminExportManager', () => {
             await manager.updateExportStatus({ req, res });
 
             expect(mockResourceMerger.fastMergeResourceAsync).toHaveBeenCalledWith({
-                base_version: '4_0_0',
                 requestInfo: { requestId: 'req-1' },
                 currentResource: existingResource,
                 resourceToMerge: expect.objectContaining({ resourceType: 'ExportStatus' }),

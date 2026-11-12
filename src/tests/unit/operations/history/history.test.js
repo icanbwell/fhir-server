@@ -151,6 +151,9 @@ describe('HistoryOperation', () => {
         historyOp.historyResourceCloudStorageClient = mockHistoryResourceCloudStorageClient;
         historyOp.identifierEnrichmentProvider = mockIdentifierEnrichmentProvider;
         historyOp.compositionSectionFilterEnrichmentProvider = mockCompositionSectionFilterEnrichmentProvider;
+        historyOp.groupExtendedTagEnrichmentProvider = {
+            enrichBundleEntriesAsync: jest.fn().mockImplementation(({ entries }) => entries)
+        };
         mockAuditLogger = { logAuditEntryAsync: jest.fn().mockResolvedValue(undefined) };
         mockPostRequestProcessor = { add: jest.fn() };
         historyOp.auditLogger = mockAuditLogger;
