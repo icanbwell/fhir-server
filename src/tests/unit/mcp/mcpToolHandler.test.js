@@ -20,6 +20,7 @@ const { FilterParameters } = require('../../../operations/query/filters/filterPa
 const { FieldMapper } = require('../../../operations/query/filters/fieldMapper');
 const { fhirBundleOutputSchema } = require('../../../mcp/fhirBundleOutputSchema');
 const { RethrownError } = require('../../../utils/rethrownError');
+const { ScopesManager } = require('../../../operations/security/scopesManager');
 
 /**
  * Stubs the request-scoped httpContext for a member whose Person was found: the MCP request info,
@@ -65,7 +66,8 @@ function createHandler () {
     const patientDataViewControlExclusion = new PatientDataViewControlExclusion({
         configManager,
         patientDataViewControlManager,
-        patientScopeManager
+        patientScopeManager,
+        scopesManager: createPrototypedMock(ScopesManager)
     });
     const handler = new McpToolHandler({
         searchBundleOperation,

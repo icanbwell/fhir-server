@@ -3,6 +3,8 @@ const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ConfigManager } = require('./configManager');
 const { PatientDataViewControlManager } = require('./patientDataViewController');
 const { PatientScopeManager } = require('../operations/security/patientScopeManager');
+const { ScopesManager } = require('../operations/security/scopesManager');
+const { ForbiddenError } = require('./httpErrors');
 const { ParsedArgsItem } = require('../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../operations/query/queryParameterValue');
 const { searchParameterQueries } = require('../searchParameters/searchParameters');
@@ -25,8 +27,9 @@ class PatientDataViewControlExclusion {
      * @param {ConfigManager} configManager
      * @param {PatientDataViewControlManager} patientDataViewControlManager
      * @param {PatientScopeManager} patientScopeManager
+     * @param {ScopesManager} scopesManager
      */
-    constructor({ configManager, patientDataViewControlManager, patientScopeManager }) {
+    constructor({ configManager, patientDataViewControlManager, patientScopeManager, scopesManager }) {
         /** @type {ConfigManager} */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -36,6 +39,9 @@ class PatientDataViewControlExclusion {
         /** @type {PatientScopeManager} */
         this.patientScopeManager = patientScopeManager;
         assertTypeEquals(patientScopeManager, PatientScopeManager);
+        /** @type {ScopesManager} */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
@@ -127,8 +133,13 @@ class PatientDataViewControlExclusion {
      * A Person named in the URL: read through the caller's access filter, so a Person the caller can't
      * see is a 404 like a missing one. The Consent is keyed on the Person's uuid, whatever id form the
      * URL used.
+     *
+     * The Consent is then searched through the same access filter, and a Consent the caller can't see
+     * looks the same as no Consent. So for an enrolled owner, a caller whose access scopes don't cover
+     * that owner is refused instead of getting an unfiltered record.
      * @private
      * @return {Promise<{ personId: string, owner: string|undefined }>}
+     * @throws {ForbiddenError} when the owner is enrolled and the caller can't search its Consents
      */
     async loadUrlPersonAsync({ requestInfo, base_version, subject }) {
         const { uuid, owner } = await this.patientDataViewControlManager.findPersonAsync({
@@ -136,7 +147,28 @@ class PatientDataViewControlExclusion {
             base_version,
             personId: subject.personId
         });
+        if (this.configManager.clientsWithDataConnectionViewControl.includes(owner)) {
+            this.assertCallerCanSearchOwnerConsents({ requestInfo, owner });
+        }
         return { personId: uuid, owner };
+    }
+
+    /**
+     * @private
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {string} owner
+     * @throws {ForbiddenError} when the caller's access scopes for searching don't include the owner
+     *   (or `*`). The message names no Person and no tenant other than the caller's own scopes.
+     */
+    assertCallerCanSearchOwnerConsents({ requestInfo, owner }) {
+        // 's' is the access the Consent search itself is made with (SearchManager.fetchResourcesByArgsAsync)
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('s', requestInfo.user, requestInfo.scope);
+        if (accessCodes.length > 0 && !accessCodes.includes('*') && !accessCodes.includes(owner)) {
+            throw new ForbiddenError(
+                'The caller\'s access scopes do not cover the Person\'s owner, so its data view control ' +
+                'cannot be applied'
+            );
+        }
     }
 
     /**

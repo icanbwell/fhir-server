@@ -19,6 +19,7 @@ const { QueryParameterValue } = require('../../../operations/query/queryParamete
 const { searchParameterQueries } = require('../../../searchParameters/searchParameters');
 const { ViewControlSubject } = require('../../../utils/viewControlSubject');
 const { HTTP_CONTEXT_KEYS } = require('../../../constants');
+const { ScopesManager } = require('../../../operations/security/scopesManager');
 
 const UUID_A = '5f1e3b2a-1111-4c2b-9d3e-000000000001';
 
@@ -31,6 +32,7 @@ describe('PatientDataViewControlExclusion', () => {
     let getConsentAsync;
     let getPatientIdsFromScopeAsync;
     let findPersonAsync;
+    let getAccessCodesFromScopes;
     let enrolled;
     const user = { isUser: true, personIdFromJwtToken: 'person-1' };
 
@@ -57,10 +59,15 @@ describe('PatientDataViewControlExclusion', () => {
             return [];
         });
         scopeManager.getPatientIdsFromScopeAsync = getPatientIdsFromScopeAsync;
+        // by default the caller's access scopes cover the enrolled owner
+        getAccessCodesFromScopes = jest.fn().mockReturnValue(['clientA']);
+        const scopesManager = mockOf(ScopesManager);
+        scopesManager.getAccessCodesFromScopes = getAccessCodesFromScopes;
         exclusion = new PatientDataViewControlExclusion({
             configManager,
             patientDataViewControlManager: manager,
-            patientScopeManager: scopeManager
+            patientScopeManager: scopeManager,
+            scopesManager
         });
     });
 
@@ -289,6 +296,36 @@ describe('PatientDataViewControlExclusion', () => {
             ]);
             expect(findPersonAsync).toHaveBeenCalledTimes(1);
             expect(getConsentAsync).toHaveBeenCalledTimes(2);
+        });
+
+        test.each([
+            ['covers the owner', ['clientA'], true],
+            ['covers the owner among others', ['clientB', 'clientA'], true],
+            ['is the * wildcard', ['*'], true],
+            ['does not cover the owner', ['clientB'], false]
+        ])('a service token whose search access %s', async (_name, accessCodes, allowed) => {
+            getAccessCodesFromScopes.mockReturnValue(accessCodes);
+            const lookup = exclusion.getConsentLookupAsync({
+                requestInfo: { isUser: false, user: 'svc', scope: 'access/x.*' },
+                base_version: '4_0_0',
+                subject: urlSubject
+            });
+            if (allowed) {
+                await expect(lookup).resolves.toBeDefined();
+                expect(getConsentAsync).toHaveBeenCalledTimes(1);
+            } else {
+                // fails closed: a Consent it can't see would look like no Consent and hide nothing
+                await expect(lookup).rejects.toMatchObject({ statusCode: 403 });
+                expect(getConsentAsync).not.toHaveBeenCalled();
+            }
+            expect(getAccessCodesFromScopes).toHaveBeenCalledWith('s', 'svc', 'access/x.*');
+        });
+
+        test('the owner scope check is skipped when the Person\'s owner is not enrolled', async () => {
+            findPersonAsync.mockResolvedValueOnce({ uuid: 'url-person-uuid', owner: 'clientZ' });
+            getAccessCodesFromScopes.mockReturnValue(['clientB']);
+            await exclusion.getConsentLookupAsync({ requestInfo: service, base_version: '4_0_0', subject: urlSubject });
+            expect(getAccessCodesFromScopes).not.toHaveBeenCalled();
         });
 
         test('a Person the caller cannot see fails the lookup (404 from findPersonAsync)', async () => {
