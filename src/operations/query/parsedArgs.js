@@ -207,12 +207,19 @@ class ParsedArgs {
     }
 
     /**
+     * The args as a flat object, for logs and cache keys. Modifiers are not part of the key, with one
+     * exception: an `_id:not` / `id:not` exclusion is keyed `_id:not` / `id:not`. Otherwise it would
+     * replace (or be replaced by) the plain `_id` the caller asked for, and the view-control
+     * exclusion, which can hold thousands of hidden ids, would be logged as the requested `_id`.
      * @return {Object.<string,string|string[]>}
      */
     getRawArgs () {
         const obj = {};
         for (const [, /** @type {ParsedArgsItem} */ value] of Object.entries(this.parsedArgItems)) {
-            obj[`${value.queryParameter}`] = value._queryParameterValue.value;
+            const isIdExclusion = (value.queryParameter === '_id' || value.queryParameter === 'id') &&
+                value.modifiers?.length === 1 && value.modifiers[0] === 'not';
+            const key = isIdExclusion ? `${value.queryParameter}:not` : `${value.queryParameter}`;
+            obj[key] = value._queryParameterValue.value;
         }
         return obj;
     }

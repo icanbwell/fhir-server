@@ -455,6 +455,31 @@ describe('ParsedArgs', () => {
             expect(args.getRawArgs()).toEqual({});
         });
 
+        test.each([
+            ['_id', ['_id:not']],
+            ['id', ['id:not']]
+        ])('keys an %s:not exclusion apart from the plain id the caller asked for', (queryParameter, [excludedKey]) => {
+            const plain = createMockParsedArgsItem({ queryParameter, value: 'asked-for' });
+            const exclusion = createMockParsedArgsItem({ queryParameter, value: ['hidden-1', 'hidden-2'], modifiers: ['not'] });
+
+            // either order: the exclusion is added after the caller's args by the view-control filter
+            for (const items of [[plain, exclusion], [exclusion, plain]]) {
+                const raw = new ParsedArgs({ base_version: '4_0_0', parsedArgItems: items }).getRawArgs();
+                expect(raw[queryParameter]).toBe('asked-for');
+                expect(raw[excludedKey]).toEqual(['hidden-1', 'hidden-2']);
+            }
+        });
+
+        test.each([
+            ['another modifier', { queryParameter: '_id', modifiers: ['missing'] }],
+            ['a combined modifier', { queryParameter: '_id', modifiers: ['not', 'exact'] }],
+            ['another parameter with :not', { queryParameter: 'gender', modifiers: ['not'] }]
+        ])('keeps the plain key for %s (modifiers are not part of the key)', (_name, { queryParameter, modifiers }) => {
+            const item = createMockParsedArgsItem({ queryParameter, value: 'v', modifiers });
+            expect(new ParsedArgs({ base_version: '4_0_0', parsedArgItems: [item] }).getRawArgs())
+                .toEqual({ [queryParameter]: 'v' });
+        });
+
         test('uses _queryParameterValue.value (internal accessor)', () => {
             const item = createMockParsedArgsItem({ queryParameter: 'test', value: 'raw-value' });
             const args = new ParsedArgs({ base_version: '4_0_0', parsedArgItems: [item] });

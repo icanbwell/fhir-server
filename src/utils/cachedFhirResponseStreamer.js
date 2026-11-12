@@ -63,17 +63,17 @@ class CachedFhirResponseStreamer {
      * @returns {Promise<void>}
      */
     async processEntriesBatch({ entries, streamedResources, enrichmentContext, isHidden = null }) {
-        if (isHidden) {
-            entries = entries.filter((bundleEntry) => !isHidden(bundleEntry.resource));
-        }
+        const visibleEntries = isHidden
+            ? entries.filter((bundleEntry) => !isHidden(bundleEntry.resource))
+            : entries;
         if (this.enrichmentManager) {
             await this.enrichmentManager.enrichBundleEntriesAsync({
-                entries: entries,
+                entries: visibleEntries,
                 parsedArgs: this.parsedArgs,
                 enrichmentContext
             });
         }
-        for (const bundleEntry of entries) {
+        for (const bundleEntry of visibleEntries) {
             const { _uuid, resourceType } = bundleEntry.resource;
             await this.responseStreamer.writeBundleEntryAsync({ bundleEntry });
             streamedResources.push({ _uuid, resourceType });

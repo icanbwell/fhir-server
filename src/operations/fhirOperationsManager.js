@@ -48,7 +48,11 @@ const { CMSManager } = require('../utils/cmsManager');
 const { OperationAccessManager } = require('../utils/operationAccessManager');
 const { CustomTracer } = require('../utils/customTracer');
 const { PatientDataViewControlExclusion } = require('../utils/patientDataViewControlExclusion');
-const { getEverythingViewControlSubject } = require('./everything/everythingViewControlSubject');
+const {
+    getEverythingViewControlSubject,
+    APPLY_DATA_VIEW_CONTROL_PARAM
+} = require('./everything/everythingViewControlSubject');
+const { isTrue } = require('../utils/isTrue');
 
 class FhirOperationsManager {
     /**
@@ -328,10 +332,24 @@ class FhirOperationsManager {
      * @param {FhirRequestInfo} [requestInfo]
      * @param {boolean} [applyDataViewControl=false] hide resources the patient's dataConnectionViewControl
      *   Consent blocks (user tokens of enrolled clients only). Set by REST search/streaming/read-by-id.
+     * @param {boolean} [acceptsApplyDataViewControlParam=false] only Person $everything reads the
+     *   `_applyDataViewControl` opt-in. Anywhere else a service token that sends it gets a 400, rather
+     *   than an unfiltered record it believes is filtered.
      * @return {Promise<ParsedArgs>}
+     * @throws {BadRequestError} for the opt-in on an operation that doesn't support it
      */
-    async getParsedArgsAsync({ args, resourceType, headers, operation, allowMultipleIds = true, requestInfo, applyDataViewControl = false }) {
+    async getParsedArgsAsync({
+        args, resourceType, headers, operation, allowMultipleIds = true, requestInfo, applyDataViewControl = false,
+        acceptsApplyDataViewControlParam = false
+    }) {
         const { base_version } = args;
+
+        // member tokens are always filtered, so the opt-in changes nothing for them (as in $everything)
+        if (!acceptsApplyDataViewControlParam && !requestInfo?.isUser && isTrue(args[APPLY_DATA_VIEW_CONTROL_PARAM])) {
+            throw new BadRequestError(new Error(
+                `${APPLY_DATA_VIEW_CONTROL_PARAM} is only supported on Person $everything`
+            ));
+        }
 
         this.limitReqForExternalServices({ args, headers, requestInfo });
 
@@ -865,7 +883,8 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo,
+            acceptsApplyDataViewControlParam: true
         }
         );
 

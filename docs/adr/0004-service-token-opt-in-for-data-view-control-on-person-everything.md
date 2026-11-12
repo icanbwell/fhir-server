@@ -35,6 +35,10 @@ answered:
 It sits with the other `$everything` controls (`_includeHidden`, `_includePatientLinkedOnly`, and so
 on) and goes through the same handling:
 - It is listed in `SPECIFIED_QUERY_PARAMS`, so `Prefer: handling=strict` accepts it.
+- Only Person `$everything` reads it. On any other operation a service token that sends it gets a 400
+  (`FhirOperationsManager.getParsedArgsAsync`), because accepting it there would return an unfiltered
+  record to a caller that asked for a filtered one. Member tokens are always filtered, so it changes
+  nothing for them.
 - It is in `$everything`'s list of uncacheable parameters, so an opt-in response is never stored in
   or served from the `$everything` cache.
 - It shows up in the request URL in access logs and traces. It is a flag, not an identifier, so
