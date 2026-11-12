@@ -12,7 +12,6 @@ const {
     parseWindowTime,
     parseArgs,
     buildWindows,
-    objectIdTime,
     resolveRecorded,
     historyRetentionCutoff,
     findRefusalReason,
@@ -121,27 +120,19 @@ describe('migrateHistoryToKafka script', () => {
     describe('resolveRecorded', () => {
         test.each([
             ['the stored _recorded', { recorded: '2026-11-01T10:00:31.123Z' }, '2026-11-01T10:00:31.123Z'],
-            ['the stored _recorded for a DELETE (no offset)', { recorded: '2026-11-01T10:00:31.123Z', method: 'DELETE' }, '2026-11-01T10:00:31.123Z'],
+            ['the stored _recorded for a DELETE, not the _id time', { recorded: '2026-11-01T10:00:31.123Z', method: 'DELETE', mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:00:31.123Z'],
             ['lastUpdated when _recorded is missing', {}, '2026-11-01T10:00:30.000Z'],
-            ['lastUpdated + 5 ms for a DELETE whose _id is not an ObjectId', { method: 'DELETE' }, '2026-11-01T10:00:30.005Z'],
-            ['the _id time for a DELETE', { method: 'DELETE', mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:05:12.000Z'],
-            ['the _id time for a DELETE whose _id is a hex string', { method: 'DELETE', mongoId: objectIdAt('2026-11-01T10:05:12.000Z').toHexString() }, '2026-11-01T10:05:12.000Z'],
-            ['the _id time for a DELETE even when it is not later than lastUpdated', { method: 'DELETE', lastUpdated: '2026-11-01T10:00:30.700Z', mongoId: objectIdAt('2026-11-01T10:00:30.900Z') }, '2026-11-01T10:00:30.000Z'],
             ['lastUpdated for a PUT, not the _id time', { mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:00:30.000Z'],
-            ['the stored _recorded for a DELETE, not the _id time', { method: 'DELETE', recorded: '2026-11-01T10:00:31.123Z', mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:00:31.123Z']
+            ['the _id time + 5 ms for a DELETE', { method: 'DELETE', mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:05:12.005Z'],
+            ['the _id time + 5 ms for a DELETE even when it is not later than lastUpdated', { method: 'DELETE', lastUpdated: '2026-11-01T10:00:30.700Z', mongoId: objectIdAt('2026-11-01T10:00:30.900Z') }, '2026-11-01T10:00:30.005Z']
         ])('uses %s', (_name, fields, expected) => {
             const doc = historyDoc({ mongoId: 'm1', uuid: 'u1', ...fields });
             expect(resolveRecorded(doc).toISOString()).toBe(expected);
         });
 
-        test.each([
-            ['an ObjectId', objectIdAt('2026-11-01T10:05:12.000Z'), '2026-11-01T10:05:12.000Z'],
-            ['a 24-hex string', objectIdAt('2026-11-01T10:05:12.000Z').toHexString(), '2026-11-01T10:05:12.000Z'],
-            ['a non-ObjectId string', 'm1', null],
-            ['undefined', undefined, null]
-        ])('objectIdTime reads the creation time from %s', (_name, id, expected) => {
-            const time = objectIdTime(id);
-            expect(time ? time.toISOString() : null).toBe(expected);
+        test('throws for a DELETE without _recorded whose _id is not an ObjectId', () => {
+            const doc = historyDoc({ mongoId: 'm1', uuid: 'u1', method: 'DELETE' });
+            expect(() => resolveRecorded(doc)).toThrow('ObjectId');
         });
 
         test('throws when there is neither _recorded nor a valid lastUpdated', () => {
@@ -218,7 +209,7 @@ describe('migrateHistoryToKafka script', () => {
             const collection = fakeCollection();
             const docs = [
                 historyDoc({ mongoId: 'm1', uuid: 'u1', recorded: '2026-11-01T10:00:31.123Z' }),
-                historyDoc({ mongoId: 'm2', uuid: 'u2', method: 'DELETE' })
+                historyDoc({ mongoId: objectIdAt('2026-11-01T10:00:31.000Z'), uuid: 'u2', method: 'DELETE' })
             ];
 
             const result = await processDocsAsync({
@@ -229,13 +220,13 @@ describe('migrateHistoryToKafka script', () => {
             const { topic, messages } = kafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0];
             expect(topic).toBe('fhir_server.resource-history.events');
             expect(messages.map((m) => m.key)).toEqual(['Composition:u1', 'Composition:u2']);
-            expect(messages[1].headers).toMatchObject({ ce_type: 'FhirResourceHistory', ce_time: '2026-11-01T10:00:30.005Z' });
+            expect(messages[1].headers).toMatchObject({ ce_type: 'FhirResourceHistory', ce_time: '2026-11-01T10:00:31.005Z' });
             const body = JSON.parse(messages[1].value);
-            expect(body).toMatchObject({ resource_type: 'Composition', _uuid: 'u2', _recorded: '2026-11-01T10:00:30.005Z', version_id: '2' });
+            expect(body).toMatchObject({ resource_type: 'Composition', _uuid: 'u2', _recorded: '2026-11-01T10:00:31.005Z', version_id: '2' });
             expect(body.raw._id).toBeUndefined();
             // Carries the hashed shard key so mongos targets only the owning shards.
             expect(collection.deleteMany).toHaveBeenCalledWith({
-                'resource._uuid': { $in: ['u1', 'u2'] }, _id: { $in: ['m1', 'm2'] }
+                'resource._uuid': { $in: ['u1', 'u2'] }, _id: { $in: ['m1', docs[1]._id] }
             });
             expect(docs[1]._recorded).toBeUndefined();
             expect(logInfo).toHaveBeenCalledWith('Batch done', expect.objectContaining({
@@ -260,16 +251,17 @@ describe('migrateHistoryToKafka script', () => {
 
         test('deletes every version of a resource with its shard key listed once', async () => {
             const collection = fakeCollection();
+            const deleteId = objectIdAt('2026-11-01T10:00:31.000Z');
             const docs = [
                 historyDoc({ mongoId: 'm1', uuid: 'u1' }),
-                historyDoc({ mongoId: 'm2', uuid: 'u1', method: 'DELETE' }),
+                historyDoc({ mongoId: deleteId, uuid: 'u1', method: 'DELETE' }),
                 historyDoc({ mongoId: 'm3', uuid: 'u3' })
             ];
 
             await processDocsAsync({ docs, resourceType: 'Composition', collection, historyKafkaProducer: producer, requestId: 'r1' });
 
             expect(collection.deleteMany).toHaveBeenCalledWith({
-                'resource._uuid': { $in: ['u1', 'u3'] }, _id: { $in: ['m1', 'm2', 'm3'] }
+                'resource._uuid': { $in: ['u1', 'u3'] }, _id: { $in: ['m1', deleteId, 'm3'] }
             });
         });
 

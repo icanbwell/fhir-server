@@ -12,10 +12,11 @@
  * Messages go through the live HistoryKafkaProducer, so topic, key, CloudEvent headers, body, chunk size,
  * compression, retries and timeouts are the same as the live history write. The `_recorded` sent is:
  * - the document's `_recorded`, when it has one
- * - otherwise, for a DELETE entry, the creation time in its MongoDB ObjectId `_id`, i.e. when the
- *   delete was written (1-second precision). Only when `_id` is not an ObjectId, `lastUpdated` plus
- *   5 ms, which keeps the entry a separate, later row than the last version it shares a versionId with
- *   in the ClickHouse table (ReplacingMergeTree keyed on resource_type, _uuid, _recorded, version_id).
+ * - otherwise, for a DELETE entry, the creation time in its MongoDB ObjectId `_id` (when the delete was
+ *   written, 1-second precision) plus 5 ms. A delete history entry carries the same versionId as the
+ *   last version; the offset keeps it off a whole-second `_recorded` of that version, so the two stay
+ *   separate rows in the ClickHouse table (ReplacingMergeTree keyed on resource_type, _uuid, _recorded,
+ *   version_id).
  * - otherwise `resource.meta.lastUpdated`
  *
  * A record is deleted from MongoDB only after its produce succeeded. A record that fails (bad document,
@@ -183,26 +184,11 @@ function buildWindows (start, end, windowMs = WINDOW_MS) {
 }
 
 /**
- * The creation time in a MongoDB ObjectId `_id` (1-second precision), or null when `_id` is not an ObjectId.
- * @param {*} id MongoDB `_id`
- * @returns {Date|null}
- */
-function objectIdTime (id) {
-    if (id instanceof ObjectId) {
-        return id.getTimestamp();
-    }
-    if (typeof id === 'string' && /^[0-9a-f]{24}$/i.test(id)) {
-        return ObjectId.createFromHexString(id).getTimestamp();
-    }
-    return null;
-}
-
-/**
  * The `_recorded` to send for a history document: its own `_recorded`; else, for a DELETE entry, the
- * `_id` creation time (`lastUpdated` + 5 ms when `_id` is not an ObjectId); else `resource.meta.lastUpdated`.
+ * creation time in its ObjectId `_id` plus 5 ms; else `resource.meta.lastUpdated`.
  * @param {Object} doc MongoDB history document
  * @returns {Date}
- * @throws {Error} when neither value is a valid date
+ * @throws {Error} when the needed value is missing or not a valid date
  */
 function resolveRecorded (doc) {
     if (doc._recorded !== undefined && doc._recorded !== null) {
@@ -212,15 +198,17 @@ function resolveRecorded (doc) {
         }
         return recorded;
     }
+    if (String(doc.request?.method || '').toUpperCase() === 'DELETE') {
+        if (!(doc._id instanceof ObjectId)) {
+            throw new Error('no _recorded and _id of a DELETE entry is not an ObjectId');
+        }
+        return new Date(doc._id.getTimestamp().getTime() + DELETE_RECORDED_OFFSET_MS);
+    }
     const lastUpdated = new Date(doc.resource?.meta?.lastUpdated);
     if (Number.isNaN(lastUpdated.getTime())) {
         throw new Error('no _recorded and resource.meta.lastUpdated is not a valid date');
     }
-    const isDelete = String(doc.request?.method || '').toUpperCase() === 'DELETE';
-    if (!isDelete) {
-        return lastUpdated;
-    }
-    return objectIdTime(doc._id) ?? new Date(lastUpdated.getTime() + DELETE_RECORDED_OFFSET_MS);
+    return lastUpdated;
 }
 
 /**
@@ -635,7 +623,6 @@ module.exports = {
     parseWindowTime,
     parseArgs,
     buildWindows,
-    objectIdTime,
     resolveRecorded,
     historyRetentionCutoff,
     findRefusalReason,
