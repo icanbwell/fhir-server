@@ -145,7 +145,10 @@ describe('$graph read audit', () => {
         expect(await getReadAuditLogsAfterSettlingAsync()).toHaveLength(0);
     });
 
-    test('POST $graph audits only the resources the caller can read, not other tenants resources', async () => {
+    test.each([
+        ['contained=true', '?contained=true'],
+        ['contained=false', '']
+    ])('POST $graph (%s) audits only the resources the caller can read, not other tenants resources', async (_, query) => {
         for (const [path, body] of [
             ['Patient/1', patientClientP1Resource],
             ['Observation/1', observationProaLinkedToClientP1Resource]
@@ -156,11 +159,12 @@ describe('$graph read audit', () => {
         await auditEventCollection.deleteMany({});
 
         const resp = await request
-            .post('/4_0_0/Patient/patient-clientp1/$graph')
+            .post(`/4_0_0/Patient/patient-clientp1/$graph${query}`)
             .set(getHeaders('user/*.read access/client-p1.read'))
             .send(graphPatientToObservation);
         expect(resp).toHaveStatusCode(200);
         expect(resp.body.entry.map((e) => e.resource.resourceType)).toEqual(['Patient']);
+        expect(resp.body.entry[0].resource.contained ?? []).toEqual([]);
 
         const returnedReferences = getReturnedReferences(resp.body);
         expect(returnedReferences).toHaveLength(1);
