@@ -108,7 +108,6 @@ function makeEntry (overrides = {}) {
         sourceAssigningAuthority: 'client-a',
         resource,
         operation: { replaceOne: { filter: { _uuid: `uuid-${resource.id}` }, replacement: resource, upsert: true } },
-        patches: null,
         skipped: false,
         ...overrides
     });
@@ -169,7 +168,7 @@ describe('MongoBulkWriteExecutor', () => {
         cloneResource = jestGlobal.fn((r) => ({ ...r, __cloned: true }));
 
         updateManager = {
-            replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: null, patches: null })
+            replaceOneAsync: jestGlobal.fn().mockResolvedValue({ savedResource: null })
         };
         createUpdateManager = jestGlobal.fn(() => updateManager);
 
@@ -593,22 +592,19 @@ describe('MongoBulkWriteExecutor', () => {
         test('falls back to one-by-one updates when fewer upserts landed than expected', async () => {
             collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0 }));
             updateManager.replaceOneAsync.mockResolvedValue({
-                savedResource: makeResource({ id: 'patient-1' }),
-                patches: [{ op: 'replace', path: '/status' }]
+                savedResource: makeResource({ id: 'patient-1' })
             });
 
             const result = await run();
 
             expect(createUpdateManager).toHaveBeenCalledWith({ resourceType: 'Patient', base_version: '4_0_0' });
             expect(updateManager.replaceOneAsync).toHaveBeenCalledTimes(1);
-            // the entry's resource is replaced with the DB-resolved one and patches recorded
             expect(result.mergeResultEntries[0].created).toBe(true);
-            expect(insertOneHistoryFn.mock.calls[0][0].patches).toEqual([{ op: 'replace', path: '/status' }]);
         });
 
         test('a one-by-one replace that resolves to no change marks the entry skipped', async () => {
             collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0 }));
-            updateManager.replaceOneAsync.mockResolvedValue({ savedResource: null, patches: null });
+            updateManager.replaceOneAsync.mockResolvedValue({ savedResource: null });
 
             const result = await run();
 
@@ -646,7 +642,7 @@ describe('MongoBulkWriteExecutor', () => {
             [{ smartMerge: false }, false]
         ])('one-by-one fallback forwards the entry %j as smartMerge=%s', async (entryOverrides, expectedSmartMerge) => {
             collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 0 }));
-            updateManager.replaceOneAsync.mockResolvedValue({ savedResource: null, patches: null });
+            updateManager.replaceOneAsync.mockResolvedValue({ savedResource: null });
 
             await run({
                 operations: [
@@ -667,8 +663,8 @@ describe('MongoBulkWriteExecutor', () => {
         test('RULE 11 N>1: one-by-one fallback processes every entry independently', async () => {
             collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0 }));
             updateManager.replaceOneAsync
-                .mockResolvedValueOnce({ savedResource: makeResource({ id: 'p-1' }), patches: ['a'] })
-                .mockResolvedValueOnce({ savedResource: null, patches: null });
+                .mockResolvedValueOnce({ savedResource: makeResource({ id: 'p-1' }) })
+                .mockResolvedValueOnce({ savedResource: null });
 
             const result = await run({
                 operations: [

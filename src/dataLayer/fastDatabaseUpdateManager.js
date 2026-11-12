@@ -139,14 +139,13 @@ class FastDatabaseUpdateManager {
     /**
      * Inserts a resource into the database
      * Return value of null means no replacement was necessary since the data in the db is the same
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} doc
      * @param {Boolean} [smartMerge]
      * @param {string[]} [ifMatchVersionIds] - normalized If-Match version ids the live doc must match
-     * @return {Promise<{savedResource: Object|null, patches: MergePatchEntry[]|null}>}
+     * @return {Promise<{savedResource: Object|null}>}
      */
-    async replaceOneAsync({ base_version, requestInfo, doc, smartMerge = true, ifMatchVersionIds = [] }) {
+    async replaceOneAsync({ requestInfo, doc, smartMerge = true, ifMatchVersionIds = [] }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
         doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
@@ -203,14 +202,13 @@ class FastDatabaseUpdateManager {
                 if (ifMatchVersionIds.length > 0) {
                     throwIfMatchOnMissingResource();
                 }
-                return { savedResource: await this.insertOneAsync({ doc, requestInfo }), patches: null };
+                return { savedResource: await this.insertOneAsync({ doc, requestInfo }) };
             }
             assertIfMatchSatisfied(resourceInDatabase);
             /**
              * @type {Object|null}
              */
-            let { updatedResource, patches } = await this.resourceMerger.fastMergeResourceAsync({
-                base_version,
+            let { updatedResource } = await this.resourceMerger.fastMergeResourceAsync({
                 requestInfo,
                 currentResource: resourceInDatabase,
                 resourceToMerge: doc,
@@ -220,7 +218,7 @@ class FastDatabaseUpdateManager {
                 updatedResource, resourceInDatabase, requestInfo, this._forceBase64Write
             );
             if (!updatedResource) {
-                return { savedResource: null, patches: null };
+                return { savedResource: null };
             }
             doc = updatedResource;
             /**
@@ -253,7 +251,6 @@ class FastDatabaseUpdateManager {
                         resourceType: updatedDoc.resourceType,
                         updatedDoc,
                         resourceInDatabase,
-                        patches,
                         updatedResource,
                         updateResult
                     }
@@ -276,8 +273,7 @@ class FastDatabaseUpdateManager {
                     } else {
                         assertIfMatchSatisfied(resourceInDatabase);
                         // merge with our resource
-                        ({ updatedResource, patches } = await this.resourceMerger.fastMergeResourceAsync({
-                            base_version,
+                        ({ updatedResource } = await this.resourceMerger.fastMergeResourceAsync({
                             requestInfo,
                             currentResource: resourceInDatabase,
                             resourceToMerge: doc,
@@ -289,7 +285,7 @@ class FastDatabaseUpdateManager {
                         if (updatedResource) {
                             doc = updatedResource;
                         } else {
-                            return { savedResource: null, patches: null };
+                            return { savedResource: null };
                         }
                     }
                     runsLeft -= 1;
@@ -308,13 +304,12 @@ class FastDatabaseUpdateManager {
                             resourceType: doc.resourceType,
                             doc,
                             resourceInDatabase,
-                            patches,
                             updatedResource,
                             updateResult,
                             runsLeft
                         }
                     });
-                    return { savedResource: doc, patches };
+                    return { savedResource: doc };
                 }
             }
             if (runsLeft <= 0) {

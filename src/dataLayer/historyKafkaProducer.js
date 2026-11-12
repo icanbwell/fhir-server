@@ -83,9 +83,10 @@ class HistoryKafkaProducer {
      * @param {boolean} [params.stopOnBrokerFailure=false] after a broker-level failure (retries used up or timed
      * out), skip the remaining chunks and return them as failed, so a caller that falls back to MongoDB does not
      * wait for every chunk to time out in turn
+     * @param {number|null} [params.batchSize] messages per produce call; defaults to RESOURCE_HISTORY_KAFKA_BATCH_SIZE
      * @returns {Promise<import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]>} the operations that did NOT reach Kafka
      */
-    async produceAsync ({ resourceType, operations, requestId, stopOnBrokerFailure = false }) {
+    async produceAsync ({ resourceType, operations, requestId, stopOnBrokerFailure = false, batchSize: batchSizeOverride = null }) {
         /** @type {import('./bulkInsertUpdateEntry').BulkInsertUpdateEntry[]} */
         const failedOperations = [];
         try {
@@ -93,7 +94,7 @@ class HistoryKafkaProducer {
                 return failedOperations;
             }
             const topic = this.configManager.resourceHistoryKafkaTopic;
-            const batchSize = this.configManager.resourceHistoryKafkaBatchSize;
+            const batchSize = batchSizeOverride ?? this.configManager.resourceHistoryKafkaBatchSize;
             const compression = getKafkaCompressionType(this.configManager.kafkaProducerCompression);
             for (let i = 0; i < operations.length; i += batchSize) {
                 const brokerFailed = await this._produceChunkAsync({

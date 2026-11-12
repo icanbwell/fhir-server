@@ -242,6 +242,7 @@ describe('applyClickHouseDDL admin runner', () => {
             expect(ddl).toContain('PARTITION BY toYYYYMM(_recorded)');
             expect(ddl).toContain('ORDER BY (resource_type, _uuid, _recorded, version_id)');
             expect(ddl).toContain('TTL toDateTime(_recorded) + toIntervalMonth(13)');
+            expect(ddl).toContain('resource_type IN');
             expect(ddl).toContain('ttl_only_drop_parts = 1');
         }, 60000);
 
@@ -293,6 +294,31 @@ describe('applyClickHouseDDL admin runner', () => {
             const rows = await selectAsync(`SELECT _uuid FROM ${TABLE}`);
 
             expect(rows.map((r) => r._uuid)).toEqual(['synthetic-new']);
+        }, 60000);
+
+        test.each([
+            ['Consent', 'kept'],
+            ['Group', 'kept'],
+            ['SomeFutureResourceType', 'kept'],
+            ['Patient', 'dropped']
+        ])('TTL on a 14-month-old %s row: %s', async (resourceType, outcome) => {
+            const old = new Date();
+            old.setUTCMonth(old.getUTCMonth() - 14);
+            await clickHouseClientManager.insertAsync({
+                table: TABLE,
+                values: [
+                    row({
+                        resource_type: resourceType,
+                        _uuid: 'synthetic-old',
+                        _recorded: toClickHouseTime(old)
+                    })
+                ]
+            });
+
+            await clickHouseClientManager.queryAsync({ query: `OPTIMIZE TABLE ${TABLE} FINAL` });
+            const rows = await selectAsync(`SELECT _uuid FROM ${TABLE}`);
+
+            expect(rows).toHaveLength(outcome === 'kept' ? 1 : 0);
         }, 60000);
     });
 });

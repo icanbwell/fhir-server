@@ -1,5 +1,27 @@
 'use strict';
 
+const { SpanStatusCode } = require('@opentelemetry/api');
+
+// Nginx's non-standard status for "client closed request before the server answered".
+const CLIENT_CLOSED_REQUEST = 499;
+
+/**
+ * The http instrumentation ends a server span on the response 'close' event and reads
+ * res.statusCode, which Express leaves at its default of 200 when the handler never wrote
+ * headers. A request the client abandoned while we were still waiting on the database is
+ * therefore exported as a successful 200 span. Record it as 499 with an error status instead so
+ * span-based error rates see it.
+ * @param {import('@opentelemetry/api').Span} span
+ * @param {import('http').ServerResponse|undefined} response
+ */
+function markClientAbortedSpan (span, response) {
+    if (!response || response.writableFinished !== false) {
+        return;
+    }
+    span.setAttribute('http.response.status_code', CLIENT_CLOSED_REQUEST);
+    span.setStatus({ code: SpanStatusCode.ERROR, message: 'client closed request' });
+}
+
 let ignoreUrls = ['/health', '/live', '/ready'];
 if (process.env.OPENTELEMETRY_IGNORE_URLS) {
     ignoreUrls = ignoreUrls.concat(
@@ -10,13 +32,14 @@ if (process.env.OPENTELEMETRY_IGNORE_URLS) {
 let instrumentationConfigs = {
     '@opentelemetry/instrumentation-http': {
         ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
-        applyCustomAttributesOnSpan: (span) => {
+        applyCustomAttributesOnSpan: (span, request, response) => {
             // For graphql urls we are using middlewares to process the graphql request, there is no route
             // attached with any http method so we have to add the route in the 'span' to aggregate data
             const httpTarget = span.attributes?.['http.target'];
             if (httpTarget && httpTarget.includes('/$graphql')) {
                 span.attributes['http.route'] = httpTarget.replace('4_0_0', ':base_version')
             }
+            markClientAbortedSpan(span, response);
         }
     },
     '@opentelemetry/instrumentation-mongodb': {

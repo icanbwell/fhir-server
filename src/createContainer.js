@@ -252,7 +252,8 @@ const createContainer = function () {
             enrichmentManager: c.enrichmentManager,
             resourceManager: c.resourceManager,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
+            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
         }
     ));
     container.register('preSaveManager', (c) => new PreSaveManager({
@@ -618,7 +619,6 @@ const createContainer = function () {
                 }),
                 c.writeAllowedByScopesValidator
             ],
-            configManager: c.configManager,
             customTracer: c.customTracer
         }
     ));
@@ -699,16 +699,11 @@ const createContainer = function () {
 
     container.register('fastDatabaseBulkInserter', (c) => new FastDatabaseBulkInserter(
             {
-                resourceManager: c.resourceManager,
                 postRequestProcessor: c.postRequestProcessor,
-                resourceLocatorFactory: c.resourceLocatorFactory,
-                postSaveProcessor: c.postSaveProcessor,
                 preSaveManager: c.preSaveManager,
                 requestSpecificCache: c.requestSpecificCache,
-                databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
                 bulkWriteExecutors: [c.kafkaClickPipeBulkWriteExecutor, c.clickHouseBulkWriteExecutor, c.fastMongoBulkWriteExecutor].filter(Boolean),
                 historyKafkaProducer: c.historyKafkaProducer,
@@ -719,8 +714,7 @@ const createContainer = function () {
     container.register('databaseBulkLoader', (c) => new DatabaseBulkLoader(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            requestSpecificCache: c.requestSpecificCache,
-            configManager: c.configManager
+            requestSpecificCache: c.requestSpecificCache
         }));
     container.register('postRequestProcessor', (c) => new PostRequestProcessor(
         {
@@ -728,7 +722,6 @@ const createContainer = function () {
         }));
     container.register('auditLogger', (c) => new AuditLogger(
             {
-                postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.fastDatabaseBulkInserter,
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager
@@ -737,7 +730,6 @@ const createContainer = function () {
     );
     container.register('accessLogger', (c) => new AccessLogger(
             {
-                scopesManager: c.scopesManager,
                 fhirOperationsManager: c.fhirOperationsManager,
                 imageVersion: getImageVersion(),
                 configManager: c.configManager,
@@ -854,7 +846,6 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
                 fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
-                configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider
@@ -873,7 +864,6 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
                 resourceMerger: c.resourceMerger,
-                configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
                 sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
@@ -909,7 +899,6 @@ const createContainer = function () {
     container.register('removeHelper', c => new RemoveHelper({
         fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
         resourceLocatorFactory: c.resourceLocatorFactory,
-        databaseQueryFactory: c.databaseQueryFactory,
         databaseAttachmentManager: c.databaseAttachmentManager,
         postRequestProcessor: c.postRequestProcessor,
         postSaveProcessor: c.postSaveProcessor,
@@ -923,7 +912,6 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             configManager: c.configManager,
-            queryRewriterManager: c.queryRewriterManager,
             postRequestProcessor: c.postRequestProcessor,
             searchManager: c.searchManager,
             removeHelper: c.removeHelper,
@@ -966,6 +954,7 @@ const createContainer = function () {
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
             auditLogger: c.auditLogger,
             postRequestProcessor: c.postRequestProcessor,
             historyClickHouseRepository: c.historyClickHouseRepository,
@@ -988,6 +977,7 @@ const createContainer = function () {
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
             auditLogger: c.auditLogger,
             postRequestProcessor: c.postRequestProcessor,
             historyClickHouseRepository: c.historyClickHouseRepository,

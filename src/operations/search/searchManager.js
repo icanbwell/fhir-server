@@ -27,6 +27,7 @@ const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
 const { GroupMemberArrayWriter } = require('../streaming/resourceWriters/groupMemberArrayWriter');
+const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { AtlasSearchQueryBuilder, ATLAS_SEARCH_INDEX_NAME } = require('./atlasSearchQueryBuilder');
@@ -845,6 +846,10 @@ class SearchManager {
             }
             // always include _uuid for audit logging
             projection._uuid = 1;
+            // the extended tag in meta.tag is derived from _extended at read time
+            if (resourceType === 'Group' && properties_to_return_list.includes('meta')) {
+                projection[MONGO_GROUP_EXTENDED_FIELD] = 1;
+            }
             // Only project _blobMeta sidecars when the corresponding `data` field is also
             // projected — otherwise Base64DataManager.transformAsync(RETRIEVE) has nothing
             // to rehydrate, so the sidecar would just be dead weight in the result.

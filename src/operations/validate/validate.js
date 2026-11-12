@@ -349,7 +349,6 @@ class ValidateOperation {
             {
                 base_version,
                 requestInfo,
-                id: resource_incoming.id,
                 resourceType,
                 resourceToValidate: resourceObjectToValidate,
                 path,

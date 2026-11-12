@@ -64,8 +64,7 @@ function createManager(overrides = {}) {
 
     const resourceMerger = createPrototypedMock(ResourceMerger);
     resourceMerger.fastMergeResourceAsync = jestObj.fn().mockResolvedValue({
-        updatedResource: null,
-        patches: null
+        updatedResource: null
     });
     resourceMerger.fastUpdateMeta = jestObj.fn().mockImplementation(({ patched_resource_incoming }) => patched_resource_incoming);
 
@@ -255,7 +254,6 @@ describe('FastDatabaseUpdateManager', () => {
             });
 
             expect(result.savedResource).toBeTruthy();
-            expect(result.patches).toBeNull();
             expect(mocks.collection.insertOne).toHaveBeenCalled();
         });
 
@@ -266,8 +264,7 @@ describe('FastDatabaseUpdateManager', () => {
 
             mocks.databaseQueryManager.fastFindOneAsync.mockResolvedValue(existingDoc);
             mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: null,
-                patches: null
+                updatedResource: null
             });
             mocks.base64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(null);
 
@@ -278,7 +275,6 @@ describe('FastDatabaseUpdateManager', () => {
             });
 
             expect(result.savedResource).toBeNull();
-            expect(result.patches).toBeNull();
         });
 
         test('successfully replaces when merge returns updated resource', async () => {
@@ -286,12 +282,10 @@ describe('FastDatabaseUpdateManager', () => {
             const existingDoc = createMockDoc({ _uuid: 'u1', versionId: '1' });
             const mergedDoc = createMockDoc({ _uuid: 'u1', versionId: '2' });
             const requestInfo = createMockFhirRequestInfo();
-            const patchList = [{ op: 'replace', path: '/active', value: true }];
 
             mocks.databaseQueryManager.fastFindOneAsync.mockResolvedValue(existingDoc);
             mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: mergedDoc,
-                patches: patchList
+                updatedResource: mergedDoc
             });
             mocks.base64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(mergedDoc);
             mocks.collection.replaceOne.mockResolvedValue({ matchedCount: 1 });
@@ -303,7 +297,7 @@ describe('FastDatabaseUpdateManager', () => {
             });
 
             expect(result.savedResource).toBeTruthy();
-            expect(result.patches).toEqual(patchList);
+            expect(mocks.collection.replaceOne).toHaveBeenCalledTimes(1);
         });
 
         test('uses filter with _uuid and previous versionId for replaceOne', async () => {
@@ -314,8 +308,7 @@ describe('FastDatabaseUpdateManager', () => {
 
             mocks.databaseQueryManager.fastFindOneAsync.mockResolvedValue(existingDoc);
             mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: mergedDoc,
-                patches: [{ op: 'add', path: '/x' }]
+                updatedResource: mergedDoc
             });
             mocks.base64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(mergedDoc);
             mocks.collection.replaceOne.mockResolvedValue({ matchedCount: 1 });
@@ -342,8 +335,7 @@ describe('FastDatabaseUpdateManager', () => {
 
             mocks.databaseQueryManager.fastFindOneAsync.mockResolvedValue(existingDoc);
             mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: mergedDoc,
-                patches: [{ op: 'add', path: '/x' }]
+                updatedResource: mergedDoc
             });
             mocks.base64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(mergedDoc);
             mocks.collection.replaceOne.mockResolvedValue({ matchedCount: 1 });
@@ -371,8 +363,8 @@ describe('FastDatabaseUpdateManager', () => {
                 .mockResolvedValueOnce(updatedExisting);
 
             mocks.resourceMerger.fastMergeResourceAsync
-                .mockResolvedValueOnce({ updatedResource: mergedDoc, patches: [{ op: 'add', path: '/a' }] })
-                .mockResolvedValueOnce({ updatedResource: reMergedDoc, patches: [{ op: 'add', path: '/b' }] });
+                .mockResolvedValueOnce({ updatedResource: mergedDoc })
+                .mockResolvedValueOnce({ updatedResource: reMergedDoc });
 
             mocks.base64DataManager.resolveWriteForExternalizedDataChange
                 .mockResolvedValueOnce(mergedDoc)
@@ -406,8 +398,8 @@ describe('FastDatabaseUpdateManager', () => {
                     .mockResolvedValueOnce(existingDoc)
                     .mockResolvedValueOnce(updatedExisting);
                 mocks.resourceMerger.fastMergeResourceAsync
-                    .mockResolvedValueOnce({ updatedResource: mergedDoc, patches: [] })
-                    .mockResolvedValueOnce({ updatedResource: reMergedDoc, patches: [] });
+                    .mockResolvedValueOnce({ updatedResource: mergedDoc })
+                    .mockResolvedValueOnce({ updatedResource: reMergedDoc });
                 mocks.base64DataManager.resolveWriteForExternalizedDataChange
                     .mockResolvedValueOnce(mergedDoc)
                     .mockResolvedValueOnce(reMergedDoc);
@@ -433,8 +425,7 @@ describe('FastDatabaseUpdateManager', () => {
 
             setup.mocks.databaseQueryManager.fastFindOneAsync.mockResolvedValue(existingDoc);
             setup.mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: mergedDoc,
-                patches: [{ op: 'add', path: '/x' }]
+                updatedResource: mergedDoc
             });
             setup.mocks.base64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(mergedDoc);
             setup.mocks.collection.replaceOne.mockResolvedValue({ matchedCount: 0 });
@@ -459,8 +450,7 @@ describe('FastDatabaseUpdateManager', () => {
                 .mockResolvedValueOnce(null);
 
             mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: mergedDoc,
-                patches: [{ op: 'add', path: '/x' }]
+                updatedResource: mergedDoc
             });
             mocks.base64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(mergedDoc);
             mocks.collection.replaceOne.mockResolvedValue({ matchedCount: 0 });
@@ -498,8 +488,7 @@ describe('FastDatabaseUpdateManager', () => {
 
             mocks.databaseQueryManager.fastFindOneAsync.mockResolvedValue(existingDoc);
             mocks.resourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: null,
-                patches: null
+                updatedResource: null
             });
             mocks.base64DataManager.resolveWriteForExternalizedDataChange.mockResolvedValue(null);
 

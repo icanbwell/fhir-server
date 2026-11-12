@@ -171,7 +171,6 @@ class GraphOperation {
                 {
                     base_version,
                     requestInfo,
-                    id: graphDefinitionRaw.id,
                     resourceType: 'GraphDefinition',
                     resourceToValidate: graphDefinitionRaw,
                     path

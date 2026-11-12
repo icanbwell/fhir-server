@@ -26,6 +26,7 @@ const { ensureHistoryEntryResponse } = require('./historyEntryResponse');
 const { getLastUpdatedISO } = require('../../utils/date.util');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { CompositionSectionFilterEnrichmentProvider } = require('../../enrich/providers/compositionSectionFilterEnrichmentProvider');
+const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
@@ -46,6 +47,7 @@ class BaseHistoryOperationProcessor {
      * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      * @param {CompositionSectionFilterEnrichmentProvider} compositionSectionFilterEnrichmentProvider
+     * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {import('../../dataLayer/repositories/historyClickHouseRepository').HistoryClickHouseRepository | null} historyClickHouseRepository
@@ -66,6 +68,7 @@ class BaseHistoryOperationProcessor {
             historyResourceCloudStorageClient,
             identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider,
             auditLogger,
             postRequestProcessor,
             historyClickHouseRepository,
@@ -163,6 +166,12 @@ class BaseHistoryOperationProcessor {
          */
         this.compositionSectionFilterEnrichmentProvider = compositionSectionFilterEnrichmentProvider;
         assertTypeEquals(compositionSectionFilterEnrichmentProvider, CompositionSectionFilterEnrichmentProvider);
+
+        /**
+         * @type {GroupExtendedTagEnrichmentProvider}
+         */
+        this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
+        assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
 
         /**
          * @type {AuditLogger}
@@ -464,7 +473,7 @@ class BaseHistoryOperationProcessor {
                     `ClickHouse history reads are enabled for ${resourceType} but ClickHouse is not enabled`
                 );
             }
-            assertSupportedHistoryArgs(parsedArgs, { isInstanceRead });
+            assertSupportedHistoryArgs(parsedArgs);
             // `/{type}/_history?_id=x` is the same read as `/{type}/x/_history`; `_id=x,y` reads several
             let uuid;
             let uuids;
@@ -676,6 +685,11 @@ class BaseHistoryOperationProcessor {
             entries: resultBundle.entry,
             parsedArgs,
             enrichmentContext: { userType, actor }
+        });
+        // Before serialization, which strips the internal _extended field the tag is derived from.
+        // Extended versions carry no member[], so the tag is how a client tells them apart.
+        resultBundle.entry = await this.groupExtendedTagEnrichmentProvider.enrichBundleEntriesAsync({
+            entries: resultBundle.entry
         });
         FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle');
 

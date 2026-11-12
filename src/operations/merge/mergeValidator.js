@@ -1,5 +1,4 @@
 const { FhirResourceWriteSerializer } = require("../../fhir/fhirResourceWriteSerializer");
-const { ConfigManager } = require("../../utils/configManager");
 const { assertTypeEquals } = require("../../utils/assertType");
 const { CustomTracer } = require('../../utils/customTracer');
 
@@ -7,20 +6,13 @@ const { CustomTracer } = require('../../utils/customTracer');
 class MergeValidator {
     /**
      * @param {BaseValidator[]} validators
-     * @param {ConfigManager} configManager
      * @param {CustomTracer} customTracer
      */
-    constructor ({ validators, configManager, customTracer }) {
+    constructor ({ validators, customTracer }) {
         /**
          * @type {BaseValidator[]}
          */
         this.validators = validators;
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
 
         /**
          * @type {CustomTracer}

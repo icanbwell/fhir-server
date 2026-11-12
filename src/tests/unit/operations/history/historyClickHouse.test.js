@@ -101,6 +101,9 @@ describe('HistoryOperation reading from ClickHouse', () => {
             compositionSectionFilterEnrichmentProvider: {
                 enrichBundleEntriesAsync: jest.fn().mockImplementation(async ({ entries }) => entries)
             },
+            groupExtendedTagEnrichmentProvider: {
+                enrichBundleEntriesAsync: jest.fn().mockImplementation(async ({ entries }) => entries)
+            },
             historyResourceCloudStorageClient: null,
             currentOperationName: 'historyById',
             errorMessagePostfix: 'for Patient resources'
@@ -248,17 +251,15 @@ describe('HistoryOperation reading from ClickHouse', () => {
                 expect.objectContaining({ uuid: UUID, uuids: undefined })
             );
         });
+    });
 
-        test('rejects id, which is only the URL form', async () => {
-            await expect(run(makeArgs({ id: UUID }))).rejects.toMatchObject({ statusCode: 400 });
-            expect(repository.findPageAsync).not.toHaveBeenCalled();
-        });
+    test('an instance read whose parsed args hold the URL id as _id is served', async () => {
+        // the args parser copies the URL id into `_id`, so a plain `/{type}/{uuid}/_history` has it
+        op.currentOperationName = 'historyById';
 
-        test('rejects _id on an instance read, where the URL already names the resource', async () => {
-            op.currentOperationName = 'historyById';
+        await run(makeArgs({ _id: UUID }));
 
-            await expect(run(makeArgs({ id: UUID, _id: UUID }))).rejects.toMatchObject({ statusCode: 400 });
-        });
+        expect(repository.findPageAsync).toHaveBeenCalledWith(expect.objectContaining({ uuid: UUID }));
     });
 
     test.each([

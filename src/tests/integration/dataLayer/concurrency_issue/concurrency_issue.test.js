@@ -281,9 +281,7 @@ describe('CodeSystem Tests', () => {
                         resourceType: 'CodeSystem',
                         id: 'medline-loinc-labs',
                         previousVersionId: '1',
-                        doc: toWriteDoc(codeSystem),
-                        upsert: false,
-                        patches: null
+                        doc: toWriteDoc(codeSystem)
                     }
                 );
             }
@@ -375,9 +373,7 @@ describe('CodeSystem Tests', () => {
                         resourceType: 'CodeSystem',
                         id: 'medline-loinc-labs',
                         previousVersionId: '1',
-                        doc: toWriteDoc(codeSystem),
-                        upsert: false,
-                        patches: null
+                        doc: toWriteDoc(codeSystem)
                     }
                 );
             }
