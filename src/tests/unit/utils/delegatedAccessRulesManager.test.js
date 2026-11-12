@@ -451,7 +451,7 @@ describe('DelegatedAccessRulesManager', () => {
                 resourceType: 'Organization',
                 sourceAssigningAuthority: undefined
             });
-            const actor = { reference: 'Organization/org-1' };
+            const actor = { reference: 'Organization/org-1', isOrganizationActor: true };
 
             const result = await manager.hasValidConsentAsync({
                 actor,

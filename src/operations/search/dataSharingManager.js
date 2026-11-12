@@ -845,14 +845,11 @@ class DataSharingManager {
         if (resourceType === 'Person') {
             return query;
         }
-        const isOrganizationActor =
-            ReferenceParser.parseReference(actor?.reference).resourceType === 'Organization';
-        const allowedConnectionTypes = Array.isArray(actor?.allowedConnectionTypes)
-            ? actor.allowedConnectionTypes
-            : (isOrganizationActor ? [] : null);
-        if (!allowedConnectionTypes) {
-            return query;
+        if (!Array.isArray(actor?.allowedConnectionTypes)) {
+            // An Organization actor with no allowed list fails closed; other actors are not restricted.
+            return actor?.isOrganizationActor === true ? { _uuid: '__invalid__' } : query;
         }
+        const { allowedConnectionTypes } = actor;
         // MongoQuerySimplifier drops an empty `$in`, which would match every connectionType.
         if (allowedConnectionTypes.length === 0) {
             return { _uuid: '__invalid__' };

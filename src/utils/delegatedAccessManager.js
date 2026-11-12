@@ -1,7 +1,6 @@
 const { ForbiddenError } = require('./httpErrors');
 const { AUTH_USER_TYPES, DELEGATED_ACCESS } = require('../constants');
 const { FhirRequestInfo } = require('./fhirRequestInfo');
-const { ReferenceParser } = require('./referenceParser');
 const { ConfigManager } = require('./configManager');
 const { assertTypeEquals } = require('./assertType');
 
@@ -84,8 +83,7 @@ class DelegatedAccessManager {
      * @returns {boolean}
      */
     isOrganizationActor (requestInfo) {
-        return this.isDelegatedUser(requestInfo) &&
-            ReferenceParser.parseReference(requestInfo.actor?.reference).resourceType === 'Organization';
+        return this.isDelegatedUser(requestInfo) && requestInfo.actor?.isOrganizationActor === true;
     }
 }
 

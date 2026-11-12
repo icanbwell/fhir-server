@@ -19,9 +19,8 @@ const {McpServer} = require('./routeHandlers/mcpServer');
 const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js')
 const {authenticateWithJsonFailure} = require('./middleware/fhir/authentication.middleware.js');
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
-const {AUTH_USER_TYPES} = require('./constants');
+const {AUTH_USER_TYPES, DELEGATED_ACCESS} = require('./constants');
 const forbidForUserTypes = require('./middleware/forbidForUserTypes.middleware');
-const forbidDelegatedOrganizationActor = require('./middleware/forbidDelegatedOrganizationActor.middleware');
 const createPostRequestCleanupMiddleware = require('./middleware/postRequestCleanup.middleware');
 const {graphqlErrorFormatter} = require('./middleware/graphql/graphqlErrorFormatter');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
@@ -452,8 +451,10 @@ function createApp({fnGetContainer}) {
         // below), not via a per-call OperationAccessManager.verifyAccess check -- McpToolHandler never
         // calls that either, so without this line a CMS-partner token could search any resource type
         // through MCP.
-        mcpRouter.use(forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]));
-        mcpRouter.use(forbidDelegatedOrganizationActor(container.delegatedAccessManager));
+        mcpRouter.use(forbidForUserTypes([
+            AUTH_USER_TYPES.cmsPartnerUser,
+            DELEGATED_ACCESS.ORGANIZATION_ACTOR_USER_TYPE
+        ]));
         mcpRouter.use(express.json());
         mcpRouter.use(function buildMcpRequestContext(req, res, next) {
             // Mirrors graphqlServer.js/graphqlServerV2.js's getContext(), which sets req.container so
@@ -483,15 +484,16 @@ function createApp({fnGetContainer}) {
     if (isTrue(process.env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
-        const forbidRestrictedUserTypes = forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]);
-        const forbidOrganizationActor = forbidDelegatedOrganizationActor(container.delegatedAccessManager);
+        const forbidRestrictedUserTypes = forbidForUserTypes([
+            AUTH_USER_TYPES.cmsPartnerUser,
+            DELEGATED_ACCESS.ORGANIZATION_ACTOR_USER_TYPE
+        ]);
 
         const router = express.Router();
         router.use(function markGraphqlRoute(req, res, next) { req.isGraphQLRoute = true; next(); });
         router.use(passport.initialize());
         router.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         router.use(forbidRestrictedUserTypes);
-        router.use(forbidOrganizationActor);
         router.use(cors(fhirServerConfig.server.corsOptions));
         router.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
@@ -503,7 +505,6 @@ function createApp({fnGetContainer}) {
         routerv2.use(passport.initialize());
         routerv2.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         routerv2.use(forbidRestrictedUserTypes);
-        routerv2.use(forbidOrganizationActor);
         routerv2.use(cors(fhirServerConfig.server.corsOptions));
         routerv2.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui

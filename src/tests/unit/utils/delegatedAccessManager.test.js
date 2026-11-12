@@ -162,7 +162,11 @@ describe('DelegatedAccessManager', () => {
         describe('Organization actor', () => {
             const orgActorRequestInfo = {
                 userType: AUTH_USER_TYPES.delegatedUser,
-                actor: { reference: 'Organization/1f0e9d8c-7b6a-4954-8321-0fedcba98765', sub: 'client-org-sub' }
+                actor: {
+                    reference: 'Organization/1f0e9d8c-7b6a-4954-8321-0fedcba98765',
+                    sub: 'client-org-sub',
+                    isOrganizationActor: true
+                }
             };
 
             test('allows Person $everything', () => {
@@ -238,7 +242,11 @@ describe('DelegatedAccessManager', () => {
                 expect(() => manager.verifyAccess({
                     requestInfo: {
                         userType: AUTH_USER_TYPES.delegatedUser,
-                        actor: { reference: 'RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425', sub: 'rp-sub' }
+                        actor: {
+                            reference: 'RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425',
+                            sub: 'rp-sub',
+                            isOrganizationActor: false
+                        }
                     },
                     resourceType: 'Observation',
                     operation: 'search'

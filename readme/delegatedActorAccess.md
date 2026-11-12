@@ -222,7 +222,7 @@ DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS=Person:everything,Observation:se
 
 - This list can only narrow the read-only operations above. A write such as `Person:create` is still rejected.
 - Connection-type filtering still applies to every allowed operation.
-- The GraphQL v1, GraphQL v2 and MCP routers reject `Organization` actors with 403 whatever this list says (`forbidDelegatedOrganizationActor` middleware in `src/app.js`).
+- The GraphQL v1, GraphQL v2 and MCP routers reject `Organization` actors with 403 whatever this list says (`forbidForUserTypes` with `DELEGATED_ACCESS.ORGANIZATION_ACTOR_USER_TYPE` in `src/app.js`). `AuthService.processForDelegatedActor` sets `actor.isOrganizationActor` once at authentication, and every Organization-actor check reads that flag.
 
 ## Redis Caching
 

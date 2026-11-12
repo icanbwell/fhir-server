@@ -99,7 +99,7 @@ class DelegatedAccessRulesManager {
 
         // An Organization actor's Consent is org-level (no `patient` field), so it can never
         // match the query below. Skip the lookup and trust the upstream mint-time check.
-        if (ReferenceParser.parseReference(actorReference).resourceType === 'Organization') {
+        if (actor.isOrganizationActor === true) {
             const filteringRules = {
                 consentId: null,
                 consentVersion: null,

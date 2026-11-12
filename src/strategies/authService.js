@@ -576,11 +576,11 @@ class AuthService {
         }
 
         let isValidInput = true;
+        const actorResourceType = typeof act[this.requiredActorFields.reference] === 'string'
+            ? ReferenceParser.parseReference(act[this.requiredActorFields.reference]).resourceType
+            : undefined;
         // validate reference: human delegate (RelatedPerson) or client (Organization)
-        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' &&
-            DELEGATED_ACCESS.ALLOWED_ACTOR_RESOURCE_TYPES.includes(
-                ReferenceParser.parseReference(act[this.requiredActorFields.reference]).resourceType
-            );
+        isValidInput &&= DELEGATED_ACCESS.ALLOWED_ACTOR_RESOURCE_TYPES.includes(actorResourceType);
         // validate sub
         isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
 
@@ -595,7 +595,8 @@ class AuthService {
 
         response.actor = {
             reference: act[this.requiredActorFields.reference],
-            sub: act[this.requiredActorFields.sub]
+            sub: act[this.requiredActorFields.sub],
+            isOrganizationActor: actorResourceType === 'Organization'
         };
         return response;
     }

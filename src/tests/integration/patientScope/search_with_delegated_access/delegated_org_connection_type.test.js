@@ -264,6 +264,6 @@ describe('Delegated Organization actor connection-type filtering', () => {
             .send({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'search_patient', arguments: {} } });
 
         expect(resp.status).toBe(403);
-        expect(resp.body.issue[0].details.text).toBe('Organization actor does not have access to this endpoint');
+        expect(resp.body.issue[0].details.text).toBe('delegatedOrganizationActor does not have access to this endpoint');
     });
 });

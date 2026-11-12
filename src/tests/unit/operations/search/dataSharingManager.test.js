@@ -870,16 +870,16 @@ describe('DataSharingManager', () => {
             ['Observation', ['treatment']],
             ['Patient', ['treatment', 'proa']]
         ])('restricts %s to allowedConnectionTypes %j', (resourceType, allowedConnectionTypes) => {
-            const result = run(resourceType, { reference: 'Organization/org-1', allowedConnectionTypes });
+            const result = run(resourceType, { reference: 'Organization/org-1', isOrganizationActor: true, allowedConnectionTypes });
 
             expect(result.$and[0]).toEqual({ resourceType });
             expect(matchedConnectionTypes(result)).toEqual(allowedConnectionTypes);
         });
 
         it.each([
-            ['the resource is Person', 'Person', { reference: 'Organization/org-1', allowedConnectionTypes: ['treatment'] }],
-            ['the resource is Person and the list is empty', 'Person', { reference: 'Organization/org-1', allowedConnectionTypes: [] }],
-            ['a RelatedPerson actor has no connection-type restriction', 'Observation', { reference: 'RelatedPerson/rp-1' }],
+            ['the resource is Person', 'Person', { reference: 'Organization/org-1', isOrganizationActor: true, allowedConnectionTypes: ['treatment'] }],
+            ['the resource is Person and the list is empty', 'Person', { reference: 'Organization/org-1', isOrganizationActor: true, allowedConnectionTypes: [] }],
+            ['a RelatedPerson actor has no connection-type restriction', 'Observation', { reference: 'RelatedPerson/rp-1', isOrganizationActor: false }],
             ['there is no actor', 'Observation', undefined]
         ])('returns the query unchanged when %s', (_label, resourceType, actor) => {
             const query = { resourceType };
@@ -890,8 +890,8 @@ describe('DataSharingManager', () => {
         });
 
         it.each([
-            ['allowedConnectionTypes is empty', { reference: 'Organization/org-1', allowedConnectionTypes: [] }],
-            ['an Organization actor has no allowedConnectionTypes', { reference: 'Organization/org-1' }]
+            ['allowedConnectionTypes is empty', { reference: 'Organization/org-1', isOrganizationActor: true, allowedConnectionTypes: [] }],
+            ['an Organization actor has no allowedConnectionTypes', { reference: 'Organization/org-1', isOrganizationActor: true }]
         ])('returns an impossible query when %s', (_label, actor) => {
             const result = run('Observation', actor);
 

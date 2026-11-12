@@ -455,7 +455,8 @@ describe('JWT Bearer Strategy', () => {
                     expect(info.context).toBeTruthy();
                     expect(info.context.actor).toStrictEqual({
                         reference: delegatedActorReference,
-                        sub: 'delegated-sub-123'
+                        sub: 'delegated-sub-123',
+                        isOrganizationActor: false
                     });
 
                     resolve();
