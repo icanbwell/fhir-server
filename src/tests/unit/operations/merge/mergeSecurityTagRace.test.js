@@ -253,10 +253,7 @@ describe('INC-316/317: meta.security tag duplication on concurrent $merge', () =
                         security: mergedSecurity
                     }
                 };
-                return {
-                    updatedResource,
-                    patches: [{ op: 'replace', path: '/meta/security', value: mergedSecurity }]
-                };
+                return { updatedResource };
             });
 
             // Two concurrent incoming resources with the same security tags
@@ -354,11 +351,9 @@ describe('INC-316/317: meta.security tag duplication on concurrent $merge', () =
 
             // Call performMergeDbUpdateAsync which is the write path
             await mergeManager.performMergeDbUpdateAsync({
-                base_version: '4_0_0',
                 requestInfo,
                 resourceToMerge: resourceWithDuplicateTags,
                 previousVersionId: '1',
-                patches: [{ op: 'replace', path: '/meta/security', value: resourceWithDuplicateTags.meta.security }],
                 smartMerge: true,
                 currentMembers: undefined
             });

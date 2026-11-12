@@ -12,7 +12,6 @@ const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { buildOperationOutcome, buildOperationOutcomeFromIssues } = require('../../utils/operationOutcomeBuilder');
 const { assertTypeEquals } = require('../../utils/assertType');
-const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
 const { logError } = require('./logging');
 const { validateResource } = require('../../utils/validator.util');
@@ -371,7 +370,6 @@ class ResourceValidator {
      * @typedef {Object} ValidateResourceAsyncParams
      * @property {string} base_version
      * @property {FhirRequestInfo} requestInfo
-     * @property {string} id
      * @property {string} resourceType
      * @property {Object|Resource} resourceToValidate
      * @property {string} path
@@ -392,7 +390,6 @@ class ResourceValidator {
         {
             base_version,
             requestInfo,
-            id,
             resourceType,
             resourceToValidate,
             path,
@@ -429,7 +426,6 @@ class ResourceValidator {
         let validationOperationOutcome = this.configManager.fhirValidationUrl && useRemoteFhirValidatorIfAvailable
             ? await this.validateResourceFromServerAsync(
                 {
-                    base_version,
                     requestInfo,
                     resourceBody: resourceToValidateJson,
                     resourceName: resourceType,
@@ -594,7 +590,6 @@ class ResourceValidator {
     /**
      * @function validateResourceFromServerAsync
      * @description - validates name is correct for resource body and resource body conforms to FHIR specification
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} resourceBody - payload of req.body
      * @param {string} resourceName - name of resource in url
@@ -605,7 +600,6 @@ class ResourceValidator {
      */
     async validateResourceFromServerAsync (
         {
-            base_version,
             requestInfo,
             resourceBody,
             resourceName,
@@ -618,7 +612,6 @@ class ResourceValidator {
         if (profile) {
             // save profile in remote server
             await this.upsertProfileInRemoteServer({
-                base_version,
                 requestInfo,
                 profile: profile,
                 resourceType: resourceToValidateJson.resourceType
@@ -632,7 +625,6 @@ class ResourceValidator {
              */
             const metaProfiles = resourceToValidateJson.meta.profile;
             await this.upsertProfileInRemoteServer({
-                base_version,
                 requestInfo,
                 profile: metaProfiles,
                 resourceType: resourceToValidateJson.resourceType
@@ -684,12 +676,11 @@ class ResourceValidator {
     /**
      * Fetch profiles from database. If not exists, fetch it from fhirRemoveValidator and
      * then save it to Database.
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {{ profile: string | string[], resourceType?: string}} options
      * @throws {BadRequestError} Error if not able to fetch profile from remote url
      */
-    async upsertProfileInRemoteServer({base_version, requestInfo, profile, resourceType}) {
+    async upsertProfileInRemoteServer({requestInfo, profile, resourceType}) {
         // convert to array
         const profiles = Array.isArray(profile) ? profile : [profile];
         const profilesToFetchFromRemote = new Set(profiles);
@@ -766,7 +757,6 @@ class ResourceValidator {
                     obj: this.createProfileResourceFromJson({profileJson})
                 });
                 await databaseUpdateManager.replaceOneAsync({
-                    base_version,
                     requestInfo,
                     doc: profileResourceNew
                 });

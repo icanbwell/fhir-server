@@ -4,14 +4,10 @@ const { describe, test, beforeEach, afterEach, expect, jest } = require('@jest/g
 const deepcopy = require('deepcopy');
 const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
-const { ResourceManager } = require('../../../operations/common/resourceManager');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
-const { ResourceLocatorFactory } = require('../../../operations/common/resourceLocatorFactory');
 const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
-const { DatabaseUpdateFactory } = require('../../../dataLayer/databaseUpdateFactory');
 const { ResourceMerger } = require('../../../operations/common/resourceMerger');
 const { ConfigManager } = require('../../../utils/configManager');
-const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
 const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 const { CustomTracer } = require('../../../utils/customTracer');
@@ -41,15 +37,11 @@ function createDeps() {
     const customTracer = createPrototypedMock(CustomTracer);
     customTracer.trace = jest.fn().mockImplementation(async ({ func }) => await func());
     return {
-        resourceManager: createPrototypedMock(ResourceManager),
         postRequestProcessor,
-        resourceLocatorFactory: createPrototypedMock(ResourceLocatorFactory),
         preSaveManager: createPrototypedMock(PreSaveManager),
         requestSpecificCache: new RequestSpecificCache(),
-        databaseUpdateFactory: createPrototypedMock(DatabaseUpdateFactory),
         resourceMerger: createPrototypedMock(ResourceMerger),
         configManager: createPrototypedMock(ConfigManager),
-        postSaveProcessor: createPrototypedMock(PostSaveProcessor),
         base64DataManager,
         bulkWriteExecutors: [],
         customTracer

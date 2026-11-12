@@ -179,7 +179,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             sourceAssigningAuthority: 'tenant_b'
         }]);
         mocks.resourceMerger.fastMergeResourceAsync = jestGlobal.fn().mockResolvedValue({
-            updatedResource: null, patches: []
+            updatedResource: null
         });
 
         Object.defineProperty(mocks.configManager, 'useAccessIndex', { get: () => false });
@@ -360,8 +360,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         );
 
         mocks.resourceMerger.fastMergeResourceAsync = jestGlobal.fn().mockResolvedValue({
-            updatedResource: { ...tenantAPatient, name: [{ family: 'Hacked' }] },
-            patches: [{ op: 'replace', path: '/name' }]
+            updatedResource: { ...tenantAPatient, name: [{ family: 'Hacked' }] }
         });
 
         const requestInfo = {

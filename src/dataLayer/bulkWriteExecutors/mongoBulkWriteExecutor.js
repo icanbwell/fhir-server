@@ -151,7 +151,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
      * @param {boolean} maintainOrder
      * @param {boolean} isAccessLogOperation
      * @param {Function} insertOneHistoryFn - bound from the inserter
-     * @returns {Promise<BulkResultEntry>}
+     * @returns {Promise<BulkWriteExecutionResult>}
      */
     async executeBulkAsync ({
         resourceType,
@@ -369,7 +369,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                         // do inserts/updates one by one
                         await this._updateResourcesOneByOneAsync(
                             {
-                                base_version,
                                 requestInfo,
                                 bulkInsertUpdateEntries: expectedInsertsByUniqueId
                             }
@@ -409,7 +408,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                         );
                         await this._updateResourcesOneByOneAsync(
                             {
-                                base_version,
                                 requestInfo,
                                 bulkInsertUpdateEntries: expectedUpdates
                             }
@@ -521,8 +519,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                     requestInfo,
                     base_version,
                     resourceType,
-                    doc: this.cloneResource(bulkInsertUpdateEntry.resource),
-                    patches: bulkInsertUpdateEntry.patches
+                    doc: this.cloneResource(bulkInsertUpdateEntry.resource)
                 }
             );
         }
@@ -613,13 +610,12 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
 
     /**
      * Updates resources one by one
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {BulkInsertUpdateEntry[]} bulkInsertUpdateEntries
      * @returns {Promise<void>}
      * @private
      */
-    async _updateResourcesOneByOneAsync ({ base_version, requestInfo, bulkInsertUpdateEntries }) {
+    async _updateResourcesOneByOneAsync ({ requestInfo, bulkInsertUpdateEntries }) {
         // let i = 0;
         for (const /* @type {BulkInsertUpdateEntry} */ bulkInsertUpdateEntry of bulkInsertUpdateEntries) {
             // i += 1;
@@ -644,9 +640,8 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
             /**
              * @type {Resource|Object|null}
              */
-            const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync(
+            const { savedResource } = await databaseUpdateManager.replaceOneAsync(
                 {
-                    base_version,
                     requestInfo,
                     doc: bulkInsertUpdateEntry.resource,
                     smartMerge: bulkInsertUpdateEntry.smartMerge,
@@ -655,7 +650,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
             );
             if (savedResource) {
                 bulkInsertUpdateEntry.resource = savedResource;
-                bulkInsertUpdateEntry.patches = patches;
             } else { // resource was same as what was in the database
                 bulkInsertUpdateEntry.skipped = true;
             }

@@ -1,6 +1,14 @@
 'use strict';
 
 /**
+ * @typedef {Object} BulkWriteExecutionResult
+ * @property {string} resourceType
+ * @property {import('mongodb').BulkWriteResult|null} mergeResult - raw driver result, null for non-Mongo executors
+ * @property {MergeResultEntry[]|null} mergeResultEntries
+ * @property {Error|null} error
+ */
+
+/**
  * @classdesc Strategy interface for bulk write execution.
  * Concrete implementations handle writing to specific backends (e.g., MongoDB, ClickHouse).
  */
@@ -25,7 +33,7 @@ class BulkWriteExecutor {
      * @param {boolean} params.maintainOrder
      * @param {boolean} params.isAccessLogOperation
      * @param {Function} params.insertOneHistoryFn
-     * @returns {Promise<BulkResultEntry>}
+     * @returns {Promise<BulkWriteExecutionResult>}
      */
     async executeBulkAsync ({
         resourceType, operations, requestInfo, base_version,

@@ -12,7 +12,6 @@ const { ResourceValidator } = require('../common/resourceValidator');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { ParsedArgs } = require('../query/parsedArgs');
-const { ConfigManager } = require('../../utils/configManager');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
@@ -34,7 +33,6 @@ class CreateOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
      * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
-     * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
@@ -47,7 +45,6 @@ class CreateOperation {
             scopesValidator,
             resourceValidator,
             fastDatabaseBulkInserter,
-            configManager,
             databaseAttachmentManager,
             base64DataManager,
             identifierEnrichmentProvider
@@ -85,12 +82,6 @@ class CreateOperation {
          */
         this.databaseBulkInserter = fastDatabaseBulkInserter;
         assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
 
         /**
          * @type {DatabaseAttachmentManager}
@@ -185,7 +176,6 @@ class CreateOperation {
                 accessRequested: 'c',
                 base_version,
                 requestInfo,
-                id: resource_incoming.id,
                 resourceType,
                 resourceToValidate: body,
                 path,
@@ -268,7 +258,6 @@ class CreateOperation {
             const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
             await this.databaseBulkInserter.insertOneAsync({
-                base_version,
                 requestInfo,
                 resourceType,
                 doc,
