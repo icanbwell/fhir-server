@@ -582,7 +582,16 @@ class FhirOperationsManager {
                         requestInfo
                     });
 
-                    parsedArgs.add(parentResourceParsedArg.parsedArgItems[1]);
+                    const parentResourceParsedArgItem = parentResourceParsedArg.parsedArgItems[1];
+                    // The `:missing` form excludes the parent resources that have a match. Adding it
+                    // would replace the view-control `_id:not` item, so the Consent's hidden ids would
+                    // be streamed back; merge the two exclusions instead.
+                    if (parentResourceParsedArgItem.modifiers?.length === 1 &&
+                        parentResourceParsedArgItem.modifiers[0] === 'not') {
+                        parsedArgs.addMergingExclusion(parentResourceParsedArgItem);
+                    } else {
+                        parsedArgs.add(parentResourceParsedArgItem);
+                    }
                 }
             }
         }

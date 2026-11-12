@@ -1,6 +1,7 @@
 const { assertIsValid } = require('../../utils/assertType');
 const { removeNull } = require('../../utils/nullRemover');
 const { NON_SEARCH_QUERY_PARAMS, RESULT_SHAPING_QUERY_PARAMS } = require('../../constants');
+const { QueryParameterValue } = require('./queryParameterValue');
 
 class ParsedArgs {
     /**
@@ -114,14 +115,47 @@ class ParsedArgs {
     }
 
     /**
+     * adds an `:not` exclusion arg, keeping the values of an existing exclusion on the same parameter
+     * instead of replacing them (add() replaces). Both lists exclude, so the result excludes the union.
+     * Used where one exclusion is added next to another that must survive, e.g. the view-control
+     * `_id:not` and a Vulcan `:missing` filter.
+     * @param {ParsedArgsItem} parsedArgItem an item whose only modifier is `not`
+     * @return {ParsedArgs}
+     */
+    addMergingExclusion (parsedArgItem) {
+        assertIsValid(
+            parsedArgItem.modifiers?.length === 1 && parsedArgItem.modifiers[0] === 'not',
+            'addMergingExclusion requires an item whose only modifier is not'
+        );
+        const existing = this.parsedArgItems.find(
+            a => a.queryParameter === parsedArgItem.queryParameter &&
+                a.modifiers?.length === 1 && a.modifiers[0] === 'not' &&
+                !a.chain
+        );
+        if (existing) {
+            parsedArgItem.queryParameterValue = new QueryParameterValue({
+                value: [...new Set([
+                    ...(existing.queryParameterValue.values || []),
+                    ...(parsedArgItem.queryParameterValue.values || [])
+                ])],
+                // '$or': a mixed uuid/sourceId list becomes two sub-filters, and '$and' would make the
+                // $nor exclude nothing (see PatientDataViewControlExclusion.applyAsync)
+                operator: '$or'
+            });
+        }
+        return this.add(parsedArgItem);
+    }
+
+    /**
      * whether the request addresses resources only by id or _id, with no other search parameter.
-     * An id item that only carries the :not modifier is tolerated next to a plain id item, since
+     * An id item that only carries the `not` modifier (stored without the colon, as r4ArgsParser and
+     * the view-control exclusion build it) is tolerated next to a plain id item, since
      * that is how a consent exclusion narrows an id lookup.
      * @return {boolean}
      */
     isRequestById () {
         const isIdItem = a => a.queryParameter === 'id' || a.queryParameter === '_id';
-        const isNotOnly = a => a.modifiers?.length === 1 && a.modifiers[0] === ':not';
+        const isNotOnly = a => a.modifiers?.length === 1 && a.modifiers[0] === 'not';
         const hasPlainId = this.parsedArgItems.some(a => isIdItem(a) && !a.modifiers?.length);
         if (!hasPlainId) {
             return false;

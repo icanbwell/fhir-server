@@ -350,7 +350,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                     ['search', APPLIES],
                     ['searchStreaming', APPLIES],
                     ['searchStreaming', SKIPS, 'Vulcan IG child lookup; research queries use service tokens'],
-                    ['searchStreaming', SKIPS, 'Vulcan IG: builds one filter item that is copied into the main query'],
+                    ['searchStreaming', SKIPS, 'Vulcan IG: builds one filter item that is merged into the main query, keeping any view-control _id:not'],
                     ['searchById', APPLIES],
                     ['create', SKIPS, 'write'],
                     ['update', SKIPS, 'write'],
