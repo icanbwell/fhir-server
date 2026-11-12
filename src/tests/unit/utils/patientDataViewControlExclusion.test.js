@@ -18,6 +18,7 @@ const { ParsedArgsItem } = require('../../../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../../../operations/query/queryParameterValue');
 const { searchParameterQueries } = require('../../../searchParameters/searchParameters');
 const { ViewControlSubject } = require('../../../utils/viewControlSubject');
+const { HTTP_CONTEXT_KEYS } = require('../../../constants');
 
 const UUID_A = '5f1e3b2a-1111-4c2b-9d3e-000000000001';
 
@@ -142,13 +143,25 @@ describe('PatientDataViewControlExclusion', () => {
     });
 
     test('a member whose Person was not found gets an empty result without a Consent search', async () => {
-        // the Person walk found nothing, so it recorded no owner
-        getPatientIdsFromScopeAsync.mockResolvedValue([]);
+        // the Person walk ran and recorded that it found no Person
+        getPatientIdsFromScopeAsync.mockImplementation(async ({ personIdFromJwtToken }) => {
+            mockStore.set(`personOwnerFor-${personIdFromJwtToken}`, HTTP_CONTEXT_KEYS.PERSON_OWNER_NOT_FOUND);
+            return [];
+        });
         const parsedArgs = newParsedArgs();
         await exclusion.applyAsync({ parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user });
         expect(getConsentAsync).not.toHaveBeenCalled();
         expect(parsedArgs.viewControlExcludeMap).toEqual({});
         expect(idNotItems(parsedArgs)).toHaveLength(0);
+    });
+
+    test('fails closed when the Person walk records no outcome for the member (no owner, no not-found)', async () => {
+        // e.g. the Person is found but its owner is not written under the token's person id
+        getPatientIdsFromScopeAsync.mockResolvedValue([]);
+        await expect(exclusion.applyAsync({
+            parsedArgs: newParsedArgs(), resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user
+        })).rejects.toThrow('recorded neither the Person owner nor that the Person was not found');
+        expect(getConsentAsync).not.toHaveBeenCalled();
     });
 
     test('a member whose Person has no owner tag still reaches getConsentAsync, which fails the request', async () => {

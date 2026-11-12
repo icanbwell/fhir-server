@@ -1,7 +1,7 @@
 /**
  * Tests for the Person owner PersonToPatientIdsExpander records in httpContext when asked to
  * (addPersonOwnerToContext). The data view control lookup reads it to decide client enrollment, and
- * tells a Person without an owner tag (null) apart from a Person that was not found (nothing set).
+ * tells a Person without an owner tag (null) apart from a Person that was not found (a sentinel).
  */
 const { describe, test, expect, afterEach } = require('@jest/globals');
 const { jest: jestGlobal } = require('@jest/globals');
@@ -72,7 +72,7 @@ describe('PersonToPatientIdsExpander — Person owner recorded in httpContext', 
             [[ownerKey, null]]
         ],
         ['null for a Person with no meta', [{ _uuid: PERSON_ID }], [[ownerKey, null]]],
-        ['nothing for a Person that was not found', [], []]
+        ['the not-found sentinel for a Person that was not found', [], [[ownerKey, HTTP_CONTEXT_KEYS.PERSON_OWNER_NOT_FOUND]]]
     ])('records %s', async (_name, persons, expectedOwnerWrites) => {
         const setSpy = jestGlobal.spyOn(httpContext, 'set').mockImplementation(() => {});
         const databaseQueryManager = { findAsync: jestGlobal.fn(async () => createCursor(persons)) };

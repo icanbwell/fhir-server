@@ -447,6 +447,8 @@ class PersonToPatientIdsExpander {
          */
         let patientIds = [];
         let personIdsToRecurse = [];
+        /** requested person ids whose owner was recorded (see addPersonOwnerToContext) */
+        const personIdsWithOwnerRecorded = new Set();
         while (await personResourceCursor.hasNext()) {
             const person = await personResourceCursor.next();
             let personId = person._uuid;
@@ -573,6 +575,22 @@ class PersonToPatientIdsExpander {
                     `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${rawPersonId}`,
                     ownerTag?.code ?? null
                 );
+                personIdsWithOwnerRecorded.add(rawPersonId);
+            }
+        }
+
+        // Make "not found" explicit: a requested Person the query did not return (missing, or hidden
+        // by the caller's access filter) is recorded with a sentinel, so a reader can tell it apart
+        // from a walk that never recorded an outcome (key still undefined), which it must fail on.
+        // Only the first level holds the requested ids; the recursion does not record owners.
+        if (addPersonOwnerToContext && level === 1) {
+            for (const requestedPersonId of personIds) {
+                if (!personIdsWithOwnerRecorded.has(requestedPersonId)) {
+                    httpContext.set(
+                        `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${requestedPersonId}`,
+                        HTTP_CONTEXT_KEYS.PERSON_OWNER_NOT_FOUND
+                    );
+                }
             }
         }
 

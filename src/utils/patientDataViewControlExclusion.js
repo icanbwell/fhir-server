@@ -1,5 +1,5 @@
 const httpContext = require('express-http-context');
-const { assertTypeEquals } = require('./assertType');
+const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ConfigManager } = require('./configManager');
 const { PatientDataViewControlManager } = require('./patientDataViewController');
 const { PatientScopeManager } = require('../operations/security/patientScopeManager');
@@ -74,8 +74,8 @@ class PatientDataViewControlExclusion {
         const person = subject.isUrlPerson
             ? await this.loadUrlPersonAsync({ requestInfo, base_version, subject })
             : await this.loadTokenPersonAsync({ requestInfo, base_version, subject });
-        // The token's Person was not found (e.g. not provisioned yet): the member is linked to no
-        // Patient and has no Consent, so there is nothing to hide.
+        // The walk found no Person the token can see (e.g. not provisioned yet): the member is linked
+        // to no Patient and has no Consent, so there is nothing to hide.
         if (!person) {
             return emptyLookup();
         }
@@ -100,7 +100,9 @@ class PatientDataViewControlExclusion {
 
     /**
      * The member in the token: walking their Person records its owner in httpContext, as null for a
-     * Person without an owner tag. Nothing is recorded when the Person was not found.
+     * Person without an owner tag and as PERSON_OWNER_NOT_FOUND when the walk found no Person.
+     * A walk that records nothing is a failure, not "not found": the lookup fails closed instead of
+     * returning an empty lookup that would hide nothing.
      * @private
      * @return {Promise<{ personId: string, owner: string|null }|null>} null when the Person was not found
      */
@@ -113,7 +115,12 @@ class PatientDataViewControlExclusion {
             requestInfo
         });
         const owner = httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${subject.personId}`);
-        return owner === undefined ? null : { personId: subject.personId, owner };
+        assertIsValid(
+            owner !== undefined,
+            'dataConnectionViewControl: the Person walk recorded neither the Person owner nor that the ' +
+            'Person was not found, so the view control cannot be applied'
+        );
+        return owner === HTTP_CONTEXT_KEYS.PERSON_OWNER_NOT_FOUND ? null : { personId: subject.personId, owner };
     }
 
     /**
