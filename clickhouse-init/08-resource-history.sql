@@ -18,5 +18,14 @@ CREATE TABLE IF NOT EXISTS fhir.Resource_4_0_0_History (
 ENGINE = ReplacingMergeTree()
 ORDER BY (resource_type, _uuid, _recorded, version_id)
 PARTITION BY toYYYYMM(_recorded)
-TTL toDateTime(_recorded) + INTERVAL 13 MONTH DELETE
+-- Only the listed types expire (13 months). Every other type, including Consent and Group, is kept
+-- indefinitely, so a type missing from this list is retained rather than deleted.
+TTL toDateTime(_recorded) + INTERVAL 13 MONTH DELETE WHERE resource_type IN (
+    'Composition', 'MedicationStatement', 'ExplanationOfBenefit', 'Provenance',
+    'Observation', 'AllergyIntolerance', 'Person', 'Patient',
+    'QuestionnaireResponse', 'Condition', 'Schedule', 'DocumentReference',
+    'Binary', 'Coverage', 'SubscriptionStatus', 'Task',
+    'CoverageEligibilityResponse', 'Specimen', 'Slot', 'ServiceRequest',
+    'HealthcareService'
+)
 SETTINGS ttl_only_drop_parts = 1;

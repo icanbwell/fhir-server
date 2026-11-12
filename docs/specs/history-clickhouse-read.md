@@ -37,11 +37,11 @@ Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need a
 | `GET /4_0_0/Patient/{uuid}/_history?_metaUuid=1` | Supported. `_metaUuid` is accepted (sent by fhir-server-ui). |
 | `GET /4_0_0/Patient/abc/_history` | 400. A bare source id with no owner is ambiguous across owners; use the uuid or `id\|owner`. |
 | `GET /4_0_0/Patient/{uuid}/_history?_uuid={uuid}` | 400. There is no `_uuid` parameter; the URL id is the uuid. |
+| `GET /4_0_0/Patient/{uuid}/_history?_id={uuid}` | Supported; same read. |
+| `GET /4_0_0/Patient/{uuid}/_history?_id={other}` or `?_id:not=...` | 400. The URL already names the resource; a different `_id`, or any `_id`/`id` with a modifier, is rejected. |
 | `GET /4_0_0/Patient/_history?_id={uuid}` | Supported. Same read as `/Patient/{uuid}/_history`; `_id` may also be `id\|owner`. |
 | `GET /4_0_0/Patient/_history?_id={uuid1},{uuid2}` | Supported. Several resources in one read (also a repeated `_id`, or `id\|owner` entries); up to 100 ids, interleaved newest first. |
 | `GET /4_0_0/Patient/_history?_id=abc` or `?_id={uuid},abc` | 400. Every `_id` entry must be a uuid or `id\|owner`; more than 100 ids is also 400. |
-| `GET /4_0_0/Patient/_history?id={uuid}` | 400. `id` is only the URL form; use `_id` on a type-level read. |
-| `GET /4_0_0/Patient/{uuid}/_history?_id={uuid}` | 400. The URL already names the resource. |
 | `GET /4_0_0/Patient/{uuid}/_history?_lastUpdated=gt2026-01-01` | 400. Unsupported arguments are rejected, not dropped. |
 | `GET /4_0_0/Patient/{uuid}/_history?_since=yesterday` | 400. `_since` must be an ISO 8601 date or instant. |
 | `GET /4_0_0/Patient/{uuid}/_history/2?_since=2026-01-01` | 400. `_since` is not supported on a single-version read. |
@@ -50,7 +50,7 @@ Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need a
 | `GET /4_0_0/Patient/{uuid}/_history` with a `patient/*` scope | 403. |
 | Any history read (instance, type-level or version) by a delegated user | 403 on both MongoDB and ClickHouse. History has no per-version delegated-consent filtering on either store. |
 | `GET /4_0_0/Group/{uuid}/_history` or `GroupMember` | Not supported. Do not enable these types (13-month retention). |
-| Versions older than 13 months, or a version stored in cloud storage | Not returned (404 for a version read), or 500 for a cloud storage stub. |
+| Versions older than 13 months of a type in the TTL list, or a version stored in cloud storage | Not returned (404 for a version read), or 500 for a cloud storage stub. |
 | ClickHouse error or timeout | 500. No MongoDB fallback. |
 | A type not in the flag list | Unchanged: MongoDB; none of the rules above apply. |
 
@@ -64,7 +64,7 @@ Examples use a synthetic uuid `11111111-1111-4111-8111-111111111111`. All need a
 - Type-level `/{type}/_history` (no id) is also served: it pages through the history of every
   resource of the type, newest first (`_recorded DESC, _uuid DESC, version DESC`), with the same
   keyset cursor (which also carries the last row's `_uuid`). With `_id` (one uuid or `id|owner`) it is the
-  same read as the instance route; with a list it filters on `_uuid IN (...)` (at most 100 ids, de-duplicated); `id` is rejected with 400. It has no time window, so each page scans the type's history in `_recorded` order (the table
+  same read as the instance route; with a list it filters on `_uuid IN (...)` (at most 100 ids, de-duplicated). It has no time window, so each page scans the type's history in `_recorded` order (the table
   is ordered by `resource_type, _uuid`); it can be slow on large types and is bounded only by
   `CLICKHOUSE_REQUEST_TIMEOUT`. Access is the same as instance history: only non-tenant `access/*`
   scopes pass, with no `access_tags` predicate.
@@ -117,12 +117,14 @@ Entries get the same attachment/base64 transforms, `response` fill-in and enrich
   history-specific timeout setting. A read that exceeds it fails with a 500.
 - Any ClickHouse error or timeout returns 500. There is no fallback to MongoDB; the per-type flag
   is the rollback.
-- Versions older than the 13-month TTL are not in ClickHouse, so they are not returned (history is
-  truncated, a version read returns 404).
-- `Group` and `GroupMember` are not supported yet. The 13-month retention would truncate their
-  history, and a Group's roster at a version is rebuilt from GroupMember history, so a truncated
-  GroupMember history would return incomplete rosters. Do not add `Group` to
-  `RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES` until ClickHouse retention covers them (or the roster
+- For a type in the table's TTL list (`clickhouse-init/08-resource-history.sql`), versions older than 13 months
+  are not in ClickHouse, so they are not returned (history is truncated, a version read returns 404). A type
+  outside the list (for example Consent) is kept indefinitely; its history is complete only if it was
+  backfilled in full, because the backfill loads just the last 13 months.
+- `Group` and `GroupMember` are not supported yet. A Group's roster at a version is rebuilt from
+  GroupMember history, so incomplete GroupMember history would return incomplete rosters. Group is not in
+  the TTL list, but GroupMember is not covered by this change and neither is backfilled in full. Do not add
+  either to `RESOURCE_HISTORY_CLICKHOUSE_READ_RESOURCES` until ClickHouse holds their complete history (or the roster
   is served another way); support is planned for later.
 
 ## Observability

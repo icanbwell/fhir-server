@@ -17,19 +17,38 @@ const SUPPORTED_ARGS = new Set([
 
 /**
  * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
- * @param {{isInstanceRead?: boolean}} [options] false for a type-level read, which takes its id from `_id`
  * @throws {BadRequestError} when an argument the ClickHouse history read cannot honour is present
  */
-function assertSupportedHistoryArgs(parsedArgs, { isInstanceRead = true } = {}) {
-    // The id comes from the URL on an instance read and from `_id` on a type-level read; the other
-    // form would be a second, conflicting id, so it is rejected rather than ignored.
-    const idArgNotAllowed = isInstanceRead ? '_id' : 'id';
-    const unsupported = Object.keys(parsedArgs.getRawArgs()).filter(
-        (name) => !SUPPORTED_ARGS.has(name) || name === idArgNotAllowed
-    );
+function assertSupportedHistoryArgs(parsedArgs) {
+    const unsupported = Object.keys(parsedArgs.getRawArgs()).filter((name) => !SUPPORTED_ARGS.has(name));
     if (unsupported.length > 0) {
         throw new BadRequestError(new Error(
             `${unsupported.join(', ')} not supported when history is read from ClickHouse`
+        ));
+    }
+}
+
+/**
+ * On an instance read the URL names the resource. A query `_id`/`id` that differs from it, or any
+ * `_id`/`id` carrying a modifier (`:not`, `:above`, ...), would be dropped or merged away when the
+ * args are parsed and the caller would get the URL resource's whole history regardless. Reject them
+ * on the raw request args, before parsing merges them.
+ * @param {Object} args raw request args, with the URL id as `id`
+ * @throws {BadRequestError} when a query id filter conflicts with the URL id
+ */
+function assertNoConflictingInstanceIdArgs(args) {
+    const conflicting = Object.keys(args).filter((name) => {
+        const [base, ...modifiers] = name.split(':');
+        if (base !== '_id' && base !== 'id') {
+            return false;
+        }
+        // the URL id is the plain `id`; a plain `_id` may only repeat it
+        return modifiers.length > 0 || (base === '_id' && String(args[name]) !== String(args.id));
+    });
+    if (conflicting.length > 0) {
+        throw new BadRequestError(new Error(
+            `${conflicting.join(', ')} not supported when history is read from ClickHouse; ` +
+            'the URL already names the resource'
         ));
     }
 }
@@ -128,6 +147,7 @@ function assertNoCloudStorageStubs(entries) {
 
 module.exports = {
     assertSupportedHistoryArgs,
+    assertNoConflictingInstanceIdArgs,
     resolveHistoryUuid,
     resolveHistoryUuids,
     assertNotDelegatedUser,

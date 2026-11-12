@@ -13,7 +13,7 @@ MongoDB fallback replay job.
 The topic is loaded into ClickHouse table `fhir.Resource_4_0_0_History`
 (`clickhouse-init/08-resource-history.sql`, see `readme/clickhouse.md`). It is a
 `ReplacingMergeTree` keyed on `(resource_type, _uuid, _recorded, version_id)`, partitioned by month,
-with a 13-month TTL. Duplicate deliveries collapse on that key, which is why consumers dedupe
+with a 13-month TTL on the resource types listed in the DDL (other types are kept). Duplicate deliveries collapse on that key, which is why consumers dedupe
 rather than this producer. The loader and the `_history` read path are separate work.
 
 ## Behaviour
@@ -53,8 +53,8 @@ ClickHouse. `GroupMember` must stay out of the list for now: Group vread rebuild
 MongoDB `GroupMember_4_0_0_History` collection (`getMemberCursorAtAsync`). No ClickHouse `_history`/vread read path exists in this repo yet (the read path still queries
 only MongoDB), so listing a type before one ships hides its new versions from those reads. Retention
 also changes: MongoDB history has no expiry, while `fhir.Resource_4_0_0_History` deletes rows after
-13 months (`TTL`, `clickhouse-init/08-resource-history.sql`); align the table's TTL with the required
-history retention before listing a type. After a broker-level failure (retries used up or timeout) the
+13 months for the types in the TTL's `WHERE resource_type IN (...)` list (`clickhouse-init/08-resource-history.sql`) and
+never for a type outside it; check that list against the required history retention before listing a type. After a broker-level failure (retries used up or timeout) the
 remaining chunks of that flush are not sent and fall back to MongoDB straight away. Replaying fallback documents to Kafka and deleting migrated MongoDB history are separate work.
 
 ## Event
