@@ -92,6 +92,37 @@ describe('Group search -- groupSize|extended tag reflection', () => {
         );
     });
 
+    test.each([
+        { elements: 'id,meta', extended: true, expectedKeys: ['id', 'meta', 'resourceType'], expectTag: true },
+        { elements: 'meta', extended: true, expectedKeys: ['meta', 'resourceType'], expectTag: true },
+        { elements: 'id', extended: true, expectedKeys: ['id', 'resourceType'], expectTag: false },
+        { elements: 'id,meta', extended: false, expectedKeys: ['id', 'meta', 'resourceType'], expectTag: false },
+        { elements: 'meta', extended: false, expectedKeys: ['meta', 'resourceType'], expectTag: false },
+        { elements: 'id', extended: false, expectedKeys: ['id', 'resourceType'], expectTag: false }
+    ])('_elements=$elements on extended=$extended Group: tag present is $expectTag', async (
+        { elements, extended, expectedKeys, expectTag }
+    ) => {
+        const request = await createTestRequest();
+        const groupId = await createGroup(request);
+        if (extended) {
+            await markGroupExtended(groupId);
+        }
+
+        const resp = await request
+            .get(`/4_0_0/Group?_id=${groupId}&_elements=${elements}`)
+            .set(getHeaders());
+
+        expect(resp.status).toBe(200);
+        const body = JSON.parse(resp.text);
+        expect(body).toHaveLength(1);
+        const [resource] = body;
+        expect(Object.keys(resource).sort()).toEqual(expectedKeys);
+        const hasTag = (resource.meta?.tag || []).some(
+            (t) => t.system === MONGO_GROUP_MEMBER_TAG_SYSTEM && t.code === MONGO_GROUP_MEMBER_TAG_CODE
+        );
+        expect(hasTag).toBe(expectTag);
+    });
+
     test('a client-submitted meta.tag omitting the extended entry has no effect -- it is recomputed from the internal field', async () => {
         const request = await createTestRequest();
 
