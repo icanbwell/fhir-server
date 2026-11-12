@@ -12,6 +12,7 @@ const {
     parseWindowTime,
     parseArgs,
     buildWindows,
+    objectIdTime,
     resolveRecorded,
     historyRetentionCutoff,
     findRefusalReason,
@@ -23,6 +24,10 @@ const { HistoryKafkaProducer } = require('../../../../dataLayer/historyKafkaProd
 const { ConfigManager } = require('../../../../utils/configManager');
 const { KafkaClientV2 } = require('../../../../utils/kafkaClientV2');
 const metrics = require('../../../../utils/metrics');
+const { ObjectId } = require('mongodb');
+
+/** ObjectId whose embedded creation time is the given ISO time (seconds precision). */
+const objectIdAt = (iso) => ObjectId.createFromTime(Math.floor(new Date(iso).getTime() / 1000));
 
 const ENV_KEYS = [
     'ENABLE_EVENTS_KAFKA_V2', 'RESOURCE_HISTORY_KAFKA_RESOURCES', 'RESOURCE_HISTORY_KAFKA_BATCH_SIZE',
@@ -118,10 +123,25 @@ describe('migrateHistoryToKafka script', () => {
             ['the stored _recorded', { recorded: '2026-11-01T10:00:31.123Z' }, '2026-11-01T10:00:31.123Z'],
             ['the stored _recorded for a DELETE (no offset)', { recorded: '2026-11-01T10:00:31.123Z', method: 'DELETE' }, '2026-11-01T10:00:31.123Z'],
             ['lastUpdated when _recorded is missing', {}, '2026-11-01T10:00:30.000Z'],
-            ['lastUpdated + 5 ms for a DELETE without _recorded', { method: 'DELETE' }, '2026-11-01T10:00:30.005Z']
+            ['lastUpdated + 5 ms for a DELETE whose _id is not an ObjectId', { method: 'DELETE' }, '2026-11-01T10:00:30.005Z'],
+            ['the _id time for a DELETE deleted after lastUpdated', { method: 'DELETE', mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:05:12.000Z'],
+            ['the _id time for a DELETE whose _id is a hex string', { method: 'DELETE', mongoId: objectIdAt('2026-11-01T10:05:12.000Z').toHexString() }, '2026-11-01T10:05:12.000Z'],
+            ['lastUpdated + 5 ms for a DELETE in the same second as lastUpdated', { method: 'DELETE', lastUpdated: '2026-11-01T10:00:30.700Z', mongoId: objectIdAt('2026-11-01T10:00:30.900Z') }, '2026-11-01T10:00:30.705Z'],
+            ['lastUpdated for a PUT, not the _id time', { mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:00:30.000Z'],
+            ['the stored _recorded for a DELETE, not the _id time', { method: 'DELETE', recorded: '2026-11-01T10:00:31.123Z', mongoId: objectIdAt('2026-11-01T10:05:12.000Z') }, '2026-11-01T10:00:31.123Z']
         ])('uses %s', (_name, fields, expected) => {
             const doc = historyDoc({ mongoId: 'm1', uuid: 'u1', ...fields });
             expect(resolveRecorded(doc).toISOString()).toBe(expected);
+        });
+
+        test.each([
+            ['an ObjectId', objectIdAt('2026-11-01T10:05:12.000Z'), '2026-11-01T10:05:12.000Z'],
+            ['a 24-hex string', objectIdAt('2026-11-01T10:05:12.000Z').toHexString(), '2026-11-01T10:05:12.000Z'],
+            ['a non-ObjectId string', 'm1', null],
+            ['undefined', undefined, null]
+        ])('objectIdTime reads the creation time from %s', (_name, id, expected) => {
+            const time = objectIdTime(id);
+            expect(time ? time.toISOString() : null).toBe(expected);
         });
 
         test('throws when there is neither _recorded nor a valid lastUpdated', () => {
