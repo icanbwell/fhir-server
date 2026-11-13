@@ -180,8 +180,12 @@ class S3Client extends CloudStorageClient {
             return false;
         }
         const status = err?.$metadata?.httpStatusCode;
-        if (status) {
-            return status >= 500;
+        if (status >= 500) {
+            return true;
+        }
+        if (status && !TRANSIENT_ERROR_NAMES.has(err?.name)) {
+            // other 4xx responses are not transient; S3 sends RequestTimeout with a 400 status
+            return false;
         }
         return (
             TRANSIENT_ERROR_NAMES.has(err?.name) ||
@@ -191,15 +195,19 @@ class S3Client extends CloudStorageClient {
     }
 
     /**
-     * Download file from s3 for provided path. The GetObject call and the body read are retried
-     * together on transient errors, because the SDK's own retry stops once headers are received.
+     * Download file from s3 for provided path. The SDK already retries GetObject itself (see
+     * maxAttempts), but its retry stops once headers are received. So only a failure while reading
+     * the body is retried here, by re-issuing GetObject; errors from the GetObject call are
+     * rethrown at once so the SDK retries are not multiplied.
      * @param {string} filePath
      * @returns {Promise<string|null>}
      */
     async downloadAsync(filePath) {
         try {
+            let readingBody = false;
             return await retryWithBackoff({
                 fn: async () => {
+                    readingBody = false;
                     const response = await this.client.send(
                         new GetObjectCommand({
                             Bucket: this.bucketName,
@@ -209,12 +217,13 @@ class S3Client extends CloudStorageClient {
                     if (!response.Body) {
                         return null;
                     }
+                    readingBody = true;
                     return await response.Body.transformToString();
                 },
                 maxRetries: DOWNLOAD_MAX_RETRIES,
                 initialDelayMs: DOWNLOAD_INITIAL_DELAY_MS,
                 jitter: true,
-                shouldRetry: (err) => this._isTransientDownloadError(err),
+                shouldRetry: (err) => readingBody && this._isTransientDownloadError(err),
                 onRetry: ({ attempt, maxRetries, error }) =>
                     logError(`Retrying S3 download (${attempt}/${maxRetries}) for path: ${filePath}`, {
                         errorName: error?.name,

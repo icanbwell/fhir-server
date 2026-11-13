@@ -137,16 +137,38 @@ describe('S3Client', () => {
             expect(mockSend).toHaveBeenCalledTimes(2);
         });
 
+        const bodyFailing = (error) => ({
+            Body: { transformToString: jest.fn().mockRejectedValue(error) }
+        });
+
         test.each([
             ['ECONNRESET code', Object.assign(new Error('reset'), { code: 'ECONNRESET' })],
             ['AbortError name', Object.assign(new Error('x'), { name: 'AbortError' })],
             ['TimeoutError name', Object.assign(new Error('x'), { name: 'TimeoutError' })],
+            [
+                'RequestTimeout name with 400 status',
+                Object.assign(new Error('x'), {
+                    name: 'RequestTimeout',
+                    $metadata: { httpStatusCode: 400 }
+                })
+            ],
             ['503 response', Object.assign(new Error('x'), { $metadata: { httpStatusCode: 503 } })]
-        ])('retries on transient error: %s', async (_label, error) => {
-            mockSend.mockRejectedValueOnce(error).mockResolvedValueOnce(okBody('ok'));
+        ])('retries when the body read fails with a transient error: %s', async (_label, error) => {
+            mockSend.mockResolvedValueOnce(bodyFailing(error)).mockResolvedValueOnce(okBody('ok'));
 
             expect(await s3Client.downloadAsync('some/path')).toBe('ok');
             expect(mockSend).toHaveBeenCalledTimes(2);
+        });
+
+        test.each([
+            ['ECONNRESET code', Object.assign(new Error('reset'), { code: 'ECONNRESET' })],
+            ['TimeoutError name', Object.assign(new Error('x'), { name: 'TimeoutError' })],
+            ['503 response', Object.assign(new Error('x'), { $metadata: { httpStatusCode: 503 } })]
+        ])('does not retry a GetObject call failure, the SDK already retried it: %s', async (_label, error) => {
+            mockSend.mockRejectedValue(error);
+
+            await expect(s3Client.downloadAsync('some/path')).rejects.toBeDefined();
+            expect(mockSend).toHaveBeenCalledTimes(1);
         });
 
         test('throws after retries are exhausted, with path and error details', async () => {
@@ -161,8 +183,8 @@ describe('S3Client', () => {
         test.each([
             ['403 response', Object.assign(new Error('denied'), { $metadata: { httpStatusCode: 403 } })],
             ['generic error', new Error('boom')]
-        ])('does not retry non-transient error: %s', async (_label, error) => {
-            mockSend.mockRejectedValue(error);
+        ])('does not retry non-transient body read error: %s', async (_label, error) => {
+            mockSend.mockResolvedValue(bodyFailing(error));
 
             await expect(s3Client.downloadAsync('some/path')).rejects.toBeDefined();
             expect(mockSend).toHaveBeenCalledTimes(1);
