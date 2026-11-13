@@ -25,7 +25,7 @@ class DataViewControlCompositionEnrichmentProvider extends EnrichmentProvider {
     async enrichAsync({ resources, enrichmentContext }) {
         // built once per call, not once per Composition: the exclude map can list thousands of ids
         const blockedIdSetByType = buildBlockedIdSetByType(enrichmentContext?.viewControlExcludeMap);
-        if (Object.keys(blockedIdSetByType).length === 0) {
+        if (blockedIdSetByType.size === 0) {
             return resources;
         }
         for (const resource of resources) {
@@ -53,7 +53,7 @@ class DataViewControlCompositionEnrichmentProvider extends EnrichmentProvider {
     /**
      * Filters a Composition and any Composition among its contained resources, in place.
      * @param {Object} resource
-     * @param {{[resourceType: string]: Set<string>}} blockedIdSetByType
+     * @param {Map<string, Set<string>>} blockedIdSetByType
      */
     filterResource(resource, blockedIdSetByType) {
         if (resource?.resourceType === 'Composition') {

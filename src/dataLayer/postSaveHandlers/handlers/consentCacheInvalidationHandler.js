@@ -8,6 +8,14 @@ const { isUuid } = require('../../../utils/uid.util');
 const { PersonToPatientIdsExpander } = require('../../../utils/personToPatientIdsExpander');
 const { PERSON_PROXY_PREFIX, CONSENT_CATEGORY } = require('../../../constants');
 const { logDebug, logError } = require('../../../operations/common/logging');
+const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
+const { recordEverythingCacheInvalidationFailed, CACHE_INVALIDATION_FAILURE } = require('../../../utils/metrics');
+
+// A failed bump leaves a cached $everything that can still hold what the Consent now hides, until
+// its TTL. So a bump is retried a few times, with exponential backoff and jitter, before it is
+// given up on and counted. The handler runs after the response is sent, so the wait costs no request.
+const BUMP_MAX_RETRIES = 3;
+const BUMP_INITIAL_DELAY_MS = 100;
 
 /**
  * Post-save handler that invalidates the Patient/$everything Redis cache whenever a
@@ -42,6 +50,11 @@ const { logDebug, logError } = require('../../../operations/common/logging');
  * effect reaches the cached `Patient/<uuid>/$everything` of every Patient linked to that Person
  * (the replay hides what the Consent lists, and the resources reachable only through a hidden one).
  * So for that category, the Patient generation of every linked Patient is bumped as well.
+ *
+ * A bump or lookup that fails is retried (BUMP_MAX_RETRIES, with backoff and jitter). If it still
+ * fails it is logged and counted in fhir_everything_cache_invalidation_failed_total; the Consent
+ * write is never failed. Until the cache TTL a cached $everything for that Person may still hold
+ * what the Consent now hides, so a rising count there is the signal to act on.
  *
  * The traversal adds a bounded per-Consent-write DB cost (the up-graph walk), which is
  * acceptable on this low-frequency write path.
@@ -236,9 +249,14 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
      */
     async bumpLinkedPatientGenerationsAsync({ personUuid, requestId, consentId }) {
         try {
-            const relatedIds = await this.personToPatientIdsExpander.getAllRelatedPatients({
-                base_version: '4_0_0',
-                idsSet: new Set([personUuid])
+            const relatedIds = await retryWithBackoff({
+                fn: () => this.personToPatientIdsExpander.getAllRelatedPatients({
+                    base_version: '4_0_0',
+                    idsSet: new Set([personUuid])
+                }),
+                maxRetries: BUMP_MAX_RETRIES,
+                initialDelayMs: BUMP_INITIAL_DELAY_MS,
+                jitter: true
             });
             // the result also holds the `person.<uuid>` proxy ids of the Persons walked; only Patients matter here
             const patientUuids = new Set(
@@ -250,7 +268,9 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
                 });
             }
         } catch (error) {
-            logError('ConsentCacheInvalidationHandler: failed to look up linked Patients for view control cache invalidation', {
+            recordEverythingCacheInvalidationFailed(CACHE_INVALIDATION_FAILURE.LINKED_PATIENT_LOOKUP);
+            logError('ConsentCacheInvalidationHandler: failed to look up linked Patients for view control cache invalidation; ' +
+                'cached $everything for those Patients can hold hidden data until the cache TTL', {
                 error, requestId, consentId, personUuid
             });
         }
@@ -264,9 +284,16 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
      */
     async incrementGenerationAsync(generationKey, logContext) {
         try {
-            await this.redisManager.incrementGenerationAsync(generationKey);
+            await retryWithBackoff({
+                fn: () => this.redisManager.incrementGenerationAsync(generationKey),
+                maxRetries: BUMP_MAX_RETRIES,
+                initialDelayMs: BUMP_INITIAL_DELAY_MS,
+                jitter: true
+            });
         } catch (error) {
-            logError('ConsentCacheInvalidationHandler: failed to increment Everything cache generation', {
+            recordEverythingCacheInvalidationFailed(CACHE_INVALIDATION_FAILURE.INCREMENT);
+            logError('ConsentCacheInvalidationHandler: failed to increment Everything cache generation; ' +
+                'a cached $everything under this key can be stale until the cache TTL', {
                 error, generationKey, ...logContext
             });
         }

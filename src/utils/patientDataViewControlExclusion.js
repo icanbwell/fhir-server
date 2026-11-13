@@ -5,6 +5,12 @@ const { PatientDataViewControlManager } = require('./patientDataViewController')
 const { PatientScopeManager } = require('../operations/security/patientScopeManager');
 const { ScopesManager } = require('../operations/security/scopesManager');
 const { ForbiddenError } = require('./httpErrors');
+const {
+    recordViewControlOutcome,
+    VIEW_CONTROL_OUTCOME,
+    VIEW_CONTROL_SUBJECT,
+    VIEW_CONTROL_FAIL_REASON
+} = require('./metrics');
 const { ParsedArgsItem } = require('../operations/query/parsedArgsItem');
 const { QueryParameterValue } = require('../operations/query/queryParameterValue');
 const { searchParameterQueries } = require('../searchParameters/searchParameters');
@@ -73,17 +79,37 @@ class PatientDataViewControlExclusion {
     }
 
     /**
+     * Resolves the lookup and records its outcome once (the caller memoizes per subject per request,
+     * so this runs once for each). A failure is recorded as fail_closed and rethrown unchanged.
      * @private
      * @return {Promise<ViewControlConsentLookup>}
      */
     async loadAsync({ requestInfo, base_version, subject }) {
+        const metricSubject = subject.isUrlPerson ? VIEW_CONTROL_SUBJECT.OPT_IN : VIEW_CONTROL_SUBJECT.USER;
+        let resolved;
+        try {
+            resolved = await this.resolveLookupAsync({ requestInfo, base_version, subject });
+        } catch (error) {
+            recordViewControlOutcome(VIEW_CONTROL_OUTCOME.FAIL_CLOSED, metricSubject, failReasonOf(error));
+            throw error;
+        }
+        recordViewControlOutcome(resolved.outcome, metricSubject);
+        return resolved.lookup;
+    }
+
+    /**
+     * @private
+     * @return {Promise<{ lookup: ViewControlConsentLookup, outcome: string }>} the lookup and its
+     *  VIEW_CONTROL_OUTCOME (never fail_closed: that is a throw)
+     */
+    async resolveLookupAsync({ requestInfo, base_version, subject }) {
         const person = subject.isUrlPerson
             ? await this.loadUrlPersonAsync({ requestInfo, base_version, subject })
             : await this.loadTokenPersonAsync({ requestInfo, base_version, subject });
         // The walk found no Person the token can see (e.g. not provisioned yet): the user is linked
         // to no Patient and has no Consent, so there is nothing to hide.
         if (!person) {
-            return emptyLookup();
+            return { lookup: emptyLookup(), outcome: VIEW_CONTROL_OUTCOME.NO_PERSON };
         }
         const { personId, owner } = person;
         // Every Person should have an owner tag (writes reject a resource without one), and enrollment
@@ -97,11 +123,20 @@ class PatientDataViewControlExclusion {
                 owner,
                 patientFilterReferences: null
             });
-        return freezeLookup({
+        const lookup = freezeLookup({
             viewControlResourceToExcludeMap: viewControlResourceToExcludeMap || {},
             viewControlConsentQueries: viewControlConsentQueries || [],
             viewControlConsentQueryOptions: viewControlConsentQueryOptions || []
         });
+        const notEnrolled = Boolean(owner) && !this.configManager.clientsWithDataConnectionViewControl.includes(owner);
+        const hidesSomething = Object.keys(lookup.viewControlResourceToExcludeMap).length > 0;
+        let outcome = VIEW_CONTROL_OUTCOME.NO_CONSENT;
+        if (notEnrolled) {
+            outcome = VIEW_CONTROL_OUTCOME.NOT_ENROLLED;
+        } else if (hidesSomething) {
+            outcome = VIEW_CONTROL_OUTCOME.HIDDEN;
+        }
+        return { lookup, outcome };
     }
 
     /**
@@ -201,15 +236,11 @@ class PatientDataViewControlExclusion {
         // Fold any `_id:not` / `id:not` the caller supplied into one `_id:not` item. ParsedArgs.add()
         // replaces the caller's `_id:not` item; the caller's `id:not` item is dropped here, or the
         // same ids would be excluded twice.
-        const isIdNotItem = (a) =>
-            (a.queryParameter === '_id' || a.queryParameter === 'id') &&
-            a.modifiers?.length === 1 &&
-            a.modifiers[0] === 'not';
         const callerExcludedIds = parsedArgs.parsedArgItems
-            .filter(isIdNotItem)
+            .filter((a) => a.isIdExclusion)
             .flatMap((a) => a.queryParameterValue.values || []);
         parsedArgs.parsedArgItems = parsedArgs.parsedArgItems.filter(
-            (a) => !(isIdNotItem(a) && a.queryParameter === 'id')
+            (a) => !(a.isIdExclusion && a.queryParameter === 'id')
         );
         parsedArgs.add(
             new ParsedArgsItem({
@@ -225,6 +256,24 @@ class PatientDataViewControlExclusion {
             })
         );
         return parsedArgs;
+    }
+}
+
+/**
+ * @param {Error} error
+ * @return {string} a VIEW_CONTROL_FAIL_REASON, so the metric label stays bounded
+ */
+function failReasonOf(error) {
+    // by statusCode: ServerError resets its prototype, so instanceof can't tell the subclasses apart
+    switch (error?.statusCode) {
+        case 404:
+            return VIEW_CONTROL_FAIL_REASON.NOT_FOUND;
+        case 403:
+            return VIEW_CONTROL_FAIL_REASON.FORBIDDEN;
+        case 400:
+            return VIEW_CONTROL_FAIL_REASON.BAD_REQUEST;
+        default:
+            return VIEW_CONTROL_FAIL_REASON.ERROR;
     }
 }
 

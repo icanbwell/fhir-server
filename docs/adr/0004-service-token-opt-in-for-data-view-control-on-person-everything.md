@@ -71,6 +71,23 @@ response. If either fails (the Person has no owner tag, or the Consent search er
 fails with an HTTP error and returns no data. A caller that asked for the block never gets an
 unfiltered record because a lookup failed.
 
+### 4. Only `active` Consents apply (a deliberate policy change)
+
+The Consent lookup, for user tokens and for this opt-in alike, searches `status=active`. Before
+this change it had no status filter, so a view control Consent hid data whatever its status. Now a
+Consent set to `inactive`, `draft`, `rejected` or `entered-in-error` hides nothing.
+
+This is intended, not a side effect of the index fix:
+
+- It matches the other Consent lookups (PROA/IAS, delegated actor), which also apply only active
+  Consents.
+- It lets a block be withdrawn by changing the Consent's status.
+- It lets the query use the `{status, patient._uuid}` index instead of scanning the collection.
+
+The delete handler writes `status: "active"`, so existing blocks keep working. A production count on
+2026-11-12 found only active view control Consents (none `inactive` or `draft`), so no current data
+changes.
+
 ## Consequences
 
 ### Positive

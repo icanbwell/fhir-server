@@ -124,12 +124,12 @@ class ParsedArgs {
      */
     addMergingExclusion (parsedArgItem) {
         assertIsValid(
-            parsedArgItem.modifiers?.length === 1 && parsedArgItem.modifiers[0] === 'not',
+            parsedArgItem.isNotOnly,
             'addMergingExclusion requires an item whose only modifier is not'
         );
         const existing = this.parsedArgItems.find(
             a => a.queryParameter === parsedArgItem.queryParameter &&
-                a.modifiers?.length === 1 && a.modifiers[0] === 'not' &&
+                a.isNotOnly &&
                 !a.chain
         );
         if (existing) {
@@ -154,15 +154,13 @@ class ParsedArgs {
      * @return {boolean}
      */
     isRequestById () {
-        const isIdItem = a => a.queryParameter === 'id' || a.queryParameter === '_id';
-        const isNotOnly = a => a.modifiers?.length === 1 && a.modifiers[0] === 'not';
-        const hasPlainId = this.parsedArgItems.some(a => isIdItem(a) && !a.modifiers?.length);
+        const hasPlainId = this.parsedArgItems.some(a => a.isIdItem && !a.modifiers?.length);
         if (!hasPlainId) {
             return false;
         }
         return this.parsedArgItems.every(a => {
-            if (isIdItem(a)) {
-                return !a.modifiers?.length || isNotOnly(a);
+            if (a.isIdItem) {
+                return !a.modifiers?.length || a.isNotOnly;
             }
             return (
                 NON_SEARCH_QUERY_PARAMS.includes(a.queryParameter) ||
@@ -216,9 +214,7 @@ class ParsedArgs {
     getRawArgs () {
         const obj = {};
         for (const [, /** @type {ParsedArgsItem} */ value] of Object.entries(this.parsedArgItems)) {
-            const isIdExclusion = (value.queryParameter === '_id' || value.queryParameter === 'id') &&
-                value.modifiers?.length === 1 && value.modifiers[0] === 'not';
-            const key = isIdExclusion ? `${value.queryParameter}:not` : `${value.queryParameter}`;
+            const key = value.isIdExclusion ? `${value.queryParameter}:not` : `${value.queryParameter}`;
             obj[key] = value._queryParameterValue.value;
         }
         return obj;

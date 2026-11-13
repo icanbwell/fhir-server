@@ -18,7 +18,9 @@ reads, on every read path the user can use.
 ## Format of the Consent
 
 - `status`: `active`. A Consent with any other status (`inactive`, `draft`, `rejected`,
-  `entered-in-error`, ...) hides nothing.
+  `entered-in-error`, ...) hides nothing. Only `active` Consents apply by design, as in the other
+  Consent lookups, so setting a Consent to another status withdraws its block (see the ADR linked
+  above).
 - `category.coding` contains:
 ```
 {

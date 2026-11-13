@@ -79,7 +79,9 @@ class PatientDataViewControlManager {
         }
 
         let resourceType = 'Consent';
-        let viewControlResourceToExcludeMap = {};
+        // no prototype: the resourceType comes from stored Consent data, and a type such as
+        // `constructor` or `__proto__` must be an ordinary key, not an Object.prototype member
+        const viewControlResourceToExcludeMap = Object.create(null);
 
         let consentArgs = {
             base_version,

@@ -52,6 +52,10 @@ function createMockParsedArgsItem ({
         chain
     };
 
+    // the real item's predicates, so the mock answers isNotOnly / isIdItem / isIdExclusion as it does
+    const { isNotOnly, isIdItem, isIdExclusion } = Object.getOwnPropertyDescriptors(ParsedArgsItem.prototype);
+    Object.defineProperties(item, { isNotOnly, isIdItem, isIdExclusion });
+
     item.clone = jestObj.fn(() => {
         return createMockParsedArgsItem({
             queryParameter: item.queryParameter,
@@ -73,6 +77,7 @@ function createMockParsedArgsItem ({
 }
 
 const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
+const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
 
 describe('ParsedArgs', () => {
     beforeEach(() => {

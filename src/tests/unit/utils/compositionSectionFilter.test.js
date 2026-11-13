@@ -502,6 +502,30 @@ describe('filterCompositionBlockedReferenceSections', () => {
         expect(sectionIds(resource.section)).toEqual(['kept']);
     });
 
+    test.each([
+        ['constructor/1'],
+        ['toString/1'],
+        ['hasOwnProperty/1'],
+        ['__proto__/1']
+    ])('keeps a section and does not throw for an entry that references an Object.prototype name (%s)', (reference) => {
+        const resource = composition([{ id: 'kept', entry: [{ reference }] }]);
+
+        expect(() => filterBlocked(resource, { CarePlan: ['care-plan-1'] })).not.toThrow();
+
+        expect(sectionIds(resource.section)).toEqual(['kept']);
+    });
+
+    test('still removes a blocked section that sits beside an Object.prototype-named reference', () => {
+        const resource = composition([
+            { id: 'odd', entry: [{ reference: 'constructor/1' }] },
+            { id: 'blocked', entry: [{ reference: 'CarePlan/care-plan-1' }] }
+        ]);
+
+        filterBlocked(resource, { CarePlan: ['care-plan-1'] });
+
+        expect(sectionIds(resource.section)).toEqual(['odd']);
+    });
+
     test('removes a whole multi-entry section when any one entry is blocked', () => {
         const resource = composition([
             { id: 'mixed', entry: [{ reference: 'CarePlan/care-plan-3' }, { reference: 'CarePlan/care-plan-1' }] }

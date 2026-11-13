@@ -225,6 +225,40 @@ describe('PatientDataViewControlManager', () => {
                 });
             });
 
+            test.each([
+                ['constructor/1', 'constructor'],
+                ['toString/1', 'toString'],
+                ['__proto__/1', '__proto__']
+            ])('keeps a reference whose type is an Object.prototype name (%s) as an ordinary key', async (reference, type) => {
+                mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
+                    entries: [{
+                        resource: {
+                            provision: {
+                                data: [
+                                    { reference: { reference } },
+                                    { reference: { reference: 'Observation/obs-1' } }
+                                ]
+                            }
+                        }
+                    }],
+                    queryItems: [],
+                    options: []
+                });
+
+                const result = await manager.getConsentAsync({
+                    requestInfo: createRequestInfo('person-123'),
+                    personId: 'person-123',
+                    owner: 'clientA',
+                    base_version: '4_0_0',
+                    patientFilterReferences: null
+                });
+
+                const map = result.viewControlResourceToExcludeMap;
+                expect(Object.keys(map).sort()).toEqual([type, 'Observation'].sort());
+                expect(map[type]).toEqual(['1']);
+                expect(map.Observation).toEqual(['obs-1']);
+            });
+
             test('groups multiple references by resource type (>1 entries)', async () => {
                 mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
                     entries: [

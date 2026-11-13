@@ -157,14 +157,14 @@ function parseEntryReference(form) {
  * Does any entry of this section (not its nested sections, which the walk visits on their own)
  * reference a blocked resource of the same resourceType?
  * @param {Object} section
- * @param {{[resourceType: string]: Set<string>}} blockedIdSetByType
+ * @param {Map<string, Set<string>>} blockedIdSetByType
  * @return {boolean}
  */
 function referencesBlockedResource({ section, blockedIdSetByType }) {
     return (section?.entry || []).some((entry) =>
         getEntryReferenceForms(entry).some((form) => {
             const { resourceType, id } = parseEntryReference(form);
-            return Boolean(resourceType) && blockedIdSetByType[resourceType]?.has(id) === true;
+            return Boolean(resourceType) && blockedIdSetByType.get(resourceType)?.has(id) === true;
         })
     );
 }
@@ -174,13 +174,15 @@ function referencesBlockedResource({ section, blockedIdSetByType }) {
  * once and reuse them for every Composition filtered with the same exclude map.
  * @param {Readonly<{[resourceType: string]: ReadonlyArray<string>}>|undefined} excludeMap hidden ids
  *  (uuid or source id) by resourceType, as returned by PatientDataViewControlExclusion
- * @return {{[resourceType: string]: Set<string>}} empty when nothing is hidden
+ * @return {Map<string, Set<string>>} empty when nothing is hidden. A Map, not an object: a reference
+ *  type such as `constructor` or `__proto__` must look up as "nothing hidden", not as an inherited
+ *  Object.prototype member.
  */
 function buildBlockedIdSetByType(excludeMap) {
-    const blockedIdSetByType = {};
+    const blockedIdSetByType = new Map();
     for (const [resourceType, ids] of Object.entries(excludeMap || {})) {
         if (ids?.length) {
-            blockedIdSetByType[resourceType] = new Set(ids);
+            blockedIdSetByType.set(resourceType, new Set(ids));
         }
     }
     return blockedIdSetByType;
@@ -193,10 +195,10 @@ function buildBlockedIdSetByType(excludeMap) {
  * When anything was removed the Composition's own `text` goes too (and the `text` of a kept section
  * that held a removed one), because those narratives are usually generated from the sections.
  * @param {Object} resource
- * @param {{[resourceType: string]: Set<string>}} blockedIdSetByType from buildBlockedIdSetByType
+ * @param {Map<string, Set<string>>} blockedIdSetByType from buildBlockedIdSetByType
  */
 function filterCompositionBlockedReferenceSections(resource, blockedIdSetByType) {
-    if (Object.keys(blockedIdSetByType).length === 0) {
+    if (blockedIdSetByType.size === 0) {
         return;
     }
     filterCompositionSections(

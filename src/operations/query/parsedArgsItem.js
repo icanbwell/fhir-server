@@ -206,6 +206,34 @@ class ParsedArgsItem {
         return result;
     }
 
+    /**
+     * Whether `not` is this item's only modifier. The modifier is stored without the colon
+     * (`_id:not` is `queryParameter: '_id'`, `modifiers: ['not']`), as r4ArgsParser and the
+     * view-control exclusion both build it.
+     * @return {boolean}
+     */
+    get isNotOnly () {
+        return this.modifiers?.length === 1 && this.modifiers[0] === 'not';
+    }
+
+    /**
+     * Whether this is an `_id` / `id` item.
+     * @return {boolean}
+     */
+    get isIdItem () {
+        return this.queryParameter === '_id' || this.queryParameter === 'id';
+    }
+
+    /**
+     * Whether this is an `_id:not` / `id:not` exclusion: an id item whose only modifier is `not`.
+     * The one definition for the access check (isRequestById), cache keys (getRawArgs) and
+     * view control (PatientDataViewControlExclusion), so they cannot drift.
+     * @return {boolean}
+     */
+    get isIdExclusion () {
+        return this.isIdItem && this.isNotOnly;
+    }
+
     clone () {
         return new ParsedArgsItem(
             {
