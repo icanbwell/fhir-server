@@ -26,6 +26,14 @@ const GROUP_MEMBERSHIP_ERROR_TYPES = new Set([
 const MAX_TRACKED_OFFSETS = 1000;
 
 /**
+ * Default kafkajs per-broker connection timeout. The connect (TLS, SASL/IAM auth, metadata) is
+ * slower than a produce, so it gets its own, longer budget than the produce timeout. Configure with
+ * KAFKA_V2_CONNECT_TIMEOUT_MS (`kafkaV2ConnectTimeoutMs`); the per-send timeout is
+ * KAFKA_PRODUCER_TIMEOUT_MS (`kafkaProducerTimeoutMs`), applied by the caller around each send.
+ */
+const DEFAULT_CONNECT_TIMEOUT_MS = 30000;
+
+/**
  * @param {Error} error
  * @returns {boolean}
  */
@@ -73,7 +81,7 @@ class KafkaClientV2 {
     }
 
     /**
-     * @return {{clientId: string, brokers: string[], ssl: boolean, sasl: Object|null}}
+     * @return {{clientId: string, brokers: string[], ssl: boolean, sasl: Object|null, connectionTimeout: number}}
      */
     getConfigAsync() {
         const authType = this.configManager.kafkaV2AuthType;
@@ -101,14 +109,15 @@ class KafkaClientV2 {
             clientId: this.configManager.kafkaV2ClientId,
             brokers: this.configManager.kafkaV2Brokers,
             ssl: this.configManager.kafkaV2UseSsl || authType === 'iam',
-            sasl
+            sasl,
+            connectionTimeout: this.configManager.kafkaV2ConnectTimeoutMs
         };
     }
 
     /**
-     * @param {{clientId: string, brokers: string[], ssl: boolean, sasl: Object|null}} config
+     * @param {{clientId: string, brokers: string[], ssl: boolean, sasl: Object|null, connectionTimeout?: number}} config
      */
-    init({ clientId, brokers, ssl, sasl }) {
+    init({ clientId, brokers, ssl, sasl, connectionTimeout = DEFAULT_CONNECT_TIMEOUT_MS }) {
         assertIsValid(clientId !== undefined);
         assertIsValid(brokers !== undefined);
         assertIsValid(Array.isArray(brokers));
@@ -118,6 +127,7 @@ class KafkaClientV2 {
         this.brokers = brokers;
         this.ssl = ssl;
         this.sasl = sasl;
+        this.connectionTimeout = connectionTimeout;
 
         /** @type {import('kafkajs').KafkaConfig} */
         const config = {
@@ -126,7 +136,7 @@ class KafkaClientV2 {
             authenticationTimeout: 60000,
             ssl,
             sasl,
-            connectionTimeout: 10000,
+            connectionTimeout,
             retry: {
                 initialRetryTime: 500,
                 retries: 3
@@ -182,7 +192,8 @@ class KafkaClientV2 {
                             clientId: this.clientId,
                             brokers: reorderedBrokers,
                             ssl: this.ssl,
-                            sasl: this.sasl
+                            sasl: this.sasl,
+                            connectionTimeout: this.connectionTimeout
                         });
                         shouldRetry = true;
                         lastErrorCode = cause.code;

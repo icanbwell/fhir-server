@@ -404,6 +404,17 @@ describe('KafkaClientV2', () => {
             expect(mockProducerConnect).toHaveBeenCalledTimes(2);
         });
 
+        test.each([
+            ['defaults to 30s when not configured', undefined, 30000],
+            ['uses the configured timeout', 45000, 45000]
+        ])('kafkajs connection timeout %s', (_name, configured, expected) => {
+            const { Kafka } = require('kafkajs');
+            mockConfigManagerInstance.kafkaV2ConnectTimeoutMs = configured;
+            const client = new KafkaClientV2({ configManager: mockConfigManagerInstance });
+            expect(Kafka).toHaveBeenLastCalledWith(expect.objectContaining({ connectionTimeout: expected }));
+            expect(client.connectionTimeout).toBe(expected);
+        });
+
         test('warmUpAsync connects the producer before the first send', async () => {
             await kafkaClient.warmUpAsync();
             expect(mockProducerConnect).toHaveBeenCalledTimes(1);
