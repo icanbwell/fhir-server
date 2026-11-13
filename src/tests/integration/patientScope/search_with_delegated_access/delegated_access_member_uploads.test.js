@@ -29,6 +29,8 @@ const activeConsent = require('./fixtures/Consent/consentWithSensitiveCategories
 
 const memberUploadResource = require('./fixtures/DocumentReference/memberUpload.json');
 const externalDocumentResource = require('./fixtures/DocumentReference/externalDocument.json');
+const sameCodeOtherSystemResource = require('./fixtures/DocumentReference/sameCodeOtherSystem.json');
+const mixedCodingUploadResource = require('./fixtures/DocumentReference/mixedCodingUpload.json');
 
 const { ConfigManager } = require('../../../../utils/configManager');
 const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
@@ -109,7 +111,9 @@ describe('DCON-6410: member-uploaded documents and delegated access', () => {
             ['/4_0_0/Patient/1/$merge?validate=true', patient1Resource],
             ['/4_0_0/Consent/$merge?validate=true', activeConsent],
             ['/4_0_0/DocumentReference/1/$merge?validate=true', memberUploadResource],
-            ['/4_0_0/DocumentReference/1/$merge?validate=true', externalDocumentResource]
+            ['/4_0_0/DocumentReference/1/$merge?validate=true', externalDocumentResource],
+            ['/4_0_0/DocumentReference/1/$merge?validate=true', sameCodeOtherSystemResource],
+            ['/4_0_0/DocumentReference/1/$merge?validate=true', mixedCodingUploadResource]
         ]) {
             const resp = await request.post(path).send(resource).set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -130,7 +134,61 @@ describe('DCON-6410: member-uploaded documents and delegated access', () => {
         });
 
         expect(resp.status).toBe(200);
-        expect(documentIdsIn(resp)).toEqual(['external-doc-1']);
+        // 'same-code-other-system-1' is in this list on purpose: the exclusion keys on system AND
+        // code, so the same code under another CodeSystem must not be swept up with it.
+        expect(documentIdsIn(resp)).toEqual(['external-doc-1', 'same-code-other-system-1']);
+    });
+
+    test('a member upload that also carries a clinical category is still excluded', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedAsync(request);
+
+        const resp = await request.get('/4_0_0/DocumentReference').set({
+            Authorization: `Bearer ${getTokenWithCustomPayload(delegatedPayload)}`,
+            Accept: 'application/fhir+json'
+        });
+
+        expect(resp.status).toBe(200);
+        // The upload marker sits alongside a LOINC coding in the same CodeableConcept. A reader
+        // that matched only a single-coding category would leak this one.
+        expect(documentIdsIn(resp)).not.toContain('mixed-coding-upload-1');
+    });
+
+    // Bill's review of FDR #7 asked for the by-id case specifically. Read-by-id is not a separate
+    // authorization path: searchById.js builds its query through the same
+    // SearchManager.constructQueryAsync, passing userType and actor, so the delegate filter runs
+    // there too. This test is what makes that claim checkable rather than asserted.
+    test('read-by-id: a delegated actor cannot fetch the member upload directly', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedAsync(request);
+
+        const resp = await request.get('/4_0_0/DocumentReference/member-upload-1').set({
+            Authorization: `Bearer ${getTokenWithCustomPayload(delegatedPayload)}`,
+            Accept: 'application/fhir+json'
+        });
+
+        expect([404, 403]).toContain(resp.status);
+
+        // control: the SAME delegate, by id, on a document that is not a member upload. Without
+        // this the assertion above would also pass if the delegate simply could not read any
+        // DocumentReference by id.
+        const delegateOtherDoc = await request.get('/4_0_0/DocumentReference/external-doc-1').set({
+            Authorization: `Bearer ${getTokenWithCustomPayload(delegatedPayload)}`,
+            Accept: 'application/fhir+json'
+        });
+        expect(delegateOtherDoc.status).toBe(200);
+
+        // control: the same read, by the member, returns it
+        const ownResp = await request
+            .get('/4_0_0/DocumentReference/member-upload-1')
+            .set(getHeadersWithCustomPayload(basePayload));
+        expect(ownResp.status).toBe(200);
     });
 
     test('CONTROL: the member themselves still gets both documents', async () => {
@@ -145,6 +203,8 @@ describe('DCON-6410: member-uploaded documents and delegated access', () => {
             .set(getHeadersWithCustomPayload(basePayload));
 
         expect(resp.status).toBe(200);
-        expect(documentIdsIn(resp)).toEqual(['external-doc-1', 'member-upload-1']);
+        expect(documentIdsIn(resp)).toEqual([
+            'external-doc-1', 'member-upload-1', 'mixed-coding-upload-1', 'same-code-other-system-1'
+        ]);
     });
 });

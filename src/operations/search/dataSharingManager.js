@@ -770,8 +770,11 @@ class DataSharingManager {
         return true;
     }
     /**
-     * Updates the search query to exclude resources tagged with denied sensitive categories
-     * for delegated actors.
+     * Updates the search query with every exclusion that applies to a delegated actor: the
+     * grantor's Consent-denied sensitive categories plus unclassified, and, for
+     * DocumentReference, the member-upload category (DCON-6410). The name is kept for now to
+     * hold the diff down; it understates the method, which is no longer only about sensitive
+     * categories.
      *
      * @param {Object} params
      * @param {string} params.base_version
