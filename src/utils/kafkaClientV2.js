@@ -261,7 +261,7 @@ class KafkaClientV2 {
         } catch (e) {
             logWarn('KafkaClientV2: producer warm-up failed; will connect on first produce', {
                 error: e.message,
-                originalError: e.originalError ? e.originalError.message : undefined
+                originalError: e.original_error ? e.original_error.message : undefined
             });
         }
     }

@@ -73,7 +73,7 @@ jestObj.mock('../../../utils/rethrownError', () => ({
     RethrownError: class RethrownError extends Error {
         constructor({ message, error, config }) {
             super(message);
-            this.originalError = error;
+            this.original_error = error;
             this.config = config;
         }
     }
@@ -103,7 +103,7 @@ const { W3CTraceContextPropagator } = require('@opentelemetry/core');
 propagation.setGlobalPropagator(new W3CTraceContextPropagator());
 const { recordKafkaRetryExhausted } = require('../../../utils/metrics');
 const { logTraceSystemEventAsync, logSystemErrorAsync, logSystemEventAsync } = require('../../../operations/common/systemEventLogging');
-const { logError } = require('../../../operations/common/logging');
+const { logError, logWarn } = require('../../../operations/common/logging');
 
 describe('KafkaClientV2', () => {
     let kafkaClient;
@@ -395,6 +395,10 @@ describe('KafkaClientV2', () => {
             mockProducerConnect.mockRejectedValueOnce(new Error('Connection refused'));
             await expect(kafkaClient.warmUpAsync()).resolves.toBeUndefined();
             expect(kafkaClient.producerConnected).toBe(false);
+            expect(logWarn).toHaveBeenCalledWith(
+                expect.stringContaining('warm-up failed'),
+                expect.objectContaining({ originalError: 'Connection refused' })
+            );
         });
     });
 
