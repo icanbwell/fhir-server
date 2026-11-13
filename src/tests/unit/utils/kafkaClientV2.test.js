@@ -381,6 +381,29 @@ describe('KafkaClientV2', () => {
             expect(kafkaClient.producerConnected).toBe(true);
         });
 
+        test('init() during an in-flight connect does not block connecting the new producer', async () => {
+            let resolveOldConnect;
+            mockProducerConnect.mockImplementationOnce(() => new Promise((resolve) => { resolveOldConnect = resolve; }));
+            const oldConnect = kafkaClient.ensureProducerConnectedAsync();
+            kafkaClient.init({
+                clientId: kafkaClient.clientId,
+                brokers: kafkaClient.brokers,
+                ssl: kafkaClient.ssl,
+                sasl: kafkaClient.sasl
+            });
+            const newProducer = kafkaClient.producer;
+            await kafkaClient.ensureProducerConnectedAsync();
+            expect(mockProducerConnect).toHaveBeenCalledTimes(2);
+            expect(kafkaClient.producerConnected).toBe(true);
+            resolveOldConnect();
+            await oldConnect;
+            expect(kafkaClient.producer).toBe(newProducer);
+            expect(kafkaClient.producerConnected).toBe(true);
+            // a later call must not start another connect: the new producer's connect was recorded
+            await kafkaClient.ensureProducerConnectedAsync();
+            expect(mockProducerConnect).toHaveBeenCalledTimes(2);
+        });
+
         test('warmUpAsync connects the producer before the first send', async () => {
             await kafkaClient.warmUpAsync();
             expect(mockProducerConnect).toHaveBeenCalledTimes(1);
