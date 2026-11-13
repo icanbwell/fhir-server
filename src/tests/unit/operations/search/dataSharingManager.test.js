@@ -799,7 +799,8 @@ describe('DataSharingManager', () => {
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
                 actor: { reference: 'Patient/p1' },
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
 
             expect(result).toEqual({ _uuid: '__invalid__' });
@@ -818,7 +819,8 @@ describe('DataSharingManager', () => {
                 base_version: '4_0_0',
                 query,
                 actor: { reference: 'Patient/p1' },
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
 
             // Should be a simplified $and query with exclusion filter
@@ -840,7 +842,8 @@ describe('DataSharingManager', () => {
                 base_version: '4_0_0',
                 query,
                 actor: { reference: 'Patient/p1' },
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
 
             expect(JSON.stringify(result)).toContain('unclassified');

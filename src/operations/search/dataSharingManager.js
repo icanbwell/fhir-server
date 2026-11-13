@@ -778,12 +778,19 @@ class DataSharingManager {
      * @param {import('mongodb').Document} params.query
      * @param {import('../../utils/fhirRequestInfo').JwtActor} params.actor
      * @param {string} params.personIdFromJwtToken
-     * @param {string} [params.resourceType] The resource type being queried. Only
-     *   DocumentReference carries the member-upload category, so the extra exclusion below is
-     *   applied for that type alone; every other type is unaffected.
+     * @param {string} params.resourceType The resource type being queried. Required: this
+     *   method decides a privacy exclusion from it, so a caller that omits it would silently
+     *   get the unfiltered set rather than a smaller one. Only DocumentReference carries the
+     *   member-upload category, so that exclusion applies to that type alone.
      * @returns {Promise<import('mongodb').Document>}
      */
     async updateQueryForDelegatedAccessSensitiveData ({ base_version, query, actor, personIdFromJwtToken, resourceType }) {
+        // Fail loudly rather than fall through to a wider result set: every exclusion below is
+        // a privacy decision, and an absent resourceType must not quietly disable one of them.
+        assertIsValid(
+            resourceType,
+            'resourceType is required to filter delegated access'
+        );
         const filteringRulesResult = await this.delegatedAccessRulesManager.getFilteringRulesAsync({
             base_version,
             actor,

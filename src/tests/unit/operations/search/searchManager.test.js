@@ -203,7 +203,11 @@ describe('SearchManager', () => {
                 requestId: 'req-1', parsedArgs: mockParsedArgs, useHistoryTable: false, operation: 'READ',
                 accessRequested: 'read', actor: { reference: 'Patient/p1' }
             });
-            expect(mockDataSharingManager.updateQueryForDelegatedAccessSensitiveData).toHaveBeenCalled();
+            // Asserting the resourceType is passed, not merely that the call happened: the
+            // delegate filter decides a per-type privacy exclusion from it, and dropping it
+            // here would be invisible to every test that calls that method directly.
+            expect(mockDataSharingManager.updateQueryForDelegatedAccessSensitiveData)
+                .toHaveBeenCalledWith(expect.objectContaining({ resourceType: 'Observation' }));
         });
 
         it('AND-composes the _content candidate-id filter with the security-tag filter -- neither replaces the other', async () => {

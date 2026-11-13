@@ -584,7 +584,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
                 actor: { reference: 'RelatedPerson/rp-1' },
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
 
             expect(result).toEqual({ _uuid: '__invalid__' });
@@ -595,7 +596,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
                 actor: { reference: 'Organization/50d67a31-af1f-4f30-8d41-51e90a5054fa' },
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
 
             // No per-person Consent for this actor type by design -- the upstream minting
@@ -623,7 +625,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                     base_version: '4_0_0',
                     query: { resourceType: 'Observation' },
                     actor: { reference: 'RelatedPerson/rp-1' },
-                    personIdFromJwtToken: 'person-1'
+                    personIdFromJwtToken: 'person-1',
+                    resourceType: 'Observation'
                 })
             ).rejects.toThrow(/ambiguous permissions/);
         });
@@ -662,7 +665,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
                 actor: { reference: 'RelatedPerson/rp-1' },
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
 
             const excludedCodes = result.$and[1]['meta.security'].$not.$elemMatch.code.$in;
@@ -692,7 +696,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
                 actor: { reference: 'RelatedPerson/rp-1' },
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
 
             // MongoQuerySimplifier collapses a single-element `{ $in: ['unclassified'] }` down to
@@ -719,7 +724,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
                 actor,
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
             expect(findAsync).toHaveBeenCalledTimes(1);
             expect(actor._filteringRules).toBeDefined();
@@ -730,7 +736,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
                 actor,
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
             expect(findAsync).toHaveBeenCalledTimes(1);
             expect(mockDatabaseQueryFactory.createQuery).toHaveBeenCalledTimes(1);
@@ -763,13 +770,15 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
                 actor: { reference: 'RelatedPerson/rp-1' },
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
             await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
                 actor: { reference: 'RelatedPerson/rp-1' }, // new object, request-scoped cache does not persist
-                personIdFromJwtToken: 'person-1'
+                personIdFromJwtToken: 'person-1',
+                resourceType: 'Observation'
             });
 
             expect(findAsync).toHaveBeenCalledTimes(2);
@@ -861,17 +870,20 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 expect(categoryExclusionOf(result)).toBeUndefined();
             });
 
-            test('an omitted resourceType adds no category exclusion, so an uninstrumented caller is unchanged', async () => {
+            // The exclusions this method builds are privacy decisions, so an absent
+            // resourceType must fail loudly. Returning the unfiltered set instead would hand a
+            // delegate MORE than they are entitled to, and nothing downstream would notice.
+            test('an omitted resourceType throws instead of silently skipping the exclusion', async () => {
                 consentThatDeniesNothing();
 
-                const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
-                    base_version: '4_0_0',
-                    query: { resourceType: 'DocumentReference' },
-                    actor: { reference: 'RelatedPerson/rp-1' },
-                    personIdFromJwtToken: 'person-1'
-                });
-
-                expect(categoryExclusionOf(result)).toBeUndefined();
+                await expect(
+                    dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+                        base_version: '4_0_0',
+                        query: { resourceType: 'DocumentReference' },
+                        actor: { reference: 'RelatedPerson/rp-1' },
+                        personIdFromJwtToken: 'person-1'
+                    })
+                ).rejects.toThrow('resourceType is required to filter delegated access');
             });
 
             test('no active Consent still wins: the impossible query is returned, not a category filter', async () => {

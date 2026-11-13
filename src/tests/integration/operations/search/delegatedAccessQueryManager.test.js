@@ -95,7 +95,8 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
             base_version: '4_0_0',
             query: patientScopedObservationQuery,
             actor,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            resourceType: 'Observation'
         });
 
         expect(result).toEqual({ _uuid: '__invalid__' });
@@ -127,7 +128,8 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
             base_version: '4_0_0',
             query: patientScopedObservationQuery,
             actor,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            resourceType: 'Observation'
         });
 
         expect(result).toEqual(
@@ -161,7 +163,8 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
             base_version: '4_0_0',
             query: patientScopedObservationQuery,
             actor,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            resourceType: 'Observation'
         });
 
         expect(result).toEqual(
@@ -193,7 +196,8 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
             base_version: '4_0_0',
             query: patientScopedObservationQuery,
             actor,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            resourceType: 'Observation'
         });
 
         expect(result).toEqual(
