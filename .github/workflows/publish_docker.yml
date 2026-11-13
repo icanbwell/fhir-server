@@ -3,16 +3,32 @@ name: publish_docker
 on:
   release:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag to publish (x.y.z)'
+        required: true
+        type: string
 
 jobs:
   main:
     runs-on: ubuntu-latest
     # skip test tags from auto publish to docker
-    if: ${{ !contains(github.event.release.tag_name, '_') && !contains(github.event.release.tag_name, '-') }}
+    if: ${{ !contains(inputs.tag || github.event.release.tag_name, '_') && !contains(inputs.tag || github.event.release.tag_name, '-') }}
     steps:
+      - name: Validate tag input
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if ! [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "tag must be x.y.z, got: $TAG" >&2
+            exit 1
+          fi
       - name: Checkout Master
         uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.tag }}
           persist-credentials: false
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -25,13 +41,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Get Previous tag
         id: previoustag
+        if: ${{ github.event_name == 'release' }}
         uses: WyriHaximus/github-action-get-previous-tag@61819f33034117e6c686e6a31dba995a85afc9de # v2.0.0
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v7
         with:
+          context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: imranq2/node-fhir-server-mongo:latest, imranq2/node-fhir-server-mongo:${{ steps.previoustag.outputs.tag }}
+          tags: imranq2/node-fhir-server-mongo:latest, imranq2/node-fhir-server-mongo:${{ inputs.tag || steps.previoustag.outputs.tag }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
