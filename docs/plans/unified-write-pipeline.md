@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- With the switch off, the old path behaves exactly as before. In old files, the only changes are the switch check and the constructor wiring it needs.
+- With the switch off, the old path behaves exactly as before. In old files, the only changes are the switch check and the constructor wiring it needs. The one exception is streaming `$merge`'s audit fix, which applies to both paths (spec accepted difference 8, user decision).
 - With the switch on, `$merge` responses, stored documents, history rows, change events, audit events and access-log data equal the old path's. The one accepted difference: a request that fails two checks may get a different one of the two errors.
 - Shared building blocks keep their behavior: `ScopesValidator`, `ResourceValidator`, `ResourceMerger`, `PreSaveManager`, `DatabaseBulkLoader`, `FastDatabaseBulkInserter`, the bulk write executors, `DatabaseAttachmentManager`, `Base64DataManager`, `AuditLogger` and `MergeManager`. Call them; don't change them.
 - preSave is unchanged. The new path may run it as often as the pieces it reuses do.
@@ -340,35 +340,29 @@ Each step mirrors the old code it replaces. Cite the base branch's `merge.js`, `
 ### Task 5: Streaming `$merge` on the new path
 
 **Files:**
-- Modify: `src/operations/writePipeline/writePipeline.js` (add `runStreamAsync` and `commitStreamBatchAsync`)
-- Modify: `src/operations/writePipeline/responder/merge.js` (add `streamPlaceholdersFor`)
-- Modify: `src/operations/merge/merge.js` (the switch check at the top of `mergeAsyncStream`)
-- Test: Task 3's test file (new cases)
+- Create: `src/operations/writePipeline/responder/mergeStream.js` (`MergeStream extends MergeResponder`, the new path's stream handler)
+- Modify: `src/operations/writePipeline/responder/merge.js` (split `readAsync` into `createContext` and `readIncomingAsync`; export `PLACEHOLDER_STATUSES`)
+- Modify: `src/operations/merge/merge.js` (`mergeAsyncStream` picks the stream handler by the switch; the transform and `insertAndLog` call the handler instead of the validator, the bulk inserter and the audit), `src/createContainer.js` (register `mergeStream`, inject it into `MergeOperation`)
+- Test: `src/tests/integration/operations/writePipeline/responder/mergeStream/mergeStream.test.js` and `mergeStream.audit.test.js`; `oldWrite` copies of `stream_merge_with_id.test.js` and `metrics.merge.integration.test.js`; the `insertAndLog` unit cases in `merge.test.js` and `merge.nullSafety.test.js` pass the old path's handler
+
+**Decisions (user):**
+- The transport is not in `WritePipeline`, because no other operation streams: `$import` reads its files and flushes its batches itself.
+- Both paths keep the stream in `mergeAsyncStream` instead of a copy of it, which takes each path's handler for its per-line merge, its flush and its audit. `MergeStream` extends `MergeResponder`.
+- Each result is audited once, on both paths: each commit audits the results streamed since the last audit, and the end of the request audits the rest (accepted difference 8).
 
 **Interfaces:**
-- Consumes: `MergeResponder`, `MERGE_WRITE_PROFILE`, `WritePipeline.processAsync` and `executeAsync`.
+- Consumes: `MergeResponder`, `MERGE_WRITE_PROFILE`, `WritePipeline.processAsync` and `executeAsync`, `WriteAuditor.auditAsync`.
 - Produces:
-  - `WritePipeline.runStreamAsync({ profile, responder, requestInfo, parsedArgs, resourceType, req, res })`. Confirm this shape with the user when the hold lifts, because streaming is the one transport `runAsync` doesn't cover.
-  - `MergeResponder.streamPlaceholdersFor({ items, results }) -> MergeResultEntry[]`: an entry with `created: false, updated: false` for each item whose `_uuid` is in no result. It matches on `_uuid` only, as streaming does today.
+  - `MergeStreamHandler` (typedef in `merge.js`): `mergeLineAsync({ resource, push }) -> Object[]` (the resources that wait for the commit), `executeAsync() -> Object[]` and `auditAsync({ results })`, where `results` holds the results streamed since the last audit.
+  - `MergeOperation.createStreamHandler({ requestInfo, parsedArgs, resourceType }) -> MergeStreamHandler` and `MergeStream.createStreamHandler({ requestInfo, parsedArgs, resourceType }) -> MergeStreamHandler`.
+  - `MergeResponder.createContext({ requestInfo, parsedArgs }) -> WriteContext` and `readIncomingAsync({ context, resourceType, incomingObjects }) -> { items, requestErrors, wasIncomingAList }`; `readAsync` calls both.
 
-- [ ] **Step 1: Add the failing cases.** Send to `/4_0_0/Patient/$merge` with `{ ...getHeaders(), 'Content-Type': 'application/fhir+ndjson', Accept: 'application/fhir+ndjson' }`. Parse the response as `stream_merge_with_id.test.js` does. Generate the golden files from the old path, as in Task 3.
-  - `streams NDJSON results`: three lines (`patient.json`, `patientWithoutId.json`, `observation.json`), expected `stream.json` (an array of the parsed lines).
-  - `streams more than one batch`: 101 synthetic Patients built in the test (ids `stream-0` to `stream-100`), expected `streamBatches.json`.
-  - `routes streaming $merge to the new path`: spy on `WritePipeline.prototype.runStreamAsync`, as in Task 3.
-- [ ] **Step 2: Run them.** Expected: the `new` streaming cases pass on the old code, and the streaming routing test FAILS.
-- [ ] **Step 3: Implement `runStreamAsync`** as a copy of the old `mergeAsyncStream`. In the transform:
-  - Call `responder.readAsync`, then `processAsync`, per line, and push `responder.failureResults({ items, requestErrors })`.
-  - Keep the line's unchanged and queued items in `pendingItems`.
-  - Commit when `pendingItems.length >= 100`, and in `flush`.
-- [ ] **Step 4: Implement `commitStreamBatchAsync`** as a copy of `insertAndLog`:
-  1. `executeAsync`, then push the inserted results.
-  2. `responder.streamPlaceholdersFor({ items: pendingItems, results })`, where `results` holds the inserted results and every earlier result.
-  3. Clear `pendingItems`.
-  4. `writeAuditor.auditAsync` with every result so far.
-  5. The access-log context with `streamingMerge: true`.
-- [ ] **Step 5: Wire the switch** at the top of `mergeAsyncStream`, before `getRequestDecompressor`, with the same optional-chaining check.
-- [ ] **Step 6: Run the parity test.** Expected: all cases PASS on both paths.
-- [ ] **Step 7: Stage** the files.
+- [ ] **Step 1: Add the parity cases**, each on both paths, with golden files from the old path. Send NDJSON to `/4_0_0/Patient/$merge` with `Content-Type` and `Accept` `application/fhir+ndjson`; compare the result ids in order, then `toHaveResponse`. Cases: a created resource, a resource without an id and a second created resource; an unchanged resource; an updated resource; a resource the caller cannot access; the same resource on two lines; 101 synthetic Patients (two batches). Plus routing tests: `MergeStream.prototype.createStreamHandler` is called with the switch on (and `WritePipeline.prototype.runAsync` isn't), and not with it off.
+- [ ] **Step 2: Add the audit cases** with the real `AuditLogger`, each on both paths with the same expectation: 150 streamed Patients write create AuditEvents of 100 and 50 entities; two lines without ids write two error AuditEvents. When a later line throws (the stored-resource lookup fails for its id), a failure after the last commit is still audited, and so is a stream whose lines all failed before it.
+- [ ] **Step 3: Add the handler hooks** to `mergeAsyncStream`, leaving its stream as it is. Pick the handler after the decompressors, with the same optional-chaining switch check as `mergeAsync`. The transform calls `mergeLineAsync`; `insertAndLog` calls `executeAsync`. `MergeOperation.auditNewResultsAsync` gives `auditAsync` the results streamed since the last audit, from `insertAndLog` and from the `finally`, because `flush` doesn't run after an error or an abort. The old path's handler (`MergeOperation.createStreamHandler`) runs the old per-line validation and merge (moved into `mergeStreamLineAsync`), flushes the bulk inserter and audits through `MergeManager.logAuditEntriesForMergeResults`. The `insertAndLog` unit cases pass this handler and an `auditState`.
+- [ ] **Step 4: Implement `MergeStream`** as a `MergeResponder` subclass whose handler, per line, runs `readIncomingAsync`, `processAsync`, pushes `failureResults` and returns the unchanged and queued items' resources; flushes with `WritePipeline.executeAsync`; and audits the results it is given through `WriteAuditor`.
+- [ ] **Step 5: Run** the new tests, `stream_merge_with_id`, `metrics.merge.integration` and their `oldWrite` copies, the buffered parity test, and the merge unit tests. Expected: PASS.
+- [ ] **Step 6: Stage** the files.
 
 ### Task 6: New path by default in tests, and the merge suites
 

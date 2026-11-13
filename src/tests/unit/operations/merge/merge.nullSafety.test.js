@@ -425,9 +425,12 @@ describe('MergeOperation - Null Safety', () => {
             await mergeOperation.insertAndLog({
                 finalMergeResults,
                 resourcesToMerge,
-                requestInfo: { requestId: 'req-1' },
-                base_version: '4_0_0',
-                parsedArgs: { getRawArgs: jest.fn().mockReturnValue({}) },
+                streamHandler: mergeOperation.createStreamHandler({
+                    requestInfo: { requestId: 'req-1' },
+                    parsedArgs: { getRawArgs: jest.fn().mockReturnValue({}) },
+                    resourceType: 'Patient'
+                }),
+                auditState: { auditedCount: 0 },
                 stream
             });
 
@@ -454,9 +457,12 @@ describe('MergeOperation - Null Safety', () => {
             await mergeOperation.insertAndLog({
                 finalMergeResults,
                 resourcesToMerge,
-                requestInfo: { requestId: 'req-1' },
-                base_version: '4_0_0',
-                parsedArgs: { getRawArgs: jest.fn().mockReturnValue({}) },
+                streamHandler: mergeOperation.createStreamHandler({
+                    requestInfo: { requestId: 'req-1' },
+                    parsedArgs: { getRawArgs: jest.fn().mockReturnValue({}) },
+                    resourceType: 'Patient'
+                }),
+                auditState: { auditedCount: 0 },
                 stream
             });
 
@@ -491,9 +497,12 @@ describe('MergeOperation - Null Safety', () => {
             await mergeOperation.insertAndLog({
                 finalMergeResults,
                 resourcesToMerge,
-                requestInfo: { requestId: 'req-1' },
-                base_version: '4_0_0',
-                parsedArgs: { getRawArgs: jest.fn().mockReturnValue({}) },
+                streamHandler: mergeOperation.createStreamHandler({
+                    requestInfo: { requestId: 'req-1' },
+                    parsedArgs: { getRawArgs: jest.fn().mockReturnValue({}) },
+                    resourceType: 'Patient'
+                }),
+                auditState: { auditedCount: 0 },
                 stream
             });
 
