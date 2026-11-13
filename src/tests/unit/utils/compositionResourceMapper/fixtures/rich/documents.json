@@ -1,0 +1,129 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "bwell Connected Health",
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization"
+          }
+        ],
+        "date": "2026-06-15T12:00:00+00:00",
+        "id": "74d5dc54-589d-5b29-8598-954b702371d5",
+        "identifier": {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+          "value": "bwell_composition_for_health_data_summary"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "34133-9",
+                  "display": "Summary of episode note",
+                  "system": "http://loinc.org"
+                }
+              ]
+            },
+            "entry": [
+              {
+                "reference": "DocumentReference/docref-1",
+                "type": "DocumentReference"
+              }
+            ],
+            "id": "5ad02bdc-cd65-5631-a009-060b7be9b103",
+            "section": [
+              {
+                "id": "c17e2f0d-ac2a-5e31-af94-17c4af04df66",
+                "text": {
+                  "div": "Summary of episode note",
+                  "status": "generated"
+                },
+                "title": "Type"
+              },
+              {
+                "id": "5dcb5df8-6d8e-5581-8bbc-c6b11c339c2b",
+                "text": {
+                  "div": "2026-01-02T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Date"
+              },
+              {
+                "id": "0ada9763-b895-534a-aa56-5e36bed6045a",
+                "text": {
+                  "div": "current",
+                  "status": "generated"
+                },
+                "title": "Status"
+              }
+            ],
+            "title": "Summary of episode note"
+          }
+        ],
+        "status": "preliminary",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "Document Summary",
+          "status": "generated"
+        },
+        "title": "Document Summary",
+        "type": {
+          "coding": [
+            {
+              "code": "document_summary_document",
+              "display": "b.Well Document Summary Composition Document",
+              "id": "014f99ec-e44b-5d27-9316-c5bdbb3e14b2",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition"
+            },
+            {
+              "code": "document_reference_display_view",
+              "display": "Document Reference Display View",
+              "id": "062288cd-20a9-5ca7-9633-f2ef4e82ba5f",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type"
+            },
+            {
+              "code": "DocumentReference",
+              "display": "FHIR resource type",
+              "id": "6f28c7da-bb81-5ab4-84b0-c66c2d6b318f",
+              "system": "https://hl7.org/fhir/documentreference"
+            }
+          ],
+          "text": "Document Reference Display View Composition Document"
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}
