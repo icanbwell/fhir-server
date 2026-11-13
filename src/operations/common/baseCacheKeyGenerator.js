@@ -51,11 +51,14 @@ class BaseCacheKeyGenerator {
      *  Person $everything response (which may include PROA consented-data-access expansion) is
      *  never served from cache to, or overwritten by, the equivalent proxy-patient $everything
      *  request (which must not) even though both share the same id/isPersonId/scope/_type
+     * @property {string} [personId] - the caller's Person, when the response depends on it beyond
+     *  the id and scopes (a user's data view control Consent hides resources per Person), so
+     *  users who share a Patient don't share an entry
      *
      * @param {options} options
      * @returns {Promise<string|undefined>}
      */
-    async generateCacheKey({ id, isPersonId, parsedArgs, scope, isPersonEverything }) {
+    async generateCacheKey({ id, isPersonId, parsedArgs, scope, isPersonEverything, personId }) {
         const rawArgs = parsedArgs.getRawArgs();
 
         // Don't cache if any cache-invalidating params are present and their value is not false
@@ -89,6 +92,10 @@ class BaseCacheKeyGenerator {
 
         if (isPersonEverything !== undefined) {
             cacheKey += `:AllowProa:${Boolean(isPersonEverything)}`;
+        }
+
+        if (personId) {
+            cacheKey += `:Person:${personId}`;
         }
 
         if (this.keyParamsforCache && this.keyParamsforCache.length > 0) {

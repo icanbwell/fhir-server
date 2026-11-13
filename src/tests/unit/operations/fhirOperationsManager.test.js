@@ -277,6 +277,7 @@ describe('FhirOperationsManager', () => {
         manager.importOperation = mockImportOperation;
         manager.r4ArgsParser = mockR4ArgsParser;
         manager.queryRewriterManager = mockQueryRewriterManager;
+        manager.patientDataViewControlExclusion = { applyAsync: jest.fn().mockImplementation(async ({ parsedArgs }) => parsedArgs) };
         manager.configManager = mockConfigManager;
         manager.accessManager = mockAccessManager;
         manager.cmsManager = mockCmsManager;
@@ -666,6 +667,22 @@ describe('FhirOperationsManager', () => {
                 expect.objectContaining({ operation: 'search', resourceType: 'Patient' })
             );
             expect(mockSearchBundleOperation.searchBundleAsync).toHaveBeenCalled();
+        });
+
+        test('applies the dataConnectionViewControl exclusion to search but not to other READ operations', async () => {
+            const { get_all_args } = require('../../../operations/common/get_all_args');
+            get_all_args.mockReturnValue({ base_version: '4_0_0', id: 'p1' });
+            manager.getRequestInfo = jest.fn().mockReturnValue({ user: 'u', requestId: 'r', method: 'GET' });
+            manager.parseParametersFromBody = jest.fn().mockImplementation(({ combined_args }) => combined_args);
+
+            await manager.search(['id', 'p1'], { req: { headers: {}, body: null, path: '/Patient' } }, 'Patient');
+            expect(manager.patientDataViewControlExclusion.applyAsync).toHaveBeenCalledTimes(1);
+
+            manager.patientDataViewControlExclusion.applyAsync.mockClear();
+            await manager.getParsedArgsAsync({
+                args: { base_version: '4_0_0' }, resourceType: 'Patient', operation: 'READ', requestInfo: {}
+            });
+            expect(manager.patientDataViewControlExclusion.applyAsync).not.toHaveBeenCalled();
         });
     });
 

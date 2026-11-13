@@ -15,6 +15,8 @@ const { ConsentCacheInvalidationHandler } = require('../../../../../dataLayer/po
 const { RedisManager } = require('../../../../../utils/redisManager');
 const { BwellPersonFinder } = require('../../../../../utils/bwellPersonFinder');
 const { ConfigManager } = require('../../../../../utils/configManager');
+const { PersonToPatientIdsExpander } = require('../../../../../utils/personToPatientIdsExpander');
+const { everythingCacheInvalidationFailedCounter } = require('../../../../../utils/metrics');
 
 jest.mock('../../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -27,15 +29,21 @@ const CLIENT_PERSON_UUID = '22222222-2222-2222-2222-222222222222';
 const MASTER_PERSON_UUID = '33333333-3333-3333-3333-333333333333';
 const PROXY_PERSON_UUID = '44444444-4444-4444-4444-444444444444';
 const INTERMEDIATE_PERSON_UUID = '55555555-5555-5555-5555-555555555555';
+const LINKED_PATIENT_UUID_1 = '66666666-6666-6666-6666-666666666666';
+const LINKED_PATIENT_UUID_2 = '77777777-7777-7777-7777-777777777777';
 
 describe('ConsentCacheInvalidationHandler', () => {
     let handler;
     let mockRedisManager;
     let mockBwellPersonFinder;
     let mockConfigManager;
+    let mockPersonToPatientIdsExpander;
     let bumpedKeys;
+    let failedAdd;
 
     beforeEach(() => {
+        jest.useFakeTimers();
+        failedAdd = jest.spyOn(everythingCacheInvalidationFailedCounter, 'add').mockImplementation(() => {});
         bumpedKeys = [];
         mockRedisManager = Object.create(RedisManager.prototype);
         mockRedisManager.incrementGenerationAsync = jest.fn().mockImplementation(async (key) => {
@@ -50,6 +58,11 @@ describe('ConsentCacheInvalidationHandler', () => {
             CLIENT_PERSON_UUID, MASTER_PERSON_UUID
         ]);
 
+        mockPersonToPatientIdsExpander = Object.create(PersonToPatientIdsExpander.prototype);
+        mockPersonToPatientIdsExpander.getAllRelatedPatients = jest.fn().mockResolvedValue([
+            `person.${PROXY_PERSON_UUID}`, LINKED_PATIENT_UUID_1, LINKED_PATIENT_UUID_2
+        ]);
+
         mockConfigManager = Object.create(ConfigManager.prototype);
         Object.defineProperty(mockConfigManager, 'writeToCacheForEverythingOperation', {
             value: true, writable: true, configurable: true
@@ -58,13 +71,23 @@ describe('ConsentCacheInvalidationHandler', () => {
         handler = new ConsentCacheInvalidationHandler({
             redisManager: mockRedisManager,
             bwellPersonFinder: mockBwellPersonFinder,
-            configManager: mockConfigManager
+            configManager: mockConfigManager,
+            personToPatientIdsExpander: mockPersonToPatientIdsExpander
         });
     });
 
     afterEach(() => {
+        failedAdd.mockRestore();
+        jest.useRealTimers();
         jest.clearAllMocks();
     });
+
+    // runs the handler to completion, advancing the fake timers that the retry backoff waits on
+    async function runHandler(doc, eventType = 'C') {
+        const done = handler.afterSaveAsync({ requestId: 'r1', eventType, resourceType: 'Consent', doc });
+        await jest.advanceTimersByTimeAsync(10000);
+        return done;
+    }
 
     function directPatientConsent() {
         return {
@@ -131,14 +154,120 @@ describe('ConsentCacheInvalidationHandler', () => {
         expect(mockBwellPersonFinder.getPersonIdsInLinkPathToBwellPersonAsync).not.toHaveBeenCalled();
     });
 
+    describe('dataConnectionViewControl Consent on a Person', () => {
+        const viewControlConsent = () => ({
+            id: 'consent-3',
+            category: [{ coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataConnectionViewControl' }] }],
+            patient: { reference: `Patient/person.${PROXY_PERSON_UUID}` }
+        });
+
+        it('also bumps the Patient generation of every linked Patient, and not the person proxy ids', async () => {
+            await handler.afterSaveAsync({ requestId: 'r1', eventType: 'C', resourceType: 'Consent', doc: viewControlConsent() });
+
+            expect(bumpedKeys).toEqual([
+                `ClientPerson:${PROXY_PERSON_UUID}:Everything:Generation`,
+                `Patient:${LINKED_PATIENT_UUID_1}:Everything:Generation`,
+                `Patient:${LINKED_PATIENT_UUID_2}:Everything:Generation`
+            ]);
+        });
+
+        it.each(['U', 'D'])('does the same for an event of type %s', async (eventType) => {
+            await handler.afterSaveAsync({ requestId: 'r1', eventType, resourceType: 'Consent', doc: viewControlConsent() });
+
+            expect(bumpedKeys).toContain(`Patient:${LINKED_PATIENT_UUID_1}:Everything:Generation`);
+        });
+
+        it('does not look up linked Patients for a Person Consent of another category', async () => {
+            const doc = { id: 'consent-4', patient: { reference: `Patient/person.${PROXY_PERSON_UUID}` } };
+            await handler.afterSaveAsync({ requestId: 'r1', eventType: 'C', resourceType: 'Consent', doc });
+
+            expect(mockPersonToPatientIdsExpander.getAllRelatedPatients).not.toHaveBeenCalled();
+            expect(bumpedKeys).toEqual([`ClientPerson:${PROXY_PERSON_UUID}:Everything:Generation`]);
+        });
+
+        it('keeps the Person key bumped and does not throw when the linked Patient lookup fails', async () => {
+            mockPersonToPatientIdsExpander.getAllRelatedPatients.mockRejectedValue(new Error('mongo down'));
+
+            await expect(runHandler(viewControlConsent())).resolves.toBeUndefined();
+
+            expect(bumpedKeys).toEqual([`ClientPerson:${PROXY_PERSON_UUID}:Everything:Generation`]);
+        });
+
+        it('retries a failing linked Patient lookup, then counts it once when it never recovers', async () => {
+            mockPersonToPatientIdsExpander.getAllRelatedPatients.mockRejectedValue(new Error('mongo down'));
+
+            await runHandler(viewControlConsent());
+
+            // the first try plus the bounded retries, and no more
+            expect(mockPersonToPatientIdsExpander.getAllRelatedPatients).toHaveBeenCalledTimes(4);
+            expect(failedAdd).toHaveBeenCalledTimes(1);
+            expect(failedAdd).toHaveBeenCalledWith(1, { reason: 'linked_patient_lookup' });
+        });
+
+        it('bumps the linked Patients, and counts nothing, when the lookup recovers on a retry', async () => {
+            mockPersonToPatientIdsExpander.getAllRelatedPatients
+                .mockRejectedValueOnce(new Error('blip'))
+                .mockRejectedValueOnce(new Error('blip'))
+                .mockResolvedValue([`person.${PROXY_PERSON_UUID}`, LINKED_PATIENT_UUID_1]);
+
+            await runHandler(viewControlConsent());
+
+            expect(bumpedKeys).toContain(`Patient:${LINKED_PATIENT_UUID_1}:Everything:Generation`);
+            expect(failedAdd).not.toHaveBeenCalled();
+        });
+
+        it('counts a linked Patient whose generation can never be bumped, and still bumps the others', async () => {
+            const unbumpable = `Patient:${LINKED_PATIENT_UUID_1}:Everything:Generation`;
+            mockRedisManager.incrementGenerationAsync.mockImplementation(async (key) => {
+                if (key === unbumpable) {
+                    throw new Error('redis down');
+                }
+                bumpedKeys.push(key);
+            });
+
+            await expect(runHandler(viewControlConsent())).resolves.toBeUndefined();
+
+            expect(bumpedKeys).toContain(`Patient:${LINKED_PATIENT_UUID_2}:Everything:Generation`);
+            expect(bumpedKeys).not.toContain(unbumpable);
+            expect(failedAdd).toHaveBeenCalledTimes(1);
+            expect(failedAdd).toHaveBeenCalledWith(1, { reason: 'increment' });
+        });
+    });
+
     it('still bumps the Patient key when the Person traversal fails (best-effort, never throws)', async () => {
         mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync.mockRejectedValue(new Error('mongo down'));
 
-        await expect(
-            handler.afterSaveAsync({ requestId: 'r1', eventType: 'U', resourceType: 'Consent', doc: directPatientConsent() })
-        ).resolves.toBeUndefined();
+        await expect(runHandler(directPatientConsent(), 'U')).resolves.toBeUndefined();
 
         expect(bumpedKeys).toContain(`Patient:${PATIENT_UUID}:Everything:Generation`);
+    });
+
+    it.each([
+        ['one failure', 1],
+        ['three failures (the last allowed retry succeeds)', 3]
+    ])('retries a Redis increment that fails, and counts nothing, after %s', async (_name, failures) => {
+        const key = `Patient:${PATIENT_UUID}:Everything:Generation`;
+        let remaining = failures;
+        mockRedisManager.incrementGenerationAsync.mockImplementation(async (k) => {
+            if (k === key && remaining-- > 0) {
+                throw new Error('redis blip');
+            }
+            bumpedKeys.push(k);
+        });
+
+        await runHandler(directPatientConsent(), 'U');
+
+        expect(bumpedKeys).toContain(key);
+        expect(failedAdd).not.toHaveBeenCalled();
+    });
+
+    it('counts a Redis increment that keeps failing, and never throws out of the handler', async () => {
+        mockRedisManager.incrementGenerationAsync.mockRejectedValue(new Error('redis down'));
+
+        await expect(runHandler(directPatientConsent(), 'U')).resolves.toBeUndefined();
+
+        expect(failedAdd).toHaveBeenCalledWith(1, { reason: 'increment' });
+        expect(failedAdd.mock.calls.every(([, labels]) => labels.reason === 'increment')).toBe(true);
     });
 
     it('handles a delete (eventType D) the same way as a write', async () => {

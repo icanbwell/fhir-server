@@ -389,7 +389,8 @@ class SearchStreamingOperation {
                         params,
                         enrichmentContext: {
                             userType: requestInfo.userType,
-                            actor: requestInfo.actor
+                            actor: requestInfo.actor,
+                            viewControlExcludeMap: parsedArgs.viewControlExcludeMap
                         }
                     });
 

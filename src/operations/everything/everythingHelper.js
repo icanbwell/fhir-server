@@ -52,7 +52,8 @@ const { isFalseWithFallback } = require('../../utils/isFalse');
 const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const { CustomTracer } = require('../../utils/customTracer');
-const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
+const { PatientDataViewControlExclusion } = require('../../utils/patientDataViewControlExclusion');
+const { ViewControlSubject } = require('../../utils/viewControlSubject');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
@@ -131,7 +132,7 @@ class EverythingHelper {
      * @property {Base64DataManager} base64DataManager
      * @property {SearchParametersManager} searchParametersManager
      * @property {CustomTracer} customTracer
-     * @property {PatientDataViewControlManager} patientDataViewControlManager
+     * @property {PatientDataViewControlExclusion} patientDataViewControlExclusion
      * @property {MongoGroupMemberRepository} mongoGroupMemberRepository
      * @property {AuditLogger} auditLogger
      * @property {PostRequestProcessor} postRequestProcessor
@@ -153,7 +154,7 @@ class EverythingHelper {
         searchParametersManager,
         everythingRelatedResourceMapper,
         customTracer,
-        patientDataViewControlManager,
+        patientDataViewControlExclusion,
         mongoGroupMemberRepository,
         auditLogger,
         postRequestProcessor,
@@ -227,10 +228,10 @@ class EverythingHelper {
         assertTypeEquals(everythingRelatedResourceMapper, EverythingRelatedResourcesMapper);
 
         /**
-         * @type {PatientDataViewControlManager}
+         * @type {PatientDataViewControlExclusion}
          * */
-        this.patientDataViewControlManager = patientDataViewControlManager;
-        assertTypeEquals(patientDataViewControlManager, PatientDataViewControlManager);
+        this.patientDataViewControlExclusion = patientDataViewControlExclusion;
+        assertTypeEquals(patientDataViewControlExclusion, PatientDataViewControlExclusion);
 
         /**
          * @type {MongoGroupMemberRepository}
@@ -393,7 +394,10 @@ class EverythingHelper {
                 isPersonId: isProxyPatient,
                 parsedArgs: parsedArgs,
                 scope: requestInfo.scope,
-                isPersonEverything
+                isPersonEverything,
+                // a Patient can be linked to more than one user, and each user's view-control
+                // Consent hides different resources; a proxy-patient key is already the user's own
+                personId: isProxyPatient ? undefined : requestInfo.personIdFromJwtToken
             })
             : undefined;
     }
@@ -491,6 +495,8 @@ class EverythingHelper {
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {ViewControlSubject|null} [viewControlSubject] - whose view-control block filters the
+     *  result; defaults to the user in the token
      *
      * @param {retriveEverythingAsyncParams}
      * @return {Promise<Bundle>}
@@ -503,7 +509,8 @@ class EverythingHelper {
         parsedArgs,
         includeNonClinicalResources = true,
         scopedPersonIds,
-        isPersonEverything
+        isPersonEverything,
+        viewControlSubject = ViewControlSubject.fromToken(requestInfo)
     }) {
         if (!this.supportedResources.includes(resourceType)) {
             throw new Error('$everything is not supported for resource: ' + resourceType);
@@ -594,7 +601,25 @@ class EverythingHelper {
             let fallbackToMongo = false;
             if (readFromCache) {
                 try {
-                    await cachedStreamer.streamFromCacheAsync({ streamedResources });
+                    // Entries are cached before enrichment, so the subject's view-control lookup
+                    // (memoized per request) is loaded here to filter Composition sections on replay.
+                    // A failed lookup throws before anything is written and falls back to MongoDB.
+                    const viewControlExcludeMap = viewControlSubject
+                        ? (await this.customTracer.trace({
+                            name: 'EverythingHelper.cachedReplay.patientDataViewControlExclusion.getConsentLookupAsync',
+                            func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                                requestInfo, base_version, subject: viewControlSubject
+                            })
+                        })).viewControlResourceToExcludeMap
+                        : undefined;
+                    await cachedStreamer.streamFromCacheAsync({
+                        streamedResources,
+                        enrichmentContext: {
+                            userType: requestInfo.userType,
+                            actor: requestInfo.actor,
+                            viewControlExcludeMap
+                        }
+                    });
                 } catch (err) {
                     fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
                     logError('Error reading everything response from cache', { error: err, cacheKey });
@@ -652,7 +677,8 @@ class EverythingHelper {
                             everythingChunkIndex: everythingChunkIndex++,
                             scopedPersonIds,
                             isPersonEverything,
-                            streamedResources
+                            streamedResources,
+                            viewControlSubject
                         }
                     );
 
@@ -776,6 +802,8 @@ class EverythingHelper {
      * @property {{_uuid: string, resourceType: string}[]} [streamedResources] - accumulator for
      *  audit logging, pushed into directly at write time so it survives a throw from any level
      *  of this call chain
+     * @property {ViewControlSubject|null} [viewControlSubject] - whose view-control block filters the
+     *  result; defaults to the user in the token
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -795,7 +823,8 @@ class EverythingHelper {
         everythingChunkIndex,
         scopedPersonIds,
         isPersonEverything,
-        streamedResources = []
+        streamedResources = [],
+        viewControlSubject = ViewControlSubject.fromToken(requestInfo)
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -940,22 +969,21 @@ class EverythingHelper {
 
             let resourceToExcludeIdsMap = {};
 
-            let patientReference = baseResourceIdentifiers.map(patientIdentifier => {
-                return `${PATIENT_REFERENCE_PREFIX}${patientIdentifier._uuid}`;
-            });
-
-            // get Consent resource containing resources marked as deleted to exclude
-            if (requestInfo.isUser) {
+            // Resources blocked by the subject's dataConnectionViewControl Consent (the user, or for a
+            // service token that opted in, the Person in the URL; enrolled clients only). This is the
+            // lookup every read path shares, loaded once per request; it covers all of the Person's
+            // view-control Consents, not only those whose actor is one of the requested patients.
+            if (viewControlSubject) {
                 let {
                     viewControlResourceToExcludeMap,
                     viewControlConsentQueries,
                     viewControlConsentQueryOptions
                 } = await this.customTracer.trace({
                     name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
-                    func: async () => await this.patientDataViewControlManager.getConsentAsync({
+                    func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
                         requestInfo,
                         base_version,
-                        patientFilterReferences: patientReference
+                        subject: viewControlSubject
                     })
                 });
 
@@ -1164,7 +1192,8 @@ class EverythingHelper {
                                 everythingChunkIndex,
                                 scopedPersonIds,
                                 isPersonEverything,
-                                streamedResources
+                                streamedResources,
+                                viewControlExcludeMap: resourceToExcludeIdsMap
                             });
 
                             depthParallelProcess.push(result);
@@ -1215,7 +1244,8 @@ class EverythingHelper {
                     parsedArgs,
                     enrichmentContext: {
                         userType: requestInfo.userType,
-                        actor: requestInfo.actor
+                        actor: requestInfo.actor,
+                        viewControlExcludeMap: resourceToExcludeIdsMap
                     }
                 });
             }
@@ -1271,6 +1301,8 @@ class EverythingHelper {
      * @property {{_uuid: string, resourceType: string}[]} [streamedResources] - accumulator for
      *  audit logging, pushed into directly at write time so it survives a throw from any level
      *  of this call chain
+     * @property {{[resourceType: string]: string[]}} [viewControlExcludeMap] - ids the
+     *  dataConnectionViewControl Consent hides, used to remove Composition sections that reference them
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -1294,7 +1326,8 @@ class EverythingHelper {
         everythingChunkIndex,
         scopedPersonIds,
         isPersonEverything,
-        streamedResources = []
+        streamedResources = [],
+        viewControlExcludeMap = {}
     }) {
 
         /**
@@ -1418,7 +1451,8 @@ class EverythingHelper {
                 useUuidProjection,
                 resourceMapper,
                 cachedStreamer,
-                streamedResources
+                streamedResources,
+                viewControlExcludeMap
             });
 
             pushAll(entries, bundleEntries);
@@ -1808,7 +1842,8 @@ class EverythingHelper {
                 cachedStreamer,
                 personResourceIdentifierMap,
                 personResourceIdentifiers,
-                streamedResources
+                streamedResources,
+                viewControlExcludeMap: resourceToExcludeIdsMap
             })
 
             parallelProcess.push(promiseResult)
@@ -1893,6 +1928,7 @@ class EverythingHelper {
      *  personResourceIdentifierMap?: Map<string, ResourceIdentifier>|null,
      *  personResourceIdentifiers?: ResourceIdentifier[],
      *  streamedResources?: {_uuid: string, resourceType: string}[],
+     *  viewControlExcludeMap?: {[resourceType: string]: string[]},
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
@@ -1914,7 +1950,8 @@ class EverythingHelper {
         cachedStreamer = null,
         personResourceIdentifierMap = null,
         personResourceIdentifiers = [],
-        streamedResources = []
+        streamedResources = [],
+        viewControlExcludeMap = {}
     }) {
         /**
          * @type {BundleEntry[]}
@@ -2109,7 +2146,8 @@ class EverythingHelper {
                                     parsedArgs: parentParsedArgs,
                                     enrichmentContext: {
                                         userType: requestInfo.userType,
-                                        actor: requestInfo.actor
+                                        actor: requestInfo.actor,
+                                        viewControlExcludeMap
                                     }
                                 });
 

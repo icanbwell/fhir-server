@@ -159,6 +159,25 @@ function removeDuplicatesWithLambda (array, fnCompare) {
 }
 
 /**
+ * Removes duplicates by a key computed once per element, keeping the first occurrence of each key
+ * in its original position. Linear, unlike removeDuplicatesWithLambda, which compares every pair.
+ * @param {*[]} array
+ * @param {function(*): *} fnKey elements with equal keys (by SameValueZero, as in a Set) are duplicates
+ * @return {*[]}
+ */
+function removeDuplicatesByKey (array, fnKey) {
+    const seen = new Set();
+    return array.filter((value) => {
+        const key = fnKey(value);
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+}
+
+/**
  * slices a list into chunks
  * @param {*[]} arr
  * @param {number} chunkSize
@@ -224,6 +243,7 @@ module.exports = {
     getFirstBundleEntryOrNull,
     removeEmptyEntriesAsync,
     removeDuplicatesWithLambda,
+    removeDuplicatesByKey,
     sliceIntoChunks,
     addElementsToSet,
     sliceIntoChunksGenerator

@@ -22,6 +22,7 @@ const { ProaConsentManager } = require('../../../../operations/search/proaConsen
 const { CmsConsentManager } = require('../../../../operations/search/cmsConsentManager');
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
 const { ConfigManager } = require('../../../../utils/configManager');
+const { PersonToPatientIdsExpander } = require('../../../../utils/personToPatientIdsExpander');
 
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -527,12 +528,19 @@ describe('VULNERABILITY 5: No automatic cache invalidation when Consent status c
         return configManager;
     }
 
+    function createFakePersonToPatientIdsExpander() {
+        const expander = Object.create(PersonToPatientIdsExpander.prototype);
+        expander.getAllRelatedPatients = async () => [];
+        return expander;
+    }
+
     it('ConsentCacheInvalidationHandler MUST bump the Everything-cache generation for the consent patient on a Consent write', async () => {
         const redisManager = createFakeRedisManager();
         const handler = new ConsentCacheInvalidationHandler({
             redisManager,
             bwellPersonFinder: createFakeBwellPersonFinder(),
-            configManager: createFakeConfigManager()
+            configManager: createFakeConfigManager(),
+            personToPatientIdsExpander: createFakePersonToPatientIdsExpander()
         });
 
         // A revoked consent resource, as it would appear post-save (patient reference
@@ -563,7 +571,8 @@ describe('VULNERABILITY 5: No automatic cache invalidation when Consent status c
         const handler = new ConsentCacheInvalidationHandler({
             redisManager,
             bwellPersonFinder: createFakeBwellPersonFinder(),
-            configManager: createFakeConfigManager()
+            configManager: createFakeConfigManager(),
+            personToPatientIdsExpander: createFakePersonToPatientIdsExpander()
         });
         const keyGenerator = new PatientEverythingCacheKeyGenerator({ redisManager });
         const mockParsedArgs = { getRawArgs: () => ({}), _format: undefined };

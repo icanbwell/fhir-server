@@ -73,7 +73,8 @@ const LABEL = Object.freeze({
     POOL: 'pool',
     REASON: 'reason',
     STATUS: 'status',
-    GROUP_ID: 'group_id'
+    GROUP_ID: 'group_id',
+    SUBJECT: 'subject'
 });
 
 const OUTCOME = Object.freeze({
@@ -137,6 +138,40 @@ const IMPORT_RANGE_OUTCOME = Object.freeze({
 const IMPORT_TASK_STATUS = Object.freeze({
     COMPLETED: 'completed',
     FAILED: 'failed'
+});
+
+// What the data view control lookup did for one subject in one request. hidden: the Consent hides
+// at least one resource. no_consent: an enrolled owner with nothing hidden. not_enrolled: the
+// owner is not in clientsWithDataConnectionViewControl, so no Consent was searched. no_person:
+// the user is linked to no visible Person. fail_closed: the lookup failed and the request failed
+// with it, rather than returning unfiltered data.
+const VIEW_CONTROL_OUTCOME = Object.freeze({
+    HIDDEN: 'hidden',
+    NO_CONSENT: 'no_consent',
+    NOT_ENROLLED: 'not_enrolled',
+    NO_PERSON: 'no_person',
+    FAIL_CLOSED: 'fail_closed'
+});
+
+// Whose Consent is applied: the user in the token, or the URL Person of a service token's
+// `_applyDataViewControl` opt-in.
+const VIEW_CONTROL_SUBJECT = Object.freeze({
+    USER: 'user',
+    OPT_IN: 'opt_in'
+});
+
+// Why a fail_closed lookup failed; anything else collapses to `error`.
+const VIEW_CONTROL_FAIL_REASON = Object.freeze({
+    NOT_FOUND: 'not_found',
+    FORBIDDEN: 'forbidden',
+    BAD_REQUEST: 'bad_request',
+    ERROR: 'error'
+});
+
+// Where a Consent-save cache invalidation failed after its retries.
+const CACHE_INVALIDATION_FAILURE = Object.freeze({
+    INCREMENT: 'increment',
+    LINKED_PATIENT_LOOKUP: 'linked_patient_lookup'
 });
 
 const UNKNOWN = 'unknown';
@@ -355,6 +390,14 @@ const mongoPoolClearedCounter = meter.createCounter('fhir_mongo_pool_cleared_tot
 
 const mongoPoolConnectionCreatedCounter = meter.createCounter('fhir_mongo_pool_connection_created_total', {
     description: 'MongoDB connections created by pool. On a warm pool this should sit near zero; a sustained rate means churn, which puts the SCRAM auth handshake on the request hot path.'
+});
+
+const viewControlOutcomeCounter = meter.createCounter('fhir_view_control_outcome_total', {
+    description: 'Data view control lookups, once per subject per request, by outcome (hidden|no_consent|not_enrolled|no_person|fail_closed), subject (user|opt_in) and, for fail_closed, reason. hidden / (hidden + no_consent) is how often the block changes a response; fail_closed is a read refused because the Consent could not be checked; opt_in is service-token use of _applyDataViewControl.'
+});
+
+const everythingCacheInvalidationFailedCounter = meter.createCounter('fhir_everything_cache_invalidation_failed_total', {
+    description: 'Failed attempts to bump an $everything cache generation after a Consent save, after retries, by reason (increment|linked_patient_lookup). Each one leaves a window, up to the cache TTL, in which a cached $everything can still hold what the Consent now hides.'
 });
 
 /**
@@ -677,6 +720,35 @@ function recordMongoPoolConnectionCreated (pool) {
     mongoPoolConnectionCreatedCounter.add(1, { [LABEL.POOL]: pool || UNKNOWN });
 }
 
+/**
+ * Emit fhir_view_control_outcome_total. Every label is bounded: a value outside its vocabulary
+ * collapses to UNKNOWN.
+ * @param {string} outcome one of VIEW_CONTROL_OUTCOME
+ * @param {string} subject one of VIEW_CONTROL_SUBJECT
+ * @param {string} [reason] one of VIEW_CONTROL_FAIL_REASON, for fail_closed only
+ */
+function recordViewControlOutcome (outcome, subject, reason) {
+    const known = (vocabulary, value) => (Object.values(vocabulary).includes(value) ? value : UNKNOWN);
+    const labels = {
+        [LABEL.OUTCOME]: known(VIEW_CONTROL_OUTCOME, outcome),
+        [LABEL.SUBJECT]: known(VIEW_CONTROL_SUBJECT, subject)
+    };
+    if (outcome === VIEW_CONTROL_OUTCOME.FAIL_CLOSED) {
+        labels[LABEL.REASON] = known(VIEW_CONTROL_FAIL_REASON, reason);
+    }
+    viewControlOutcomeCounter.add(1, labels);
+}
+
+/**
+ * Emit fhir_everything_cache_invalidation_failed_total.
+ * @param {string} reason one of CACHE_INVALIDATION_FAILURE
+ */
+function recordEverythingCacheInvalidationFailed (reason) {
+    everythingCacheInvalidationFailedCounter.add(1, {
+        [LABEL.REASON]: Object.values(CACHE_INVALIDATION_FAILURE).includes(reason) ? reason : UNKNOWN
+    });
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -702,6 +774,8 @@ module.exports = {
     mongoPoolCheckoutFailedCounter,
     mongoPoolClearedCounter,
     mongoPoolConnectionCreatedCounter,
+    viewControlOutcomeCounter,
+    everythingCacheInvalidationFailedCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -724,6 +798,8 @@ module.exports = {
     recordMongoPoolCheckoutFailed,
     recordMongoPoolCleared,
     recordMongoPoolConnectionCreated,
+    recordViewControlOutcome,
+    recordEverythingCacheInvalidationFailed,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
@@ -738,6 +814,10 @@ module.exports = {
     SUBSYSTEM,
     PATH,
     POOL_CHECKOUT_FAILURE_REASON,
+    VIEW_CONTROL_OUTCOME,
+    VIEW_CONTROL_SUBJECT,
+    VIEW_CONTROL_FAIL_REASON,
+    CACHE_INVALIDATION_FAILURE,
     IMPORT_RANGE_OUTCOME,
     IMPORT_TASK_STATUS,
     UNKNOWN

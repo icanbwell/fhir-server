@@ -65,6 +65,7 @@ jest.mock('../../../operations/import/import', () => ({ ImportOperation: class I
 jest.mock('../../../operations/summary/summary', () => ({ SummaryOperation: class SummaryOperation {} }));
 jest.mock('../../../operations/query/r4ArgsParser', () => ({ R4ArgsParser: class R4ArgsParser {} }));
 jest.mock('../../../queryRewriters/queryRewriterManager', () => ({ QueryRewriterManager: class QueryRewriterManager {} }));
+jest.mock('../../../utils/patientDataViewControlExclusion', () => ({ PatientDataViewControlExclusion: class PatientDataViewControlExclusion {} }));
 jest.mock('../../../utils/configManager', () => ({ ConfigManager: class ConfigManager {} }));
 jest.mock('../../../utils/operationAccessManager', () => ({ OperationAccessManager: class OperationAccessManager {} }));
 jest.mock('../../../utils/cmsManager', () => ({ CMSManager: class CMSManager {} }));
@@ -240,6 +241,7 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
             ...ops,
             r4ArgsParser,
             queryRewriterManager,
+            patientDataViewControlExclusion: { applyAsync: jest.fn().mockImplementation(async ({ parsedArgs }) => parsedArgs) },
             configManager: { enableVulcanIgQuery: false, externalServicesWithRestrictions: {} },
             accessManager: { verifyAccess: jest.fn() },
             cmsManager: { verifyNotProxyPatientId: jest.fn() },
@@ -724,6 +726,40 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
                 useAggregationPipeline: false
             });
             expect(result).toEqual({ resourceType: 'Bundle', entry: [] });
+        });
+
+        describe('_applyDataViewControl outside Person $everything', () => {
+            const send = (method, query) =>
+                manager[method]([], { req: makeReq({ query }), res: { write: jest.fn() } }, 'Patient');
+
+            test.each([
+                ['search', 'search', 'true'],
+                ['search', 'search', '1'],
+                ['search', 'search', true],
+                ['searchStreaming', 'searchStreaming', 'true'],
+                ['searchById', 'searchById', 'TRUE']
+            ])('%s from a service token is a 400 instead of an unfiltered record (value %p)',
+                async (_name, method, value) => {
+                    await expect(send(method, { _applyDataViewControl: value })).rejects.toMatchObject({
+                        statusCode: 400,
+                        message: expect.stringContaining('only supported on Person $everything')
+                    });
+                    expect(ops.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+                    expect(ops.searchStreamingOperation.searchStreamingAsync).not.toHaveBeenCalled();
+                    expect(ops.searchByIdOperation.searchByIdAsync).not.toHaveBeenCalled();
+                });
+
+            test.each([['false'], ['0'], [undefined]])(
+                'a service token that does not ask for it (value %p) is unaffected', async (value) => {
+                    await send('search', value === undefined ? {} : { _applyDataViewControl: value });
+                    expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(1);
+                });
+
+            test('a user token is unaffected, since it is always filtered', async () => {
+                requestInfo.isUser = true;
+                await send('search', { _applyDataViewControl: 'true' });
+                expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(1);
+            });
         });
 
         test('searchStreaming passes the response object through to the streaming operation when Vulcan IG is disabled', async () => {

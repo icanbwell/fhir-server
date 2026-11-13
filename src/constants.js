@@ -169,6 +169,10 @@ module.exports = {
     HTTP_CONTEXT_KEYS: {
         LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-',
         PERSON_OWNER_PREFIX: 'personOwnerFor-',
+        // Recorded under PERSON_OWNER_PREFIX when the Person walk ran and found no Person the caller
+        // can see. A key that is still undefined after the walk means no outcome was recorded.
+        PERSON_OWNER_NOT_FOUND: Object.freeze({ personFound: false }),
+        PATIENT_VIEW_CONTROL_EXCLUDE_PREFIX: 'patientViewControlExcludeFor-',
         CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
@@ -189,7 +193,8 @@ module.exports = {
         'streamResponse', 'team', '_text', '_content', '_list', '_has', '_type', '_include', '_revinclude',
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',
         'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer', '_rewritePatientReference', '_keepOldUI',
-        '_includeNonClinicalResources', '_nonClinicalResourcesDepth', '_includePatientLinkedOnly', '_includeUuidOnly'
+        '_includeNonClinicalResources', '_nonClinicalResourcesDepth', '_includePatientLinkedOnly', '_includeUuidOnly',
+        '_applyDataViewControl'
     ],
     /**
      * Resource types fhir-notes-vector-store extracts and Atlas-Search-indexes attachment/note

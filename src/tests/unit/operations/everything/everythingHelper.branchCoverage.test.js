@@ -156,8 +156,8 @@ describe('EverythingHelper - branch coverage & security (Category A)', () => {
         };
         everythingHelper.everythingRelatedResourceMapper = { relatedResources: jest.fn().mockReturnValue([]) };
         everythingHelper.customTracer = { trace: jest.fn().mockImplementation(({ func }) => func()) };
-        everythingHelper.patientDataViewControlManager = {
-            getConsentAsync: jest.fn().mockResolvedValue({
+        everythingHelper.patientDataViewControlExclusion = {
+            getConsentLookupAsync: jest.fn().mockResolvedValue({
                 viewControlResourceToExcludeMap: {},
                 viewControlConsentQueries: [],
                 viewControlConsentQueryOptions: []
