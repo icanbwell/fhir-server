@@ -455,8 +455,7 @@ describe('JWT Bearer Strategy', () => {
                     expect(info.context).toBeTruthy();
                     expect(info.context.actor).toStrictEqual({
                         reference: delegatedActorReference,
-                        sub: 'delegated-sub-123',
-                        isOrganizationActor: false
+                        sub: 'delegated-sub-123'
                     });
 
                     resolve();
@@ -1675,8 +1674,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
             done: (err, user, info) => {
                 expect(err).toBeNull();
                 expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).toHaveBeenCalledWith({
-                    entitlements: ['Consent/consent-uuid-123'],
-                    actor: expect.any(Object)
+                    entitlements: ['Consent/consent-uuid-123']
                 });
                 // The raw reference must never leak into purposeOfUse -- only the resolved code.
                 expect(info.context.purposeOfUse).toEqual(['TREAT']);

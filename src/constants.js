@@ -393,11 +393,6 @@ module.exports = {
          *   onboarded, with no human grantee -- an upstream token-exchange grant for
          *   client-initiated access.
          */
-        ALLOWED_ACTOR_RESOURCE_TYPES: ['RelatedPerson', 'Organization'],
-        /**
-         * Caller type forbidForUserTypes matches for a delegated user whose actor is an
-         * Organization. Not a JWT user_type.
-         */
-        ORGANIZATION_ACTOR_USER_TYPE: 'delegatedOrganizationActor'
+        ALLOWED_ACTOR_RESOURCE_TYPES: ['RelatedPerson', 'Organization']
     }
 };

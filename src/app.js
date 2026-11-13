@@ -19,7 +19,7 @@ const {McpServer} = require('./routeHandlers/mcpServer');
 const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js')
 const {authenticateWithJsonFailure} = require('./middleware/fhir/authentication.middleware.js');
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
-const {AUTH_USER_TYPES, DELEGATED_ACCESS} = require('./constants');
+const {AUTH_USER_TYPES} = require('./constants');
 const forbidForUserTypes = require('./middleware/forbidForUserTypes.middleware');
 const createPostRequestCleanupMiddleware = require('./middleware/postRequestCleanup.middleware');
 const {graphqlErrorFormatter} = require('./middleware/graphql/graphqlErrorFormatter');
@@ -451,10 +451,7 @@ function createApp({fnGetContainer}) {
         // below), not via a per-call OperationAccessManager.verifyAccess check -- McpToolHandler never
         // calls that either, so without this line a CMS-partner token could search any resource type
         // through MCP.
-        mcpRouter.use(forbidForUserTypes([
-            AUTH_USER_TYPES.cmsPartnerUser,
-            DELEGATED_ACCESS.ORGANIZATION_ACTOR_USER_TYPE
-        ]));
+        mcpRouter.use(forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]));
         mcpRouter.use(express.json());
         mcpRouter.use(function buildMcpRequestContext(req, res, next) {
             // Mirrors graphqlServer.js/graphqlServerV2.js's getContext(), which sets req.container so
@@ -484,10 +481,7 @@ function createApp({fnGetContainer}) {
     if (isTrue(process.env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
-        const forbidRestrictedUserTypes = forbidForUserTypes([
-            AUTH_USER_TYPES.cmsPartnerUser,
-            DELEGATED_ACCESS.ORGANIZATION_ACTOR_USER_TYPE
-        ]);
+        const forbidRestrictedUserTypes = forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]);
 
         const router = express.Router();
         router.use(function markGraphqlRoute(req, res, next) { req.isGraphQLRoute = true; next(); });

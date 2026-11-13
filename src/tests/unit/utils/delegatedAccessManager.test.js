@@ -1,13 +1,12 @@
 'use strict';
 
-const { describe, test, expect, afterEach } = require('@jest/globals');
+const { describe, test, expect } = require('@jest/globals');
 const { DelegatedAccessManager } = require('../../../utils/delegatedAccessManager');
-const { ConfigManager } = require('../../../utils/configManager');
 const { ForbiddenError } = require('../../../utils/httpErrors');
 const { AUTH_USER_TYPES, DELEGATED_ACCESS } = require('../../../constants');
 
 describe('DelegatedAccessManager', () => {
-    const manager = new DelegatedAccessManager({ configManager: new ConfigManager() });
+    const manager = new DelegatedAccessManager();
 
     describe('isDelegatedUser', () => {
         test('returns true for delegatedUser type', () => {
@@ -157,101 +156,6 @@ describe('DelegatedAccessManager', () => {
                     operation: op
                 })).not.toThrow();
             }
-        });
-
-        describe('Organization actor', () => {
-            const orgActorRequestInfo = {
-                userType: AUTH_USER_TYPES.delegatedUser,
-                actor: {
-                    reference: 'Organization/1f0e9d8c-7b6a-4954-8321-0fedcba98765',
-                    sub: 'client-org-sub',
-                    isOrganizationActor: true
-                }
-            };
-
-            test('allows Person $everything', () => {
-                expect(() => manager.verifyAccess({
-                    requestInfo: orgActorRequestInfo,
-                    resourceType: 'Person',
-                    operation: 'everything'
-                })).not.toThrow();
-            });
-
-            test.each([
-                ['Patient', 'everything'],
-                ['Person', 'search'],
-                ['Person', 'searchById'],
-                ['Person', 'graph'],
-                ['Observation', 'search'],
-                ['Observation', 'searchById'],
-                ['Patient', 'graph']
-            ])('rejects %s %s with 403', (resourceType, operation) => {
-                let error;
-                try {
-                    manager.verifyAccess({ requestInfo: orgActorRequestInfo, resourceType, operation });
-                } catch (e) {
-                    error = e;
-                }
-                expect(error.statusCode).toBe(403);
-                expect(error.message).toContain('Organization actor does not have access');
-            });
-
-            describe('DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS', () => {
-                const originalValue = process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS;
-
-                afterEach(() => {
-                    if (originalValue === undefined) {
-                        delete process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS;
-                    } else {
-                        process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS = originalValue;
-                    }
-                });
-
-                const isAllowed = (resourceType, operation) => {
-                    try {
-                        manager.verifyAccess({ requestInfo: orgActorRequestInfo, resourceType, operation });
-                        return true;
-                    } catch (e) {
-                        return false;
-                    }
-                };
-
-                test.each([
-                    ['Person:everything,Patient:everything', 'Patient', 'everything', true],
-                    ['Person:everything,Patient:everything', 'Observation', 'search', false],
-                    [' Person:everything , Observation:search ', 'Observation', 'search', true],
-                    ['*:search', 'Observation', 'search', true],
-                    ['*:search', 'Observation', 'searchById', false],
-                    ['Observation:search', 'Person', 'everything', false],
-                    ['Person:create', 'Person', 'create', false]
-                ])('with %j, %s %s allowed = %s', (configValue, resourceType, operation, expected) => {
-                    process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS = configValue;
-
-                    expect(isAllowed(resourceType, operation)).toBe(expected);
-                });
-
-                test('defaults to Person:everything when unset', () => {
-                    delete process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS;
-
-                    expect(isAllowed('Person', 'everything')).toBe(true);
-                    expect(isAllowed('Patient', 'everything')).toBe(false);
-                });
-            });
-
-            test('RelatedPerson actor is not limited to Person $everything', () => {
-                expect(() => manager.verifyAccess({
-                    requestInfo: {
-                        userType: AUTH_USER_TYPES.delegatedUser,
-                        actor: {
-                            reference: 'RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425',
-                            sub: 'rp-sub',
-                            isOrganizationActor: false
-                        }
-                    },
-                    resourceType: 'Observation',
-                    operation: 'search'
-                })).not.toThrow();
-            });
         });
 
         test('non-delegated users can perform any write operation', () => {
