@@ -3,14 +3,14 @@
 const { describe, test, expect } = require('@jest/globals');
 const { getEverythingViewControlSubject } = require('../../../../operations/everything/everythingViewControlSubject');
 
-const member = { isUser: true, personIdFromJwtToken: 'member-person' };
+const user = { isUser: true, personIdFromJwtToken: 'user-person' };
 const service = { isUser: false };
 const args = (optIn) => (optIn === undefined ? {} : { _applyDataViewControl: optIn });
 
 describe('getEverythingViewControlSubject', () => {
     test.each([
-        ['a member token, no opt-in', member, args(), true, ['p1'], { source: 'token', personId: 'member-person' }],
-        ['a member token ignores the opt-in', member, args('true'), true, ['p1', 'p2'], { source: 'token', personId: 'member-person' }],
+        ['a user token, no opt-in', user, args(), true, ['p1'], { source: 'token', personId: 'user-person' }],
+        ['a user token ignores the opt-in', user, args('true'), true, ['p1', 'p2'], { source: 'token', personId: 'user-person' }],
         ['a service token without the opt-in', service, args(), true, ['p1'], null],
         ['a service token with the opt-in set to false', service, args('false'), true, ['p1'], null],
         ['a service token without the opt-in on Patient $everything', service, args(), false, ['p1', 'p2'], null],

@@ -344,7 +344,7 @@ class FhirOperationsManager {
     }) {
         const { base_version } = args;
 
-        // member tokens are always filtered, so the opt-in changes nothing for them (as in $everything)
+        // user tokens are always filtered, so the opt-in changes nothing for them (as in $everything)
         if (!acceptsApplyDataViewControlParam && !requestInfo?.isUser && isTrue(args[APPLY_DATA_VIEW_CONTROL_PARAM])) {
             throw new BadRequestError(new Error(
                 `${APPLY_DATA_VIEW_CONTROL_PARAM} is only supported on Person $everything`
@@ -888,7 +888,7 @@ class FhirOperationsManager {
         }
         );
 
-        // whose view-control block filters this request: the member, or for a service token that opts
+        // whose view-control block filters this request: the user, or for a service token that opts
         // in, the Person in the URL
         const viewControlSubject = getEverythingViewControlSubject({
             parsedArgs, requestInfo, isPersonEverything, personIds: idsList

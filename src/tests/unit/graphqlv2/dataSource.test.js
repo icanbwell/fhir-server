@@ -358,7 +358,7 @@ describe('FhirDataSource (graphqlv2)', () => {
             expect(dataSource.queryRewriterManager.rewriteArgsAsync).toHaveBeenCalled();
         });
 
-        describe('view-control lookup tracing for a member', () => {
+        describe('view-control lookup tracing for a user', () => {
             const LOOKUP = {
                 viewControlResourceToExcludeMap: {},
                 viewControlConsentQueries: [{ query: {}, collectionName: 'Consent_4_0_0' }],
@@ -396,7 +396,7 @@ describe('FhirDataSource (graphqlv2)', () => {
                 expect(consentQueryMeta()).toHaveLength(1);
             });
 
-            test('a non-member token does not trace a lookup', async () => {
+            test('a non-user token does not trace a lookup', async () => {
                 dataSource = createDataSource();
                 await parse();
                 expect(dataSource.customTracer.trace).not.toHaveBeenCalled();

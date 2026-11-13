@@ -52,8 +52,8 @@ class BaseCacheKeyGenerator {
      *  never served from cache to, or overwritten by, the equivalent proxy-patient $everything
      *  request (which must not) even though both share the same id/isPersonId/scope/_type
      * @property {string} [personId] - the caller's Person, when the response depends on it beyond
-     *  the id and scopes (a member's data view control Consent hides resources per Person), so
-     *  members who share a Patient don't share an entry
+     *  the id and scopes (a user's data view control Consent hides resources per Person), so
+     *  users who share a Patient don't share an entry
      *
      * @param {options} options
      * @returns {Promise<string|undefined>}

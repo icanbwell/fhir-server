@@ -23,11 +23,11 @@ const { RethrownError } = require('../../../utils/rethrownError');
 const { ScopesManager } = require('../../../operations/security/scopesManager');
 
 /**
- * Stubs the request-scoped httpContext for a member whose Person was found: the MCP request info,
- * plus the owner the Person walk records for the member in the token.
+ * Stubs the request-scoped httpContext for a user whose Person was found: the MCP request info,
+ * plus the owner the Person walk records for the user in the token.
  * @param {{personIdFromJwtToken: string}} fhirRequestInfo
  */
-function mockMemberHttpContext (fhirRequestInfo) {
+function mockUserHttpContext (fhirRequestInfo) {
     const ownerKey = `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${fhirRequestInfo.personIdFromJwtToken}`;
     jestGlobal.spyOn(httpContext, 'get').mockImplementation((key) => {
         if (key === MCP_REQUEST_INFO_CONTEXT_KEY) {
@@ -150,7 +150,7 @@ describe('McpToolHandler', () => {
             const fhirRequestInfo = {
                 user: 'test-patient-user', isUser: true, personIdFromJwtToken: 'person-123'
             };
-            mockMemberHttpContext(fhirRequestInfo);
+            mockUserHttpContext(fhirRequestInfo);
             const parsedArgs = { parsedArgItems: [], add: jestGlobal.fn() };
             r4ArgsParser.parseArgs.mockReturnValue(parsedArgs);
             patientDataViewControlManager.getConsentAsync.mockResolvedValue({
@@ -175,7 +175,7 @@ describe('McpToolHandler', () => {
             });
             expect(patientScopeManager.getPatientIdsFromScopeAsync.mock.invocationCallOrder[0])
                 .toBeLessThan(patientDataViewControlManager.getConsentAsync.mock.invocationCallOrder[0]);
-            // keyed on the member in the token; getConsentAsync treats a Person with no owner tag as enrolled
+            // keyed on the user in the token; getConsentAsync treats a Person with no owner tag as enrolled
             expect(patientDataViewControlManager.getConsentAsync).toHaveBeenCalledWith(
                 expect.objectContaining({ requestInfo: fhirRequestInfo, personId: 'person-123' })
             );
@@ -200,7 +200,7 @@ describe('McpToolHandler', () => {
             // back to a bracket-only assignment would be caught here.
             const { handler, searchBundleOperation, r4ArgsParser, patientDataViewControlManager } = createHandler();
             const fhirRequestInfo = { user: 'test-patient-user', isUser: true, personIdFromJwtToken: 'person-123' };
-            mockMemberHttpContext(fhirRequestInfo);
+            mockUserHttpContext(fhirRequestInfo);
             const parsedArgs = new ParsedArgs({ base_version: '4_0_0', parsedArgItems: [] });
             r4ArgsParser.parseArgs.mockReturnValue(parsedArgs);
             patientDataViewControlManager.getConsentAsync.mockResolvedValue({
@@ -234,7 +234,7 @@ describe('McpToolHandler', () => {
             const fhirRequestInfo = {
                 user: 'test-patient-user', isUser: true, personIdFromJwtToken: 'person-123'
             };
-            mockMemberHttpContext(fhirRequestInfo);
+            mockUserHttpContext(fhirRequestInfo);
             const consentHiddenUuid = '5f1e3b2a-1111-4c2b-9d3e-000000000001';
             const parsedArgs = new ParsedArgs({ base_version: '4_0_0', parsedArgItems: [] });
             // The caller's own '_id:not' filter, in NON-uuid (source-id) form.

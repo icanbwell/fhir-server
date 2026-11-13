@@ -755,7 +755,7 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
                     expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(1);
                 });
 
-            test('a member token is unaffected, since it is always filtered', async () => {
+            test('a user token is unaffected, since it is always filtered', async () => {
                 requestInfo.isUser = true;
                 await send('search', { _applyDataViewControl: 'true' });
                 expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(1);

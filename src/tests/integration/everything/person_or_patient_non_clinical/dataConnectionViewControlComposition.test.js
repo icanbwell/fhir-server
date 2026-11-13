@@ -223,8 +223,8 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
             'ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION'
         ];
         let savedCacheEnv;
-        // the cache is only used for streamed member reads with a single id
-        const memberEverything = () => request.get(`/4_0_0/Patient/${PATIENT_UUID}/$everything`)
+        // the cache is only used for streamed user reads with a single id
+        const userEverything = () => request.get(`/4_0_0/Patient/${PATIENT_UUID}/$everything`)
             .set({ ...getHeadersNdJson(), Authorization: userHeaders().Authorization });
 
         beforeAll(() => {
@@ -232,13 +232,13 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
             CACHE_ENV.forEach((name) => { process.env[name] = '1'; });
         });
 
-        // a second member linked to the same Patient, with no Consent of their own
-        const OTHER_MEMBER_PERSON_ID = generateUUIDv5('person-with-common-patient|healthsystem1');
-        const otherMemberEverything = () => request.get(`/4_0_0/Patient/${PATIENT_UUID}/$everything`)
+        // a second user linked to the same Patient, with no Consent of their own
+        const OTHER_USER_PERSON_ID = generateUUIDv5('person-with-common-patient|healthsystem1');
+        const otherUserEverything = () => request.get(`/4_0_0/Patient/${PATIENT_UUID}/$everything`)
             .set({
                 ...getHeadersNdJson(),
                 Authorization: getHeadersWithCustomPayload({
-                    ...USER_PAYLOAD, clientFhirPersonId: OTHER_MEMBER_PERSON_ID
+                    ...USER_PAYLOAD, clientFhirPersonId: OTHER_USER_PERSON_ID
                 }).Authorization
             });
         /** CarePlan ids (source id or uuid) in an ndjson $everything response */
@@ -266,34 +266,34 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
                     viewControlResourceToExcludeMap: {}, viewControlConsentQueries: [], viewControlConsentQueryOptions: []
                 });
             try {
-                const miss = await memberEverything();
+                const miss = await userEverything();
                 expect(miss.headers).toHaveProperty('x-cache', 'Miss');
                 expectBlockedCarePlanPresent(miss.text);
             } finally {
                 spy.mockRestore();
             }
 
-            const hit = await memberEverything();
+            const hit = await userEverything();
             expect(hit.headers).toHaveProperty('x-cache', 'Hit');
             expectBlockedCarePlanAbsent(hit.text);
             expect(sectionIdsIn(parse(hit.text))).toEqual(VISIBLE_SECTIONS);
         });
 
-        test('a member never gets another member\'s cached response for a Patient they share', async () => {
-            const other = await otherMemberEverything();
+        test('a user never gets another user\'s cached response for a Patient they share', async () => {
+            const other = await otherUserEverything();
             expect(other.status).toBe(200);
             expectBlockedCarePlanPresent(other.text);
 
-            const member = await memberEverything();
-            expect(member.status).toBe(200);
-            expectBlockedCarePlanAbsent(member.text);
+            const user = await userEverything();
+            expect(user.status).toBe(200);
+            expectBlockedCarePlanAbsent(user.text);
         });
 
-        test('a member without a Consent is not limited by another member\'s cached response', async () => {
-            const member = await memberEverything();
-            expectBlockedCarePlanAbsent(member.text);
+        test('a user without a Consent is not limited by another user\'s cached response', async () => {
+            const user = await userEverything();
+            expectBlockedCarePlanAbsent(user.text);
 
-            const other = await otherMemberEverything();
+            const other = await otherUserEverything();
             expect(other.status).toBe(200);
             expectBlockedCarePlanPresent(other.text);
         });
@@ -310,12 +310,12 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
         });
 
         test('a cache hit removes the sections that reference the blocked CarePlan', async () => {
-            const miss = await memberEverything();
+            const miss = await userEverything();
             expect(miss.status).toBe(200);
             expect(miss.headers).toHaveProperty('x-cache', 'Miss');
             expect(getTestContainer().redisClient.streams.size).toBeGreaterThan(0);
 
-            const hit = await memberEverything();
+            const hit = await userEverything();
             expect(hit.status).toBe(200);
             expect(hit.headers).toHaveProperty('x-cache', 'Hit');
             expect(sectionIdsIn(parse(hit.text))).toEqual(VISIBLE_SECTIONS);
@@ -323,11 +323,11 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
         });
 
         test('a cache hit whose Consent lookup fails returns no clinical data', async () => {
-            await memberEverything();
+            await userEverything();
             const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync')
                 .mockRejectedValue(new Error('consent store unavailable'));
             try {
-                const resp = await memberEverything();
+                const resp = await userEverything();
                 expect(resp.text).toContain('OperationOutcome');
                 expect(resp.text).not.toContain('"resourceType":"Composition"');
                 expect(resp.text).not.toContain('"resourceType":"CarePlan"');
@@ -336,7 +336,7 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
                 spy.mockRestore();
             }
             // the failed request leaves no partial cache entry behind to replay
-            const next = await memberEverything();
+            const next = await userEverything();
             expect(next.headers).toHaveProperty('x-cache', 'Miss');
             expect(sectionIdsIn(parse(next.text))).toEqual(VISIBLE_SECTIONS);
         });

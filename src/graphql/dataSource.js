@@ -840,7 +840,7 @@ class FhirDataSource {
             }
         );
         // A mutation changes and returns the resource it finds here, so it must not find one the
-        // member's dataConnectionViewControl Consent hides (user tokens of enrolled clients only).
+        // user's dataConnectionViewControl Consent hides (user tokens of enrolled clients only).
         await this.patientDataViewControlExclusion.applyAsync({
             parsedArgs, resourceType, base_version: args.base_version, requestInfo: requestInfo || this.requestInfo
         });

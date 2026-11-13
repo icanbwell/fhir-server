@@ -1,5 +1,5 @@
 /**
- * Cost of the dataConnectionViewControl Consent on member reads: p50/p95 latency for a member of an
+ * Cost of the dataConnectionViewControl Consent on user reads: p50/p95 latency for a user of an
  * enrolled client versus a non-enrolled one, on REST search, GraphQL v1 and Patient $everything
  * (fresh and from the Redis cache), plus a check that the Consent lookup's query uses an index.
  *
@@ -36,7 +36,7 @@ const PERSON_ID = '5f3ca115-8630-5e55-a97d-4d6ee26c0adc';
 const PATIENT_UUID = '24a5930e-11b4-5525-b482-669174917044';
 const OWNER = 'healthsystem1';
 
-// a realistic record: the member's CarePlans, of which the Consent hides some, plus other members'
+// a realistic record: the user's CarePlans, of which the Consent hides some, plus other users'
 // Consents in the same collection
 // VIEW_CONTROL_PERF_BLOCKED sets how many the Consent hides, to see how the cost grows
 const BLOCKED_CARE_PLANS = Number(process.env.VIEW_CONTROL_PERF_BLOCKED || 20);
@@ -148,7 +148,7 @@ describe('dataConnectionViewControl performance', () => {
             id: `data-${i}`, meaning: 'instance', reference: { reference: `CarePlan/${carePlanUuid(i)}` }
         }));
         await merge('Consent', consent);
-        // other members' view-control Consents: the lookup has to find this member's among them
+        // other users' view-control Consents: the lookup has to find this user's among them
         const others = Array.from({ length: OTHER_CONSENTS }, (_, i) => {
             const other = deepcopy(consent);
             other.id = `vc-perf-other-consent-${i}`;

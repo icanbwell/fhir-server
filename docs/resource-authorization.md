@@ -91,8 +91,8 @@ flowchart TD
     CmsCheck -- no --> RunQuery
     CmsFilter --> RunQuery[("Run MongoDB query")]
 
-    RunQuery --> PdvcCheck{"§6d: member of an enrolled client, or a service token opting in on Person $everything, with an active data-view-control Consent?"}
-    PdvcCheck -- yes --> PdvcExcl["Exclude the hidden resources (an _id:not added to the query on every member read path)"]
+    RunQuery --> PdvcCheck{"§6d: user of an enrolled client, or a service token opting in on Person $everything, with an active data-view-control Consent?"}
+    PdvcCheck -- yes --> PdvcExcl["Exclude the hidden resources (an _id:not added to the query on every user read path)"]
     PdvcCheck -- no --> PersonCheck
     PdvcExcl --> PersonCheck{"§5: Person $everything?"}
     PersonCheck -- yes --> PersonNarrow["Narrow result set to only the requested Person id(s)"]
@@ -293,10 +293,10 @@ is found.
 Person's Consent to the grantee actor and drives a sensitivity-based (§9) denylist layered on top
 of the §5 patient-scope query. Full model, including the read-only operation restriction: §10.
 
-**d. Patient Data View Control consent** — lets a member hide specific resources with an active
+**d. Patient Data View Control consent** — lets a user hide specific resources with an active
 `dataConnectionViewControl`-category Consent whose `provision.data` references them. It applies to
-member tokens whose Person's owner is in `configManager.clientsWithDataConnectionViewControl`
-(env `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`), on every member read path: REST search and
+user tokens whose Person's owner is in `configManager.clientsWithDataConnectionViewControl`
+(env `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`), on every user read path: REST search and
 read-by-id (a hidden resource is a 404), GraphQL v1 and v2, `/mcp`, and Patient/Person
 `$everything` (including cache replays). History/version reads are not filtered and are rejected
 for user tokens; `$graph` and `$summary` are not covered yet.
@@ -305,7 +305,7 @@ for user tokens; `$graph` and `$summary` are not covered yet.
   `PatientDataViewControlManager.getConsentAsync` (`src/utils/patientDataViewController.js`), and
   adds an `_id:not` of the hidden ids to the query (`applyAsync`). `$everything` uses the same
   lookup in `everythingHelper.js`.
-- *Subject Person:* the member in the token (`ViewControlSubject.fromToken`). Service and admin
+- *Subject Person:* the user in the token (`ViewControlSubject.fromToken`). Service and admin
   tokens are not filtered, except a service token sending `_applyDataViewControl=true` on Person
   `$everything`, which is filtered by the Person in the URL (`ViewControlSubject.fromUrlPerson`,
   read through the caller's access filter; see
@@ -314,7 +314,7 @@ for user tokens; `$graph` and `$summary` are not covered yet.
   entries reference a hidden resource, using the exclude map the read path passes in the
   enrichment context (§10's section filter is a separate, sensitivity-based rule).
 - *Fails closed:* a failed Consent lookup fails the request instead of returning unfiltered data. A
-  member's Person without an owner tag is treated as enrolled, so the Consent still applies; the
+  user's Person without an owner tag is treated as enrolled, so the Consent still applies; the
   service-token opt-in on a Person without an owner tag fails the request.
 
 Full detail: `readme/patientDataViewControl.md`.
@@ -479,7 +479,7 @@ For a given caller and resource, the resource is returned only if **all** of the
 4. If the caller is patient-scoped, the resource is not confidentiality-`R`-restricted (§9).
 5. If the caller is a delegated actor or CMS partner, the resource passes that caller type's
    consent-driven filter and is not `unclassified` for delegated actors (§6b, §9, §10).
-6. If the requesting client relies on consent-based data-sharing expansion (§6a) or the member
+6. If the requesting client relies on consent-based data-sharing expansion (§6a) or the user
    has an active data-view-control Consent (§6d), those results are included/excluded
    accordingly, and Composition sections referencing a hidden resource are removed.
 

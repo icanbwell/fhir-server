@@ -18,7 +18,7 @@ const { ViewControlSubject } = require('./viewControlSubject');
  * most once per subject per request.
  *
  * The subject Person is chosen by the caller (see ViewControlSubject). When a caller passes none, it
- * is the member in the token, so service and admin tokens are unaffected unless a caller opts in with
+ * is the user in the token, so service and admin tokens are unaffected unless a caller opts in with
  * a URL Person. Subjects whose owner is not in configManager.clientsWithDataConnectionViewControl are
  * returned untouched.
  */
@@ -50,11 +50,11 @@ class PatientDataViewControlExclusion {
      * shares. Memoized per request: the promise is stored in the request-scoped httpContext, so
      * concurrent GraphQL resolvers share one lookup. The result is frozen because it is shared.
      *
-     * With no subject (a service or admin token that didn't opt in, or a member token without a person
+     * With no subject (a service or admin token that didn't opt in, or a user token without a person
      * id), or no enrolled client, the result is empty and no lookup runs.
      * @param {import('./fhirRequestInfo').FhirRequestInfo|undefined} requestInfo
      * @param {string} base_version
-     * @param {ViewControlSubject|null} [subject] defaults to the member in the token
+     * @param {ViewControlSubject|null} [subject] defaults to the user in the token
      * @return {Promise<ViewControlConsentLookup>}
      */
     async getConsentLookupAsync({ requestInfo, base_version, subject = ViewControlSubject.fromToken(requestInfo) }) {
@@ -80,14 +80,14 @@ class PatientDataViewControlExclusion {
         const person = subject.isUrlPerson
             ? await this.loadUrlPersonAsync({ requestInfo, base_version, subject })
             : await this.loadTokenPersonAsync({ requestInfo, base_version, subject });
-        // The walk found no Person the token can see (e.g. not provisioned yet): the member is linked
+        // The walk found no Person the token can see (e.g. not provisioned yet): the user is linked
         // to no Patient and has no Consent, so there is nothing to hide.
         if (!person) {
             return emptyLookup();
         }
         const { personId, owner } = person;
         // Every Person should have an owner tag (writes reject a resource without one), and enrollment
-        // is decided by it. For a member, a Person without one is treated as enrolled by getConsentAsync
+        // is decided by it. For a user, a Person without one is treated as enrolled by getConsentAsync
         // (the Consent is applied); only an opt-in on a URL Person refuses it, in loadUrlPersonAsync.
         const { viewControlResourceToExcludeMap, viewControlConsentQueries, viewControlConsentQueryOptions } =
             await this.patientDataViewControlManager.getConsentAsync({
@@ -105,7 +105,7 @@ class PatientDataViewControlExclusion {
     }
 
     /**
-     * The member in the token: walking their Person records its owner in httpContext, as null for a
+     * The user in the token: walking their Person records its owner in httpContext, as null for a
      * Person without an owner tag and as PERSON_OWNER_NOT_FOUND when the walk found no Person.
      * A walk that records nothing is a failure, not "not found": the lookup fails closed instead of
      * returning an empty lookup that would hide nothing.
@@ -184,7 +184,7 @@ class PatientDataViewControlExclusion {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {import('./fhirRequestInfo').FhirRequestInfo|undefined} requestInfo
-     * @param {ViewControlSubject|null} [subject] defaults to the member in the token
+     * @param {ViewControlSubject|null} [subject] defaults to the user in the token
      * @return {Promise<import('../operations/query/parsedArgs').ParsedArgs>}
      */
     async applyAsync({ parsedArgs, resourceType, base_version, requestInfo, subject }) {

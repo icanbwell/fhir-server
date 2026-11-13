@@ -96,7 +96,7 @@ class EverythingOperation {
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      * @property {import('../../utils/viewControlSubject').ViewControlSubject|null} [viewControlSubject] -
-     *  whose view-control block filters the result; defaults to the member in the token
+     *  whose view-control block filters the result; defaults to the user in the token
      *
      * @param {everythingAsyncParams}
      * @return {Promise<Bundle>}
@@ -147,7 +147,7 @@ class EverythingOperation {
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      * @property {import('../../utils/viewControlSubject').ViewControlSubject|null} [viewControlSubject] -
-     *  whose view-control block filters the result; defaults to the member in the token
+     *  whose view-control block filters the result; defaults to the user in the token
      *
      * @param {everythingBundleAsyncParams}
      * @return {Promise<Bundle>}

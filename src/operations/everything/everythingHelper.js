@@ -395,8 +395,8 @@ class EverythingHelper {
                 parsedArgs: parsedArgs,
                 scope: requestInfo.scope,
                 isPersonEverything,
-                // a Patient can be linked to more than one member, and each member's view-control
-                // Consent hides different resources; a proxy-patient key is already the member's own
+                // a Patient can be linked to more than one user, and each user's view-control
+                // Consent hides different resources; a proxy-patient key is already the user's own
                 personId: isProxyPatient ? undefined : requestInfo.personIdFromJwtToken
             })
             : undefined;
@@ -496,7 +496,7 @@ class EverythingHelper {
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
      * @property {ViewControlSubject|null} [viewControlSubject] - whose view-control block filters the
-     *  result; defaults to the member in the token
+     *  result; defaults to the user in the token
      *
      * @param {retriveEverythingAsyncParams}
      * @return {Promise<Bundle>}
@@ -803,7 +803,7 @@ class EverythingHelper {
      *  audit logging, pushed into directly at write time so it survives a throw from any level
      *  of this call chain
      * @property {ViewControlSubject|null} [viewControlSubject] - whose view-control block filters the
-     *  result; defaults to the member in the token
+     *  result; defaults to the user in the token
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -969,7 +969,7 @@ class EverythingHelper {
 
             let resourceToExcludeIdsMap = {};
 
-            // Resources blocked by the subject's dataConnectionViewControl Consent (the member, or for a
+            // Resources blocked by the subject's dataConnectionViewControl Consent (the user, or for a
             // service token that opted in, the Person in the URL; enrolled clients only). This is the
             // lookup every read path shares, loaded once per request; it covers all of the Person's
             // view-control Consents, not only those whose actor is one of the requested patients.

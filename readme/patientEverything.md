@@ -208,9 +208,9 @@ For example: <base_url>/4_0_0/Patient/\<patient_id>/$everything?\_includeUuidOnl
 
 ### \_applyDataViewControl
 
-For a service (client-credentials) token calling Person $everything on a member's behalf. Applies the
+For a service (client-credentials) token calling Person $everything on a user's behalf. Applies the
 Person's data-connection view control: the resources the Person's `dataConnectionViewControl` Consent
-hides are left out, as they are for the member's own token (see [patientDataViewControl.md](patientDataViewControl.md)).
+hides are left out, as they are for the user's own token (see [patientDataViewControl.md](patientDataViewControl.md)).
 The Person is the one in the URL; the block applies only when that Person's owner is enrolled
 (`CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`). It can only remove data from the response.
 <br>
@@ -219,7 +219,7 @@ Default: false
 - Only on Person $everything, with one Person id. On Patient $everything, or with more than one id, the request is a 400.
 - A Person the token can't see is a 404, the same as a Person that doesn't exist.
 - If the Person's owner or Consent can't be loaded, the request fails with an HTTP error; no data is returned.
-- Member tokens are always filtered, so the parameter changes nothing for them.
+- User tokens are always filtered, so the parameter changes nothing for them.
 
 For example: <base_url>/4_0_0/Person/\<person_id>/$everything?\_applyDataViewControl=true
 

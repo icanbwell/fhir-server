@@ -244,7 +244,7 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             try {
                 const resp = await send(request);
                 expect(resp.status).toBe(200);
-                // the member's own Consent may come back and name the blocked CarePlan in its
+                // the user's own Consent may come back and name the blocked CarePlan in its
                 // provision; what must not come back is the blocked resource itself
                 expect(allIdValues(resp.body)).not.toEqual(expect.arrayContaining([BLOCKED_UUID]));
                 expect(allIdValues(resp.body)).not.toEqual(expect.arrayContaining([BLOCKED]));
@@ -378,7 +378,7 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
     });
 
     // GraphQL v1 mutations look up the resource they change; that lookup must not find what the
-    // member's Consent hides, or the mutation would change it and return it.
+    // user's Consent hides, or the mutation would change it and return it.
     describe('GraphQL v1 mutation on a resource the Consent hides', () => {
         const UPDATE_GP = `mutation {
             updateGeneralPractitioner(patientId: "patient1", practitionerId: "1679033641", remove: false) {
@@ -451,9 +451,9 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
         const userToken = () => userHeaders().Authorization.replace(/^Bearer /, '');
 
         // A Person without an owner tag (bad data) can't be shown to be outside the enrolled clients,
-        // so it is treated as enrolled: the member's Consent is applied and the read still succeeds.
+        // so it is treated as enrolled: the user's Consent is applied and the read still succeeds.
         // by default the blocked CarePlan must not appear anywhere in the raw text. Two paths differ: a
-        // 404 names the id that was asked for, and $everything returns the member's own Consent, which
+        // 404 names the id that was asked for, and $everything returns the user's own Consent, which
         // names the blocked resource, so those two check the returned resources' ids instead.
         const noBlockedText = (resp) => {
             expect(String(resp.text)).not.toContain(BLOCKED);
@@ -513,7 +513,7 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
         });
     });
 
-    // A member whose Person does not exist yet (e.g. a newly provisioned token) has no owner to decide
+    // A user whose Person does not exist yet (e.g. a newly provisioned token) has no owner to decide
     // enrollment by and nothing for a Consent to hide, so reads behave as with view control off.
     describe('caller has no Person record', () => {
         const MISSING_PERSON_PAYLOAD = {
@@ -549,7 +549,7 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             await seed();
             const resp = await send(request);
             assertOk(resp);
-            // the member is linked to no Patient, so no CarePlan is theirs to see
+            // the user is linked to no Patient, so no CarePlan is theirs to see
             const body = String(resp.text);
             expect(body).not.toContain(BLOCKED);
             expect(body).not.toContain(UNBLOCKED);
@@ -557,7 +557,7 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
         });
     });
 
-    // A service calling Person/{id}/$everything on a member's behalf can opt in to that Person's
+    // A service calling Person/{id}/$everything on a user's behalf can opt in to that Person's
     // view-control block. Without the opt-in, service tokens are unchanged.
     describe('service-token opt-in on Person $everything', () => {
         const OPT_IN = '_applyDataViewControl=true';
@@ -664,9 +664,9 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             expect(resp.status).toBe(400);
         });
 
-        // decision made while building this: member tokens are always filtered, so the opt-in
+        // decision made while building this: user tokens are always filtered, so the opt-in
         // changes nothing for them (and its single-Person rule doesn't apply)
-        test('a member token is filtered with or without the opt-in', async () => {
+        test('a user token is filtered with or without the opt-in', async () => {
             const resp = await personEverything(OPT_IN, userHeaders());
             expect(resp.status).toBe(200);
             expect(hasBlocked(resp)).toBe(false);

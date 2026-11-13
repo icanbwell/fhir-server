@@ -1,17 +1,17 @@
 # Patient Data View Control
 
-A member can hide specific resources (for example the records from one data connection) with a
-data view control Consent. Every resource the Consent references is left out of what the member
-reads, on every read path the member can use.
+A user can hide specific resources (for example the records from one data connection) with a
+data view control Consent. Every resource the Consent references is left out of what the user
+reads, on every read path the user can use.
 
 ## Who it applies to
 
-- **Member tokens** (patient-scoped tokens with a person id) whose Person's owner is listed in
+- **User tokens** (patient-scoped tokens with a person id) whose Person's owner is listed in
   `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`. The owner is the Person's `owner` security tag.
-  Members of other clients are unaffected, and with no client listed the feature is off.
+  Users of other clients are unaffected, and with no client listed the feature is off.
 - **Service and admin tokens are not filtered.** Pipelines, deletion and other internal flows need
-  the full record. A service reading on a member's behalf can opt in on Person `$everything` with
-  `_applyDataViewControl=true`; the Person in the URL is then filtered as the member would be. See
+  the full record. A service reading on a user's behalf can opt in on Person `$everything` with
+  `_applyDataViewControl=true`; the Person in the URL is then filtered as the user would be. See
   [patientEverything.md](patientEverything.md#_applydataviewcontrol) and
   `docs/adr/0004-service-token-opt-in-for-data-view-control-on-person-everything.md`.
 
@@ -26,7 +26,7 @@ reads, on every read path the member can use.
   "code": "dataConnectionViewControl"
 }
 ```
-- `patient.reference`: the member's [proxy patient](proxyPatient.md), `Patient/person.<person uuid>`.
+- `patient.reference`: the user's [proxy patient](proxyPatient.md), `Patient/person.<person uuid>`.
 - `provision.data[].reference.reference`: each resource to hide, as `<ResourceType>/<id>`. The id
   can be the resource's uuid or its source id.
 
@@ -89,7 +89,7 @@ Example Consent:
 }
 ```
 
-With this Consent, the member's reads never return `Encounter/24753e41-956d-4c4a-86f4-130920d7ea68`.
+With this Consent, the user's reads never return `Encounter/24753e41-956d-4c4a-86f4-130920d7ea68`.
 
 ## Read paths
 
@@ -104,7 +104,7 @@ With this Consent, the member's reads never return `Encounter/24753e41-956d-4c4a
 | Composition sections | see below |
 
 Not filtered:
-- History and version reads (`_history`): rejected for member tokens, so they can't return a hidden
+- History and version reads (`_history`): rejected for user tokens, so they can't return a hidden
   resource.
 - `$graph` and `$summary`: not covered yet.
 - `_include` and `_revinclude`: accepted but not implemented, so no search returns included
@@ -141,15 +141,15 @@ Redis cache.
 ## Loading the Consent
 
 The Consent is looked up once per request, however many resolvers or queries the request runs,
-and only for members of enrolled clients. The lookup uses the `consent_of_linked_person`
+and only for users of enrolled clients. The lookup uses the `consent_of_linked_person`
 `{status, patient._uuid}` index.
 
 A replayed `$everything` response from the Redis cache is filtered with the Consent as it is when
 the response is replayed: hidden resources are dropped, and so are the Composition sections that reference them.
 This holds even when the response was cached before the Consent was written or before the client
-was enrolled in `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`. Each member has their own cache entry,
-including for a Patient linked to more than one member, so one member's Consent never shapes
-another member's response.
+was enrolled in `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`. Each user has their own cache entry,
+including for a Patient linked to more than one user, so one user's Consent never shapes
+another user's response.
 
 Saving a dataConnectionViewControl Consent invalidates the Person's own `$everything` cache
 (`Patient/person.<id>`) and the cache of `Patient/<id>/$everything` for every Patient linked to that
@@ -161,15 +161,15 @@ write still succeeds and those entries expire after `EVERYTHING_CACHE_TTL_SECOND
 ## Failures
 
 The filter fails closed: if the block can't be determined, no data is returned.
-- The member's Person has no owner tag: this is not a failure. Enrollment can't be decided without
+- The user's Person has no owner tag: this is not a failure. Enrollment can't be decided without
   an owner, so the Person is treated as enrolled and the Consent is applied. The read succeeds with
   the hidden resources removed. With the service-token opt-in the Person is named on purpose, so
   there a Person without an owner tag fails the request.
-- The member's Person does not exist (for example, a token issued before the Person is created):
-  this is not a failure. The member is linked to no Patient and has no Consent, so the read runs
+- The user's Person does not exist (for example, a token issued before the Person is created):
+  this is not a failure. The user is linked to no Patient and has no Consent, so the read runs
   with nothing hidden and returns only what the patient scope allows.
 - The Consent lookup fails: REST returns an error status, and GraphQL returns `errors`.
-- Member `$everything` writes the response as it goes, so a failure there is a 200 with an error
+- User `$everything` writes the response as it goes, so a failure there is a 200 with an error
   OperationOutcome and no clinical resources.
 - With the service-token opt-in, the Person and Consent are loaded before the response starts, so a
   failure is an HTTP error.

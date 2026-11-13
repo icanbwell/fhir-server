@@ -227,7 +227,7 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
 
     /**
      * Bumps Patient:<uuid>:Everything:Generation for every Patient linked to the Person, so cached
-     * Patient $everything entries are rebuilt under the member's new view control. Best-effort, like
+     * Patient $everything entries are rebuilt under the user's new view control. Best-effort, like
      * the rest of this handler: a failure is logged and the Consent write is not affected.
      * @param {string} personUuid
      * @param {string} requestId

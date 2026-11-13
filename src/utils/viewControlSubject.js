@@ -5,7 +5,7 @@ const { assertIsValid } = require('./assertType');
  * @enum {string}
  */
 const VIEW_CONTROL_SUBJECT_SOURCE = Object.freeze({
-    /** the Person in a member's token: every member read path */
+    /** the Person in a user's token: every user read path */
     TOKEN: 'token',
     /** the Person in the request URL: Person $everything when a service token opts in */
     URL_PERSON: 'urlPerson'
@@ -15,7 +15,7 @@ const VIEW_CONTROL_SUBJECT_SOURCE = Object.freeze({
  * The Person whose dataConnectionViewControl Consent and owner a read is checked against.
  * Immutable; identified by toString(), which the request-scoped lookup cache keys on.
  *
- * Callers decide the subject; the view-control lookup only uses it. A member read uses the Person in
+ * Callers decide the subject; the view-control lookup only uses it. A user read uses the Person in
  * the token. Person $everything uses the Person in the URL when a service token opts in, and other
  * paths can choose the URL Person the same way without changing the lookup.
  */
@@ -39,7 +39,7 @@ class ViewControlSubject {
     }
 
     /**
-     * The member in the token, or null for a token that isn't a member's (service, admin) or has no
+     * The user in the token, or null for a token that isn't a user's (service, admin) or has no
      * person id.
      * @param {import('./fhirRequestInfo').FhirRequestInfo|undefined} requestInfo
      * @return {ViewControlSubject|null}

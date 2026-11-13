@@ -6,13 +6,13 @@ const { ViewControlSubject, VIEW_CONTROL_SUBJECT_SOURCE } = require('../../../ut
 describe('ViewControlSubject', () => {
     test.each([
         ['a service token', { isUser: false, personIdFromJwtToken: 'person-1' }],
-        ['a member token without a person id', { isUser: true }],
+        ['a user token without a person id', { isUser: true }],
         ['no requestInfo', undefined]
     ])('fromToken returns null for %s', (_name, requestInfo) => {
         expect(ViewControlSubject.fromToken(requestInfo)).toBeNull();
     });
 
-    test('fromToken takes the member\'s person id from the token', () => {
+    test('fromToken takes the user\'s person id from the token', () => {
         const subject = ViewControlSubject.fromToken({ isUser: true, personIdFromJwtToken: 'person-1' });
         expect(subject.personId).toBe('person-1');
         expect(subject.source).toBe(VIEW_CONTROL_SUBJECT_SOURCE.TOKEN);
