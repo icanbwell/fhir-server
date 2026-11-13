@@ -112,6 +112,7 @@ describe('MergeManager', () => {
         mergeManager.databaseAttachmentManager = mockDatabaseAttachmentManager;
         mergeManager.base64DataManager = mockBase64DataManager;
         mergeManager.postRequestProcessor = mockPostRequestProcessor;
+        mergeManager.groupMemberMerger = { mergeMembers: jest.fn(({ resource }) => resource) };
     });
 
     describe('mergeDuplicateResourceEntries', () => {

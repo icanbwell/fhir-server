@@ -65,7 +65,8 @@ describe('MergeResourceValidator', () => {
         };
 
         mockResourceValidator = {
-            validateResourceMetaSync: jest.fn().mockReturnValue(null)
+            validateResourceMetaSync: jest.fn().mockReturnValue(null),
+            validateGroupMembersUniqueSync: jest.fn().mockReturnValue(null)
         };
 
         mockSourceAssigningAuthorityColumnHandler = {
@@ -103,7 +104,7 @@ describe('MergeResourceValidator', () => {
                 meta: { security: [] }
             };
 
-            mockMergeManager.mergeDuplicateResourceEntries.mockReturnValue(resource);
+            mockMergeManager.mergeDuplicateResourceEntries.mockReturnValue([resource]);
             mockMergeManager.preMergeChecksMultipleAsync.mockResolvedValue({
                 mergePreCheckErrors: [],
                 validResources: [resource]
@@ -116,7 +117,7 @@ describe('MergeResourceValidator', () => {
                 effectiveSmartMerge: false
             });
 
-            // wasAList should be false since mergeDuplicateResourceEntries returns non-array
+            // wasAList is false since the input was a single resource
             expect(result.wasAList).toBe(false);
         });
 
@@ -516,6 +517,51 @@ describe('MergeResourceValidator', () => {
             // Should not call preSave handlers when id is UUID
             expect(mockSourceAssigningAuthorityColumnHandler.preSaveAsync).not.toHaveBeenCalled();
             expect(mockUuidColumnHandler.preSaveAsync).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('validate - Group that lists a member twice', () => {
+        const repeatedMemberOutcome = {
+            resourceType: 'OperationOutcome',
+            issue: [{ severity: 'error', code: 'invalid', details: { text: 'repeated member' } }]
+        };
+
+        test.each([
+            ['a list', true],
+            ['a single resource', false]
+        ])('is a pre-check error and is not merged, when sent as %s', async (_label, sendAsList) => {
+            const repeatedGroup = { id: 'group-1', resourceType: 'Group', member: [] };
+            const otherResource = { id: 'patient-1', resourceType: 'Patient', _uuid: 'uuid-1' };
+            const incomingResources = sendAsList ? [repeatedGroup, otherResource] : repeatedGroup;
+            mockResourceValidator.validateGroupMembersUniqueSync.mockImplementation((resource) =>
+                resource === repeatedGroup ? repeatedMemberOutcome : null
+            );
+            mockMergeManager.mergeDuplicateResourceEntries.mockImplementation((resources) => resources);
+            mockMergeManager.preMergeChecksMultipleAsync.mockImplementation(async ({ resourcesToMerge }) => ({
+                mergePreCheckErrors: [],
+                validResources: resourcesToMerge
+            }));
+            validateResource.mockReturnValue(null);
+
+            const result = await validator.validate({
+                requestInfo: { requestId: 'req-1', path: '/Group/$merge', headers: {} },
+                incomingResources,
+                base_version: '4_0_0',
+                effectiveSmartMerge: true
+            });
+
+            expect(mockMergeManager.mergeDuplicateResourceEntries).toHaveBeenCalledWith(sendAsList ? [otherResource] : []);
+            expect(result.preCheckErrors).toHaveLength(1);
+            expect(result.preCheckErrors[0]).toMatchObject({
+                id: 'group-1',
+                resourceType: 'Group',
+                created: false,
+                updated: false,
+                issue: repeatedMemberOutcome.issue[0],
+                operationOutcome: repeatedMemberOutcome
+            });
+            expect(result.validatedObjects).toEqual(sendAsList ? [otherResource] : []);
+            expect(result.wasAList).toBe(sendAsList);
         });
     });
 

@@ -57,6 +57,7 @@ const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/provi
 const { fhirContentTypes } = require('../../../../utils/contentTypes');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const { AuditLogger } = require('../../../../utils/auditLogger');
+const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
@@ -90,7 +91,8 @@ describe('PatchOperation', () => {
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
             groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
             mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
-            auditLogger: createMockInstance(AuditLogger)
+            auditLogger: createMockInstance(AuditLogger),
+            groupMemberMerger: createMockInstance(GroupMemberMerger)
         };
 
         // Setup mocks

@@ -84,11 +84,6 @@ class MergeResourceValidator extends BaseValidator {
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
     async validate({ requestInfo, incomingResources, base_version, effectiveSmartMerge }) {
-        // Merge duplicate resources from the incomingObjects array
-        incomingResources = this.customTracer.traceSync({
-            name: 'MergeResourceValidator.mergeDuplicateResourceEntries',
-            func: () => this.mergeManager.mergeDuplicateResourceEntries(incomingResources)
-        });
         /**
          * @type {boolean}
          */
@@ -97,6 +92,34 @@ class MergeResourceValidator extends BaseValidator {
          * @type {Resource[]}
          */
         let resourcesIncomingArray = wasIncomingAList ? incomingResources : [incomingResources];
+
+        // Each entry as sent, before same-id entries are combined: a Group entry that lists a
+        // member twice is rejected, while the same member in two entries for one Group is merged
+        const repeatedGroupMemberErrors = [];
+        resourcesIncomingArray = resourcesIncomingArray.filter((resource) => {
+            const operationOutcome = this.resourceValidator.validateGroupMembersUniqueSync(resource);
+            if (operationOutcome) {
+                repeatedGroupMemberErrors.push(
+                    new MergeResultEntry({
+                        id: resource.id,
+                        uuid: resource._uuid,
+                        sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                        resourceType: resource.resourceType,
+                        created: false,
+                        updated: false,
+                        issue: operationOutcome.issue?.[0] ?? null,
+                        operationOutcome
+                    })
+                );
+            }
+            return !operationOutcome;
+        });
+
+        // Merge duplicate resources from the incomingObjects array
+        resourcesIncomingArray = this.customTracer.traceSync({
+            name: 'MergeResourceValidator.mergeDuplicateResourceEntries',
+            func: () => this.mergeManager.mergeDuplicateResourceEntries(resourcesIncomingArray)
+        });
 
         resourcesIncomingArray = resourcesIncomingArray.map((resource) => {
             if (resource.id) {
@@ -118,6 +141,8 @@ class MergeResourceValidator extends BaseValidator {
                         base_version
                     })
             });
+
+        mergePreCheckErrors.push(...repeatedGroupMemberErrors);
 
         // process only the resources that are valid
         resourcesIncomingArray = validResources;

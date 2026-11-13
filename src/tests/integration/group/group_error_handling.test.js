@@ -153,7 +153,7 @@ describe('Group Error Handling', () => {
         expect(response.body.id).toBeDefined();
     });
 
-    test('Duplicate members in same group → Both stored', async () => {
+    test('Duplicate members in same group → 400, no member events', async () => {
         const clickHouseManager = getClickHouseManager();
         const response = await createGroup({
             type: 'person',
@@ -162,16 +162,17 @@ describe('Group Error Handling', () => {
                 { entity: { reference: 'Patient/duplicate' } },
                 { entity: { reference: 'Patient/duplicate' } }
             ]
-        }, 201);
+        }, 400);
 
-        const groupId = response.body.id;
-
+        expect(response.body.issue[0]).toMatchObject({
+            code: 'invalid',
+            expression: ['Group.member[0]', 'Group.member[1]']
+        });
         const events = await clickHouseManager.queryAsync({
             query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
-                    WHERE group_id = '${groupId}' AND entity_reference = 'Patient/duplicate'`
+                    WHERE entity_reference = 'Patient/duplicate'`
         });
-
-        expect(parseInt(events[0].count)).toBeGreaterThanOrEqual(1);
+        expect(parseInt(events[0].count)).toBe(0);
     });
 
     test('Empty member array in CREATE → Success with 0 members', async () => {

@@ -366,10 +366,10 @@ class GroupMemberPatchStrategy {
         // each op inline with add/remove as it's encountered -- this preserves the client's
         // actual submitted sequence, unlike bucketing into separate add/remove arrays and
         // concatenating them back together (which would always place every remove after every
-        // add regardless of the client's real op order, making resolveMemberWritesAsync's
-        // last-wins-per-entity de-dupe always favor removal for a member that appears in both an
-        // add and a remove op in the same PATCH, even when the client's actual last op for that
-        // member was the add).
+        // add regardless of the client's real op order, so resolveMemberWritesAsync, which folds
+        // a member's requests in request order, would always end with the removal for a member
+        // that appears in both an add and a remove op in the same PATCH, even when the client's
+        // actual last op for that member was the add).
         const orderedMemberWriteRequests = [];
 
         for (const op of memberOperations) {

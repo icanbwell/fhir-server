@@ -1,11 +1,12 @@
 const { describe, test, expect } = require('@jest/globals');
+const deepcopy = require('deepcopy');
 const { resolveMemberWrite } = require('../../../../operations/common/resolveMemberWrite');
 
 describe('resolveMemberWrite', () => {
     test('add with no existing member classifies as create, leaving inactive unset (FHIR 0..1: missing means active)', () => {
-        const result = resolveMemberWrite(undefined, {
+        const result = resolveMemberWrite(undefined, [{
             entity: { reference: 'Patient/1' }, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('create');
         expect(result.member).toEqual({ entity: { reference: 'Patient/1' } });
         expect(result.member.inactive).toBeUndefined();
@@ -13,63 +14,90 @@ describe('resolveMemberWrite', () => {
 
     test('add over an existing member whose inactive field was never set leaves it unset when the write omits it too', () => {
         const existing = { entity: { reference: 'Patient/1', display: 'old' } };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1', display: 'new' }, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.inactive).toBeUndefined();
     });
 
-    test('add over an existing inactive member classifies as update and flips inactive back to false', () => {
-        // A reactivation and a plain field update are distinguished internally (the resolver
-        // needs to know whether to flip `inactive` back to `false`), but both write the same
-        // `member` shape via the same replaceOneAsync path, and nothing downstream ever needs
-        // to tell them apart -- so both are tagged `update`, not a separate `reactivate` value.
+    test('bare re-add of an inactive member keeps it inactive and writes nothing', () => {
+        // An add merges onto the stored member, so inactive changes only when the add sends it.
         const existing = { entity: { reference: 'Patient/1' }, inactive: true };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, op: 'add'
+        }]);
+        expect(result).toEqual({ writeType: 'none' });
+    });
+
+    test('add over an existing member keeps fields not sent', () => {
+        const existing = { entity: { reference: 'Patient/1' }, period: { start: '2026-01-01' } };
+        const result = resolveMemberWrite(existing, [{
+            entity: { reference: 'Patient/1' }, inactive: true, op: 'add'
+        }]);
+        expect(result).toEqual({
+            writeType: 'update',
+            member: { entity: { reference: 'Patient/1' }, period: { start: '2026-01-01' }, inactive: true }
         });
+    });
+
+    test('add with inactive:false over an inactive member classifies as update and makes it active', () => {
+        const existing = { entity: { reference: 'Patient/1' }, inactive: true };
+        const result = resolveMemberWrite(existing, [{
+            entity: { reference: 'Patient/1' }, inactive: false, op: 'add'
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.inactive).toBe(false);
     });
 
     test('add with a changed field over an existing active member classifies as update', () => {
         const existing = { entity: { reference: 'Patient/1', display: 'old' }, inactive: false };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1', display: 'new' }, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.entity.display).toBe('new');
     });
 
     test('add with no changes over an existing active member classifies as none', () => {
         const existing = { entity: { reference: 'Patient/1' }, inactive: false };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('none');
     });
 
     test('add with a changed period over an existing active member classifies as update', () => {
         const existing = { entity: { reference: 'Patient/1' }, period: { start: '2026-01-01' }, inactive: false };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, period: { start: '2026-02-01', end: '2026-06-30' }, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.period).toEqual({ start: '2026-02-01', end: '2026-06-30' });
     });
 
+    test('add with a period merges it field by field, so a stored end is kept', () => {
+        const existing = { entity: { reference: 'Patient/1' }, period: { start: '2024-01-01', end: '2024-06-30' } };
+        const result = resolveMemberWrite(existing, [{
+            entity: { reference: 'Patient/1' }, period: { start: '2025-01-01' }, op: 'add'
+        }]);
+        expect(result).toEqual({
+            writeType: 'update',
+            member: { entity: { reference: 'Patient/1' }, period: { start: '2025-01-01', end: '2024-06-30' } }
+        });
+    });
+
     test('add with a changed entity.type over an existing active member classifies as update', () => {
         const existing = { entity: { reference: 'Patient/1', type: 'Patient' }, inactive: false };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1', type: 'Person' }, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.entity.type).toBe('Person');
     });
 
     test('add carries entity._uuid/_sourceId/_sourceAssigningAuthority through from the enriched change', () => {
-        const result = resolveMemberWrite(undefined, {
+        const result = resolveMemberWrite(undefined, [{
             entity: {
                 reference: 'Patient/1',
                 _uuid: 'Patient/uuid-1',
@@ -77,7 +105,7 @@ describe('resolveMemberWrite', () => {
                 _sourceAssigningAuthority: 'test-owner'
             },
             op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('create');
         expect(result.member.entity).toEqual({
             reference: 'Patient/1',
@@ -88,14 +116,14 @@ describe('resolveMemberWrite', () => {
     });
 
     test('add carries entity.id/entity.extension through from the enriched change', () => {
-        const result = resolveMemberWrite(undefined, {
+        const result = resolveMemberWrite(undefined, [{
             entity: {
                 reference: 'Patient/1',
                 id: 'entity-elem-1',
                 extension: [{ url: 'http://example.com/entity-ext', valueString: 'y' }]
             },
             op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('create');
         expect(result.member.entity.id).toBe('entity-elem-1');
         expect(result.member.entity.extension).toEqual([{ url: 'http://example.com/entity-ext', valueString: 'y' }]);
@@ -110,9 +138,9 @@ describe('resolveMemberWrite', () => {
             },
             inactive: false
         };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1', display: 'new' }, op: 'add'
-        });
+        }]);
         expect(result.member.entity.id).toBe('entity-elem-1');
         expect(result.member.entity.extension).toEqual(existing.entity.extension);
     });
@@ -125,29 +153,29 @@ describe('resolveMemberWrite', () => {
             entity: { reference: 'Patient/1' },
             inactive: false
         };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1', display: 'new' }, op: 'add'
-        });
+        }]);
         expect(result.member.id).toBe('member-1');
         expect(result.member.extension).toEqual(existing.extension);
         expect(result.member.modifierExtension).toEqual(existing.modifierExtension);
     });
 
     test('add with a client-supplied member-level id on create is honored', () => {
-        const result = resolveMemberWrite(undefined, {
+        const result = resolveMemberWrite(undefined, [{
             id: 'client-id-1', entity: { reference: 'Patient/1' }, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('create');
         expect(result.member.id).toBe('client-id-1');
     });
 
     test('add with a client-supplied member-level extension over an existing member with none classifies as update', () => {
         const existing = { entity: { reference: 'Patient/1' }, inactive: false };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' },
             extension: [{ url: 'http://example.com/new-ext', valueString: 'added' }],
             op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.extension).toEqual([{ url: 'http://example.com/new-ext', valueString: 'added' }]);
     });
@@ -163,11 +191,11 @@ describe('resolveMemberWrite', () => {
             entity: { reference: 'Patient/1' },
             inactive: false
         };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' },
             modifierExtension: [{ url: 'http://example.com/mod', valueString: 'new' }],
             op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.modifierExtension).toEqual([
             { url: 'http://example.com/mod', valueString: 'old' },
@@ -181,11 +209,11 @@ describe('resolveMemberWrite', () => {
             entity: { reference: 'Patient/1' },
             inactive: false
         };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' },
             modifierExtension: [{ id: 'mod-1', url: 'http://example.com/mod', valueString: 'new' }],
             op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.modifierExtension).toEqual([
             { id: 'mod-1', url: 'http://example.com/mod', valueString: 'new' }
@@ -201,11 +229,11 @@ describe('resolveMemberWrite', () => {
             entity: { reference: 'Patient/1' },
             inactive: false
         };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' },
             modifierExtension: [{ id: 'mod-1', url: 'http://example.com/mod', valueString: 'new' }],
             op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.modifierExtension).toEqual([
             { id: 'mod-1', url: 'http://example.com/mod', valueString: 'new' },
@@ -227,7 +255,7 @@ describe('resolveMemberWrite', () => {
             },
             inactive: false
         };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: {
                 reference: 'Patient/1',
                 display: 'new',
@@ -236,67 +264,74 @@ describe('resolveMemberWrite', () => {
                 _sourceAssigningAuthority: 'new-owner'
             },
             op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.entity._uuid).toBe('Patient/new-uuid');
         expect(result.member.entity._sourceId).toBe('Patient/new-source-id');
         expect(result.member.entity._sourceAssigningAuthority).toBe('new-owner');
     });
 
-    test('add with no period/type/display/inactive supplied carries forward period/type/display but defaults inactive to false', () => {
+    test('add with no period/type/display/inactive supplied keeps all of them and writes nothing', () => {
         const existing = {
             entity: { reference: 'Patient/1', type: 'Patient', display: 'Jane' },
             period: { start: '2026-01-01' },
             inactive: true
         };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, op: 'add'
-        });
-        expect(result.writeType).toBe('update');
-        expect(result.member).toEqual({
-            entity: { reference: 'Patient/1', type: 'Patient', display: 'Jane' },
-            period: { start: '2026-01-01' },
-            inactive: false
-        });
+        }]);
+        expect(result).toEqual({ writeType: 'none' });
+    });
+
+    test('add does not modify the existing member or the write request', () => {
+        const existing = { entity: { reference: 'Patient/1' }, period: { start: '2026-01-01' } };
+        const writeRequest = { entity: { reference: 'Patient/1', display: 'new' }, op: 'add' };
+        const existingBefore = deepcopy(existing);
+        const writeRequestBefore = deepcopy(writeRequest);
+
+        resolveMemberWrite(existing, [writeRequest]);
+
+        expect(existing).toEqual(existingBefore);
+        expect(writeRequest).toEqual(writeRequestBefore);
     });
 
     test('add with explicit inactive:true and no existing member classifies as create with inactive:true honored', () => {
-        const result = resolveMemberWrite(undefined, {
+        const result = resolveMemberWrite(undefined, [{
             entity: { reference: 'Patient/1' }, inactive: true, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('create');
         expect(result.member).toEqual({ entity: { reference: 'Patient/1' }, inactive: true });
     });
 
     test('add with explicit inactive:true over an active member soft-deactivates (classified update, row not deleted)', () => {
         const existing = { entity: { reference: 'Patient/1' }, inactive: false };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, inactive: true, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('update');
         expect(result.member.inactive).toBe(true);
     });
 
     test('add with explicit inactive:true restated over an already-inactive member classifies as none', () => {
         const existing = { entity: { reference: 'Patient/1' }, inactive: true };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, inactive: true, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('none');
     });
 
     test('add with explicit inactive:false restated over an already-active member with no other change classifies as none', () => {
         const existing = { entity: { reference: 'Patient/1' }, inactive: false };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, inactive: false, op: 'add'
-        });
+        }]);
         expect(result.writeType).toBe('none');
     });
 
     test('remove with no existing member classifies as none', () => {
-        const result = resolveMemberWrite(undefined, {
+        const result = resolveMemberWrite(undefined, [{
             entity: { reference: 'Patient/1' }, op: 'remove'
-        });
+        }]);
         expect(result.writeType).toBe('none');
     });
 
@@ -306,9 +341,9 @@ describe('resolveMemberWrite', () => {
         // promotion (Task B3), never from this regime's own $member-remove. Removal must still
         // hard-delete it regardless of the flag's current value.
         const existing = { entity: { reference: 'Patient/1' }, inactive: true };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, op: 'remove'
-        });
+        }]);
         expect(result.writeType).toBe('delete');
     });
 
@@ -322,9 +357,9 @@ describe('resolveMemberWrite', () => {
             period: { start: '2026-01-01' },
             inactive: false
         };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, op: 'remove'
-        });
+        }]);
         expect(result.writeType).toBe('delete');
         expect(result.member).toEqual({
             entity: { reference: 'Patient/1', display: 'kept' },
@@ -335,9 +370,9 @@ describe('resolveMemberWrite', () => {
 
     test('remove over an inactive member preserves inactive:true (not overwritten) in the tombstone snapshot', () => {
         const existing = { entity: { reference: 'Patient/1' }, inactive: true };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, op: 'remove'
-        });
+        }]);
         expect(result.writeType).toBe('delete');
         expect(result.member.inactive).toBe(true);
     });
@@ -349,11 +384,43 @@ describe('resolveMemberWrite', () => {
             entity: { reference: 'Patient/1', extension: [{ url: 'http://example.com/entity-ext', valueString: 'y' }] },
             inactive: false
         };
-        const result = resolveMemberWrite(existing, {
+        const result = resolveMemberWrite(existing, [{
             entity: { reference: 'Patient/1' }, op: 'remove'
-        });
+        }]);
         expect(result.member.id).toBe('member-1');
         expect(result.member.extension).toEqual(existing.extension);
         expect(result.member.entity.extension).toEqual(existing.entity.extension);
+    });
+
+    test.each([
+        [
+            'two adds merge in request order',
+            undefined,
+            [
+                { entity: { reference: 'Patient/1' }, period: { start: '2026-01-01' }, op: 'add' },
+                { entity: { reference: 'Patient/1' }, inactive: true, op: 'add' }
+            ],
+            { writeType: 'create', member: { entity: { reference: 'Patient/1' }, period: { start: '2026-01-01' }, inactive: true } }
+        ],
+        [
+            'an add then a remove of a stored member deletes it',
+            { entity: { reference: 'Patient/1' } },
+            [{ entity: { reference: 'Patient/1' }, inactive: true, op: 'add' }, { entity: { reference: 'Patient/1' }, op: 'remove' }],
+            { writeType: 'delete', member: { entity: { reference: 'Patient/1' } } }
+        ],
+        [
+            'an add then a remove of a member not stored writes nothing',
+            undefined,
+            [{ entity: { reference: 'Patient/1' }, op: 'add' }, { entity: { reference: 'Patient/1' }, op: 'remove' }],
+            { writeType: 'none' }
+        ],
+        [
+            'a remove then an add starts from no member, so stored fields are not kept',
+            { entity: { reference: 'Patient/1' }, period: { start: '2025-01-01' } },
+            [{ entity: { reference: 'Patient/1' }, op: 'remove' }, { entity: { reference: 'Patient/1' }, inactive: true, op: 'add' }],
+            { writeType: 'update', member: { entity: { reference: 'Patient/1' }, inactive: true } }
+        ]
+    ])('several requests for one member: %s', (_label, existing, writeRequests, expected) => {
+        expect(resolveMemberWrite(existing, writeRequests)).toEqual(expected);
     });
 });

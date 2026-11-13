@@ -32,6 +32,7 @@ const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
 const { promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
+const { GroupMemberMerger } = require('../common/groupMemberMerger');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
@@ -60,6 +61,7 @@ class PatchOperation {
      * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
      * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} mongoGroupMemberRepository
      * @param {AuditLogger} auditLogger
+     * @param {GroupMemberMerger} groupMemberMerger
      */
     constructor (
         {
@@ -79,7 +81,8 @@ class PatchOperation {
             identifierEnrichmentProvider,
             groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository,
-            auditLogger
+            auditLogger,
+            groupMemberMerger
         }
     ) {
         /**
@@ -199,6 +202,12 @@ class PatchOperation {
          */
         this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
         assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
+
+        /**
+         * @type {GroupMemberMerger}
+         */
+        this.groupMemberMerger = groupMemberMerger;
+        assertTypeEquals(groupMemberMerger, GroupMemberMerger);
     }
 
     /**
@@ -363,10 +372,11 @@ class PatchOperation {
             // ============ EXECUTE GROUP MEMBER OPERATIONS (AFTER VALIDATION) ============
             // Now that we've validated the resource exists and user has access, determine which
             // group member type (if any) should handle the member ops. A plain embedded Group
-            // determines to 'embedded' and falls through to the standard patch flow below,
-            // completely unmodified -- its member[] add/remove already works via ordinary JSON
-            // Patch array semantics, no new code needed. 'extended' and 'externalStorage' are
-            // two entirely separate branches below, each calling its own dedicated strategy
+            // determines to 'embedded' and falls through to the standard patch flow below, which
+            // applies its ops as ordinary JSON Patch and then keeps one entry per member, so an add
+            // of a member already in member[] is merged into that member instead of duplicating it
+            // (see groupMemberMerger below). 'extended' and 'externalStorage' are two entirely
+            // separate branches below, each calling its own dedicated strategy
             // method -- they don't share a commit path, so a change to one type's write
             // semantics can't silently affect the other.
             const groupMemberType = memberOpsResult
@@ -436,11 +446,24 @@ class PatchOperation {
                 throw new BadRequestError(error);
             }
             // Make the changes indicated in the patch
+            const resourceToPatch = deepcopy(foundResource);
+            // fast-json-patch applies ops to these same objects in place, so after the PATCH an entry
+            // in this set is a stored entry (possibly edited by an op) and any other entry is new
+            const storedMemberEntries = new Set(Array.isArray(resourceToPatch.member) ? resourceToPatch.member : []);
             /**
              * @type {Object}
              */
             const resource_incoming = this.resourceMerger.fastApplyPatch({
-                currentResource: deepcopy(foundResource), patchContent: deepcopy(effectivePatchContent)
+                currentResource: resourceToPatch, patchContent: deepcopy(effectivePatchContent)
+            });
+            // A member of an embedded Group appears once, on every PATCH of the Group, so members
+            // stored more than once are merged too. Entries the PATCH created (not stored objects,
+            // which fast-json-patch edits in place) are merged last, so the values a PATCH sends
+            // win over the stored entry even when an indexed add puts the new entry first.
+            this.groupMemberMerger.mergeMembers({
+                resource: resource_incoming,
+                requestInfo,
+                olderEntries: storedMemberEntries
             });
             /**
              * @type {Object}

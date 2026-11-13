@@ -429,8 +429,9 @@ describe('GroupMemberPatchStrategy', () => {
                 base_version: '4_0_0',
                 groupUuid: 'group-1-uuid',
                 // inactive is undefined here (not coerced to false), unlike the ClickHouse branch's
-                // events -- resolveMemberWrite needs to tell "not supplied" apart from "explicitly
-                // false" (see resolveMemberWrite.js).
+                // events -- resolveMemberWrite merges the add onto the stored member, so a field
+                // the client did not send keeps its stored value, or stays unset on a new member
+                // (see resolveMemberWrite.js).
                 writeRequests: [
                     { entity: enrichedEntity('Patient/1'), period: undefined, inactive: undefined, op: 'add' },
                     { entity: enrichedEntity('Patient/2'), period: undefined, inactive: undefined, op: 'remove' }
@@ -454,8 +455,8 @@ describe('GroupMemberPatchStrategy', () => {
             // Client's actual last op for Patient/1 is "add" -- the combined write-request list
             // passed to resolveMemberWritesAsync must reflect that (remove, then add), not
             // silently reorder to (add, then remove) by concatenating an adds-bucket before a
-            // removes-bucket, which would make resolveMemberWritesAsync's last-wins-per-entity
-            // de-dupe always favor the remove regardless of what the client actually asked for last.
+            // removes-bucket, which would make resolveMemberWritesAsync's in-order fold always end
+            // with the remove regardless of what the client actually asked for last.
             const memberOperations = [
                 { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/1' } } },
                 { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
