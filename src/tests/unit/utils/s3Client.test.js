@@ -1,4 +1,4 @@
-const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
+const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/globals');
 
 // Mock dependencies before requiring the module
 jest.mock('@aws-sdk/client-s3', () => {
@@ -107,6 +107,72 @@ describe('S3Client', () => {
 
             const result = await s3Client.downloadAsync('valid/path');
             expect(result).toBe('file content');
+        });
+    });
+
+    describe('downloadAsync - transient error retry', () => {
+        const okBody = (text) => ({ Body: { transformToString: jest.fn().mockResolvedValue(text) } });
+        const abortedBody = () => ({
+            Body: { transformToString: jest.fn().mockRejectedValue(new Error('aborted')) }
+        });
+
+        beforeEach(() => {
+            // skip real backoff waits
+            jest.spyOn(global, 'setTimeout').mockImplementation((fn) => {
+                fn();
+                return 0;
+            });
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        test('retries the GetObject and body read when the body read aborts mid-stream', async () => {
+            mockSend.mockResolvedValueOnce(abortedBody()).mockResolvedValueOnce(okBody('payload'));
+
+            const result = await s3Client.downloadAsync('some/path');
+
+            expect(result).toBe('payload');
+            expect(mockSend).toHaveBeenCalledTimes(2);
+        });
+
+        test.each([
+            ['ECONNRESET code', Object.assign(new Error('reset'), { code: 'ECONNRESET' })],
+            ['AbortError name', Object.assign(new Error('x'), { name: 'AbortError' })],
+            ['TimeoutError name', Object.assign(new Error('x'), { name: 'TimeoutError' })],
+            ['503 response', Object.assign(new Error('x'), { $metadata: { httpStatusCode: 503 } })]
+        ])('retries on transient error: %s', async (_label, error) => {
+            mockSend.mockRejectedValueOnce(error).mockResolvedValueOnce(okBody('ok'));
+
+            expect(await s3Client.downloadAsync('some/path')).toBe('ok');
+            expect(mockSend).toHaveBeenCalledTimes(2);
+        });
+
+        test('throws after retries are exhausted, with path and error details', async () => {
+            mockSend.mockResolvedValue(abortedBody());
+
+            await expect(s3Client.downloadAsync('some/path')).rejects.toMatchObject({
+                message: expect.stringContaining('some/path')
+            });
+            expect(mockSend).toHaveBeenCalledTimes(4); // 1 attempt + 3 retries
+        });
+
+        test.each([
+            ['403 response', Object.assign(new Error('denied'), { $metadata: { httpStatusCode: 403 } })],
+            ['generic error', new Error('boom')]
+        ])('does not retry non-transient error: %s', async (_label, error) => {
+            mockSend.mockRejectedValue(error);
+
+            await expect(s3Client.downloadAsync('some/path')).rejects.toBeDefined();
+            expect(mockSend).toHaveBeenCalledTimes(1);
+        });
+
+        test('does not retry NoSuchKey and returns null', async () => {
+            mockSend.mockRejectedValue(new NoSuchKey('Key not found'));
+
+            expect(await s3Client.downloadAsync('missing/key')).toBeNull();
+            expect(mockSend).toHaveBeenCalledTimes(1);
         });
     });
 
