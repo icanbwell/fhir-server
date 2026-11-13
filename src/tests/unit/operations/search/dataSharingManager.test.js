@@ -847,58 +847,6 @@ describe('DataSharingManager', () => {
         });
     });
 
-    describe('updateQueryForDelegatedAccessConnectionTypes', () => {
-        const connectionTypeSystem = 'https://www.icanbwell.com/connectionType';
-
-        // The simplifier may rewrite a one-item `$in` as equality; compare matched codes instead.
-        const matchedConnectionTypes = (query) => {
-            const clause = query.$and?.find(
-                (c) => c['meta.security']?.$elemMatch?.system === connectionTypeSystem
-            );
-            const code = clause?.['meta.security'].$elemMatch.code;
-            return typeof code === 'string' ? [code] : code?.$in;
-        };
-
-        const run = (resourceType, actor) =>
-            dataSharingManager.updateQueryForDelegatedAccessConnectionTypes({
-                query: { resourceType },
-                actor,
-                resourceType
-            });
-
-        it.each([
-            ['Observation', ['treatment']],
-            ['Patient', ['treatment', 'proa']]
-        ])('restricts %s to allowedConnectionTypes %j', (resourceType, allowedConnectionTypes) => {
-            const result = run(resourceType, { reference: 'Organization/org-1', isOrganizationActor: true, allowedConnectionTypes });
-
-            expect(result.$and[0]).toEqual({ resourceType });
-            expect(matchedConnectionTypes(result)).toEqual(allowedConnectionTypes);
-        });
-
-        it.each([
-            ['the resource is Person', 'Person', { reference: 'Organization/org-1', isOrganizationActor: true, allowedConnectionTypes: ['treatment'] }],
-            ['the resource is Person and the list is empty', 'Person', { reference: 'Organization/org-1', isOrganizationActor: true, allowedConnectionTypes: [] }],
-            ['a RelatedPerson actor has no connection-type restriction', 'Observation', { reference: 'RelatedPerson/rp-1', isOrganizationActor: false }],
-            ['there is no actor', 'Observation', undefined]
-        ])('returns the query unchanged when %s', (_label, resourceType, actor) => {
-            const query = { resourceType };
-
-            const result = dataSharingManager.updateQueryForDelegatedAccessConnectionTypes({ query, actor, resourceType });
-
-            expect(result).toBe(query);
-        });
-
-        it.each([
-            ['allowedConnectionTypes is empty', { reference: 'Organization/org-1', isOrganizationActor: true, allowedConnectionTypes: [] }],
-            ['an Organization actor has no allowedConnectionTypes', { reference: 'Organization/org-1', isOrganizationActor: true }]
-        ])('returns an impossible query when %s', (_label, actor) => {
-            const result = run('Observation', actor);
-
-            expect(result).toEqual({ _uuid: '__invalid__' });
-        });
-    });
-
     describe('getResourceReferencesFromFilter', () => {
         it('returns patient references from parsedArgs', () => {
             const mockParsedArgs = Object.create(ParsedArgs.prototype);

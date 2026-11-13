@@ -2,7 +2,6 @@
 
 const { describe, test, expect, jest: jestObj } = require('@jest/globals');
 const forbidForUserTypes = require('../../../middleware/forbidForUserTypes.middleware');
-const { AUTH_USER_TYPES, DELEGATED_ACCESS } = require('../../../constants');
 
 describe('forbidForUserTypes middleware', () => {
     const makeRes = () => {
@@ -154,60 +153,5 @@ describe('forbidForUserTypes middleware', () => {
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toContain('restrictedUser');
         expect(err.statusCode).toBe(403);
-    });
-
-    describe('delegated Organization actor', () => {
-        const middleware = forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser, DELEGATED_ACCESS.ORGANIZATION_ACTOR_USER_TYPE]);
-        const orgActor = { reference: 'Organization/org-1', sub: 'client-sub', isOrganizationActor: true };
-
-        test.each([
-            ['a RelatedPerson actor', { userType: AUTH_USER_TYPES.delegatedUser, actor: { reference: 'RelatedPerson/rp-1', isOrganizationActor: false } }],
-            ['an Organization actor flag without delegatedUser type', { userType: 'user', actor: orgActor }],
-            ['a delegated user whose actor has no flag', { userType: AUTH_USER_TYPES.delegatedUser, actor: { reference: 'Organization/org-1' } }]
-        ])('passes through for %s', (_label, context) => {
-            const res = makeRes();
-            const next = jestObj.fn();
-
-            middleware({ authInfo: { context } }, res, next);
-
-            expect(next).toHaveBeenCalledWith();
-            expect(res.status).not.toHaveBeenCalled();
-        });
-
-        test('returns 403 OperationOutcome for an Organization actor on a REST route', () => {
-            const res = makeRes();
-            const next = jestObj.fn();
-
-            middleware({ authInfo: { context: { userType: AUTH_USER_TYPES.delegatedUser, actor: orgActor } } }, res, next);
-
-            expect(next).not.toHaveBeenCalled();
-            expect(res.status).toHaveBeenCalledWith(403);
-            expect(res.json.mock.calls[0][0].issue[0].details.text)
-                .toBe(`${DELEGATED_ACCESS.ORGANIZATION_ACTOR_USER_TYPE} does not have access to this endpoint`);
-        });
-
-        test('passes a 403 error to next for an Organization actor on a GraphQL route', () => {
-            const res = makeRes();
-            const next = jestObj.fn();
-
-            middleware({
-                isGraphQLRoute: true,
-                authInfo: { context: { userType: AUTH_USER_TYPES.delegatedUser, actor: orgActor } }
-            }, res, next);
-
-            expect(res.status).not.toHaveBeenCalled();
-            expect(next.mock.calls[0][0].statusCode).toBe(403);
-        });
-
-        test('does not block an Organization actor when the type is not listed', () => {
-            const res = makeRes();
-            const next = jestObj.fn();
-
-            forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser])(
-                { authInfo: { context: { userType: AUTH_USER_TYPES.delegatedUser, actor: orgActor } } }, res, next
-            );
-
-            expect(next).toHaveBeenCalledWith();
-        });
     });
 });

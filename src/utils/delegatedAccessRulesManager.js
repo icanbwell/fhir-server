@@ -19,7 +19,6 @@ const {
 const { dateQueryBuilder } = require('./querybuilder.util');
 const { isUuid, generateUUIDv5 } = require('./uid.util');
 const { logWarn } = require('../operations/common/logging');
-const { SecurityTagSystem } = require('./securityTagSystem');
 
 /**
  * @typedef DelegatedAccessFilteringRules
@@ -99,7 +98,7 @@ class DelegatedAccessRulesManager {
 
         // An Organization actor's Consent is org-level (no `patient` field), so it can never
         // match the query below. Skip the lookup and trust the upstream mint-time check.
-        if (actor.isOrganizationActor === true) {
+        if (ReferenceParser.parseReference(actorReference).resourceType === 'Organization') {
             const filteringRules = {
                 consentId: null,
                 consentVersion: null,
@@ -405,106 +404,54 @@ class DelegatedAccessRulesManager {
      *
      * Returns `null` if a Consent reference can't be resolved (not found/ambiguous) -- callers
      * treat that as an auth failure. Rejects instead of returning `null` on a transient lookup
-     * error (see resolveEntitlementConsentAsync); callers must let that propagate.
-     *
-     * When `actor` is passed and a Consent is resolved, sets `actor.allowedConnectionTypes` to the
-     * union of the Consents' `connectionType` securityLabel codes. It is `[]` (no data) when no
-     * Consent lists a connection type or any label is malformed.
+     * error (see resolveConsentPurposeCodesAsync); callers must let that propagate.
      *
      * @param {Object} params
      * @param {string[]|null} [params.entitlements]
      * @param {string} [params.base_version]
-     * @param {import('./fhirRequestInfo').JwtActor} [params.actor]
      * @return {Promise<string[]|null>}
      */
-    async resolvePurposeOfEventCodesAsync({ entitlements, base_version = '4_0_0', actor }) {
+    async resolvePurposeOfEventCodesAsync({ entitlements, base_version = '4_0_0' }) {
         if (!Array.isArray(entitlements) || entitlements.length === 0) {
             return entitlements ?? null;
         }
 
         const resolvedCodes = [];
-        /** @type {Set<string>|undefined} */
-        let allowedConnectionTypes;
-        let hasMalformedConnectionType = false;
         for (const entitlement of entitlements) {
             const { resourceType } = ReferenceParser.parseReference(entitlement);
             if (resourceType === 'Consent') {
-                const resolved = await this.resolveEntitlementConsentAsync({
+                const purposeCodes = await this.resolveConsentPurposeCodesAsync({
                     consentReference: entitlement,
                     base_version
                 });
-                if (resolved === null) {
+                if (purposeCodes === null) {
                     return null;
                 }
-                resolvedCodes.push(...resolved.purposeCodes);
-                allowedConnectionTypes ??= new Set();
-                if (resolved.connectionTypes) {
-                    resolved.connectionTypes.codes.forEach(code => allowedConnectionTypes.add(code));
-                    hasMalformedConnectionType ||= resolved.connectionTypes.malformed;
-                }
+                resolvedCodes.push(...purposeCodes);
             } else {
                 // Legacy shape: a bare v3-ActReason code, passed through unchanged.
                 resolvedCodes.push(entitlement);
             }
         }
-        if (actor && allowedConnectionTypes) {
-            actor.allowedConnectionTypes = hasMalformedConnectionType ? [] : [...allowedConnectionTypes];
-        }
         return resolvedCodes;
     }
 
     /**
-     * Extracts `provision.securityLabel` codings with the connectionType system.
-     * `null` = the Consent doesn't restrict connection types. `malformed` = at least one
-     * connectionType label has no usable code.
+     * Dereferences a `Consent/<id>` reference and returns its `provision.purpose` codes.
      *
-     * @param {Object} params
-     * @param {Object} params.consent
-     * @return {{ codes: string[], malformed: boolean } | null}
-     */
-    parseConnectionTypeLabels({ consent }) {
-        const securityLabel = consent.provision?.securityLabel;
-        if (!securityLabel) {
-            return null;
-        }
-        const labels = Array.isArray(securityLabel) ? securityLabel : [securityLabel];
-        const connectionTypeSystem = SecurityTagSystem.connectionType.toLowerCase();
-        const connectionTypeLabels = labels.filter(
-            label => typeof label?.system === 'string' && label.system.toLowerCase() === connectionTypeSystem
-        );
-        if (connectionTypeLabels.length === 0) {
-            return null;
-        }
-        const codes = connectionTypeLabels
-            .map(label => label.code)
-            .filter(code => typeof code === 'string' && code.length > 0);
-        const malformed = codes.length !== connectionTypeLabels.length;
-        if (malformed) {
-            logWarn('Consent connectionType securityLabel is malformed; denying connection-typed access', {
-                source: 'DelegatedAccessRulesManager.parseConnectionTypeLabels',
-                args: { consentId: consent._uuid }
-            });
-        }
-        return { codes, malformed };
-    }
-
-    /**
-     * Dereferences a `Consent/<id>` reference and returns its `provision.purpose` codes and
-     * `connectionType` securityLabels.
-     *
-     * `null` = can't resolve (not found, or ambiguous bare-id match) -- distinct from empty
-     * `purposeCodes` (found, no purpose codes). Rethrows transient lookup errors (isTransient/503,
-     * INC-322 convention) instead of conflating them with "not found".
+     * `null` = can't resolve (not found, or ambiguous bare-id match) -- distinct from `[]`
+     * (found, no purpose codes). Rethrows transient lookup errors (isTransient/503, INC-322
+     * convention) instead of conflating them with "not found".
      *
      * @param {Object} params
      * @param {string} params.consentReference
      * @param {string} params.base_version
-     * @return {Promise<{ purposeCodes: string[], connectionTypes: { codes: string[], malformed: boolean } | null } | null>}
+     * @return {Promise<string[]|null>}
      */
-    async resolveEntitlementConsentAsync({ consentReference, base_version }) {
+    async resolveConsentPurposeCodesAsync({ consentReference, base_version }) {
         try {
             return await this.customTracer.trace({
-                name: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync',
+                name: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync',
                 func: async () => {
                     const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(consentReference);
                     if (!id) {
@@ -530,7 +477,7 @@ class DelegatedAccessRulesManager {
 
                     if (consents.length === 0) {
                         logWarn(`Consent referenced by entitlements could not be resolved: ${consentReference}`, {
-                            source: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync'
+                            source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync'
                         });
                         return null;
                     }
@@ -539,24 +486,21 @@ class DelegatedAccessRulesManager {
                     // arbitrary match's purpose codes; fail closed like getFilteringRulesAsync does.
                     if (consents.length > 1) {
                         logWarn(`Consent referenced by entitlements is ambiguous (${consents.length} matches): ${consentReference}`, {
-                            source: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync'
+                            source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync'
                         });
                         return null;
                     }
 
                     const [consent] = consents;
                     const purposeCodings = consent.provision?.purpose;
-                    return {
-                        purposeCodes: Array.isArray(purposeCodings)
-                            ? purposeCodings.map(coding => coding?.code).filter(Boolean)
-                            : [],
-                        connectionTypes: this.parseConnectionTypeLabels({ consent })
-                    };
+                    return Array.isArray(purposeCodings)
+                        ? purposeCodings.map(coding => coding?.code).filter(Boolean)
+                        : [];
                 }
             });
         } catch (error) {
             logWarn(`Error resolving Consent referenced by entitlements: ${consentReference}`, {
-                source: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync',
+                source: 'DelegatedAccessRulesManager.resolveConsentPurposeCodesAsync',
                 error
             });
             error.isTransient = true;
