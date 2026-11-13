@@ -1849,6 +1849,17 @@ class ConfigManager {
     }
 
     /**
+     * kafkajs per-broker connection timeout for the V2 producer/consumer, in ms. Separate from
+     * `kafkaProducerTimeoutMs` (the per-send timeout) because a connect (TLS, SASL/IAM, metadata) is
+     * slower than a produce.
+     * @return {number}
+     */
+    get kafkaV2ConnectTimeoutMs() {
+        const value = parseInt(env.KAFKA_V2_CONNECT_TIMEOUT_MS, 10);
+        return Number.isInteger(value) && value > 0 ? value : 30000;
+    }
+
+    /**
      * @return {boolean}
      */
     get kafkaV2UseSsl() {

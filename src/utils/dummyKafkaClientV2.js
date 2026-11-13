@@ -5,6 +5,14 @@ class DummyKafkaClientV2 extends KafkaClientV2 {
         // no-op when v2 Kafka is disabled
     }
 
+    async ensureProducerConnectedAsync() {
+        // no-op when v2 Kafka is disabled
+    }
+
+    async warmUpAsync() {
+        // no-op when v2 Kafka is disabled
+    }
+
     async sendCloudEventMessageAsync({ topic, messages }) {
         // no-op when v2 Kafka is disabled
     }
