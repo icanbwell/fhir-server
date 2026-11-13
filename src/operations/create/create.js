@@ -181,6 +181,10 @@ class CreateOperation {
             resource_incoming
         );
         if (!validationOperationOutcome) {
+            // Before the scope check, whose preSave merges a Group's repeated members
+            validationOperationOutcome = this.resourceValidator.validateGroupMembersUniqueSync(resource_incoming);
+        }
+        if (!validationOperationOutcome) {
             validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                 accessRequested: 'c',
                 base_version,

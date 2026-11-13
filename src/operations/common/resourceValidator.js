@@ -22,6 +22,8 @@ const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { getGroupMemberLimitError } = require('../../utils/groupPromotion');
+const { findRepeatedMemberIndexes } = require('./groupMemberDedupe');
+const { SecurityTagStructure } = require('../../fhir/securityTagStructure');
 
 class ResourceValidator {
     /**
@@ -508,6 +510,44 @@ class ResourceValidator {
                 text: 'Payload size too large.'
             }
         });
+    }
+
+    /**
+     * Rejects a Group whose member[] lists the same member more than once. Called by POST, PUT and
+     * $merge on the Group as the client sent it, before anything merges its entries; PATCH merges
+     * a re-added member instead. Entries are the same member when their entity.reference resolves
+     * to the same uuid (see findRepeatedMemberIndexes), using the Group's sourceAssigningAuthority
+     * tag, or its owner tag when it has none, as on save. Applies whatever storage the members go
+     * to. The outcome names member[] positions only, not references.
+     * @param {Object} resource - the resource as the client sent it
+     * @returns {OperationOutcome|null} invalid outcome when a member is repeated, else null
+     */
+    validateGroupMembersUniqueSync (resource) {
+        if (resource?.resourceType !== 'Group' || !Array.isArray(resource.member)) {
+            return null;
+        }
+        const { sourceAssigningAuthority } = SecurityTagStructure.fromDocument({ doc: resource });
+        const repeatedMemberIndexes = findRepeatedMemberIndexes({
+            members: resource.member,
+            sourceAssigningAuthority: sourceAssigningAuthority[0]
+        });
+        if (repeatedMemberIndexes.length === 0) {
+            return null;
+        }
+        const repeatedEntries = repeatedMemberIndexes
+            .map((indexes) => indexes.map((index) => `member[${index}]`).join(', '))
+            .join('; ');
+        const outcome = buildOperationOutcome({
+            severity: 'error',
+            code: 'invalid',
+            details: {
+                text: `Group has more than one entry for the same member: ${repeatedEntries}. ` +
+                    'A Group can have only one entry for each member.'
+            },
+            expression: repeatedMemberIndexes.flatMap((indexes) => indexes.map((index) => `Group.member[${index}]`))
+        });
+        recordValidationFailure(outcome, resource.resourceType, VALIDATION_STAGE.SCHEMA, PATH.SAVE);
+        return outcome;
     }
 
     /**

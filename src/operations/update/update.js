@@ -317,17 +317,20 @@ class UpdateOperation {
             /**
              * @type {OperationOutcome|null}
              */
-            let validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                accessRequested: 'u',
-                base_version,
-                requestInfo,
-                id: resource_incoming_json.id,
-                resourceType,
-                resourceToValidate: resource_incoming_json,
-                path,
-                resourceObj: resource_incoming,
-                currentResource: data
-            });
+            let validationOperationOutcome = this.resourceValidator.validateGroupMembersUniqueSync(resource_incoming_json);
+            if (!validationOperationOutcome) {
+                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                    accessRequested: 'u',
+                    base_version,
+                    requestInfo,
+                    id: resource_incoming_json.id,
+                    resourceType,
+                    resourceToValidate: resource_incoming_json,
+                    path,
+                    resourceObj: resource_incoming,
+                    currentResource: data
+                });
+            }
             if (!validationOperationOutcome) {
                 resource_incoming = FhirResourceWriteSerializer.serialize({ obj: resource_incoming_json });
                 validationOperationOutcome = validateResource({

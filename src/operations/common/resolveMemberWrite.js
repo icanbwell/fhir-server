@@ -1,19 +1,21 @@
 const deepEqual = require('fast-deep-equal');
+const { mergeMemberEntry } = require('./groupMemberDedupe');
 
 /**
- * Resolves a single requested member write (add/remove) against the current membership, if
- * any, into the actual write it requires: create/update/none, plus hard-remove (delete/none).
+ * Resolves the requested writes (add/remove) for one member, in request order, against its
+ * current row, if any, into the actual write they require: create/update/none, plus hard-remove
+ * (delete/none).
  *
  * Used by the Mongo-native (extended) regime, via MongoGroupMemberRepository. An embedded Group
- * applies the same add semantics in consolidateAddedMembers (groupMemberDedupe.js).
+ * merges a member's entries the same way in mergeDuplicateMembers (groupMemberDedupe.js).
  *
- * An add replaces the member: the resolved member is exactly the write request without its `op`
- * routing field. Fields the client does not send are not kept, so a re-add without `id`,
- * `period` or `inactive` clears them. This matches JSON Patch, where an add or replace sets the
- * whole value at the target. An add equal to the stored member resolves to 'none', so a retried
+ * An add merges onto the member as it stands (see mergeMemberEntry): the add's values win and
+ * fields it does not send are kept, so `inactive` changes only when the add sends it. A remove
+ * clears the member, so an add after it starts from nothing. The result compares the final
+ * member with the stored row: an add equal to the stored member resolves to 'none', so a retried
  * add writes nothing.
  *
- * The caller builds writeRequest by spreading the client's op.value (plus `op`) after
+ * The caller builds each write request by spreading the client's op.value (plus `op`) after
  * enrichMemberReferences has set entity._uuid/_sourceId/_sourceAssigningAuthority, so the request
  * has the same shape as a stored member and an identical retry deep-equals it.
  *
@@ -22,20 +24,25 @@ const deepEqual = require('fast-deep-equal');
  * recorded exclusively via the history entry's own `request.method` ('DELETE'), never as a
  * field of the row itself.
  *
- * @param {{id: string|undefined, extension: Object[]|undefined, modifierExtension: Object[]|undefined, entity: Object, period: Object|undefined, inactive: boolean|undefined}|undefined} existingMember
- * @param {{id: string|undefined, extension: Object[]|undefined, modifierExtension: Object[]|undefined, entity: {reference:string, id:string|undefined, extension:Object[]|undefined, type:string|undefined, display:string|undefined, _uuid:string, _sourceId:string, _sourceAssigningAuthority:string}, period:Object|undefined, inactive:boolean|undefined, op:'add'|'remove'}} writeRequest
+ * @param {Object|undefined} existingMember - the stored row's member; not modified
+ * @param {Array<{entity: Object, op: 'add'|'remove'}>} writeRequests - requests for this one
+ *   member, in request order; not modified
  * @returns {{writeType:'create'|'update'|'delete'|'none', member:Object|undefined}}
  */
-function resolveMemberWrite(existingMember, writeRequest) {
-    if (writeRequest.op === 'remove') {
-        if (!existingMember) {
-            return { writeType: 'none' };
+function resolveMemberWrite(existingMember, writeRequests) {
+    let member = existingMember;
+    for (const writeRequest of writeRequests) {
+        if (writeRequest.op === 'remove') {
+            member = undefined;
+        } else {
+            const { op: _op, ...requestedMember } = writeRequest;
+            member = mergeMemberEntry(member, requestedMember);
         }
-        return { writeType: 'delete', member: { ...existingMember } };
     }
 
-    const { op: _op, ...member } = writeRequest;
-
+    if (!member) {
+        return existingMember ? { writeType: 'delete', member: { ...existingMember } } : { writeType: 'none' };
+    }
     if (!existingMember) {
         return { writeType: 'create', member };
     }

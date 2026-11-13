@@ -186,15 +186,16 @@ class MongoGroupMemberRepository {
     }
 
     /**
-     * Reads current membership for the given requested writes and, for each one, resolves (via
-     * resolveMemberWrite) exactly what it needs: create/update/delete/none. Writes nothing
-     * itself.
+     * Reads current membership for the given requested writes and, for each member they name,
+     * resolves (via resolveMemberWrite, which folds that member's requests in request
+     * order: an add merges onto the member, a remove clears it) exactly what its row needs:
+     * create/update/delete/none. Writes nothing itself.
      *
      * Resolving always requires a DB read (to know what's already there), so there's no reason
      * to pay for that read twice per PATCH request. Callers that need to know ahead of time
      * whether a batch of requested writes is a genuine no-op (e.g. removing an already-absent
-     * member, or re-adding one identical to the stored member -- both resolve to
-     * 'none') call this once, and -- if it isn't a no-op -- pass the very same Map into
+     * member, or re-adding one that sends nothing the stored member doesn't already have --
+     * both resolve to 'none') call this once, and -- if it isn't a no-op -- pass the very same Map into
      * applyResolvedMemberWritesAsync to actually write it, instead of resolving a second time.
      *
      * @param {Object} params
@@ -202,18 +203,19 @@ class MongoGroupMemberRepository {
      * @param {string} params.groupUuid
      * @param {Array<Object>} params.writeRequests
      * @returns {Promise<Map<string, {writeRequest: Object, writeType: 'create'|'update'|'delete'|'none', member: Object|undefined}>>}
+     *   keyed by member uuid; writeRequest is that member's last request
      */
     async resolveMemberWritesAsync({ base_version, groupUuid, writeRequests }) {
         if (!writeRequests || writeRequests.length === 0) {
             return new Map();
         }
 
-        // De-dupe by member identity within one call -- last requested write for a given entity wins.
-        const writeRequestsByMemberUuid = new Map();
-        for (const writeRequest of writeRequests) {
-            const memberUuid = MongoGroupMemberRepository.deriveMemberUuid(groupUuid, writeRequest.entity._uuid);
-            writeRequestsByMemberUuid.set(memberUuid, writeRequest);
-        }
+        // Group the requests by member identity, keeping request order, so several writes for one
+        // member in one PATCH resolve to a single write of that member's row.
+        /** @type {Map<string, Object[]>} member uuid -> its write requests in request order */
+        const writeRequestsByMemberUuid = Map.groupBy(writeRequests, (writeRequest) =>
+            MongoGroupMemberRepository.deriveMemberUuid(groupUuid, writeRequest.entity._uuid)
+        );
 
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: GROUP_MEMBER_RESOURCE_TYPE,
@@ -227,10 +229,10 @@ class MongoGroupMemberRepository {
         const existingMembersByUuid = new Map(existingMembers.map((m) => [m._uuid, m]));
 
         const resolvedMemberWrites = new Map();
-        for (const [memberUuid, writeRequest] of writeRequestsByMemberUuid) {
+        for (const [memberUuid, memberWriteRequests] of writeRequestsByMemberUuid) {
             const existingMember = existingMembersByUuid.get(memberUuid);
-            const { writeType, member } = resolveMemberWrite(existingMember?.member, writeRequest);
-            resolvedMemberWrites.set(memberUuid, { writeRequest, writeType, member });
+            const { writeType, member } = resolveMemberWrite(existingMember?.member, memberWriteRequests);
+            resolvedMemberWrites.set(memberUuid, { writeRequest: memberWriteRequests.at(-1), writeType, member });
         }
         return resolvedMemberWrites;
     }

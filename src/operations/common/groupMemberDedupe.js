@@ -1,144 +1,161 @@
+const deepcopy = require('deepcopy');
 const { enrichMemberReferences } = require('../../utils/referenceEnricher');
+const { mergeObject } = require('../../utils/mergeHelper');
 const { logInfo } = require('./logging');
 
-/** A single-member add: `/member/-`, `/member/<i>`, or `/member/` (which fast-json-patch treats as 0). */
-const SINGLE_MEMBER_ADD_PATH = /^\/member\/(\d*|-)$/;
-
 /**
- * The member values of the single-member adds in the ops a PATCH is about to apply. fast-json-patch
- * puts an add's value object itself into member[] and does not copy the ops, so after the PATCH an
- * entry in this set is one an add created, as later ops in the PATCH left it. Pass the same op
- * objects that are then applied.
+ * Combines two entries of the same Group member into one, the way $merge combines a resource:
+ * the newer entry's values win, fields only the older entry has are kept, objects such as
+ * `period` are merged field by field, and arrays such as `extension` are merged by `id`.
+ * `inactive` is an ordinary field here, so it changes only when the newer entry sends it.
+ * Neither argument is modified.
  *
- * @param {Object[]} patchContent - the ops that will be applied to the Group
- * @returns {Set<Object>}
+ * @param {Object|undefined} olderEntry
+ * @param {Object} newerEntry
+ * @returns {Object}
  */
-function memberEntriesAddedBy(patchContent) {
-    return new Set(
-        (Array.isArray(patchContent) ? patchContent : [])
-            .filter(
-                (operation) =>
-                    operation?.op === 'add' &&
-                    typeof operation.path === 'string' &&
-                    SINGLE_MEMBER_ADD_PATH.test(operation.path) &&
-                    operation.value !== null &&
-                    typeof operation.value === 'object'
-            )
-            .map((operation) => operation.value)
-    );
+function mergeMemberEntry(olderEntry, newerEntry) {
+    if (!olderEntry) {
+        return deepcopy(newerEntry);
+    }
+    // mergeObject leaves both inputs as they are but reuses their objects in its result, so the
+    // result is copied once
+    return deepcopy(mergeObject(olderEntry, newerEntry));
 }
 
 /**
- * Makes a member the PATCH added appear once in an embedded Group's member[].
+ * Makes each member appear once in a Group's member[]. Entries are the same member when their
+ * entity.reference resolves to the same uuid (see memberUuidOf), so the plain, the
+ * `|<sourceAssigningAuthority>` and the uuid form of a reference match, and the same id under
+ * another owner does not.
  *
- * Runs on the Group after the PATCH has been applied as plain JSON Patch, where an add of a member
- * already in member[] has left a second entry for it. For each member (matched by the uuid its
- * entity.reference resolves to) that has more than one entry, one of them created by a
- * single-member add: the last entry an add created, as later ops left it, replaces all of the
- * member's entries in the position of its first entry. The add replaces the whole member, so its
- * stored entry, any edit made to that entry, and any earlier entry an add created for it are not
- * kept. Members with no entry created by an add, and entries with no resolvable entity.reference,
- * are left as they are.
- *
- * Only adds are consolidated, because a retried add is how a duplicate is written by mistake. Every
- * other op (replace of a member or of member[], copy, move, remove, ops inside a member) is left as
- * plain JSON Patch left it, even if it puts a member in member[] twice.
+ * A member's entries are merged with mergeMemberEntry, oldest first: entries in olderEntries in
+ * member[] order, then the others in member[] order. The merged entry takes the position of the
+ * member's first entry. Entries with no resolvable entity.reference are kept as they are.
  *
  * @param {Object} params
- * @param {Object} params.patchedGroup - the Group with the PATCH applied; member[] is replaced
- * @param {Set<Object>} params.addedMemberEntries - from memberEntriesAddedBy, on the applied ops
- * @returns {Object} patchedGroup
+ * @param {Object[]} params.members - the Group's member[]; not modified
+ * @param {string} params.sourceAssigningAuthority - the Group's sourceAssigningAuthority
+ * @param {Set<Object>} [params.olderEntries] - entries the others win over, e.g. the stored
+ *   entries of a Group a PATCH was applied to
+ * @param {string} [params.groupId] - for logging only
+ * @returns {Object[]} members itself when no member has more than one entry, else a new array
  */
-function consolidateAddedMembers({ patchedGroup, addedMemberEntries }) {
-    if (!Array.isArray(patchedGroup.member)) {
-        return patchedGroup;
+function mergeDuplicateMembers({ members, sourceAssigningAuthority, olderEntries = new Set(), groupId }) {
+    if (!Array.isArray(members)) {
+        return members;
     }
-    if (!patchedGroup.member.some((entry) => addedMemberEntries.has(entry))) {
-        return patchedGroup;
+    const memberUuids = members.map((entry) => memberUuidOf(entry, sourceAssigningAuthority));
+    const entryIndexesByMemberUuid = entryIndexesOfRepeatedMembers(memberUuids);
+    if (entryIndexesByMemberUuid.size === 0) {
+        return members;
     }
-    const memberUuidOf = memberUuidResolver(patchedGroup._sourceAssigningAuthority);
 
-    /** @type {Map<string, number>} member uuid -> number of its entries */
-    const entryCountByMemberUuid = new Map();
-    /** @type {Map<string, Object>} member uuid -> its last entry an add created */
-    const lastCreatedEntryByMemberUuid = new Map();
-    let entriesWithoutReferenceCount = 0;
-    for (const entry of patchedGroup.member) {
-        const memberUuid = memberUuidOf(entry);
-        if (!memberUuid) {
-            entriesWithoutReferenceCount++;
-            continue;
-        }
-        entryCountByMemberUuid.set(memberUuid, (entryCountByMemberUuid.get(memberUuid) ?? 0) + 1);
-        if (addedMemberEntries.has(entry)) {
-            lastCreatedEntryByMemberUuid.set(memberUuid, entry);
-        }
-    }
+    const entriesWithoutReferenceCount = memberUuids.filter((memberUuid) => !memberUuid).length;
     if (entriesWithoutReferenceCount > 0) {
-        logInfo('Group members with no resolvable entity.reference skipped in consolidation', {
-            groupId: patchedGroup.id,
+        logInfo('Group members with no resolvable entity.reference left as is when merging duplicates', {
+            groupId,
             entriesWithoutReferenceCount
         });
     }
 
-    /** @type {Map<string, Object>} member uuid -> the entry all of its entries are replaced by */
-    const keptEntryByMemberUuid = new Map();
-    for (const [memberUuid, lastCreatedEntry] of lastCreatedEntryByMemberUuid) {
-        if (entryCountByMemberUuid.get(memberUuid) > 1) {
-            keptEntryByMemberUuid.set(memberUuid, lastCreatedEntry);
-        }
+    const mergedMembers = [...members];
+    const mergedAwayIndexes = new Set();
+    for (const [firstIndex, ...laterIndexes] of entryIndexesByMemberUuid.values()) {
+        const entries = [firstIndex, ...laterIndexes].map((index) => members[index]);
+        const entriesOldestFirst = [
+            ...entries.filter((entry) => olderEntries.has(entry)),
+            ...entries.filter((entry) => !olderEntries.has(entry))
+        ];
+        mergedMembers[firstIndex] = entriesOldestFirst.reduce(
+            (mergedEntry, entry) => mergeMemberEntry(mergedEntry, entry),
+            undefined
+        );
+        laterIndexes.forEach((index) => mergedAwayIndexes.add(index));
     }
-    if (keptEntryByMemberUuid.size === 0) {
-        return patchedGroup;
-    }
-
-    const placedMemberUuids = new Set();
-    patchedGroup.member = patchedGroup.member.flatMap((entry) => {
-        const memberUuid = memberUuidOf(entry);
-        if (!keptEntryByMemberUuid.has(memberUuid)) {
-            return [entry];
-        }
-        if (placedMemberUuids.has(memberUuid)) {
-            return [];
-        }
-        placedMemberUuids.add(memberUuid);
-        return [keptEntryByMemberUuid.get(memberUuid)];
-    });
-    return patchedGroup;
+    return mergedMembers.filter((_entry, index) => !mergedAwayIndexes.has(index));
 }
 
 /**
- * Returns a function giving the uuid a member's entity.reference resolves to, computed the way
- * referenceGlobalIdHandler stamps entity._uuid on save, so `Patient/x`, `Patient/x|<owner>` and
- * `Patient/<uuid>` are the same member. As on save, a reference with no `|<owner>` uses the
- * entity's own _sourceAssigningAuthority when it has one, and the Group's otherwise. A stored
- * entity._uuid is not used, since an op in the PATCH may have changed the reference it was
- * computed from. Results are cached per reference and sourceAssigningAuthority.
+ * The positions of the entries of each member a Group's member[] lists more than once, as the
+ * client sent it. Entries are the same member under the same rule as mergeDuplicateMembers. Only
+ * entity.reference is read: the entity fields the server computes are not client input, so a
+ * client-sent entity._sourceAssigningAuthority does not change which entries match.
  *
- * @param {string} groupSourceAssigningAuthority - the Group's own sourceAssigningAuthority
- * @returns {function(*): (string|null)}
+ * @param {Object} params
+ * @param {Object[]} params.members - the Group's member[]; not modified
+ * @param {string|undefined} params.sourceAssigningAuthority - the Group's sourceAssigningAuthority
+ * @returns {number[][]} for each repeated member, the indexes of its entries in member[] order;
+ *   empty when every member is listed once
  */
-function memberUuidResolver(groupSourceAssigningAuthority) {
-    /** @type {Map<string, string>} entity.reference and sourceAssigningAuthority -> member uuid */
-    const memberUuidByReferenceKey = new Map();
-    return (member) => {
-        const entity = member?.entity;
-        const reference = entity?.reference;
-        if (typeof reference !== 'string') {
-            return null;
+function findRepeatedMemberIndexes({ members, sourceAssigningAuthority }) {
+    if (!Array.isArray(members)) {
+        return [];
+    }
+    const memberUuids = members.map((entry) => referenceUuidOf(entry?.entity?.reference, sourceAssigningAuthority));
+    return [...entryIndexesOfRepeatedMembers(memberUuids).values()];
+}
+
+/**
+ * @param {(string|null)[]} memberUuids - the member uuid of each entry, null for an entry with no
+ *   resolvable entity.reference
+ * @returns {Map<string, number[]>} member uuid -> indexes of all its entries, only for members
+ *   with more than one entry. Members listed once are kept in a map of first indexes only, so a
+ *   member[] without repeats allocates no array per member.
+ */
+function entryIndexesOfRepeatedMembers(memberUuids) {
+    /** @type {Map<string, number>} member uuid -> index of its first entry */
+    const firstIndexByMemberUuid = new Map();
+    /** @type {Map<string, number[]>} */
+    const entryIndexesByMemberUuid = new Map();
+    memberUuids.forEach((memberUuid, index) => {
+        if (!memberUuid) {
+            return;
         }
-        const sourceAssigningAuthority = entity._sourceAssigningAuthority || groupSourceAssigningAuthority;
-        const referenceKey = `${reference}\u0000${sourceAssigningAuthority}`;
-        if (!memberUuidByReferenceKey.has(referenceKey)) {
-            const referenceToEnrich = [{ entity: { reference } }];
-            enrichMemberReferences(referenceToEnrich, sourceAssigningAuthority);
-            memberUuidByReferenceKey.set(referenceKey, referenceToEnrich[0].entity._uuid);
+        const firstIndex = firstIndexByMemberUuid.get(memberUuid);
+        if (firstIndex === undefined) {
+            firstIndexByMemberUuid.set(memberUuid, index);
+            return;
         }
-        return memberUuidByReferenceKey.get(referenceKey);
-    };
+        const entryIndexes = entryIndexesByMemberUuid.get(memberUuid) ?? [firstIndex];
+        entryIndexes.push(index);
+        entryIndexesByMemberUuid.set(memberUuid, entryIndexes);
+    });
+    return entryIndexesByMemberUuid;
+}
+
+/**
+ * The uuid a member's entity.reference resolves to, computed the way referenceGlobalIdHandler
+ * stamps entity._uuid on save, so `Patient/x`, `Patient/x|<owner>` and `Patient/<uuid>` are the
+ * same member. As on save, a reference with no `|<owner>` uses the entity's own
+ * _sourceAssigningAuthority when it has one, and the Group's otherwise. A stored entity._uuid is
+ * not used, since a write may have changed the reference it was computed from.
+ *
+ * @param {Object} member
+ * @param {string} groupSourceAssigningAuthority - the Group's own sourceAssigningAuthority
+ * @returns {string|null}
+ */
+function memberUuidOf(member, groupSourceAssigningAuthority) {
+    const entity = member?.entity;
+    return referenceUuidOf(entity?.reference, entity?._sourceAssigningAuthority || groupSourceAssigningAuthority);
+}
+
+/**
+ * @param {unknown} reference - an entity.reference
+ * @param {string|undefined} sourceAssigningAuthority - used when the reference has no `|<owner>`
+ * @returns {string|null} null when the reference is not a string
+ */
+function referenceUuidOf(reference, sourceAssigningAuthority) {
+    if (typeof reference !== 'string') {
+        return null;
+    }
+    const referenceToEnrich = [{ entity: { reference } }];
+    enrichMemberReferences(referenceToEnrich, sourceAssigningAuthority);
+    return referenceToEnrich[0].entity._uuid;
 }
 
 module.exports = {
-    memberEntriesAddedBy,
-    consolidateAddedMembers
+    mergeMemberEntry,
+    mergeDuplicateMembers,
+    findRepeatedMemberIndexes
 };

@@ -120,6 +120,7 @@ describe('INC-316/317: meta.security tag duplication on concurrent $merge', () =
         mergeManager.resourceValidator = mockResourceValidator;
         mergeManager.auditLogger = { logAuditEntryAsync: jest.fn() };
         mergeManager.postRequestProcessor = { add: jest.fn() };
+        mergeManager.groupMemberMerger = { mergeMembers: jest.fn(({ resource }) => resource) };
         mergeManager.databaseQueryFactory = {
             createQuery: jest.fn().mockReturnValue({
                 fastFindOneAsync: jest.fn().mockResolvedValue(null)

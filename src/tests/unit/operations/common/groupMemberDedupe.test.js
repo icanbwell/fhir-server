@@ -1,225 +1,142 @@
 const { describe, test, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
-const { applyPatch } = require('fast-json-patch');
-const { consolidateAddedMembers, memberEntriesAddedBy } = require('../../../../operations/common/groupMemberDedupe');
-const { enrichMemberReferences } = require('../../../../utils/referenceEnricher');
+const { mergeMemberEntry, mergeDuplicateMembers } = require('../../../../operations/common/groupMemberDedupe');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 const SAA = 'test-owner';
+const PERIOD_2025 = { start: '2025-01-01' };
+const PERIOD_2026 = { start: '2026-01-01' };
 
-/**
- * Builds a stored member the way it sits in Group_4_0_0 after a save: entity carries the
- * _uuid/_sourceId/_sourceAssigningAuthority that referenceGlobalIdHandler stamps.
- */
-function storedMember(reference, extra = {}) {
-    const member = { entity: { reference }, ...extra };
-    enrichMemberReferences([member], SAA);
-    return member;
+function member(reference, extra = {}) {
+    return { entity: { reference }, ...extra };
 }
 
-function groupWithMembers(members) {
-    return { resourceType: 'Group', id: 'g1', _sourceAssigningAuthority: SAA, member: members };
+function references(members) {
+    return members.map((entry) => entry.entity?.reference ?? null);
 }
 
-/**
- * Applies the PATCH the way patch.js does: plain JSON Patch, then consolidateAddedMembers.
- */
-function applyPatchToGroup(group, patchContent) {
-    const patchContentToApply = deepcopy(patchContent);
-    const addedMemberEntries = memberEntriesAddedBy(patchContentToApply);
-    const patchedGroup = applyPatch(deepcopy(group), patchContentToApply).newDocument;
-    return consolidateAddedMembers({ patchedGroup, addedMemberEntries });
-}
-
-function memberReferences(group) {
-    return group.member.map((member) => member.entity?.reference);
-}
-
-describe('consolidateAddedMembers', () => {
+describe('mergeMemberEntry', () => {
     test.each([
-        ['/member/-', ['Patient/a', 'Patient/b']],
-        ['/member/', ['Patient/b', 'Patient/a']],
-        ['/member/0', ['Patient/b', 'Patient/a']]
-    ])('an unchanged re-add on %s keeps one entry, where the member first appears', (path, expectedReferences) => {
-        const group = groupWithMembers([storedMember('Patient/a'), storedMember('Patient/b')]);
-
-        const result = applyPatchToGroup(group, [{ op: 'add', path, value: { entity: { reference: 'Patient/b' } } }]);
-
-        expect(memberReferences(result)).toEqual(expectedReferences);
-        expect(result.member.find((member) => member.entity.reference === 'Patient/b')).toEqual({ entity: { reference: 'Patient/b' } });
-    });
-
-    test('a re-add of an existing member with changes replaces it where it is with exactly the value sent', () => {
-        const group = groupWithMembers([storedMember('Patient/a'), storedMember('Patient/b', { id: 'm-b', inactive: true })]);
-
-        const result = applyPatchToGroup(group, [
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/b' }, period: { start: '2026-01-01' } } }
-        ]);
-
-        expect(memberReferences(result)).toEqual(['Patient/a', 'Patient/b']);
-        expect(result.member[1]).toEqual({ entity: { reference: 'Patient/b' }, period: { start: '2026-01-01' } });
-    });
-
-    test.each([
-        ['the same id', 'Patient/a'],
-        ['id|sourceAssigningAuthority', `Patient/a|${SAA}`],
-        ['the uuid', `Patient/${generateUUIDv5(`a|${SAA}`)}`]
-    ])('a re-add referencing an existing member by %s updates that member', (_label, reference) => {
-        const group = groupWithMembers([storedMember('Patient/a', { period: { start: '2025-01-01' } })]);
-
-        const result = applyPatchToGroup(group, [
-            { op: 'add', path: '/member/-', value: { entity: { reference }, period: { start: '2026-01-01' } } }
-        ]);
-
-        expect(result.member).toEqual([{ entity: { reference }, period: { start: '2026-01-01' } }]);
-    });
-
-    test.each([
-        ['a new member', [storedMember('Patient/a')], ['Patient/a', 'Patient/b']],
-        ['an existing member', [storedMember('Patient/a'), storedMember('Patient/b', { id: 'm-b' })], ['Patient/a', 'Patient/b']]
-    ])('adds of %s twice in one PATCH keep only the last one', (_label, storedMembers, expectedReferences) => {
-        const group = groupWithMembers(storedMembers);
-
-        const result = applyPatchToGroup(group, [
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/b' }, period: { start: '2026-01-01' } } },
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/b' }, inactive: true } }
-        ]);
-
-        expect(memberReferences(result)).toEqual(expectedReferences);
-        expect(result.member[1]).toEqual({ entity: { reference: 'Patient/b' }, inactive: true });
-    });
-
-    test.each([
+        ['the newer value wins', member('Patient/a', { period: PERIOD_2025 }), member('Patient/a', { period: PERIOD_2026 }), member('Patient/a', { period: PERIOD_2026 })],
+        ['a field only the older entry has is kept', member('Patient/a', { period: PERIOD_2025 }), member('Patient/a'), member('Patient/a', { period: PERIOD_2025 })],
         [
-            'a re-add of the old patient adds it back',
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' } } },
-            ['Patient/b', 'Patient/a']
+            'a period merges field by field, so an end only the older entry has is kept',
+            member('Patient/a', { period: { start: '2024-01-01', end: '2024-06-30' } }),
+            member('Patient/a', { period: { start: '2025-01-01' } }),
+            member('Patient/a', { period: { start: '2025-01-01', end: '2024-06-30' } })
         ],
         [
-            'an add of the new patient keeps one entry',
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/b' } } },
-            ['Patient/b']
+            'entity merges field by field',
+            { entity: { reference: 'Patient/a', display: 'Name' } },
+            { entity: { reference: 'Patient/a', type: 'Patient' } },
+            { entity: { reference: 'Patient/a', display: 'Name', type: 'Patient' } }
+        ],
+        ['a newer entry without inactive keeps the stored inactive', member('Patient/a', { inactive: true }), member('Patient/a'), member('Patient/a', { inactive: true })],
+        ['a newer inactive false wins', member('Patient/a', { inactive: true }), member('Patient/a', { inactive: false }), member('Patient/a', { inactive: false })],
+        ['a newer inactive true wins', member('Patient/a'), member('Patient/a', { inactive: true }), member('Patient/a', { inactive: true })],
+        ['with no older entry the newer entry is used', undefined, member('Patient/a', { period: PERIOD_2026 }), member('Patient/a', { period: PERIOD_2026 })],
+        [
+            'extension items are merged by id',
+            member('Patient/a', { extension: [{ id: 'x1', url: 'https://example.org/one', valueString: 'one' }] }),
+            member('Patient/a', { extension: [{ id: 'x2', url: 'https://example.org/two', valueString: 'two' }] }),
+            member('Patient/a', {
+                extension: [
+                    { id: 'x1', url: 'https://example.org/one', valueString: 'one' },
+                    { id: 'x2', url: 'https://example.org/two', valueString: 'two' }
+                ]
+            })
         ]
-    ])('after a member is re-pointed in the same PATCH, %s', (_label, addOp, expectedReferences) => {
-        const group = groupWithMembers([storedMember('Patient/a')]);
-
-        const result = applyPatchToGroup(group, [
-            { op: 'replace', path: '/member/0/entity/reference', value: 'Patient/b' },
-            addOp
-        ]);
-
-        expect(memberReferences(result)).toEqual(expectedReferences);
+    ])('%s', (_label, olderEntry, newerEntry, expectedEntry) => {
+        expect(mergeMemberEntry(olderEntry, newerEntry)).toEqual(expectedEntry);
     });
 
-    test('a member added and then removed in the same PATCH stays removed', () => {
-        const group = groupWithMembers([storedMember('Patient/x')]);
+    test('does not modify either entry', () => {
+        const olderEntry = member('Patient/a', { period: PERIOD_2025 });
+        const newerEntry = member('Patient/a', { inactive: true });
+        const olderBefore = deepcopy(olderEntry);
+        const newerBefore = deepcopy(newerEntry);
 
-        const result = applyPatchToGroup(group, [
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' } } },
-            { op: 'remove', path: '/member/1' }
-        ]);
+        const mergedEntry = mergeMemberEntry(olderEntry, newerEntry);
+        mergedEntry.entity.display = 'changed after merge';
 
-        expect(memberReferences(result)).toEqual(['Patient/x']);
+        expect(olderEntry).toEqual(olderBefore);
+        expect(newerEntry).toEqual(newerBefore);
     });
+});
 
+describe('mergeDuplicateMembers', () => {
     test.each([
-        [
-            'an edit to the entry the add created is kept',
-            '/member/2/period',
-            { entity: { reference: 'Patient/a' }, inactive: true, period: { start: '2026-02-01' } }
-        ],
-        [
-            'an edit to the stored entry is replaced by the add',
-            '/member/1/period',
-            { entity: { reference: 'Patient/a' }, inactive: true }
-        ]
-    ])('after a re-add of an existing member, %s', (_label, editPath, expectedMember) => {
-        const group = groupWithMembers([storedMember('Patient/x'), storedMember('Patient/a')]);
+        ['no duplicates', ['Patient/a', 'Patient/b'], ['Patient/a', 'Patient/b']],
+        ['a duplicate collapses at the first position', ['Patient/a', 'Patient/b', 'Patient/a'], ['Patient/a', 'Patient/b']],
+        ['three entries of one member collapse to one', ['Patient/a', 'Patient/a', 'Patient/b', 'Patient/a'], ['Patient/a', 'Patient/b']],
+        ['the id|sourceAssigningAuthority form matches the plain id', ['Patient/a', 'Patient/b', `Patient/a|${SAA}`], [`Patient/a|${SAA}`, 'Patient/b']],
+        ['the uuid form matches the plain id', ['Patient/a', `Patient/${generateUUIDv5(`a|${SAA}`)}`], [`Patient/${generateUUIDv5(`a|${SAA}`)}`]],
+        ['the same id under another owner is a different member', ['Patient/a', 'Patient/a|other-owner'], ['Patient/a', 'Patient/a|other-owner']],
+        ['an entry without a reference is kept in place', ['Patient/a', null, 'Patient/a'], ['Patient/a', null]]
+    ])('%s', (_label, inputReferences, expectedReferences) => {
+        const members = inputReferences.map((reference) => (reference ? member(reference) : { entity: { display: 'no reference' } }));
 
-        const result = applyPatchToGroup(group, [
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' }, inactive: true } },
-            { op: 'add', path: editPath, value: { start: '2026-02-01' } }
-        ]);
+        const result = mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
 
-        expect(result.member).toEqual([storedMember('Patient/x'), expectedMember]);
+        expect(references(result)).toEqual(expectedReferences);
     });
 
-    test.each([
-        ['without |owner is a different member, as on save', 'Patient/y', 2],
-        ['with the stored entry\'s |owner is the same member', 'Patient/y|other-owner', 1]
-    ])(
-        'for a stored entry stamped with another sourceAssigningAuthority, an add %s',
-        (_label, addedReference, expectedEntryCount) => {
-            const storedUnderOtherOwner = {
-                entity: {
-                    reference: 'Patient/y',
-                    _uuid: `Patient/${generateUUIDv5('y|other-owner')}`,
-                    _sourceId: 'Patient/y',
-                    _sourceAssigningAuthority: 'other-owner'
-                }
-            };
-            const group = groupWithMembers([storedUnderOtherOwner]);
-
-            const result = applyPatchToGroup(group, [
-                { op: 'add', path: '/member/-', value: { entity: { reference: addedReference } } }
-            ]);
-
-            expect(result.member).toHaveLength(expectedEntryCount);
-        }
-    );
-
-    test('members the PATCH does not add are left as they are, including duplicates already stored', () => {
-        const group = groupWithMembers([
-            storedMember('Patient/a', { period: { start: '2025-01-01' } }),
-            storedMember('Patient/x'),
-            storedMember('Patient/a', { period: { start: '2025-02-01' } })
-        ]);
-
-        const result = applyPatchToGroup(group, [
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/y' } } }
-        ]);
-
-        expect(memberReferences(result)).toEqual(['Patient/a', 'Patient/x', 'Patient/a', 'Patient/y']);
-    });
-
-    test.each([
-        ['no member ops', [{ op: 'add', path: '/active', value: true }]],
-        ['an add of a field of a member', [{ op: 'add', path: '/member/0/period', value: { start: '2026-01-01' } }]],
-        ['a replace of a field of a member', [{ op: 'replace', path: '/member/0/entity/reference', value: 'Patient/x' }]],
-        ['a remove of a member', [{ op: 'remove', path: '/member/0' }]],
-        ['a move of a member', [{ op: 'move', from: '/member/0', path: '/member/-' }]],
-        [
-            'a replace of a member with a member already in member[]',
-            [{ op: 'replace', path: '/member/0', value: { entity: { reference: 'Patient/b' }, inactive: true } }]
-        ],
-        [
-            'a replace of member[] with the same member twice',
-            [{ op: 'replace', path: '/member', value: [{ entity: { reference: 'Patient/x' } }, { entity: { reference: 'Patient/x' } }] }]
-        ],
-        [
-            'an add of member[] itself with the same member twice',
-            [{ op: 'add', path: '/member', value: [{ entity: { reference: 'Patient/x' } }, { entity: { reference: 'Patient/x' } }] }]
-        ],
-        ['a copy of a member to member[]', [{ op: 'copy', from: '/member/0', path: '/member/-' }]],
-        ['an add without entity.reference', [{ op: 'add', path: '/member/-', value: { entity: { display: 'no reference' } } }]]
-    ])('leaves the patched Group as plain JSON Patch left it for %s', (_label, patchContent) => {
-        const group = groupWithMembers([storedMember('Patient/a'), storedMember('Patient/b')]);
-        const plainResult = applyPatch(deepcopy(group), deepcopy(patchContent)).newDocument;
-
-        const result = applyPatchToGroup(group, patchContent);
-
-        expect(result).toEqual(plainResult);
-    });
-
-    test('does not modify the PATCH ops', () => {
-        const group = groupWithMembers([storedMember('Patient/a')]);
-        const patchContent = [
-            { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/a' }, period: { start: '2026-01-01' } } }
+    test('entries are merged in member[] order, so a later entry wins and earlier fields are kept', () => {
+        const members = [
+            member('Patient/a', { period: PERIOD_2025, inactive: true }),
+            member('Patient/b'),
+            member('Patient/a', { period: PERIOD_2026 })
         ];
-        const patchBefore = deepcopy(patchContent);
 
-        applyPatchToGroup(group, patchContent);
+        const result = mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
 
-        expect(patchContent).toEqual(patchBefore);
+        expect(result).toEqual([member('Patient/a', { period: PERIOD_2026, inactive: true }), member('Patient/b')]);
+    });
+
+    test('the other entries win over entries in olderEntries even when they come first', () => {
+        const storedEntry = member('Patient/a', { period: PERIOD_2025, inactive: true });
+        const members = [member('Patient/a', { period: PERIOD_2026 }), member('Patient/x'), storedEntry];
+
+        const result = mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA, olderEntries: new Set([storedEntry]) });
+
+        expect(result).toEqual([member('Patient/a', { period: PERIOD_2026, inactive: true }), member('Patient/x')]);
+    });
+
+    test('an entity sourceAssigningAuthority is used before the Group one', () => {
+        const members = [
+            { entity: { reference: 'Patient/a', _sourceAssigningAuthority: 'other-owner' } },
+            member('Patient/a|other-owner', { inactive: true })
+        ];
+
+        const result = mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
+
+        expect(result).toHaveLength(1);
+        expect(result[0].inactive).toBe(true);
+    });
+
+    test('a stored entity._uuid is not used, so entries are matched on their current reference', () => {
+        const members = [
+            { entity: { reference: 'Patient/a', _uuid: 'Patient/same-uuid' } },
+            { entity: { reference: 'Patient/b', _uuid: 'Patient/same-uuid' } }
+        ];
+
+        const result = mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
+
+        expect(result).toHaveLength(2);
+    });
+
+    test('returns the same array when nothing is merged', () => {
+        const members = [member('Patient/a'), member('Patient/b')];
+
+        expect(mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA })).toBe(members);
+    });
+
+    test('does not modify the input entries', () => {
+        const members = [member('Patient/a', { period: PERIOD_2025 }), member('Patient/a', { inactive: true })];
+        const membersBefore = deepcopy(members);
+
+        mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
+
+        expect(members).toEqual(membersBefore);
     });
 });

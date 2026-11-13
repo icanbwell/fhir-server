@@ -8,6 +8,8 @@ const { describe, beforeEach, afterEach, it, expect, jest } = require('@jest/glo
 
 const { ResourceMerger } = require('../../../../operations/common/resourceMerger');
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
+const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
+const { ConfigManager } = require('../../../../utils/configManager');
 
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -28,7 +30,10 @@ describe('ResourceMerger', () => {
             return resource;
         });
 
-        resourceMerger = new ResourceMerger({ preSaveManager: mockPreSaveManager });
+        resourceMerger = new ResourceMerger({
+            preSaveManager: mockPreSaveManager,
+            groupMemberMerger: new GroupMemberMerger({ configManager: new ConfigManager() })
+        });
     });
 
     afterEach(() => {
@@ -408,7 +413,8 @@ describe('ResourceMerger', () => {
         });
         const mergerIgnoring = (resourceTypes) => new ResourceMerger({
             preSaveManager: mockPreSaveManager,
-            configManager: { mergeIgnoreDateOnlyChangeResourceTypes: resourceTypes }
+            configManager: { mergeIgnoreDateOnlyChangeResourceTypes: resourceTypes },
+            groupMemberMerger: new GroupMemberMerger({ configManager: new ConfigManager() })
         });
 
         it.each([
@@ -437,7 +443,13 @@ describe('ResourceMerger', () => {
         it.each([
             ['the type is not listed', () => mergerIgnoring(['Observation'])],
             ['the list is empty', () => mergerIgnoring([])],
-            ['no config manager is injected', () => new ResourceMerger({ preSaveManager: mockPreSaveManager })]
+            [
+                'no config manager is injected',
+                () => new ResourceMerger({
+                    preSaveManager: mockPreSaveManager,
+                    groupMemberMerger: new GroupMemberMerger({ configManager: new ConfigManager() })
+                })
+            ]
         ])('still reports a date-only change when %s', (_name, buildMerger) => {
             const patches = buildMerger().compareObjects({
                 currentObject: composition(),

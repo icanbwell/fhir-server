@@ -20,6 +20,7 @@ const { ScopesManager } = require('../../../../operations/security/scopesManager
 const { PatientFilterManager } = require('../../../../fhir/patientFilterManager');
 const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -660,6 +661,71 @@ describe('ResourceValidator', () => {
             const result = resourceValidator.validateResourceSizeSync({ resource, resourceType: 'AuditEvent' });
             expect(result).not.toBeNull();
             expect(result.issue[0].code).toBe('too-long');
+        });
+    });
+
+    describe('validateGroupMembersUniqueSync', () => {
+        const OWNER = 'test-owner';
+        const ownerTag = { system: 'https://www.icanbwell.com/owner', code: OWNER };
+
+        function group(members, security = [ownerTag]) {
+            return { resourceType: 'Group', id: 'g1', meta: { security }, member: members };
+        }
+
+        function member(reference, extra = {}) {
+            return { entity: { reference }, ...extra };
+        }
+
+        it.each([
+            ['a resource that is not a Group', { resourceType: 'Patient', member: [member('Patient/a'), member('Patient/a')] }],
+            ['a Group without member', { resourceType: 'Group', meta: { security: [ownerTag] } }],
+            ['each member listed once', group([member('Patient/a'), member('Patient/b')])],
+            ['the same id under two owners', group([member('Patient/a|owner-one'), member('Patient/a|owner-two')])],
+            ['entries without entity.reference', group([{ entity: {} }, {}, member('Patient/a')])]
+        ])('accepts %s', (_label, resource) => {
+            expect(resourceValidator.validateGroupMembersUniqueSync(resource)).toBeNull();
+        });
+
+        it.each([
+            ['the same reference twice', group([member('Patient/a'), member('Patient/a', { inactive: true })]), [0, 1]],
+            ['the plain and the |owner form', group([member('Patient/a'), member('Patient/b'), member(`Patient/a|${OWNER}`)]), [0, 2]],
+            ['the plain and the uuid form', group([member(`Patient/${generateUUIDv5(`a|${OWNER}`)}`), member('Patient/a')]), [0, 1]],
+            [
+                'the |sourceAssigningAuthority form, using that tag before the owner tag',
+                group(
+                    [member('Patient/a'), member('Patient/a|source-authority')],
+                    [ownerTag, { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'source-authority' }]
+                ),
+                [0, 1]
+            ],
+            [
+                'a client-sent entity._sourceAssigningAuthority, which is ignored',
+                group([{ entity: { reference: 'Patient/a', _sourceAssigningAuthority: 'other-owner' } }, member('Patient/a')]),
+                [0, 1]
+            ]
+        ])('rejects %s', (_label, resource, repeatedIndexes) => {
+            const outcome = resourceValidator.validateGroupMembersUniqueSync(resource);
+
+            expect(outcome.issue).toHaveLength(1);
+            expect(outcome.issue[0]).toMatchObject({
+                severity: 'error',
+                code: 'invalid',
+                expression: repeatedIndexes.map((index) => `Group.member[${index}]`)
+            });
+        });
+
+        it('names the positions of every repeated member and no reference', () => {
+            const resource = group([member('Patient/a'), member('Patient/b'), member('Patient/a'), member('Patient/b')]);
+
+            const outcome = resourceValidator.validateGroupMembersUniqueSync(resource);
+
+            expect(outcome.issue[0].details.text).toBe(
+                'Group has more than one entry for the same member: member[0], member[2]; member[1], member[3]. ' +
+                'A Group can have only one entry for each member.'
+            );
+            expect(outcome.issue[0].expression).toEqual([
+                'Group.member[0]', 'Group.member[2]', 'Group.member[1]', 'Group.member[3]'
+            ]);
         });
     });
 

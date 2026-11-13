@@ -4,8 +4,8 @@
  * Roster changes for a Group go exclusively through standard PATCH /4_0_0/Group/{id} with
  * RFC 6902 JSON Patch ops on /member -- there is no more $member-add/$member-remove operation.
  * GroupMemberPatchStrategy.determineGroupMemberType() picks the group member type once the Group is loaded:
- * - embedded (default): ops flow through the ordinary fast-json-patch flow, except that adding a
- *   member already in member[] (same entity) updates it instead of duplicating it.
+ * - embedded (default): ops flow through the ordinary fast-json-patch flow, then entries of the
+ *   same member (same entity) are merged into one, the values the PATCH sent winning.
  * - mongoNative ("extended", DCON-5527): rows are written to GroupMember_4_0_0 /
  *   GroupMember_4_0_0_History via MongoGroupMemberRepository.
  *
@@ -181,7 +181,7 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             expect(retryResp.body.meta.versionId).toBe(firstResp.body.meta.versionId);
         });
 
-        test('PATCH add of an existing member with a changed field replaces it in place with the value sent', async () => {
+        test('PATCH add of an existing member with a changed field merges into it, keeping fields not sent', async () => {
             const created = await createGroup({
                 member: [
                     { id: 'm-a', entity: { reference: 'Patient/embedded-update' } },
@@ -199,7 +199,7 @@ describe('Group member PATCH write path (DCON-5527)', () => {
 
             expect(patchResp.status).toBe(200);
             expect(patchResp.body.member).toHaveLength(2);
-            expect(patchResp.body.member[0].id).toBeUndefined();
+            expect(patchResp.body.member[0].id).toBe('m-a');
             expect(patchResp.body.member[0].period).toEqual({ start: '2026-01-01' });
             expect(patchResp.body.member[0].entity.reference).toBe('Patient/embedded-update');
             expect(Number(patchResp.body.meta.versionId)).toBe(Number(created.meta.versionId) + 1);
@@ -287,26 +287,80 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             expect(readResp.body.meta.versionId).toBe(created.meta.versionId);
         });
 
-        test('a member already stored twice that the PATCH does not add is left as it is', async () => {
+        test.each([
+            ['an add of another member', [{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-dup-new' } } }], ['Patient/embedded-dup', 'Patient/embedded-dup-other', 'Patient/embedded-dup-new']],
+            ['a PATCH without member ops', [{ op: 'add', path: '/name', value: 'renamed' }], ['Patient/embedded-dup', 'Patient/embedded-dup-other']]
+        ])('a member already stored twice is merged into one entry by %s', async (_label, patchOps, expectedReferences) => {
+            const created = await createGroup({
+                member: [{ entity: { reference: 'Patient/embedded-dup-other' } }]
+            });
+            // POST already merges duplicates, so write the stored duplicates directly
+            const groupCollection = await getCollection(GROUP_COLLECTION_NAME);
+            await groupCollection.updateOne(
+                { id: created.id },
+                {
+                    $set: {
+                        member: [
+                            { entity: { reference: 'Patient/embedded-dup' }, period: { start: '2025-01-01' }, inactive: true },
+                            { entity: { reference: 'Patient/embedded-dup-other' } },
+                            { entity: { reference: 'Patient/embedded-dup' }, period: { start: '2025-02-01' } }
+                        ]
+                    }
+                }
+            );
+
+            const patchResp = await patchGroup(created.id, patchOps);
+
+            expect(patchResp.status).toBe(200);
+            expect(patchResp.body.member.map((m) => m.entity.reference)).toEqual(expectedReferences);
+            expect(patchResp.body.member[0].period).toEqual({ start: '2025-02-01' });
+            expect(patchResp.body.member[0].inactive).toBe(true);
+        });
+
+        test.each([
+            ['add /member/- with inactive', [{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-a' }, inactive: true } }], ['Patient/embedded-x', 'Patient/embedded-a'], { period: { start: '2025-01-01' }, inactive: true }],
+            ['add /member/0 with a new period', [{ op: 'add', path: '/member/0', value: { entity: { reference: 'Patient/embedded-a' }, period: { start: '2026-01-01' } } }], ['Patient/embedded-a', 'Patient/embedded-x'], { period: { start: '2026-01-01' } }],
+            [
+                'two adds of the member',
+                [
+                    { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-a' }, period: { start: '2026-01-01' } } },
+                    { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-a' }, inactive: true } }
+                ],
+                ['Patient/embedded-x', 'Patient/embedded-a'],
+                { period: { start: '2026-01-01' }, inactive: true }
+            ],
+            ['replace /member/0 with the member', [{ op: 'replace', path: '/member/0', value: { entity: { reference: 'Patient/embedded-a' }, period: { start: '2026-01-01' } } }], ['Patient/embedded-a'], { period: { start: '2026-01-01' } }],
+            ['replace /member/0/entity/reference to the member', [{ op: 'replace', path: '/member/0/entity/reference', value: 'Patient/embedded-a' }], ['Patient/embedded-a'], { period: { start: '2025-01-01' } }],
+            ['copy of the member', [{ op: 'copy', from: '/member/1', path: '/member/-' }], ['Patient/embedded-x', 'Patient/embedded-a'], { period: { start: '2025-01-01' } }],
+            [
+                'replace of member[] with the member twice',
+                [{ op: 'replace', path: '/member', value: [{ entity: { reference: 'Patient/embedded-a' } }, { entity: { reference: 'Patient/embedded-a' }, period: { start: '2026-01-01' } }] }],
+                ['Patient/embedded-a'],
+                { period: { start: '2026-01-01' } }
+            ],
+            [
+                'an add and an edit of the stored entry',
+                [
+                    { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-a' }, inactive: true } },
+                    { op: 'add', path: '/member/1/period', value: { start: '2026-01-01' } }
+                ],
+                ['Patient/embedded-x', 'Patient/embedded-a'],
+                { period: { start: '2026-01-01' }, inactive: true }
+            ]
+        ])('PATCH with %s keeps one entry per member', async (_label, patchOps, expectedReferences, expectedFields) => {
             const created = await createGroup({
                 member: [
-                    { entity: { reference: 'Patient/embedded-dup' }, period: { start: '2025-01-01' } },
-                    { entity: { reference: 'Patient/embedded-dup-other' } },
-                    { entity: { reference: 'Patient/embedded-dup' }, period: { start: '2025-02-01' } }
+                    { entity: { reference: 'Patient/embedded-x' } },
+                    { entity: { reference: 'Patient/embedded-a' }, period: { start: '2025-01-01' } }
                 ]
             });
 
-            const patchResp = await patchGroup(created.id, [
-                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/embedded-dup-new' } } }
-            ]);
+            const patchResp = await patchGroup(created.id, patchOps);
 
             expect(patchResp.status).toBe(200);
-            expect(patchResp.body.member.map((m) => m.entity.reference)).toEqual([
-                'Patient/embedded-dup',
-                'Patient/embedded-dup-other',
-                'Patient/embedded-dup',
-                'Patient/embedded-dup-new'
-            ]);
+            expect(patchResp.body.member.map((m) => m.entity.reference)).toEqual(expectedReferences);
+            const mergedMember = patchResp.body.member.find((m) => m.entity.reference === 'Patient/embedded-a');
+            expect({ period: mergedMember.period, inactive: mergedMember.inactive }).toEqual(expectedFields);
         });
 
         test.each([
@@ -471,10 +525,10 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             expect(rowAfterDeactivate.member.inactive).toBe(true);
         });
 
-        test('PATCH add with id and inactive:true followed by a bare re-add replaces the member, clearing both', async () => {
+        test('PATCH add with id and inactive:true followed by a bare re-add keeps both and writes nothing', async () => {
             const created = await createGroup();
             await markGroupExtended(created.id);
-            const memberRef = 'Patient/extended-reactivate';
+            const memberRef = 'Patient/extended-readd-inactive';
 
             const addResp = await patchGroup(created.id, [
                 { op: 'add', path: '/member/-', value: { id: 'm-x', entity: { reference: memberRef }, inactive: true } }
@@ -486,15 +540,65 @@ describe('Group member PATCH write path (DCON-5527)', () => {
             expect(rowAfterAdd.member.inactive).toBe(true);
             const { groupUuid } = rowAfterAdd;
 
-            const reactivateResp = await patchGroup(created.id, [
+            // The re-add merges onto the stored member and sends nothing new, so nothing is written.
+            const reAddResp = await patchGroup(created.id, [
                 { op: 'add', path: '/member/-', value: { entity: { reference: memberRef } } }
             ]);
-            expect(reactivateResp.status).toBe(200);
+            expect(reAddResp.status).toBe(200);
+            expect(reAddResp.body.meta.versionId).toBe(addResp.body.meta.versionId);
 
-            const rowAfterReactivate = await memberCollection.findOne({ groupUuid, 'member.entity.reference': memberRef });
-            expect(rowAfterReactivate).not.toBeNull();
-            expect(rowAfterReactivate.member.id).toBeUndefined();
-            expect(rowAfterReactivate.member.inactive).toBeUndefined();
+            const rowAfterReAdd = await memberCollection.findOne({ groupUuid, 'member.entity.reference': memberRef });
+            expect(rowAfterReAdd.member.id).toBe('m-x');
+            expect(rowAfterReAdd.member.inactive).toBe(true);
+        });
+
+        test.each([
+            [
+                're-add without period keeps the stored period',
+                [{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/extended-merge-a' } } }],
+                [{ period: { start: '2025-01-01' } }]
+            ],
+            [
+                'two adds of one member merge',
+                [
+                    { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/extended-merge-a' }, period: { start: '2026-01-01' } } },
+                    { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/extended-merge-a' }, inactive: true } }
+                ],
+                [{ period: { start: '2026-01-01' }, inactive: true }]
+            ],
+            [
+                'add then remove',
+                [
+                    { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/extended-merge-a' }, period: { start: '2026-01-01' } } },
+                    { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/extended-merge-a' } } }
+                ],
+                []
+            ],
+            [
+                'remove then add',
+                [
+                    { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/extended-merge-a' } } },
+                    { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/extended-merge-a' }, inactive: true } }
+                ],
+                [{ inactive: true }]
+            ]
+        ])('extended PATCH %s', async (_label, patchOps, expectedRows) => {
+            const created = await createGroup();
+            await markGroupExtended(created.id);
+            const memberRef = 'Patient/extended-merge-a';
+            const addResp = await patchGroup(created.id, [
+                { op: 'add', path: '/member/-', value: { entity: { reference: memberRef }, period: { start: '2025-01-01' } } }
+            ]);
+            expect(addResp.status).toBe(200);
+            const groupCollection = await getCollection(GROUP_COLLECTION_NAME);
+            const { _uuid: groupUuid } = await groupCollection.findOne({ id: created.id });
+            const memberCollection = await getCollection(GROUP_MEMBER_COLLECTION_NAME);
+
+            const patchResp = await patchGroup(created.id, patchOps);
+
+            expect(patchResp.status).toBe(200);
+            const rows = await memberCollection.find({ groupUuid, 'member.entity.reference': memberRef }).toArray();
+            expect(rows.map((row) => ({ period: row.member.period, inactive: row.member.inactive }))).toEqual(expectedRows);
         });
 
         test('PATCH remove hard-deletes the row and writes a DELETE tombstone history entry', async () => {

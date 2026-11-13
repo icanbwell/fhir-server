@@ -16,6 +16,7 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 const { ResourceMerger } = require('../common/resourceMerger');
+const { GroupMemberMerger } = require('../common/groupMemberMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { RethrownError } = require('../../utils/rethrownError');
 const { ScopesManager } = require('../security/scopesManager');
@@ -49,6 +50,7 @@ class MergeManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {GroupMemberMerger} groupMemberMerger
      */
     constructor (
         {
@@ -64,7 +66,8 @@ class MergeManager {
             configManager,
             databaseAttachmentManager,
             base64DataManager,
-            postRequestProcessor
+            postRequestProcessor,
+            groupMemberMerger
         }
     ) {
         /**
@@ -139,6 +142,12 @@ class MergeManager {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {GroupMemberMerger}
+         */
+        this.groupMemberMerger = groupMemberMerger;
+        assertTypeEquals(groupMemberMerger, GroupMemberMerger);
     }
 
     /**
@@ -170,6 +179,11 @@ class MergeManager {
         currentResource = await this.preSaveManager.preSaveAsync({
             resource: currentResource, options: preSaveOptions
         });
+        // Members the Group already stores more than once are merged before the sent Group is
+        // merged in: a sent member matched by id is merged into the stored entry in place, so a
+        // later stored entry of the same member would otherwise win over it. A merge that changes
+        // nothing else then compares equal to this Group and writes nothing.
+        currentResource = this.groupMemberMerger.mergeMembers({ resource: currentResource, requestInfo });
 
         // Extended Group's member[] doesn't exist on the live document -- a submitted member
         // must go through PATCH instead (design doc §5.1). Checked before any merge/persist
@@ -268,6 +282,9 @@ class MergeManager {
             resourceToMerge.meta.versionId = '1';
             resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         }
+        // Two $merge entries for one new Group are combined into one, which can give a member two
+        // entries; merge them before the member count is validated
+        resourceToMerge = this.groupMemberMerger.mergeMembers({ resource: resourceToMerge, requestInfo });
 
         const resourceToValidate = deepcopy(resourceToMerge);
         FhirResourceWriteNormalizeSerializer.serialize({obj: resourceToValidate});
