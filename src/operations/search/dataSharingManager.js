@@ -4,7 +4,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS, SENSITIVE_CATEGORY, DATA_SHARING_PATIENT_TO_PERSON_DATA } = require('../../constants');
+const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS, SENSITIVE_CATEGORY, MEMBER_UPLOADED_DOCUMENT, DATA_SHARING_PATIENT_TO_PERSON_DATA } = require('../../constants');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError, logInfo } = require('../common/logging');
@@ -778,9 +778,12 @@ class DataSharingManager {
      * @param {import('mongodb').Document} params.query
      * @param {import('../../utils/fhirRequestInfo').JwtActor} params.actor
      * @param {string} params.personIdFromJwtToken
+     * @param {string} [params.resourceType] The resource type being queried. Only
+     *   DocumentReference carries the member-upload category, so the extra exclusion below is
+     *   applied for that type alone; every other type is unaffected.
      * @returns {Promise<import('mongodb').Document>}
      */
-    async updateQueryForDelegatedAccessSensitiveData ({ base_version, query, actor, personIdFromJwtToken }) {
+    async updateQueryForDelegatedAccessSensitiveData ({ base_version, query, actor, personIdFromJwtToken, resourceType }) {
         const filteringRulesResult = await this.delegatedAccessRulesManager.getFilteringRulesAsync({
             base_version,
             actor,
@@ -815,11 +818,36 @@ class DataSharingManager {
             }
         };
 
-        // Wrap original query with the exclusion filter
+        /**
+         * @type {import('mongodb').Document[]}
+         */
+        const exclusionFilters = [sensitiveDataExclusionFilter];
+
+        // A member's own uploads are not shared with their delegates in v1 (DCON-6410). The
+        // marker is the category health-data-service writes; no other producer uses that code,
+        // so documents from other sources -- Digital Wallet included -- are untouched.
+        if (resourceType === 'DocumentReference') {
+            exclusionFilters.push({
+                category: {
+                    $not: {
+                        $elemMatch: {
+                            coding: {
+                                $elemMatch: {
+                                    system: MEMBER_UPLOADED_DOCUMENT.SYSTEM,
+                                    code: MEMBER_UPLOADED_DOCUMENT.CODE
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Wrap original query with the exclusion filters
         const combinedQuery = {
             $and: [
                 query,
-                sensitiveDataExclusionFilter
+                ...exclusionFilters
             ]
         };
 

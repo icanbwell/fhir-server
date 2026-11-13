@@ -459,7 +459,7 @@ class SearchManager {
             if (userType === AUTH_USER_TYPES.delegatedUser &&
                 this.dataSharingManager.patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
                 query = await this.dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
-                    base_version, query, actor, personIdFromJwtToken
+                    base_version, query, actor, personIdFromJwtToken, resourceType
                 });
             }
 

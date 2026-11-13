@@ -333,6 +333,13 @@ module.exports = {
         UNCLASSIFIED_CODE: "unclassified",
         SUPPRESS_HEADER: 'x-suppress-unclassified-tag'
     },
+    // The DocumentReference.category a member's own upload carries. Written by
+    // health-data-service; no other producer uses this code. Delegated actors do not see
+    // these in v1 (DCON-6410).
+    MEMBER_UPLOADED_DOCUMENT: {
+        SYSTEM: "https://fhir.icanbwell.com/4_0_0/CodeSystem/document-reference-category",
+        CODE: "patient-uploaded"
+    },
     MONGO_ERROR: {
         RESOURCE_SIZE_EXCEEDS: 'Document is larger than the maximum size 16777216'
     },

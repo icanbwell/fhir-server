@@ -53,7 +53,7 @@ const { ProaConsentManager } = require('../../../operations/search/proaConsentMa
 const { CmsConsentManager } = require('../../../operations/search/cmsConsentManager');
 const { RequestSpecificCache } = require('../../../utils/requestSpecificCache');
 
-const { AUTH_USER_TYPES, DELEGATED_ACCESS, SENSITIVE_CATEGORY } = require('../../../constants');
+const { AUTH_USER_TYPES, DELEGATED_ACCESS, SENSITIVE_CATEGORY, MEMBER_UPLOADED_DOCUMENT } = require('../../../constants');
 
 jest.mock('../../../operations/common/logging', () => ({
     logError: jest.fn(),
@@ -773,6 +773,122 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             });
 
             expect(findAsync).toHaveBeenCalledTimes(2);
+        });
+
+        // DCON-6410: a member's own uploads are not shared with their delegates in v1. The
+        // exclusion is by the category health-data-service writes, so documents from every
+        // other producer -- Digital Wallet included -- stay visible.
+        describe("DCON-6410: a member's uploaded documents are excluded for a delegate", () => {
+            /**
+             * One active Consent that denies nothing, so the only exclusions under test are
+             * `unclassified` (always applied) and the member-upload category.
+             */
+            function consentThatDeniesNothing () {
+                mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                    findAsync: jest.fn().mockResolvedValue(
+                        createCursor([
+                            {
+                                _uuid: 'consent-1',
+                                meta: { versionId: '1' },
+                                provision: { period: { start: '2024-01-01' } }
+                            }
+                        ])
+                    )
+                });
+            }
+
+            /**
+             * @param {import('mongodb').Document} result
+             * @return {import('mongodb').Document|undefined}
+             */
+            function categoryExclusionOf (result) {
+                return (result.$and || []).find(clause => clause.category);
+            }
+
+            test('DocumentReference: the query excludes the member-upload category', async () => {
+                consentThatDeniesNothing();
+
+                const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+                    base_version: '4_0_0',
+                    query: { resourceType: 'DocumentReference' },
+                    actor: { reference: 'RelatedPerson/rp-1' },
+                    personIdFromJwtToken: 'person-1',
+                    resourceType: 'DocumentReference'
+                });
+
+                const categoryClause = categoryExclusionOf(result);
+                expect(categoryClause).toBeDefined();
+                const coding = categoryClause.category.$not.$elemMatch.coding.$elemMatch;
+                expect(coding).toEqual({
+                    system: MEMBER_UPLOADED_DOCUMENT.SYSTEM,
+                    code: MEMBER_UPLOADED_DOCUMENT.CODE
+                });
+            });
+
+            test('the sensitive-category exclusion is still applied alongside it', async () => {
+                consentThatDeniesNothing();
+
+                const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+                    base_version: '4_0_0',
+                    query: { resourceType: 'DocumentReference' },
+                    actor: { reference: 'RelatedPerson/rp-1' },
+                    personIdFromJwtToken: 'person-1',
+                    resourceType: 'DocumentReference'
+                });
+
+                const securityClause = (result.$and || []).find(clause => clause['meta.security']);
+                expect(securityClause).toBeDefined();
+                expect(securityClause['meta.security'].$not.$elemMatch.system).toBe(
+                    SENSITIVE_CATEGORY.SYSTEM
+                );
+            });
+
+            test.each([
+                ['Observation'],
+                ['Binary'],
+                ['Condition']
+            ])('%s: no category exclusion is added', async (resourceType) => {
+                consentThatDeniesNothing();
+
+                const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+                    base_version: '4_0_0',
+                    query: { resourceType },
+                    actor: { reference: 'RelatedPerson/rp-1' },
+                    personIdFromJwtToken: 'person-1',
+                    resourceType
+                });
+
+                expect(categoryExclusionOf(result)).toBeUndefined();
+            });
+
+            test('an omitted resourceType adds no category exclusion, so an uninstrumented caller is unchanged', async () => {
+                consentThatDeniesNothing();
+
+                const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+                    base_version: '4_0_0',
+                    query: { resourceType: 'DocumentReference' },
+                    actor: { reference: 'RelatedPerson/rp-1' },
+                    personIdFromJwtToken: 'person-1'
+                });
+
+                expect(categoryExclusionOf(result)).toBeUndefined();
+            });
+
+            test('no active Consent still wins: the impossible query is returned, not a category filter', async () => {
+                mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                    findAsync: jest.fn().mockResolvedValue(createCursor([]))
+                });
+
+                const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+                    base_version: '4_0_0',
+                    query: { resourceType: 'DocumentReference' },
+                    actor: { reference: 'RelatedPerson/rp-1' },
+                    personIdFromJwtToken: 'person-1',
+                    resourceType: 'DocumentReference'
+                });
+
+                expect(result).toEqual({ _uuid: '__invalid__' });
+            });
         });
     });
 
