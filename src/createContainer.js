@@ -1316,7 +1316,9 @@ const createContainer = function () {
     container.register('exportByIdOperation', (c) => new ExportByIdOperation({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager,
-        databaseExportManager: c.databaseExportManager
+        databaseExportManager: c.databaseExportManager,
+        auditLogger: c.auditLogger,
+        postRequestProcessor: c.postRequestProcessor
     }));
 
     container.register('kafkaClientV2', (c) => c.configManager.kafkaV2EnableEvents
