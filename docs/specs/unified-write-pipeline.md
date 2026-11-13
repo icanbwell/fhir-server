@@ -52,7 +52,8 @@ describes conflict handling by the resolver, the one-by-one replay does that job
 Any of these is a failure even if the code works:
 
 - A response that differs from today, other than the accepted differences below.
-- Any change to what the old path does while the switches are off.
+- Any change to what the old path does while the switches are off, other than the streaming
+  `$merge` audit fix (accepted difference 8).
 - A profile that skips a central check without an `off` setting that shows it.
 - An existing test edited to make the new path pass.
 
@@ -85,11 +86,22 @@ Any of these is a failure even if the code works:
        can both miss each other's pending write and queue two writes, which adds a second
        `created: false, updated: false` entry. The new path queues one write and returns one entry.
        The stored document is the same either way.
+     - Streaming `$merge` still streams each line's failures as soon as the line is read, and the
+       written results and placeholders at each commit of 100 resources. Within one line, such as
+       a Bundle, its failures come in request order; today the pre-check failures come before the
+       merge failures.
   6. `$import` checks the schema of each line's resource before the merge, as `$merge` does (user
      decision). Today the worker only checks the meta of a new resource there, and checks the
      schema of the merged or new document.
   7. PATCH returns 400 instead of 500 when the write returns no result (user decision). Today it
      reads the issue of a result that isn't there and fails with a TypeError.
+  8. Streaming `$merge` audits each result once, as buffered `$merge` does, on both paths (user
+     decision). Each commit audits the results streamed since the last audit, and the end of the
+     stream audits any results left, also when the stream ends with an error or an abort. Today
+     each commit queues an audit of the whole result list, read when the request ends, so a stream
+     of k batches writes every AuditEvent k times, and a stream whose lines all fail writes none.
+     The fix is in the stream code both paths share, so it is the one change to the old path while
+     its switch is off, and turning the switch off does not undo it.
 - **Scope letter per operation.** Each operation requires the same scope letter it does today.
 - **preSave is unchanged.**
 - **Shared building blocks keep today's behavior**, because the old path depends on them: the scopes
@@ -119,7 +131,7 @@ error.
 | `create` | `CreateOperation.createAsync` (`src/operations/create/create.js`) | POST |
 | `update` | `UpdateOperation.updateAsync` (`src/operations/update/update.js`) | PUT, including create-via-PUT |
 | `patch` | `PatchOperation.patchAsync` (`src/operations/patch/patch.js`) | PATCH (JSON Patch), including the Group member strategy |
-| `merge` | `MergeOperation.mergeAsync` and `mergeAsyncStream` (`src/operations/merge/merge.js`) | `$merge`, plus the GraphQL mutations in `patient.js` and `careTeam.js` that call `mergeAsync`. The first `$merge` PR checks the switch in `mergeAsync` only; streaming (NDJSON) `$merge` stays on the old path until the streaming work adds the check to `mergeAsyncStream` |
+| `merge` | `MergeOperation.mergeAsync` and `mergeAsyncStream` (`src/operations/merge/merge.js`) | `$merge`, plus the GraphQL mutations in `patient.js` and `careTeam.js` that call `mergeAsync`. Streaming (NDJSON) `$merge` goes to `MergeStream` (`src/operations/writePipeline/responder/mergeStream.js`), a `MergeResponder` subclass that runs the shared steps on each line. Both paths keep the stream in `mergeAsyncStream`, which takes the path's handler for each line, flush and audit; it stays out of the pipeline core because no other operation streams (user decision) |
 | `import` | the bulk-import handler's per-resource merge (`mergeBufferedResourceAsync` in `src/operations/asyncJobs/bulkImport/handler.js`) and its batch flush | `$import` worker |
 | `admin` | the five admin write operations in `AdminPersonPatientLinkManager` (`src/admin/adminPersonPatientLinkManager.js`) and their route handlers in `src/routeHandlers/admin.js` | see "Admin" |
 
@@ -424,7 +436,9 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
   extended Group member rejection, the meta and schema failures on update, and keeping the stored
   members of an externally stored Group). `oldWrite` copies of `auditEventSizeMerge`,
   `group_extended_put_merge_rejection`, `group_mongo_member_preservation` and `merge_meta` cover
-  all of it again.
+  all of it again. Streaming `$merge` was run only by `stream_merge_with_id` and
+  `metrics.merge.integration`, so both get `oldWrite` copies too, and its parity and audit tests
+  run every case on both paths.
 - **New tests:**
   - Integration tests for PUT and PATCH concurrency with the switch on: two concurrent writes both
     land, the version goes up by two, no PATCH operation is lost, and a write that keeps losing gets
@@ -483,6 +497,11 @@ today.
   `fhir_validation_failure_total` (`validation_stage="schema"`, `path="save"`, with its resource
   type). Today `$merge` only counts schema failures of the merged or new document, which an
   invalid body never reaches, so dashboards and alerts on this metric see more `$merge` failures.
+- **Streaming audits** (accepted difference 8). A streaming `$merge` writes one AuditEvent entry
+  per result, as buffered `$merge` does. Today a stream of more than 100 resources writes every
+  AuditEvent once per commit (a 150-resource stream writes each create twice), and a stream whose
+  lines all fail writes no AuditEvent. This ships to both paths with the deploy, not with the
+  `merge` switch.
 
 **`$import`**
 - **Incoming schema check** (accepted difference 6). Each line's resource gets the schema check,

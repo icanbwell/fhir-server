@@ -46,6 +46,13 @@ differences are plain data next to each other.
   today. A profile can pick a variant of a step; it can't remove one.
 - A responder (`writePipeline/responder/<operation>.js`) turns the item results into the
   operation's response and records its metrics. The shared `WriteAuditor` writes the audit events.
+- Streaming (NDJSON) `$merge` keeps its transport out of `WritePipeline`, because no other
+  operation streams: `$import` reads its files and flushes its batches itself. The stream stays in
+  `MergeOperation.mergeAsyncStream` and `insertAndLog` for both paths; they take a stream handler
+  for the per-line merge, the flush and the audit. The new path's handler comes from
+  `MergeStream` (`writePipeline/responder/mergeStream.js`), a `MergeResponder` subclass that runs
+  the shared steps on each line through `WritePipeline.processAsync` and flushes every 100
+  resources through `executeAsync`.
 - `WRITE_PIPELINE_OPERATIONS` turns the new path on per operation (`create`, `update`, `patch`,
   `merge`, `import`, `admin`). With an operation's name absent, its old code runs exactly as
   before. `$merge` is the first operation; the others follow one PR each.
@@ -64,6 +71,9 @@ differences are plain data next to each other.
   by `_uuid`. These are listed in the spec's "Changes to announce".
 - Bad, because tests that pin an accepted difference need two versions while both paths exist: the
   test updated to the new behavior, and an `oldWrite` copy that runs the old path.
+- Bad, because both paths share the stream in `mergeAsyncStream`, so a fix to it, or a bug in it,
+  reaches both: turning the switch off moves only the per-line merge and the flush back. The
+  streaming audit fix (each result audited once) is such a fix, so it changes the old path too.
 
 ### Confirmation
 

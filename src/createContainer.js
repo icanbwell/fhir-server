@@ -178,6 +178,7 @@ const { AttachmentsStep } = require('./operations/writePipeline/steps/attachment
 const { NoOpStep } = require('./operations/writePipeline/steps/noOpStep');
 const { WriteStep } = require('./operations/writePipeline/steps/writeStep');
 const { MergeResponder } = require('./operations/writePipeline/responder/merge');
+const { MergeStream } = require('./operations/writePipeline/responder/mergeStream');
 const { WriteAuditor } = require('./operations/writePipeline/writeAuditor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
@@ -779,6 +780,17 @@ const createContainer = function () {
         bundleManager: c.bundleManager
     }));
 
+    container.register('mergeStream', (c) => new MergeStream({
+        bundleResourceValidator: c.bundleResourceValidator,
+        parametersResourceValidator: c.parametersResourceValidator,
+        mergeManager: c.mergeManager,
+        scopesManager: c.scopesManager,
+        bundleManager: c.bundleManager,
+        writePipeline: c.writePipeline,
+        writeAuditor: c.writeAuditor,
+        customTracer: c.customTracer
+    }));
+
     container.register('fastMongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
         resourceLocatorFactory: c.resourceLocatorFactory,
         configManager: c.configManager,
@@ -978,7 +990,8 @@ const createContainer = function () {
             customTracer: c.customTracer,
             writePipelineSwitch: c.writePipelineSwitch,
             writePipeline: c.writePipeline,
-            mergeResponder: c.mergeResponder
+            mergeResponder: c.mergeResponder,
+            mergeStream: c.mergeStream
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({
