@@ -13,6 +13,7 @@ node_modules
 .DS_Store
 fhir/fixtures/data/shr
 fhir/fixtures/data/uscore
+/coverage/
 
 # Local Development Certs
 cert.pem

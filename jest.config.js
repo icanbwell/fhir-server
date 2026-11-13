@@ -1,4 +1,5 @@
 const { transform, transformIgnorePatterns } = require('./jest/transformConfig');
+const { collectCoverageFrom, coveragePathIgnorePatterns } = require('./jest/coverageConfig');
 
 /** @type {import('jest').Config} */
 module.exports = {
@@ -13,15 +14,8 @@ module.exports = {
     reporters: ['default', 'github-actions'],
     transform,
     transformIgnorePatterns,
-    coveragePathIgnorePatterns: [
-        '<rootDir>/src/testutils/',
-        '<rootDir>/src/fhir/generator',
-        '<rootDir>/src/middleware/fhir/resources',
-        '<rootDir>/src/views',
-        '<rootDir>/src/services',
-        '<rootDir>/src/graphql/resolvers',
-        '<rootDir>/src/graphqlv2/resolvers'
-    ],
+    collectCoverageFrom,
+    coveragePathIgnorePatterns,
     testPathIgnorePatterns: [
         '<rootDir>/src/tests/integration/performance/',
         // Has its own dedicated config (jest.atlasSearch.config.js) -- needs a real Atlas

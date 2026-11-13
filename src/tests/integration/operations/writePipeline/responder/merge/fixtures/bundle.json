@@ -1,0 +1,60 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "parity-bundle-1",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client"
+            }
+          ]
+        },
+        "name": [
+          {
+            "family": "Parity",
+            "given": [
+              "Gamma"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "parity-bundle-2",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client"
+            }
+          ]
+        },
+        "name": [
+          {
+            "family": "Parity",
+            "given": [
+              "Delta"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

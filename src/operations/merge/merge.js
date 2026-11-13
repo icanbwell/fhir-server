@@ -25,6 +25,10 @@ const { ObjectSerializedFhirResourceNdJsonWriter } = require('../streaming/resou
 const { fhirContentTypes } = require('../../utils/contentTypes');
 const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../utils/metrics');
 const { CustomTracer } = require('../../utils/customTracer');
+const { WritePipelineSwitch } = require('../writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('../writePipeline/writePipeline');
+const { MergeResponder } = require('../writePipeline/responder/merge');
+const { MERGE_WRITE_PROFILE } = require('../writePipeline/profiles/merge');
 
 
 class MergeOperation {
@@ -36,6 +40,9 @@ class MergeOperation {
      * @param {ConfigManager} configManager
      * @param {MergeValidator} mergeValidator
      * @param {CustomTracer} customTracer
+     * @param {WritePipelineSwitch} writePipelineSwitch
+     * @param {WritePipeline} writePipeline
+     * @param {MergeResponder} mergeResponder
      */
     constructor (
         {
@@ -45,7 +52,10 @@ class MergeOperation {
             bundleManager,
             configManager,
             mergeValidator,
-            customTracer
+            customTracer,
+            writePipelineSwitch,
+            writePipeline,
+            mergeResponder
         }
     ) {
         /**
@@ -88,6 +98,24 @@ class MergeOperation {
         */
         this.customTracer = customTracer;
         assertTypeEquals(customTracer, CustomTracer);
+
+        /**
+         * @type {WritePipelineSwitch}
+         */
+        this.writePipelineSwitch = writePipelineSwitch;
+        assertTypeEquals(writePipelineSwitch, WritePipelineSwitch);
+
+        /**
+         * @type {WritePipeline}
+         */
+        this.writePipeline = writePipeline;
+        assertTypeEquals(writePipeline, WritePipeline);
+
+        /**
+         * @type {MergeResponder}
+         */
+        this.mergeResponder = mergeResponder;
+        assertTypeEquals(mergeResponder, MergeResponder);
     }
 
     /**
@@ -125,6 +153,8 @@ class MergeOperation {
 
     /**
      * does a FHIR Merge
+     * When the write pipeline switch is on for `merge`, the request goes to
+     * `WritePipeline.runAsync` with the `$merge` profile and responder.
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
@@ -134,6 +164,15 @@ class MergeOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
+        if (this.writePipelineSwitch?.useNewPathFor('merge')) {
+            return await this.writePipeline.runAsync({
+                profile: MERGE_WRITE_PROFILE,
+                responder: this.mergeResponder,
+                requestInfo,
+                parsedArgs,
+                resourceType
+            });
+        }
         const currentOperationName = 'merge';
         /**
          * @type {number}

@@ -159,6 +159,26 @@ const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheK
 const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
 const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
+const { WritePipelineSwitch } = require('./operations/writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('./operations/writePipeline/writePipeline');
+const { ScopeCheckStep } = require('./operations/writePipeline/steps/scopeCheckStep');
+const { FindExistingStep } = require('./operations/writePipeline/steps/findExistingStep');
+const { ResourceSizeCheck } = require('./operations/writePipeline/steps/checks/resourceSizeCheck');
+const { PipeInIdCheck } = require('./operations/writePipeline/steps/checks/pipeInIdCheck');
+const { SourceIdentityResolver } = require('./operations/writePipeline/steps/identify/sourceIdentityResolver');
+const { BulkPreloadLoader } = require('./operations/writePipeline/steps/load/bulkPreloadLoader');
+const { PrepareBodyStep } = require('./operations/writePipeline/steps/prepareBodyStep');
+const { ValidateIncomingStep } = require('./operations/writePipeline/steps/validateIncomingStep');
+const { AccessCheckStep } = require('./operations/writePipeline/steps/accessCheckStep');
+const { IncomingAndStoredAccessChecker } = require('./operations/writePipeline/steps/access/incomingAndStoredAccessChecker');
+const { BuildDocumentStep } = require('./operations/writePipeline/steps/buildDocumentStep');
+const { SmartMergeBuilder } = require('./operations/writePipeline/steps/build/smartMergeBuilder');
+const { ValidateResultStep } = require('./operations/writePipeline/steps/validateResultStep');
+const { AttachmentsStep } = require('./operations/writePipeline/steps/attachmentsStep');
+const { NoOpStep } = require('./operations/writePipeline/steps/noOpStep');
+const { WriteStep } = require('./operations/writePipeline/steps/writeStep');
+const { MergeResponder } = require('./operations/writePipeline/responder/merge');
+const { WriteAuditor } = require('./operations/writePipeline/writeAuditor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
 const { HistoryKafkaProducer } = require('./dataLayer/historyKafkaProducer');
@@ -686,6 +706,81 @@ const createContainer = function () {
         kafkaClientV2: c.kafkaClientV2
     }));
 
+    container.register('writePipelineSwitch', (c) => new WritePipelineSwitch({
+        configManager: c.configManager
+    }));
+
+    container.register('writeAuditor', (c) => new WriteAuditor({
+        auditLogger: c.auditLogger,
+        postRequestProcessor: c.postRequestProcessor
+    }));
+
+    container.register('writePipeline', (c) => new WritePipeline({
+        scopeCheckStep: new ScopeCheckStep({ scopesValidator: c.scopesValidator }),
+        findExistingStep: new FindExistingStep({
+            prechecks: [
+                new ResourceSizeCheck({ resourceValidator: c.resourceValidator }),
+                new PipeInIdCheck()
+            ],
+            identityResolver: new SourceIdentityResolver({
+                sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+                uuidColumnHandler: c.uuidColumnHandler
+            }),
+            existingResourceLoader: new BulkPreloadLoader({
+                databaseBulkLoader: c.databaseBulkLoader,
+                databaseQueryFactory: c.databaseQueryFactory
+            })
+        }),
+        prepareBodyStep: new PrepareBodyStep(),
+        validateIncomingStep: new ValidateIncomingStep({ resourceValidator: c.resourceValidator }),
+        accessCheckStep: new AccessCheckStep({
+            accessChecker: new IncomingAndStoredAccessChecker({
+                writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
+            })
+        }),
+        buildDocumentStep: new BuildDocumentStep({
+            builder: new SmartMergeBuilder({
+                preSaveManager: c.preSaveManager,
+                resourceMerger: c.resourceMerger,
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                base64DataManager: c.base64DataManager
+            }),
+            configManager: c.configManager
+        }),
+        validateResultStep: new ValidateResultStep({
+            resourceValidator: c.resourceValidator,
+            configManager: c.configManager
+        }),
+        attachmentsStep: new AttachmentsStep({
+            preSaveManager: c.preSaveManager,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
+            configManager: c.configManager
+        }),
+        noOpStep: new NoOpStep(),
+        writeStep: new WriteStep({
+            databaseBulkInserter: c.fastDatabaseBulkInserter,
+            configManager: c.configManager
+        }),
+        databaseBulkInserter: c.fastDatabaseBulkInserter,
+        writeAuditor: c.writeAuditor,
+        fhirLoggingManager: c.fhirLoggingManager,
+        customTracer: c.customTracer
+    }));
+
+    container.register('bundleResourceValidator', () => new BundleResourceValidator());
+
+    container.register('parametersResourceValidator', () => new ParametersResourceValidator());
+
+    container.register('mergeResponder', (c) => new MergeResponder({
+        bundleResourceValidator: c.bundleResourceValidator,
+        parametersResourceValidator: c.parametersResourceValidator,
+        mergeManager: c.mergeManager,
+        scopesManager: c.scopesManager,
+        bundleManager: c.bundleManager
+    }));
+
     container.register('fastMongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
         resourceLocatorFactory: c.resourceLocatorFactory,
         configManager: c.configManager,
@@ -883,7 +978,10 @@ const createContainer = function () {
             bundleManager: c.bundleManager,
             configManager: c.configManager,
             mergeValidator: c.mergeValidator,
-            customTracer: c.customTracer
+            customTracer: c.customTracer,
+            writePipelineSwitch: c.writePipelineSwitch,
+            writePipeline: c.writePipeline,
+            mergeResponder: c.mergeResponder
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({

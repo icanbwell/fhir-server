@@ -1,5 +1,13 @@
 [
   {
+    "created": true,
+    "id": "1",
+    "resourceType": "DocumentReference",
+    "sourceAssigningAuthority": "bwell",
+    "updated": false,
+    "uuid": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+  },
+  {
     "created": false,
     "id": "2",
     "issue": {
@@ -59,13 +67,5 @@
     "sourceAssigningAuthority": "bwell",
     "updated": false,
     "uuid": "42247a4d-7507-57bb-b6c1-ee2815815c07"
-  },
-  {
-    "created": true,
-    "id": "1",
-    "resourceType": "DocumentReference",
-    "sourceAssigningAuthority": "bwell",
-    "updated": false,
-    "uuid": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
   }
 ]
