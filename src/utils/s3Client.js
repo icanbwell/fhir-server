@@ -19,27 +19,29 @@ const { assertIsValid } = require('./assertType');
 const { logError, logWarn } = require('../operations/common/logging');
 const { CloudStorageClient } = require('./cloudStorageClient');
 
-const DOWNLOAD_MAX_ATTEMPTS = 3;
+const DOWNLOAD_MAX_BODY_READ_ATTEMPTS = 3;
 const DOWNLOAD_BASE_DELAY_MS = 150;
+// Hard ceiling for one download (GetObject incl. SDK retries + body read + body-read retries)
+const DOWNLOAD_TOTAL_TIMEOUT_MS = 30 * 1000;
 const TRANSIENT_ERROR_CODES = new Set(['ECONNRESET', 'ETIMEDOUT', 'EPIPE', 'ECONNABORTED']);
 
 /**
- * Whether an error from an S3 download is transient and worth retrying
- * @param {Error & {code?: string, $metadata?: {httpStatusCode?: number}}} err
+ * Whether an error raised while reading an S3 response body is transient and worth retrying.
+ * Errors from send() are not classified here: the SDK's own retry strategy (maxAttempts) already
+ * handles them.
+ * @param {Error & {code?: string}} err
  * @returns {boolean}
  */
-function isTransientDownloadError(err) {
+function isTransientBodyReadError(err) {
     if (!err) {
         return false;
     }
     const message = String(err.message || '').toLowerCase();
-    const status = err.$metadata?.httpStatusCode;
     return (
         message === 'aborted' ||
         message.includes('socket hang up') ||
         err.name === 'TimeoutError' ||
-        TRANSIENT_ERROR_CODES.has(err.code) ||
-        (typeof status === 'number' && status >= 500)
+        TRANSIENT_ERROR_CODES.has(err.code)
     );
 }
 
@@ -187,50 +189,72 @@ class S3Client extends CloudStorageClient {
     }
 
     /**
-     * Download file from s3 for provided path
+     * Fetches an object and reads its body. send() failures are left to the SDK retry strategy;
+     * only transient body-read failures (e.g. socket abort mid-body) are retried here. The whole
+     * download, retries included, is bounded by DOWNLOAD_TOTAL_TIMEOUT_MS.
+     * NoSuchKey is rethrown for the caller to handle.
      * @param {string} filePath
-     * @returns {object|null}
+     * @returns {Promise<string|null>}
+     * @private
      */
-    async downloadAsync(filePath) {
-        let lastError;
-        for (let attempt = 1; attempt <= DOWNLOAD_MAX_ATTEMPTS; attempt++) {
+    async _getObjectBodyAsync(filePath) {
+        const deadline = Date.now() + DOWNLOAD_TOTAL_TIMEOUT_MS;
+        for (let attempt = 1; ; attempt++) {
+            const abortSignal = AbortSignal.timeout(Math.max(deadline - Date.now(), 1));
+            const response = await this.client.send(
+                new GetObjectCommand({
+                    Bucket: this.bucketName,
+                    Key: filePath
+                }),
+                { abortSignal }
+            );
+            if (!response.Body) {
+                return null;
+            }
             try {
-                const response = await this.client.send(
-                    new GetObjectCommand({
-                        Bucket: this.bucketName,
-                        Key: filePath
-                    })
-                );
-                if (!response.Body) {
-                    return null;
-                }
-                // body read is inside the retry: a socket abort here is not covered by SDK maxAttempts
                 return await response.Body.transformToString();
             } catch (err) {
-                if (err instanceof NoSuchKey) {
-                    logError(`No file found for path: ${filePath}`, { err });
-                    return null;
+                const delay =
+                    DOWNLOAD_BASE_DELAY_MS * 2 ** (attempt - 1) * (0.5 + Math.random());
+                if (
+                    !isTransientBodyReadError(err) ||
+                    attempt >= DOWNLOAD_MAX_BODY_READ_ATTEMPTS ||
+                    Date.now() + delay >= deadline
+                ) {
+                    throw err;
                 }
-                lastError = err;
-                if (!isTransientDownloadError(err) || attempt === DOWNLOAD_MAX_ATTEMPTS) {
-                    break;
-                }
-                logWarn(`Transient error downloading ${filePath}, retrying`, {
+                logWarn(`Transient error reading body of ${filePath}, retrying`, {
                     key: filePath,
                     attempt,
-                    maxAttempts: DOWNLOAD_MAX_ATTEMPTS,
+                    maxAttempts: DOWNLOAD_MAX_BODY_READ_ATTEMPTS,
                     errorName: err.name,
                     errorCode: err.code
                 });
-                const delay = DOWNLOAD_BASE_DELAY_MS * 2 ** (attempt - 1) * (0.5 + Math.random());
                 await new Promise((resolve) => setTimeout(resolve, delay));
             }
         }
-        throw new RethrownError({
-            message: `Error in downloadAsync: ${lastError.message} (${lastError.name || lastError.code})`,
-            error: lastError,
-            source: 'S3Client'
-        });
+    }
+
+    /**
+     * Download file from s3 for provided path. Fails within DOWNLOAD_TOTAL_TIMEOUT_MS.
+     * @param {string} filePath
+     * @returns {Promise<string|null>}
+     */
+    async downloadAsync(filePath) {
+        try {
+            return await this._getObjectBodyAsync(filePath);
+        } catch (err) {
+            if (err instanceof NoSuchKey) {
+                logError(`No file found for path: ${filePath}`, { err });
+                return null;
+            }
+            throw new RethrownError({
+                message: `Error in downloadAsync: ${err.message} (${err.name || err.code})`,
+                error: err,
+                source: 'S3Client',
+                args: { filePath }
+            });
+        }
     }
 
     /**
@@ -361,29 +385,19 @@ class S3Client extends CloudStorageClient {
                 const batchPaths = filePaths.slice(i, i + batch);
 
                 const downloadPromises = batchPaths.map(async (path) => {
-                    return this.client
-                        .send(
-                            new GetObjectCommand({
-                                Bucket: this.bucketName,
-                                Key: path
-                            })
-                        )
-                        .then(async (data) => {
-                            downloadedData[path] = data.Body
-                                ? await data.Body.transformToString()
-                                : null;
-                        })
-                        .catch((error) => {
-                            if (error instanceof NoSuchKey) {
-                                logError(`No file found for path: ${path}`, { error });
-                            } else {
-                                throw new RethrownError({
-                                    message: `Error in downloadInBatchAsync: ${error.message}`,
-                                    error: error,
-                                    source: 'S3Client'
-                                });
-                            }
-                        });
+                    try {
+                        downloadedData[path] = await this._getObjectBodyAsync(path);
+                    } catch (error) {
+                        if (error instanceof NoSuchKey) {
+                            logError(`No file found for path: ${path}`, { error });
+                        } else {
+                            throw new RethrownError({
+                                message: `Error in downloadInBatchAsync: ${error.message}`,
+                                error: error,
+                                source: 'S3Client'
+                            });
+                        }
+                    }
                 });
                 await Promise.all(downloadPromises);
             }

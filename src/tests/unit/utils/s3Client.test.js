@@ -1,4 +1,4 @@
-const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
+const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/globals');
 
 // Mock dependencies before requiring the module
 jest.mock('@aws-sdk/client-s3', () => {
@@ -51,6 +51,7 @@ jest.mock('../../../utils/assertType', () => ({
 
 jest.mock('../../../operations/common/logging', () => ({
     logError: jest.fn(),
+    logWarn: jest.fn(),
     logInfo: jest.fn(),
     logDebug: jest.fn()
 }));
@@ -107,6 +108,116 @@ describe('S3Client', () => {
 
             const result = await s3Client.downloadAsync('valid/path');
             expect(result).toBe('file content');
+        });
+    });
+
+    describe('download retry', () => {
+        const okResponse = (text) => ({ Body: { transformToString: async () => text } });
+        const failingBody = (err) => ({
+            Body: {
+                transformToString: async () => {
+                    throw err;
+                }
+            }
+        });
+        const withProps = (message, props) => Object.assign(new Error(message), props);
+
+        beforeEach(() => {
+            jest.spyOn(global, 'setTimeout').mockImplementation((fn) => {
+                fn();
+                return 0;
+            });
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        test.each([
+            ['aborted message', new Error('aborted')],
+            ['socket hang up', new Error('socket hang up')],
+            ['TimeoutError name', withProps('slow', { name: 'TimeoutError' })],
+            ['ECONNRESET', withProps('x', { code: 'ECONNRESET' })],
+            ['ETIMEDOUT', withProps('x', { code: 'ETIMEDOUT' })],
+            ['EPIPE', withProps('x', { code: 'EPIPE' })],
+            ['ECONNABORTED', withProps('x', { code: 'ECONNABORTED' })]
+        ])('retries a transient body-read failure (%s) then succeeds', async (_label, err) => {
+            mockSend
+                .mockResolvedValueOnce(failingBody(err))
+                .mockResolvedValueOnce(okResponse('abc'));
+
+            expect(await s3Client.downloadAsync('k')).toBe('abc');
+            expect(mockSend).toHaveBeenCalledTimes(2);
+        });
+
+        test.each([
+            ['5xx', withProps('boom', { $metadata: { httpStatusCode: 503 } })],
+            ['ECONNRESET', withProps('reset', { code: 'ECONNRESET' })],
+            [
+                '403',
+                withProps('denied', { name: 'AccessDenied', $metadata: { httpStatusCode: 403 } })
+            ]
+        ])('does not retry a send() failure (%s), leaving it to the SDK', async (_label, err) => {
+            mockSend.mockRejectedValue(err);
+
+            await expect(s3Client.downloadAsync('k')).rejects.toThrow(/Error in downloadAsync/);
+            expect(mockSend).toHaveBeenCalledTimes(1);
+        });
+
+        test('does not retry a non-transient body-read failure', async () => {
+            mockSend.mockResolvedValue(failingBody(new Error('corrupt')));
+
+            await expect(s3Client.downloadAsync('k')).rejects.toThrow(
+                /Error in downloadAsync: corrupt/
+            );
+            expect(mockSend).toHaveBeenCalledTimes(1);
+        });
+
+        test('throws after 3 attempts when body-read failure persists', async () => {
+            mockSend.mockResolvedValue(
+                failingBody(withProps('read failed', { code: 'ECONNRESET' }))
+            );
+
+            await expect(s3Client.downloadAsync('k')).rejects.toThrow(/Error in downloadAsync: read failed/);
+            expect(mockSend).toHaveBeenCalledTimes(3);
+        });
+
+        test('stops retrying once the 30s budget is spent', async () => {
+            const realNow = Date.now();
+            const nowSpy = jest.spyOn(Date, 'now');
+            nowSpy.mockReturnValueOnce(realNow).mockReturnValue(realNow + 30 * 1000);
+            mockSend.mockResolvedValue(failingBody(new Error('aborted')));
+
+            await expect(s3Client.downloadAsync('k')).rejects.toThrow(
+                /Error in downloadAsync: aborted/
+            );
+            expect(mockSend).toHaveBeenCalledTimes(1);
+        });
+
+        test('passes an abort signal so send() cannot outlive the budget', async () => {
+            mockSend.mockResolvedValue(okResponse('abc'));
+
+            await s3Client.downloadAsync('k');
+
+            expect(mockSend.mock.calls[0][1].abortSignal).toBeInstanceOf(AbortSignal);
+        });
+
+        test('downloadInBatchAsync retries a transient body-read failure per key', async () => {
+            mockSend
+                .mockResolvedValueOnce(failingBody(new Error('aborted')))
+                .mockResolvedValueOnce(okResponse('one'));
+
+            const results = await s3Client.downloadInBatchAsync({ filePaths: ['p1'], batch: 5 });
+
+            expect(results).toEqual({ p1: 'one' });
+            expect(mockSend).toHaveBeenCalledTimes(2);
+        });
+
+        test('NoSuchKey returns null without retry', async () => {
+            mockSend.mockRejectedValue(new NoSuchKey('nope'));
+
+            expect(await s3Client.downloadAsync('k')).toBeNull();
+            expect(mockSend).toHaveBeenCalledTimes(1);
         });
     });
 
