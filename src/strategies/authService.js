@@ -359,7 +359,8 @@ class AuthService {
                         );
                         if (consentReferences.length > 0) {
                             const resolvedPurposeOfUse = await this.delegatedAccessRulesManager.resolvePurposeOfEventCodesAsync({
-                                entitlements: jwt_payload.entitlements
+                                entitlements: jwt_payload.entitlements,
+                                actor: context.actor
                             });
                             // null = Consent genuinely unresolvable -> fail closed (401). A
                             // transient lookup error rejects instead (503 via verify()'s catch).
@@ -575,11 +576,11 @@ class AuthService {
         }
 
         let isValidInput = true;
+        const actorResourceType = typeof act[this.requiredActorFields.reference] === 'string'
+            ? ReferenceParser.parseReference(act[this.requiredActorFields.reference]).resourceType
+            : undefined;
         // validate reference: human delegate (RelatedPerson) or client (Organization)
-        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' &&
-            DELEGATED_ACCESS.ALLOWED_ACTOR_RESOURCE_TYPES.includes(
-                ReferenceParser.parseReference(act[this.requiredActorFields.reference]).resourceType
-            );
+        isValidInput &&= DELEGATED_ACCESS.ALLOWED_ACTOR_RESOURCE_TYPES.includes(actorResourceType);
         // validate sub
         isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
 
@@ -594,7 +595,8 @@ class AuthService {
 
         response.actor = {
             reference: act[this.requiredActorFields.reference],
-            sub: act[this.requiredActorFields.sub]
+            sub: act[this.requiredActorFields.sub],
+            isOrganizationActor: actorResourceType === 'Organization'
         };
         return response;
     }

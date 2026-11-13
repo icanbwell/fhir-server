@@ -65,7 +65,7 @@ describe('ResourceMerger Tests', () => {
             const requestInfo = getTestRequestInfo({ requestId: '1234' });
 
             /**
-             * @type {{updatedResource: (Resource|null), patches: (MergePatchEntry[]|null)}}
+             * @type {{updatedResource: (Resource|null)}}
              */
             const result = await resourceMerger.fastMergeResourceAsync({
                 base_version,

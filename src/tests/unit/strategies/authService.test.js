@@ -784,7 +784,7 @@ describe('AuthService', () => {
                 expect.any(Object),
                 expect.objectContaining({
                     context: expect.objectContaining({
-                        actor: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                        actor: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub', isOrganizationActor: false },
                         userType: 'delegatedUser',
                         purposeOfUse: ['purpose-of-use-1']
                     })
@@ -823,7 +823,8 @@ describe('AuthService', () => {
             });
 
             expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).toHaveBeenCalledWith({
-                entitlements: ['Consent/consent-uuid-123']
+                entitlements: ['Consent/consent-uuid-123'],
+                actor: expect.any(Object)
             });
             expect(done).toHaveBeenCalledWith(
                 null,
@@ -1232,9 +1233,29 @@ describe('AuthService', () => {
             });
             expect(result.actor).toEqual({
                 reference: 'RelatedPerson/rp-1',
-                sub: 'delegatee-sub'
+                sub: 'delegatee-sub',
+                isOrganizationActor: false
             });
             expect(result.failure).toBe(false);
+        });
+
+        test('flags an Organization act claim as an Organization actor', () => {
+            const result = authService.processForDelegatedActor({
+                jwt_payload: { act: { reference: 'Organization/org-1', sub: 'client-sub' } }
+            });
+            expect(result.actor).toEqual({
+                reference: 'Organization/org-1',
+                sub: 'client-sub',
+                isOrganizationActor: true
+            });
+            expect(result.failure).toBe(false);
+        });
+
+        test('returns failure when the act reference is not a string', () => {
+            const result = authService.processForDelegatedActor({
+                jwt_payload: { act: { reference: { reference: 'Organization/org-1' }, sub: 'client-sub' } }
+            });
+            expect(result.failure).toBe(true);
         });
 
         test('returns failure when sub is missing', () => {

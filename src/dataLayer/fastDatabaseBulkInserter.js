@@ -1,20 +1,15 @@
 'use strict';
 const async = require('async');
-const { EventEmitter } = require('events');
-const { logVerboseAsync, logInfo, logError } = require('../operations/common/logging');
-const { ResourceManager } = require('../operations/common/resourceManager');
+const { logVerboseAsync, logInfo } = require('../operations/common/logging');
 const { PostRequestProcessor } = require('../utils/postRequestProcessor');
-const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
-const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { ConfigManager } = require('../utils/configManager');
 const { Base64DataManager } = require('./base64DataManager');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
-const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
 const BundleEntryWriteSerializer = require('../fhir/writeSerializers/4_0_0/backboneElements/bundleEntry.js');
@@ -26,57 +21,35 @@ const { CustomTracer } = require('../utils/customTracer');
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
  */
-class FastDatabaseBulkInserter extends EventEmitter {
+class FastDatabaseBulkInserter {
     /**
      * Constructor
-     * @param {ResourceManager} resourceManager
      * @param {PostRequestProcessor} postRequestProcessor
-     * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {PreSaveManager} preSaveManager
      * @param {RequestSpecificCache} requestSpecificCache
-     * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
-     * @param {PostSaveProcessor} postSaveProcessor
      * @param {Base64DataManager} base64DataManager
      * @param {BulkWriteExecutor[]} bulkWriteExecutors
      * @param {HistoryKafkaProducer|null} [historyKafkaProducer] optional parallel history produce to Kafka
      * @param {CustomTracer} customTracer
      */
     constructor({
-        resourceManager,
         postRequestProcessor,
-        resourceLocatorFactory,
         preSaveManager,
         requestSpecificCache,
-        databaseUpdateFactory,
         resourceMerger,
         configManager,
-        postSaveProcessor,
         base64DataManager,
         bulkWriteExecutors,
         historyKafkaProducer = null,
         customTracer
     }) {
-        super();
-
-        /**
-         * @type {ResourceManager}
-         */
-        this.resourceManager = resourceManager;
-        assertTypeEquals(resourceManager, ResourceManager);
-
         /**
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-
-        /**
-         * @type {ResourceLocatorFactory}
-         */
-        this.resourceLocatorFactory = resourceLocatorFactory;
-        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
 
         /**
          * @type {PreSaveManager}
@@ -92,12 +65,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
         this.requestSpecificCache = requestSpecificCache;
         assertTypeEquals(requestSpecificCache, RequestSpecificCache);
         /**
-         * @type {DatabaseUpdateFactory}
-         */
-        this.databaseUpdateFactory = databaseUpdateFactory;
-        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
-
-        /**
          * @type {ResourceMerger}
          */
         this.resourceMerger = resourceMerger;
@@ -108,12 +75,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {PostSaveProcessor}
-         */
-        this.postSaveProcessor = postSaveProcessor;
-        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
         /**
          * @type {Base64DataManager}
@@ -171,7 +132,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {Object} resource
      * @param {OperationType} operationType
      * @param {import('mongodb').AnyBulkWriteOperation} operation
-     * @param {MergePatchEntry[]|null} patches
      * @param {Object|null} [writePrecondition]
      * @private
      */
@@ -181,7 +141,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
         resource,
         operationType,
         operation,
-        patches,
         contextData = null,
         writePrecondition = null,
         smartMerge = true
@@ -216,12 +175,10 @@ class FastDatabaseBulkInserter extends EventEmitter {
         // add this operation to the list of operations for this collection
         operationsByResourceTypeMap.get(resourceType).push(
             this.getOperationForResourceAsync({
-                requestId,
                 resourceType,
                 doc: resource,
                 operationType,
                 operation,
-                patches,
                 contextData,
                 writePrecondition,
                 smartMerge
@@ -236,7 +193,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {Object} resource
      * @param {OperationType} operationType
      * @param {import('mongodb').AnyBulkWriteOperation} operation
-     * @param {MergePatchEntry[]|null} patches
      * @private
      */
     addHistoryOperationForResourceType({
@@ -244,9 +200,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
         resourceType,
         resource,
         operationType,
-        operation,
-        patches,
-        contextData = null
+        operation
     }) {
         // If there is no entry for this collection then create one
         const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
@@ -269,10 +223,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 resource,
                 operation,
                 operationType,
-                patches,
                 isCreateOperation: true,
-                isUpdateOperation: false,
-                contextData
+                isUpdateOperation: false
             })
         );
     }
@@ -280,12 +232,10 @@ class FastDatabaseBulkInserter extends EventEmitter {
     /**
      * Inserts item into collection without checking if item exists
      * @typedef {Object} getOperationForResourceAsyncParam
-     * @property {string} requestId
      * @property {string} resourceType
      * @property {Object} doc
      * @property {string} operationType
      * @property {import('mongodb').AnyBulkWriteOperation} operation
-     * @property {MergePatchEntry[]|null} patches
      * @property {boolean} isAccessLogOperation
      * @property {Object|null} contextData
      * @property {Object|null} writePrecondition
@@ -294,12 +244,10 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @returns {BulkInsertUpdateEntry}
      */
     getOperationForResourceAsync({
-        requestId,
         resourceType,
         doc,
         operationType,
         operation,
-        patches,
         isAccessLogOperation = false,
         contextData = null,
         writePrecondition = null,
@@ -322,12 +270,10 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 id: doc.id,
                 uuid: doc._uuid,
                 sourceAssigningAuthority: doc._sourceAssigningAuthority,
-                requestId,
                 resourceType,
                 resource: doc,
                 operation,
                 operationType,
-                patches,
                 isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
                 isUpdateOperation: operationType === 'replace' || operationType === 'merge',
                 contextData,
@@ -343,7 +289,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
     /**
      * Inserts item into collection if item doesn't exists else updates the item
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {Object} doc
@@ -351,7 +296,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {boolean} [rejectIfExists] - fail with 412 instead of folding a lost create race into an update
      * @returns {Promise<void>}
      */
-    async insertOneAsync({ base_version, requestInfo, resourceType, doc, contextData = null, rejectIfExists = false }) {
+    async insertOneAsync({ requestInfo, resourceType, doc, contextData = null, rejectIfExists = false }) {
         try {
             if (!doc.meta) {
                 doc.meta = {};
@@ -385,12 +330,10 @@ class FastDatabaseBulkInserter extends EventEmitter {
             ) {
                 const previousVersionId = 1;
                 await this.mergeOneAsync({
-                    base_version,
                     requestInfo,
                     resourceType,
                     doc,
                     previousVersionId: `${previousVersionId}`,
-                    patches: null,
                     contextData
                 });
             } else {
@@ -414,7 +357,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
                             }
                         },
                         operationType: 'insert',
-                        patches: null,
                         contextData
                     });
                 } else {
@@ -435,7 +377,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
                             }
                         },
                         operationType: 'insertUniqueId',
-                        patches: null,
                         contextData,
                         writePrecondition: rejectIfExists ? { rejectIfExists: true } : null
                     });
@@ -462,8 +403,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {string} resourceType
      * @param {string} uuid
      * @param {Object} doc
-     * @param {boolean} [upsert]
-     * @param {MergePatchEntry[]|null} [patches]
      * @param {Object|null} [contextData]
      * @param {string[]} [ifMatchVersionIds] - normalized If-Match version ids the live doc must match
      * @returns {Promise<void>}
@@ -473,8 +412,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
         resourceType,
         uuid,
         doc,
-        upsert = false,
-        patches = null,
         contextData = null,
         ifMatchVersionIds = []
     }) {
@@ -522,11 +459,10 @@ class FastDatabaseBulkInserter extends EventEmitter {
                         filter: enforceIfMatch
                             ? { $and: [{ _uuid: uuid }, { 'meta.versionId': { $in: ifMatchVersionIds } }] }
                             : { _uuid: uuid },
-                        upsert,
+                        upsert: false,
                         replacement: doc
                     }
                 },
-                patches,
                 contextData,
                 writePrecondition: ifMatchVersionIds.length > 0 ? { ifMatchVersionIds } : null
             });
@@ -543,11 +479,9 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {Object} doc
-     * @param {MergePatchEntry[]|null} patches
-     * @param {Object|null} contextData Optional context data for resource-specific handling
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync({ requestInfo, base_version, resourceType, doc, patches, contextData = null }) {
+    async insertOneHistoryAsync({ requestInfo, base_version, resourceType, doc }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
         const userRequestId = requestInfo.userRequestId;
@@ -579,9 +513,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     insertOne: {
                         document: historyResource
                     }
-                },
-                patches,
-                contextData
+                }
             });
         } catch (e) {
             throw new RethrownError({
@@ -592,24 +524,18 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
     /**
      * Replaces a document in Mongo with this one
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string|null} previousVersionId
      * @param {Object} doc
-     * @param {boolean} [upsert]
-     * @param {MergePatchEntry[]|null} patches
      * @param {Object|null} contextData - Optional context data for resource-specific handling
      * @returns {Promise<void>}
      */
     async mergeOneAsync({
-        base_version,
         requestInfo,
         resourceType,
         previousVersionId,
         doc,
-        upsert = false,
-        patches,
         contextData = null,
         smartMerge = true
     }) {
@@ -646,8 +572,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
                  * returns null if doc is the same
                  * @type {Object|null}
                  */
-                const { updatedResource, patches: mergePatches } = await this.resourceMerger.fastMergeResourceAsync({
-                    base_version,
+                const { updatedResource } = await this.resourceMerger.fastMergeResourceAsync({
                     requestInfo,
                     currentResource: previousResource,
                     resourceToMerge: doc,
@@ -657,13 +582,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     doc = updatedResource;
                     previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc;
-                    // previousUpdate.patches can be null (e.g. a prior replaceOneAsync/mergeOneAsync
-                    // call in this same batch that had no patches to record); guard against spreading
-                    // null. Also spread mergePatches (an array) instead of pushing it as a single
-                    // nested-array element, so history diagnostics stay a flat list of patch ops.
-                    previousUpdate.patches = [...(previousUpdate.patches || []), ...mergePatches];
-                } else {
-                    // no change so ignore
                 }
             } else {
                 /**
@@ -687,7 +605,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
                      * @type {Object|null}
                      */
                     const { updatedResource } = await this.resourceMerger.fastMergeResourceAsync({
-                        base_version,
                         requestInfo,
                         currentResource: previousResource,
                         resourceToMerge: doc,
@@ -697,8 +614,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
                         doc = updatedResource;
                         previousInsert.resource = doc;
                         previousInsert.operation.updateOne.update.$setOnInsert = doc;
-                    } else {
-                        // no change so ignore
                     }
                 } else {
                     // no previuous insert or update found
@@ -720,11 +635,10 @@ class FastDatabaseBulkInserter extends EventEmitter {
                         operation: {
                             replaceOne: {
                                 filter,
-                                upsert,
+                                upsert: false,
                                 replacement: doc
                             }
                         },
-                        patches,
                         contextData,
                         smartMerge
                     });
@@ -771,7 +685,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
             });
             // run both the operations on the main tables and the history tables in parallel
             /**
-             * @type {BulkResultEntry[]}
+             * @type {BulkWriteExecutionResult[]}
              */
             const resultsByResourceType = await async.map(
                 operationsByResourceTypeMap.entries(),
@@ -878,7 +792,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {boolean|null} useHistoryCollection
      * @param {boolean} maintainOrder
      * @param {boolean} isAccessLogOperation
-     * @returns {Promise<BulkResultEntry>}
+     * @returns {Promise<BulkWriteExecutionResult>}
      */
     async performBulkForResourceTypeWithMapEntryAsync({
         base_version,
@@ -917,7 +831,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {BulkInsertUpdateEntry[]} operations
      * @param {boolean} maintainOrder
      * @param {boolean} isAccessLogOperation
-     * @returns {Promise<BulkResultEntry>}
+     * @returns {Promise<BulkWriteExecutionResult>}
      */
     async performBulkForResourceTypeAsync ({
         resourceType,

@@ -204,14 +204,12 @@ class MergeManager {
          * @type {Object|null}
          */
         const {
-            updatedResource: patched_resource_incoming, patches
+            updatedResource: patched_resource_incoming
         } = await this.resourceMerger.fastMergeResourceAsync({
-            base_version,
             requestInfo,
             currentResource,
             resourceToMerge,
             smartMerge,
-            limitToPaths: undefined,
             databaseAttachmentManager: this.databaseAttachmentManager,
             base64DataManager: this.base64DataManager,
             ignoreDateOnlyChange: true
@@ -232,7 +230,6 @@ class MergeManager {
                     accessRequested: 'u',
                     base_version,
                     requestInfo,
-                    id: patched_resource_incoming.id,
                     resourceType: patched_resource_incoming.resourceType,
                     resourceToValidate,
                     path: requestInfo.path,
@@ -245,11 +242,9 @@ class MergeManager {
             }
 
             await this.performMergeDbUpdateAsync({
-                    base_version,
                     requestInfo,
                     resourceToMerge: patched_resource_incoming,
                     previousVersionId: currentResource.meta.versionId,
-                    patches,
                     smartMerge,
                     currentMembers: currentResource.member
                 }
@@ -297,7 +292,6 @@ class MergeManager {
             accessRequested: 'u',
             base_version,
             requestInfo,
-            id: resourceToMerge.id,
             resourceType: resourceToMerge.resourceType,
             resourceToValidate,
             path: requestInfo.path,
@@ -309,7 +303,6 @@ class MergeManager {
         }
 
         await this.performMergeDbInsertAsync({
-            base_version,
             requestInfo,
             resourceToMerge
         });
@@ -357,27 +350,24 @@ class MergeManager {
              */
             let currentResource;
 
-            let resourceTypeWasLoaded = false;
-            if (this.databaseBulkLoader) {
-                currentResource = this.databaseBulkLoader.getResourceFromExistingList(
-                    {
-                        requestId,
-                        resourceType: resourceToMerge.resourceType,
-                        uuid
-                    }
-                );
-                resourceTypeWasLoaded = this.databaseBulkLoader.isResourceTypeLoaded(
-                    { requestId, resourceType: resourceToMerge.resourceType }
-                );
-            }
+            currentResource = this.databaseBulkLoader.getResourceFromExistingList(
+                {
+                    requestId,
+                    resourceType: resourceToMerge.resourceType,
+                    uuid
+                }
+            );
+            const resourceTypeWasLoaded = this.databaseBulkLoader.isResourceTypeLoaded(
+                { requestId, resourceType: resourceToMerge.resourceType }
+            );
             if (!currentResource && !resourceTypeWasLoaded) {
                 // getResourceFromExistingList() returns null both when the resource was
                 // confirmed not to exist (resourceType was loaded, uuid just wasn't in it) and
-                // when there's no bulk loader (or this resourceType was never loaded into it for
-                // this request). Only the latter is ambiguous -- trusting it as confirmed
-                // non-existence would misroute an existing resource to the insert path -- so
-                // only fall back to a direct query in that case. Querying on every miss would
-                // add a redundant DB round-trip for every ordinary create.
+                // when this resourceType was never loaded into the bulk loader for this request.
+                // Only the latter is ambiguous -- trusting it as confirmed non-existence would
+                // misroute an existing resource to the insert path -- so only fall back to a
+                // direct query in that case. Querying on every miss would add a redundant DB
+                // round-trip for every ordinary create.
                 const databaseQueryManager = this.databaseQueryFactory.createQuery(
                     { resourceType: resourceToMerge.resourceType, base_version }
                 );
@@ -639,20 +629,16 @@ class MergeManager {
 
     /**
      * performs the db update
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} resourceToMerge
      * @param {string} previousVersionId
-     * @param {MergePatchEntry[]} patches
      * @returns {Promise<void>}
      */
     async performMergeDbUpdateAsync (
         {
-            base_version,
             requestInfo,
             resourceToMerge,
             previousVersionId,
-            patches,
             smartMerge,
             currentMembers
         }
@@ -702,12 +688,10 @@ class MergeManager {
 
             await this.databaseBulkInserter.mergeOneAsync(
                 {
-                    base_version,
                     requestInfo,
                     resourceType: resourceToMerge.resourceType,
                     doc: resourceToMerge,
                     previousVersionId,
-                    patches,
                     contextData,
                     smartMerge
                 }
@@ -722,14 +706,12 @@ class MergeManager {
 
     /**
      * performs the db insert
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbInsertAsync (
         {
-            base_version,
             requestInfo,
             resourceToMerge
         }) {
@@ -747,7 +729,6 @@ class MergeManager {
             const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo);
 
             await this.databaseBulkInserter.insertOneAsync({
-                    base_version,
                     requestInfo,
                     resourceType: resourceToMerge.resourceType,
                     doc: resourceToMerge,

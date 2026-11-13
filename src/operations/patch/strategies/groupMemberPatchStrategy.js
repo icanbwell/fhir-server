@@ -141,7 +141,6 @@ class GroupMemberPatchStrategy {
      *
      * @param {Object} params
      * @param {FhirRequestInfo} params.requestInfo
-     * @param {ParsedArgs} params.parsedArgs
      * @param {string} params.resourceType
      * @param {string} params.id - Group ID
      * @param {string} params.base_version
@@ -151,7 +150,6 @@ class GroupMemberPatchStrategy {
      */
     async executeMemberOperations({
         requestInfo,
-        parsedArgs,
         resourceType,
         id,
         base_version,
@@ -269,7 +267,6 @@ class GroupMemberPatchStrategy {
 
         // Update MongoDB metadata only (no member array)
         await this.databaseBulkInserter.replaceOneAsync({
-            base_version,
             requestInfo,
             resourceType,
             doc: updatedResource,
@@ -312,24 +309,10 @@ class GroupMemberPatchStrategy {
      * NOTE: MongoDB update has already been performed by executeMemberOperations (correct write order)
      *
      * @param {Object} params
-     * @param {FhirRequestInfo} params.requestInfo
-     * @param {ParsedArgs} params.parsedArgs
-     * @param {string} params.resourceType
-     * @param {string} params.id
-     * @param {string} params.base_version
      * @param {Resource} params.updatedResource - The updated Group resource from executeMemberOperations
      * @returns {Promise<{id: string, created: boolean, resource_version: string, resource: Resource}>}
      */
-    async buildMemberPatchResponse({
-        requestInfo,
-        parsedArgs,
-        resourceType,
-        id,
-        base_version,
-        updatedResource
-    }) {
-
-        // Return 200 OK with metadata only (no member array)
+    async buildMemberPatchResponse({ updatedResource }) {
         return {
             id: updatedResource.id,
             created: false,

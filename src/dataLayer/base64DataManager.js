@@ -1197,15 +1197,11 @@ class Base64DataManager {
     }
 
     /**
-     * Ensure the history bucket holds this version's payload and sanitize the patch diagnostics on
-     * `historyDocument` (mutated in place). Per configured leaf whose sidecar exists, builds the
-     * history key from `_blobMeta.hash` and uploads the bytes (changed) or refreshes the existing
-     * object's TTL via copy-onto-self (unchanged, re-uploading only if it expired). Also walks
-     * `response.outcome.issue[].diagnostics` and replaces the `value` of any patch targeting a
-     * configured path with the `<data_value>` placeholder, so patch shape is kept without storing
-     * the raw payload.
-     * @param {Object} historyDocument - the history bundle-entry snapshot (`.resource` snapshot and,
-     *        for updates, `.response.outcome.issue[]` diagnostics). Mutated in place.
+     * Ensure the history bucket holds this version's payload. Per configured leaf whose sidecar
+     * exists, builds the history key from `_blobMeta.hash` and uploads the bytes (changed) or
+     * refreshes the existing object's TTL via copy-onto-self (unchanged, re-uploading only if it
+     * expired).
+     * @param {Object} historyDocument - the history bundle-entry snapshot (`.resource` snapshot).
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo - keys the byte stashes.
      * @returns {Promise<Object>} the same `historyDocument`.
      */
@@ -1219,23 +1215,21 @@ class Base64DataManager {
             return historyDocument;
         }
         for (const entry of entries) {
-            await this._processHistoryEntry(historyDocument, snapshot, entry, requestInfo);
+            await this._processHistoryEntry(snapshot, entry, requestInfo);
         }
-        this._sanitizeHistoryPatches(historyDocument, entries);
         return historyDocument;
     }
 
     /**
      * Per-entry history upload/refresh. Skips a leaf with no `_blobMeta` (or no `hash`), or when the
      * request stashed no content (a no-op that never went through INSERT).
-     * @param {Object} historyDocument - the history snapshot (`.resource`, `.response`); mutated in place.
-     * @param {Object} snapshot - `historyDocument.resource`.
+     * @param {Object} snapshot - the history document's `.resource`.
      * @param {{dataPath: string, blobMetaPath: string}} entry - JSON-Pointers to the base64 field and its sidecar.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo - keys the content stashes.
      * @returns {Promise<void>}
      * @private
      */
-    async _processHistoryEntry (historyDocument, snapshot, entry, requestInfo) {
+    async _processHistoryEntry (snapshot, entry, requestInfo) {
         const dataSegments = this._parseJsonPointer(entry.dataPath);
         const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
         const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
@@ -1307,80 +1301,7 @@ class Base64DataManager {
     }
 
     /**
-     * Rewrite any patch in `response.outcome.issue[*].diagnostics` whose path is a leaf actually
-     * externalized on `historyDocument.resource` (i.e. carries a `_blobMeta.hash`), replacing its
-     * `value` with the `<data_value>` placeholder (bytes live in the history bucket instead).
-     * Below-threshold data was never uploaded, so its patch is left as-is. Non-JSON diagnostics and
-     * value-less ops (remove/copy/move) are also left untouched.
-     * @param {Object} historyDocument - `.resource` (read) and `response.outcome.issue[]` (mutated in place).
-     * @param {{dataPath: string, blobMetaPath: string}[]} entries - configured paths for this type.
-     * @returns {void}
-     * @private
-     */
-    _sanitizeHistoryPatches (historyDocument, entries) {
-        const issues = historyDocument && historyDocument.response
-            && historyDocument.response.outcome && historyDocument.response.outcome.issue;
-        if (!Array.isArray(issues) || issues.length === 0) {
-            return;
-        }
-        const externalizedPaths = this._collectExternalizedPaths(historyDocument.resource, entries);
-        if (externalizedPaths.size === 0) {
-            return; // nothing on this snapshot was externalized — no patch needs a placeholder.
-        }
-        for (const issue of issues) {
-            if (!issue || typeof issue.diagnostics !== 'string') {
-                continue;
-            }
-            let patch;
-            try {
-                patch = JSON.parse(issue.diagnostics);
-            } catch (e) {
-                // diagnostics that isn't a JSON-encoded patch is not ours to rewrite.
-                continue;
-            }
-            if (!patch || typeof patch.path !== 'string') {
-                continue;
-            }
-            // `remove` / `copy` / `move` ops don't carry a `value` field per RFC 6902 —
-            // only rewrite when the original patch actually had one (add / replace / test).
-            if (!('value' in patch)) {
-                continue;
-            }
-            if (externalizedPaths.has(patch.path)) {
-                patch.value = BINARY_DATA_VALUE_PLACEHOLDER;
-                issue.diagnostics = JSON.stringify(patch);
-            }
-        }
-    }
-
-    /**
-     * Concrete JSON-Pointer paths (e.g. "/content/0/attachment/data") of every leaf across `entries`
-     * that carries a `_blobMeta.hash` on `snapshot` — i.e. was actually uploaded to cloud storage
-     * rather than kept inline below threshold. A patch path found in this set is known to be both a
-     * configured leaf AND externalized, with no separate pattern-match step needed.
-     * @param {Object} snapshot - `historyDocument.resource`.
-     * @param {{dataPath: string, blobMetaPath: string}[]} entries
-     * @returns {Set<string>}
-     * @private
-     */
-    _collectExternalizedPaths (snapshot, entries) {
-        const paths = new Set();
-        for (const entry of entries) {
-            const dataSegments = this._parseJsonPointer(entry.dataPath);
-            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
-            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
-            this._processPathsSync(snapshot, dataSegments, [], ({ parent, indices }) => {
-                const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
-                if (blobMeta && blobMeta.hash) {
-                    paths.add(`/${this._substituteIndices(dataSegments, indices)}`);
-                }
-            });
-        }
-        return paths;
-    }
-
-    /**
-     * Read-time counterpart to `_sanitizeHistoryPatches`. Mongo stores `<data_value>` in the patch
+     * History rows written before patch diagnostics were dropped store `<data_value>` in the patch
      * diagnostics of externalized versions to keep history docs small, but an API consumer should
      * see the same diagnostic shape whether the version was inline or externalized. After a
      * history read has hydrated `historyEntry.resource.data` from S3, walk the entry's JSON-Patch

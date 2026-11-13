@@ -59,6 +59,7 @@ class AuditLogger {
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
+
         /**
          * @type {import('../dataLayer/fastDatabaseBulkInserter').FastDatabaseBulkInserter}
          */
@@ -294,6 +295,59 @@ class AuditLogger {
     }
 
     /**
+     * Queues a read AuditEvent per resource type for the resources a request returned. When
+     * `outcome` is set, the AuditEvent also carries it, and falls back to `resourceType` with no ids
+     * when nothing was returned.
+     * @param {Object} params
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.resourceType
+     * @param {Object} params.args
+     * @param {{_uuid: string, resourceType: string}[]} params.resources
+     * @param {string} [params.outcome]
+     * @param {string} [params.outcomeDesc]
+     */
+    queueReadAuditEntries({
+        requestInfo, base_version, resourceType, args, resources, outcome, outcomeDesc
+    }) {
+        /**
+         * @type {Map<string, Set<string>>}
+         */
+        const idsByType = new Map();
+        for (const { resourceType: type, _uuid } of resources) {
+            if (type === 'AuditEvent') {
+                continue;
+            }
+            if (!idsByType.has(type)) {
+                idsByType.set(type, new Set());
+            }
+            idsByType.get(type).add(_uuid);
+        }
+        if (idsByType.size === 0 && outcome !== undefined && resourceType !== 'AuditEvent') {
+            idsByType.set(resourceType, new Set());
+        }
+
+        for (const [type, idSet] of idsByType.entries()) {
+            const ids = [...idSet];
+            this.postRequestProcessor.add({
+                requestId: requestInfo.requestId,
+                fnTask: async () => {
+                    await this.logAuditEntryAsync({
+                        requestInfo,
+                        base_version,
+                        resourceType: type,
+                        operation: 'read',
+                        args,
+                        ids,
+                        outcome,
+                        outcomeDesc
+                    });
+                }
+            });
+        }
+    }
+
+    /**
      * Creates an AuditEvent for an error response as a plain object.
      * @param {Object} params
      * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
@@ -397,7 +451,6 @@ class AuditLogger {
 
             operationsMap.get(resourceType).push(
                 this.databaseBulkInserter.getOperationForResourceAsync({
-                    requestId,
                     resourceType,
                     doc,
                     operationType: 'insert',

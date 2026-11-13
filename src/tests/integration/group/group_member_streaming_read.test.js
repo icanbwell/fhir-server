@@ -1,12 +1,14 @@
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
+    getHeadersJsonPatch,
     createTestRequest,
     getTestContainer,
     mockHttpContext
 } = require('../common');
+const { getLogger } = require('../../../winstonInit');
 const {
     MONGO_GROUP_EXTENDED_FIELD
 } = require('../../../utils/mongoGroupExtendedTag');
@@ -273,5 +275,71 @@ describe('Group GET streaming read (extended storage)', () => {
                 })
             ])
         );
+    });
+
+    /**
+     * The status app.js logs as 'Request Completed' on res 'finish' -- the same res.statusCode the
+     * access log records. Polled because 'finish' can fire after the client has the response.
+     */
+    async function getCompletedRequestStatusAsync (infoSpy, url, timeoutMs = 5000) {
+        const deadline = Date.now() + timeoutMs;
+        while (Date.now() < deadline) {
+            const call = infoSpy.mock.calls.find(
+                ([message, args]) => message === 'Request Completed' && args?.requestUrl === url
+            );
+            if (call) {
+                return call[1].status;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+        return undefined;
+    }
+
+    test.each([
+        { label: 'read of an extended Group', extended: true, path: (id) => `/4_0_0/Group/${id}`, members: 1 },
+        { label: 'vread of an extended Group', extended: true, path: (id) => `/4_0_0/Group/${id}/_history/2`, members: 1 },
+        { label: 'read of an embedded Group', extended: false, path: (id) => `/4_0_0/Group/${id}`, members: 2 },
+        { label: 'vread of an embedded Group', extended: false, path: (id) => `/4_0_0/Group/${id}/_history/2`, members: 2 }
+    ])('gzip $label: client and completed-request status are both 200', async ({ extended, path, members }) => {
+        const request = await createTestRequest();
+        let groupId;
+        if (extended) {
+            ({ groupId } = await createExtendedGroup(request, 'completed-status-extended'));
+        } else {
+            const createResp = await request
+                .post('/4_0_0/Group')
+                .send({
+                    resourceType: 'Group',
+                    meta: baseGroupMeta(),
+                    type: 'person',
+                    actual: true,
+                    member: [{ entity: { reference: 'Patient/completed-status-1' } }]
+                })
+                .set(getHeaders());
+            expect(createResp).toHaveStatusCode(201);
+            groupId = createResp.body.id;
+            await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId });
+        }
+        const patchResp = await request
+            .patch(`/4_0_0/Group/${groupId}`)
+            .send([{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/completed-status-2' } } }])
+            .set(getHeadersJsonPatch());
+        await getTestContainer().postRequestProcessor.waitTillDoneAsync({ requestId });
+        expect(patchResp.status).toBe(200);
+
+        const url = path(groupId);
+        const infoSpy = jest.spyOn(getLogger(), 'info');
+        try {
+            // Compression is what made the status wrong, so request it explicitly.
+            const resp = await request.get(url).set(getHeaders()).set('Accept-Encoding', 'gzip');
+
+            expect(resp.status).toBe(200);
+            const body = JSON.parse(resp.text);
+            expect(body.id).toBe(groupId);
+            expect(body.member).toHaveLength(members);
+            expect(await getCompletedRequestStatusAsync(infoSpy, url)).toBe(200);
+        } finally {
+            infoSpy.mockRestore();
+        }
     });
 });

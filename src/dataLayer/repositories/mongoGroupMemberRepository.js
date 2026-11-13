@@ -305,7 +305,6 @@ class MongoGroupMemberRepository {
 
             if (writeType === 'create') {
                 await this.fastDatabaseBulkInserter.insertOneAsync({
-                    base_version,
                     requestInfo,
                     resourceType: GROUP_MEMBER_RESOURCE_TYPE,
                     doc
@@ -315,8 +314,7 @@ class MongoGroupMemberRepository {
                     requestInfo,
                     resourceType: GROUP_MEMBER_RESOURCE_TYPE,
                     uuid: memberUuid,
-                    doc,
-                    patches: null
+                    doc
                 });
             }
             hasBufferedWrite = true;

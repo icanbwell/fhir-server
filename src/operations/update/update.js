@@ -14,7 +14,6 @@ const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { logInfo } = require('../common/logging');
 const { parseIfMatchVersionIds, normalizeETag } = require('../../utils/ifMatchHelper');
 const { ParsedArgs } = require('../query/parsedArgs');
-const { ConfigManager } = require('../../utils/configManager');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { IdParser } = require('../../utils/idParser');
@@ -47,7 +46,6 @@ class UpdateOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @param {ResourceMerger} resourceMerger
-     * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
@@ -66,7 +64,6 @@ class UpdateOperation {
             resourceValidator,
             fastDatabaseBulkInserter,
             resourceMerger,
-            configManager,
             databaseAttachmentManager,
             base64DataManager,
             sourceAssigningAuthorityColumnHandler,
@@ -118,12 +115,6 @@ class UpdateOperation {
          */
         this.resourceMerger = resourceMerger;
         assertTypeEquals(resourceMerger, ResourceMerger);
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
 
         /**
          * @type {DatabaseAttachmentManager}
@@ -323,7 +314,6 @@ class UpdateOperation {
                     accessRequested: 'u',
                     base_version,
                     requestInfo,
-                    id: resource_incoming_json.id,
                     resourceType,
                     resourceToValidate: resource_incoming_json,
                     path,
@@ -370,7 +360,6 @@ class UpdateOperation {
              * @type {Resource}
              */
             let updatedResource;
-            let patches;
 
             const ifMatch = requestInfo.headers && requestInfo.headers['if-match'];
             const versionIds = parseIfMatchVersionIds(ifMatch);
@@ -410,8 +399,7 @@ class UpdateOperation {
                         throw precondition_failed_error;
                     }
                 }
-                ({ updatedResource, patches } = await this.resourceMerger.fastMergeResourceAsync({
-                    base_version,
+                ({ updatedResource } = await this.resourceMerger.fastMergeResourceAsync({
                     requestInfo,
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
@@ -464,12 +452,10 @@ class UpdateOperation {
 
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
-                            base_version,
                             requestInfo,
                             resourceType,
                             doc,
                             uuid: doc._uuid,
-                            patches,
                             contextData,
                             ifMatchVersionIds: versionIds
                         }
@@ -490,7 +476,6 @@ class UpdateOperation {
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
                     await this.databaseBulkInserter.insertOneAsync({
-                        base_version,
                         requestInfo,
                         resourceType,
                         doc,

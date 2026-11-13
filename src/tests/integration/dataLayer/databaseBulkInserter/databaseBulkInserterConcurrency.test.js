@@ -309,8 +309,7 @@ describe('databaseBulkInserter Tests', () => {
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
                 doc: toWriteDoc(codeSystem2),
-                previousVersionId: '1',
-                patches: null
+                previousVersionId: '1'
             });
 
             const codeSystemHistoryEntriesBeforeMerge = await fhirDb.collection(`${collectionName}_History`).find().toArray();
@@ -578,8 +577,7 @@ describe('databaseBulkInserter Tests', () => {
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
                 doc: toWriteDoc(codeSystem2),
-                previousVersionId: '1',
-                patches: null
+                previousVersionId: '1'
             });
 
             // now add in a new one while waiting
@@ -978,8 +976,7 @@ describe('databaseBulkInserter Tests', () => {
                 requestInfo,
                 resourceType: 'CodeSystem',
                 doc: toWriteDoc(codeSystem2),
-                previousVersionId: null,
-                patches: null
+                previousVersionId: null
             });
 
             // now execute the bulk inserts
@@ -1150,8 +1147,7 @@ describe('databaseBulkInserter Tests', () => {
                 id: codeSystemOriginal.id,
                 resourceType: 'CodeSystem',
                 doc: toWriteDoc(codeSystemOriginal),
-                previousVersionId: null,
-                patches: null
+                previousVersionId: null
             });
 
             // now execute the bulk inserts

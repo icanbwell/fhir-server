@@ -164,7 +164,7 @@ describe('Resource Authorization §4 — Caller / account type', () => {
             expect(err).toBeNull();
             expect(user).toBeTruthy();
             expect(extra.context.userType).toBe(AUTH_USER_TYPES.delegatedUser);
-            expect(extra.context.actor).toEqual({ reference: 'RelatedPerson/rp-1', sub: 'actor-sub-1' });
+            expect(extra.context.actor).toEqual({ reference: 'RelatedPerson/rp-1', sub: 'actor-sub-1', isOrganizationActor: false });
         });
 
         test('does not set userType from act claim when enableDelegatedAccessDetection is disabled', () => {

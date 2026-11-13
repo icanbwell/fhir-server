@@ -5,7 +5,10 @@ const { isTrue } = require('./isTrue');
  * @typedef {Object} JwtActor
  * @property {string} [sub] - The subject of the actor
  * @property {string} [reference] - A reference string that identifies the actor
+ * @property {boolean} [isOrganizationActor] - true when `reference` is an Organization; set at authentication
  * @property {string|null} [consentPolicy] - Consent policy URI, set after consent validation
+ * @property {string[]} [allowedConnectionTypes] - connectionType codes from the entitlement Consent's
+ *   provision.securityLabel; unset = no connection-type restriction
  * @property {import('./delegatedAccessRulesManager').DelegatedAccessFilteringRules|null} [_filteringRules] - Cached filtering rules (request-scoped)
  */
 

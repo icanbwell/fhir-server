@@ -82,13 +82,13 @@ After the query returns:
 
 The Consent Query above ties a grantor **person** to a delegated actor via a `patient`-scoped Consent. That model doesn't apply when the delegated actor is an `Organization`: the authorizing Consent for that flow is an **org-level grant, established once at client onboarding, with no `patient` field at all** — it authorizes the Organization generally, not a specific person.
 
-Because that Consent can never satisfy the `patient.reference` match above, `DelegatedAccessRulesManager.getFilteringRulesAsync` **skips the per-person Consent lookup entirely** when the actor reference is `Organization/<id>`, rather than trying to adapt the query. This is a deliberate trust boundary, not an oversight: the upstream token-minting service already verifies Person ownership and an active org-level Consent (`dataSharingAccess` category, Treatment scope, matching `provision.actor`) before it ever mints the token — fhir-server trusts that mint-time verification for this actor type, the same way it trusts every other signed JWT claim, rather than re-deriving a per-person consent that was never meant to exist.
+Because that Consent can never satisfy the `patient.reference` match above, `DelegatedAccessRulesManager.getFilteringRulesAsync` **skips the per-person Consent lookup entirely** when the actor reference is `Organization/<id>`, rather than trying to adapt the query. This is a deliberate trust boundary, not an oversight: the upstream token-minting service already verifies Person ownership and an active org-level Consent (`dataSharing` category, Treatment scope, matching `provision.actor`) before it ever mints the token — fhir-server trusts that mint-time verification for this actor type, the same way it trusts every other signed JWT claim, rather than re-deriving a per-person consent that was never meant to exist.
 
 Consequences of the skip:
 - `hasValidConsentAsync` returns `true` unconditionally for an `Organization` actor — no database query, no ambiguous/no-consent rejection path.
 - No `deniedSensitiveCategories` are derived from a Consent (there is no nested `provision.provision` to walk) — the sensitive-data exclusion filter falls back to its always-on `unclassified` exclusion only (see "Filtering of Unclassified Resources" below).
 - `actor.consentPolicy` is left unset for this actor type — there is no per-person Consent reference to point at.
-- The org-level Consent named in the JWT's `entitlements` claim is unrelated to this gate (`hasValidConsentAsync` never dereferences it). It's used for two other things instead: `purposeOfEvent` resolution, and populating `agent.policy` on the AuditEvent (see below) — both handled in `AuthService.processUserInfo` at authentication time, not here.
+- The org-level Consent named in the JWT's `entitlements` claim is unrelated to this gate (`hasValidConsentAsync` never dereferences it). It's used for three other things instead: `purposeOfEvent` resolution, populating `agent.policy` on the AuditEvent (see below), and the allowed connection types (see "Connection-Type Filtering" below) — all handled in `AuthService.processUserInfo` at authentication time, not here.
 
 ## Building Filtering Rules
 
@@ -149,6 +149,48 @@ This correctly handles resources that may have **multiple** sensitive-category c
 - If **denied categories** exist: those categories are excluded in addition to `unclassified`.
 - Filtering is **only applied to patient-scoped resources** (e.g., Observation, Condition). Non-patient-scoped resources (e.g., Practitioner) are not filtered.
 
+## Connection-Type Filtering
+
+The org-level Consent named in `entitlements` can limit which data sources a delegated actor sees, by listing connection types in `provision.securityLabel`:
+
+```json
+"provision": {
+  "type": "permit",
+  "securityLabel": [
+    { "system": "https://www.icanbwell.com/connectionType", "code": "proa" },
+    { "system": "https://www.icanbwell.com/connectionType", "code": "treatment" }
+  ]
+}
+```
+
+When `DelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync` dereferences that Consent at authentication time, it also reads these labels and sets `actor.allowedConnectionTypes`. The same Consent read serves both, so there's no extra query. Then, for patient-scoped resources, `SearchManager` calls `DataSharingManager.updateQueryForDelegatedAccessConnectionTypes` right after the sensitive-data exclusion. That ANDs on:
+
+```javascript
+{
+  'meta.security': {
+    $elemMatch: {
+      system: 'https://www.icanbwell.com/connectionType',
+      code: { $in: allowedConnectionTypes }
+    }
+  }
+}
+```
+
+### Behavior
+
+| Consent `provision.securityLabel` | `actor.allowedConnectionTypes` | Result |
+|---|---|---|
+| No `connectionType` label | `[]` | Nothing connection-typed is returned (fail closed) |
+| One or more valid `connectionType` labels | the codes | Only resources tagged with one of those connection types are returned |
+| A `connectionType` label with a missing or empty code | `[]` | Nothing connection-typed is returned (fail closed; a warning is logged with the Consent id) |
+
+- **`Person` is not filtered.** Person resources carry no connection-type tag, and patient scope already limits `Person` to the token's linked Persons. So `Person/$everything` still returns the client Person.
+- **Untagged resources are excluded** once a label is present, including the client's own Patient and its data.
+- An empty allowed list returns the impossible query (`_uuid: '__invalid__'`) rather than an empty `$in`, because `MongoQuerySimplifier` drops an empty `$in` and the filter would then match every connection type.
+- If no Patient survives the filter, `Person/$everything` returns an empty bundle, because the top-level query runs on `Patient`.
+- If `entitlements` names several Consents, the allowed list is the union of their codes.
+- An `Organization` actor with no Consent in `entitlements` (so no allowed list at all) also gets no data. A `RelatedPerson` actor without an allowed list is not filtered by connection type.
+
 ## Operation Access Control
 
 Delegated users are restricted to **read-only** operations. Access is enforced by `OperationAccessManager` which delegates to `DelegatedAccessManager`.
@@ -166,6 +208,21 @@ Delegated users are restricted to **read-only** operations. Access is enforced b
 | | `graphql mutation` |
 
 Any denied operation returns **403 Forbidden**. GraphQL mutations return an error in the GraphQL response body.
+
+### Organization actors
+
+By default an `Organization` actor can only call **`Person/<id>/$everything`**. `DelegatedAccessManager.verifyAccess` rejects every other REST operation and resource type with 403, including `Patient/$everything`, the proxy-patient form `Patient/person.<id>/$everything`, search, read and `$graph`.
+
+The allowed list is set by `DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS`: comma-separated `<ResourceType>:<operation>` pairs, where `*` matches any resource type. The operation names are the ones `fhirOperationsManager` passes to `verifyAccess` (`everything`, `search`, `searchById`, `graph`). The default is `Person:everything`.
+
+```bash
+# Person $everything plus Observation search
+DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS=Person:everything,Observation:search
+```
+
+- This list can only narrow the read-only operations above. A write such as `Person:create` is still rejected.
+- Connection-type filtering still applies to every allowed operation.
+- The GraphQL v1, GraphQL v2 and MCP routers reject `Organization` actors with 403 whatever this list says (`forbidForUserTypes` with `DELEGATED_ACCESS.ORGANIZATION_ACTOR_USER_TYPE` in `src/app.js`). `AuthService.processForDelegatedActor` sets `actor.isOrganizationActor` once at authentication, and every Organization-actor check reads that flag.
 
 ## Redis Caching
 
@@ -280,7 +337,7 @@ The generated token will contain:
 }
 ```
 
-A `Consent` with that exact `id` (org-level, no `patient` field, `provision.actor.reference` = the same `Organization/<id>` as `act.reference`, `provision.purpose` carrying the code you expect to see on the audit event) must actually exist before generating the token -- an unresolvable `Consent/<id>` entitlement now fails authentication closed (401, `delegated_actor_consent_not_found`) rather than just producing an empty `purposeOfEvent`.
+A `Consent` with that exact `id` (org-level, no `patient` field, `provision.actor.reference` = the same `Organization/<id>` as `act.reference`, `provision.purpose` carrying the code you expect to see on the audit event, and optionally `provision.securityLabel` connection types to test connection-type filtering) must actually exist before generating the token -- an unresolvable `Consent/<id>` entitlement now fails authentication closed (401, `delegated_actor_consent_not_found`) rather than just producing an empty `purposeOfEvent`.
 
 ## Composition Sensitive Section Filtering
 
@@ -305,4 +362,5 @@ Filtering happens at the **enrichment level** via `EnrichmentManager`, across al
 
 ## Config
 
+- `DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS`: `<ResourceType>:<operation>` pairs an `Organization` actor may call (default `Person:everything`). See "Organization actors" above.
 - `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**, including Composition section filtering. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules (including Composition section filtering), copies any JWT `entitlements` into `context.purposeOfUse` (recorded as `purposeOfEvent` on the audit event), and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.

@@ -17,13 +17,6 @@ const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourc
 const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
 /**
- * @typedef {object} MergePatchEntry
- * @property {string} op
- * @property {string} path
- * @property {*|*[]} value
- */
-
-/**
  * @typedef {Object} UpdateSecurityTagProps
  * @property {Object} currentResource
  * @property {Object} resourceToMerge
@@ -40,7 +33,6 @@ const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
  * @typedef {Object} CompareObjectsProp
  * @property {Object} currentObject
  * @property {Object} mergedObject
- * @property {string[]|undefined} limitToPaths
  */
 
 /**
@@ -249,7 +241,7 @@ class ResourceMerger {
      * @param {CompareObjectsProp}
      * @returns {import('fast-json-patch').Operation[]}
      */
-    compareObjects ({ currentObject, mergedObject, limitToPaths, ignoreDateOnlyChange = false }) {
+    compareObjects ({ currentObject, mergedObject, ignoreDateOnlyChange = false }) {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
@@ -266,12 +258,6 @@ class ResourceMerger {
                         item.value.system === IdentifierSystem.sourceId)
                 )
         );
-
-        if (limitToPaths && limitToPaths.length > 0) {
-            patchContent = patchContent.filter(
-                item => limitToPaths.some(path => item.path.startsWith(path))
-            );
-        }
 
         // A change to `date` alone is not a change worth a new version: writers that stamp it with
         // "now" on every run would otherwise create a version, history row and event each time.
@@ -375,27 +361,23 @@ class ResourceMerger {
     /**
      * Merges two resources and returns either a merged resource or null (if there were no changes)
      * Note: Make sure to run preSave on the updatedResource before inserting/updating the resource into database
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {Resource} currentResource
      * @param {Resource} resourceToMerge
      * @param {boolean|undefined} [smartMerge]
      * @param {boolean|undefined} [incrementVersion]
-     * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
      * @param {import('../../dataLayer/base64DataManager').Base64DataManager|null} [base64DataManager]
      * @param {boolean|undefined} [ignoreDateOnlyChange] treat a change to only the top-level date as no change (merge only)
-     * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
+     * @returns {Promise<{updatedResource:Resource|null}>} the merged resource, or null if there were no changes
      */
     async fastMergeResourceAsync (
         {
-            base_version,
             requestInfo,
             currentResource,
             resourceToMerge,
             smartMerge = true,
             incrementVersion = true,
-            limitToPaths,
             databaseAttachmentManager = null,
             base64DataManager = null,
             ignoreDateOnlyChange = false
@@ -424,7 +406,7 @@ class ResourceMerger {
         // explicit reconciliation below handles both directly regardless.
         const hasExternalizedLeaf = !!base64DataManager && base64DataManager.hasExternalizedLeaf(currentResource);
         if (!hasExternalizedLeaf && deepEqual(currentResource, resourceToMerge) === true) {
-            return { updatedResource: null, patches: null };
+            return { updatedResource: null };
         }
 
         let currentResourceWithAttachmentData = deepcopy(currentResource);
@@ -476,7 +458,6 @@ class ResourceMerger {
         const patchContent = this.compareObjects({
             currentObject: currentResourceWithAttachmentData,
             mergedObject,
-            limitToPaths,
             ignoreDateOnlyChange
         });
 
@@ -503,7 +484,7 @@ class ResourceMerger {
 
         // see if there are any changes (generic diff, or the base64 leaf reconciled above)
         if (patchContent.length === 0 && base64Patches.length === 0) {
-            return { updatedResource: null, patches: null };
+            return { updatedResource: null };
         }
 
         patched_resource_incoming = this.fastUpdateMeta({
@@ -513,14 +494,7 @@ class ResourceMerger {
             incrementVersion
         });
 
-        return {
-            updatedResource: patched_resource_incoming,
-            patches: [...patchContent, ...base64Patches].map(p => {
-                return {
-                    op: p.op, path: p.path, value: p.value
-                };
-            })
-        };
+        return { updatedResource: patched_resource_incoming };
     }
 }
 

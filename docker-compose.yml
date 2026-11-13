@@ -103,6 +103,8 @@ services:
       ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION: 1
       SUMMARY_CACHE_TTL_SECONDS: 300
       ENABLE_DELEGATED_ACCESS_DETECTION: 'true'
+      # REST operations a delegated Organization actor may call (<ResourceType>:<operation>, * = any type)
+      DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS: 'Person:everything'
       UNCLASSIFIED_TAGGING_RESOURCES: 'AllergyIntolerance,Appointment,CarePlan,ChargeItem,Claim,ClaimResponse,ClinicalImpression,Condition,DeviceRequest,DiagnosticReport,DocumentReference,Encounter,ExplanationOfBenefit,FamilyMemberHistory,Goal,ImagingStudy,Immunization,Invoice,MeasureReport,MedicationAdministration,MedicationDispense,MedicationRequest,MedicationStatement,Observation,Procedure,QuestionnaireResponse,RiskAssessment,ServiceRequest,Specimen'
       # ClickHouse configuration
       ENABLE_CLICKHOUSE: '1'

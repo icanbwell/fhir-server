@@ -68,7 +68,7 @@ describe('MergeManager', () => {
         };
         mockResourceMerger = {
             fastMergeResourceAsync: jest.fn().mockResolvedValue({
-                updatedResource: null, patches: []
+                updatedResource: null
             })
         };
         mockResourceValidator = {
@@ -209,8 +209,7 @@ describe('MergeManager', () => {
             assertTypeEquals.mockImplementation(() => {});
 
             mockResourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: null,
-                patches: []
+                updatedResource: null
             });
 
             const requestInfo = Object.create(FhirRequestInfo.prototype);
@@ -239,8 +238,7 @@ describe('MergeManager', () => {
                 active: true
             };
             mockResourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: patchedResource,
-                patches: [{ op: 'replace', path: '/active', value: true }]
+                updatedResource: patchedResource
             });
 
             // mock performMergeDbUpdateAsync
@@ -695,11 +693,9 @@ describe('MergeManager', () => {
             requestInfo.path = '/Person';
 
             await mergeManager.performMergeDbUpdateAsync({
-                base_version: '4_0_0',
                 requestInfo,
                 resourceToMerge,
                 previousVersionId: '1',
-                patches: [],
                 smartMerge,
                 currentMembers: undefined
             });
@@ -730,11 +726,9 @@ describe('MergeManager', () => {
             let caughtError;
             try {
                 await mergeManager.performMergeDbUpdateAsync({
-                    base_version: '4_0_0',
                     requestInfo,
                     resourceToMerge,
                     previousVersionId: '1',
-                    patches: [],
                     smartMerge: true,
                     currentMembers: undefined
                 });
@@ -771,7 +765,6 @@ describe('MergeManager', () => {
             let caughtError;
             try {
                 await mergeManager.performMergeDbInsertAsync({
-                    base_version: '4_0_0',
                     requestInfo,
                     resourceToMerge
                 });
@@ -809,8 +802,7 @@ describe('MergeManager', () => {
                 meta: { versionId: '2', lastUpdated: new Date().toISOString() }
             };
             mockResourceMerger.fastMergeResourceAsync.mockResolvedValue({
-                updatedResource: patchedResource,
-                patches: [{ op: 'replace', path: '/data', value: base64Payload }]
+                updatedResource: patchedResource
             });
 
             const dbError = new Error('connection lost');

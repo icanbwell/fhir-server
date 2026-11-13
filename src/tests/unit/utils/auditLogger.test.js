@@ -403,6 +403,102 @@ describe('AuditLogger', () => {
     // =====================================================
     // Tests for createErrorAuditEntry
     // =====================================================
+    describe('queueReadAuditEntries', () => {
+        const requestInfo = { requestId: 'req-1' };
+        let queuedTasks;
+
+        beforeEach(() => {
+            queuedTasks = [];
+            mockPostRequestProcessor.add = jestGlobal.fn((task) => queuedTasks.push(task));
+            jestGlobal.spyOn(auditLogger, 'logAuditEntryAsync').mockResolvedValue(undefined);
+        });
+
+        const queueReadAuditEntries = (overrides) =>
+            auditLogger.queueReadAuditEntries({
+                requestInfo,
+                base_version: '4_0_0',
+                resourceType: 'Patient',
+                args: { id: 'p1' },
+                ...overrides
+            });
+
+        const runQueuedTasksAsync = async () => {
+            for (const task of queuedTasks) {
+                await task.fnTask();
+            }
+        };
+
+        test.each([
+            ['nothing returned and no outcome', [], undefined, 0],
+            ['only AuditEvent returned', [{ resourceType: 'AuditEvent', _uuid: 'a1' }], undefined, 0],
+            [
+                'two resource types returned',
+                [
+                    { resourceType: 'Patient', _uuid: 'p1' },
+                    { resourceType: 'Patient', _uuid: 'p2' },
+                    { resourceType: 'Observation', _uuid: 'o1' }
+                ],
+                undefined,
+                2
+            ],
+            ['error outcome with nothing returned', [], '8', 1]
+        ])('%s queues %i audit task(s)', async (_, resources, outcome, expectedCount) => {
+            queueReadAuditEntries({ resources, outcome });
+
+            expect(mockPostRequestProcessor.add).toHaveBeenCalledTimes(expectedCount);
+            await runQueuedTasksAsync();
+            expect(auditLogger.logAuditEntryAsync).toHaveBeenCalledTimes(expectedCount);
+        });
+
+        test('groups ids by type and records a read operation', async () => {
+            queueReadAuditEntries({
+                resources: [
+                    { resourceType: 'Patient', _uuid: 'p1' },
+                    { resourceType: 'Patient', _uuid: 'p2' },
+                    { resourceType: 'Observation', _uuid: 'o1' }
+                ]
+            });
+            await runQueuedTasksAsync();
+
+            const calls = auditLogger.logAuditEntryAsync.mock.calls.map(([arg]) => arg);
+            expect(calls.map((c) => [c.resourceType, c.operation, c.ids, c.args])).toEqual([
+                ['Patient', 'read', ['p1', 'p2'], { id: 'p1' }],
+                ['Observation', 'read', ['o1'], { id: 'p1' }]
+            ]);
+            expect(mockPostRequestProcessor.add).toHaveBeenCalledWith(
+                expect.objectContaining({ requestId: 'req-1' })
+            );
+        });
+
+        test('lists a resource that appears more than once a single time', async () => {
+            queueReadAuditEntries({
+                resources: [
+                    { resourceType: 'Practitioner', _uuid: 'pr1' },
+                    { resourceType: 'Practitioner', _uuid: 'pr1' },
+                    { resourceType: 'Practitioner', _uuid: 'pr2' }
+                ]
+            });
+            await runQueuedTasksAsync();
+
+            expect(auditLogger.logAuditEntryAsync).toHaveBeenCalledTimes(1);
+            expect(auditLogger.logAuditEntryAsync.mock.calls[0][0].ids).toEqual(['pr1', 'pr2']);
+        });
+
+        test('audits the requested type with no ids when an error outcome has nothing returned', async () => {
+            queueReadAuditEntries({ resources: [], outcome: '4', outcomeDesc: 'bad request' });
+            await runQueuedTasksAsync();
+
+            expect(auditLogger.logAuditEntryAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resourceType: 'Patient',
+                    ids: [],
+                    outcome: '4',
+                    outcomeDesc: 'bad request'
+                })
+            );
+        });
+    });
+
     describe('createErrorAuditEntry', () => {
         test('should create security alert type for 401', () => {
             const requestInfo = { isUser: false, actor: {} };

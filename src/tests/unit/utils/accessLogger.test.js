@@ -36,12 +36,6 @@ jestGlobal.mock('../../../operations/fhirOperationsManager', () => {
     return { FhirOperationsManager };
 });
 
-// Mock ScopesManager
-jestGlobal.mock('../../../operations/security/scopesManager', () => {
-    class ScopesManager {}
-    return { ScopesManager };
-});
-
 // Mock FastDatabaseBulkInserter
 jestGlobal.mock('../../../dataLayer/fastDatabaseBulkInserter', () => {
     const { EventEmitter } = require('events');
@@ -57,7 +51,6 @@ jestGlobal.mock('../../../utils/accessLogClickHouseWriter', () => {
 
 const httpContext = require('express-http-context');
 const { AccessLogger } = require('../../../utils/accessLogger');
-const { ScopesManager } = require('../../../operations/security/scopesManager');
 const { FhirOperationsManager } = require('../../../operations/fhirOperationsManager');
 const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
 const { AccessLogClickHouseWriter } = require('../../../utils/accessLogClickHouseWriter');
@@ -70,15 +63,12 @@ function createMockInstance(ClassType) {
 
 describe('AccessLogger', () => {
     let accessLogger;
-    let mockScopesManager;
     let mockFhirOperationsManager;
     let mockDatabaseBulkInserter;
 
     beforeEach(() => {
         jestGlobal.clearAllMocks();
         httpContext.get.mockReturnValue('req-id-123');
-
-        mockScopesManager = createMockInstance(ScopesManager);
 
         mockFhirOperationsManager = createMockInstance(FhirOperationsManager);
         mockFhirOperationsManager.getRequestInfo = jestGlobal.fn().mockReturnValue({
@@ -103,7 +93,6 @@ describe('AccessLogger', () => {
         mockDatabaseBulkInserter.executeAsync = jestGlobal.fn().mockResolvedValue([]);
 
         accessLogger = new AccessLogger({
-            scopesManager: mockScopesManager,
             fhirOperationsManager: mockFhirOperationsManager,
             base_version: '4_0_0',
             imageVersion: '1.0.0',
@@ -407,7 +396,6 @@ describe('AccessLogger', () => {
             mockClickHouseWriter.writeBatchAsync = jestGlobal.fn().mockResolvedValue(undefined);
 
             const clickHouseLogger = new AccessLogger({
-                scopesManager: mockScopesManager,
                 fhirOperationsManager: mockFhirOperationsManager,
                 base_version: '4_0_0',
                 imageVersion: '1.0.0',
@@ -446,9 +434,17 @@ describe('AccessLogger', () => {
             ];
             // Now flip to mongo enabled before flush
             accessLogger.mongoEnabled = true;
+            mockDatabaseBulkInserter.executeAsync = jestGlobal.fn().mockImplementation(async ({ requestInfo }) => {
+                if (!requestInfo) {
+                    throw new TypeError('requestInfo is required');
+                }
+                return [];
+            });
 
-            // Line 304: entry.requestInfo.requestId will crash since requestInfo is undefined
-            await expect(accessLogger.flushAsync()).rejects.toThrow();
+            await expect(accessLogger.flushAsync()).rejects.toThrow('requestInfo is required');
+            expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ requestInfo: undefined })
+            );
         });
     });
 });

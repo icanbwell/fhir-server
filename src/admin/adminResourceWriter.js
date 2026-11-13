@@ -49,8 +49,7 @@ class AdminResourceWriter {
 
             if (currentResource) {
                 writeRequestInfo.method = 'PATCH';
-                const { updatedResource, patches } = await this.resourceMerger.fastMergeResourceAsync({
-                    base_version,
+                const { updatedResource } = await this.resourceMerger.fastMergeResourceAsync({
                     requestInfo: writeRequestInfo,
                     currentResource,
                     resourceToMerge: resource,
@@ -60,19 +59,16 @@ class AdminResourceWriter {
                     return;
                 }
                 await this.fastDatabaseBulkInserter.mergeOneAsync({
-                    base_version,
                     requestInfo: writeRequestInfo,
                     resourceType,
                     doc: updatedResource,
                     previousVersionId: currentResource.meta.versionId,
-                    patches,
                     smartMerge
                 });
             } else {
                 writeRequestInfo.method = 'POST';
                 resource.meta = { ...resource.meta, lastUpdated: new Date() };
                 await this.fastDatabaseBulkInserter.insertOneAsync({
-                    base_version,
                     requestInfo: writeRequestInfo,
                     resourceType,
                     doc: resource
