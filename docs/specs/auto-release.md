@@ -75,7 +75,8 @@ A was chosen: smallest change, no secrets, and the badge is fixed as a side effe
 - `concurrency: { group: release, cancel-in-progress: false }`. If several merges queue up, the
   newest pending run wins and its release notes cover everything since the previous version tag, so
   nothing is lost and no tag is duplicated.
-- `permissions: contents: write, actions: write` (set explicitly, not left to repo defaults).
+- `permissions: {}` at workflow level, with `contents: write` and `actions: write` granted on the
+  job only (least privilege, not left to repo defaults).
 - The version rule is inline shell, with the version regex defined once as an environment variable
   and shared by every step that needs it:
 
@@ -85,8 +86,11 @@ A was chosen: smallest change, no secrets, and the badge is fixed as a side effe
   ```
 
   The step fails if `PREVIOUS` is empty rather than inventing a starting version.
-- Steps: checkout with full history and tags, skip if the pushed commit already has a version tag
-  (`git tag --points-at "$GITHUB_SHA"` filtered by the same regex), compute the next version, then
+- The step then skips when the pushed commit is already contained in the highest version tag
+  (`git merge-base --is-ancestor "$GITHUB_SHA" "$PREVIOUS"`). That covers a release hand-cut on the
+  same commit, and a re-run of an older failed run: without it, the re-run would tag the older commit
+  with the newest version and roll Docker `latest` back to stale code.
+- Steps: checkout with full history and tags, compute the next version (or skip, as above), then
   `gh release create "$NEXT" --target "$GITHUB_SHA" --prerelease --generate-notes --notes-start-tag "$PREVIOUS"`,
   then `gh workflow run publish_docker.yml --ref main -f tag="$NEXT"`.
 - Values reach `gh` through environment variables, never interpolated into the script text.
@@ -101,6 +105,9 @@ A was chosen: smallest change, no secrets, and the badge is fixed as a side effe
   `main` has moved. On the release path `inputs.tag` is empty, which `actions/checkout` treats as
   "use the default", so that path is unchanged. The Docker tag is `inputs.tag`, falling back to the
   existing get-previous-tag step, which now runs only on the release path.
+- The build step sets `context: .`. Without it `docker/build-push-action` builds from the
+  repository's Git URL at the triggering ref (`main` on a dispatch), which ignores the checkout above
+  and would put `main`'s code under the tag. With it, the build uses the tag checkout on both paths.
 
 ### README
 
@@ -118,7 +125,11 @@ with tests, so the PR description should say so. Verification instead:
   custom) and against made-up lists covering: a plain patch bump, a manual minor bump (`6.9.43` +
   `6.10.0` gives `6.10.1`), a manual major bump (`7.0.0`), numeric rather than lexical ordering
   (`6.9.9` vs `6.9.10`, `6.9.100`), and ignored tags (`6.9.99_test`, `6.9.50-beta`,
-  `2.8.6.EFS-1253`, `v2.1.212`, `3.1.63.1`, `onc-fhir-challenge`). Record the results in the PR.
+  `2.8.6.hotfix-1`, `v2.1.212`, `3.1.63.1`, `onc-fhir-challenge`). Record the results in the PR.
+- Run the shipped "Compute next version" step in a throwaway git repo to check the skip logic: the
+  tagged commit and an older commit are skipped, a newer commit gets the next patch, a hand-cut
+  `6.10.0` makes the following commit `6.10.1`, custom tags are ignored, and a repo with no version
+  tag exits non-zero.
 - Run `actionlint` on the workflows if it is installed.
 - The first merge to `main` after this lands is the real end-to-end check, and the PR description
   should say so.
@@ -129,7 +140,8 @@ with tests, so the PR description should say so. Verification instead:
 - Release notes are pinned to the previous version tag with `--notes-start-tag`, so custom-tag
   releases don't change what a release's notes cover.
 - The version step fails loudly when no version tag exists.
-- Dispatch input validation, and a skip when the commit already has a version tag, are included.
+- Dispatch input validation, and a skip when the commit is already contained in the highest version
+  tag, are included.
 
 ## Risks and notes
 
@@ -141,6 +153,14 @@ with tests, so the PR description should say so. Verification instead:
   the first merge. If it doesn't, the fallback is `?event=workflow_dispatch` on the badge URL.
 - A manual dispatch of an older `x.y.z` moves the Docker `latest` tag back to it. Creating a release
   for an old tag by hand already does the same today.
+- Two merges close together start two publishes in parallel, and the one that finishes last pushes
+  `latest`, so `latest` can briefly sit on the older version. The next merge's publish corrects it.
+  A concurrency group would fix the ordering but GitHub keeps only one pending run, so a middle
+  version would never get an image. Making only the newest version move `latest` would need a
+  retag step after the build. Neither was judged worth the extra moving parts yet.
+- If the dispatch step fails after the release is created, re-running the job does nothing, because
+  the commit is by then contained in the new tag. Publish the missing image by hand with
+  `gh workflow run publish_docker.yml -f tag=<version>`.
 - With no automated test, a later edit to the tag filter can regress silently. The local
   verification above is the only guard until someone adds one.
 

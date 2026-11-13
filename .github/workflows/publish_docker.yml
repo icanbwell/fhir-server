@@ -47,6 +47,7 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v7
         with:
+          context: .
           push: true
           platforms: linux/amd64,linux/arm64
           tags: imranq2/node-fhir-server-mongo:latest, imranq2/node-fhir-server-mongo:${{ inputs.tag || steps.previoustag.outputs.tag }}
