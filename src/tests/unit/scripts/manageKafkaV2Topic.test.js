@@ -112,9 +112,11 @@ describe('scripts/manageKafkaV2Topic.js', () => {
             expect(scriptModule.parseIntArg('1', 30, 'partitions', 1)).toBe(1);
         });
 
-        test('accepts a negative retention-ms value (min=-1, "infinite" retention)', () => {
+        test.each(['', '   '])('throws on a blank value %j instead of parsing it as 0', (raw) => {
             const { scriptModule } = loadScript(buildFakeAdmin());
-            expect(scriptModule.parseIntArg('-1', 604800000, 'retention-ms', -1)).toBe(-1);
+            expect(() => scriptModule.parseIntArg(raw, 604800000, 'retention-ms')).toThrow(
+                /Invalid --retention-ms/
+            );
         });
     });
 
@@ -484,11 +486,6 @@ describe('scripts/manageKafkaV2Topic.js', () => {
                 expected: [{ name: 'retention.ms', value: '1209600000' }]
             },
             {
-                // parseArgs only accepts a dash-leading value in the --name=value form
-                flags: ['--retention-ms=-1'],
-                expected: [{ name: 'retention.ms', value: '-1' }]
-            },
-            {
                 flags: ['--retention-ms', '1209600000', '--max-message-bytes', '4194304'],
                 expected: [
                     { name: 'retention.ms', value: '1209600000' },
@@ -508,6 +505,19 @@ describe('scripts/manageKafkaV2Topic.js', () => {
 
             expect(fakeAdmin.alterConfigs.mock.calls[0][0].resources[0].configEntries).toEqual(expected);
         });
+
+        // parseArgs only accepts a dash-leading value in the --name=value form
+        test.each(['--retention-ms=', '--retention-ms=0', '--retention-ms=-1'])(
+            '--update %s is rejected without changing the topic',
+            async (flag) => {
+                process.argv = ['node', 'manageKafkaV2Topic.js', '--topic', 'auditevents', '--update', flag];
+                const fakeAdmin = buildFakeAdmin();
+                const { scriptModule } = loadScript(fakeAdmin);
+
+                await expect(scriptModule.main()).rejects.toThrow(/Invalid --retention-ms .*>= 1/);
+                expect(fakeAdmin.alterConfigs).not.toHaveBeenCalled();
+            }
+        );
 
         test('routes to growKafkaTopic with the prefixed topic and the --partitions target when --grow is set', async () => {
             process.argv = [

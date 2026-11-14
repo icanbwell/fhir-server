@@ -38,7 +38,7 @@
  *                  written to it earlier; the bulk-import worker subscribes with
  *                  fromBeginning: true, so it does not.
  *   --partitions   number of partitions when creating (default: 30), or the target when growing
- *   --retention-ms retention period in ms when creating (default: 7 days) or updating (--retention-ms=-1 = infinite)
+ *   --retention-ms retention period in ms when creating (default: 7 days) or updating; must be a positive integer
  *   --max-message-bytes max.message.bytes when creating/updating (default: 2mb)
  *
  * Examples:
@@ -91,8 +91,9 @@ function applyTopicPrefix(topicName) {
  * Parse an optional integer CLI flag. Returns the default when the flag is
  * absent, but throws when it is present yet not a valid integer — so a typo
  * like `--partitions 3x` fails loudly instead of silently parsing to 3 (as
- * parseInt would) or falling through to the default. `min` guards domain
- * constraints (e.g. Kafka requires at least 1 partition).
+ * parseInt would) or falling through to the default. A blank value (`--flag=`
+ * or an unset shell variable) is rejected too, since Number('') is 0. `min`
+ * guards domain constraints (e.g. Kafka requires at least 1 partition).
  * @param {string|undefined} raw raw flag value from parseArgs
  * @param {number} defaultValue value to use when the flag is omitted
  * @param {string} flagName flag name for the error message (without dashes)
@@ -103,7 +104,7 @@ function parseIntArg(raw, defaultValue, flagName, min = Number.NEGATIVE_INFINITY
     if (raw === undefined) {
         return defaultValue;
     }
-    const parsed = Number(raw);
+    const parsed = raw.trim() === '' ? Number.NaN : Number(raw);
     if (!Number.isInteger(parsed) || parsed < min) {
         throw new Error(
             `Invalid --${flagName} "${raw}": expected an integer${
@@ -460,10 +461,11 @@ async function main() {
     }
     const topicName = applyTopicPrefix(values.topic);
 
-    // Kafka requires >= 1 partition. retention.ms allows -1 (infinite) and 0,
-    // so it has no minimum beyond being an integer.
+    // Kafka requires >= 1 partition. retention.ms must be positive: Kafka also
+    // accepts -1 (infinite) and 0 (closed segments deleted at once), but no topic
+    // here needs either, and both are easy to pass by mistake.
     const numPartitions = parseIntArg(values.partitions, KAFKA_PARTITION_COUNT, 'partitions', 1);
-    const retentionMs = parseIntArg(values['retention-ms'], KAFKA_RETENTION_MS, 'retention-ms', -1);
+    const retentionMs = parseIntArg(values['retention-ms'], KAFKA_RETENTION_MS, 'retention-ms', 1);
     const maxMessageBytes = parseIntArg(
         values['max-message-bytes'],
         KAFKA_MAX_MESSAGE_BYTES,
