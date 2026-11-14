@@ -112,9 +112,11 @@ describe('scripts/manageKafkaV2Topic.js', () => {
             expect(scriptModule.parseIntArg('1', 30, 'partitions', 1)).toBe(1);
         });
 
-        test('accepts a negative retention-ms value (min=-1, "infinite" retention)', () => {
+        test.each(['', '   '])('throws on a blank value %j instead of parsing it as 0', (raw) => {
             const { scriptModule } = loadScript(buildFakeAdmin());
-            expect(scriptModule.parseIntArg('-1', 604800000, 'retention-ms', -1)).toBe(-1);
+            expect(() => scriptModule.parseIntArg(raw, 604800000, 'retention-ms')).toThrow(
+                /Invalid --retention-ms/
+            );
         });
     });
 
@@ -184,6 +186,43 @@ describe('scripts/manageKafkaV2Topic.js', () => {
             expect(fakeAdmin.disconnect).toHaveBeenCalledTimes(1);
         });
 
+        test('logs retention.ms and max.message.bytes with their source', async () => {
+            const { ConfigSource } = require('kafkajs');
+            const fakeAdmin = buildFakeAdmin({
+                fetchTopicMetadata: jest.fn().mockResolvedValue({ topics: [{ name: 'fhir_server.x', partitions: [] }] }),
+                describeConfigs: jest.fn().mockResolvedValue({
+                    resources: [{
+                        configEntries: [
+                            { configName: 'retention.ms', configValue: '604800000', configSource: ConfigSource.TOPIC_CONFIG },
+                            { configName: 'max.message.bytes', configValue: '1048588', configSource: ConfigSource.DEFAULT_CONFIG }
+                        ]
+                    }]
+                })
+            });
+            const { scriptModule, MockConfigManager, logMocks } = loadScript(fakeAdmin);
+
+            await scriptModule.describeKafkaTopic(new MockConfigManager(), 'fhir_server.x');
+
+            const metadataLog = logMocks.logInfo.mock.calls.find((call) => call[0].includes('Topic metadata'));
+            expect(metadataLog[1].retentionMs).toEqual({ value: '604800000', source: 'TOPIC_CONFIG' });
+            expect(metadataLog[1].maxMessageBytes).toEqual({ value: '1048588', source: 'DEFAULT_CONFIG' });
+        });
+
+        test('still logs partition metadata when describeConfigs fails', async () => {
+            const fakeAdmin = buildFakeAdmin({
+                fetchTopicMetadata: jest.fn().mockResolvedValue({ topics: [{ name: 'fhir_server.x', partitions: [{ partitionId: 0 }] }] }),
+                describeConfigs: jest.fn().mockRejectedValue(new Error('not authorized'))
+            });
+            const { scriptModule, MockConfigManager, logMocks } = loadScript(fakeAdmin);
+
+            await scriptModule.describeKafkaTopic(new MockConfigManager(), 'fhir_server.x');
+
+            const metadataLog = logMocks.logInfo.mock.calls.find((call) => call[0].includes('Topic metadata'));
+            expect(metadataLog[1].partitionCount).toBe(1);
+            expect(metadataLog[1].retentionMs).toEqual({ error: 'not authorized' });
+            expect(logMocks.logWarn).toHaveBeenCalled();
+        });
+
         test('treats UNKNOWN_TOPIC_OR_PARTITION as "does not exist" and does not rethrow', async () => {
             const notFoundError = Object.assign(new Error('not found'), { type: 'UNKNOWN_TOPIC_OR_PARTITION' });
             const fakeAdmin = buildFakeAdmin({ fetchTopicMetadata: jest.fn().mockRejectedValue(notFoundError) });
@@ -201,6 +240,41 @@ describe('scripts/manageKafkaV2Topic.js', () => {
 
             await expect(scriptModule.describeKafkaTopic(new MockConfigManager(), 'fhir_server.x')).rejects.toThrow('boom');
             expect(fakeAdmin.disconnect).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('updateKafkaTopicConfig', () => {
+        test('changes retention.ms and resends the other topic overrides unchanged', async () => {
+            const { ConfigSource } = require('kafkajs');
+            const fakeAdmin = buildFakeAdmin({
+                describeConfigs: jest.fn().mockResolvedValue({
+                    resources: [{
+                        configEntries: [
+                            { configName: 'retention.ms', configValue: '604800000', configSource: ConfigSource.TOPIC_CONFIG },
+                            { configName: 'max.message.bytes', configValue: '2097152', configSource: ConfigSource.TOPIC_CONFIG },
+                            { configName: 'cleanup.policy', configValue: 'delete', configSource: ConfigSource.DEFAULT_CONFIG }
+                        ]
+                    }]
+                })
+            });
+            const { scriptModule, MockConfigManager } = loadScript(fakeAdmin);
+
+            await scriptModule.updateKafkaTopicConfig(new MockConfigManager(), 'fhir_server.x', { 'retention.ms': 1209600000 });
+
+            expect(fakeAdmin.alterConfigs.mock.calls[0][0].resources[0].configEntries).toEqual([
+                { name: 'max.message.bytes', value: '2097152' },
+                { name: 'retention.ms', value: '1209600000' }
+            ]);
+            expect(fakeAdmin.disconnect).toHaveBeenCalledTimes(1);
+        });
+
+        test('rejects an empty update without connecting', async () => {
+            const fakeAdmin = buildFakeAdmin();
+            const { scriptModule, MockConfigManager } = loadScript(fakeAdmin);
+
+            await expect(scriptModule.updateKafkaTopicConfig(new MockConfigManager(), 'fhir_server.x', {}))
+                .rejects.toThrow('No config updates given');
+            expect(fakeAdmin.connect).not.toHaveBeenCalled();
         });
     });
 
@@ -405,6 +479,45 @@ describe('scripts/manageKafkaV2Topic.js', () => {
             }));
             expect(fakeAdmin.createTopics).not.toHaveBeenCalled();
         });
+
+        test.each([
+            {
+                flags: ['--retention-ms', '1209600000'],
+                expected: [{ name: 'retention.ms', value: '1209600000' }]
+            },
+            {
+                flags: ['--retention-ms', '1209600000', '--max-message-bytes', '4194304'],
+                expected: [
+                    { name: 'retention.ms', value: '1209600000' },
+                    { name: 'max.message.bytes', value: '4194304' }
+                ]
+            },
+            {
+                flags: [],
+                expected: [{ name: 'max.message.bytes', value: '2097152' }]
+            }
+        ])('--update $flags changes only the passed configs', async ({ flags, expected }) => {
+            process.argv = ['node', 'manageKafkaV2Topic.js', '--topic', 'auditevents', '--update', ...flags];
+            const fakeAdmin = buildFakeAdmin();
+            const { scriptModule } = loadScript(fakeAdmin);
+
+            await scriptModule.main();
+
+            expect(fakeAdmin.alterConfigs.mock.calls[0][0].resources[0].configEntries).toEqual(expected);
+        });
+
+        // parseArgs only accepts a dash-leading value in the --name=value form
+        test.each(['--retention-ms=', '--retention-ms=0', '--retention-ms=-1'])(
+            '--update %s is rejected without changing the topic',
+            async (flag) => {
+                process.argv = ['node', 'manageKafkaV2Topic.js', '--topic', 'auditevents', '--update', flag];
+                const fakeAdmin = buildFakeAdmin();
+                const { scriptModule } = loadScript(fakeAdmin);
+
+                await expect(scriptModule.main()).rejects.toThrow(/Invalid --retention-ms .*>= 1/);
+                expect(fakeAdmin.alterConfigs).not.toHaveBeenCalled();
+            }
+        );
 
         test('routes to growKafkaTopic with the prefixed topic and the --partitions target when --grow is set', async () => {
             process.argv = [
