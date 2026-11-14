@@ -22,9 +22,12 @@
  *
  * Options:
  *   --topic       (required) topic name to manage (prefixed with fhir_server.)
- *   --describe     describe the topic's partition metadata instead of creating
+ *   --describe     describe the topic's partition metadata and its retention.ms /
+ *                  max.message.bytes (value and source) instead of creating
  *   --delete       delete the topic instead of creating
- *   --update       update max.message.bytes on an existing topic, keeping its other overrides
+ *   --update       update retention.ms and/or max.message.bytes on an existing topic, keeping its
+ *                  other overrides. Only the flags you pass are changed; with neither flag,
+ *                  max.message.bytes is set to its default (2mb), as before.
  *   --grow         raise an existing topic's partition count to --partitions (required with
  *                  --grow). Kafka cannot shrink a topic, so a lower target fails; an equal
  *                  target is a no-op. Needs kafka-cluster:AlterTopic on the topic. Run it while
@@ -35,7 +38,7 @@
  *                  written to it earlier; the bulk-import worker subscribes with
  *                  fromBeginning: true, so it does not.
  *   --partitions   number of partitions when creating (default: 30), or the target when growing
- *   --retention-ms retention period in ms when creating (default: 7 days)
+ *   --retention-ms retention period in ms when creating (default: 7 days) or updating (--retention-ms=-1 = infinite)
  *   --max-message-bytes max.message.bytes when creating/updating (default: 2mb)
  *
  * Examples:
@@ -43,6 +46,7 @@
  *   node src/admin/scripts/manageKafkaV2Topic.js --topic auditevents --describe
  *   node src/admin/scripts/manageKafkaV2Topic.js --topic auditevents --delete
  *   node src/admin/scripts/manageKafkaV2Topic.js --topic auditevents --update --max-message-bytes 4194304
+ *   node src/admin/scripts/manageKafkaV2Topic.js --topic resource-history.events --update --retention-ms 1209600000
  *   node src/admin/scripts/manageKafkaV2Topic.js --topic bulk_import.events --grow --partitions 30
  */
 
@@ -175,16 +179,22 @@ async function createKafkaTopic(
 }
 
 /**
+ * Sets one or more topic-level configs (e.g. retention.ms, max.message.bytes) on an existing topic.
+ *
  * kafkajs only supports the non-incremental AlterConfigs API, which replaces the
- * topic's full set of overrides — any override not sent (e.g. retention.ms) is
- * reset to the broker default. So read the current topic-level overrides first
- * and resend them alongside the new max.message.bytes. Broker defaults are not
- * resent, so they are not pinned onto the topic.
+ * topic's full set of overrides — any override not sent is reset to the broker
+ * default. So read the current topic-level overrides first and resend the ones not
+ * being changed alongside the new values. Broker defaults are not resent, so they
+ * are not pinned onto the topic.
  * @param {ConfigManager} configManager
  * @param {string} topicName
- * @param {number} maxMessageBytes
+ * @param {Object<string, number|string>} configUpdates config name -> new value
  */
-async function updateKafkaTopicMaxMessageBytes(configManager, topicName, maxMessageBytes) {
+async function updateKafkaTopicConfig(configManager, topicName, configUpdates) {
+    const updateNames = Object.keys(configUpdates);
+    if (updateNames.length === 0) {
+        throw new Error(`No config updates given for topic ${topicName}`);
+    }
     const admin = await connectAdmin(configManager);
     try {
         const { resources } = await admin.describeConfigs({
@@ -201,16 +211,23 @@ async function updateKafkaTopicMaxMessageBytes(configManager, topicName, maxMess
                 `Topic ${topicName} has sensitive override ${sensitive.configName}; refusing to alter`
             );
         }
-        const previous = overrides.find((e) => e.configName === 'max.message.bytes');
+        const previousValues = Object.fromEntries(
+            updateNames.map((name) => {
+                const previous = overrides.find((e) => e.configName === name);
+                return [name, previous ? previous.configValue : '(broker default)'];
+            })
+        );
         const configEntries = overrides
-            .filter((e) => e.configName !== 'max.message.bytes')
+            .filter((e) => !updateNames.includes(e.configName))
             .map((e) => ({ name: e.configName, value: e.configValue }));
-        configEntries.push({ name: 'max.message.bytes', value: maxMessageBytes.toString() });
+        for (const name of updateNames) {
+            configEntries.push({ name, value: String(configUpdates[name]) });
+        }
 
         log.info('Updating Kafka topic config', {
             topicName,
-            previousMaxMessageBytes: previous ? previous.configValue : '(broker default)',
-            maxMessageBytes,
+            previousValues,
+            configUpdates,
             configEntries
         });
         await admin.alterConfigs({
@@ -228,6 +245,16 @@ async function updateKafkaTopicMaxMessageBytes(configManager, topicName, maxMess
     } finally {
         await admin.disconnect();
     }
+}
+
+/**
+ * Sets max.message.bytes on an existing topic, keeping its other overrides.
+ * @param {ConfigManager} configManager
+ * @param {string} topicName
+ * @param {number} maxMessageBytes
+ */
+async function updateKafkaTopicMaxMessageBytes(configManager, topicName, maxMessageBytes) {
+    await updateKafkaTopicConfig(configManager, topicName, { 'max.message.bytes': maxMessageBytes });
 }
 
 /**
@@ -318,6 +345,42 @@ async function growKafkaTopic(
  * @param {ConfigManager} configManager
  * @param {string} topicName
  */
+// Topic configs reported by --describe.
+const DESCRIBED_TOPIC_CONFIGS = ['retention.ms', 'max.message.bytes'];
+
+/**
+ * Reads the DESCRIBED_TOPIC_CONFIGS of a topic as { value, source } per config name, where source
+ * is the kafkajs ConfigSource name (TOPIC_CONFIG for a topic override, DEFAULT_CONFIG and the
+ * *_BROKER_CONFIG values for inherited ones). A failed read (e.g. the role lacks
+ * DescribeTopicDynamicConfiguration) is logged and reported as { error } instead of failing the
+ * describe, so the partition metadata is still reported.
+ * @param {import('kafkajs').Admin} admin
+ * @param {string} topicName
+ * @returns {Promise<Object<string, {value?: string, source?: string, error?: string}>>}
+ */
+async function describeTopicConfigs(admin, topicName) {
+    try {
+        const { resources } = await admin.describeConfigs({
+            resources: [{ type: ConfigResourceTypes.TOPIC, name: topicName, configNames: DESCRIBED_TOPIC_CONFIGS }],
+            includeSynonyms: false
+        });
+        const entries = resources[0].configEntries;
+        return Object.fromEntries(
+            DESCRIBED_TOPIC_CONFIGS.map((name) => {
+                const entry = entries.find((e) => e.configName === name);
+                if (!entry) {
+                    return [name, { value: undefined, source: undefined }];
+                }
+                const source = Object.keys(ConfigSource).find((key) => ConfigSource[key] === entry.configSource);
+                return [name, { value: entry.configValue, source: source || String(entry.configSource) }];
+            })
+        );
+    } catch (err) {
+        log.warn('Could not read topic configs', { topicName, error: err.message });
+        return Object.fromEntries(DESCRIBED_TOPIC_CONFIGS.map((name) => [name, { error: err.message }]));
+    }
+}
+
 async function describeKafkaTopic(configManager, topicName) {
     const admin = await connectAdmin(configManager);
     try {
@@ -327,9 +390,12 @@ async function describeKafkaTopic(configManager, topicName) {
         // UNKNOWN_TOPIC_OR_PARTITION below when the topic is missing), so this
         // find never misses — but guard defensively rather than index blindly.
         const topic = metadata.topics.find((t) => t.name === topicName);
+        const configs = await describeTopicConfigs(admin, topicName);
 
         log.info('Topic metadata', {
             topicName,
+            retentionMs: configs['retention.ms'],
+            maxMessageBytes: configs['max.message.bytes'],
             partitionCount: topic ? topic.partitions.length : 0,
             partitions: (topic ? topic.partitions : []).map((p) => ({
                 partitionId: p.partitionId,
@@ -388,7 +454,7 @@ async function main() {
 
     if (!values.topic) {
         log.error('--topic is required', {
-            usage: 'node src/admin/scripts/manageKafkaV2Topic.js --topic <name> [--describe | --delete | --update | --grow] [--partitions N] [--max-message-bytes N]'
+            usage: 'node src/admin/scripts/manageKafkaV2Topic.js --topic <name> [--describe | --delete | --update | --grow] [--partitions N] [--retention-ms N] [--max-message-bytes N]'
         });
         process.exit(1);
     }
@@ -426,7 +492,16 @@ async function main() {
     } else if (values.describe) {
         await describeKafkaTopic(configManager, topicName);
     } else if (values.update) {
-        await updateKafkaTopicMaxMessageBytes(configManager, topicName, maxMessageBytes);
+        // Only change the configs the caller passed. With neither flag, keep the
+        // original behaviour of resetting max.message.bytes to its default.
+        const configUpdates = {};
+        if (values['retention-ms'] !== undefined) {
+            configUpdates['retention.ms'] = retentionMs;
+        }
+        if (values['max-message-bytes'] !== undefined || values['retention-ms'] === undefined) {
+            configUpdates['max.message.bytes'] = maxMessageBytes;
+        }
+        await updateKafkaTopicConfig(configManager, topicName, configUpdates);
     } else {
         await createKafkaTopic(configManager, topicName, numPartitions, retentionMs, maxMessageBytes);
     }
@@ -452,6 +527,7 @@ module.exports = {
     growKafkaTopic,
     deleteKafkaTopic,
     updateKafkaTopicMaxMessageBytes,
+    updateKafkaTopicConfig,
     parseIntArg,
     applyTopicPrefix,
     main,
