@@ -18,7 +18,9 @@
 -- Run each step against ClickHouse manually in order.
 
 -- Step 1: Check the current parts per partition and the effective limits.
-SELECT partition, count() AS active_parts
+-- clusterAllReplicas returns each shared part once per replica, so count unique part names;
+-- count() would multiply the real number by the replica count.
+SELECT partition, uniqExact(name) AS active_parts
 FROM clusterAllReplicas('default', system.parts)
 WHERE database = 'fhir' AND table = 'Resource_4_0_0_History' AND active
 GROUP BY partition
