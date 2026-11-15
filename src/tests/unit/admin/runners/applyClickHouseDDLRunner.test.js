@@ -3,6 +3,7 @@
 const { describe, test, expect, beforeEach, afterEach, jest: jestGlobal } = require('@jest/globals');
 
 const fs = require('fs');
+const path = require('path');
 
 const { ApplyClickHouseDDLRunner } = require('../../../../admin/runners/applyClickHouseDDLRunner');
 const { AdminLogger } = require('../../../../admin/adminLogger');
@@ -238,6 +239,41 @@ describe('ApplyClickHouseDDLRunner', () => {
             await expect(runner.processAsync()).rejects.toThrow('boom');
 
             expect(mockAdminLogger.logError).toHaveBeenCalledWith('ApplyClickHouseDDLRunner: failed', { error: 'boom' });
+        });
+    });
+
+    // =====================================================
+    // clickhouse-migrations/ files, as the script job runs them
+    // =====================================================
+    describe('clickhouse-migrations files', () => {
+        const migrationsDir = path.resolve(__dirname, '../../../../../clickhouse-migrations');
+        const migrationFiles = fs
+            .readdirSync(migrationsDir)
+            .filter((name) => name.toLowerCase().endsWith('.sql'))
+            .sort();
+
+        // The script job's ClickHouse user has no REMOTE grant, so an executable
+        // clusterAllReplicas()/remote() call fails with ACCESS_DENIED and aborts the file
+        // before the statements after it run.
+        test.each(migrationFiles)('%s has no executable statement that needs the REMOTE grant', (name) => {
+            const runner = makeRunner({});
+            const sqlText = fs.readFileSync(path.join(migrationsDir, name), 'utf8');
+
+            const statements = runner._parseStatements(sqlText);
+
+            expect(statements.filter((stmt) => /\b(clusterAllReplicas|cluster|remote|remoteSecure)\s*\(/i.test(stmt))).toEqual([]);
+        });
+
+        test('09-resource-history-parts-limits.sql runs only the ALTER and its SHOW CREATE check', () => {
+            const runner = makeRunner({});
+            const sqlText = fs.readFileSync(path.join(migrationsDir, '09-resource-history-parts-limits.sql'), 'utf8');
+
+            const statements = runner._parseStatements(sqlText).map((stmt) => stmt.replace(/\s+/g, ' '));
+
+            expect(statements).toEqual([
+                'ALTER TABLE fhir.Resource_4_0_0_History MODIFY SETTING parts_to_delay_insert = 2000, parts_to_throw_insert = 5000',
+                'SHOW CREATE TABLE fhir.Resource_4_0_0_History'
+            ]);
         });
     });
 });
