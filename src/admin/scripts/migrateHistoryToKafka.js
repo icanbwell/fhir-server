@@ -26,6 +26,12 @@
  * A cloud-storage stub, or a record older than the ClickHouse history TTL for its type, is also left in
  * MongoDB: the first cannot be read from ClickHouse and the second would be dropped there.
  *
+ * With --max-lag, each worker waits before taking a window while the lag of the consumer group that loads
+ * the topic into ClickHouse is above the limit. The delivered records are already deleted from MongoDB, so
+ * the topic is their only copy until that consumer has read them; without the limit the script can outrun
+ * it and leave records to expire with the topic's retention. Windows in flight still finish, so the lag
+ * can pass the limit by up to `workers` windows. A run stops if the lag cannot be read.
+ *
  * Usage:
  *   node src/admin/scripts/migrateHistoryToKafka.js --start 01-11-2026T00:00 --end 02-11-2026T00:00
  */
@@ -37,6 +43,9 @@ const { logInfo, logError, logWarn } = require('../../operations/common/logging'
 
 const WINDOW_MS = 60 * 1000;
 const DELETE_RECORDED_OFFSET_MS = 5;
+// Consumer group of the ClickPipe that loads the history topic into ClickHouse (same name in every environment).
+const DEFAULT_LAG_GROUP = 'fhir_server-resource-history';
+const DEFAULT_LAG_POLL_SECONDS = 30;
 // Retention of fhir.Resource_4_0_0_History (clickhouse-init/08-resource-history.sql): rows of these types are
 // dropped once `_recorded` is older than 13 months. Keep this list in step with the TTL clause there.
 const HISTORY_TTL_MONTHS = 13;
@@ -68,6 +77,10 @@ Options:
   --workers <n>           Windows processed in parallel (default: 4)
   --read-batch-size <n>   Documents read from MongoDB per batch (default: 100)
   --kafka-batch-size <n>  Messages per Kafka produce call (default: RESOURCE_HISTORY_KAFKA_BATCH_SIZE, 50)
+  --max-lag <n>           Wait before each window while the consumer group is more than n records behind
+                          on the history topic (default: no limit)
+  --lag-group <id>        Consumer group whose lag is checked (default: ${DEFAULT_LAG_GROUP})
+  --lag-poll-seconds <n>  Seconds between lag checks while waiting (default: ${DEFAULT_LAG_POLL_SECONDS})
   --dry-run               Count the records per window without producing or deleting
   --help, -h              Show this help
 `;
@@ -111,6 +124,7 @@ function parsePositiveInt (flag, raw) {
 /**
  * @param {string[]} argv
  * @returns {{start: Date, end: Date, resourceType: string, workers: number, readBatchSize: number,
+ *     kafkaBatchSize: number|null, maxLag: number|null, lagGroup: string, lagPollSeconds: number,
  *     dryRun: boolean, help: boolean}}
  * @throws {Error} on invalid arguments
  */
@@ -122,6 +136,9 @@ function parseArgs (argv) {
         workers: 4,
         readBatchSize: 100,
         kafkaBatchSize: null,
+        maxLag: null,
+        lagGroup: DEFAULT_LAG_GROUP,
+        lagPollSeconds: DEFAULT_LAG_POLL_SECONDS,
         dryRun: false,
         help: false
     };
@@ -145,6 +162,15 @@ function parseArgs (argv) {
             case '--kafka-batch-size':
                 options.kafkaBatchSize = parsePositiveInt('--kafka-batch-size', argv[++i]);
                 break;
+            case '--max-lag':
+                options.maxLag = parsePositiveInt('--max-lag', argv[++i]);
+                break;
+            case '--lag-group':
+                options.lagGroup = argv[++i];
+                break;
+            case '--lag-poll-seconds':
+                options.lagPollSeconds = parsePositiveInt('--lag-poll-seconds', argv[++i]);
+                break;
             case '--dry-run':
                 options.dryRun = true;
                 break;
@@ -164,6 +190,9 @@ function parseArgs (argv) {
     }
     if (!options.resourceType || !/^[A-Z][A-Za-z]+$/.test(options.resourceType)) {
         throw new Error(`--resource-type is not a resource type: ${options.resourceType}`);
+    }
+    if (!options.lagGroup) {
+        throw new Error('--lag-group requires a consumer group id');
     }
     return options;
 }
@@ -467,23 +496,92 @@ async function migrateWindowAsync ({
 }
 
 /**
+ * How many records a consumer group still has to read from a topic: per partition, the end offset minus
+ * the group's committed offset. A partition the group has not committed on counts from its first offset.
+ * @param {Object} params
+ * @param {import('kafkajs').Admin} params.admin connected admin client
+ * @param {string} params.groupId
+ * @param {string} params.topic
+ * @returns {Promise<number>}
+ */
+async function consumerLagAsync ({ admin, groupId, topic }) {
+    const [topicOffsets, groupOffsets] = await Promise.all([
+        admin.fetchTopicOffsets(topic),
+        admin.fetchOffsets({ groupId, topics: [topic] })
+    ]);
+    const committed = new Map(
+        (groupOffsets[0]?.partitions ?? []).map(({ partition, offset }) => [partition, Number(offset)])
+    );
+    let lag = 0;
+    for (const { partition, high, low } of topicOffsets) {
+        const offset = committed.get(partition);
+        const position = offset === undefined || offset < 0 ? Number(low) : offset;
+        lag += Math.max(0, Number(high) - position);
+    }
+    return lag;
+}
+
+/**
+ * Builds the wait a worker runs before it takes a window: it resolves once the lag is at or below
+ * `maxLag`, or the run is aborted. One reading is shared by all workers for `pollMs`, so the broker is
+ * asked at most once per interval however many workers there are.
+ * @param {Object} params
+ * @param {() => Promise<number>} params.readLagAsync
+ * @param {number} params.maxLag
+ * @param {number} params.pollMs
+ * @param {{aborted: boolean}} params.abortFlag
+ * @param {(ms: number) => Promise<void>} [params.sleepAsync]
+ * @param {() => number} [params.now] clock in ms
+ * @returns {() => Promise<void>} rejects when the lag cannot be read
+ */
+function createLagGate ({
+    readLagAsync, maxLag, pollMs, abortFlag,
+    sleepAsync = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    now = Date.now
+}) {
+    let reading = null;
+    const currentLagAsync = () => {
+        if (!reading || now() - reading.at >= pollMs) {
+            reading = { at: now(), lag: readLagAsync() };
+        }
+        return reading.lag;
+    };
+    return async () => {
+        while (!abortFlag.aborted) {
+            const lag = await currentLagAsync();
+            if (lag <= maxLag) {
+                return;
+            }
+            logInfo('Consumer lag is above the limit; waiting', { lag, maxLag, pollSeconds: pollMs / 1000 });
+            await sleepAsync(pollMs);
+        }
+    };
+}
+
+/**
  * Runs `workers` loops that each take the next window from the list until it is empty or the run is
  * aborted. A window that throws stops the whole run, after the windows already in flight finish.
  * @param {Object} params
  * @param {{start: Date, end: Date}[]} params.windows
  * @param {number} params.workers
+ * @param {() => Promise<void>} [params.beforeWindowAsync] awaited before each window is taken
  * @param {(window: {start: Date, end: Date}) => Promise<void>} params.processWindowAsync
  * @param {{aborted: boolean}} params.abortFlag
  * @returns {Promise<void>}
  */
-async function runWorkersAsync ({ windows, workers, processWindowAsync, abortFlag }) {
+async function runWorkersAsync ({ windows, workers, processWindowAsync, abortFlag, beforeWindowAsync = null }) {
     let next = 0;
     const errors = [];
     const workerAsync = async () => {
         while (!abortFlag.aborted && next < windows.length) {
-            const window = windows[next++];
             try {
-                await processWindowAsync(window);
+                if (beforeWindowAsync) {
+                    await beforeWindowAsync();
+                    if (abortFlag.aborted || next >= windows.length) {
+                        break;
+                    }
+                }
+                await processWindowAsync(windows[next++]);
             } catch (error) {
                 abortFlag.aborted = true;
                 errors.push(error);
@@ -545,6 +643,8 @@ async function main () {
         workers: options.workers,
         readBatchSize: options.readBatchSize,
         kafkaBatchSize: options.kafkaBatchSize ?? container.configManager.resourceHistoryKafkaBatchSize,
+        maxLag: options.maxLag,
+        lagGroup: options.maxLag === null ? undefined : options.lagGroup,
         dryRun: options.dryRun
     });
 
@@ -560,14 +660,31 @@ async function main () {
 
     const startedAt = Date.now();
     const totals = { windows: 0, read: 0, produced: 0, deleted: 0, failed: 0 };
+    let admin = null;
     try {
         const historyDb = await mongoDatabaseManager.getResourceHistoryDbAsync();
         const collection = historyDb.collection(collectionName);
+
+        // A dry run produces nothing, so it has no lag to wait for.
+        let beforeWindowAsync = null;
+        if (options.maxLag !== null && !options.dryRun) {
+            admin = kafkaClientV2.createAdminClient();
+            await admin.connect();
+            beforeWindowAsync = createLagGate({
+                readLagAsync: () => consumerLagAsync({
+                    admin, groupId: options.lagGroup, topic: container.configManager.resourceHistoryKafkaTopic
+                }),
+                maxLag: options.maxLag,
+                pollMs: options.lagPollSeconds * 1000,
+                abortFlag
+            });
+        }
 
         await runWorkersAsync({
             windows,
             workers: options.workers,
             abortFlag,
+            beforeWindowAsync,
             processWindowAsync: async (window) => {
                 const result = await migrateWindowAsync({
                     window,
@@ -605,6 +722,9 @@ async function main () {
     } finally {
         process.removeListener('SIGINT', onSignal);
         process.removeListener('SIGTERM', onSignal);
+        await admin?.disconnect().catch((error) => {
+            logWarn('Kafka admin disconnect failed', { error: error.message });
+        });
         await mongoDatabaseManager.disconnectAsync();
         await kafkaClientV2.disconnect();
     }
@@ -629,5 +749,7 @@ module.exports = {
     toHistoryEntry,
     processDocsAsync,
     migrateWindowAsync,
-    runWorkersAsync
+    runWorkersAsync,
+    consumerLagAsync,
+    createLagGate
 };

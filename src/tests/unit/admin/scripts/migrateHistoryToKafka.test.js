@@ -17,7 +17,9 @@ const {
     findRefusalReason,
     processDocsAsync,
     migrateWindowAsync,
-    runWorkersAsync
+    runWorkersAsync,
+    consumerLagAsync,
+    createLagGate
 } = require('../../../../admin/scripts/migrateHistoryToKafka');
 const { HistoryKafkaProducer } = require('../../../../dataLayer/historyKafkaProducer');
 const { ConfigManager } = require('../../../../utils/configManager');
@@ -92,14 +94,25 @@ describe('migrateHistoryToKafka script', () => {
 
         test('defaults to Composition, 4 workers and 100 documents per read batch', () => {
             expect(parseArgs(['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00'])).toMatchObject({
-                resourceType: 'Composition', workers: 4, readBatchSize: 100, kafkaBatchSize: null, dryRun: false
+                resourceType: 'Composition', workers: 4, readBatchSize: 100, kafkaBatchSize: null, dryRun: false,
+                maxLag: null, lagGroup: 'fhir_server-resource-history', lagPollSeconds: 30
             });
+        });
+
+        test('reads the consumer lag options', () => {
+            expect(parseArgs([
+                '--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00',
+                '--max-lag', '2000000', '--lag-group', 'other-group', '--lag-poll-seconds', '5'
+            ])).toMatchObject({ maxLag: 2000000, lagGroup: 'other-group', lagPollSeconds: 5 });
         });
 
         test.each([
             ['missing --end', ['--start', '01-11-2026T00:00'], '--start and --end are required'],
             ['start not before end', ['--start', '01-11-2026T01:00', '--end', '01-11-2026T01:00'], 'before'],
             ['zero Kafka batch size', ['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00', '--kafka-batch-size', '0'], '--kafka-batch-size'],
+            ['zero max lag', ['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00', '--max-lag', '0'], '--max-lag'],
+            ['zero lag poll', ['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00', '--lag-poll-seconds', '0'], '--lag-poll-seconds'],
+            ['empty lag group', ['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00', '--lag-group', ''], '--lag-group'],
             ['zero workers', ['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00', '--workers', '0'], '--workers'],
             ['unknown argument', ['--foo'], 'Unknown argument'],
             ['bad resource type', ['--start', '01-11-2026T00:00', '--end', '01-11-2026T01:00', '--resource-type', 'x;y'], 'resource type']
@@ -373,6 +386,129 @@ describe('migrateHistoryToKafka script', () => {
             await expect(runWorkersAsync({ windows, workers: 1, abortFlag, processWindowAsync })).rejects.toThrow('mongo down');
             expect(processWindowAsync).toHaveBeenCalledTimes(2);
             expect(abortFlag.aborted).toBe(true);
+        });
+        test('waits at the gate before taking each window', async () => {
+            const order = [];
+            await runWorkersAsync({
+                windows: windows.slice(0, 2),
+                workers: 1,
+                abortFlag: { aborted: false },
+                beforeWindowAsync: async () => { order.push('gate'); },
+                processWindowAsync: async () => { order.push('window'); }
+            });
+            expect(order).toEqual(['gate', 'window', 'gate', 'window']);
+        });
+
+        test('takes no window when the gate returns after an abort', async () => {
+            const abortFlag = { aborted: false };
+            const processWindowAsync = jest.fn();
+            await runWorkersAsync({
+                windows,
+                workers: 2,
+                abortFlag,
+                beforeWindowAsync: async () => { abortFlag.aborted = true; },
+                processWindowAsync
+            });
+            expect(processWindowAsync).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('consumerLagAsync', () => {
+        const adminWith = ({ topicOffsets, committed }) => ({
+            fetchTopicOffsets: jest.fn(async () => topicOffsets),
+            fetchOffsets: jest.fn(async () => [{ topic: 'history', partitions: committed }])
+        });
+
+        test.each([
+            ['sums end offset minus committed offset over the partitions',
+                [{ partition: 0, high: '100', low: '0' }, { partition: 1, high: '50', low: '0' }],
+                [{ partition: 0, offset: '60' }, { partition: 1, offset: '50' }], 40],
+            ['counts a partition with no committed offset from its start',
+                [{ partition: 0, high: '100', low: '30' }], [{ partition: 0, offset: '-1' }], 70],
+            ['counts a partition missing from the group from its start',
+                [{ partition: 0, high: '100', low: '30' }], [], 70],
+            ['never goes below zero when the commit is ahead of the end offset',
+                [{ partition: 0, high: '100', low: '0' }], [{ partition: 0, offset: '120' }], 0]
+        ])('%s', async (_name, topicOffsets, committed, expected) => {
+            const admin = adminWith({ topicOffsets, committed });
+
+            const lag = await consumerLagAsync({ admin, groupId: 'group', topic: 'history' });
+
+            expect(lag).toBe(expected);
+            expect(admin.fetchOffsets).toHaveBeenCalledWith({ groupId: 'group', topics: ['history'] });
+        });
+    });
+
+    describe('createLagGate', () => {
+        const gateWith = ({ lags, maxLag = 100, abortFlag = { aborted: false } }) => {
+            let nowMs = 0;
+            const readLagAsync = jest.fn(async () => {
+                const next = lags.length > 1 ? lags.shift() : lags[0];
+                if (next instanceof Error) {
+                    throw next;
+                }
+                return next;
+            });
+            const sleepAsync = jest.fn(async (ms) => { nowMs += ms; });
+            const gate = createLagGate({
+                readLagAsync, maxLag, pollMs: 1000, abortFlag, sleepAsync, now: () => nowMs
+            });
+            return { gate, readLagAsync, sleepAsync, advance: (ms) => { nowMs += ms; }, abortFlag };
+        };
+
+        test('returns at once when the lag is at or below the limit', async () => {
+            const { gate, readLagAsync, sleepAsync } = gateWith({ lags: [100] });
+
+            await gate();
+
+            expect(readLagAsync).toHaveBeenCalledTimes(1);
+            expect(sleepAsync).not.toHaveBeenCalled();
+        });
+
+        test('polls until the lag falls to the limit', async () => {
+            const { gate, readLagAsync, sleepAsync } = gateWith({ lags: [500, 300, 90] });
+
+            await gate();
+
+            expect(readLagAsync).toHaveBeenCalledTimes(3);
+            expect(sleepAsync).toHaveBeenCalledTimes(2);
+            expect(sleepAsync).toHaveBeenCalledWith(1000);
+        });
+
+        test('reuses a reading inside the poll interval, then reads again', async () => {
+            const { gate, readLagAsync, advance } = gateWith({ lags: [10] });
+
+            await gate();
+            await gate();
+            expect(readLagAsync).toHaveBeenCalledTimes(1);
+
+            advance(1000);
+            await gate();
+            expect(readLagAsync).toHaveBeenCalledTimes(2);
+        });
+
+        test('shares one reading between workers that arrive together', async () => {
+            const { gate, readLagAsync } = gateWith({ lags: [10] });
+
+            await Promise.all([gate(), gate(), gate()]);
+
+            expect(readLagAsync).toHaveBeenCalledTimes(1);
+        });
+
+        test('stops waiting when the run is aborted', async () => {
+            const abortFlag = { aborted: false };
+            const { gate, readLagAsync, sleepAsync } = gateWith({ lags: [500], abortFlag });
+            sleepAsync.mockImplementationOnce(async () => { abortFlag.aborted = true; });
+
+            await gate();
+
+            expect(readLagAsync).toHaveBeenCalledTimes(1);
+        });
+
+        test('rejects when the lag cannot be read, so the run stops instead of producing blind', async () => {
+            const { gate } = gateWith({ lags: [new Error('group authorization failed')] });
+
+            await expect(gate()).rejects.toThrow('group authorization failed');
         });
     });
 });
