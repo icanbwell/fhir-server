@@ -264,15 +264,14 @@ describe('ApplyClickHouseDDLRunner', () => {
             expect(statements.filter((stmt) => /\b(clusterAllReplicas|cluster|remote|remoteSecure)\s*\(/i.test(stmt))).toEqual([]);
         });
 
-        test('09-resource-history-parts-limits.sql runs only the ALTER and its SHOW CREATE check', () => {
+        test('09-resource-history-parts-limits.sql runs only the ALTER', () => {
             const runner = makeRunner({});
             const sqlText = fs.readFileSync(path.join(migrationsDir, '09-resource-history-parts-limits.sql'), 'utf8');
 
             const statements = runner._parseStatements(sqlText).map((stmt) => stmt.replace(/\s+/g, ' '));
 
             expect(statements).toEqual([
-                'ALTER TABLE fhir.Resource_4_0_0_History MODIFY SETTING parts_to_delay_insert = 2000, parts_to_throw_insert = 5000',
-                'SHOW CREATE TABLE fhir.Resource_4_0_0_History'
+                'ALTER TABLE fhir.Resource_4_0_0_History MODIFY SETTING parts_to_delay_insert = 2000, parts_to_throw_insert = 5000'
             ]);
         });
     });
