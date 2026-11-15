@@ -272,6 +272,10 @@ describe('ApplyClickHouseDDLRunner', () => {
             [
                 '10-resource-history-merge-coordinator.sql',
                 "ALTER TABLE fhir.Resource_4_0_0_History MODIFY SETTING shared_merge_tree_merge_coordinator_merges_prepare_count = 'auto'"
+            ],
+            [
+                '11-resource-history-merge-coordinator-200.sql',
+                'ALTER TABLE fhir.Resource_4_0_0_History MODIFY SETTING shared_merge_tree_merge_coordinator_merges_prepare_count = 200'
             ]
         ])('%s runs only its ALTER', (name, expectedAlter) => {
             const runner = makeRunner({});
