@@ -163,7 +163,7 @@ The org-level Consent named in `entitlements` can limit which data sources a del
 }
 ```
 
-When `DelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync` dereferences that Consent at authentication time, it also reads these labels and sets `actor.allowedConnectionTypes`. The same Consent read serves both, so there's no extra query. Then, for patient-scoped resources, `SearchManager` calls `DataSharingManager.updateQueryForDelegatedAccessConnectionTypes` right after the sensitive-data exclusion. That ANDs on:
+Connection-type filtering applies to **`Organization` actors only**. When `DelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync` dereferences that Consent at authentication time for an `Organization` actor, it also reads these labels and sets `actor.allowedConnectionTypes`. The same Consent read serves both, so there's no extra query. Then, for patient-scoped resources, `SearchManager` calls `DataSharingManager.updateQueryForDelegatedAccessConnectionTypes` right after the sensitive-data exclusion. That ANDs on:
 
 ```javascript
 {
@@ -189,7 +189,8 @@ When `DelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync` dereferences 
 - An empty allowed list returns the impossible query (`_uuid: '__invalid__'`) rather than an empty `$in`, because `MongoQuerySimplifier` drops an empty `$in` and the filter would then match every connection type.
 - If no Patient survives the filter, `Person/$everything` returns an empty bundle, because the top-level query runs on `Patient`.
 - If `entitlements` names several Consents, the allowed list is the union of their codes.
-- An `Organization` actor with no Consent in `entitlements` (so no allowed list at all) also gets no data. A `RelatedPerson` actor without an allowed list is not filtered by connection type.
+- An `Organization` actor with no Consent in `entitlements` (so no allowed list at all) also gets no data.
+- A `RelatedPerson` actor is never filtered by connection type, even when its `entitlements` names a `Consent/<id>`: `allowedConnectionTypes` is not set for it, and `updateQueryForDelegatedAccessConnectionTypes` returns the query unchanged for any non-Organization actor.
 
 ## Operation Access Control
 

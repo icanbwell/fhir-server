@@ -75,7 +75,7 @@ flowchart TD
     ConfR --> Delegated{"§10: userType == delegatedUser?"}
     Delegated -- yes --> SensExcl["§10: AND exclude actor's denied sensitive categories + unclassified"]
     Delegated -- no --> Merge
-    SensExcl --> ConnType["§10: AND restrict to the actor's Consent connection types (none listed = no data; not Person)"]
+    SensExcl --> ConnType["§10: Organization actor only: AND restrict to the Consent connection types (none listed = no data; not Person)"]
     ConnType --> Merge
 
     Branch -- no --> Wildcard{"§7: caller holds access/* wildcard scope?"}
@@ -397,7 +397,7 @@ sequenceDiagram
             DARM-->>DSM: deniedSensitiveCategories[]
             DSM-->>SM: AND NOT(denied categories, unclassified)
             SM->>DSM: updateQueryForDelegatedAccessConnectionTypes()
-            DSM-->>SM: AND connectionType in actor.allowedConnectionTypes<br/>(skipped for Person; no data when none listed)
+            DSM-->>SM: AND connectionType in actor.allowedConnectionTypes<br/>(Organization actors only; skipped for Person; no data when none listed)
             SM-->>C: filtered Bundle
             Enrich->>Enrich: strip Consent-denied-category sections<br/>plus the hardcoded unclassified code<br/>from any returned Composition
         end
@@ -436,8 +436,8 @@ sequenceDiagram
      `meta.security` `$not`/`$elemMatch` exclusion for those codes **plus** the hardcoded
      `unclassified` code (§9) onto the query.
    - then `DataSharingManager.updateQueryForDelegatedAccessConnectionTypes` ANDs a
-     `meta.security` `$elemMatch` on the connection-type tag (§8) when the actor carries
-     `allowedConnectionTypes`. Those come from the entitlement Consent's `provision.securityLabel`,
+     `meta.security` `$elemMatch` on the connection-type tag (§8) for an `Organization` actor carrying
+     `allowedConnectionTypes`; `RelatedPerson` actors are never connection-type filtered. Those come from the entitlement Consent's `provision.securityLabel`,
      read in `AuthService.processUserInfo`. `Person` is exempt. An empty list (no `connectionType`
      label, or a malformed one), or an `Organization` actor with no list, returns the impossible
      query.
@@ -467,10 +467,10 @@ For a given caller and resource, the resource is returned only if **all** of the
 3. The resource is not `hidden`-tagged, unless explicitly requested (§8).
 4. If the caller is patient-scoped, the resource is not confidentiality-`R`-restricted (§9).
 5. If the caller is a delegated actor or CMS partner, the resource passes that caller type's
-   consent-driven filter and is not `unclassified` for delegated actors (§6b, §9, §10). For a
-   delegated actor with an entitlement Consent, and for every `Organization` actor, the resource
-   (other than `Person`) also carries one of the Consent's connection types; none listed means no
-   data (§10). An `Organization` actor can only call the REST operations in
+   consent-driven filter and is not `unclassified` for delegated actors (§6b, §9, §10). For an
+   `Organization` actor, the resource (other than `Person`) also carries one of the entitlement
+   Consent's connection types; none listed means no data. `RelatedPerson` actors are not
+   connection-type filtered (§10). An `Organization` actor can only call the REST operations in
    `DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS` (default `Person/$everything`) (§10).
 6. If the requesting client relies on consent-based data-sharing expansion (§6a) or the patient
    has an active data-view-control exclusion (§6d), those results are included/excluded
