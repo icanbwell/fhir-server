@@ -398,7 +398,7 @@ Each step mirrors the old code it replaces. Cite the base branch's `merge.js`, `
 ### Task 7: ADR, lint and security review
 
 **Files:**
-- Create: `docs/adr/0004-unified-write-pipeline.md` (the repo keeps its ADRs in `docs/adr/`)
+- Create: `docs/adr/0005-unified-write-pipeline.md` (the repo keeps its ADRs in `docs/adr/`)
 
 - [ ] **Step 1: Write the ADR in MADR format.** Sections: Context and Problem Statement, Decision Drivers, Considered Options, Decision Outcome, Consequences. Take the options and the reasoning from the spec's "ADR" section: one pipeline plus profiles (chosen), a subclass per operation, a per-operation step list, and refactoring in place without switches.
 - [ ] **Step 2: Lint.** Run `yarn run lint`. Expected: 0 errors, and no new warnings in the changed files.

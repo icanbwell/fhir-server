@@ -564,7 +564,7 @@ today.
 ## ADR
 
 This pattern is new to the repo, so it gets an ADR in MADR format:
-`docs/adr/0004-unified-write-pipeline.md`, next to the repo's other ADRs. Options considered:
+`docs/adr/0005-unified-write-pipeline.md`, next to the repo's other ADRs. Options considered:
 
 - **One pipeline plus per-operation profiles (chosen).** The central steps can't be skipped, and
   per-operation differences are data that can be read side by side.
