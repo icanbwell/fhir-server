@@ -15,7 +15,7 @@ const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { logError } = require('../common/logging');
-const { sliceIntoChunksGenerator } = require('../../utils/list.util');
+const { sliceIntoChunksGenerator, sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../dataLayer/base64DataManager');
@@ -112,6 +112,30 @@ function pushAll(target, source) {
     for (const item of source) {
         target.push(item);
     }
+}
+
+/**
+ * Splits the ids of a $everything request into batches of `chunkSize`, without leaving a batch
+ * that holds only Person proxy-patient ids (`person.<id>`).
+ *
+ * Consent is resolved per batch: a proxy-patient id is only admitted into the consented branch
+ * when its batch also holds a real Patient of that Person. A trailing batch of proxy ids alone
+ * would therefore drop the proxy-referenced resources for a consenting client. When that happens
+ * the trailing proxy ids are appended to the previous batch, which makes it slightly larger than
+ * `chunkSize`. Ids that are all proxy ids and fit in one batch are returned as that single batch,
+ * as there is no real Patient to consent to in that case.
+ * @param {string[]} ids
+ * @param {number} chunkSize
+ * @returns {string[][]}
+ */
+function getEverythingIdChunks(ids, chunkSize) {
+    const chunks = sliceIntoChunks(ids, chunkSize);
+    const lastChunk = chunks[chunks.length - 1];
+    if (chunks.length > 1 && lastChunk.every((id) => id.startsWith(PERSON_PROXY_PREFIX))) {
+        chunks.pop();
+        chunks[chunks.length - 1].push(...lastChunk);
+    }
+    return chunks;
 }
 
 /**
@@ -538,9 +562,11 @@ class EverythingHelper {
              */
             const ids = idParsedArg.queryParameterValue.values;
             /**
-             * @type {Generator<string[], void, unknown>}
+             * @type {string[][]}
              */
-            const idChunks = ids ? sliceIntoChunksGenerator(ids, this.configManager.everythingBatchSize) : [];
+            const idChunks = ids
+                ? getEverythingIdChunks(ids, this.configManager.everythingBatchSize)
+                : [];
 
             if (parsedArgs._since) {
                 parsedArgs._since = new Date(parsedArgs._since);
@@ -2215,5 +2241,6 @@ class EverythingHelper {
 module.exports = {
     EverythingHelper,
     escapeForJsonTemplate,
+    getEverythingIdChunks,
     pushAll
 };

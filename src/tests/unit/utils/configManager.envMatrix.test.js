@@ -631,6 +631,31 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
             setEnv('EVERYTHING_BATCH_SIZE', undefined);
             expect(new ConfigManager().everythingBatchSize).toBe(10);
         });
+
+        test.each([
+            ['EVERYTHING_BATCH_SIZE', '25', 25],
+            ['EVERYTHING_BATCH_SZIE', '25', 25]
+        ])('reads %s=%s as %i', (name, value, expected) => {
+            setEnv('EVERYTHING_BATCH_SZIE', undefined);
+            setEnv('EVERYTHING_BATCH_SIZE', undefined);
+            setEnv(name, value);
+            expect(new ConfigManager().everythingBatchSize).toBe(expected);
+        });
+
+        test.each([['0'], ['-5'], ['abc'], ['']])(
+            'falls back to 10 when EVERYTHING_BATCH_SIZE is %p',
+            (value) => {
+                setEnv('EVERYTHING_BATCH_SZIE', undefined);
+                setEnv('EVERYTHING_BATCH_SIZE', value);
+                expect(new ConfigManager().everythingBatchSize).toBe(10);
+            }
+        );
+
+        test('prefers the correctly spelled EVERYTHING_BATCH_SIZE when both spellings are set', () => {
+            setEnv('EVERYTHING_BATCH_SZIE', '25');
+            setEnv('EVERYTHING_BATCH_SIZE', '40');
+            expect(new ConfigManager().everythingBatchSize).toBe(40);
+        });
     });
 
     // ======================================================================
