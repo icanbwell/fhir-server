@@ -241,9 +241,11 @@ class MongoDatabaseManager {
     /**
      * Creates a new connection
      * @param {Object} clientConfig
+     * @param {Object} [options]
+     * @param {import('./mongoCheckoutTimeoutTracker').MongoCheckoutTimeoutTracker} [options.checkoutTimeoutTracker]
      * @returns {Promise<import('mongodb').MongoClient>}
      */
-    async createClientAsync (clientConfig) {
+    async createClientAsync (clientConfig, { checkoutTimeoutTracker } = {}) {
         const parts = clientConfig.connection.split(':');
         const server = clientConfig.connection.substring(clientConfig.connection.indexOf('@'));
         const maskedConnection = `${parts[0]}:${parts[1]}:***********${server}`;
@@ -267,7 +269,7 @@ class MongoDatabaseManager {
         // minPoolSize are counted too. Always on -- this is a fixed set of four
         // instruments, unlike the per-command logging gated behind LOG_ALL_MONGO_CALLS
         // below, which is far too chatty to leave enabled.
-        registerMongoPoolMonitoring({ client, poolName: clientConfig.db_name });
+        registerMongoPoolMonitoring({ client, poolName: clientConfig.db_name, checkoutTimeoutTracker });
 
         try {
             await client.connect();
@@ -305,27 +307,33 @@ class MongoDatabaseManager {
     }
 
     /**
+     * @param {Object} [options]
+     * @param {(poolName: string) => import('./mongoCheckoutTimeoutTracker').MongoCheckoutTimeoutTracker} [options.createCheckoutTimeoutTracker]
+     *   Builds one tracker per request-serving pool. Omitted outside the HTTP server.
      * @return {Promise<void>}
      */
-    async connectAsync () {
+    async connectAsync ({ createCheckoutTimeoutTracker } = {}) {
         if (clientConnection) {
             return;
         }
+        // Only the request-serving pools opened here get a tracker. Admin scripts, index
+        // management and the lazy fhir-notes pool call createClientAsync without one.
+        const trackerFor = (config) => ({ checkoutTimeoutTracker: createCheckoutTimeoutTracker?.(config.db_name) });
         const clientConfig = await this.getClientConfigAsync();
-        const client = await this.createClientAsync(clientConfig);
+        const client = await this.createClientAsync(clientConfig, trackerFor(clientConfig));
 
         clientConnection = client;
         clientDb = client.db(clientConfig.db_name);
 
         const auditConfig = await this.getAuditConfigAsync();
-        const auditEventClient = auditConfig.connection ? await this.createClientAsync(auditConfig) : client;
+        const auditEventClient = auditConfig.connection ? await this.createClientAsync(auditConfig, trackerFor(auditConfig)) : client;
         auditClientDb = auditEventClient.db(auditConfig.db_name);
 
         // if enabled then use auditEventReadOnlyMongoConfig else use same instance on audit event db
         if (this.configManager.enableAuditEventArchiveRead) {
             const auditReadOnlyConfig = await this.getAuditReadOnlyConfigAsync();
             const auditEventReadOnlyClient = auditReadOnlyConfig.connection
-                ? await this.createClientAsync(auditReadOnlyConfig)
+                ? await this.createClientAsync(auditReadOnlyConfig, trackerFor(auditReadOnlyConfig))
                 : auditEventClient;
             auditReadOnlyClientDb = auditEventReadOnlyClient.db(auditReadOnlyConfig.db_name);
         } else {
@@ -334,13 +342,13 @@ class MongoDatabaseManager {
 
         const accessLogsConfig = await this.getAccessLogsConfigAsync();
         const accessLogsClient = accessLogsConfig.connection
-            ? await this.createClientAsync(accessLogsConfig)
+            ? await this.createClientAsync(accessLogsConfig, trackerFor(accessLogsConfig))
             : auditEventClient;
         accessLogsDb = accessLogsClient.db(accessLogsConfig.db_name);
 
         const resourceHistoryConfig = await this.getResourceHistoryConfigAsync();
         const resourceHistoryClient = resourceHistoryConfig.connection
-            ? await this.createClientAsync(resourceHistoryConfig)
+            ? await this.createClientAsync(resourceHistoryConfig, trackerFor(resourceHistoryConfig))
             : client;
         resourceHistoryDb = resourceHistoryClient.db(resourceHistoryConfig.db_name);
         // fhir-notes-vector-store is intentionally NOT connected here -- see getFhirNotesDbAsync()
