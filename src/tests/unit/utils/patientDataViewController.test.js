@@ -547,6 +547,53 @@ describe('PatientDataViewControlManager', () => {
             expect(viewControlResourceToExcludeMap.Binary).toBeUndefined();
         });
     });
+
+    describe('findPersonAsync', () => {
+        const personEntry = (security) => ({ resource: { resourceType: 'Person', _uuid: 'person-uuid-1', meta: { security } } });
+        const OWNER = { system: 'https://www.icanbwell.com/owner', code: 'clientA' };
+        const ACCESS = { system: 'https://www.icanbwell.com/access', code: 'clientA' };
+
+        test('reads the Person through the caller\'s access filter and returns its uuid and owner', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({ entries: [personEntry([ACCESS, OWNER])] });
+            const requestInfo = createRequestInfo(undefined, { isUser: false, scope: 'user/*.read access/clientA.read' });
+
+            const result = await manager.findPersonAsync({ requestInfo, base_version: '4_0_0', personId: 'person-1' });
+
+            expect(result).toEqual({ uuid: 'person-uuid-1', owner: 'clientA' });
+            expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Person', requestInfo })
+            );
+            expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith({
+                resourceType: 'Person',
+                args: { base_version: '4_0_0', _id: 'person-1' }
+            });
+        });
+
+        test('returns no owner for a Person without an owner tag (the consent lookup then fails)', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({ entries: [personEntry([ACCESS])] });
+            const result = await manager.findPersonAsync({
+                requestInfo: createRequestInfo(undefined, { isUser: false }), base_version: '4_0_0', personId: 'person-1'
+            });
+            expect(result.owner).toBeUndefined();
+        });
+
+        // statusCode, not instanceof: ServerError resets the prototype, so subclasses aren't instanceof-detectable
+        test('a Person the caller cannot see (or that does not exist) is a 404', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({ entries: [] });
+            await expect(manager.findPersonAsync({
+                requestInfo: createRequestInfo(undefined, { isUser: false }), base_version: '4_0_0', personId: 'person-1'
+            })).rejects.toMatchObject({ statusCode: 404, message: 'Person not found' });
+        });
+
+        test('an id matching more than one visible Person is a 400', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
+                entries: [personEntry([OWNER]), personEntry([OWNER])]
+            });
+            await expect(manager.findPersonAsync({
+                requestInfo: createRequestInfo(undefined, { isUser: false }), base_version: '4_0_0', personId: 'person-1'
+            })).rejects.toMatchObject({ statusCode: 400 });
+        });
+    });
 });
 
 describe('getBinaryIdFromAttachmentUrl', () => {

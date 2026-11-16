@@ -2,6 +2,8 @@ const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ReferenceParser } = require('../utils/referenceParser');
 const { QueryItem } = require('../operations/graph/queryItem');
 const { AUTH_USER_TYPES, CONSENT_CATEGORY } = require('../constants');
+const { SecurityTagSystem } = require('./securityTagSystem');
+const { NotFoundError, BadRequestError } = require('./httpErrors');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ConfigManager } = require('./configManager');
 const { SearchManager } = require('../operations/search/searchManager');
@@ -157,6 +159,43 @@ class PatientDataViewControlManager {
             viewControlConsentQueries,
             viewControlConsentQueryOptions
         };
+    }
+
+    /**
+     * Reads a Person through the caller's normal access filter, for a view-control check whose
+     * subject is a Person named in the URL rather than the caller's own.
+     *
+     * A Person the caller can't see and a Person that doesn't exist get the same NotFoundError, so
+     * this can't be used to find out which Persons exist in other tenants.
+     * @param {{ requestInfo: FhirRequestInfo, base_version: string, personId: string }}
+     * @return {Promise<{ uuid: string, owner: string|undefined }>}
+     * @throws {NotFoundError} when no visible Person has this id
+     * @throws {BadRequestError} when the id (a source id) matches more than one visible Person
+     */
+    async findPersonAsync({ requestInfo, base_version, personId }) {
+        const resourceType = 'Person';
+        const { entries } = await this.searchManager.fetchResourcesByArgsAsync({
+            resourceType,
+            base_version,
+            requestInfo,
+            explain: false,
+            debug: false,
+            parsedArgs: this.r4ArgsParser.parseArgs({
+                resourceType,
+                args: { base_version, _id: personId }
+            })
+        });
+        if (entries.length === 0) {
+            throw new NotFoundError('Person not found');
+        }
+        if (entries.length > 1) {
+            throw new BadRequestError(new Error(
+                'The Person id matches more than one Person; use the Person uuid'
+            ));
+        }
+        const person = entries[0].resource;
+        const owner = person.meta?.security?.find((tag) => tag?.system === SecurityTagSystem.owner)?.code;
+        return { uuid: person._uuid, owner };
     }
 
     /**

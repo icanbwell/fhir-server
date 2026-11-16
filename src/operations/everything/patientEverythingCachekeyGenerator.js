@@ -19,6 +19,7 @@ class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
             '_excludeProxyPatientLinked',
             '_includePatientLinkedUuidOnly',
             '_includeUuidOnly',
+            '_applyDataViewControl',
             'contained'
         ];
         this.cacheableResponseTypes = [

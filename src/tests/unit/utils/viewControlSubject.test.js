@@ -16,16 +16,24 @@ describe('ViewControlSubject', () => {
         const subject = ViewControlSubject.fromToken({ isUser: true, personIdFromJwtToken: 'person-1' });
         expect(subject.personId).toBe('person-1');
         expect(subject.source).toBe(VIEW_CONTROL_SUBJECT_SOURCE.TOKEN);
+        expect(subject.isUrlPerson).toBe(false);
     });
 
-    test('identity (the lookup cache key) is by value', () => {
-        const token = (personId) => ViewControlSubject.fromToken({ isUser: true, personIdFromJwtToken: personId });
-        expect(String(token('person-1'))).toEqual(String(token('person-1')));
-        expect(String(token('person-1'))).not.toEqual(String(token('person-2')));
+    test('fromUrlPerson takes the Person id from the URL', () => {
+        const subject = ViewControlSubject.fromUrlPerson({ personId: 'person-1' });
+        expect(subject.personId).toBe('person-1');
+        expect(subject.isUrlPerson).toBe(true);
+    });
+
+    test('identity (the lookup cache key) is by value, and the same person from a different source differs', () => {
+        const a = ViewControlSubject.fromUrlPerson({ personId: 'person-1' });
+        expect(String(a)).toEqual(String(ViewControlSubject.fromUrlPerson({ personId: 'person-1' })));
+        expect(String(a)).not.toEqual(String(ViewControlSubject.fromUrlPerson({ personId: 'person-2' })));
+        expect(String(a)).not.toEqual(String(ViewControlSubject.fromToken({ isUser: true, personIdFromJwtToken: 'person-1' })));
     });
 
     test('it is immutable', () => {
-        const subject = ViewControlSubject.fromToken({ isUser: true, personIdFromJwtToken: 'person-1' });
+        const subject = ViewControlSubject.fromUrlPerson({ personId: 'person-1' });
         expect(() => { subject.personId = 'person-2'; }).toThrow(TypeError);
         expect(subject.personId).toBe('person-1');
     });

@@ -52,10 +52,8 @@ const { isFalseWithFallback } = require('../../utils/isFalse');
 const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const { CustomTracer } = require('../../utils/customTracer');
-const {
-    PatientDataViewControlExclusion,
-    getUserViewControlExcludeMapAsync
-} = require('../../utils/patientDataViewControlExclusion');
+const { PatientDataViewControlExclusion } = require('../../utils/patientDataViewControlExclusion');
+const { ViewControlSubject } = require('../../utils/viewControlSubject');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
@@ -531,6 +529,8 @@ class EverythingHelper {
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {ViewControlSubject|null} [viewControlSubject] - whose view-control block filters the
+     *  result; defaults to the user in the token
      *
      * @param {retriveEverythingAsyncParams}
      * @return {Promise<Bundle>}
@@ -543,7 +543,8 @@ class EverythingHelper {
         parsedArgs,
         includeNonClinicalResources = true,
         scopedPersonIds,
-        isPersonEverything
+        isPersonEverything,
+        viewControlSubject = ViewControlSubject.fromToken(requestInfo)
     }) {
         if (!this.supportedResources.includes(resourceType)) {
             throw new Error('$everything is not supported for resource: ' + resourceType);
@@ -636,17 +637,17 @@ class EverythingHelper {
             let fallbackToMongo = false;
             if (readFromCache) {
                 try {
-                    // Entries are cached before enrichment, so the user's view-control lookup
+                    // Entries are cached before enrichment, so the subject's view-control lookup
                     // (memoized per request) is loaded here to filter Composition sections on replay.
                     // A failed lookup throws before anything is written and falls back to MongoDB.
-                    const viewControlExcludeMap = await this.customTracer.trace({
-                        name: 'EverythingHelper.cachedReplay.patientDataViewControlExclusion.getConsentLookupAsync',
-                        func: async () => await getUserViewControlExcludeMapAsync({
-                            exclusion: this.patientDataViewControlExclusion,
-                            requestInfo,
-                            base_version
-                        })
-                    });
+                    const viewControlExcludeMap = viewControlSubject
+                        ? (await this.customTracer.trace({
+                            name: 'EverythingHelper.cachedReplay.patientDataViewControlExclusion.getConsentLookupAsync',
+                            func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                                requestInfo, base_version, subject: viewControlSubject
+                            })
+                        })).viewControlResourceToExcludeMap
+                        : undefined;
                     await cachedStreamer.streamFromCacheAsync({
                         streamedResources,
                         enrichmentContext: {
@@ -712,7 +713,8 @@ class EverythingHelper {
                             everythingChunkIndex: everythingChunkIndex++,
                             scopedPersonIds,
                             isPersonEverything,
-                            streamedResources
+                            streamedResources,
+                            viewControlSubject
                         }
                     );
 
@@ -836,6 +838,8 @@ class EverythingHelper {
      * @property {{_uuid: string, resourceType: string}[]} [streamedResources] - accumulator for
      *  audit logging, pushed into directly at write time so it survives a throw from any level
      *  of this call chain
+     * @property {ViewControlSubject|null} [viewControlSubject] - whose view-control block filters the
+     *  result; defaults to the user in the token
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -855,7 +859,8 @@ class EverythingHelper {
         everythingChunkIndex,
         scopedPersonIds,
         isPersonEverything,
-        streamedResources = []
+        streamedResources = [],
+        viewControlSubject = ViewControlSubject.fromToken(requestInfo)
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -1000,10 +1005,11 @@ class EverythingHelper {
 
             let resourceToExcludeIdsMap = {};
 
-            // Resources blocked by the user's dataConnectionViewControl Consent (enrolled clients only).
-            // This is the lookup every read path shares, loaded once per request; it covers all of the
-            // Person's view-control Consents, not only those whose actor is one of the requested patients.
-            if (requestInfo.isUser) {
+            // Resources blocked by the subject's dataConnectionViewControl Consent (the user, or for a
+            // service token that opted in, the Person in the URL; enrolled clients only). This is the
+            // lookup every read path shares, loaded once per request; it covers all of the Person's
+            // view-control Consents, not only those whose actor is one of the requested patients.
+            if (viewControlSubject) {
                 let {
                     viewControlResourceToExcludeMap,
                     viewControlConsentQueries,
@@ -1012,7 +1018,8 @@ class EverythingHelper {
                     name: 'EverythingHelper.patientDataViewControlExclusion.getConsentLookupAsync',
                     func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
                         requestInfo,
-                        base_version
+                        base_version,
+                        subject: viewControlSubject
                     })
                 });
 

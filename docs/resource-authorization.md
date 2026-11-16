@@ -92,7 +92,7 @@ flowchart TD
     CmsCheck -- no --> RunQuery
     CmsFilter --> RunQuery[("Run MongoDB query")]
 
-    RunQuery --> PdvcCheck{"§6d: user of an enrolled client with an active data-view-control Consent?"}
+    RunQuery --> PdvcCheck{"§6d: user of an enrolled client, or a service token opting in on Person $everything, with an active data-view-control Consent?"}
     PdvcCheck -- yes --> PdvcExcl["Exclude the hidden resources (an _id:not added to the query on every user read path)"]
     PdvcCheck -- no --> PersonCheck
     PdvcExcl --> PersonCheck{"§5: Person $everything?"}
@@ -304,12 +304,16 @@ are rejected for user tokens.
   adds an `_id:not` of the hidden ids to the query (`applyAsync`). `$everything` uses the same
   lookup in `everythingHelper.js`.
 - *Subject Person:* the user in the token (`ViewControlSubject.fromToken`). Service and admin
-  tokens are not filtered.
+  tokens are not filtered, except a service token sending `_applyDataViewControl=true` on Person
+  `$everything`, which is filtered by the Person in the URL (`ViewControlSubject.fromUrlPerson`,
+  read through the caller's access filter; see
+  `docs/adr/0004-service-token-opt-in-for-data-view-control-on-person-everything.md`).
 - *Composition sections:* `DataViewControlCompositionEnrichmentProvider` removes sections whose
   entries reference a hidden resource, using the exclude map the read path passes in the
   enrichment context (§10's section filter is a separate, sensitivity-based rule).
 - *Fails closed:* a failed Consent lookup fails the request instead of returning unfiltered data. A
-  user's Person without an owner tag is treated as enrolled, so the Consent still applies.
+  user's Person without an owner tag is treated as enrolled, so the Consent still applies; the
+  service-token opt-in on a Person without an owner tag fails the request.
 
 Full detail: `readme/patientDataViewControl.md`.
 
