@@ -87,9 +87,18 @@ Any of these is a failure even if the code works:
        The stored document is the same either way.
   6. `$import` checks the schema of each line's resource before the merge, as `$merge` does (user
      decision). Today the worker only checks the meta of a new resource there, and checks the
-     schema of the merged or new document.
+     schema of the merged or new document. It also gets the AuditEvent size limit, which it doesn't
+     check today.
   7. PATCH returns 400 instead of 500 when the write returns no result (user decision). Today it
      reads the issue of a result that isn't there and fails with a TypeError.
+  8. `$merge` runs the AuditEvent size limit and the pipe-in-id check after identification, on the
+     body stripped of its `_` fields, so that it validates before it loads (user decision; see
+     "Step order"). Today they run before identification, on the body as sent. So:
+     - the AuditEvent size no longer counts the `_` fields a client sends;
+     - for a non-UUID id, the AuditEvent size includes the source assigning authority tag that
+       identification adds and leaves out the uuid-system identifiers it removes;
+     - a size or pipe-in-id failure entry no longer echoes a `_uuid` or `_sourceAssigningAuthority`
+       that the client sent in the body.
 - **Scope letter per operation.** Each operation requires the same scope letter it does today.
 - **preSave is unchanged.**
 - **Shared building blocks keep today's behavior**, because the old path depends on them: the scopes
@@ -134,25 +143,28 @@ Every operation runs these steps in this order:
    lacks what's needed to identify it: an id, a resourceType, a supported type, and either a UUID
    id or an owner/source-assigning-authority tag
 1. **Scope check**
-2. **Identify and find existing**: derive each item's `_uuid`, then load the stored doc
+2. **Identify**: derive each item's `_uuid`, without reading the database
 3. **Prepare body** (`_` fields)
-4. **Validate incoming**: checks on the body alone
-5. **Access before build** (stored doc, and for merge and import also the incoming body)
-6. **Build new doc**
-7. **Validate result**
-8. **Access on result**
-9. **Attachments**
-10. **No-op check**
-11. **Write** (with concurrency)
-12. **Audit**
-13. **Respond**
+4. **Validate incoming**: checks on the body alone: the AuditEvent size limit and the pipe-in-id
+   check, for every operation, then the schema check
+5. **Find existing**: load the stored doc
+6. **Validate new resource**: the meta check for an item with no stored doc
+7. **Access before build** (stored doc, and for merge and import also the incoming body)
+8. **Build new doc**
+9. **Validate result**
+10. **Access on result**
+11. **Attachments**
+12. **No-op check**
+13. **Write** (with concurrency)
+14. **Audit**
+15. **Respond**
 
 **Why this order (found while planning `$merge`).**
-- **"Validate incoming" comes before "access before build".** For a new resource, the access check
-  runs preSave, which asserts on a missing owner tag or source assigning authority, and
-  `WriteAllowedByScopesValidator` rethrows anything that isn't a 403. With the access check first,
-  a `$merge` create with a UUID id and no owner tag would fail the whole request with a 500 instead
-  of getting today's per-resource 400.
+- **"Validate incoming" and "validate new resource" come before "access before build".** For a new
+  resource, the access check runs preSave, which asserts on a missing owner tag or source assigning
+  authority, and `WriteAllowedByScopesValidator` rethrows anything that isn't a 403. With the access
+  check first, a `$merge` create with a UUID id and no owner tag would fail the whole request with a
+  500 instead of getting today's per-resource 400 from the meta check.
 - **"Validate incoming" means checks on the body alone.** Checks that compare the body with the
   stored doc belong to "validate result", after the access check, so nothing about a stored doc
   reaches a caller who can't access it. Examples: the patient-reference check, and the Person.link
@@ -161,11 +173,24 @@ Every operation runs these steps in this order:
   `uuid` and `sourceAssigningAuthority`. Today a scope-forbidden entry has neither, because the scope
   check runs before identification. Deriving `_uuid` first would add them to every forbidden entry,
   which is not a two-check failure.
-- **For `$merge`, two checks run at the start of step 2, before the `_uuid` is derived:** the
-  AuditEvent size limit and the pipe-in-id check. That gives them the same input and the same entry
-  fields as today.
-- **Loading stored docs moves before schema validation for `$merge`.** That reads a few documents
-  that fail validation, but responses don't change.
+- **`$merge` validates before it loads, as today (user decision).** The old path checks each
+  resource's size and pipe-in-id, identifies it, strips its `_` fields, checks the schema, and only
+  then bulk-loads the stored docs. So "identify" runs before "prepare body", which saves the derived
+  `_uuid` and source assigning authority, and "find existing" runs after "validate incoming": a
+  resource that fails a body check is not loaded.
+- **The size limit and the pipe-in-id check run at the start of step 4,** on the body stripped of
+  its `_` fields, before the saved `_uuid` and source assigning authority are restored. They are
+  part of "validate incoming" for every operation, and no profile turns them off: AuditEvent
+  update, patch and remove get 405 from `ResourceOperationAccessProvider`, and every operation either
+  rejects a pipe in the id or can't produce one. A resource that fails one of them skips the schema
+  check. In `$merge` today they run before identification, on the body as sent. That changes what they measure and the entry fields they report (accepted
+  difference 8). It also changes which error wins when identification fails too (accepted
+  difference 1): a non-UUID id whose owner or source assigning authority tag has no `code` passes
+  "read items", which checks only the tag's `system`, and then fails identification with
+  "sourceAssigningAuthority is null". If that resource also has a pipe in its id or is an oversized
+  AuditEvent, it now gets the identification error instead of the pipe-in-id or size error.
+- **"Validate new resource" comes after "find existing".** The meta check (owner tag) applies only to
+  a resource that isn't stored yet, so it needs the load. That is also where the old path runs it.
 
 **Batches.** The pipeline works on a batch of items. POST, PUT and PATCH are a batch of one. Steps
 run per item, except "find existing" and "write", which run once for the batch: `$merge` and
@@ -178,7 +203,7 @@ itself, one line per step, in the order above, so the whole flow reads top to bo
 There is no step list and no loop. The step classes live in `src/operations/writePipeline/steps/`.
 A profile is plain data that says only what differs from the default: its name, the scope letter
 and action, and the steps it turns `off`. Every step the profile doesn't turn off runs. A profile
-with an unknown setting or an unknown step name fails before anything runs. Step 8 (access on
+with an unknown setting or an unknown step name fails before anything runs. Step 10 (access on
 result) has no implementation yet. `$merge` never ran it, so the pipeline doesn't call it, and the
 first operation that needs it adds both the call and the name.
 
@@ -188,7 +213,7 @@ first operation that needs it adds both the call and the name.
 - `src/operations/writePipeline/responder/<operation>.js` holds one class. It extends `WriteResponder`
   (`responder/writeResponder.js`), whose constructor fails at startup if a method is missing. The class
   holds everything that depends on the operation's request and response format: reading the request
-  into items (step 0), building the results and the response (step 13), and the operation's metrics.
+  into items (step 0), building the results and the response (step 15), and the operation's metrics.
   The metrics stay per operation because they differ: `$merge` records `fhir_merge_outcome_total` and
   its bundle size, and `$import` has its own metrics.
 
@@ -197,7 +222,7 @@ switch is on, it calls `writePipeline.runAsync({ profile, responder, requestInfo
 resourceType })`. `runAsync` owns the rest of the request lifecycle:
 - running the steps
 - the write
-- the audit (step 12)
+- the audit (step 14)
 - operation success and failure logging
 - the access log
 
@@ -230,7 +255,7 @@ they are. For example, the resource merger deletes GridFS attachments during "bu
 
 **Checks that run before the merge today stay before it (my call).** `$merge` and `$import` check
 the incoming body's access in `WriteAllowedByScopesValidator`, before any merge. In the new path
-that check is part of step 5, not step 8. Otherwise a rejected item would already have had its
+that check is part of step 7, not step 10. Otherwise a rejected item would already have had its
 stored GridFS attachments deleted inside "build new doc".
 
 ## Profiles
@@ -242,9 +267,10 @@ the code disagree, the code wins.
 | Step | create | update | patch | merge | import | admin |
 |---|---|---|---|---|---|---|
 | Scope letter | `c` | `u`, also for create-via-PUT | `u` | `u`, also when the resource is new | `u` | none in the pipeline (the admin route checks admin scope, as today) |
-| Find existing | none | by `_uuid` | search with the access filter: 0 hits is 404, more than 1 is 400 | bulk preload by `_uuid` | bulk preload | new: by `_uuid` with the access filter, 404 (see "Admin") |
 | `_` fields | strip | strip | reject with 400 any op whose path starts with `/_` (this also rejects primitive-extension paths such as `/_birthDate`) | strip for validation, then restore `_uuid` and `_sourceAssigningAuthority` | strip | none (no client body) |
-| Validate incoming | meta, schema, Person.link tenant check | schema, Person.link | – (the body is a JSON Patch) | schema with relaxed required fields; meta (owner tag) for a new resource | owner tag backfilled first; new: then the same checks as `$merge` (accepted difference 6) | – (no client body) |
+| Validate incoming | schema, Person.link tenant check, AuditEvent size limit; the pipe-in-id check never fires, because POST replaces the id with a new UUID | schema, Person.link; the size and pipe-in-id checks run but never fire: AuditEvent update gets 405 from `ResourceOperationAccessProvider`, and `IdParser` puts only the part before the first `\|` into the body id | – (the body is a JSON Patch) | on the stripped body: AuditEvent size limit and pipe-in-id check, then schema with relaxed required fields | owner tag backfilled first; pipe-in-id check, as today; new: the AuditEvent size limit and the schema check, as in `$merge` (accepted difference 6) | – (no client body) |
+| Find existing | none | by `_uuid` | search with the access filter: 0 hits is 404, more than 1 is 400 | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by `_uuid` with the access filter, 404 (see "Admin") |
+| Validate new resource | meta | – (meta is checked in validate result) | – | meta (owner tag) for a new resource | meta for a new resource, as today | – |
 | Access before build | new: full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403) | stored doc | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: stored doc and every linked resource |
 | Build new doc | insert | replace (no smart merge) | apply the JSON Patch; Group member strategy for Group | smart merge | smart merge | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
 | Validate result | – (same doc as incoming) | meta | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
@@ -477,12 +503,26 @@ today.
   `_uuid`, now gets one result entry; today it can also get a second
   `created: false, updated: false` entry.
 - **Which error a resource gets** (accepted difference 1). The checks run in one fixed order, so a
-  resource that fails two of them may get the other of the two errors than today. The `$merge`
-  parity tests and the full suite, which runs the new path, found no such case.
+  resource that fails two of them may get the other of the two errors than today. One such case is
+  known: a resource with a non-UUID id whose owner or source assigning authority tag has no `code`
+  now gets the "sourceAssigningAuthority is null" error, even when it also has a pipe in its id or
+  is an oversized AuditEvent. Today it gets the pipe-in-id or the size error.
 - **Schema failure metric.** An incoming resource that fails the schema check now counts in
   `fhir_validation_failure_total` (`validation_stage="schema"`, `path="save"`, with its resource
   type). Today `$merge` only counts schema failures of the merged or new document, which an
   invalid body never reaches, so dashboards and alerts on this metric see more `$merge` failures.
+- **AuditEvent size without the client's `_` fields** (accepted difference 8). The AuditEvent size limit is measured on
+  the body after its `_` fields are stripped, so fields starting with `_` that a client sends no
+  longer count toward the limit. Today they do.
+- **AuditEvent size after identification** (accepted difference 8). For an AuditEvent whose id is not a UUID, the size
+  is measured after identification has added the source assigning authority security tag (when only
+  an owner tag is present) and removed identifiers with the uuid system. Today it is measured before
+  that. An AuditEvent near the limit can now be rejected where it was accepted, or accepted where it
+  was rejected; the measured size is closer to the size that is stored.
+- **No client `_uuid` in size and pipe-in-id errors** (accepted difference 8). The result entry for a resource that
+  fails the size limit or has a pipe in its id no longer includes a `uuid` or
+  `sourceAssigningAuthority` taken from `_uuid` or `_sourceAssigningAuthority` fields the client sent
+  in the body. Today it echoes them.
 
 **`$import`**
 - **Incoming schema check** (accepted difference 6). Each line's resource gets the schema check,
@@ -491,6 +531,8 @@ today.
   can import when the merged document is valid, and a failing line's error comes from that later
   check.
 - **Schema failure metric.** As for `$merge`.
+- **AuditEvent size limit** (accepted difference 6). An AuditEvent line over the size limit is now
+  rejected with a per-resource error. Today it is written.
 
 **POST**
 - **Access check before validation** (accepted difference 1). The full access check and the

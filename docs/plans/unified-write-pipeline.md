@@ -141,7 +141,7 @@ describe('WritePipelineSwitch', () => {
   - `class WriteContext`: `constructor({ requestInfo, base_version, parsedArgs, smartMerge, operationName })` sets the fields, then calls `Object.freeze(this)`.
   - every step: `runAsync({ items, context, profile }) -> Promise<void>`. A step fails an item with `item.fail({ failure })`. It never builds an operation's result.
   - A profile is plain data, `{ name, accessRequested, action, off? }`. `name`, `accessRequested` and `action` are strings, and `off` lists step names to skip. Every step the profile doesn't turn off runs.
-  - `WRITE_STEP_NAMES = Object.freeze(['scopeCheck', 'findExisting', 'prepareBody', 'validateIncoming', 'accessBeforeBuild', 'buildDocument', 'validateResult', 'attachments', 'noOpCheck', 'write'])`
+  - `WRITE_STEP_NAMES = Object.freeze(['scopeCheck', 'identify', 'prepareBody', 'validateIncoming', 'findExisting', 'validateNewResource', 'accessBeforeBuild', 'buildDocument', 'validateResult', 'attachments', 'noOpCheck', 'write'])`
   - A responder extends `class WriteResponder` (`responder/writeResponder.js`). Its constructor throws `<subclass> must implement: <names>` unless the subclass overrides all five methods:
     - `readAsync({ requestInfo, parsedArgs, resourceType }) -> Promise<{ context, items, requestErrors, wasIncomingAList }>`
     - `failureResults({ items, requestErrors })`
@@ -154,8 +154,8 @@ describe('WritePipelineSwitch', () => {
     - It logs one error audit per entry with an `issue`, with code 413 for `too-long` and 400 otherwise.
   - `class NoOpStep`: `runAsync` marks every item whose `candidate === null` as unchanged.
   - `class WritePipeline`:
-    - `constructor({ scopeCheckStep, findExistingStep, prepareBodyStep, validateIncomingStep, accessCheckStep, buildDocumentStep, validateResultStep, attachmentsStep, noOpStep, writeStep, writeAuditor, databaseBulkInserter, fhirLoggingManager, customTracer })`. The step classes come from Task 4.
-    - `processAsync({ profile, context, items }) -> Promise<{ items: WriteItem[] }>`. It calls the ten steps explicitly, one line each, in `WRITE_STEP_NAMES` order. Items the responder failed while reading arrive failed.
+    - `constructor({ scopeCheckStep, identifyStep, prepareBodyStep, validateIncomingStep, findExistingStep, validateNewResourceStep, accessCheckStep, buildDocumentStep, validateResultStep, attachmentsStep, noOpStep, writeStep, writeAuditor, databaseBulkInserter, fhirLoggingManager, customTracer })`. The step classes come from Task 4.
+    - `processAsync({ profile, context, items }) -> Promise<{ items: WriteItem[] }>`. It calls the twelve steps explicitly, one line each, in `WRITE_STEP_NAMES` order. Items the responder failed while reading arrive failed.
     - `runAsync({ profile, responder, requestInfo, parsedArgs, resourceType })`: the request lifecycle (Task 4).
     - `executeAsync({ context }) -> Promise<MergeResultEntry[]>`
 - [ ] **Step 1: Write the failing tests.** Build fake steps that record their calls and pass `assertTypeEquals` (`Object.create(<StepClass>.prototype)` with `runAsync = jest.fn()`), and use a plain-data fake profile. Build the pipeline with `Object.create(FastDatabaseBulkInserter.prototype)` (with `executeAsync = jest.fn()`) and `new CustomTracer()`.
@@ -183,7 +183,7 @@ describe('WritePipelineSwitch', () => {
     - `logError('Write step failed for resource', fields)` with the error, or `logInfo('Write check failed for resource', fields)` with `issues`.
     - `issues` holds only each issue's severity, code and expression. Never log `diagnostics` or `details`, because they can carry resource content.
     - `fields` are `operation`, `step`, `stage`, the subject's `resourceType`, `id`, `uuid` and `sourceAssigningAuthority`, and `originService`. No flag gates these logs.
-  - Task 4 registers it, with its ten steps built inline in the `writePipeline` registration.
+  - Task 4 registers it, with its twelve steps built inline in the `writePipeline` registration.
 - [ ] **Step 4: Run them.** Expected: PASS.
 - [ ] **Step 5: Stage** the seven files.
 
@@ -230,13 +230,11 @@ Every step is one shared class, and `WritePipeline.processAsync` calls them expl
 **Files:**
 - Create the shared steps under `src/operations/writePipeline/steps/`:
   - `scopeCheckStep.js`
-  - `findExistingStep.js`, with:
-    - `checks/resourceSizeCheck.js`
-    - `checks/pipeInIdCheck.js`
-    - `identify/sourceIdentityResolver.js`
-    - `load/bulkPreloadLoader.js`
+  - `identifyStep.js`, with `identify/sourceIdentityResolver.js`
   - `prepareBodyStep.js`
   - `validateIncomingStep.js`
+  - `findExistingStep.js`, with `load/bulkPreloadLoader.js`
+  - `validateNewResourceStep.js`
   - `accessCheckStep.js`, with `access/incomingAndStoredAccessChecker.js`
   - `buildDocumentStep.js`, with `build/smartMergeBuilder.js`
   - `validateResultStep.js`
@@ -249,7 +247,7 @@ Every step is one shared class, and `WritePipeline.processAsync` calls them expl
 - Modify:
   - `src/operations/merge/merge.js`: constructor wiring, plus the switch check at the top of `mergeAsync`
   - `src/createContainer.js`:
-    - Register `bundleResourceValidator`, `parametersResourceValidator`, `writePipeline` (its ten steps built inline, with their collaborators) and `mergeResponder`.
+    - Register `bundleResourceValidator`, `parametersResourceValidator`, `writePipeline` (its twelve steps built inline, with their collaborators) and `mergeResponder`.
     - Add `writePipelineSwitch`, `writePipeline` and `mergeResponder` to `mergeOperation`.
     - Leave the `mergeValidator` registration as it is.
 - Test: Task 3's test file (new cases `reports an id with a pipe` and `merges a new resource sent by id and by uuid`) and `src/tests/unit/operations/writePipeline/responder/merge.test.js`
@@ -295,9 +293,11 @@ Each step mirrors the old code it replaces. Cite the base branch's `merge.js`, `
 |---|---|---|---|
 | (read) | `MergeResponder.readAsync` (`$merge` only) | <ol><li>Runs `bundleResourceValidator.validate`, then `parametersResourceValidator.validate`. Their `preCheckErrors` are collected as `requestErrors`, and their `wasAList` values are OR-ed.</li><li>Calls `mergeManager.mergeDuplicateResourceEntries`, sets `wasIncomingAList ||= Array.isArray(...)`, and converts `id` to `String`.</li><li>For each item, runs the first four checks of `MergeManager.preMergeChecksAsync`: missing id, missing resourceType, unsupported type, and neither a UUID id nor an owner/SAA tag. A failure's `operationOutcome` comes from `mergeManager.createMergeError(...)`, and its subject's fields match the entry `createMergeError` builds.</li></ol>Errors are not caught, so a `null` entry fails the request. | `structure` |
 | scopeCheck | `ScopeCheckStep`, with `profile.accessRequested` and `profile.action` | Calls `scopesValidator.isScopesValidAsync({ requestInfo, resourceType: incoming.resourceType, accessRequested, action, base_version })`. On a forbidden result, the failure's `operationOutcome` is `buildOperationOutcomeFromIssues(forbiddenError.issue)`. | `scope` |
-| findExisting | `FindExistingStep({ prechecks: [ResourceSizeCheck, PipeInIdCheck], identityResolver: SourceIdentityResolver, existingResourceLoader: BulkPreloadLoader })` | <ol><li>Per item, in order: the prechecks, then the identity resolver. The first failure stops that item.<ul><li>`ResourceSizeCheck` calls `resourceValidator.validateResourceSizeSync` (stage `size`).</li><li>`PipeInIdCheck` fails with `new Error('Pipe \| is not allowed in id field')` (stage `identity`).</li><li>`SourceIdentityResolver` turns a UUID id into `_uuid`, or else runs the SAA and uuid column handlers (stage `identity`).</li></ul></li><li>The loader then runs once for the remaining items. `BulkPreloadLoader` calls `databaseBulkLoader.loadResourcesAsync({ requestId, base_version, requestedResources })`, then `getResourceFromExistingList`. It calls `fastFindOneAsync({ query: { _uuid } })` only when `isResourceTypeLoaded` is false, and it sets `item.stored`.</li></ol> | `size`, `identity` |
+| identify | `IdentifyStep({ identityResolver: SourceIdentityResolver })` | Per item, `SourceIdentityResolver` turns a UUID id into `_uuid`, or else runs the SAA and uuid column handlers. It reads no stored document. A thrown error fails only that item. | `identity` |
 | prepareBody | `PrepareBodyStep` | Sets `item.savedIdentity = { uuid, sourceAssigningAuthority }`, then calls `removeUnderscoreFieldsRecursive(item.incoming)`. | – |
-| validateIncoming | `ValidateIncomingStep` | <ol><li>Calls `validateResource({ resourceBody, resourceName, path: requestInfo.path, excludeRequiredFieldErrors: context.smartMerge })`.</li><li>Restores `_uuid` and `_sourceAssigningAuthority` from `savedIdentity`, whether or not validation failed.</li><li>Calls `resourceValidator.validateResourceMetaSync(incoming)` for items with no `stored`.</li></ol> | `incomingSchema`, `incomingMeta` |
+| validateIncoming | `ValidateIncomingStep({ resourceValidator })` | Per item, on the stripped body, in order; the first failure stops that item. The size and pipe-in-id checks are part of the step for every operation, and their failures are built before the identity is restored, so they carry no `uuid` or SAA.<ol><li>The size check calls `resourceValidator.validateResourceSizeSync` (stage `size`). If it throws, the item fails at `size` with the error.</li><li>The pipe-in-id check fails with `new Error('Pipe \| is not allowed in id field')` (stage `identity`).</li><li>Calls `validateResource({ resourceBody, resourceName, path: requestInfo.path, excludeRequiredFieldErrors: context.smartMerge })`.</li><li>Restores `_uuid` and `_sourceAssigningAuthority` from `savedIdentity`, whether or not the schema check failed.</li></ol> | `size`, `identity`, `incomingSchema` |
+| findExisting | `FindExistingStep({ existingResourceLoader: BulkPreloadLoader })` | The loader runs once for the items still active. `BulkPreloadLoader` calls `databaseBulkLoader.loadResourcesAsync({ requestId, base_version, requestedResources })`, then `getResourceFromExistingList`. It calls `fastFindOneAsync({ query: { _uuid } })` only when `isResourceTypeLoaded` is false, and it sets `item.stored`. | – |
+| validateNewResource | `ValidateNewResourceStep` | Calls `resourceValidator.validateResourceMetaSync(incoming)` for items with no `stored`. | `incomingMeta` |
 | accessBeforeBuild | `AccessCheckStep`, with `IncomingAndStoredAccessChecker` | Calls `writeAllowedByScopesValidator.validate({ requestInfo, incomingResources, base_version, effectiveSmartMerge: context.smartMerge })`. An item whose `incoming` is not in `validatedObjects` fails with the `preCheckErrors` entry that has the same `_uuid` and `resourceType`. The failure takes that entry's `operationOutcome`, and a subject copied from the entry: its SAA comes from `meta.sourceAssigningAuthority`, as today. Non-403 errors propagate. | `access` |
 | buildDocument | `BuildDocumentStep`, with `SmartMergeBuilder`; chunks of `configManager.mergeParallelChunkSize` | <ol><li>Sets `item.incoming = FhirResourceWriteSerializer.serialize({ obj: item.incoming })` for every item.</li><li>Calls `builder.buildAsync({ item, context })` per item, through `runInChunks`.</li></ol>`SmartMergeBuilder` does the `lastUpdated` ISO conversion and makes the existing-vs-new decision from `mergeResourceAsync`:<ul><li>**Existing:** preSave `stored`, then `getExtendedGroupMemberWriteError` (an outcome failure), then `resourceMerger.fastMergeResourceAsync({ ..., ignoreDateOnlyChange: true })`. Sets `candidate` (null when nothing changed) and `writeMode: 'update'`.</li><li>**New:** the `configManager.requireMetaSourceTags` check (a `BadRequestError` with `'Unable to merge resource. Missing either metadata or metadata source.'`), then `versionId '1'` and `lastUpdated`. Sets `candidate = incoming` and `writeMode: 'insert'`.</li></ul> | `build` |
 | validateResult | `ValidateResultStep`, with `profile.accessRequested`; same chunks | Skips null candidates.<ul><li>**Update:** `validateResourceMetaSync(candidate)`, then `validateResourceAsync({ accessRequested: profile.accessRequested, ..., resourceToValidate: normalized deepcopy, resourceObj: candidate, currentResource: item.stored })`.</li><li>**Insert:** the same call without `currentResource`.</li></ul>An outcome or a thrown error fails the item. | `resultValidation` |
@@ -307,7 +307,7 @@ Each step mirrors the old code it replaces. Cite the base branch's `merge.js`, `
 | (respond) | `MergeResponder` (`$merge` only) | See Interfaces. | – |
 | (audit) | `WriteAuditor.auditAsync` (shared) | A copy of `MergeManager.logAuditEntriesForMergeResults`, run on the results with the request's `requestId`, `base_version` and `parsedArgs`. | – |
 
-- [ ] **Step 1: Implement the shared steps and their strategies.** Keep every building-block call and its arguments as the table says, and send every failure through `WriteFailure`. Register `writePipeline` with its ten steps built inline.
+- [ ] **Step 1: Implement the shared steps and their strategies.** Keep every building-block call and its arguments as the table says, and send every failure through `WriteFailure`. Register `writePipeline` with its twelve steps built inline.
 - [ ] **Step 2: Implement `MergeResponder` and `MERGE_WRITE_PROFILE`.** Register the responder.
 - [ ] **Step 3: Implement `WritePipeline.runAsync`** from `MergeOperation.mergeAsync`'s lifecycle. Set `results = responder.failureResults(...)` before the write, so the metrics in `finally` still see the failures if the write throws. There is no sort. Everything else stays identical to the old path: logging, the access-log context, the Prefer bundle, the metrics, and the return shape.
 - [ ] **Step 4: Wire the switch.**
@@ -420,7 +420,8 @@ Each PR adds its name to `WRITE_PIPELINE_OPERATIONS` in `jest/setEnvVars.js` and
    - A reader for a single body.
    - `accessRequested: 'c'`.
    - `FindExistingStep` with a loader that finds nothing.
-   - Validate incoming: meta and schema.
+   - Validate incoming: the size and pipe-in-id checks, then the schema check.
+   - Validate new resource: the meta check.
    - An insert builder.
    - Access before build: the `$merge` checker, whose new-resource branch is the full check plus the tag change, with the scope letter from the profile (`c`). `WriteAllowedByScopesValidator` hard-codes `u`, so it gets an opt-in letter parameter that defaults to `u`. No access on result.
    - The responder throws the first failure as the error the old path throws, and attachments move after the checks.

@@ -9,9 +9,11 @@ const { logInfo, logError } = require('../common/logging');
 const { WriteItem, WRITE_ITEM_STATUS } = require('./writeItem');
 const { WriteContext } = require('./writeContext');
 const { ScopeCheckStep } = require('./steps/scopeCheckStep');
-const { FindExistingStep } = require('./steps/findExistingStep');
+const { IdentifyStep } = require('./steps/identifyStep');
 const { PrepareBodyStep } = require('./steps/prepareBodyStep');
 const { ValidateIncomingStep } = require('./steps/validateIncomingStep');
+const { FindExistingStep } = require('./steps/findExistingStep');
+const { ValidateNewResourceStep } = require('./steps/validateNewResourceStep');
 const { AccessCheckStep } = require('./steps/accessCheckStep');
 const { BuildDocumentStep } = require('./steps/buildDocumentStep');
 const { ValidateResultStep } = require('./steps/validateResultStep');
@@ -27,9 +29,11 @@ const { WriteResponder } = require('./responder/writeResponder');
  */
 const WRITE_STEP_NAMES = Object.freeze([
     'scopeCheck',
-    'findExisting',
+    'identify',
     'prepareBody',
     'validateIncoming',
+    'findExisting',
+    'validateNewResource',
     'accessBeforeBuild',
     'buildDocument',
     'validateResult',
@@ -76,12 +80,14 @@ const REQUIRED_STRING_SETTINGS = Object.freeze(['name', 'accessRequested', 'acti
  */
 class WritePipeline {
     /**
-     * Takes the ten shared steps, the bulk inserter that flushes the writes, the auditor that
+     * Takes the twelve shared steps, the bulk inserter that flushes the writes, the auditor that
      * audits every run's results, the operation logging manager and the tracer.
      * @param {ScopeCheckStep} scopeCheckStep
-     * @param {FindExistingStep} findExistingStep
+     * @param {IdentifyStep} identifyStep
      * @param {PrepareBodyStep} prepareBodyStep
      * @param {ValidateIncomingStep} validateIncomingStep
+     * @param {FindExistingStep} findExistingStep
+     * @param {ValidateNewResourceStep} validateNewResourceStep
      * @param {AccessCheckStep} accessCheckStep
      * @param {BuildDocumentStep} buildDocumentStep
      * @param {ValidateResultStep} validateResultStep
@@ -95,9 +101,11 @@ class WritePipeline {
      */
     constructor ({
         scopeCheckStep,
-        findExistingStep,
+        identifyStep,
         prepareBodyStep,
         validateIncomingStep,
+        findExistingStep,
+        validateNewResourceStep,
         accessCheckStep,
         buildDocumentStep,
         validateResultStep,
@@ -115,10 +123,10 @@ class WritePipeline {
         this.scopeCheckStep = scopeCheckStep;
         assertTypeEquals(scopeCheckStep, ScopeCheckStep);
         /**
-         * @type {FindExistingStep}
+         * @type {IdentifyStep}
          */
-        this.findExistingStep = findExistingStep;
-        assertTypeEquals(findExistingStep, FindExistingStep);
+        this.identifyStep = identifyStep;
+        assertTypeEquals(identifyStep, IdentifyStep);
         /**
          * @type {PrepareBodyStep}
          */
@@ -129,6 +137,16 @@ class WritePipeline {
          */
         this.validateIncomingStep = validateIncomingStep;
         assertTypeEquals(validateIncomingStep, ValidateIncomingStep);
+        /**
+         * @type {FindExistingStep}
+         */
+        this.findExistingStep = findExistingStep;
+        assertTypeEquals(findExistingStep, FindExistingStep);
+        /**
+         * @type {ValidateNewResourceStep}
+         */
+        this.validateNewResourceStep = validateNewResourceStep;
+        assertTypeEquals(validateNewResourceStep, ValidateNewResourceStep);
         /**
          * @type {AccessCheckStep}
          */
@@ -299,9 +317,11 @@ class WritePipeline {
                  */
                 const run = { profile: runProfile, context, items, stepsOff: new Set(runProfile.off) };
                 await this._runStepAsync({ run, name: 'scopeCheck', step: this.scopeCheckStep });
-                await this._runStepAsync({ run, name: 'findExisting', step: this.findExistingStep });
+                await this._runStepAsync({ run, name: 'identify', step: this.identifyStep });
                 await this._runStepAsync({ run, name: 'prepareBody', step: this.prepareBodyStep });
                 await this._runStepAsync({ run, name: 'validateIncoming', step: this.validateIncomingStep });
+                await this._runStepAsync({ run, name: 'findExisting', step: this.findExistingStep });
+                await this._runStepAsync({ run, name: 'validateNewResource', step: this.validateNewResourceStep });
                 await this._runStepAsync({ run, name: 'accessBeforeBuild', step: this.accessCheckStep });
                 await this._runStepAsync({ run, name: 'buildDocument', step: this.buildDocumentStep });
                 await this._runStepAsync({ run, name: 'validateResult', step: this.validateResultStep });

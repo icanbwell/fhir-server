@@ -62,6 +62,9 @@ differences are plain data next to each other.
 - Bad, because the step order is fixed: a request that fails two checks can get a different one of
   the two errors than before, and `$merge` returns its results in request order instead of sorted
   by `_uuid`. These are listed in the spec's "Changes to announce".
+- Bad, because `$merge` now runs its size and pipe-in-id checks after identification, so it can
+  validate before it loads; what they measure and report changes slightly (the spec's accepted
+  difference 8).
 - Bad, because tests that pin an accepted difference need two versions while both paths exist: the
   test updated to the new behavior, and an `oldWrite` copy that runs the old path.
 

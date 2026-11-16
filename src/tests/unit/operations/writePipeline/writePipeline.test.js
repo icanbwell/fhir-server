@@ -19,9 +19,11 @@ const { WriteItem, WRITE_ITEM_STATUS } = require('../../../../operations/writePi
 const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../../../operations/writePipeline/writeFailure');
 const { WriteContext } = require('../../../../operations/writePipeline/writeContext');
 const { ScopeCheckStep } = require('../../../../operations/writePipeline/steps/scopeCheckStep');
-const { FindExistingStep } = require('../../../../operations/writePipeline/steps/findExistingStep');
+const { IdentifyStep } = require('../../../../operations/writePipeline/steps/identifyStep');
 const { PrepareBodyStep } = require('../../../../operations/writePipeline/steps/prepareBodyStep');
 const { ValidateIncomingStep } = require('../../../../operations/writePipeline/steps/validateIncomingStep');
+const { FindExistingStep } = require('../../../../operations/writePipeline/steps/findExistingStep');
+const { ValidateNewResourceStep } = require('../../../../operations/writePipeline/steps/validateNewResourceStep');
 const { AccessCheckStep } = require('../../../../operations/writePipeline/steps/accessCheckStep');
 const { BuildDocumentStep } = require('../../../../operations/writePipeline/steps/buildDocumentStep');
 const { ValidateResultStep } = require('../../../../operations/writePipeline/steps/validateResultStep');
@@ -39,9 +41,11 @@ const {
  */
 const STEP_DEFINITIONS = Object.freeze([
     { name: 'scopeCheck', key: 'scopeCheckStep', type: ScopeCheckStep },
-    { name: 'findExisting', key: 'findExistingStep', type: FindExistingStep },
+    { name: 'identify', key: 'identifyStep', type: IdentifyStep },
     { name: 'prepareBody', key: 'prepareBodyStep', type: PrepareBodyStep },
     { name: 'validateIncoming', key: 'validateIncomingStep', type: ValidateIncomingStep },
+    { name: 'findExisting', key: 'findExistingStep', type: FindExistingStep },
+    { name: 'validateNewResource', key: 'validateNewResourceStep', type: ValidateNewResourceStep },
     { name: 'accessBeforeBuild', key: 'accessCheckStep', type: AccessCheckStep },
     { name: 'buildDocument', key: 'buildDocumentStep', type: BuildDocumentStep },
     { name: 'validateResult', key: 'validateResultStep', type: ValidateResultStep },
@@ -221,16 +225,20 @@ describe('WritePipeline', () => {
     test.each([
         { name: 'a fake profile', profile: buildProfile() },
         { name: 'the merge profile', profile: MERGE_WRITE_PROFILE }
-    ])('processAsync runs the ten steps in WRITE_STEP_NAMES order for $name', async ({ profile }) => {
+    ])('processAsync runs the twelve steps in WRITE_STEP_NAMES order for $name', async ({
+        profile
+    }) => {
         const { pipeline, calls } = buildPipeline();
 
         await pipeline.processAsync({ profile, context: buildContext(), items: buildItems(2) });
 
         expect(WRITE_STEP_NAMES).toStrictEqual([
             'scopeCheck',
-            'findExisting',
+            'identify',
             'prepareBody',
             'validateIncoming',
+            'findExisting',
+            'validateNewResource',
             'accessBeforeBuild',
             'buildDocument',
             'validateResult',
@@ -304,7 +312,7 @@ describe('WritePipeline', () => {
         await pipeline.processAsync({ profile: buildProfile(), context: buildContext(), items });
 
         expect(received.scopeCheck).toStrictEqual(items);
-        expect(received.findExisting).toStrictEqual([items[1]]);
+        expect(received.identify).toStrictEqual([items[1]]);
         expect(received.write).toStrictEqual([items[1]]);
     });
 
