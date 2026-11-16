@@ -5,9 +5,11 @@ const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
 // Mock @opentelemetry/api before requiring the module under test
 jest.mock('@opentelemetry/api', () => {
     const mockCounter = { add: jest.fn() };
+    const mockUpDownCounter = { add: jest.fn() };
     const mockHistogram = { record: jest.fn() };
     const mockMeter = {
         createCounter: jest.fn(() => mockCounter),
+        createUpDownCounter: jest.fn(() => mockUpDownCounter),
         createHistogram: jest.fn(() => mockHistogram)
     };
     return {
@@ -35,6 +37,10 @@ const {
     recordImportRanges,
     recordImportTaskFinished,
     recordKafkaConsumerGroupJoin,
+    recordMongoPoolConnectionsInUseChange,
+    recordMongoPoolWaitQueueSizeChange,
+    mongoPoolConnectionsInUseUpDownCounter,
+    mongoPoolWaitQueueSizeUpDownCounter,
     importRangesCounter,
     importTasksCounter,
     importTaskDurationHistogram,
@@ -306,6 +312,26 @@ describe('metrics.js', () => {
         test('uses UNKNOWN when the group id is missing', () => {
             recordKafkaConsumerGroupJoin(undefined);
             expect(kafkaConsumerGroupJoinsCounter.add).toHaveBeenCalledWith(1, { [LABEL.GROUP_ID]: UNKNOWN });
+        });
+    });
+
+    describe.each([
+        ['recordMongoPoolConnectionsInUseChange', recordMongoPoolConnectionsInUseChange, mongoPoolConnectionsInUseUpDownCounter],
+        ['recordMongoPoolWaitQueueSizeChange', recordMongoPoolWaitQueueSizeChange, mongoPoolWaitQueueSizeUpDownCounter]
+    ])('%s', (_name, recordChange, upDownCounter) => {
+        test.each([1, -1, -3])('applies a delta of %d labelled by pool', (delta) => {
+            recordChange('fhir', delta);
+            expect(upDownCounter.add).toHaveBeenCalledWith(delta, { [LABEL.POOL]: 'fhir' });
+        });
+
+        test('uses UNKNOWN when the pool name is missing', () => {
+            recordChange(undefined, 1);
+            expect(upDownCounter.add).toHaveBeenCalledWith(1, { [LABEL.POOL]: UNKNOWN });
+        });
+
+        test.each([0, NaN, undefined, Infinity])('drops a non-change delta of %p', (delta) => {
+            recordChange('fhir', delta);
+            expect(upDownCounter.add).not.toHaveBeenCalled();
         });
     });
 
