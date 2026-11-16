@@ -263,17 +263,18 @@ class MongoReadableStream extends Readable {
                 // retrying would throw a confusing TypeError instead of the timeout itself; fall
                 // through to the generic non-retryable error handling below instead.
                 const canRetry = Boolean(this.params.rebuildCursorAsync || this.params.resourceType);
-                if (e.code === 50 && !hasRetried && this.lastUUID && canRetry) {
-                    // nobody is reading any more: do not build a cursor that would never be closed
-                    if (this.destroyed) {
-                        await this.closeCursorAsync('retry');
-                        return;
-                    }
-                    if (this.signal.aborted) {
-                        await this.closeCursorAsync('retry');
-                        this.push(null);
-                        return;
-                    }
+                const isRetryEligible = e.code === 50 && !hasRetried && this.lastUUID && canRetry;
+                // nobody is reading any more: do not build a cursor that would never be closed
+                if (isRetryEligible && this.destroyed) {
+                    await this.closeCursorAsync('retry');
+                    return;
+                }
+                if (isRetryEligible && this.signal.aborted) {
+                    await this.closeCursorAsync('retry');
+                    this.push(null);
+                    return;
+                }
+                if (isRetryEligible) {
                     logInfo(
                         'MongoReadableStream readAsync: Retrying with new cursor due to mongo query timeout',
                         { e }

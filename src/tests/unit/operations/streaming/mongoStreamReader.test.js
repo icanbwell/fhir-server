@@ -301,6 +301,24 @@ describe('MongoReadableStream', () => {
             expect(mockCursor.close).toHaveBeenCalledTimes(1);
         });
 
+        test('a code-50 error on an aborted request closes the cursor, ends the stream and does not rebuild', async () => {
+            const timeoutError = new Error('cursor timeout');
+            timeoutError.code = 50;
+            mockCursor.hasNext.mockImplementation(() => {
+                mockSignal.aborted = true; // client disconnects during the Mongo round trip
+                return Promise.reject(timeoutError);
+            });
+            const stream = createStream();
+            stream.lastUUID = 'last-uuid';
+            stream.push = jest.fn(() => true);
+
+            await stream._read(10);
+
+            expect(mockSearchManager.getCursorForQueryAsync).not.toHaveBeenCalled();
+            expect(mockCursor.close).toHaveBeenCalledTimes(1);
+            expect(stream.push).toHaveBeenCalledWith(null);
+        });
+
         test('abort ends the stream so a pipeline over it settles instead of hanging', async () => {
             const { pipeline, Writable } = require('stream');
             mockCursor.hasNext.mockImplementation(() => {
