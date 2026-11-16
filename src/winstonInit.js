@@ -32,7 +32,10 @@ const defaultConfig = {
     ),
     defaultMeta: {
         logger: 'default',
-        version: getImageVersion()
+        version: getImageVersion(),
+        // Same key as the process.pid span attribute and process_pid metric label, so a log line
+        // can be tied to the cluster worker that wrote it.
+        'process.pid': process.pid
     },
     colorize: true,
     silent: (process.env.LOGLEVEL?.toLocaleLowerCase() === 'silent'),

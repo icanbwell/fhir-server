@@ -32,6 +32,11 @@ if (process.env.OPENTELEMETRY_IGNORE_URLS) {
 let instrumentationConfigs = {
     '@opentelemetry/instrumentation-http': {
         ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
+        // Each cluster worker is its own process. The SDK's process resource detector puts
+        // process.pid on the resource, which is where the process_pid metric label comes from.
+        // Stamp the same key on the server span itself so a span can be filtered and joined to
+        // its worker's metrics without relying on resource attributes.
+        startIncomingSpanHook: () => ({ 'process.pid': process.pid }),
         applyCustomAttributesOnSpan: (span, request, response) => {
             // For graphql urls we are using middlewares to process the graphql request, there is no route
             // attached with any http method so we have to add the route in the 'span' to aggregate data

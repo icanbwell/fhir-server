@@ -301,4 +301,12 @@ describe('otel_instrumentation.js', () => {
         expect(configArg['@opentelemetry/instrumentation-router'].enabled).toBe(false);
         expect(configArg['@opentelemetry/instrumentation-runtime-node'].enabled).toBe(true);
     });
+
+    test('auto-instrumentation path: the http config passed to getNodeAutoInstrumentations stamps the worker pid on server spans', () => {
+        process.env.NODE_OPTIONS = '--require /otel-auto-instrumentation-nodejs/autoinstrumentation.js';
+        const { getNodeAutoInstrumentations } = loadOtelInstrumentation();
+
+        const httpConfig = getNodeAutoInstrumentations.mock.calls[0][0]['@opentelemetry/instrumentation-http'];
+        expect(httpConfig.startIncomingSpanHook({ url: '/4_0_0/Patient' })).toEqual({ 'process.pid': process.pid });
+    });
 });
