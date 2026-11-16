@@ -321,7 +321,8 @@ class SearchBundleOperation {
                         resourceType,
                         enrichmentContext: {
                             userType,
-                            actor: requestInfo.actor
+                            actor: requestInfo.actor,
+                            viewControlExcludeMap: parsedArgs.viewControlExcludeMap
                         }
                     }
                 );

@@ -124,45 +124,21 @@ describe('PatientScopeManager', () => {
             expect(result2).toEqual(['patient-1', 'patient-2']);
         });
 
-        test('second call with same personId but different addPersonOwnerToContext returns cached value', async () => {
-            await patientScopeManager.getLinkedPatientsAsync({
-                base_version: '4_0_0',
-                isUser: true,
-                personIdFromJwtToken: 'person-shared',
-                addPersonOwnerToContext: false
-            });
-
-            mockPersonToPatientIdsExpander.getPatientIdsFromPersonAsync.mockResolvedValue(['patient-different']);
-
+        /** cached linked patients for person-shared, with or without a recorded owner */
+        const cacheWith = ({ owner }) =>
             httpContextGetSpy.mockImplementation((key) => {
                 if (key === `${HTTP_CONTEXT_KEYS.LINKED_PATIENTS_FOR_PERSON_PREFIX}person-shared`) {
                     return ['patient-1', 'patient-2'];
                 }
                 if (key === `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}person-shared`) {
-                    return 'clientA';
+                    return owner;
                 }
                 return undefined;
             });
 
-            const result2 = await patientScopeManager.getLinkedPatientsAsync({
-                base_version: '4_0_0',
-                isUser: true,
-                personIdFromJwtToken: 'person-shared',
-                addPersonOwnerToContext: true
-            });
-
-            // the Person owner is already recorded, so the cached ids are reused
-            expect(result2).toEqual(['patient-1', 'patient-2']);
-        });
-
-        test('walks again when the cached ids have no recorded Person owner and the caller needs it', async () => {
-            mockPersonToPatientIdsExpander.getPatientIdsFromPersonAsync.mockResolvedValue(['patient-fresh']);
-            httpContextGetSpy.mockImplementation((key) => {
-                if (key === `${HTTP_CONTEXT_KEYS.LINKED_PATIENTS_FOR_PERSON_PREFIX}person-shared`) {
-                    return ['patient-1', 'patient-2'];
-                }
-                return undefined; // no personOwnerFor-person-shared
-            });
+        test('asking for the owner re-walks the Person when the cached lookup did not record it', async () => {
+            mockPersonToPatientIdsExpander.getPatientIdsFromPersonAsync.mockResolvedValue(['patient-different']);
+            cacheWith({ owner: undefined });
 
             const result = await patientScopeManager.getLinkedPatientsAsync({
                 base_version: '4_0_0',
@@ -171,10 +147,25 @@ describe('PatientScopeManager', () => {
                 addPersonOwnerToContext: true
             });
 
-            expect(result).toEqual(['patient-fresh']);
+            expect(result).toEqual(['patient-different']);
             expect(mockPersonToPatientIdsExpander.getPatientIdsFromPersonAsync).toHaveBeenCalledWith(
                 expect.objectContaining({ addPersonOwnerToContext: true })
             );
+        });
+
+        test('asking for the owner uses the cache when the owner is already recorded', async () => {
+            mockPersonToPatientIdsExpander.getPatientIdsFromPersonAsync.mockResolvedValue(['patient-different']);
+            cacheWith({ owner: 'client-a' });
+
+            const result = await patientScopeManager.getLinkedPatientsAsync({
+                base_version: '4_0_0',
+                isUser: true,
+                personIdFromJwtToken: 'person-shared',
+                addPersonOwnerToContext: true
+            });
+
+            expect(result).toEqual(['patient-1', 'patient-2']);
+            expect(mockPersonToPatientIdsExpander.getPatientIdsFromPersonAsync).not.toHaveBeenCalled();
         });
     });
 

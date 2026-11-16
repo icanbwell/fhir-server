@@ -310,7 +310,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             return matches.sort();
         }
 
-        test('PatientDataViewControlManager is only referenced by its own definition, its IoC wiring, the exclusion that wraps it, everythingHelper.js, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js', () => {
+        test('PatientDataViewControlManager is only referenced by its own definition, its IoC wiring, the exclusion that wraps it, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js', () => {
             const srcDir = path.resolve(__dirname, '../../../../src');
 
             const referencingFiles = findFilesReferencing(srcDir, 'PatientDataViewControlManager');
@@ -319,13 +319,12 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                 'createContainer.js',
                 'graphqlv2/dataSource.js',
                 'mcp/mcpToolHandler.js',
-                'operations/everything/everythingHelper.js',
                 'utils/patientDataViewControlExclusion.js',
                 'utils/patientDataViewController.js'
             ]);
         });
 
-        test('getConsentAsync is only called from everythingHelper.js, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js — not from REST search or GraphQL v1', () => {
+        test('getConsentAsync is only called from graphqlv2/dataSource.js and mcp/mcpToolHandler.js — not from REST search or GraphQL v1', () => {
             const srcDir = path.resolve(__dirname, '../../../../src');
 
             const callSites = findFilesReferencing(srcDir, '.getConsentAsync(')
@@ -333,8 +332,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
 
             expect(callSites).toEqual([
                 'graphqlv2/dataSource.js',
-                'mcp/mcpToolHandler.js',
-                'operations/everything/everythingHelper.js'
+                'mcp/mcpToolHandler.js'
             ]);
 
             // Explicitly confirm the REST search path and GraphQL v1 do NOT call it.
