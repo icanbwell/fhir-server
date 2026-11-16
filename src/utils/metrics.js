@@ -357,6 +357,22 @@ const mongoPoolConnectionCreatedCounter = meter.createCounter('fhir_mongo_pool_c
     description: 'MongoDB connections created by pool. On a warm pool this should sit near zero; a sustained rate means churn, which puts the SCRAM auth handshake on the request hot path.'
 });
 
+// The two occupancy instruments below are UpDownCounters rather than observable gauges.
+// Two MongoClients can share a pool label (audit and its archive read-only client both use
+// AUDIT_EVENT_MONGO_DB_NAME), and an observable gauge would need a registry to sum them --
+// two callbacks observing the same attributes collapse to last-value-wins. An UpDownCounter
+// sums deltas from every client natively, matches the add() style of every other instrument
+// here, and holds no callbacks to unregister when a client closes. mongoPoolMonitor.js only
+// emits a delta when its per-client state actually changes, which is what keeps the sum
+// from drifting negative.
+const mongoPoolConnectionsInUseUpDownCounter = meter.createUpDownCounter('fhir_mongo_pool_connections_in_use', {
+    description: 'MongoDB connections currently checked out, by pool, summed across the server pools of that client. Read it alongside fhir_mongo_pool_wait_queue_size: sustained queueing means requests are waiting for a connection. Read it per process_pid, because each cluster worker has its own pool. A worker that exits keeps its last value until its series goes stale, so aggregate over a recent window (max by process_pid), not an unbounded sum.'
+});
+
+const mongoPoolWaitQueueSizeUpDownCounter = meter.createUpDownCounter('fhir_mongo_pool_wait_queue_size', {
+    description: 'Requests currently waiting to check a connection out of a MongoDB pool, by pool. Any sustained non-zero value means requests are queued behind fhir_mongo_pool_connections_in_use before their query starts. Derived from checkout started/finished events, so alert on it staying above 0 for a sustained period, not on a single sample.'
+});
+
 /**
  * Splits a `tallyMergeOutcomes` composite key ("outcome|resourceType") back into its parts.
  * Shared by recordMergeOutcomes and recordImportResourceOutcomes so the key format has one
@@ -677,6 +693,32 @@ function recordMongoPoolConnectionCreated (pool) {
     mongoPoolConnectionCreatedCounter.add(1, { [LABEL.POOL]: pool || UNKNOWN });
 }
 
+/**
+ * Apply a change to fhir_mongo_pool_connections_in_use. The caller owns the occupancy
+ * state and passes only real changes, so a zero or non-finite delta is dropped here.
+ * @param {string} pool
+ * @param {number} delta
+ */
+function recordMongoPoolConnectionsInUseChange (pool, delta) {
+    if (!Number.isFinite(delta) || delta === 0) {
+        return;
+    }
+    mongoPoolConnectionsInUseUpDownCounter.add(delta, { [LABEL.POOL]: pool || UNKNOWN });
+}
+
+/**
+ * Apply a change to fhir_mongo_pool_wait_queue_size. Same contract as
+ * recordMongoPoolConnectionsInUseChange.
+ * @param {string} pool
+ * @param {number} delta
+ */
+function recordMongoPoolWaitQueueSizeChange (pool, delta) {
+    if (!Number.isFinite(delta) || delta === 0) {
+        return;
+    }
+    mongoPoolWaitQueueSizeUpDownCounter.add(delta, { [LABEL.POOL]: pool || UNKNOWN });
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -702,6 +744,8 @@ module.exports = {
     mongoPoolCheckoutFailedCounter,
     mongoPoolClearedCounter,
     mongoPoolConnectionCreatedCounter,
+    mongoPoolConnectionsInUseUpDownCounter,
+    mongoPoolWaitQueueSizeUpDownCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -724,6 +768,8 @@ module.exports = {
     recordMongoPoolCheckoutFailed,
     recordMongoPoolCleared,
     recordMongoPoolConnectionCreated,
+    recordMongoPoolConnectionsInUseChange,
+    recordMongoPoolWaitQueueSizeChange,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
