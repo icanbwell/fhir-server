@@ -1,4 +1,5 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
+const { ReadPreference } = require('mongodb');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 jest.mock('../../../../operations/common/logging', () => {
@@ -409,7 +410,8 @@ describe('ImportOperation - null safety and error handling', () => {
             await importOp.markTaskFailedAsync('job-1', 'kafka down');
 
             expect(fastFindOneAsync).toHaveBeenCalledWith({
-                query: { _uuid: generateUUIDv5('job-1|bwell') }
+                query: { _uuid: generateUUIDv5('job-1|bwell') },
+                options: { readPreference: ReadPreference.PRIMARY }
             });
 
             const { doc } = updateOneAsync.mock.calls[0][0];

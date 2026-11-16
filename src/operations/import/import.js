@@ -1,5 +1,6 @@
 const moment = require('moment-timezone');
 const deepcopy = require('deepcopy');
+const { ReadPreference } = require('mongodb');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { AuditLogger } = require('../../utils/auditLogger');
@@ -277,7 +278,9 @@ class ImportOperation {
             base_version: '4_0_0'
         });
         const task = await databaseQueryManager.fastFindOneAsync({
-            query: { _uuid: getBulkImportTaskUuid(taskId) }
+            query: { _uuid: getBulkImportTaskUuid(taskId) },
+            // the Task was inserted moments ago; a secondary may not have it yet
+            options: { readPreference: ReadPreference.PRIMARY }
         });
         if (!task) {
             return;
