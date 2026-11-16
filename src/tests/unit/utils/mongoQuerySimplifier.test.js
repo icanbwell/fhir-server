@@ -1,4 +1,4 @@
-const { describe, test, expect } = require('@jest/globals');
+const { describe, test, expect, jest: jestObj } = require('@jest/globals');
 const { MongoQuerySimplifier } = require('../../../utils/mongoQuerySimplifier');
 
 describe('MongoQuerySimplifier', () => {
@@ -477,5 +477,52 @@ describe('MongoQuerySimplifier', () => {
                 expect(result).toBeDefined();
             });
         });
+    });
+});
+
+describe('MongoQuerySimplifier with a large _id:not list', () => {
+    // the shape FilterById builds for `_id:not` with a long list (one per hidden resource)
+    const ids = (n) => Array.from({ length: n }, (_, i) => `00000000-0000-5000-8000-${String(i).padStart(12, '0')}`);
+    const idNotQuery = (values) => ({
+        $and: [
+            { $nor: [{ $or: [{ $or: [{ _uuid: { $in: values } }] }] }] },
+            { 'meta.tag': { $not: { $elemMatch: { system: 'https://example.com/behavior', code: 'hidden' } } } }
+        ]
+    });
+
+    test('removes duplicate ids and keeps the first-seen order', () => {
+        const result = MongoQuerySimplifier.simplifyFilter({ filter: idNotQuery(['b', 'a', 'b', 'c', 'a']) });
+        expect(JSON.stringify(result)).toContain('"$in":["b","a","c"]');
+    });
+
+    test.each([
+        ['a string', 'Patient/123'],
+        ['a number', 42],
+        ['a boolean', false],
+        ['a Date', new Date('2026-01-01T00:00:00Z')],
+        ['a RegExp', /^abc/i]
+    ])('returns %s unchanged without walking it', (_name, value) => {
+        const spy = jestObj.spyOn(MongoQuerySimplifier, 'isFilter');
+        try {
+            expect(MongoQuerySimplifier.simplifyFilter({ filter: value })).toBe(value);
+            expect(spy).not.toHaveBeenCalled();
+        } finally {
+            spy.mockRestore();
+        }
+    });
+
+    test('the cost grows linearly with the number of ids, not quadratically', () => {
+        const timeMs = (n) => {
+            const values = ids(n);
+            const start = process.hrtime.bigint();
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: idNotQuery(values) });
+            const elapsed = Number(process.hrtime.bigint() - start) / 1e6;
+            expect(JSON.stringify(result)).toContain(`"$in":${JSON.stringify(values)}`);
+            return elapsed;
+        };
+        timeMs(200); // warm up
+        // 10x the ids: measured ~9x with the linear duplicate check, ~45x with the old pairwise one
+        const ratio = timeMs(2000) / Math.max(timeMs(200), 0.1);
+        expect(ratio).toBeLessThan(20);
     });
 });

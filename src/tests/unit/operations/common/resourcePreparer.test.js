@@ -9,6 +9,9 @@ jestObj.mock('../../../../utils/assertType', () => ({
 }));
 
 const { ResourcePreparer } = require('../../../../operations/common/resourcePreparer');
+const {
+    DataViewControlCompositionEnrichmentProvider
+} = require('../../../../enrich/providers/dataViewControlCompositionEnrichmentProvider');
 
 function createMockDeps() {
     return {
@@ -32,7 +35,8 @@ function createMockDeps() {
         },
         groupExtendedTagEnrichmentProvider: {
             enrichAsync: jestObj.fn(async ({ resources }) => resources)
-        }
+        },
+        dataViewControlCompositionEnrichmentProvider: new DataViewControlCompositionEnrichmentProvider()
     };
 }
 

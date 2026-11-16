@@ -74,7 +74,12 @@ class PatientScopeManager {
                 let linkedPatientIdsFromHttpContext = httpContext.get(
                     `${HTTP_CONTEXT_KEYS.LINKED_PATIENTS_FOR_PERSON_PREFIX}${personIdFromJwtToken}`
                 );
-                if (linkedPatientIdsFromHttpContext) {
+                // An earlier lookup in this request may have cached the ids without recording the
+                // Person owner; walk the Person again when the caller needs the owner.
+                const ownerMissing =
+                    addPersonOwnerToContext &&
+                    httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personIdFromJwtToken}`) === undefined;
+                if (linkedPatientIdsFromHttpContext && !ownerMissing) {
                     return linkedPatientIdsFromHttpContext;
                 }
 

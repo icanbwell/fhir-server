@@ -16,6 +16,7 @@ const { QueryRewriterManager } = require('../../../queryRewriters/queryRewriterM
 const { ConfigManager } = require('../../../utils/configManager');
 const { SearchBundleOperation } = require('../../../operations/search/searchBundle');
 const { OperationAccessManager } = require('../../../utils/operationAccessManager');
+const { PatientDataViewControlExclusion } = require('../../../utils/patientDataViewControlExclusion');
 
 function createDataSource(overrides = {}) {
     const requestInfo = overrides.requestInfo || { requestId: 'req-1', headers: {} };
@@ -35,8 +36,12 @@ function createDataSource(overrides = {}) {
     accessManager.verifyAccess = jestGlobal.fn();
     accessManager.verifyGraphQLReadAccess = jestGlobal.fn();
 
+    const patientDataViewControlExclusion = createPrototypedMock(PatientDataViewControlExclusion);
+    patientDataViewControlExclusion.applyAsync = jestGlobal.fn().mockImplementation(async ({ parsedArgs }) => parsedArgs);
+
     return new FhirDataSource({
         requestInfo,
+        patientDataViewControlExclusion,
         searchBundleOperation,
         r4ArgsParser,
         queryRewriterManager,

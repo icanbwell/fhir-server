@@ -65,6 +65,7 @@ jest.mock('../../../operations/import/import', () => ({ ImportOperation: class I
 jest.mock('../../../operations/summary/summary', () => ({ SummaryOperation: class SummaryOperation {} }));
 jest.mock('../../../operations/query/r4ArgsParser', () => ({ R4ArgsParser: class R4ArgsParser {} }));
 jest.mock('../../../queryRewriters/queryRewriterManager', () => ({ QueryRewriterManager: class QueryRewriterManager {} }));
+jest.mock('../../../utils/patientDataViewControlExclusion', () => ({ PatientDataViewControlExclusion: class PatientDataViewControlExclusion {} }));
 jest.mock('../../../utils/configManager', () => ({ ConfigManager: class ConfigManager {} }));
 jest.mock('../../../utils/operationAccessManager', () => ({ OperationAccessManager: class OperationAccessManager {} }));
 jest.mock('../../../utils/cmsManager', () => ({ CMSManager: class CMSManager {} }));
@@ -240,6 +241,7 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
             ...ops,
             r4ArgsParser,
             queryRewriterManager,
+            patientDataViewControlExclusion: { applyAsync: jest.fn().mockImplementation(async ({ parsedArgs }) => parsedArgs) },
             configManager: { enableVulcanIgQuery: false, externalServicesWithRestrictions: {} },
             accessManager: { verifyAccess: jest.fn() },
             cmsManager: { verifyNotProxyPatientId: jest.fn() },
