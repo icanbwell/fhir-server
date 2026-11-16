@@ -39,11 +39,36 @@ function handleReadinessCheck(terminusState) {
     }
 }
 
+/**
+ * Builds the /ready handler: the existing request-count and memory checks, then the
+ * stall check. The stall verdict is pod-level in cluster mode (aggregated by the primary),
+ * so the answer does not depend on which worker accepted the probe connection.
+ * @param {Object} params
+ * @param {import('../utils/stallReadiness/stallVerdictProviders').StallVerdictProvider} params.stallVerdictProvider
+ * @returns {function(Object): void}
+ */
+function createReadinessCheck({ stallVerdictProvider }) {
+    return function readinessCheck(terminusState) {
+        handleReadinessCheck(terminusState);
+        const verdict = stallVerdictProvider.getVerdict();
+        if (!verdict.ready) {
+            logInfo('Stalled requests: pod stall share threshold breached', {
+                reason: verdict.reason,
+                stalledRequests: verdict.stalled,
+                totalRequests: verdict.total,
+                pid: process.pid
+            });
+            throw new HealthCheckError('healthcheck failed');
+        }
+    };
+}
+
 function handleLivenessCheck(req, res) {
     return res.sendStatus(200);
 }
 
 module.exports = {
     handleLivenessCheck,
-    handleReadinessCheck
+    handleReadinessCheck,
+    createReadinessCheck
 };

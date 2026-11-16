@@ -2,6 +2,7 @@ const {isTrue, isTrueWithFallback} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 const { DEFAULT_ASSURANCE_MINIMUM_LEVEL } = require('./personLinkAssuranceLevel');
+const { StallReadinessConfig } = require('./stallReadiness/stallReadinessConfig');
 
 const env = process.env;
 
@@ -830,6 +831,15 @@ class ConfigManager {
      */
     get noOfRequestsPerPod() {
         return env.NO_OF_REQUESTS_PER_POD ? parseInt(env.NO_OF_REQUESTS_PER_POD) : 1000;
+    }
+
+    /**
+     * Settings for the readiness check that fails when the pod's requests stall.
+     * Off unless READINESS_STALL_CHECK_ENABLED is true.
+     * @returns {import('./stallReadiness/stallReadinessConfig').StallReadinessConfig}
+     */
+    get stallReadinessConfig() {
+        return StallReadinessConfig.fromEnv(env);
     }
 
     /**

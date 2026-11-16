@@ -9,6 +9,7 @@ const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
 const { fhirSchemaValidator } = require('./utils/fhirSchemaValidator');
+const { attachPrimaryStallAggregator, StallReadinessConfig } = require('./utils/stallReadiness');
 
 // Validates OpenTelemetry setup, which only this entrypoint (loaded via
 // --require=./src/otel_instrumentation.js) actually attempts.
@@ -70,6 +71,9 @@ if (cluster.isPrimary && numCPUs > 1) {
         }
         cluster.fork();
     });
+
+    // Pod-level stall readiness: aggregate worker reports and send the verdict back (off by default)
+    attachPrimaryStallAggregator({ cluster, config: StallReadinessConfig.fromEnv(process.env) });
 } else {
     (async () => {
         try {

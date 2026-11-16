@@ -5,7 +5,7 @@ const { fhirServerConfig } = require('./config');
 const { logError, logInfo } = require('./operations/common/logging');
 const { logSystemEventAsync } = require('./operations/common/systemEventLogging');
 const { getImageVersion } = require('./utils/getImageVersion');
-const { handleReadinessCheck } = require('./routeHandlers/probeChecker');
+const { createReadinessCheck } = require('./routeHandlers/probeChecker');
 /**
  * To use uncaught error handlers, we need to import the file
  */
@@ -58,6 +58,9 @@ async function createServer (fnGetContainer) {
 
     const app = createApp({ fnGetContainer });
 
+    const stallVerdictProvider = container.stallVerdictProvider;
+    stallVerdictProvider.start();
+
     const server = http
         .createServer(app)
         .listen(fhirServerConfig.server.port, null, null, async () => {
@@ -95,7 +98,7 @@ async function createServer (fnGetContainer) {
 
     const options = {
         healthChecks: {
-            '/ready': handleReadinessCheck
+            '/ready': createReadinessCheck({ stallVerdictProvider })
         },
         statusOkResponse: 'OK',
         statusError: 455,
@@ -118,6 +121,7 @@ async function createServer (fnGetContainer) {
         }, // called before the HTTP server starts its shutdown
         onSignal: async () => {
             // for flushing dd-trace and sentry
+            stallVerdictProvider.stop();
             logInfo('Emitting beforeExit event');
             process.emit('beforeExit');
             await flushBuffer(fnGetContainer);
