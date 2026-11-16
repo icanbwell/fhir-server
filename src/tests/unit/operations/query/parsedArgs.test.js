@@ -49,7 +49,11 @@ function createMockParsedArgsItem ({
         _queryParameterValue: queryParameterValue,
         modifiers,
         propertyObj,
-        chain
+        chain,
+        get isIdItem () { return this.queryParameter === 'id' || this.queryParameter === '_id'; },
+        get isIdExclusion () {
+            return this.isIdItem && this.modifiers?.length === 1 && this.modifiers[0] === 'not';
+        }
     };
 
     item.clone = jestObj.fn(() => {
@@ -505,12 +509,12 @@ describe('ParsedArgs', () => {
             ['_id with result-shaping parameters', [['_id'], ['_elements'], ['_count'], ['_isGraphQLRequest']], true],
             ['_id with another search parameter', [['_id'], ['gender']], false],
             ['_id with an include parameter', [['_id'], ['_include']], false],
-            ['_id with a modifier', [['_id', [':not']]], false],
-            ['_id with a :not id exclusion', [['_id'], ['_id', [':not']]], true],
-            ['id with a :not _id exclusion', [['id'], ['_id', [':not']]], true],
-            ['_id with a :not exclusion and another search parameter', [['_id'], ['_id', [':not']], ['gender']], false],
-            ['_id with a different modifier', [['_id'], ['_id', [':missing']]], false],
-            ['_id with a combined modifier', [['_id'], ['_id', [':not', ':exact']]], false],
+            ['_id with a modifier', [['_id', ['not']]], false],
+            ['_id with a not id exclusion', [['_id'], ['_id', ['not']]], true],
+            ['id with a not _id exclusion', [['id'], ['_id', ['not']]], true],
+            ['_id with a not exclusion and another search parameter', [['_id'], ['_id', ['not']], ['gender']], false],
+            ['_id with a different modifier', [['_id'], ['_id', ['missing']]], false],
+            ['_id with a combined modifier', [['_id'], ['_id', ['not', 'exact']]], false],
             ['no id', [['_format']], false],
             ['another search parameter only', [['gender']], false],
             ['no parameters', [], false]
