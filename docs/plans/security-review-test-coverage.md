@@ -5,7 +5,7 @@
 > checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Close the gap between the 20 access-control rules enumerated in the "FHIR Security Data
-Model Verification" review doc (follow-up to INC-331) and what our test suite actually,
+Model Verification" review doc (a follow-up to an earlier incident) and what our test suite actually,
 currently, enforces in CI — not what a doc or a quarantined file merely *claims* to cover.
 
 **Architecture:** This is a test-coverage remediation plan, not a feature build. Every task
@@ -39,7 +39,7 @@ pattern.
   JTG/Kristen: either keep Confluence authoritative and fix the review doc's file-path reference,
   or deliberately mirror it here on a cadence — that's a team call, not one this plan makes
   unilaterally.
-- The primary "FHIR Security Data Model Verification" review doc itself (INC-331 follow-up —
+- The primary "FHIR Security Data Model Verification" review doc itself (an incident follow-up —
   the source of the Part Z rule matrix and the IDG-1..7/SAE-1..6/WPI-1..2/CACHE-1..2/CL-1..3 rule
   ids, plus the E.2/E.3/E.4/E.6 scenario definitions nearly every task below cites) is **also not
   committed, located, or linked anywhere in this repo** — a repo-wide grep for its exact markers

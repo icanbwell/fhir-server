@@ -2,7 +2,7 @@ const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 const { JWKS_REQUESTS_PER_MINUTE, DEFAULT_CACHE_EXPIRY_TIME } = require('../../../constants');
 
 /**
- * INC-311/315: Thundering herd / cache stampede on JWKS key cache expiry.
+ * Thundering herd / cache stampede on JWKS key cache expiry.
  *
  * Production incident: JWKS cache had 24h TTL. On expiry, concurrent requests all
  * attempted simultaneous fetches. A rate limiter (originally 5 req/min) blocked all
@@ -59,7 +59,7 @@ function createMockInstance(ClassType) {
     return instance;
 }
 
-describe('INC-311/315: JWKS Cache Thundering Herd', () => {
+describe('JWKS Cache Thundering Herd', () => {
     let authService;
     let mockConfigManager;
     let mockWellKnownConfigManager;
@@ -101,7 +101,7 @@ describe('INC-311/315: JWKS Cache Thundering Herd', () => {
 
     describe('JWKS rate limiter should be high enough for production traffic', () => {
         test('JWKS_REQUESTS_PER_MINUTE must be >= 60 to handle concurrent traffic after cache expiry', () => {
-            // INC-311: Original value was 5, which caused mass 401s when cache expired.
+            // Original value was 5, which caused mass 401s when cache expired.
             // The fix (PR #2209) raised this to 60. Assert the constant is adequate.
             expect(JWKS_REQUESTS_PER_MINUTE).toBeGreaterThanOrEqual(60);
         });
@@ -121,7 +121,7 @@ describe('INC-311/315: JWKS Cache Thundering Herd', () => {
 
     describe('Cache miss should not trigger duplicate fetches (request coalescing)', () => {
         test('concurrent requests for the same JWKS URL should coalesce into a single fetch', async () => {
-            // INC-311 architectural flaw: when cache expires, N concurrent requests
+            // Architectural flaw: when cache expires, N concurrent requests
             // all see cache miss and each independently calls the external JWKS endpoint.
             // CORRECT behavior: only 1 fetch should occur; other requests should wait
             // for the in-flight request to complete (request coalescing / singleflight).

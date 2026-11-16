@@ -9,7 +9,7 @@
 // IAS consent-gating config + IAS/PROA same-connection-type separation.
 //
 // Facts established from source:
-//  - DCON-4598 (INC-331 fix) scopes "PROA/IAS patients across all $everything chunks":
+//  - DCON-4598 scopes "PROA/IAS patients across all $everything chunks":
 //    IAS rides the same consent-gated expansion path as PROA.
 //  - That path filters unlocked patients by connectionType against
 //    configManager.getConsentConnectionTypesList (dataSharingManager.js), which DEFAULTS

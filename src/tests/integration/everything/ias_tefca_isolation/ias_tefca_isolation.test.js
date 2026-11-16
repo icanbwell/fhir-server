@@ -14,7 +14,7 @@
 // "Task Lifecycle"; fhir-server release notes DCON-4598): IAS is b.well's TEFCA
 // Individual-Access path. IAS-sourced records are stored with connectionType=ias and
 // owned by the upstream source (e.g. tc_epic, cms_bluebutton), reached via Person.link.
-// Per DCON-4598 the INC-331 fix explicitly scopes "PROA/IAS patients across all
+// Per DCON-4598 the consent-chunk fix explicitly scopes "PROA/IAS patients across all
 // $everything chunks" — IAS rides the SAME consent-gated expansion path as PROA.
 //
 // This asserts the config-independent isolation floor: an IAS-connectionType upstream

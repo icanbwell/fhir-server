@@ -58,7 +58,7 @@ describe('PatientEverythingCacheKeyGenerator — PROA Consent Security', () => {
         generator = new PatientEverythingCacheKeyGenerator({ redisManager: createFakeRedisManager() });
     });
 
-    describe('INC-331: getGenerationForId must return a number for cache invalidation', () => {
+    describe('getGenerationForId must return a number for cache invalidation', () => {
         test('getGenerationForId returns a generation number (not undefined) to enable consent-aware invalidation', async () => {
             // SummaryCacheKeyGenerator returns a numeric generation counter from Redis, and
             // when the counter is incremented (e.g. by ConsentCacheInvalidationHandler), the
@@ -74,7 +74,7 @@ describe('PatientEverythingCacheKeyGenerator — PROA Consent Security', () => {
         });
     });
 
-    describe('INC-331: Consent revocation must trigger cache key change', () => {
+    describe('Consent revocation must trigger cache key change', () => {
         test('generator must accept a redisManager to track generation changes on consent revocation', () => {
             // SummaryCacheKeyGenerator accepts a redisManager in its constructor and uses it
             // to read/increment the generation counter. PatientEverythingCacheKeyGenerator
@@ -87,7 +87,7 @@ describe('PatientEverythingCacheKeyGenerator — PROA Consent Security', () => {
         });
     });
 
-    describe('INC-331: PROA access codes must differentiate cache keys', () => {
+    describe('PROA access codes must differentiate cache keys', () => {
         test('cache key includes a Generation segment that changes when the generation counter is bumped', async () => {
             // When a patient has PROA consent, the $everything response includes PHI
             // from the PROA data source (e.g., health plan claims). The scope string
@@ -126,7 +126,7 @@ describe('PatientEverythingCacheKeyGenerator — PROA Consent Security', () => {
         });
     });
 
-    describe('INC-331: _type parameter must affect cache key to prevent resource cross-contamination', () => {
+    describe('_type parameter must affect cache key to prevent resource cross-contamination', () => {
         test('requests with different _type values produce different cache keys', async () => {
             // The _type parameter controls which FHIR resource types are returned
             // in the $everything Bundle. For example:

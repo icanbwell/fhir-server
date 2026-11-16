@@ -494,8 +494,8 @@ class DelegatedAccessRulesManager {
      * `connectionType` securityLabels.
      *
      * `null` = can't resolve (not found, or ambiguous bare-id match) -- distinct from empty
-     * `purposeCodes` (found, no purpose codes). Rethrows transient lookup errors (isTransient/503,
-     * INC-322 convention) instead of conflating them with "not found".
+     * `purposeCodes` (found, no purpose codes). Rethrows transient lookup errors (isTransient/503
+     * convention) instead of conflating them with "not found".
      *
      * @param {Object} params
      * @param {string} params.consentReference

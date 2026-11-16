@@ -186,7 +186,7 @@ describe('authentication.middleware', () => {
             expect(req.authInfo).toEqual(info);
         });
 
-        // INC-322 thread 4: transient auth-infrastructure failures must never leak the
+        // Thread 4: transient auth-infrastructure failures must never leak the
         // raw underlying error/info message (which can contain internal
         // hostnames/IPs, e.g. `connect ECONNREFUSED 10.0.4.12:443`) to an
         // unauthenticated caller.
@@ -271,7 +271,7 @@ describe('authentication.middleware', () => {
                 expect(forwardedErr.message).not.toContain('ECONNREFUSED');
             });
 
-            test('non-transient `err` still passes through raw to next() (unaffected by INC-322 fix)', () => {
+            test('non-transient `err` still passes through raw to next() (unaffected by the transient-error fix)', () => {
                 const passportError = new Error('some unrelated internal error');
                 passport.authenticate.mockImplementation((strategy, options, callback) => {
                     return (innerReq, innerRes, innerNext) => {

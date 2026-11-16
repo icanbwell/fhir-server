@@ -20,7 +20,7 @@
 //
 // Rules: CL-1 (validity period honored, not just status), CL-2 (revocation
 // lands on the next request), CACHE-2 (a per-request cached decision is keyed
-// per batch -- the INC-331 cause), SAE-6 (the consent lookup is itself scoped).
+// per batch -- the original cause), SAE-6 (the consent lookup is itself scoped).
 // =============================================================================
 const masterPersonResource = require('../../data_sharing/everything/fixtures/person/master_person.json');
 const masterPatientResource = require('../../data_sharing/everything/fixtures/patient/master_patient.json');
@@ -246,7 +246,7 @@ describe('CONSENT MATRIX', () => {
     });
 
     // -----------------------------------------------------------------------
-    // CACHE-2 — the INC-331 mechanism. A cached decision must be kept separate
+    // CACHE-2 — the original mechanism. A cached decision must be kept separate
     // per batch when one request is processed in several batches. Batching keys
     // off the number of top-level ids asked for, so crossing a boundary means
     // asking for more ids than the batch size in a single request.
