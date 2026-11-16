@@ -880,6 +880,8 @@ describe('DataSharingManager', () => {
             ['the resource is Person', 'Person', { reference: 'Organization/org-1', isOrganizationActor: true, allowedConnectionTypes: ['treatment'] }],
             ['the resource is Person and the list is empty', 'Person', { reference: 'Organization/org-1', isOrganizationActor: true, allowedConnectionTypes: [] }],
             ['a RelatedPerson actor has no connection-type restriction', 'Observation', { reference: 'RelatedPerson/rp-1', isOrganizationActor: false }],
+            ['a RelatedPerson actor carries an empty list', 'Observation', { reference: 'RelatedPerson/rp-1', isOrganizationActor: false, allowedConnectionTypes: [] }],
+            ['a RelatedPerson actor carries connection types', 'Observation', { reference: 'RelatedPerson/rp-1', isOrganizationActor: false, allowedConnectionTypes: ['treatment'] }],
             ['there is no actor', 'Observation', undefined]
         ])('returns the query unchanged when %s', (_label, resourceType, actor) => {
             const query = { resourceType };

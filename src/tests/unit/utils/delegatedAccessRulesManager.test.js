@@ -905,7 +905,7 @@ describe('DelegatedAccessRulesManager', () => {
                 ]
             ])('sets actor.allowedConnectionTypes for a Consent with %s', async (_label, securityLabel, expected) => {
                 mockConsentLookup(securityLabel);
-                const actor = { reference: 'Organization/org-1' };
+                const actor = { reference: 'Organization/org-1', isOrganizationActor: true };
 
                 const result = await manager.resolvePurposeOfEventCodesAsync({
                     entitlements: [`Consent/${consentUuid}`],
@@ -921,13 +921,29 @@ describe('DelegatedAccessRulesManager', () => {
 
                 await manager.resolvePurposeOfEventCodesAsync({
                     entitlements: [`Consent/${consentUuid}`],
-                    actor: { reference: 'Organization/org-1' }
+                    actor: { reference: 'Organization/org-1', isOrganizationActor: true }
                 });
 
                 expect(logWarn).toHaveBeenCalledWith(
                     expect.stringContaining('malformed'),
                     expect.objectContaining({ args: { consentId: consentUuid } })
                 );
+            });
+
+            it.each([
+                ['no securityLabel', undefined],
+                ['a connectionType label', [{ system: connectionTypeSystem, code: 'treatment' }]]
+            ])('does not set allowedConnectionTypes for a RelatedPerson actor whose Consent has %s', async (_label, securityLabel) => {
+                mockConsentLookup(securityLabel);
+                const actor = { reference: 'RelatedPerson/rp-1', isOrganizationActor: false };
+
+                const result = await manager.resolvePurposeOfEventCodesAsync({
+                    entitlements: [`Consent/${consentUuid}`],
+                    actor
+                });
+
+                expect(result).toEqual(['TREAT']);
+                expect(actor).not.toHaveProperty('allowedConnectionTypes');
             });
 
             it('resolves purpose codes without an actor', async () => {

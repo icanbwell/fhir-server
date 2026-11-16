@@ -1,4 +1,4 @@
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 const {
     commonBeforeEach,
@@ -8,6 +8,7 @@ const {
     getHeadersWithCustomPayload
 } = require('../../common');
 const { ConfigManager } = require('../../../../utils/configManager');
+const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
 
 class MockConfigManager extends ConfigManager {
     get enableReturnBundle() {
@@ -29,6 +30,8 @@ const OBS_TREATMENT_ID = '4e5f6a7b-8c9d-4e0f-9a1b-3c4d5e6f7081';
 const OBS_PROA_ID = '5f6a7b8c-9d0e-4f1a-8b2c-4d5e6f708192';
 const OBS_UNTAGGED_ID = '6a7b8c9d-0e1f-4a2b-9c3d-5e6f708192a3';
 const OBS_OTHER_PERSON_ID = '7b8c9d0e-1f2a-4b3c-8d4e-6f708192a3b4';
+const RELATED_PERSON_ID = '8c9d0e1f-2a3b-4c4d-9e5f-708192a3b4c5';
+const RELATED_PERSON_CONSENT_ID = '9d0e1f2a-3b4c-4d5e-8f60-8192a3b4c5d6';
 
 const connectionTypeSystem = 'https://www.icanbwell.com/connectionType';
 
@@ -265,5 +268,110 @@ describe('Delegated Organization actor connection-type filtering', () => {
 
         expect(resp.status).toBe(403);
         expect(resp.body.issue[0].details.text).toBe('delegatedOrganizationActor does not have access to this endpoint');
+    });
+});
+
+describe('Delegated RelatedPerson actor is not connection-type filtered', () => {
+    // The per-person Consent lookup hints an index the in-memory test database doesn't have.
+    let hintSpy;
+
+    beforeEach(async () => {
+        hintSpy = jest.spyOn(DatabaseCursor.prototype, 'hint').mockReturnThis();
+        await commonBeforeEach();
+    });
+
+    afterEach(async () => {
+        await commonAfterEach();
+        hintSpy.mockRestore();
+    });
+
+    // A per-person grant that is also named in the token's entitlements as Consent/<id>.
+    const relatedPersonConsent = (securityLabel) => ({
+        resourceType: 'Consent',
+        id: RELATED_PERSON_CONSENT_ID,
+        meta: { source: 'test', security: tags('bwell') },
+        status: 'active',
+        scope: {
+            coding: [{ system: 'http://terminology.hl7.org/CodeSystem/consentscope', code: 'patient-privacy' }]
+        },
+        category: [{ coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataSharingAccess' }] }],
+        patient: { reference: `Patient/person.${CLIENT_PERSON_ID}` },
+        provision: {
+            type: 'permit',
+            period: { start: '2025-01-01T00:00:00.000Z' },
+            actor: [{
+                role: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-ParticipationType', code: 'IRCP' }] },
+                reference: { reference: `RelatedPerson/${RELATED_PERSON_ID}` }
+            }],
+            purpose: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'FAMRQT' }],
+            ...(securityLabel ? { securityLabel } : {})
+        }
+    });
+
+    const relatedPersonPayload = {
+        ...delegatedOrgPayload,
+        act: { reference: `RelatedPerson/${RELATED_PERSON_ID}`, sub: 'related-person-sub' },
+        entitlements: [`Consent/${RELATED_PERSON_CONSENT_ID}`]
+    };
+
+    const seedRelatedPersonData = async (request, consent) => {
+        const fixtures = [
+            ['Person', clientPerson],
+            ['Patient', patient(TREATMENT_PATIENT_ID, 'client', 'treatment')],
+            ['Patient', patient(PROA_PATIENT_ID, 'client', 'proa')],
+            ['Patient', patient(OTHER_PATIENT_ID, 'other', 'treatment')],
+            ['Observation', observation(OBS_TREATMENT_ID, TREATMENT_PATIENT_ID, 'client', 'treatment')],
+            ['Observation', observation(OBS_PROA_ID, PROA_PATIENT_ID, 'client', 'proa')],
+            ['Observation', observation(OBS_UNTAGGED_ID, TREATMENT_PATIENT_ID, 'client')],
+            ['Observation', observation(OBS_OTHER_PERSON_ID, OTHER_PATIENT_ID, 'other', 'treatment')],
+            ['Consent', consent]
+        ];
+        for (const [resourceType, body] of fixtures) {
+            const resp = await request.post(`/4_0_0/${resourceType}/1/$merge?validate=true`).send(body).set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+        }
+    };
+
+    test.each([
+        ['no connectionType label', undefined],
+        ['a treatment connectionType label', [{ system: connectionTypeSystem, code: 'treatment' }]]
+    ])('Person $everything returns all of the Person\'s data when the entitlement Consent has %s', async (_label, securityLabel) => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedRelatedPersonData(request, relatedPersonConsent(securityLabel));
+
+        const resp = await request
+            .get(`/4_0_0/Person/${CLIENT_PERSON_ID}/$everything`)
+            .set(getHeadersWithCustomPayload(relatedPersonPayload));
+
+        expect(resp.status).toBe(200);
+        const returned = (resp.body.entry || [])
+            .map((e) => `${e.resource.resourceType}/${e.resource.id}`)
+            .filter((ref) => !ref.startsWith('Consent/'));
+        expect(returned.sort()).toEqual([
+            `Observation/${OBS_PROA_ID}`,
+            `Observation/${OBS_TREATMENT_ID}`,
+            `Observation/${OBS_UNTAGGED_ID}`,
+            `Patient/${PROA_PATIENT_ID}`,
+            `Patient/${TREATMENT_PATIENT_ID}`,
+            `Person/${CLIENT_PERSON_ID}`
+        ].sort());
+    });
+
+    test('Observation search is allowed and not connection-type filtered', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedRelatedPersonData(request, relatedPersonConsent());
+
+        const resp = await request.get('/4_0_0/Observation/').set(getHeadersWithCustomPayload(relatedPersonPayload));
+
+        expect(resp.status).toBe(200);
+        expect(resp.body.entry.map((e) => e.resource.id).sort())
+            .toEqual([OBS_TREATMENT_ID, OBS_PROA_ID, OBS_UNTAGGED_ID].sort());
     });
 });
