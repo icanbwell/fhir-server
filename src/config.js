@@ -59,6 +59,7 @@ const urlWaitQueueTimeoutMS = (params) => {
  */
 const resolveWaitQueueTimeoutMS = ({ envName, queryParams: params, fallback }) =>
     readWaitQueueTimeoutEnv(envName) ?? urlWaitQueueTimeoutMS(params) ?? fallback;
+const REQUEST_PATH_WAIT_QUEUE_TIMEOUT_FALLBACK_MS = 30 * 1000;
 /**
  * How long a request may wait for a pooled connection before the driver throws
  * MongoWaitQueueTimeoutError. The driver default (0) waits forever, so a worker whose
@@ -70,7 +71,7 @@ const resolveWaitQueueTimeoutMS = ({ envName, queryParams: params, fallback }) =
 const waitQueueTimeoutMS = resolveWaitQueueTimeoutMS({
     envName: 'MONGO_WAIT_QUEUE_TIMEOUT',
     queryParams,
-    fallback: 30 * 1000
+    fallback: REQUEST_PATH_WAIT_QUEUE_TIMEOUT_FALLBACK_MS
 });
 /**
  * Pools for audit, access-log and resource-history data when configured as their own clusters.
@@ -213,7 +214,7 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
             waitQueueTimeoutMS: resolveWaitQueueTimeoutMS({
                 envName: 'MONGO_WAIT_QUEUE_TIMEOUT',
                 queryParams: auditReadOnlyQueryParams,
-                fallback: 30 * 1000
+                fallback: REQUEST_PATH_WAIT_QUEUE_TIMEOUT_FALLBACK_MS
             }),
             writeConcern: {
                 w: auditReadOnlyWriteConcern
@@ -342,7 +343,8 @@ if (env.FHIR_NOTES_MONGO_URL) {
             ...options,
             ...fhirNotesQueryParams,
             // read-only workload against a dependency-of-a-dependency cluster: small pool,
-            // short timeout so an outage there can't stall fhir-server's primary request path
+            // short connect/server-selection timeouts so an outage there can't stall
+            // fhir-server's primary request path; pool checkout waits as long as the primary pool
             minPoolSize: env.FHIR_NOTES_MIN_POOL_SIZE ? parseInt(env.FHIR_NOTES_MIN_POOL_SIZE) : 1,
             maxPoolSize: env.FHIR_NOTES_MAX_POOL_SIZE ? parseInt(env.FHIR_NOTES_MAX_POOL_SIZE) : 10,
             connectTimeoutMS: env.FHIR_NOTES_MONGO_CONNECT_TIMEOUT
@@ -351,12 +353,12 @@ if (env.FHIR_NOTES_MONGO_URL) {
             serverSelectionTimeoutMS: env.FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT
                 ? parseInt(env.FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT)
                 : 5000,
-            // same intent as the two timeouts above: a saturated notes pool must not hold a
-            // primary-path search for the primary pool's 30s
+            // notes pool shares the request-path wait: MONGO_WAIT_QUEUE_TIMEOUT, then its own
+            // connection string, then the same 30s default as the primary pool
             waitQueueTimeoutMS: resolveWaitQueueTimeoutMS({
-                envName: 'FHIR_NOTES_MONGO_WAIT_QUEUE_TIMEOUT',
+                envName: 'MONGO_WAIT_QUEUE_TIMEOUT',
                 queryParams: fhirNotesQueryParams,
-                fallback: 5000
+                fallback: REQUEST_PATH_WAIT_QUEUE_TIMEOUT_FALLBACK_MS
             })
         }
     };

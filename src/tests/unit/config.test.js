@@ -23,7 +23,7 @@ const MONGO_KEYS = [
     'MONGO_URL', 'MONGO_HOSTNAME', 'MONGO_PORT', 'MONGO_USERNAME', 'MONGO_PASSWORD',
     'MONGO_DB_NAME', 'MONGO_CONNECT_TIMEOUT', 'MONGO_SOCKET_TIMEOUT', 'MONGO_IDLE_TIMEOUT',
     'MONGO_WAIT_QUEUE_TIMEOUT', 'MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT', 'MONGO_MIN_POOL_SIZE', 'MONGO_MAX_POOL_SIZE',
-    'FHIR_NOTES_MONGO_URL', 'FHIR_NOTES_MONGO_WAIT_QUEUE_TIMEOUT',
+    'FHIR_NOTES_MONGO_URL',
     'AUDIT_EVENT_MONGO_URL', 'AUDIT_EVENT_MONGO_USERNAME', 'AUDIT_EVENT_MONGO_PASSWORD',
     'AUDIT_EVENT_MONGO_DB_NAME', 'AUDIT_EVENT_MIN_POOL_SIZE', 'AUDIT_EVENT_MAX_POOL_SIZE',
     'AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL',
@@ -199,11 +199,11 @@ describe('config.js', () => {
         });
 
         test.each([
-            ['default 5s, not the primary 30s', {}, 'mongodb://notes:27017', 5000],
-            ['own env var', { FHIR_NOTES_MONGO_WAIT_QUEUE_TIMEOUT: '2000' }, 'mongodb://notes:27017', 2000],
-            ['URL value when its env var is unset', {}, 'mongodb://notes:27017/?waitQueueTimeoutMS=4000', 4000],
-            ['primary env var does not leak in', { MONGO_WAIT_QUEUE_TIMEOUT: '7000' }, 'mongodb://notes:27017', 5000]
-        ])('fhir-notes pool waits at most 5s by default (%s)', (_label, extraEnv, notesUrl, expected) => {
+            ['default 30s', {}, 'mongodb://notes:27017', 30 * 1000],
+            ['MONGO_WAIT_QUEUE_TIMEOUT', { MONGO_WAIT_QUEUE_TIMEOUT: '7000' }, 'mongodb://notes:27017', 7000],
+            ['URL value when the env var is unset', {}, 'mongodb://notes:27017/?waitQueueTimeoutMS=4000', 4000],
+            ['env var wins over URL value', { MONGO_WAIT_QUEUE_TIMEOUT: '7000' }, 'mongodb://notes:27017/?waitQueueTimeoutMS=4000', 7000]
+        ])('fhir-notes pool follows env > URL > default (%s)', (_label, extraEnv, notesUrl, expected) => {
             const { fhirNotesMongoConfig } = loadConfig({
                 MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir',
                 FHIR_NOTES_MONGO_URL: notesUrl, ...extraEnv
@@ -232,10 +232,10 @@ describe('config.js', () => {
             ['MONGO_WAIT_QUEUE_TIMEOUT', '30s', {}],
             ['MONGO_WAIT_QUEUE_TIMEOUT', '-1', {}],
             ['MONGO_WAIT_QUEUE_TIMEOUT', '1.5', {}],
+            ['MONGO_WAIT_QUEUE_TIMEOUT', '5 s', { FHIR_NOTES_MONGO_URL: 'mongodb://notes:27017' }],
             ['MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT', 'abc', {
                 RESOURCE_HISTORY_MONGO_URL: 'mongodb://history:27017', RESOURCE_HISTORY_MONGO_DB_NAME: 'fhir_history'
-            }],
-            ['FHIR_NOTES_MONGO_WAIT_QUEUE_TIMEOUT', '5 s', { FHIR_NOTES_MONGO_URL: 'mongodb://notes:27017' }]
+            }]
         ])('%s=%j is rejected at load instead of becoming NaN (which the driver treats as no timeout)', (envName, value, extraEnv) => {
             expect(() => loadConfig({
                 MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir', ...extraEnv, [envName]: value
