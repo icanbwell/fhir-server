@@ -104,10 +104,10 @@ class PatientDataViewControlExclusion {
         }
         const { personId, owner } = person;
         // Every Person should have an owner tag (writes reject a resource without one), and enrollment
-        // is decided by it. A Person without one is treated as enrolled by getConsentForPersonAsync (the
+        // is decided by it. A Person without one is treated as enrolled by getConsentAsync (the
         // Consent is applied).
         const { viewControlResourceToExcludeMap, viewControlConsentQueries, viewControlConsentQueryOptions } =
-            await this.patientDataViewControlManager.getConsentForPersonAsync({
+            await this.patientDataViewControlManager.getConsentAsync({
                 requestInfo,
                 base_version,
                 personId,

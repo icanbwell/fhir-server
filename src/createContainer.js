@@ -138,6 +138,7 @@ const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichm
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
 const {GroupExtendedTagEnrichmentProvider} = require('./enrich/providers/groupExtendedTagEnrichmentProvider');
 const {CompositionSectionFilterEnrichmentProvider} = require('./enrich/providers/compositionSectionFilterEnrichmentProvider');
+const {DataViewControlCompositionEnrichmentProvider} = require('./enrich/providers/dataViewControlCompositionEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
@@ -227,6 +228,7 @@ const createContainer = function () {
             new HashReferencesEnrichmentProvider(),
             new MetaUuidEnrichmentProvider(),
             c.compositionSectionFilterEnrichmentProvider,
+            c.dataViewControlCompositionEnrichmentProvider,
             new GroupMemberEnrichmentProvider({
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
@@ -241,6 +243,7 @@ const createContainer = function () {
     container.register('compositionSectionFilterEnrichmentProvider', (c) => new CompositionSectionFilterEnrichmentProvider({
         configManager: c.configManager
     }));
+    container.register('dataViewControlCompositionEnrichmentProvider', () => new DataViewControlCompositionEnrichmentProvider());
     container.register('clinicalNoteTextRetriever', (c) => new ClinicalNoteTextRetriever({
         mongoDatabaseManager: c.mongoDatabaseManager,
         configManager: c.configManager
@@ -253,7 +256,8 @@ const createContainer = function () {
             resourceManager: c.resourceManager,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
-            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
+            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
+            dataViewControlCompositionEnrichmentProvider: c.dataViewControlCompositionEnrichmentProvider
         }
     ));
     container.register('preSaveManager', (c) => new PreSaveManager({
@@ -1252,8 +1256,7 @@ const createContainer = function () {
     container.register('mcpToolHandler', (c) => new McpToolHandler({
         searchBundleOperation: c.searchBundleOperation,
         r4ArgsParser: c.r4ArgsParser,
-        patientDataViewControlManager: c.patientDataViewControlManager,
-        patientScopeManager: c.patientScopeManager,
+        patientDataViewControlExclusion: c.patientDataViewControlExclusion,
         queryRewriterManager: c.queryRewriterManager
     }));
 
@@ -1275,7 +1278,8 @@ const createContainer = function () {
             new ConsentCacheInvalidationHandler({
                 redisManager: c.redisManager,
                 bwellPersonFinder: c.bwellPersonFinder,
-                configManager: c.configManager
+                configManager: c.configManager,
+                personToPatientIdsExpander: c.personToPatientIdsExpander
             })
         ];
 

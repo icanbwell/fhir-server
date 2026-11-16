@@ -1,10 +1,10 @@
 /**
  * The patient's `dataConnectionViewControl` Consent must hide the blocked resource on every
- * user-token REST read path:
- *   - REST search (bundle and streaming)
- *   - REST read-by-id (404 as if missing) and $everything
- * Every path loads the Consent once per request and filters, rather than fails, when the caller's
- * Person has no owner tag. Only user tokens of clients listed in CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL are
+ * user-token read path:
+ *   - GraphQL v1 (/$graphql)             - REST search (bundle and streaming)
+ *   - REST read-by-id (404 as if missing) - GraphQL v2, $everything and /mcp
+ * Every path loads the Consent once per request and fails the request when the caller's Person has
+ * no owner tag. Only user tokens of clients listed in CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL are
  * affected. All data is synthetic.
  */
 const { describe, beforeEach, afterEach, test, expect, jest: jestObj } = require('@jest/globals');
@@ -19,8 +19,10 @@ const {
     getHeadersWithAdmin,
     createTestRequest,
     getHeadersWithCustomPayload,
+    getCustomGraphQLHeaders,
     getTestContainer
 } = require('../../common');
+const { callMcpTool, parseMcpRpcResponse } = require('../../mcp/mcpTestHelpers');
 
 const fx = (p) => require(`./fixtures/${p}`);
 // enables delegated-access detection for the delegated actor tests
@@ -60,6 +62,7 @@ const USER_PAYLOAD = {
     token_use: 'access'
 };
 const userHeaders = () => getHeadersWithCustomPayload(USER_PAYLOAD);
+const userGraphqlHeaders = () => getCustomGraphQLHeaders(USER_PAYLOAD);
 
 /** consent blocking only the given references */
 function consentBlocking(references) {
@@ -72,7 +75,7 @@ function consentBlocking(references) {
     return consent;
 }
 
-describe('dataConnectionViewControl Consent on REST search/read and $everything', () => {
+describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1', () => {
     let savedEnrolled;
     let request;
 
@@ -83,6 +86,8 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
     // REST search answers with a bare array of resources unless _bundle=1 is passed
     const idsOf = (body) =>
         Array.isArray(body) ? body.map((r) => r.id) : (body.entry || []).map((e) => e.resource.id);
+    const gqlV1 = (query, headers = userGraphqlHeaders()) =>
+        request.post('/$graphql').send({ operationName: null, variables: {}, query }).set(headers);
     /** every value of an `id` key anywhere in a response body: the ids of the resources returned */
     const allIdValues = (body) => {
         const ids = [];
@@ -99,6 +104,12 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
         walk(body);
         return ids;
     };
+    const gqlV1Ids = (resp) => {
+        expect(resp.body.errors).toBeUndefined();
+        const field = Object.values(resp.body.data)[0];
+        return (field.entry || []).map((e) => e.resource.id);
+    };
+
     async function seed(consent = fx('Consent/consent1.json')) {
         request = await createTestRequest();
         for (const p of SEED) {
@@ -181,9 +192,43 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
             expect(resp.body.id).toBe(UNBLOCKED);
         });
 
-        test('the Consent is loaded once per request (no N+1)', async () => {
-            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentForPersonAsync');
+        test('GraphQL v1 query without arguments hides the blocked resource', async () => {
+            const resp = await gqlV1('query { carePlan { entry { resource { id } } } }');
+            expect(gqlV1Ids(resp)).toEqual([UNBLOCKED]);
+        });
+
+        test('GraphQL v1 query shaped like health-data-service (patient person proxy + _id) hides it', async () => {
+            const query = `query {
+                carePlan(patient: { value: "Patient/person.${PERSON_ID}" }) { entry { resource { id } } }
+            }`;
+            expect(gqlV1Ids(await gqlV1(query))).toEqual([UNBLOCKED]);
+
+            const byIds = `query {
+                carePlan(_id: { value: "${BLOCKED_UUID},${UNBLOCKED}" }) { entry { resource { id } } }
+            }`;
+            expect(gqlV1Ids(await gqlV1(byIds))).toEqual([UNBLOCKED]);
+        });
+
+        test('GraphQL v2 still hides it (regression guard)', async () => {
+            const resp = await request
+                .post('/4_0_0/$graphqlv2')
+                .send({ operationName: null, variables: {}, query: 'query { carePlans { entry { resource { id } } } }' })
+                .set(userGraphqlHeaders());
+            expect(gqlV1Ids(resp)).toEqual([UNBLOCKED_UUID]);
+        });
+
+        test('the Consent is loaded once per request, not once per resolver / query (no N+1)', async () => {
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync');
             try {
+                const resp = await gqlV1(`query {
+                    carePlan { entry { resource { id } } }
+                    condition { entry { resource { id } } }
+                    procedure { entry { resource { id } } }
+                }`);
+                expect(resp.body.errors).toBeUndefined();
+                expect(spy).toHaveBeenCalledTimes(1);
+
+                spy.mockClear();
                 await request.get('/4_0_0/CarePlan').set(userHeaders());
                 expect(spy).toHaveBeenCalledTimes(1);
             } finally {
@@ -192,9 +237,18 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
         });
 
         test.each([
+            ['GraphQL v2 with several resolvers', (r) => r.post('/4_0_0/$graphqlv2').send({
+                operationName: null,
+                variables: {},
+                query: `query {
+                    carePlans { entry { resource { id } } }
+                    conditions { entry { resource { id } } }
+                    procedures { entry { resource { id } } }
+                }`
+            }).set(userGraphqlHeaders())],
             ['$everything', (r) => r.get(`/4_0_0/Patient/person.${PERSON_ID}/$everything`).set(userHeaders())]
         ])('the Consent is loaded once per request: %s', async (_name, send) => {
-            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentForPersonAsync');
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync');
             try {
                 const resp = await send(request);
                 expect(resp.status).toBe(200);
@@ -222,9 +276,11 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
                     expect(outcomes[0].issue[0].severity).toBe('error');
                     expect(allIdValues(resp.body)).not.toContain(BLOCKED_UUID);
                     expect(allIdValues(resp.body)).not.toContain(UNBLOCKED_UUID);
-                }]
+                }],
+            ['GraphQL v1', () => gqlV1('query { carePlan { entry { resource { id } } } }'),
+                (resp) => expect(resp.body.errors).toBeDefined()]
         ])('a failed Consent lookup fails the request and returns no data: %s', async (_name, send, assertFailed) => {
-            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentForPersonAsync')
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync')
                 .mockRejectedValue(new Error('consent store unavailable'));
             try {
                 const resp = await send(request);
@@ -283,11 +339,30 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
             expect(idsOf(resp.body).length).toBeGreaterThan(0);
         });
 
+        // The mutation's Patient lookup resolves the caller's linked patients without recording the
+        // Person owner; the Practitioner lookup that follows applies view control in the same
+        // request and must still find the owner.
+        test('GraphQL v1 updateGeneralPractitioner succeeds after an earlier linked-patient lookup', async () => {
+            await merge('Practitioner', fx('Practitioner/practitioner.json'));
+            const resp = await gqlV1(`mutation {
+                updateGeneralPractitioner(patientId: "patient1", practitionerId: "1679033641", remove: false) {
+                    id
+                    generalPractitioner { ... on Practitioner { id } }
+                }
+            }`);
+            expect(resp.body.errors).toBeUndefined();
+            expect(resp.body.data.updateGeneralPractitioner.generalPractitioner).toEqual([{ id: '1679033641' }]);
+        });
+
         test('service token (no user) still sees the blocked resource everywhere', async () => {
             const search = await request.get('/4_0_0/CarePlan').set(getHeaders());
             expect(idsOf(search.body)).toContain(BLOCKED);
             const read = await request.get(`/4_0_0/CarePlan/${BLOCKED_UUID}`).set(getHeaders());
             expect(read.status).toBe(200);
+            const gql = await gqlV1('query { carePlan { entry { resource { id } } } }', getCustomGraphQLHeaders({
+                scope: 'user/*.* access/*.*', username: 'svc', client_id: 'svc', token_use: 'access'
+            }));
+            expect(gqlV1Ids(gql)).toContain(BLOCKED);
         });
 
         test('admin token still sees the blocked resource', async () => {
@@ -305,6 +380,8 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
             expect(idsOf(search.body).sort()).toEqual([BLOCKED, UNBLOCKED]);
             const read = await request.get(`/4_0_0/CarePlan/${BLOCKED_UUID}`).set(userHeaders());
             expect(read.status).toBe(200);
+            const gql = await gqlV1('query { carePlan { entry { resource { id } } } }');
+            expect(gqlV1Ids(gql)).toContain(BLOCKED);
         });
 
         // Documented behavior: the consent filter is NOT applied to history/version reads. Patient-scoped
@@ -320,6 +397,40 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
         });
     });
 
+    // GraphQL v1 mutations look up the resource they change; that lookup must not find what the
+    // user's Consent hides, or the mutation would change it and return it.
+    describe('GraphQL v1 mutation on a resource the Consent hides', () => {
+        const UPDATE_GP = `mutation {
+            updateGeneralPractitioner(patientId: "patient1", practitionerId: "1679033641", remove: false) {
+                id
+                generalPractitioner { ... on Practitioner { id } }
+            }
+        }`;
+
+        test('updateGeneralPractitioner does not find, change or return the hidden Patient', async () => {
+            await seed(consentBlocking(['Patient/patient1']));
+            await merge('Practitioner', fx('Practitioner/practitioner.json'));
+
+            const resp = await gqlV1(UPDATE_GP);
+
+            expect(resp.body.errors?.[0]?.message).toBe('Patient not found patient1');
+            expect(resp.body.data?.updateGeneralPractitioner ?? null).toBeNull();
+            const patient = await request.get('/4_0_0/Patient/patient1').set(getHeaders());
+            expect(patient.status).toBe(200);
+            expect(patient.body.generalPractitioner).toBeUndefined();
+        });
+
+        test('updateGeneralPractitioner still changes a Patient the Consent does not hide', async () => {
+            await seed(consentBlocking([`CarePlan/${BLOCKED_UUID}`]));
+            await merge('Practitioner', fx('Practitioner/practitioner.json'));
+
+            const resp = await gqlV1(UPDATE_GP);
+
+            expect(resp.body.errors).toBeUndefined();
+            expect(resp.body.data.updateGeneralPractitioner.generalPractitioner).toEqual([{ id: '1679033641' }]);
+        });
+    });
+
     describe('non-enrolled client', () => {
         test('user token of a client that is not enrolled still sees the blocked resource', async () => {
             process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'some-other-client';
@@ -328,6 +439,8 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
             expect(idsOf(search.body)).toContain(BLOCKED);
             const read = await request.get(`/4_0_0/CarePlan/${BLOCKED_UUID}`).set(userHeaders());
             expect(read.status).toBe(200);
+            const gql = await gqlV1('query { carePlan { entry { resource { id } } } }');
+            expect(gqlV1Ids(gql)).toContain(BLOCKED);
         });
 
         test('feature switched off entirely (no enrolled clients) changes nothing', async () => {
@@ -355,6 +468,8 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
     });
 
     describe('caller Person has no owner tag', () => {
+        const userToken = () => userHeaders().Authorization.replace(/^Bearer /, '');
+
         // A Person without an owner tag (bad data) can't be shown to be outside the enrolled clients,
         // so it is treated as enrolled: the user's Consent is applied and the read still succeeds.
         // by default the blocked CarePlan must not appear anywhere in the raw text. Two paths differ: a
@@ -370,15 +485,22 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
             ['REST read-by-id of a blocked resource',
                 (r) => r.get(`/4_0_0/CarePlan/${BLOCKED_UUID}`).set(userHeaders()),
                 (resp) => expect(resp.status).toBe(404)],
+            ['GraphQL v1', () => gqlV1('query { carePlan { entry { resource { id } } } }'), noBlockedText],
+            ['GraphQL v2', (r) => r.post('/4_0_0/$graphqlv2')
+                .send({ operationName: null, variables: {}, query: 'query { carePlans { entry { resource { id } } } }' })
+                .set(userGraphqlHeaders()), noBlockedText],
             ['$everything', (r) => r.get(`/4_0_0/Patient/person.${PERSON_ID}/$everything`).set(userHeaders()),
                 (resp) => {
                     expect(allIdValues(resp.body)).not.toContain(BLOCKED_UUID);
                     expect(allIdValues(resp.body)).toContain(UNBLOCKED_UUID);
-                }]
+                }],
+            ['/mcp', async (r) => (await callMcpTool(r, userToken(), 'search_care_plan', {})).resp, noBlockedText]
         ])('a user token of an enrolled deployment is filtered, not failed: %s', async (_name, send, assertFiltered) => {
             await seed();
             await stripPersonOwnerTag();
             const resp = await send(request);
+            // raw text, not resp.body: /mcp answers with text/event-stream, which supertest leaves
+            // out of resp.body, so a body-only check would pass without looking at anything
             expect(String(resp.text).length).toBeGreaterThan(0);
             expect(resp.status).toBeLessThan(500);
             assertFiltered(resp);
@@ -420,11 +542,29 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
             clientFhirPatientId: '0d6b1c1e-0000-5000-8000-000000000001'
         };
         const headers = () => getHeadersWithCustomPayload(MISSING_PERSON_PAYLOAD);
+        const graphqlHeaders = () => getCustomGraphQLHeaders(MISSING_PERSON_PAYLOAD);
         const httpOk = (resp) => expect(resp.status).toBe(200);
+        const graphqlOk = (resp) => {
+            expect(resp.status).toBe(200);
+            expect(resp.body.errors).toBeUndefined();
+        };
+        // a successful tool call leaves isError unset
+        const mcpOk = (resp) => {
+            const { result } = parseMcpRpcResponse(resp);
+            expect(result).toBeDefined();
+            expect(result.isError).not.toBe(true);
+        };
 
         test.each([
             ['REST search', (r) => r.get('/4_0_0/CarePlan').set(headers()), httpOk],
-            ['REST streaming search', (r) => r.get('/4_0_0/CarePlan?_streamResponse=1').set(headers()), httpOk]
+            ['REST streaming search', (r) => r.get('/4_0_0/CarePlan?_streamResponse=1').set(headers()), httpOk],
+            ['GraphQL v1', () => gqlV1('query { carePlan { entry { resource { id } } } }', graphqlHeaders()), graphqlOk],
+            ['GraphQL v2', (r) => r.post('/4_0_0/$graphqlv2')
+                .send({ operationName: null, variables: {}, query: 'query { carePlans { entry { resource { id } } } }' })
+                .set(graphqlHeaders()), graphqlOk],
+            ['/mcp', async (r) => (await callMcpTool(
+                r, headers().Authorization.replace(/^Bearer /, ''), 'search_care_plan', {}
+            )).resp, mcpOk]
         ])('a user token of an enrolled deployment gets an empty result, not an error: %s', async (_name, send, assertOk) => {
             await seed();
             const resp = await send(request);
@@ -607,10 +747,37 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
     describe('mixed uuid / sourceId exclusion lists', () => {
         // Consent blocks CarePlan/care-plan-1 (by uuid) and the caller additionally excludes
         // care-plan-2 by its non-uuid source id: the merged _id:not list mixes both id forms.
+        const v2Query = (notEqualsValues) => `query {
+            carePlans(id: { notEquals: { values: ${JSON.stringify(notEqualsValues)} } }) { entry { resource { id } } }
+        }`;
+        const postV2 = (query) =>
+            request.post('/4_0_0/$graphqlv2').send({ operationName: null, variables: {}, query }).set(userGraphqlHeaders());
+
         test('REST search: consent uuid + caller source-id _id:not are both excluded', async () => {
             await seed();
             const resp = await request.get(`/4_0_0/CarePlan?_id:not=${UNBLOCKED}`).set(userHeaders());
             expect(idsOf(resp.body)).toEqual([]);
+        });
+
+        test('GraphQL v1: consent uuid + caller source-id exclusion are both excluded', async () => {
+            await seed();
+            const resp = await gqlV1(`query {
+                carePlan(_id: { notEquals: { value: "${UNBLOCKED}" } }) { entry { resource { id } } }
+            }`);
+            expect(gqlV1Ids(resp)).toEqual([]);
+        });
+
+        // Evaluation of the comment in src/mcp/mcpToolHandler.js ("v2 still uses '$and' -- the same
+        // bug"): graphqlv2/dataSource.js really does build the merged list with operator '$and'
+        // (verified by logging parsedArgs), but ReferenceQueryRewriter, which runs next, rebuilds every
+        // _id value as a comma-joined string and QueryParameterValue's constructor forces '$or' for a
+        // multi-value string. So through the real pipeline the exclusion works; the '$and' is latent
+        // (it would bite only if the rewriter were skipped). This test pins the observable behavior.
+        test('GraphQL v2: consent uuid + caller source-id exclusion are both excluded', async () => {
+            await seed();
+            const resp = await postV2(v2Query([UNBLOCKED]));
+            expect(resp.body.errors).toBeUndefined();
+            expect(gqlV1Ids(resp)).toEqual([]);
         });
     });
 
