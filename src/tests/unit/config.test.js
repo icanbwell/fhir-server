@@ -218,15 +218,47 @@ describe('config.js', () => {
         ];
 
         test.each(BACKGROUND_POOLS)(
-            '%s keeps an unbounded wait by default so post-request flushes are not dropped',
+            '%s waits longer than the request path by default, but not without limit',
             (configName, urlKey, url, extraEnv) => {
                 const config = loadConfig({
                     MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir', MONGO_WAIT_QUEUE_TIMEOUT: '7000',
                     [urlKey]: url, ...extraEnv
                 });
-                expect(config[configName].options.waitQueueTimeoutMS).toBe(0);
+                expect(config[configName].options.waitQueueTimeoutMS).toBe(60 * 1000);
             }
         );
+
+        test.each([
+            ['MONGO_WAIT_QUEUE_TIMEOUT', '30s', {}],
+            ['MONGO_WAIT_QUEUE_TIMEOUT', '-1', {}],
+            ['MONGO_WAIT_QUEUE_TIMEOUT', '1.5', {}],
+            ['MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT', 'abc', {
+                RESOURCE_HISTORY_MONGO_URL: 'mongodb://history:27017', RESOURCE_HISTORY_MONGO_DB_NAME: 'fhir_history'
+            }],
+            ['FHIR_NOTES_MONGO_WAIT_QUEUE_TIMEOUT', '5 s', { FHIR_NOTES_MONGO_URL: 'mongodb://notes:27017' }]
+        ])('%s=%j is rejected at load instead of becoming NaN (which the driver treats as no timeout)', (envName, value, extraEnv) => {
+            expect(() => loadConfig({
+                MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir', ...extraEnv, [envName]: value
+            })).toThrow(`${envName} must be a non-negative integer number of milliseconds`);
+        });
+
+        test.each([
+            ['an empty value as unset', '', 30 * 1000],
+            ['0 as an explicit opt-out of the bound', '0', 0],
+            ['surrounding whitespace', ' 4000 ', 4000]
+        ])('MONGO_WAIT_QUEUE_TIMEOUT treats %s', (_label, value, expected) => {
+            const { mongoConfig } = loadConfig({
+                MONGO_URL: 'mongodb://primary:27017', MONGO_DB_NAME: 'fhir', MONGO_WAIT_QUEUE_TIMEOUT: value
+            });
+            expect(mongoConfig.options.waitQueueTimeoutMS).toBe(expected);
+        });
+
+        test('the connection string option name is matched case-insensitively, as the driver does', () => {
+            const { mongoConfig } = loadConfig({
+                MONGO_URL: 'mongodb://primary:27017/?waitqueuetimeoutms=12000', MONGO_DB_NAME: 'fhir'
+            });
+            expect(mongoConfig.options.waitQueueTimeoutMS).toBe(12000);
+        });
 
         test.each(BACKGROUND_POOLS)(
             '%s takes MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT when set',

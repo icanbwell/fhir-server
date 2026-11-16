@@ -306,10 +306,10 @@ class MongoDatabaseManager {
 
     /**
      * Post-request writes (audit, resource history) run after the response is sent and a failure
-     * there is logged and dropped by postRequestProcessor. Their own pools wait without limit for
-     * a connection, but when a pool's URL is unset the writes fall back to the primary client,
-     * whose waitQueueTimeoutMS fails fast (DCON-6517). Returns one warning per write path that is
-     * in that state, so an operator can see at startup that saturation would drop those records.
+     * there is logged and dropped by postRequestProcessor. Their own pools wait longer for a
+     * connection (MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT), but when a pool's URL is unset the writes
+     * fall back to the primary client, whose shorter waitQueueTimeoutMS fails fast. Returns one
+     * warning per write path that is in that state, so an operator can see at startup that saturation would drop those records.
      * @param {{connection?: string}} auditConfig
      * @param {{connection?: string}} resourceHistoryConfig
      * @param {{waitQueueTimeoutMS?: number}} primaryOptions
