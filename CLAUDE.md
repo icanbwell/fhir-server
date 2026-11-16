@@ -138,7 +138,7 @@ All dependency wiring is in `src/createContainer.js` (~130+ services registered 
 - Logging via Winston: use `logInfo`, `logDebug`, `logError`, `logWarn` from `src/operations/common/logging.js`
 - New `.js` files and folders under `src/` are camelCase (e.g. `manageKafkaV2Topic.js`), never snake_case or kebab-case, and go in the folder for their role; admin scripts go in `src/admin/scripts/`, not a top-level `src/scripts/`. Don't rename existing or generated files. See `.claude/rules/file-naming.md`.
 - To check whether a string is a uuid, always use `isUuid` from `src/utils/uid.util.js`; do not write a new uuid regex or call `uuid.validate` directly.
-- No Jira IDs (e.g. `DCON-1234`) or incident IDs (e.g. `INC-357`) in code, comments, tests, test names, docs or specs/plans. Describe the behavior instead. The ticket belongs in the commit message and PR only.
+- No ticket or incident IDs of any kind (any `ABC-1234` style key, e.g. a Jira key like `DCON-1234` or an incident like `INC-357`) in code, comments, tests, test names, docs or specs/plans. Describe the behavior instead. The ticket belongs in the commit message and PR only.
 
 ## Package Management
 

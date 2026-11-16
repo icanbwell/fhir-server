@@ -22,7 +22,7 @@ describe('ScopesManager - getAccessCodesFromScopes Tests', () => {
         await commonAfterEach();
     });
 
-    test('only matches scopes with the access/ prefix, not any scope merely starting with "access" (SEC-1580 F11)', async () => {
+    test('only matches scopes with the access/ prefix, not any scope merely starting with "access"', async () => {
         await createTestRequest();
         const container = getTestContainer();
         const scopesManager = container.scopesManager;
@@ -47,7 +47,7 @@ describe('ScopesManager - getAccessCodesFromScopes Tests', () => {
     });
 });
 
-describe('ScopesManager - access tag change Tests (SEC-1580 F2/F3)', () => {
+describe('ScopesManager - access tag change Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });

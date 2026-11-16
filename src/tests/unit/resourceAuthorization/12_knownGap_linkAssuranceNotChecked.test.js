@@ -4,7 +4,7 @@
  * Regression test tracking docs/resource-authorization.md §12 "Known gaps in the current
  * implementation" — the "Open — link traversal never checks `assurance`" finding.
  *
- * DCON-4894 added assurance-awareness to personToPatientIdsExpander.js in two sequential,
+ * added assurance-awareness to personToPatientIdsExpander.js in two sequential,
  * separately-committed changes:
  *   - Commit A: dry-run logging (configManager.logPersonLinkAssuranceBelowMinimum, default
  *     false) that logs a warning whenever a followed Person.link's `assurance` value doesn't
@@ -18,7 +18,7 @@
  * Commit A's logging has been observed in a real environment (see
  * personToPatientIdsExpander.assuranceLogging.test.js and
  * personToPatientIdsExpander.assuranceEnforcement.test.js for coverage of both). So under the
- * code-level defaults exercised below, traversal behavior is unchanged from before DCON-4894:
+ * code-level defaults exercised below, traversal behavior is unchanged from before the assurance setting:
  * every link is still followed regardless of its assurance level. What IS no longer true is the
  * original narrower claim this file made -- that no code path reads `link.assurance` at all --
  * so that assertion has been removed rather than kept passing artificially. The still-accurate
@@ -94,7 +94,7 @@ describe('§12 known gap — link traversal never checks Person.link.assurance (
             const mockConfigManager = {
                 enableProxyPersonScopeCheckForEverything: false,
                 useAccessIndex: false,
-                // Explicitly false, matching the code-level defaults added by DCON-4894:
+                // Explicitly false, matching the code-level defaults added with the assurance setting:
                 // dry-run logging and enforcement both stay off unless an operator opts in.
                 logPersonLinkAssuranceBelowMinimum: false,
                 enforcePersonLinkAssuranceMinimum: false
@@ -117,7 +117,7 @@ describe('§12 known gap — link traversal never checks Person.link.assurance (
                 toMap: false
             });
 
-            // Documents the out-of-the-box behavior: with both DCON-4894 flags at their default
+            // Documents the out-of-the-box behavior: with both flags at their default
             // (false), both links are still followed with no distinction whatsoever based on
             // assurance. This is a plain assertion (not a test.failing) because it IS the correct
             // and intended default behavior -- enforcement is opt-in only, pending real-world

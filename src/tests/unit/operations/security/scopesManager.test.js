@@ -838,7 +838,7 @@ describe('ScopesManager', () => {
             expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: '' })).toBe(false);
         });
 
-        // Tripwire: history access is access/-only. system/*.* must not grant it (SEC-1580 SAE-1).
+        // Tripwire: history access is access/-only. system/*.* must not grant it.
         test('should return false for system/*.* (no access/ code present)', () => {
             expect(scopesManager.hasHistoryAccess({ resourceType: 'Patient', scope: 'system/*.*' })).toBe(false);
         });

@@ -9,7 +9,7 @@
  * destination the browser will navigate a freshly-authenticated user to, with the `jwt` cookie
  * already written.
  *
- * Complements src/tests/unit/oauth/redirect.test.js (DCON-4804) with the browser-normalization
+ * Complements src/tests/unit/oauth/redirect.test.js with the browser-normalization
  * vectors it does not cover. Every case below is asserted against the WHATWG URL parsing rules the
  * browser applies before navigating:
  *   - tab (U+0009), LF (U+000A) and CR (U+000D) are stripped wherever they appear
@@ -114,7 +114,7 @@ describe('#oauth redirect.js isSafeRelativeUrl — adversarial normalization mat
             expect(isSafeRelativeUrl(0)).toBe(false);
             expect(isSafeRelativeUrl(['/safe'])).toBe(false);
             expect(isSafeRelativeUrl({ toString: () => '/safe' })).toBe(false);
-            expect(isSafeRelativeUrl(new String('/safe'))).toBe(false); // eslint-disable-line no-new-wrappers
+            expect(isSafeRelativeUrl(new String('/safe'))).toBe(false);
         });
 
         test('rejects the literal string "null"/"undefined" produced by decodeURIComponent(parameters.get(...)) when resourceUrl is absent', () => {

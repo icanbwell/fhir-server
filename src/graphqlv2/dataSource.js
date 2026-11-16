@@ -218,7 +218,7 @@ class FhirDataSource {
                     if (!resourceType) {
                         return [];
                     }
-                    // DCON-4846: getResources/getResourcesBundle gate their own root resourceType,
+                    // getResources/getResourcesBundle gate their own root resourceType,
                     // but a reference field (e.g. Patient.generalPractitioner) resolves through this
                     // batch loader for the *referenced* resourceType, bypassing that gate entirely --
                     // gate it here too so a CMS-partner/delegated-user caller can't pivot through a
@@ -481,7 +481,7 @@ class FhirDataSource {
      * @return {Promise<Resource[]>}
      */
     async getResources (parent, args, context, info, resourceType) {
-        // DCON-4846: REST search runs this same allowlist check (fhirOperationsManager.search) --
+        // REST search runs this same allowlist check (fhirOperationsManager.search) --
         // GraphQL reads must too, or a CMS-partner/delegated-user caller could bypass it entirely
         this.accessManager.verifyGraphQLReadAccess({
             requestInfo: context.fhirRequestInfo,
@@ -536,7 +536,7 @@ class FhirDataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle (parent, args, context, info, resourceType) {
-        // DCON-4846: see getResources -- same allowlist check REST search already enforces
+        // see getResources -- same allowlist check REST search already enforces
         this.accessManager.verifyGraphQLReadAccess({
             requestInfo: context.fhirRequestInfo,
             resourceType,

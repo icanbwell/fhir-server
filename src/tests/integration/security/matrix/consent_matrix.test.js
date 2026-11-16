@@ -140,7 +140,7 @@ describe('CONSENT MATRIX', () => {
     describe('state table', () => {
         // States the server already handles as specified. Elapsed and future periods
         // were fail-by-design gaps tracked in consent_findings.bugs; both are now
-        // enforced (SEC-1580 CL-1) and promoted here. Two states that do not yet meet
+        // enforced and promoted here. Two states that do not yet meet
         // the target state -- a consent naming a different authorizing actor, and a
         // client-written self-granting consent -- are tracked in their own PRs
         // (sec-1580/cl1-consent-actor-not-checked, sec-1580/sae6-consent-self-grant)

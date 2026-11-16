@@ -1,7 +1,7 @@
 # Avoid S3 Download During Write-Path Diffing — Design
 
 **Date:** 2026-07-16
-**Branch:** SG-DCON-3870 (continuation of the binary/S3 externalization work)
+**Branch:** SG-(continuation of the binary/S3 externalization work)
 **Status:** Draft for review
 
 ## Resolved decisions
@@ -181,7 +181,7 @@ noted in §2.1 has no observable effect there either.
 
 ## 7. Testing
 
-Reuse the download-count-assertion pattern already established in DCON-3868/3870
+Reuse the download-count-assertion pattern already established in the existing blob storage tests
 (`src/tests/binary/blobStorage/blobStorage.test.js`, `jest.spyOn(liveClient, 'downloadAsync')`):
 
 - **PUT with unchanged `data`, other field changed:** assert zero downloads during merge; assert the

@@ -60,7 +60,7 @@ describe('removeUnderscoreFieldsRecursive', () => {
         expect(obj.keep).toBe(true);
     });
 
-    // DCON-4806: _file_id must never be accepted directly from a client -- only
+    // _file_id must never be accepted directly from a client -- only
     // DatabaseAttachmentManager may set it, after actually uploading `data` to GridFS.
     // create.js/update.js rely on this general-purpose strip (applied to the raw
     // incoming payload before Resource construction) to remove it, rather than a

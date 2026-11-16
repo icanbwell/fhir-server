@@ -2,7 +2,7 @@
  * Cross-tenant data exposure tests for the FHIR _history operation.
  *
  * A historical version keeps the access tags it had at write time, so a tenant-scoped access
- * code can match a stale tag on an old version (SEC-1580 SAE-1). History therefore requires a
+ * code can match a stale tag on an old version. History therefore requires a
  * non-tenant-specific access scope (access/*.read or access/*.*): ScopesManager.hasHistoryAccess
  * denies every tenant-scoped caller before any query is built, and the callers that are allowed
  * (access/*) are entitled to see every version as stored.

@@ -1,7 +1,7 @@
 const { describe, test, expect } = require('@jest/globals');
 const { isSafeRelativeUrl } = require('../../../oauth/redirect');
 
-describe('#oauth redirect.js isSafeRelativeUrl (DCON-4804 open-redirect fix)', () => {
+describe('#oauth redirect.js isSafeRelativeUrl', () => {
     test('accepts a plain relative path', () => {
         expect(isSafeRelativeUrl('/dashboard')).toBe(true);
         expect(isSafeRelativeUrl('/Patient/123')).toBe(true);

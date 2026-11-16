@@ -1,5 +1,5 @@
 // ============================================================================
-// REGRESSION TEST (passes today) — SEC-1580 D-SAE4 / spec SAE-4 & SAE-5.
+// REGRESSION TEST (passes today) — D-SAE4 / spec SAE-4 & SAE-5.
 // Gap: a write-by-identifier for a resource that exists but belongs to another tenant
 // returns a DIFFERENT result than a write to a genuinely nonexistent id — an existence
 // oracle. Combined with deterministic internal ids (SAE-5) this lets a caller probe

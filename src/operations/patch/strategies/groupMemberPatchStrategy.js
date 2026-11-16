@@ -15,7 +15,7 @@ const deepcopy = require('deepcopy');
  * - ClickHouse (per-request `useexternalstorage` header) -- genuinely event-sourced; writes
  *   events to the ClickHouse event log via the Group's registered post-save handler.
  * - Mongo-native "extended" storage (permanent, internal, non-FHIR marker field on the Group
- *   resource class, design doc §3.1, DCON-5527) -- a plain resource write, not an event log:
+ *   resource class, design doc §3.1) -- a plain resource write, not an event log:
  *   each requested add/remove resolves directly to a create/update/delete of a
  *   GroupMember_4_0_0 row through MongoGroupMemberRepository, targeting GroupMember_4_0_0 /
  *   GroupMember_4_0_0_History via the shared write pipeline. Split across two dedicated methods

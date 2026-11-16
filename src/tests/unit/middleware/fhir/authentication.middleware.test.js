@@ -300,7 +300,7 @@ describe('authentication.middleware', () => {
         });
     });
 
-    // DCON-4806: a missing/falsy auth strategy must fail closed (deny), not fail open
+    // a missing/falsy auth strategy must fail closed (deny), not fail open
     // (pass through unauthenticated) -- see authenticationMiddleware's default export.
     describe('authenticationMiddleware (default export) fail-closed behavior', () => {
         const savedNodeEnv = process.env.NODE_ENV;

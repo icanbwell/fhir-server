@@ -51,7 +51,7 @@ pattern.
   doc itself from JTG/Kristen so a future implementer working from a fresh checkout has a path to
   the source material instead of relying solely on the inline paraphrases here.
 - The Confluence spec is dated **2026-07-31** and is already stale in places as of today
-  (2026-08-04) — three `SEC-1580` fix commits (`d8d4da940`, `a3b99df35`, and others) landed today,
+  (2026-08-04) — three security fix commits (`d8d4da940`, `a3b99df35`, and others) landed today,
   same-day as this plan. Treat every "Known Gap" status below as "known gap as of 3 days ago,
   verify against `main` before writing a test" — several tasks below already had to do exactly
   that.
@@ -61,12 +61,12 @@ pattern.
   a second fixture-generation convention.
 - Do not remove a file from `testPathIgnorePatterns` unless you have run it locally and confirmed
   it passes against current `main`. Several bugs the review doc describes as open have already
-  been fixed by the in-flight `SEC-1580` initiative (F2, F3, F4, F5, F7, F11 are on `main`; F10 is
+  been fixed by the in-flight security initiative (F2, F3, F4, F5, F7, F11 are on `main`; F10 is
   not yet merged) — check current status before assuming the doc's "not enforced" framing still
   holds for the specific line it cites.
 - This plan only adds/restores **tests**. Where a task uncovers a code fix that hasn't landed
   (W-chain, W1, W3, X-summary CACHE-1), file that as a separate ticket referencing
-  the relevant `SEC-1580` sub-finding — do not fix product code as a side effect of a test task.
+  the relevant sub-finding — do not fix product code as a side effect of a test task.
 
 ---
 
@@ -84,7 +84,7 @@ The review doc's own Part F audit is **not fully reliable** — verified against
   `src/tests/unit/**`, written specifically to "assert correct behavior for known, tracked bugs
   ... and fail by design until each is fixed" (`jest.config.js` comment) — but all ~58 of them are
   excluded from every CI run via `testPathIgnorePatterns`. Some of the bugs they target have since
-  been fixed on `main` (via the `SEC-1580` commits) without their quarantine entry being removed,
+  been fixed on `main` (via those commits) without their quarantine entry being removed,
   so their coverage is silently still off even though it would now pass.
 - **W-chain** (Consent self-grant + Person.link graft → `$everything` leak) has **zero test
   coverage of any kind**, quarantined or otherwise. The review doc calls this "the confirmed
@@ -114,7 +114,7 @@ not just wording:
   specifically — leaking *access metadata* cross-tenant is its own category of harm distinct from
   leaking the underlying clinical data.
 - **IDG-1 and IDG-2 are `Open Question` status, not settled `Known Gap`s** — the spec's working
-  assumption for IDG-2 (same-owner link = dead end) is tracked by ticket `DCON-4691`, not yet
+  assumption for IDG-2 (same-owner link = dead end) is tracked by a separate ticket, not yet
   merged as of this check. A new adversarial test for D-IDG1/D-IDG2 should assert today's actual
   (leaky) behavior and be explicitly labeled as testing a *working assumption pending product
   confirmation*, not a settled contract — don't word the PASS condition as if the rule is final.
@@ -132,11 +132,11 @@ not just wording:
   is not blocked by this validator at all, regardless of whether the merge/update path's WPI-2
   re-check is fixed. `patchSecurityTagEscalation.test.js` (already quarantined) targets exactly
   this — added to Phase 3 reconciliation as Task 3.1b.
-- **WPI-2 is likely already fixed** — spec says "Known Gap" as of 2026-07-31, but `SEC-1580 F2/F3`
+- **WPI-2 is likely already fixed** — spec says "Known Gap" as of 2026-07-31, but ``
   (commit `d8d4da940`) landed today and adds the post-merge re-check the spec describes as
   missing. This is the stale-spec case flagged in Global Constraints; Task 3.1 already handles
   verifying this rather than assuming either source.
-- **IDG-6's `$graph` gap may be only half-fixed.** `SEC-1580 F4` (commit `a3b99df35`, landed today)
+- **IDG-6's `$graph` gap may be only half-fixed.** `` (commit `a3b99df35`, landed today)
   added correct per-chunk cache *keying* to `$graph`. The spec's note describes a *second*,
   independent mitigation for the `$everything` case: a fail-closed safety net that returns nothing
   when a per-step cache lookup comes up empty. It explicitly says `$graph` — "a second operation
@@ -165,7 +165,7 @@ not just wording:
 - [ ] Run each file individually: `nvm use && node node_modules/.bin/jest <path> -t ""`.
 - [ ] For every test that now fails: read the failure. If it fails because of an unrelated stale
   assertion (fixture drift, renamed field), fix the assertion — these suites predate several
-  recent `SEC-1580` changes and may just be out of date. If it fails because it's hitting a real,
+  recent security changes and may just be out of date. If it fails because it's hitting a real,
   still-open security bug, leave that single `test`/`describe` block skipped with a comment citing
   the bug (do not re-skip the whole file), and file a ticket.
 - [ ] Also un-skip the individual `test.skip` in `scenario_1` at
@@ -195,7 +195,7 @@ guarantee the other is also closed.
 **Files:**
 - Create: `src/tests/unit/operations/security/consentSelfGrantLinkGraft.test.js`
   (new quarantined-by-default file — add its path to `jest.config.js` `testPathIgnorePatterns`
-  in the same commit, with the reason comment `// SEC-1580 W-chain: confirmed exploit, tracked
+  in the same commit, with the reason comment `// W-chain: confirmed exploit, tracked
   under <ticket>`)
 
 - [ ] Seed two tenants exactly like the `E.2` link graph in the review doc: Tenant A owns
@@ -315,7 +315,7 @@ guarantee the other is also closed.
 
 ## Phase 3 — Reconcile existing quarantined tests against current `main`
 
-For each row, first check whether the underlying `SEC-1580` fix has already landed; if so this is
+For each row, first check whether the underlying security fix has already landed; if so this is
 a "flip the flag" task, not a "write a test" task.
 
 ### Task 3.1: W2b (WPI-2, post-merge re-check) — confirm fixed, remove stale mock-only test
@@ -326,7 +326,7 @@ a "flip the flag" task, not a "write a test" task.
 
 - [ ] Run `src/tests/operations/security/scopesManager.test.js` (F2/F3 cases, already live, not
   quarantined) — confirm green on current `main`.
-- [ ] Read `writeAllowedByScopesValidator.test.js:491-541` — it currently mocks the SEC-1580
+- [ ] Read `writeAllowedByScopesValidator.test.js:491-541` — it currently mocks the security
   post-merge check out as a no-op and asserts the *old* permissive behavior. Rewrite it to call
   through to the real check instead of stubbing it, so a future regression (someone removing the
   `update.js:422-428` call) fails this test instead of being silently masked.
@@ -347,7 +347,7 @@ a "flip the flag" task, not a "write a test" task.
   — the ALL-match tag-change-forgery check that `update.js:426`/`452` actually calls via
   `scopesValidator.isAccessTagChangeAllowedByAccessScopes`), specifically the patient-scope bypass
   at line 187, which is now gated: `if (isCreate && this.isAccessAllowedByPatientScopes(...))
-  return true;` — landed via commit `b534088be` (DCON-4854, merged into `main` 2026-08-05, a
+  return true;` — landed via commit `b534088be` (merged into `main` 2026-08-05, a
   same-day follow-up to F2/F3).
   (Note: `scopesManager.js:255`'s `accessViaPatientScopes` short-circuit lives inside
   `isAccessToResourceAllowedBySecurityTags`, a separate ANY-match general write-access gate used
@@ -420,7 +420,7 @@ a "flip the flag" task, not a "write a test" task.
   independent traversal-boundary rules applying to writes: IDG-1 (no sibling reach) and IDG-2
   (same-owner link = dead end). 3.3a is a cross-tenant link-target forgery bug in
   `resourceValidator.js`. This task is about IDG-2's write-side consequence: because same-owner
-  links aren't treated as a dead end anywhere yet (pending `DCON-4691`), a caller who controls one
+  links aren't treated as a dead end anywhere yet (pending a fix), a caller who controls one
   of two same-owner duplicate-master Persons (the `M_A`/`M2` trap pair from the review doc's E.2)
   may be able to write to a patient reachable only through the *other* same-owner master's link,
   not just read it.
@@ -428,7 +428,7 @@ a "flip the flag" task, not a "write a test" task.
   who controls `M_A`, attempt a write (e.g. `PATCH`/`PUT`) targeting a resource reachable only via
   `M2`'s link graph. Assert it's rejected.
 - [ ] Expect this to fail today (no enforcement exists). Quarantine with a comment linking to
-  `DCON-4691` so whoever picks up that ticket for the read-side fix knows the write-side test is
+  that ticket so whoever picks up that ticket for the read-side fix knows the write-side test is
   waiting on the same underlying rule.
 
 ### Task 3.4: W4 (CACHE-2, delegated-actor cache collision) — lock in the incidental mitigation
@@ -456,7 +456,7 @@ a "flip the flag" task, not a "write a test" task.
 **Files:**
 - Verify: `src/operations/export/exportById.js:72` (rejects any `exportStatusResource.user !==
   user`) and `:80-86` (`scopesManager.isAccessToResourceAllowedByAccessTagOnly` access-tag check)
-  — landed via `3a506af`/`c884c8e` (SEC-1580 F7), already listed as merged in Global Constraints.
+  — landed via `3a506af`/`c884c8e`, already listed as merged in Global Constraints.
 - Modify: `src/tests/unit/operations/export/bulkDataExportRunner.crossTenant.test.js` (VULN-1
   through VULN-7)
 
@@ -546,7 +546,7 @@ a "flip the flag" task, not a "write a test" task.
 - [ ] **Label both halves of this test according to their real status, not as settled contracts.**
   Per the authoritative spec, IDG-1 (sibling reach) and IDG-2 (same-owner dead end) are both
   `Open Question` — IDG-2's "should be Enforced" is a working assumption pending product
-  confirmation (`DCON-4691`), and IDG-1's precise mechanism is still under investigation. Write
+  confirmation, and IDG-1's precise mechanism is still under investigation. Write
   the PASS condition as "this is today's intended behavior per the current working assumption,"
   and flag in the PR description that a product decision could change what "PASS" means here —
   don't let this test read as proof the rule is final.
@@ -574,7 +574,7 @@ a "flip the flag" task, not a "write a test" task.
 - Create: `src/tests/practitioner/graph_consent_chunking/graph_pss_chunked_consent.test.js`
 
 - [ ] `graphHelpers.js`'s per-chunk consent-cache keying (`everythingChunkIndex`) was fixed on
-  `main` via `SEC-1580 F4` (commit `a3b99df35`). No test currently exercises the specific failure
+  `main` via `` (commit `a3b99df35`). No test currently exercises the specific failure
   mode it fixed: multiple id-chunks within one `$graph` call where consent state differs between
   chunks.
 - [ ] Force chunking the same way `practitioner.graph_pss_chunked.test.js` does

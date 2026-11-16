@@ -1,5 +1,5 @@
 /**
- * Tests for PATCH privilege escalation via meta modification (DCON-4841).
+ * Tests for PATCH privilege escalation via meta modification.
  *
  * ORIGINAL REPORT: patchInternalFieldsValidator only blocks paths with segments starting with '_'
  * (underscore). meta.security, meta.source, meta.versionId, and meta.lastUpdated do NOT start with
@@ -18,7 +18,7 @@
  *
  * meta.security's ACCESS tags are a separate mechanism entirely (not reverted by
  * overWriteNonWritableFields) and are validated by scopesValidator.isAccessTagChangeAllowedByAccessScopes
- * (SEC-1580 F2/F3), unaffected by any of this.
+ *, unaffected by any of this.
  *
  * File: src/operations/patch/validators/patchInternalFieldsValidator.js
  */
@@ -38,7 +38,7 @@ describe('patchInternalFieldsValidator', () => {
         });
 
         test('does not treat meta/security, meta/source, meta/versionId, meta/lastUpdated as internal -- ' +
-            'those are protected downstream by overWriteNonWritableFields (DCON-4841) instead', () => {
+            'those are protected downstream by overWriteNonWritableFields instead', () => {
             expect(findInternalFieldInPath('/meta/security')).toBeNull();
             expect(findInternalFieldInPath('/meta/security/0/code')).toBeNull();
             expect(findInternalFieldInPath('/meta/source')).toBeNull();

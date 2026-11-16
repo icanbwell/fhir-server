@@ -1,5 +1,5 @@
 // ============================================================================
-// SEC-1580 CASE COVERAGE (FHIR Security Data Model Verification doc)
+// CASE COVERAGE (FHIR Security Data Model Verification doc)
 //   A1        read-only account reads its own tenant's resource
 //   A3        read-only cannot read another tenant (both directions) + search isolation
 //   SAE-4     foreign-vs-nonexistent id are indistinguishable (read path)
@@ -15,7 +15,7 @@
 // Demonstrates that the entire service-account authorization surface can be tested with
 // LOCALLY-MINTED tokens: getHeaders(scope) mints a JWT with any scope string, the JWKS
 // endpoint is mocked, and the request runs through the REAL server auth code. This means
-// real service-account provisioning (CIE-8373) is NOT a prerequisite for testing the
+// real service-account provisioning is NOT a prerequisite for testing the
 // isolation LOGIC — it's only needed to validate against real production DATA.
 //
 // Scopes modeled:

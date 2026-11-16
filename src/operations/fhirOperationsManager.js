@@ -391,7 +391,7 @@ class FhirOperationsManager {
             if (queryTag && debugTags) {
                 debugTags.push(queryTag);
             }
-            // DCON-5855: a chain criterion that's too broad must not be allowed to build an
+            // a chain criterion that's too broad must not be allowed to build an
             // unbounded $in across pages -- a performance/DoS risk, and functionally close to
             // "no restriction" even when it isn't literally unfiltered. Truncate rather than
             // fail the whole search -- the caller has no way to know in advance how broad their
@@ -793,7 +793,7 @@ class FhirOperationsManager {
         // person ids to retrict result to
         // True only for a genuine /Person/{id}/$everything request, captured here before the
         // Person->Patient remap below erases the distinction. scopedPersonIds alone can't be used
-        // for this (SEC-1580 F10 below populates it identically for a client-issued proxy-patient
+        // for this (the F10 check below populates it identically for a client-issued proxy-patient
         // request), but PROA consented-data-access expansion must apply to a real Person
         // $everything request only, not to a Patient-endpoint request using a proxy id.
         let isPersonEverything = false;
@@ -803,7 +803,7 @@ class FhirOperationsManager {
         } else if (resourceType === 'Patient' && idsList) {
             // the equivalent of Person $everything can also be requested directly against the
             // Patient endpoint using the proxy patient id form (Patient/person.<id>/$everything);
-            // apply the same sibling-record scoping in that case too (SEC-1580 F10)
+            // apply the same sibling-record scoping in that case too
             const proxyPersonIds = idsList
                 .filter((id) => id.startsWith(PERSON_PROXY_PREFIX))
                 .map((id) => id.replace(PERSON_PROXY_PREFIX, ''));

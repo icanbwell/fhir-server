@@ -124,7 +124,7 @@ describe('Data sharing test cases for different scenarios', () => {
             ]));
         });
 
-        // SEC-1580: the master person carries only the bwell access tag, and no Person in this
+        // the master person carries only the bwell access tag, and no Person in this
         // fixture set carries a client_1 access tag, so a client_1-scoped caller has no valid
         // proxy-person entry point into this graph at all -- the master person hub is no longer
         // traversable just because a linked leaf patient happens to also carry a client_1 tag.

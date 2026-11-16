@@ -1,6 +1,6 @@
 /**
  * FHIR R4/R4B constraint bdl-4 makes `entry.response` mandatory for history Bundles.
- * New history documents are stored without `response` (DCON-6272), so it is synthesized at read time.
+ * New history documents are stored without `response`, so it is synthesized at read time.
  */
 
 const HTTP_STATUS_BY_METHOD = {

@@ -662,7 +662,7 @@ describe('ScopesManager — isAccessToResourceAllowedBySecurityTags patient-scop
      * An earlier version of this describe block asserted that a combined
      * `patient/... access/<tenant>.*` scope should have its access/ code checked against the
      * resource's owner/access tags even when patient scope applies. That premise was tried
-     * once already, for real: commit `8542592a5` (DCON-4806) added exactly this tag-match
+     * once already, for real: commit `8542592a5` added exactly this tag-match
      * requirement to `isAccessToResourceAllowedBySecurityTags`, and it was reverted in
      * `a5ded4a4a` because it broke legitimate patient-scoped writes. It does not hold up: the
      * method's job for a patient-scoped caller is not tenant isolation by tag — it's deferring

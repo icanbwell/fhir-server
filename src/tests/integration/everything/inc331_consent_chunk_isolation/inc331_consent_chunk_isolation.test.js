@@ -3,7 +3,7 @@
 // The incident: $everything slices a person's linked patients into chunks of
 // everythingBatchSize (default 10); the consent-allowed-patient set was cached by
 // requestId and reused across chunks, so chunk 2+ lost patient scoping and returned ALL
-// proa/ias patients. Fixed in DCON-4598 (per-chunk cache keying).
+// proa/ias patients. Fixed in (per-chunk cache keying).
 //
 // This builds a client Person linked to 12 PROA patients (> batch size) under a valid
 // consent, plus an unrelated PROA "trap" patient from a different source (not linked, not

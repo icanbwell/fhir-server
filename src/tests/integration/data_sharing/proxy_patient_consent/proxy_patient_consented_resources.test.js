@@ -146,7 +146,7 @@ describe('Proxy-patient consented resources in $everything', () => {
         expect(ids).not.toEqual(expect.arrayContaining([careTeamOfOtherPerson.id]));
     });
 
-    // Regression test for DCON-4885 (IDG-8 sibling-Person consent leak) extended to the new
+    // Regression test for (IDG-8 sibling-Person consent leak) extended to the new
     // consentedProxyPersonUuids / proxy-patient CareTeam path added when the resource-type
     // allowlist was removed.
     //
@@ -157,7 +157,7 @@ describe('Proxy-patient consented resources in $everything', () => {
     // parent/child pair.
     //
     // The bug this guards against: when resolving consent for c12345's $everything, the person
-    // lookup must stay scoped to c12345's own tree. If it instead (as it did pre-DCON-4885)
+    // lookup must stay scoped to c12345's own tree. If it instead (as it did pre-)
     // broadly matches "any Person that links to the shared proa patient", the sibling
     // (c67890) gets pulled into c12345's request as an "immediate person" too -- which then
     // causes the sibling's own separate, valid Consent to be evaluated as if it applied to

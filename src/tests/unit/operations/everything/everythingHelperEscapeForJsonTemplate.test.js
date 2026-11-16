@@ -1,5 +1,5 @@
 /**
- * Unit tests for escapeForJsonTemplate (DCON-4808).
+ * Unit tests for escapeForJsonTemplate.
  *
  * $everything's customQuery templates (see everythingRelatedResourcesMapper.js) substitute
  * `{placeholder}` markers -- sourced from parent Patient/Person resource fields such as

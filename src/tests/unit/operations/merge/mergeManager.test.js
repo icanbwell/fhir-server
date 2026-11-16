@@ -664,7 +664,7 @@ describe('MergeManager', () => {
             expect(result.updated).toBe(false);
         });
 
-        test('keeps the resource in the OperationOutcome diagnostics text since this is returned in the API response (DCON-5385)', () => {
+        test('keeps the resource in the OperationOutcome diagnostics text since this is returned in the API response', () => {
             const base64Payload = 'A'.repeat(5000);
             const resource = {
                 id: 'b1', _uuid: 'uuid-b1', resourceType: 'Binary', data: base64Payload
@@ -677,7 +677,7 @@ describe('MergeManager', () => {
         });
     });
 
-    describe('performMergeDbUpdateAsync (DCON-5385)', () => {
+    describe('performMergeDbUpdateAsync', () => {
         test.each([[true], [false]])('forwards smartMerge=%s to mergeOneAsync', async (smartMerge) => {
             const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
             const { assertTypeEquals } = require('../../../../utils/assertType');
@@ -742,7 +742,7 @@ describe('MergeManager', () => {
         });
     });
 
-    describe('performMergeDbInsertAsync (DCON-5385)', () => {
+    describe('performMergeDbInsertAsync', () => {
         test('does not embed the full resource (including Binary.data) into the rethrown error, only its uuid', async () => {
             const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
             const { assertTypeEquals } = require('../../../../utils/assertType');
@@ -778,7 +778,7 @@ describe('MergeManager', () => {
         });
     });
 
-    describe('mergeResourceAsync error logging (DCON-5385)', () => {
+    describe('mergeResourceAsync error logging', () => {
         test('does not leak Binary.data into logs end-to-end when the DB update fails, while the API response still contains it', async () => {
             const { FhirRequestInfo } = require('../../../../utils/fhirRequestInfo');
             const { assertTypeEquals } = require('../../../../utils/assertType');
