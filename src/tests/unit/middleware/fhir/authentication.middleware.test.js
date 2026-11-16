@@ -186,7 +186,7 @@ describe('authentication.middleware', () => {
             expect(req.authInfo).toEqual(info);
         });
 
-        // Thread 4: transient auth-infrastructure failures must never leak the
+        // Transient auth-infrastructure failures must never leak the
         // raw underlying error/info message (which can contain internal
         // hostnames/IPs, e.g. `connect ECONNREFUSED 10.0.4.12:443`) to an
         // unauthenticated caller.
