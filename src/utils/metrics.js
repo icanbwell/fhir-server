@@ -366,11 +366,11 @@ const mongoPoolConnectionCreatedCounter = meter.createCounter('fhir_mongo_pool_c
 // emits a delta when its per-client state actually changes, which is what keeps the sum
 // from drifting negative.
 const mongoPoolConnectionsInUseUpDownCounter = meter.createUpDownCounter('fhir_mongo_pool_connections_in_use', {
-    description: 'MongoDB connections currently checked out, by pool, summed across the server pools of that client. Equal to maxPoolSize with a non-zero fhir_mongo_pool_wait_queue_size means the pool is exhausted; read it per process_pid, because each cluster worker has its own pool.'
+    description: 'MongoDB connections currently checked out, by pool, summed across the server pools of that client. Equal to maxPoolSize with a non-zero fhir_mongo_pool_wait_queue_size means the pool is exhausted; read it per process_pid, because each cluster worker has its own pool. A worker that exits keeps its last value until the series goes stale, so aggregate over a recent window (max by process_pid), not an unbounded sum.'
 });
 
 const mongoPoolWaitQueueSizeUpDownCounter = meter.createUpDownCounter('fhir_mongo_pool_wait_queue_size', {
-    description: 'Requests currently waiting to check a connection out of a MongoDB pool, by pool. Any sustained non-zero value means requests are queued behind fhir_mongo_pool_connections_in_use before their query starts.'
+    description: 'Requests currently waiting to check a connection out of a MongoDB pool, by pool. Any sustained non-zero value means requests are queued behind fhir_mongo_pool_connections_in_use before their query starts. Derived from checkout started/finished events, so alert on it staying above 0 for a sustained period, not on a single sample.'
 });
 
 /**
