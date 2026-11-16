@@ -345,18 +345,21 @@ class MongoDatabaseManager {
     /**
      * @param {Object} [options]
      * @param {(poolName: string) => import('./mongoCheckoutTimeoutTracker').MongoCheckoutTimeoutTracker} [options.createCheckoutTimeoutTracker]
-     *   Builds one tracker per request-serving pool. Omitted outside the HTTP server.
+     *   Builds the tracker for the primary request-path pool only. Omitted outside the HTTP server.
      * @return {Promise<void>}
      */
     async connectAsync ({ createCheckoutTimeoutTracker } = {}) {
         if (clientConnection) {
             return;
         }
-        // Only the request-serving pools opened here get a tracker. Admin scripts, index
-        // management and the lazy fhir-notes pool call createClientAsync without one.
-        const trackerFor = (config) => ({ checkoutTimeoutTracker: createCheckoutTimeoutTracker?.(config.db_name) });
         const clientConfig = await this.getClientConfigAsync();
-        const client = await this.createClientAsync(clientConfig, trackerFor(clientConfig));
+        // Only the primary request-path pool gets a checkout-timeout tracker. The background
+        // pools below (audit-event, online-archive, access-logs, resource-history) have their
+        // own, longer wait-queue timeout; a saturated one must not restart the worker. Admin
+        // scripts, index management and the lazy fhir-notes pool never get a tracker either.
+        const client = await this.createClientAsync(clientConfig, {
+            checkoutTimeoutTracker: createCheckoutTimeoutTracker?.(clientConfig.db_name)
+        });
 
         for (const warning of this.postRequestWritesOnPrimaryPoolWarnings({
             auditConfig: await this.getAuditConfigAsync(),
@@ -370,14 +373,14 @@ class MongoDatabaseManager {
         clientDb = client.db(clientConfig.db_name);
 
         const auditConfig = await this.getAuditConfigAsync();
-        const auditEventClient = auditConfig.connection ? await this.createClientAsync(auditConfig, trackerFor(auditConfig)) : client;
+        const auditEventClient = auditConfig.connection ? await this.createClientAsync(auditConfig) : client;
         auditClientDb = auditEventClient.db(auditConfig.db_name);
 
         // if enabled then use auditEventReadOnlyMongoConfig else use same instance on audit event db
         if (this.configManager.enableAuditEventArchiveRead) {
             const auditReadOnlyConfig = await this.getAuditReadOnlyConfigAsync();
             const auditEventReadOnlyClient = auditReadOnlyConfig.connection
-                ? await this.createClientAsync(auditReadOnlyConfig, trackerFor(auditReadOnlyConfig))
+                ? await this.createClientAsync(auditReadOnlyConfig)
                 : auditEventClient;
             auditReadOnlyClientDb = auditEventReadOnlyClient.db(auditReadOnlyConfig.db_name);
         } else {
@@ -386,13 +389,13 @@ class MongoDatabaseManager {
 
         const accessLogsConfig = await this.getAccessLogsConfigAsync();
         const accessLogsClient = accessLogsConfig.connection
-            ? await this.createClientAsync(accessLogsConfig, trackerFor(accessLogsConfig))
+            ? await this.createClientAsync(accessLogsConfig)
             : auditEventClient;
         accessLogsDb = accessLogsClient.db(accessLogsConfig.db_name);
 
         const resourceHistoryConfig = await this.getResourceHistoryConfigAsync();
         const resourceHistoryClient = resourceHistoryConfig.connection
-            ? await this.createClientAsync(resourceHistoryConfig, trackerFor(resourceHistoryConfig))
+            ? await this.createClientAsync(resourceHistoryConfig)
             : client;
         resourceHistoryDb = resourceHistoryClient.db(resourceHistoryConfig.db_name);
         // fhir-notes-vector-store is intentionally NOT connected here -- see getFhirNotesDbAsync()

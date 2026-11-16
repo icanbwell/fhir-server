@@ -59,7 +59,7 @@ async function createServer (fnGetContainer) {
     const gracefulTimeoutMs = process.env.GRACEFUL_TIMEOUT_MS ? parseInt(process.env.GRACEFUL_TIMEOUT_MS) : 29000;
     const shutdownDelayMs = process.env.SHUTDOWN_DELAY_MS ? parseInt(process.env.SHUTDOWN_DELAY_MS) : 15100;
 
-    // A pool that keeps timing out on checkout is wedged; recycle this worker (see
+    // A primary pool that keeps timing out on checkout is wedged; recycle this worker (see
     // utils/mongoCheckoutTimeoutTracker.js). The force-exit backstop allows the full graceful
     // path (shutdown delay + drain) plus slack for the buffer flush in onSignal.
     const checkoutTimeoutExitSettings = readCheckoutTimeoutExitSettings(process.env);
