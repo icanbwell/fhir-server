@@ -1,4 +1,5 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 jest.mock('../../../../operations/common/logging', () => {
     const { jest: j } = require('@jest/globals');
@@ -397,14 +398,19 @@ describe('ImportOperation - null safety and error handling', () => {
                 _uuid: 'uuid-1'
             };
             const updateOneAsync = jest.fn().mockResolvedValue(undefined);
+            const fastFindOneAsync = jest.fn().mockResolvedValue(loaded);
             mocks.databaseQueryFactory.createQuery = jest.fn().mockReturnValue({
-                fastFindOneAsync: jest.fn().mockResolvedValue(loaded)
+                fastFindOneAsync
             });
             mocks.databaseUpdateFactory.createFastDatabaseUpdateManager = jest.fn().mockReturnValue({
                 updateOneAsync
             });
 
             await importOp.markTaskFailedAsync('job-1', 'kafka down');
+
+            expect(fastFindOneAsync).toHaveBeenCalledWith({
+                query: { _uuid: generateUUIDv5('job-1|bwell') }
+            });
 
             const { doc } = updateOneAsync.mock.calls[0][0];
             expect(doc).toMatchObject({
