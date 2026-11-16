@@ -310,7 +310,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             return matches.sort();
         }
 
-        test('PatientDataViewControlManager is only referenced by its own definition, its IoC wiring, everythingHelper.js, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js', () => {
+        test('PatientDataViewControlManager is only referenced by its own definition, its IoC wiring, the exclusion that wraps it, everythingHelper.js, graphqlv2/dataSource.js, and mcp/mcpToolHandler.js', () => {
             const srcDir = path.resolve(__dirname, '../../../../src');
 
             const referencingFiles = findFilesReferencing(srcDir, 'PatientDataViewControlManager');
@@ -320,6 +320,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                 'graphqlv2/dataSource.js',
                 'mcp/mcpToolHandler.js',
                 'operations/everything/everythingHelper.js',
+                'utils/patientDataViewControlExclusion.js',
                 'utils/patientDataViewController.js'
             ]);
         });

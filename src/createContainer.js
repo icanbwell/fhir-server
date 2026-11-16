@@ -147,6 +147,7 @@ const {READ, DELETE} = require('./constants').OPERATIONS;
 const {AuthService} = require("./strategies/authService");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
+const { PatientDataViewControlExclusion } = require('./utils/patientDataViewControlExclusion');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
 const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageEventProducer');
 const { PatientPersonManualLinkingEventProducer } = require('./utils/patientPersonManualLinkingEventProducer');
@@ -1481,6 +1482,14 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             r4ArgsParser: c.r4ArgsParser
+        });
+    });
+
+    container.register('patientDataViewControlExclusion', (c) => {
+        return new PatientDataViewControlExclusion({
+            configManager: c.configManager,
+            patientDataViewControlManager: c.patientDataViewControlManager,
+            patientScopeManager: c.patientScopeManager
         });
     });
 
