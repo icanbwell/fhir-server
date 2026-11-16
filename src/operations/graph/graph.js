@@ -11,6 +11,8 @@ const { getFirstElementOrNull } = require('../../utils/list.util');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { ParsedArgs } = require('../query/parsedArgs');
+const { AuditLogger, sanitizeOutcomeDesc } = require('../../utils/auditLogger');
+const { ReturnedResources } = require('./returnedResources');
 
 class GraphOperation {
     /**
@@ -19,6 +21,7 @@ class GraphOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {AuditLogger} auditLogger
      */
     constructor (
         {
@@ -26,7 +29,8 @@ class GraphOperation {
             fhirLoggingManager,
             scopesValidator,
             resourceValidator,
-            resourceLocatorFactory
+            resourceLocatorFactory,
+            auditLogger
         }
     ) {
         /**
@@ -56,6 +60,73 @@ class GraphOperation {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+    }
+
+    /**
+     * Runs the graph and audits the resources it returned. When streaming, the resources already
+     * sent are audited with an error outcome if the request fails part way.
+     * @param {Object} params
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.resourceType
+     * @param {Object} params.graphDefinitionJson
+     * @param {boolean} params.contained
+     * @param {BaseResponseStreamer|undefined} params.responseStreamer
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {boolean} params.supportLegacyId
+     * @return {Promise<Bundle>}
+     */
+    async processGraphWithAuditAsync (
+        {
+            requestInfo,
+            base_version,
+            resourceType,
+            graphDefinitionJson,
+            contained,
+            responseStreamer,
+            parsedArgs,
+            supportLegacyId
+        }
+    ) {
+        const returnedResources = new ReturnedResources();
+        const auditArgs = { requestInfo, base_version, resourceType, args: parsedArgs.getRawArgs() };
+        try {
+            const resultBundle = await this.graphHelper.processGraphAsync(
+                {
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    graphDefinitionJson,
+                    contained,
+                    responseStreamer,
+                    parsedArgs,
+                    supportLegacyId,
+                    returnedResources
+                }
+            );
+            this.auditLogger.queueReadAuditEntries({
+                ...auditArgs,
+                resources: returnedResources.resources
+            });
+            return resultBundle;
+        } catch (err) {
+            if (responseStreamer) {
+                const statusCode = err.statusCode || 500;
+                this.auditLogger.queueReadAuditEntries({
+                    ...auditArgs,
+                    resources: returnedResources.resources,
+                    outcome: statusCode >= 500 ? '8' : '4',
+                    outcomeDesc: sanitizeOutcomeDesc({ error: err, statusCode })
+                });
+            }
+            throw err;
+        }
     }
 
     /**
@@ -194,7 +265,7 @@ class GraphOperation {
                         parsedArgs,
                         supportLegacyId
                     }
-                ) : await this.graphHelper.processGraphAsync(
+                ) : await this.processGraphWithAuditAsync(
                     {
                         requestInfo,
                         base_version,

@@ -206,6 +206,27 @@ describe('SearchManager', () => {
             expect(mockDataSharingManager.updateQueryForDelegatedAccessSensitiveData).toHaveBeenCalled();
         });
 
+        it('applies the connection-type restriction to the sensitive-data-filtered query for delegatedUser', async () => {
+            const sensitiveFilteredQuery = { $and: [{ q: 1 }] };
+            const actor = { reference: 'Organization/org-1', allowedConnectionTypes: ['treatment'] };
+            mockDataSharingManager.patientFilterManager = { canAccessResourceWithPatientScope: jest.fn().mockReturnValue(true) };
+            mockDataSharingManager.updateQueryForDelegatedAccessSensitiveData = jest.fn().mockResolvedValue(sensitiveFilteredQuery);
+            mockDataSharingManager.updateQueryForDelegatedAccessConnectionTypes = jest.fn().mockReturnValue({ restricted: true });
+
+            await searchManager.constructQueryAsync({
+                user: 'user-1', scope: 'system/Observation.read', isUser: false, userType: 'delegatedUser',
+                resourceType: 'Observation', useAccessIndex: false, personIdFromJwtToken: 'person-1',
+                requestId: 'req-1', parsedArgs: mockParsedArgs, useHistoryTable: false, operation: 'READ',
+                accessRequested: 'read', actor
+            });
+
+            expect(mockDataSharingManager.updateQueryForDelegatedAccessConnectionTypes).toHaveBeenCalledWith({
+                query: sensitiveFilteredQuery,
+                actor,
+                resourceType: 'Observation'
+            });
+        });
+
         it('AND-composes the _content candidate-id filter with the security-tag filter -- neither replaces the other', async () => {
             // Security property under test: candidate ids returned by the vector store (an
             // external, unauthorized-by-fhir-server data source) must be re-authorized through the

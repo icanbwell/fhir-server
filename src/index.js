@@ -23,6 +23,11 @@ const main = async function () {
 
         await createServer(() => container);
 
+        // Connect the V2 Kafka producer now (a no-op when V2 Kafka is disabled, and never throws),
+        // so the first AuditEvent flush doesn't pay for the connect inside its produce timeout.
+        // Not awaited: it must not delay startup or readiness.
+        container.kafkaClientV2.warmUpAsync();
+
         // Cron tasks flush per-worker buffers (postSaveProcessor, auditLogger,
         // accessLogger). The buffers are local to each worker, so every worker
         // must run its own cron task processor.

@@ -2,6 +2,7 @@
  * logs audit entries
  */
 const { generateUUID } = require('./uid.util');
+const { PostRequestProcessor } = require('./postRequestProcessor');
 const { assertTypeEquals } = require('./assertType');
 const { SecurityTagSystem } = require('./securityTagSystem');
 const { logError } = require('../operations/common/logging');
@@ -35,6 +36,7 @@ class AuditLogger {
     /**
      * constructor
      * @typedef {Object} params
+     * @property {PostRequestProcessor} postRequestProcessor
      * @property {import('../dataLayer/fastDatabaseBulkInserter').FastDatabaseBulkInserter} databaseBulkInserter
      * @property {PreSaveManager} preSaveManager
      * @property {ConfigManager} configManager
@@ -43,13 +45,20 @@ class AuditLogger {
      * @param {params}
      */
     constructor({
+        postRequestProcessor,
         databaseBulkInserter,
         preSaveManager,
         configManager,
         base_version = '4_0_0'
     }) {
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         assertTypeEquals(preSaveManager, PreSaveManager);
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
 
         /**
          * @type {import('../dataLayer/fastDatabaseBulkInserter').FastDatabaseBulkInserter}
@@ -282,6 +291,59 @@ class AuditLogger {
             await this.preSaveManager.preSaveAsync({ resource: doc });
             const serialized = FhirResourceWriteSerializer.serialize({ obj: doc });
             this.queue.push({ doc: serialized, requestInfo: queueContext });
+        }
+    }
+
+    /**
+     * Queues a read AuditEvent per resource type for the resources a request returned. When
+     * `outcome` is set, the AuditEvent also carries it, and falls back to `resourceType` with no ids
+     * when nothing was returned.
+     * @param {Object} params
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.resourceType
+     * @param {Object} params.args
+     * @param {{_uuid: string, resourceType: string}[]} params.resources
+     * @param {string} [params.outcome]
+     * @param {string} [params.outcomeDesc]
+     */
+    queueReadAuditEntries({
+        requestInfo, base_version, resourceType, args, resources, outcome, outcomeDesc
+    }) {
+        /**
+         * @type {Map<string, Set<string>>}
+         */
+        const idsByType = new Map();
+        for (const { resourceType: type, _uuid } of resources) {
+            if (type === 'AuditEvent') {
+                continue;
+            }
+            if (!idsByType.has(type)) {
+                idsByType.set(type, new Set());
+            }
+            idsByType.get(type).add(_uuid);
+        }
+        if (idsByType.size === 0 && outcome !== undefined && resourceType !== 'AuditEvent') {
+            idsByType.set(resourceType, new Set());
+        }
+
+        for (const [type, idSet] of idsByType.entries()) {
+            const ids = [...idSet];
+            this.postRequestProcessor.add({
+                requestId: requestInfo.requestId,
+                fnTask: async () => {
+                    await this.logAuditEntryAsync({
+                        requestInfo,
+                        base_version,
+                        resourceType: type,
+                        operation: 'read',
+                        args,
+                        ids,
+                        outcome,
+                        outcomeDesc
+                    });
+                }
+            });
         }
     }
 

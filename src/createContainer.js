@@ -390,7 +390,9 @@ const createContainer = function () {
     container.register('cmsManager', (c) => new CMSManager({
         configManager: c.configManager
     }));
-    container.register('delegatedAccessManager', () => new DelegatedAccessManager());
+    container.register('delegatedAccessManager', (c) => new DelegatedAccessManager({
+        configManager: c.configManager
+    }));
     container.register('resourceOperationAccessProvider', () => new ResourceOperationAccessProvider());
     container.register('accessManager', (c) => new OperationAccessManager({
         accessProviders: [
@@ -816,6 +818,7 @@ const createContainer = function () {
         }));
     container.register('auditLogger', (c) => new AuditLogger(
             {
+                postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.fastDatabaseBulkInserter,
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager
@@ -1128,7 +1131,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             resourceValidator: c.resourceValidator,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            auditLogger: c.auditLogger
         }
     ));
     container.register('expandOperation', (c) => new ExpandOperation(
