@@ -40,15 +40,18 @@ const {
  * @param {import('mongodb').MongoClient} params.client
  * @param {string} params.poolName Logical pool label. Bounded by deployment (one per
  *   configured database), never derived from resource ids or user input.
+ * @param {import('./mongoCheckoutTimeoutTracker').MongoCheckoutTimeoutTracker} [params.checkoutTimeoutTracker]
+ *   Optional. Fed checkout timeouts and successes so a wedged pool can recycle the worker.
  * @returns {void}
  */
-function registerMongoPoolMonitoring ({ client, poolName }) {
+function registerMongoPoolMonitoring ({ client, poolName, checkoutTimeoutTracker }) {
     if (!client || typeof client.on !== 'function') {
         return;
     }
 
     client.on('connectionCheckedOut', (event) => {
         recordMongoPoolCheckoutDuration(poolName, event?.durationMS);
+        checkoutTimeoutTracker?.recordCheckoutSuccess();
     });
 
     client.on('connectionCheckOutFailed', (event) => {
@@ -56,6 +59,9 @@ function registerMongoPoolMonitoring ({ client, poolName }) {
         // A failed checkout still consumed wait time, and that wait is the whole point of
         // the histogram -- excluding it would hide the worst cases.
         recordMongoPoolCheckoutDuration(poolName, event?.durationMS);
+        if (event?.reason === 'timeout') {
+            checkoutTimeoutTracker?.recordCheckoutTimeout();
+        }
     });
 
     client.on('connectionPoolCleared', () => {

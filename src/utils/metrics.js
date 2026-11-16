@@ -334,6 +334,10 @@ const kafkaConsumerGroupJoinsCounter = meter.createCounter('fhir_kafka_consumer_
     description: 'Consumer GROUP_JOIN events by group_id. One per consumer start is normal; a steady rate is rebalance or eviction churn (kafkajs rejoins after UNKNOWN_MEMBER_ID without emitting REBALANCING, so this is the only count that sees evictions).'
 });
 
+const mongoCheckoutTimeoutSelfExitCounter = meter.createCounter('fhir_mongo_checkout_timeout_self_exit_total', {
+    description: 'Workers that shut themselves down after repeated MongoDB checkout timeouts on one pool, by pool. Each is a wedged pool that the cluster primary (or Kubernetes, in single-process mode) replaced with a fresh process.'
+});
+
 const mongoPoolCheckoutDurationHistogram = meter.createHistogram('fhir_mongo_pool_checkout_duration_seconds', {
     description: 'Time a request waited to check a connection out of a MongoDB pool, by pool. Recorded for successful and failed checkouts alike. This wait is invisible to the OTel mongodb instrumentation, which spans only the wire command -- a starved pool shows up there as a fast query preceded by nothing.',
     unit: 's',
@@ -633,6 +637,14 @@ function recordKafkaConsumerGroupJoin (groupId) {
 }
 
 /**
+ * Emit fhir_mongo_checkout_timeout_self_exit_total.
+ * @param {string} pool
+ */
+function recordMongoCheckoutTimeoutSelfExit (pool) {
+    mongoCheckoutTimeoutSelfExitCounter.add(1, { [LABEL.POOL]: pool || UNKNOWN });
+}
+
+/**
  * Emit fhir_mongo_pool_checkout_duration_seconds. The driver reports the wait in
  * milliseconds; the instrument is in seconds to match the other duration histograms here.
  * @param {string} pool
@@ -698,6 +710,7 @@ module.exports = {
     importTasksCounter,
     importTaskDurationHistogram,
     kafkaConsumerGroupJoinsCounter,
+    mongoCheckoutTimeoutSelfExitCounter,
     mongoPoolCheckoutDurationHistogram,
     mongoPoolCheckoutFailedCounter,
     mongoPoolClearedCounter,
@@ -720,6 +733,7 @@ module.exports = {
     recordImportRanges,
     recordImportTaskFinished,
     recordKafkaConsumerGroupJoin,
+    recordMongoCheckoutTimeoutSelfExit,
     recordMongoPoolCheckoutDuration,
     recordMongoPoolCheckoutFailed,
     recordMongoPoolCleared,
