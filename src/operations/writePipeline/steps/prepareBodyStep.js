@@ -4,7 +4,8 @@ const { WriteItem } = require('../writeItem');
 /**
  * The `prepareBody` step, per item: saves the body's `_uuid` and `_sourceAssigningAuthority` in
  * `savedIdentity`, then strips every `_` field from the body for validation. `ValidateIncomingStep`
- * restores the two saved fields.
+ * restores the two saved fields after the schema check; an item that fails its size or pipe-in-id
+ * check keeps its stripped body.
  */
 class PrepareBodyStep {
     /**

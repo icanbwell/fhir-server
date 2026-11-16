@@ -251,4 +251,37 @@ describe('logging', () => {
             expect(infoSpy).toHaveBeenCalledWith('MyComponent', { args: { data: 123 } });
         });
     });
+
+    describe('worker pid on emitted log lines', () => {
+        test('the Request Completed line written to the transport carries the worker pid as process.pid', () => {
+            // GIVEN a fresh logging module whose default logger is not silenced (the test env sets
+            // LOGLEVEL=SILENT at load time) and whose console transport is swapped for a capture
+            const winston = require('winston');
+            // winston stores the final serialized line under this symbol (triple-beam's MESSAGE)
+            const MESSAGE = Symbol.for('message');
+            const lines = [];
+            class CapturingTransport extends winston.Transport {
+                log (info, callback) {
+                    lines.push(info[MESSAGE]);
+                    callback();
+                }
+            }
+            process.env.LOGLEVEL = 'info';
+            jestObj.isolateModules(() => {
+                const isolatedLogger = require('../../../../winstonInit').getLogger();
+                isolatedLogger.clear();
+                isolatedLogger.add(new CapturingTransport());
+                const { logInfo: isolatedLogInfo } = require('../../../../operations/common/logging');
+
+                // WHEN the request lifecycle middleware logs a completed request
+                isolatedLogInfo('Request Completed', { status: 200, method: 'GET', requestUrl: '/4_0_0/Patient' });
+            });
+
+            // THEN the serialized JSON line names the worker that served it
+            expect(lines).toHaveLength(1);
+            const line = JSON.parse(lines[0]);
+            expect(line.message).toBe('Request Completed');
+            expect(line['process.pid']).toBe(process.pid);
+        });
+    });
 });

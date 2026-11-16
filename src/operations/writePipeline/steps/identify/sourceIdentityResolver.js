@@ -6,8 +6,8 @@ const { WriteFailure } = require('../../writeFailure');
 const { WriteItem } = require('../../writeItem');
 
 /**
- * The identity resolver for the `findExisting` step, per item: sets the body's `_uuid`, from a UUID
- * id, or else from the id and the source assigning authority.
+ * The identity resolver for the `identify` step, per item: sets the body's `_uuid`, from a UUID id,
+ * or else from the id and the source assigning authority.
  */
 class SourceIdentityResolver {
     /**

@@ -64,14 +64,16 @@ jestObj.mock('../../../operations/common/systemEventLogging', () => ({
 }));
 
 jestObj.mock('../../../operations/common/logging', () => ({
-    logError: jestObj.fn()
+    logError: jestObj.fn(),
+    logInfo: jestObj.fn(),
+    logWarn: jestObj.fn()
 }));
 
 jestObj.mock('../../../utils/rethrownError', () => ({
     RethrownError: class RethrownError extends Error {
         constructor({ message, error, config }) {
             super(message);
-            this.originalError = error;
+            this.original_error = error;
             this.config = config;
         }
     }
@@ -101,7 +103,7 @@ const { W3CTraceContextPropagator } = require('@opentelemetry/core');
 propagation.setGlobalPropagator(new W3CTraceContextPropagator());
 const { recordKafkaRetryExhausted } = require('../../../utils/metrics');
 const { logTraceSystemEventAsync, logSystemErrorAsync, logSystemEventAsync } = require('../../../operations/common/systemEventLogging');
-const { logError } = require('../../../operations/common/logging');
+const { logError, logWarn } = require('../../../operations/common/logging');
 
 describe('KafkaClientV2', () => {
     let kafkaClient;
@@ -352,6 +354,84 @@ describe('KafkaClientV2', () => {
                     event: 'kafkaClientV2Retry',
                     message: 'Retrying sending the CloudEvent message by creating new client'
                 })
+            );
+        });
+    });
+
+    describe('ensureProducerConnectedAsync / warmUpAsync', () => {
+        test('concurrent callers share a single connect', async () => {
+            let resolveConnect;
+            mockProducerConnect.mockImplementation(() => new Promise((resolve) => { resolveConnect = resolve; }));
+            const first = kafkaClient.ensureProducerConnectedAsync();
+            const second = kafkaClient.ensureProducerConnectedAsync();
+            resolveConnect();
+            await Promise.all([first, second]);
+            expect(mockProducerConnect).toHaveBeenCalledTimes(1);
+            expect(kafkaClient.producerConnected).toBe(true);
+        });
+
+        test('a failed connect can be retried', async () => {
+            mockProducerConnect.mockRejectedValueOnce(new Error('Connection refused'));
+            await expect(kafkaClient.ensureProducerConnectedAsync()).rejects.toThrow(
+                'Error in connecting producer to kafka v2'
+            );
+            expect(kafkaClient.producerConnected).toBe(false);
+            await kafkaClient.ensureProducerConnectedAsync();
+            expect(mockProducerConnect).toHaveBeenCalledTimes(2);
+            expect(kafkaClient.producerConnected).toBe(true);
+        });
+
+        test('init() during an in-flight connect does not block connecting the new producer', async () => {
+            let resolveOldConnect;
+            mockProducerConnect.mockImplementationOnce(() => new Promise((resolve) => { resolveOldConnect = resolve; }));
+            const oldConnect = kafkaClient.ensureProducerConnectedAsync();
+            kafkaClient.init({
+                clientId: kafkaClient.clientId,
+                brokers: kafkaClient.brokers,
+                ssl: kafkaClient.ssl,
+                sasl: kafkaClient.sasl
+            });
+            const newProducer = kafkaClient.producer;
+            await kafkaClient.ensureProducerConnectedAsync();
+            expect(mockProducerConnect).toHaveBeenCalledTimes(2);
+            expect(kafkaClient.producerConnected).toBe(true);
+            resolveOldConnect();
+            await oldConnect;
+            expect(kafkaClient.producer).toBe(newProducer);
+            expect(kafkaClient.producerConnected).toBe(true);
+            // a later call must not start another connect: the new producer's connect was recorded
+            await kafkaClient.ensureProducerConnectedAsync();
+            expect(mockProducerConnect).toHaveBeenCalledTimes(2);
+        });
+
+        test.each([
+            ['defaults to 30s when not configured', undefined, 30000],
+            ['uses the configured timeout', 45000, 45000]
+        ])('kafkajs connection timeout %s', (_name, configured, expected) => {
+            const { Kafka } = require('kafkajs');
+            mockConfigManagerInstance.kafkaV2ConnectTimeoutMs = configured;
+            const client = new KafkaClientV2({ configManager: mockConfigManagerInstance });
+            expect(Kafka).toHaveBeenLastCalledWith(expect.objectContaining({ connectionTimeout: expected }));
+            expect(client.connectionTimeout).toBe(expected);
+        });
+
+        test('warmUpAsync connects the producer before the first send', async () => {
+            await kafkaClient.warmUpAsync();
+            expect(mockProducerConnect).toHaveBeenCalledTimes(1);
+            await kafkaClient.sendCloudEventMessageHelperAsync({
+                topic: 'test-topic',
+                messages: [{ key: 'k', value: 'v' }]
+            });
+            expect(mockProducerConnect).toHaveBeenCalledTimes(1);
+        });
+
+        test('warmUpAsync does not throw when the connect fails', async () => {
+            mockProducerConnect.mockRejectedValueOnce(new Error('Connection refused'));
+            await expect(kafkaClient.warmUpAsync()).resolves.toBeUndefined();
+            expect(kafkaClient.producerConnected).toBe(false);
+            expect(logWarn).toHaveBeenCalledWith(
+                expect.stringContaining('warm-up failed'),
+                expect.objectContaining({ originalError: 'Connection refused' })
             );
         });
     });

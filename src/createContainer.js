@@ -162,9 +162,9 @@ const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongo
 const { WritePipelineSwitch } = require('./operations/writePipeline/writePipelineSwitch');
 const { WritePipeline } = require('./operations/writePipeline/writePipeline');
 const { ScopeCheckStep } = require('./operations/writePipeline/steps/scopeCheckStep');
+const { IdentifyStep } = require('./operations/writePipeline/steps/identifyStep');
 const { FindExistingStep } = require('./operations/writePipeline/steps/findExistingStep');
-const { ResourceSizeCheck } = require('./operations/writePipeline/steps/checks/resourceSizeCheck');
-const { PipeInIdCheck } = require('./operations/writePipeline/steps/checks/pipeInIdCheck');
+const { ValidateNewResourceStep } = require('./operations/writePipeline/steps/validateNewResourceStep');
 const { SourceIdentityResolver } = require('./operations/writePipeline/steps/identify/sourceIdentityResolver');
 const { BulkPreloadLoader } = require('./operations/writePipeline/steps/load/bulkPreloadLoader');
 const { PrepareBodyStep } = require('./operations/writePipeline/steps/prepareBodyStep');
@@ -391,7 +391,9 @@ const createContainer = function () {
     container.register('cmsManager', (c) => new CMSManager({
         configManager: c.configManager
     }));
-    container.register('delegatedAccessManager', () => new DelegatedAccessManager());
+    container.register('delegatedAccessManager', (c) => new DelegatedAccessManager({
+        configManager: c.configManager
+    }));
     container.register('resourceOperationAccessProvider', () => new ResourceOperationAccessProvider());
     container.register('accessManager', (c) => new OperationAccessManager({
         accessProviders: [
@@ -716,22 +718,23 @@ const createContainer = function () {
 
     container.register('writePipeline', (c) => new WritePipeline({
         scopeCheckStep: new ScopeCheckStep({ scopesValidator: c.scopesValidator }),
-        findExistingStep: new FindExistingStep({
-            prechecks: [
-                new ResourceSizeCheck({ resourceValidator: c.resourceValidator }),
-                new PipeInIdCheck()
-            ],
+        identifyStep: new IdentifyStep({
             identityResolver: new SourceIdentityResolver({
                 sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
                 uuidColumnHandler: c.uuidColumnHandler
-            }),
+            })
+        }),
+        prepareBodyStep: new PrepareBodyStep(),
+        validateIncomingStep: new ValidateIncomingStep({ resourceValidator: c.resourceValidator }),
+        findExistingStep: new FindExistingStep({
             existingResourceLoader: new BulkPreloadLoader({
                 databaseBulkLoader: c.databaseBulkLoader,
                 databaseQueryFactory: c.databaseQueryFactory
             })
         }),
-        prepareBodyStep: new PrepareBodyStep(),
-        validateIncomingStep: new ValidateIncomingStep({ resourceValidator: c.resourceValidator }),
+        validateNewResourceStep: new ValidateNewResourceStep({
+            resourceValidator: c.resourceValidator
+        }),
         accessCheckStep: new AccessCheckStep({
             accessChecker: new IncomingAndStoredAccessChecker({
                 writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
@@ -827,6 +830,7 @@ const createContainer = function () {
         }));
     container.register('auditLogger', (c) => new AuditLogger(
             {
+                postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.fastDatabaseBulkInserter,
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager
@@ -1140,7 +1144,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             resourceValidator: c.resourceValidator,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            auditLogger: c.auditLogger
         }
     ));
     container.register('expandOperation', (c) => new ExpandOperation(

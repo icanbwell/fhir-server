@@ -141,7 +141,10 @@ class GenericController {
                         res
                     },
                     resourceType);
-                if (!res.writableEnded) {
+                // An extended Group read streams its own response. Check headersSent, not
+                // writableEnded: compression defers the real end() until the gzip stream drains,
+                // so writableEnded is still false here and readOne would set a 404 on a sent 200.
+                if (!res.headersSent) {
                     await this.fhirResponseWriter.readOne({ req, res, resource });
                 }
             } catch (e) {
@@ -177,7 +180,10 @@ class GenericController {
                     },
                     resourceType
                 );
-                if (!res.writableEnded) {
+                // An extended Group read streams its own response. Check headersSent, not
+                // writableEnded: compression defers the real end() until the gzip stream drains,
+                // so writableEnded is still false here and readOne would set a 404 on a sent 200.
+                if (!res.headersSent) {
                     await this.fhirResponseWriter.readOne({ req, res, resource });
                 }
             } catch (e) {

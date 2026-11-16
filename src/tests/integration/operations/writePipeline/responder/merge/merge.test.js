@@ -7,6 +7,8 @@ const patientUuidIdWithoutOwnerResource = require('./fixtures/patientUuidIdWitho
 const patientPartOneResource = require('./fixtures/patientPartOne.json');
 const patientPartTwoResource = require('./fixtures/patientPartTwo.json');
 const patientWithPipeInIdResource = require('./fixtures/patientWithPipeInId.json');
+const patientWithPipeInIdAndUuidResource = require('./fixtures/patientWithPipeInIdAndUuid.json');
+const patientWithPipeInIdOwnerWithoutCodeResource = require('./fixtures/patientWithPipeInIdOwnerWithoutCode.json');
 const patientUpdatePartAResource = require('./fixtures/patientUpdatePartA.json');
 const patientUpdatePartBResource = require('./fixtures/patientUpdatePartB.json');
 const patientUpdateOtherAccessResource = require('./fixtures/patientUpdateOtherAccess.json');
@@ -20,6 +22,7 @@ const observationResource = require('./fixtures/observation.json');
 const bundleResource = require('./fixtures/bundle.json');
 const bundleWithEmptyEntryResource = require('./fixtures/bundleWithEmptyEntry.json');
 const parametersEmptyResource = require('./fixtures/parametersEmpty.json');
+const auditEventOwnerOnlyResource = require('./fixtures/auditEventOwnerOnly.json');
 
 const expectedCreated = require('./fixtures/expected/created.json');
 const expectedStoredCreated = require('./fixtures/expected/storedCreated.json');
@@ -42,6 +45,9 @@ const expectedParametersEmpty = require('./fixtures/expected/parametersEmpty.jso
 const expectedBundleWithEmptyEntry = require('./fixtures/expected/bundleWithEmptyEntry.json');
 const expectedPreferOperationOutcome = require('./fixtures/expected/preferOperationOutcome.json');
 const expectedPipeInId = require('./fixtures/expected/pipeInId.json');
+const expectedPipeInIdWithUuid = require('./fixtures/expected/pipeInIdWithUuid.json');
+const expectedPipeInIdOwnerWithoutCode = require('./fixtures/expected/pipeInIdOwnerWithoutCode.json');
+const expectedAuditEventAtSizeLimit = require('./fixtures/expected/auditEventAtSizeLimit.json');
 const expectedDuplicatesOfExisting = require('./fixtures/expected/duplicatesOfExisting.json');
 const expectedStoredDuplicatesOfExisting = require('./fixtures/expected/storedDuplicatesOfExisting.json');
 const expectedDuplicateAccessForbidden = require('./fixtures/expected/duplicateAccessForbidden.json');
@@ -57,6 +63,9 @@ const expectedNewBundle = require('./fixtures/expected/newPath/bundle.json');
 const expectedNewPreferOperationOutcome = require('./fixtures/expected/newPath/preferOperationOutcome.json');
 const expectedNewPipeInId = require('./fixtures/expected/newPath/pipeInId.json');
 const expectedNewCreatedByIdAndUuid = require('./fixtures/expected/newPath/createdByIdAndUuid.json');
+const expectedNewPipeInIdWithUuid = require('./fixtures/expected/newPath/pipeInIdWithUuid.json');
+const expectedNewPipeInIdOwnerWithoutCode = require('./fixtures/expected/newPath/pipeInIdOwnerWithoutCode.json');
+const expectedNewAuditEventAtSizeLimit = require('./fixtures/expected/newPath/auditEventAtSizeLimit.json');
 
 const {
     commonBeforeEach,
@@ -73,6 +82,15 @@ const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/g
  * The two write paths each case runs on.
  */
 const PATHS = ['old', 'new'];
+
+/**
+ * The AuditEvent's size as sent, used as the size limit in the size case: the body as sent fits,
+ * and the body with the source assigning authority tag that identification adds does not.
+ */
+const AUDIT_EVENT_SIZE_AS_SENT = Buffer.byteLength(
+    JSON.stringify(auditEventOwnerOnlyResource),
+    'utf8'
+);
 
 /**
  * Posts the body to Patient `$merge` with the given headers.
@@ -101,6 +119,7 @@ const entryIds = (bundle) => bundle.entry.map((entry) => entry.resource.id ?? nu
 
 describe('$merge parity between the old and the new write path', () => {
     const originalOperations = process.env.WRITE_PIPELINE_OPERATIONS;
+    const originalAuditEventMaxSizeBytes = process.env.AUDIT_EVENT_MAX_SIZE_BYTES;
 
     beforeEach(async () => {
         await commonBeforeEach();
@@ -111,6 +130,11 @@ describe('$merge parity between the old and the new write path', () => {
             delete process.env.WRITE_PIPELINE_OPERATIONS;
         } else {
             process.env.WRITE_PIPELINE_OPERATIONS = originalOperations;
+        }
+        if (originalAuditEventMaxSizeBytes === undefined) {
+            delete process.env.AUDIT_EVENT_MAX_SIZE_BYTES;
+        } else {
+            process.env.AUDIT_EVENT_MAX_SIZE_BYTES = originalAuditEventMaxSizeBytes;
         }
         jest.restoreAllMocks();
         await commonAfterEach();
@@ -321,6 +345,34 @@ describe('$merge parity between the old and the new write path', () => {
             status: 200,
             expected: expectedPipeInId,
             expectedNew: expectedNewPipeInId
+        },
+        {
+            name: 'reports an id with a pipe sent with a _uuid and a _sourceAssigningAuthority',
+            previous: [],
+            body: patientWithPipeInIdAndUuidResource,
+            headers: getHeaders(),
+            status: 200,
+            expected: expectedPipeInIdWithUuid,
+            expectedNew: expectedNewPipeInIdWithUuid
+        },
+        {
+            name: 'reports an id with a pipe whose owner tag has no code',
+            previous: [],
+            body: patientWithPipeInIdOwnerWithoutCodeResource,
+            headers: getHeaders(),
+            status: 200,
+            expected: expectedPipeInIdOwnerWithoutCode,
+            expectedNew: expectedNewPipeInIdOwnerWithoutCode
+        },
+        {
+            name: 'measures an AuditEvent with only an owner tag after identification adds its tag',
+            previous: [],
+            body: auditEventOwnerOnlyResource,
+            headers: getHeaders(),
+            auditEventMaxSizeBytes: AUDIT_EVENT_SIZE_AS_SENT,
+            status: 200,
+            expected: expectedAuditEventAtSizeLimit,
+            expectedNew: expectedNewAuditEventAtSizeLimit
         }
     ];
 
@@ -333,7 +385,8 @@ describe('$merge parity between the old and the new write path', () => {
         expected,
         expectedNew,
         stored,
-        absent
+        absent,
+        auditEventMaxSizeBytes
     }) => {
         const request = await createTestRequest();
         useWritePath('old');
@@ -341,6 +394,9 @@ describe('$merge parity between the old and the new write path', () => {
             await mergeResources(request, resource).expect(200);
         }
         useWritePath(path);
+        if (auditEventMaxSizeBytes !== undefined) {
+            process.env.AUDIT_EVENT_MAX_SIZE_BYTES = String(auditEventMaxSizeBytes);
+        }
 
         const resp = await mergeResources(request, body, headers);
 

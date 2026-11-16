@@ -451,7 +451,7 @@ describe('DelegatedAccessRulesManager', () => {
                 resourceType: 'Organization',
                 sourceAssigningAuthority: undefined
             });
-            const actor = { reference: 'Organization/org-1' };
+            const actor = { reference: 'Organization/org-1', isOrganizationActor: true };
 
             const result = await manager.hasValidConsentAsync({
                 actor,
@@ -864,6 +864,97 @@ describe('DelegatedAccessRulesManager', () => {
             });
 
             expect(result).toEqual([]);
+        });
+
+        describe('allowed connection types', () => {
+            const consentUuid = '123e4567-e89b-12d3-a456-426614174004';
+            const connectionTypeSystem = 'https://www.icanbwell.com/connectionType';
+
+            const mockConsentLookup = (securityLabel) => {
+                ReferenceParser.parseReference.mockReturnValue({
+                    id: consentUuid,
+                    resourceType: 'Consent',
+                    sourceAssigningAuthority: undefined
+                });
+                mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                    findAsync: jest.fn().mockResolvedValue({
+                        maxTimeMS: jest.fn(),
+                        toArrayAsync: jest.fn().mockResolvedValue([
+                            { _uuid: consentUuid, provision: { purpose: [{ code: 'TREAT' }], securityLabel } }
+                        ])
+                    })
+                });
+            };
+
+            it.each([
+                ['no securityLabel (fails closed)', undefined, []],
+                ['only non-connectionType labels (fails closed)', [{ system: 'https://www.icanbwell.com/other', code: 'x' }], []],
+                ['one connection type', [{ system: connectionTypeSystem, code: 'treatment' }], ['treatment']],
+                [
+                    'several connection types',
+                    [{ system: connectionTypeSystem, code: 'treatment' }, { system: connectionTypeSystem, code: 'proa' }],
+                    ['treatment', 'proa']
+                ],
+                ['a differently-cased system', [{ system: connectionTypeSystem.toUpperCase(), code: 'treatment' }], ['treatment']],
+                ['a single label object instead of an array', { system: connectionTypeSystem, code: 'treatment' }, ['treatment']],
+                ['a label with no code (fails closed)', [{ system: connectionTypeSystem }], []],
+                [
+                    'a valid and a malformed label (fails closed)',
+                    [{ system: connectionTypeSystem, code: 'treatment' }, { system: connectionTypeSystem, code: '' }],
+                    []
+                ]
+            ])('sets actor.allowedConnectionTypes for a Consent with %s', async (_label, securityLabel, expected) => {
+                mockConsentLookup(securityLabel);
+                const actor = { reference: 'Organization/org-1', isOrganizationActor: true };
+
+                const result = await manager.resolvePurposeOfEventCodesAsync({
+                    entitlements: [`Consent/${consentUuid}`],
+                    actor
+                });
+
+                expect(result).toEqual(['TREAT']);
+                expect(actor.allowedConnectionTypes).toEqual(expected);
+            });
+
+            it('logs the Consent id, not the label contents, when a connectionType label is malformed', async () => {
+                mockConsentLookup([{ system: connectionTypeSystem }]);
+
+                await manager.resolvePurposeOfEventCodesAsync({
+                    entitlements: [`Consent/${consentUuid}`],
+                    actor: { reference: 'Organization/org-1', isOrganizationActor: true }
+                });
+
+                expect(logWarn).toHaveBeenCalledWith(
+                    expect.stringContaining('malformed'),
+                    expect.objectContaining({ args: { consentId: consentUuid } })
+                );
+            });
+
+            it.each([
+                ['no securityLabel', undefined],
+                ['a connectionType label', [{ system: connectionTypeSystem, code: 'treatment' }]]
+            ])('does not set allowedConnectionTypes for a RelatedPerson actor whose Consent has %s', async (_label, securityLabel) => {
+                mockConsentLookup(securityLabel);
+                const actor = { reference: 'RelatedPerson/rp-1', isOrganizationActor: false };
+
+                const result = await manager.resolvePurposeOfEventCodesAsync({
+                    entitlements: [`Consent/${consentUuid}`],
+                    actor
+                });
+
+                expect(result).toEqual(['TREAT']);
+                expect(actor).not.toHaveProperty('allowedConnectionTypes');
+            });
+
+            it('resolves purpose codes without an actor', async () => {
+                mockConsentLookup([{ system: connectionTypeSystem, code: 'treatment' }]);
+
+                const result = await manager.resolvePurposeOfEventCodesAsync({
+                    entitlements: [`Consent/${consentUuid}`]
+                });
+
+                expect(result).toEqual(['TREAT']);
+            });
         });
     });
 });
