@@ -244,6 +244,7 @@ describe('config.js', () => {
 
         test.each([
             ['an empty value as unset', '', 30 * 1000],
+            ['a whitespace-only value as unset', '   ', 30 * 1000],
             ['0 as an explicit opt-out of the bound', '0', 0],
             ['surrounding whitespace', ' 4000 ', 4000]
         ])('MONGO_WAIT_QUEUE_TIMEOUT treats %s', (_label, value, expected) => {

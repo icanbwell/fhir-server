@@ -31,14 +31,14 @@ delete queryParams.w;
  * @returns {number|undefined}
  */
 const readWaitQueueTimeoutEnv = (envName) => {
-    const value = env[String(envName)];
+    const value = env[String(envName)]?.trim();
     if (value === undefined || value === '') {
         return undefined;
     }
-    if (!/^\d+$/.test(value.trim())) {
+    if (!/^\d+$/.test(value)) {
         throw new Error(`${envName} must be a non-negative integer number of milliseconds, got "${value}"`);
     }
-    return parseInt(value.trim(), 10);
+    return parseInt(value, 10);
 };
 /**
  * The driver matches URI option names case-insensitively, but getQueryParams keeps the case
@@ -63,7 +63,7 @@ const resolveWaitQueueTimeoutMS = ({ envName, queryParams: params, fallback }) =
  * How long a request may wait for a pooled connection before the driver throws
  * MongoWaitQueueTimeoutError. The driver default (0) waits forever, so a worker whose
  * pool is exhausted (e.g. by cursors left open after client disconnects) hangs every
- * later request until the caller gives up (INC-357). Failing fast surfaces the error
+ * later request until the caller gives up. Failing fast surfaces the error
  * and lets the caller retry on another pod.
  * @type {number}
  */
@@ -81,7 +81,7 @@ const waitQueueTimeoutMS = resolveWaitQueueTimeoutMS({
  * The wait is still bounded, because these pools also serve request-path reads:
  * mongoDatabaseManager.getDatabaseForResourceAsync sends _history searches to the
  * resource-history pool and AuditEvent searches to the audit pool when no online-archive
- * cluster is configured. An unbounded wait there is the INC-357 hang on a different pool, and
+ * cluster is configured. An unbounded wait there is the same pool-starvation hang on a different pool, and
  * it would also let queued post-request tasks pile up in memory with no error to show for it.
  *
  * mongoDatabaseManager falls back to the primary client when AUDIT_EVENT_MONGO_URL /

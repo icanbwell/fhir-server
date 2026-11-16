@@ -114,7 +114,7 @@ class MongoReadableStream extends Readable {
      * Closes the current cursor so the server-side cursor and, in load-balanced mode, the
      * connection pinned to it are released. Without this an abandoned streaming search keeps
      * its connection checked out for the life of the cursor, and five of them exhaust a worker's
-     * pool (INC-357). Safe to call more than once and on cursors that have no close().
+     * pool. Safe to call more than once and on cursors that have no close().
      * @param {string} reason
      * @returns {Promise<void>}
      */
