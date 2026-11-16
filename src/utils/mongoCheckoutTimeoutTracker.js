@@ -15,6 +15,10 @@
  * Without `waitQueueTimeoutMS` the driver waits forever and never emits a timeout, so this
  * tracker never fires.
  *
+ * Only the primary request-path pool is tracked (see MongoDatabaseManager.connectAsync). The
+ * background pools (audit-event, online-archive, access-logs, resource-history) have their own
+ * longer wait-queue timeout, and a saturated background pool must not restart workers.
+ *
  * # Who replaces the worker
  *
  * - Cluster mode (WORKER_COUNT > 1): the cluster primary in src/index.js re-forks any worker
