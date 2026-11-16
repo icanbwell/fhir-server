@@ -521,7 +521,7 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
             expect(ops.everythingOperation.everythingAsync).not.toHaveBeenCalled();
         });
 
-        test('SEC-1580 F10: Patient/person.<id>/$everything scopes to the underlying person ids with the prefix stripped, and is NOT flagged as a Person $everything', async () => {
+        test('Patient/person.<id>/$everything scopes to the underlying person ids with the prefix stripped, and is NOT flagged as a Person $everything', async () => {
             await manager.everything(
                 [], { req: makeReq({ query: { id: `${PERSON_PROXY_PREFIX}per1,${PERSON_PROXY_PREFIX}per2` } }), res: {} },
                 'Patient'

@@ -25,7 +25,7 @@ module.exports.handleHealthCheck = async (fnGetContainer, req, res) => {
     );
     try {
         // This is opportunistic cache-warming, not a health-critical check: a transient
-        // JWKS/well-known outage now throws here (INC-322) instead of the old silent
+        // JWKS/well-known outage now throws here instead of the old silent
         // {keys: []}/[] swallow, but it must not fail the whole health check -- the
         // JWT strategy's own request-time handling already surfaces auth-infra outages
         // as 503 to callers; this endpoint shouldn't duplicate that via an unhandled

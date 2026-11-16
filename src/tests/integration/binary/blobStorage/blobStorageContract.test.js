@@ -3,7 +3,7 @@
 // Each write is verified against a fully-populated expected fixture via toHaveResponse, and asserts
 // the S3 offload actually ran (payload uploaded to the live bucket) — so a green toHaveResponse can
 // never be the result of the feature silently no-op'ing. The read/history flows that consume these
-// objects are exercised on the read branch (DCON-3868), against the SAME fixtures.
+// objects are exercised on the read branch, against the SAME fixtures.
 //
 // The parallel file blobStorageContractDisabled.test.js re-runs these writes with the feature
 // DISABLED, asserts the SAME fixtures, and asserts the S3 client is NEVER called — proving the

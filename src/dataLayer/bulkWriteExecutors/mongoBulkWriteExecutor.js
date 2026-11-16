@@ -132,7 +132,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
 
     /**
      * Returns true for all resource types — this is the default/catch-all executor.
-     * EA-2193 will add a ClickHouseBulkWriteExecutor that claims ClickHouse-only
+     * A follow-up will add a ClickHouseBulkWriteExecutor that claims ClickHouse-only
      * resources via schema registry; this executor handles everything else.
      * @param {string} resourceType
      * @returns {boolean}

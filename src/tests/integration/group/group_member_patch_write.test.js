@@ -1,11 +1,11 @@
 /**
- * Group member PATCH write path (DCON-5527)
+ * Group member PATCH write path
  *
  * Roster changes for a Group go exclusively through standard PATCH /4_0_0/Group/{id} with
  * RFC 6902 JSON Patch ops on /member -- there is no more $member-add/$member-remove operation.
  * GroupMemberPatchStrategy.determineGroupMemberType() picks the group member type once the Group is loaded:
  * - embedded (default): zero special-casing, ops flow through the ordinary fast-json-patch flow.
- * - mongoNative ("extended", DCON-5527): rows are written to GroupMember_4_0_0 /
+ * - mongoNative ("extended"): rows are written to GroupMember_4_0_0 /
  *   GroupMember_4_0_0_History via MongoGroupMemberRepository.
  *
  * ENABLE_EXTENDED_GROUP is turned on for the suite's tests (off by default in jest).
@@ -29,7 +29,7 @@ function defaultMeta(extraTags = []) {
     };
 }
 
-describe('Group member PATCH write path (DCON-5527)', () => {
+describe('Group member PATCH write path', () => {
     let request;
 
     let originalEnableExtendedGroup;

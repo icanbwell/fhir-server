@@ -1,6 +1,6 @@
 'use strict';
 
-// Exercises the upgrade of an environment whose AUDIT_ACCESS_AGG still has the pre-DCON-4898
+// Exercises the upgrade of an environment whose AUDIT_ACCESS_AGG still has the old
 // countState access_count. The column's aggregate type changes, so CREATE ... IF NOT EXISTS
 // can't alter it: the MV and aggregate are dropped and recreated from
 // clickhouse-init/05-audit-access-mv.sql. Runs against the shared ClickHouse container and

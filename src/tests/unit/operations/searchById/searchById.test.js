@@ -303,7 +303,7 @@ describe('SearchByIdOperation', () => {
             expect(mocks.searchManager.validateAuditEventQueryParameters).toHaveBeenCalledWith(mockParsedArgs);
         });
 
-        describe('extended Group member streaming (DCON-5529)', () => {
+        describe('extended Group member streaming', () => {
             function makeRequestInfo () {
                 return {
                     user: 'admin',

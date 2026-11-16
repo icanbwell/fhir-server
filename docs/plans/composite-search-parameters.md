@@ -17,7 +17,7 @@
 - CommonJS modules (`require`/`module.exports`) — no ESM.
 - Python generator code: match the existing style in `generatorScripts/searchParameters/generate_search_parameters.py` (dataclasses, type hints, no external deps beyond what's already imported).
 - Run `make lint` before each commit; the pre-commit hook runs it too.
-- This plan targets `origin/main` at commit `191167175` (DCON-5398, 2026-09-04). If more commits land on `main` before implementation starts, re-verify line numbers/signatures cited below — they may have shifted.
+- This plan targets `origin/main` at commit `191167175` (2026-09-04). If more commits land on `main` before implementation starts, re-verify line numbers/signatures cited below — they may have shifted.
 
 ---
 

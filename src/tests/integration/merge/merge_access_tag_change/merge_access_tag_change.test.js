@@ -1,4 +1,4 @@
-// SEC-1580 F2/F3: $merge's write-authorization check (WriteAllowedByScopesValidator) ran only
+// $merge's write-authorization check (WriteAllowedByScopesValidator) ran only
 // against the resource as stored (or the raw incoming resource for a create), never validating
 // which access tags the incoming body itself adds or removes. A smart merge only appends to
 // arrays, so a tag missing from the incoming body is not a removal - it just wasn't repeated -
@@ -25,7 +25,7 @@ function patientWithAccessCodes (accessCodes) {
     };
 }
 
-describe('SEC-1580 F2/F3 - $merge cannot re-tag a resource to a tenant the caller has no access to', () => {
+describe('$merge cannot re-tag a resource to a tenant the caller has no access to', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });

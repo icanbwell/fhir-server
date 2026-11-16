@@ -84,7 +84,7 @@ describe('SearchStreamingOperation', () => {
         mockScopesValidator = {
             verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined),
             // Default to admin so pre-existing _explain/_debug tests (unrelated to the
-            // DCON-4808 admin-scope gating) keep exercising their original code path.
+            // admin-scope gating) keep exercising their original code path.
             isAdminScope: jest.fn().mockReturnValue(true)
         };
         mockBundleManager = {
@@ -523,7 +523,7 @@ describe('SearchStreamingOperation', () => {
             expect(mockCursor.setEmpty).not.toHaveBeenCalled();
         });
 
-        // DCON-4808: _explain/_debug/_setIndexHint expose Mongo query plans, collection
+        // _explain/_debug/_setIndexHint expose Mongo query plans, collection
         // internals, and let the caller pick the query's index. Only an admin-scoped
         // caller may use them.
         test('non-admin caller: _explain is cleared before reaching the cursor', async () => {

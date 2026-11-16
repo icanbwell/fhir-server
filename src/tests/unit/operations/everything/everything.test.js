@@ -132,7 +132,7 @@ describe('EverythingOperation', () => {
 
         mockScopesValidator = Object.create(ScopesValidator.prototype);
         mockScopesValidator.verifyHasValidScopesAsync = jestObj.fn().mockResolvedValue(undefined);
-        // Default to admin so pre-existing tests (unrelated to the DCON-4808 admin-scope
+        // Default to admin so pre-existing tests (unrelated to the admin-scope
         // gating) keep exercising their original code path.
         mockScopesValidator.isAdminScope = jestObj.fn().mockReturnValue(true);
 
@@ -350,7 +350,7 @@ describe('EverythingOperation', () => {
             expect(mockGraphOperation.graph).not.toHaveBeenCalled();
         });
 
-        // DCON-4808: _explain/_debug/_setIndexHint expose Mongo query plans, collection
+        // _explain/_debug/_setIndexHint expose Mongo query plans, collection
         // internals, and let the caller pick the query's index -- everything.js was not
         // previously gating these, unlike history.js/searchBundle.js/searchStreaming.js.
         test('non-admin caller: _explain/_debug/_setIndexHint are cleared before retriveEverythingAsync', async () => {

@@ -135,7 +135,7 @@ class WellKnownConfigurationManager {
     /**
      * Resolves JWKS URLs from all configured well-known-configuration endpoints.
      *
-     * INC-322: "zero well-known URLs configured" and "every configured well-known URL
+     * "zero well-known URLs configured" and "every configured well-known URL
      * transiently failed to fetch" must be distinguishable to callers -- both would
      * otherwise resolve to the same `[]`, and a caller falling back to this method
      * (e.g. AuthService.getExternalJwksAsync) can't tell a total outage from "there's

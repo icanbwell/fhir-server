@@ -447,7 +447,7 @@ class PatchOperation {
              */
             let resource = resource_incoming;
 
-            // DCON-4841: this must run whenever foundResource has metadata, not just when a
+            // this must run whenever foundResource has metadata, not just when a
             // meta.source happens to be present -- overWriteNonWritableFields is what reverts any
             // attempted change to the owner/sourceAssigningAuthority tags and meta.source/versionId/
             // lastUpdated, so gating it on meta.source left resources with no meta.source on either
@@ -463,7 +463,7 @@ class PatchOperation {
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             resource = await this.preSaveManager.preSaveAsync({ resource, options: preSaveOptions });
 
-            // SEC-1580 F2/F3: the pre-patch check above ran against originalResource as stored, so any
+            // the pre-patch check above ran against originalResource as stored, so any
             // access tag the patch itself added or removed still needs to be validated. JSON patch ops
             // are explicit adds/removes/replaces (not an append-only smart merge), so a code missing from
             // the patched resource is a real removal

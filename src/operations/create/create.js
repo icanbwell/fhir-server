@@ -238,7 +238,7 @@ class CreateOperation {
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                 requestInfo, resource, base_version, accessRequested: 'c'
             });
-            // SEC-1580 F3: creating with an access tag counts as adding it - the caller must be
+            // creating with an access tag counts as adding it - the caller must be
             // authorized for every access tag on the new resource, not just one of them
             this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
                 requestInfo, currentResource: null, updatedResource: resource, accessRequested: 'c'

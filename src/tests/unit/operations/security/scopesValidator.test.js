@@ -846,7 +846,7 @@ describe('ScopesValidator', () => {
         });
     });
 
-    // DCON-4808: gates _debug/_explain/_setIndexHint in history.js/searchBundle.js/
+    // gates _debug/_explain/_setIndexHint in history.js/searchBundle.js/
     // searchStreaming.js
     describe('isAdminScope', () => {
         test('returns true when scope contains an admin/ scope', () => {

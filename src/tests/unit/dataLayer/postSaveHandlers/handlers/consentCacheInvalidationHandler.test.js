@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Unit tests for ConsentCacheInvalidationHandler (DCON-4861, DCON-4893).
+ * Unit tests for ConsentCacheInvalidationHandler.
  *
  * Focus: the proxy-Person ($everything) cache invalidation on a direct-Patient Consent write
  * bumps the immediate client Person key, every intermediate Person key in the link graph, AND

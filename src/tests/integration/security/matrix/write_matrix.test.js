@@ -349,7 +349,7 @@ describe('SECURITY MATRIX — write paths', () => {
                 link: [{ target: { reference: `Patient/mtxOwnB|${F.T_B}`, type: 'Patient' }, assurance: 'level4' }]
             };
             const put = await request.put('/4_0_0/Person/mtxForgedLinkPerson').send(forged).set(A_RW());
-            // 400 covers DCON-4844's validation-layer rejection (OperationOutcome issue code
+            // 400 covers the validation-layer rejection (OperationOutcome issue code
             // "forbidden" for a Person.link addition into an inaccessible tenant), which lands
             // here as a 400 rather than 403 -- still a hard rejection of the forged link.
             expect([200, 201, 400, 403]).toContain(put.status);

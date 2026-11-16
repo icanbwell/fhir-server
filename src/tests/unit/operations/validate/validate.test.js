@@ -397,7 +397,7 @@ describe('ValidateOperation - null safety bugs', () => {
         });
     });
 
-    // DCON-4806: constructQueryAsync must receive userType/actor so delegated-access
+    // constructQueryAsync must receive userType/actor so delegated-access
     // sensitive-data filtering (gated on userType === AUTH_USER_TYPES.delegatedUser in
     // searchManager.js) actually applies to id-based $validate lookups.
     describe('validateAsync - passes userType/actor through to constructQueryAsync', () => {

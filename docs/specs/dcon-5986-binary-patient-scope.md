@@ -1,4 +1,4 @@
-# DCON-5986: Binary as a patient-scoped resource (Task parity) - Design
+# Binary as a patient-scoped resource (Task parity) - Design
 
 Fresh start; supersedes the design and implementation in #2635 and #2643.
 Implementation steps: `docs/plans/dcon-5986-binary-patient-scope-plan.md`.
@@ -25,7 +25,7 @@ machinery then applies unchanged: no bespoke person tag, no unowned/owned read s
   whose `securityContext` is one of its reachable patients (no create-only guard).
 - **One default-off flag**, `ENABLE_PATIENT_SCOPED_BINARY`, gates the whole behavior (the mapping is
   active only when on). It is enabled only after the `securityContext` backfill is done, then
-  removed (DCON-6075).
+  removed.
 - **Tenant tags on patient-scoped create match Task as-is** (no extra `meta.security` validation).
 - **`securityContext` format.** The caller supplies either a Patient reachable through the identity
   graph, or its own client person id from the access token (proxy patient
@@ -76,7 +76,7 @@ read under the caller's authorization.
   Binary's `securityContext` at another patient. `Task.for` has the same gap today.
 - **Bytes can be wiped by the owner.** `$merge?smartMerge=false` without `data` deletes the bytes and
   the S3 object; with write parity a member can do this to their own Binary. PUT writes a new S3
-  object each time (`alwaysCreateNew`; the previous one is retained per DCON-6064).
+  object each time (`alwaysCreateNew`; the previous one is retained per ).
 - **`securityContext._uuid` must be populated.** `getValueOfPropertyFromResource` reads it, so preSave
   must set it for both `Patient/<uuid>` and the proxy `Patient/person.<id>` (non-uuid, matched in the
   non-uuid branch).

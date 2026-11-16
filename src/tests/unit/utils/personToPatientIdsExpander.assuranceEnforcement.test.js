@@ -1,5 +1,5 @@
 /**
- * DCON-4894 Commit B: enforcement of a configured Person.link.assurance minimum during
+ * enforcement of a configured Person.link.assurance minimum during
  * traversal.
  *
  * When configManager.enforcePersonLinkAssuranceMinimum is true, a Person.link whose `assurance`
@@ -7,7 +7,7 @@
  * assurance, which ranks 0 -- see personLinkAssuranceLevel.js) is excluded from being followed
  * at all: it must not contribute to the returned patientIds, and if it points at a Person it
  * must not be recursed into (no second-level database lookup for it). When the flag is false
- * (its code-level default), behavior must be identical to before DCON-4894 -- every link is
+ * (its code-level default), behavior must be identical to before -- every link is
  * still followed regardless of assurance.
  */
 const { describe, test, expect, jest: jestGlobal } = require('@jest/globals');
@@ -44,7 +44,7 @@ function makeFakeCursor (docs) {
     };
 }
 
-describe('PersonToPatientIdsExpander — DCON-4894 assurance enforcement (Commit B)', () => {
+describe('PersonToPatientIdsExpander — assurance enforcement (Commit B)', () => {
     // One Patient-target link with no assurance at all (ranks 0), and one Person-target
     // (cross-tenant) link explicitly marked 'level1' -- both below the 'level2' minimum used in
     // these tests.

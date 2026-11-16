@@ -1,5 +1,5 @@
 /**
- * SEC-1580 W-chain: confirmed exploit chain from the FHIR Security Data Model Verification
+ * W-chain: confirmed exploit chain from the FHIR Security Data Model Verification
  * review doc (Phase 1 of docs/plans/security-review-test-coverage.md).
  *
  * proaConsentManager.getPatientIdsWithConsent (src/operations/search/proaConsentManager.js) only
@@ -12,7 +12,7 @@
  * resourceValidator.validatePatientReference's array-field branch (src/operations/common/
  * resourceValidator.js) only protects genuine patient/*-scoped (isUser: true) callers -- a caller
  * using user/* + access/* scopes (isUser: false) can freely add a new Person.link entry with zero
- * check on the target's ownership (fixed for that case by DCON-4844, not yet merged as of this
+ * check on the target's ownership (fixed for that case by a separate change, not yet merged as of this
  * test).
  *
  * The consent-unlock traversal is keyed off a *Person*, not a Patient -- it only activates for a
@@ -30,11 +30,11 @@
  * W1 (Task 1.2): the self-grant in isolation, without the link graft -- Tenant A's patient is
  * never a candidate in Tenant B's own link graph, so it should NOT be reachable via $everything
  * regardless of the self-granted consent. This isolates which half of the chain the eventual fix
- * needs to target: confirmed by running both tests against DCON-4844's Person.link fix applied
+ * needs to target: confirmed by running both tests against the Person.link fix applied
  * locally -- W1 already passed before that fix, and the W-chain test then passed too, so
- * DCON-4844 (PR #2436) closing the Person.link write-path gap is a SUFFICIENT fix for the whole
+ * (PR #2436) closing the Person.link write-path gap is a SUFFICIENT fix for the whole
  * chain. No separate consent-write-path fix is needed. The W-chain test stays skipped (not fixed
- * here) only because DCON-4844 isn't merged into main yet -- un-skip it once that PR lands.
+ * here) only because isn't merged into main yet -- un-skip it once that PR lands.
  */
 const {
     commonBeforeEach,
@@ -276,7 +276,7 @@ describe('W-chain: consent self-grant + Person.link graft (Task 1.1)', () => {
     });
 });
 
-describe('SEC-1580 W1: consent self-grant in isolation, without the link graft (Task 1.2)', () => {
+describe('consent self-grant in isolation, without the link graft (Task 1.2)', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
