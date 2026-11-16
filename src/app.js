@@ -146,7 +146,9 @@ function createApp({fnGetContainer}) {
             });
         }
         const startTime = new Date().getTime();
-        const endStallTracking = ignoredUrls.some(url => reqPath.startsWith(url))
+        // A request whose body is still arriving does no server work yet. Only fully received
+        // requests are tracked, so a client trickling a body cannot register as a stall.
+        const endStallTracking = (ignoredUrls.some(url => reqPath.startsWith(url)) || !req.complete)
             ? () => {}
             : requestStallTracker.startRequest();
         res.on('finish', () => {
