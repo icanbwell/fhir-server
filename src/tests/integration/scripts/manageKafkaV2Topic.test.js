@@ -314,9 +314,10 @@ describe('manageKafkaV2Topic script', () => {
             expect(parseIntArg('1', 30, 'partitions', 1)).toBe(1);
         });
 
-        test('accepts explicit 0 and -1 when the minimum allows (retention.ms)', () => {
-            expect(parseIntArg('0', KAFKA_RETENTION_MS, 'retention-ms', -1)).toBe(0);
-            expect(parseIntArg('-1', KAFKA_RETENTION_MS, 'retention-ms', -1)).toBe(-1);
+        test.each(['0', '-1', ''])('throws on retention-ms %j (must be positive)', (raw) => {
+            expect(() => parseIntArg(raw, KAFKA_RETENTION_MS, 'retention-ms', 1)).toThrow(
+                'Invalid --retention-ms'
+            );
         });
 
         test('throws on a value below the minimum (0 partitions)', () => {
