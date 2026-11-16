@@ -209,7 +209,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 expect.objectContaining({
                     context: expect.objectContaining({
                         userType: AUTH_USER_TYPES.delegatedUser,
-                        actor: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' }
+                        actor: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub', isOrganizationActor: false }
                     })
                 })
             );
@@ -259,7 +259,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             });
 
             expect(mockDelegatedAccessRulesManagerForAuth.resolvePurposeOfEventCodesAsync).toHaveBeenCalledWith({
-                entitlements: ['Consent/consent-uuid-1']
+                entitlements: ['Consent/consent-uuid-1'],
+                actor: expect.any(Object)
             });
             expect(done).toHaveBeenCalledWith(
                 null,
@@ -312,7 +313,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             expect(result.actor).toBeNull();
         });
 
-        test('processForDelegatedActor extracts only reference and sub from a valid act claim', () => {
+        test('processForDelegatedActor copies only reference and sub from a valid act claim', () => {
             const result = authService.processForDelegatedActor({
                 jwt_payload: {
                     act: {
@@ -323,7 +324,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 }
             });
             expect(result.failure).toBe(false);
-            expect(result.actor).toEqual({ reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' });
+            expect(result.actor).toEqual({ reference: 'RelatedPerson/rp-1', sub: 'delegate-sub', isOrganizationActor: false });
         });
 
         test('processForDelegatedActor accepts an Organization act reference (client-initiated access)', () => {
@@ -338,7 +339,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             expect(result.failure).toBe(false);
             expect(result.actor).toEqual({
                 reference: 'Organization/50d67a31-af1f-4f30-8d41-51e90a5054fa',
-                sub: 'client-abc'
+                sub: 'client-abc',
+                isOrganizationActor: true
             });
         });
 
@@ -387,7 +389,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
         let delegatedAccessManager;
 
         beforeEach(() => {
-            delegatedAccessManager = new DelegatedAccessManager();
+            delegatedAccessManager = new DelegatedAccessManager({ configManager: new ConfigManager() });
         });
 
         test.each(DELEGATED_ACCESS.ALLOWED_OPERATIONS)(
@@ -594,7 +596,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
-                actor: { reference: 'Organization/50d67a31-af1f-4f30-8d41-51e90a5054fa' },
+                actor: { reference: 'Organization/50d67a31-af1f-4f30-8d41-51e90a5054fa', isOrganizationActor: true },
                 personIdFromJwtToken: 'person-1'
             });
 
