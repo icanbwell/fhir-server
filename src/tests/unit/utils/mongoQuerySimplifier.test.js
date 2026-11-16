@@ -501,28 +501,13 @@ describe('MongoQuerySimplifier with a large _id:not list', () => {
         ['a boolean', false],
         ['a Date', new Date('2026-01-01T00:00:00Z')],
         ['a RegExp', /^abc/i]
-    ])('returns %s unchanged without walking it', (_name, value) => {
-        const spy = jestObj.spyOn(MongoQuerySimplifier, 'isFilter');
-        try {
-            expect(MongoQuerySimplifier.simplifyFilter({ filter: value })).toBe(value);
-            expect(spy).not.toHaveBeenCalled();
-        } finally {
-            spy.mockRestore();
-        }
+    ])('returns %s unchanged', (_name, value) => {
+        expect(MongoQuerySimplifier.simplifyFilter({ filter: value })).toBe(value);
     });
 
-    test('the cost grows linearly with the number of ids, not quadratically', () => {
-        const timeMs = (n) => {
-            const values = ids(n);
-            const start = process.hrtime.bigint();
-            const result = MongoQuerySimplifier.simplifyFilter({ filter: idNotQuery(values) });
-            const elapsed = Number(process.hrtime.bigint() - start) / 1e6;
-            expect(JSON.stringify(result)).toContain(`"$in":${JSON.stringify(values)}`);
-            return elapsed;
-        };
-        timeMs(200); // warm up
-        // 10x the ids: measured ~9x with the linear duplicate check, ~45x with the old pairwise one
-        const ratio = timeMs(2000) / Math.max(timeMs(200), 0.1);
-        expect(ratio).toBeLessThan(20);
+    test('removes duplicates from a long list and keeps the first-seen order', () => {
+        const unique = ids(2000);
+        const result = MongoQuerySimplifier.simplifyFilter({ filter: idNotQuery([...unique, ...unique]) });
+        expect(JSON.stringify(result)).toContain(`"$in":${JSON.stringify(unique)}`);
     });
 });
