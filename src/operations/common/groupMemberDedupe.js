@@ -67,6 +67,9 @@ function mergeDuplicateMembers({ members, sourceAssigningAuthority, olderEntries
     const mergedAwayIndexes = new Set();
     for (const [firstIndex, ...laterIndexes] of entryIndexesByMemberUuid.values()) {
         const entries = [firstIndex, ...laterIndexes].map((index) => members[index]);
+        if (entries.length > MAX_ENTRIES_PER_MEMBER) {
+            throw new Error(`Group member has ${entries.length} entries, more than the ${MAX_ENTRIES_PER_MEMBER} allowed`);
+        }
         const entriesOldestFirst = [
             ...entries.filter((entry) => olderEntries.has(entry)),
             ...entries.filter((entry) => !olderEntries.has(entry))
