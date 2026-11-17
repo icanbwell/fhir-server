@@ -40,6 +40,11 @@ Patient-scoped reads of Binary use the ordinary `getQueryWithPatientFilter`
 patient-scoped tokens. This includes the DocumentReference -> Binary hop in
 `$everything` and GraphQL.
 
+Patient and Person `$everything` also reach a Binary directly, by `securityContext` equal to one of
+the patients being traversed (or the proxy patient), in addition to the DocumentReference hop. Like
+the other clinical types in the traversal, this hop is bounded by the parent patient set that the
+caller's access already resolved; it does not add a separate patient filter.
+
 ### Writes
 Create, PUT, PATCH, `$merge` and DELETE all reach `PatientScopeManager.canWriteResourceAsync`
 through `scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes`. A create without
