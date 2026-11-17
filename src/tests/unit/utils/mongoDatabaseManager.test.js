@@ -7,7 +7,8 @@ jest.mock('../../../utils/assertType', () => ({
 
 jest.mock('../../../operations/common/logging', () => ({
     logInfo: jest.fn(),
-    logError: jest.fn()
+    logError: jest.fn(),
+    logWarn: jest.fn()
 }));
 
 jest.mock('../../../operations/common/systemEventLogging', () => ({
@@ -86,6 +87,47 @@ describe('MongoDatabaseManager', () => {
         mockClose.mockClear();
         mockOn.mockClear();
         mockDbCommand.mockClear();
+    });
+
+    describe('postRequestWritesOnPrimaryPoolWarnings', () => {
+        const primaryOptions = { waitQueueTimeoutMS: 30000 };
+        const ownPool = { connection: 'mongodb://user:pass@other:27017' };
+        const noPool = {};
+
+        function withFlags ({ clickPipe, kafkaV2 }) {
+            Object.defineProperty(mockConfigManager, 'enableAuditEventClickPipe', { get: () => clickPipe, configurable: true });
+            Object.defineProperty(mockConfigManager, 'kafkaV2EnableEvents', { get: () => kafkaV2, configurable: true });
+        }
+
+        test.each([
+            ['own audit and history pools', ownPool, ownPool, { clickPipe: false, kafkaV2: false }, []],
+            ['audit on ClickPipe, own history pool', noPool, ownPool, { clickPipe: true, kafkaV2: true }, []],
+            ['audit on primary pool (no URL, ClickPipe off)', noPool, ownPool, { clickPipe: false, kafkaV2: false }, ['AuditEvent']],
+            ['audit on primary pool (ClickPipe flag on but Kafka V2 off)', noPool, ownPool, { clickPipe: true, kafkaV2: false }, ['AuditEvent']],
+            ['history on primary pool', ownPool, noPool, { clickPipe: false, kafkaV2: false }, ['Resource history']],
+            ['both on primary pool', noPool, noPool, { clickPipe: false, kafkaV2: false }, ['AuditEvent', 'Resource history']]
+        ])('%s', (_label, auditConfig, resourceHistoryConfig, flags, expectedPrefixes) => {
+            withFlags(flags);
+
+            const warnings = manager.postRequestWritesOnPrimaryPoolWarnings({
+                auditConfig, resourceHistoryConfig, primaryOptions
+            });
+
+            expect(warnings.map((w) => w.split(' writes')[0])).toEqual(expectedPrefixes);
+            for (const w of warnings) {
+                expect(w).toContain('waitQueueTimeoutMS=30000');
+            }
+        });
+
+        test('is silent when the primary pool waits without limit, because nothing is dropped then', () => {
+            withFlags({ clickPipe: false, kafkaV2: false });
+
+            const warnings = manager.postRequestWritesOnPrimaryPoolWarnings({
+                auditConfig: noPool, resourceHistoryConfig: noPool, primaryOptions: { waitQueueTimeoutMS: 0 }
+            });
+
+            expect(warnings).toEqual([]);
+        });
     });
 
     describe('createClientAsync', () => {
