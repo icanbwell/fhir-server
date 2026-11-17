@@ -771,7 +771,8 @@ const createContainer = function () {
                 removeHelper: c.removeHelper,
                 auditLogger: c.auditLogger,
                 postRequestProcessor: c.postRequestProcessor,
-                mongoGroupMemberRepository: c.mongoGroupMemberRepository
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+                patientDataViewControlExclusion: c.patientDataViewControlExclusion
             }
         )
     );
@@ -1072,7 +1073,8 @@ const createContainer = function () {
             redisManager: c.redisManager,
             enrichmentManager: c.enrichmentManager,
             postRequestProcessor: c.postRequestProcessor,
-            summaryCacheKeyGenerator: c.summaryCacheKeyGenerator
+            summaryCacheKeyGenerator: c.summaryCacheKeyGenerator,
+            patientDataViewControlExclusion: c.patientDataViewControlExclusion
         }
     ));
 

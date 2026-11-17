@@ -100,12 +100,13 @@ With this Consent, the user's reads never return `Encounter/24753e41-956d-4c4a-8
 | GraphQL v1 mutations (`updateGeneralPractitioner`, the CareTeam mutation) | the resource to change is looked up with the filter, so a hidden one is reported as not found and is not changed |
 | `/mcp` search tools | left out |
 | Patient and Person `$everything` | left out, including responses served from the Redis cache |
+| `$graph` | left out of every link query: the start resource, forward links and reverse links |
+| `$summary` | left out (it is built on the same graph), and so are Compositions the Consent hides and Composition sections that point at a hidden resource |
 | Composition sections | see below |
 
 Not filtered:
 - History and version reads (`_history`): rejected for user tokens, so they can't return a hidden
   resource.
-- `$graph` and `$summary`: not covered yet.
 - `_include` and `_revinclude`: accepted but not implemented, so no search returns included
   resources. If they are implemented, the included resources need this filter too (a test fails
   when that happens).
@@ -156,6 +157,10 @@ Person, so what the Consent hides or un-hides, including the resources reached o
 one (such as the Binary of a hidden DocumentReference), shows up on the next request. The Patient
 caches are cleared on a best-effort basis: if the lookup of the linked Patients fails, the Consent
 write still succeeds and those entries expire after `EVERYTHING_CACHE_TTL_SECONDS` (300 seconds by default).
+
+A user's cached `$summary` is keyed by their Person, apart from the unfiltered summary a service token
+caches, and saving the Consent also invalidates it (the Person's `Summary` generation, when the `$summary`
+cache is on, whether or not the `$everything` cache is).
 
 ## Failures
 

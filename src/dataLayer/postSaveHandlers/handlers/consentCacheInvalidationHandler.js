@@ -51,6 +51,10 @@ const BUMP_INITIAL_DELAY_MS = 100;
  * (the replay hides what the Consent lists, and the resources reachable only through a hidden one).
  * So for that category, the Patient generation of every linked Patient is bumped as well.
  *
+ * The Person's `$summary` cache (`ClientPerson:<uuid>:Summary:Generation`) is bumped for the same Consent
+ * when `writeToCacheForSummaryOperation` is on, whether or not the `$everything` cache is: a user's cached
+ * `$summary` leaves out what their Consent hides. A failed `$summary` bump is counted in the same metric.
+ *
  * A bump or lookup that fails is retried (BUMP_MAX_RETRIES, with backoff and jitter). If it still
  * fails it is logged and counted in fhir_everything_cache_invalidation_failed_total; the Consent
  * write is never failed. Until the cache TTL a cached $everything for that Person may still hold
@@ -108,7 +112,9 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
             return;
         }
 
-        if (!this.configManager.writeToCacheForEverythingOperation) {
+        const everythingCacheOn = this.configManager.writeToCacheForEverythingOperation;
+        const summaryCacheOn = this.configManager.writeToCacheForSummaryOperation;
+        if (!everythingCacheOn && !summaryCacheOn) {
             return;
         }
 
@@ -132,17 +138,30 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
             if (rawId.startsWith(PERSON_PROXY_PREFIX)) {
                 const personUuid = rawId.replace(PERSON_PROXY_PREFIX, '');
                 if (isUuid(personUuid)) {
-                    await this.incrementGenerationAsync(`ClientPerson:${personUuid}:Everything:Generation`, {
-                        requestId, consentId: doc.id
-                    });
-                    if (this.isDataViewControlConsent(doc)) {
-                        await this.bumpLinkedPatientGenerationsAsync({ personUuid, requestId, consentId: doc.id });
+                    if (everythingCacheOn) {
+                        await this.incrementGenerationAsync(`ClientPerson:${personUuid}:Everything:Generation`, {
+                            requestId, consentId: doc.id
+                        });
+                        if (this.isDataViewControlConsent(doc)) {
+                            await this.bumpLinkedPatientGenerationsAsync({ personUuid, requestId, consentId: doc.id });
+                        }
+                    }
+                    // a user's cached $summary leaves out what their view control Consent hides
+                    if (summaryCacheOn && this.isDataViewControlConsent(doc)) {
+                        await this.incrementGenerationAsync(`ClientPerson:${personUuid}:Summary:Generation`, {
+                            requestId, consentId: doc.id
+                        });
                     }
                 } else {
                     logDebug('ConsentCacheInvalidationHandler: proxy-patient reference did not contain a valid person uuid, skipping', {
                         requestId, consentId: doc.id, referenceValue
                     });
                 }
+                return;
+            }
+
+            // The rest only concerns the $everything cache.
+            if (!everythingCacheOn) {
                 return;
             }
 

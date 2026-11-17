@@ -24,6 +24,7 @@ const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { BaseResponseHandler } = require('../../utils/responseHandler/baseResponseHandler');
 const { EnrichmentManager } = require('../../enrich/enrich');
+const { PatientDataViewControlExclusion } = require('../../utils/patientDataViewControlExclusion');
 
 class SummaryOperation {
     /**
@@ -38,6 +39,7 @@ class SummaryOperation {
      * @param {EnrichmentManager} enrichmentManager
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {SummaryCacheKeyGenerator} summaryCacheKeyGenerator
+     * @param {PatientDataViewControlExclusion} patientDataViewControlExclusion
      */
     constructor({
         graphOperation,
@@ -49,7 +51,8 @@ class SummaryOperation {
         redisManager,
         enrichmentManager,
         postRequestProcessor,
-        summaryCacheKeyGenerator
+        summaryCacheKeyGenerator,
+        patientDataViewControlExclusion
     }) {
         /**
          * @type {GraphOperation}
@@ -107,6 +110,12 @@ class SummaryOperation {
          */
         this.summaryCacheKeyGenerator = summaryCacheKeyGenerator;
         assertTypeEquals(this.summaryCacheKeyGenerator, SummaryCacheKeyGenerator);
+
+        /**
+         * @type {PatientDataViewControlExclusion}
+         */
+        this.patientDataViewControlExclusion = patientDataViewControlExclusion;
+        assertTypeEquals(patientDataViewControlExclusion, PatientDataViewControlExclusion);
     }
 
     /**
@@ -150,7 +159,11 @@ class SummaryOperation {
                     id,
                     isPersonId: true,
                     parsedArgs: parsedArgs,
-                    scope: requestInfo.scope
+                    scope: requestInfo.scope,
+                    // a user's response leaves out what their view control Consent hides, so it must
+                    // not share a key with the unfiltered response a service token with the same
+                    // scopes would cache
+                    personId: requestInfo.isUser ? requestInfo.personIdFromJwtToken : undefined
                 });
             }
         }
@@ -360,9 +373,14 @@ class SummaryOperation {
                         compositionSearchArgs._profile = profileParam;
                     }
 
-                    const compositionParsedArgs = this.r4ArgsParser.parseArgs({
+                    const compositionParsedArgs = await this.patientDataViewControlExclusion.applyAsync({
+                        parsedArgs: this.r4ArgsParser.parseArgs({
+                            resourceType: 'Composition',
+                            args: compositionSearchArgs
+                        }),
                         resourceType: 'Composition',
-                        args: compositionSearchArgs
+                        base_version: parsedArgs.base_version,
+                        requestInfo
                     });
 
                     /**
@@ -477,12 +495,20 @@ class SummaryOperation {
                     readFromCache ? CACHE_STATUS.HIT : CACHE_STATUS.MISS
                 );
             } else {
+                // Composition sections that point at a hidden resource are dropped (user tokens only).
+                // Here, after the cache read, so a cached bundle is filtered by the current Consent too.
+                const viewControlExcludeMap = requestInfo.isUser
+                    ? (await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                        requestInfo, base_version: parsedArgs.base_version
+                    })).viewControlResourceToExcludeMap
+                    : undefined;
                 patientDataBundle.entry = await this.enrichmentManager.enrichBundleEntriesAsync({
                     entries: patientDataBundle.entry,
                     parsedArgs,
                     enrichmentContext: {
                         userType: requestInfo.userType,
-                        actor: requestInfo.actor
+                        actor: requestInfo.actor,
+                        viewControlExcludeMap
                     }
                 });
 

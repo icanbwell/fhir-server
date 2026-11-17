@@ -177,6 +177,45 @@ describe('ConsentCacheInvalidationHandler', () => {
             expect(bumpedKeys).toContain(`Patient:${LINKED_PATIENT_UUID_1}:Everything:Generation`);
         });
 
+        describe('$summary cache', () => {
+            const setCaches = ({ everything, summary }) => {
+                Object.defineProperty(mockConfigManager, 'writeToCacheForEverythingOperation', {
+                    value: everything, writable: true, configurable: true
+                });
+                Object.defineProperty(mockConfigManager, 'writeToCacheForSummaryOperation', {
+                    value: summary, writable: true, configurable: true
+                });
+            };
+            const summaryKey = `ClientPerson:${PROXY_PERSON_UUID}:Summary:Generation`;
+            const everythingKeys = [
+                `ClientPerson:${PROXY_PERSON_UUID}:Everything:Generation`,
+                `Patient:${LINKED_PATIENT_UUID_1}:Everything:Generation`,
+                `Patient:${LINKED_PATIENT_UUID_2}:Everything:Generation`
+            ];
+
+            it.each([
+                ['both caches on', { everything: true, summary: true }, [...everythingKeys, summaryKey]],
+                ['only the $summary cache on', { everything: false, summary: true }, [summaryKey]],
+                ['only the $everything cache on', { everything: true, summary: false }, everythingKeys],
+                ['neither cache on', { everything: false, summary: false }, []]
+            ])('bumps what is cached: %s', async (_name, caches, expectedKeys) => {
+                setCaches(caches);
+
+                await handler.afterSaveAsync({ requestId: 'r1', eventType: 'C', resourceType: 'Consent', doc: viewControlConsent() });
+
+                expect(bumpedKeys).toEqual(expectedKeys);
+            });
+
+            it('does not bump the $summary generation for a Person Consent of another category', async () => {
+                setCaches({ everything: true, summary: true });
+                const doc = { id: 'consent-5', patient: { reference: `Patient/person.${PROXY_PERSON_UUID}` } };
+
+                await handler.afterSaveAsync({ requestId: 'r1', eventType: 'C', resourceType: 'Consent', doc });
+
+                expect(bumpedKeys).not.toContain(summaryKey);
+            });
+        });
+
         it('does not look up linked Patients for a Person Consent of another category', async () => {
             const doc = { id: 'consent-4', patient: { reference: `Patient/person.${PROXY_PERSON_UUID}` } };
             await handler.afterSaveAsync({ requestId: 'r1', eventType: 'C', resourceType: 'Consent', doc });

@@ -45,6 +45,7 @@ const {SearchParametersManager} = require('../../searchParameters/searchParamete
 const { RemoveHelper } = require('../remove/removeHelper');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { PatientDataViewControlExclusion } = require('../../utils/patientDataViewControlExclusion');
 
 /**
  * This class helps with creating graph responses
@@ -72,6 +73,7 @@ class GraphHelper {
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {MongoGroupMemberRepository} mongoGroupMemberRepository
+     * @param {PatientDataViewControlExclusion} patientDataViewControlExclusion
      */
     constructor({
                     databaseQueryFactory,
@@ -87,7 +89,8 @@ class GraphHelper {
                     removeHelper,
                     auditLogger,
                     postRequestProcessor,
-                    mongoGroupMemberRepository
+                    mongoGroupMemberRepository,
+                    patientDataViewControlExclusion
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -172,6 +175,30 @@ class GraphHelper {
          */
         this.mongoGroupMemberRepository = mongoGroupMemberRepository;
         assertTypeEquals(mongoGroupMemberRepository, MongoGroupMemberRepository);
+
+        /**
+         * @type {PatientDataViewControlExclusion}
+         */
+        this.patientDataViewControlExclusion = patientDataViewControlExclusion;
+        assertTypeEquals(patientDataViewControlExclusion, PatientDataViewControlExclusion);
+    }
+
+    /**
+     * Hides the resources the caller's dataConnectionViewControl Consent blocks from a graph link
+     * query, the way REST search does: adds the Consent's `_id:not` filter to the args. Every query
+     * the graph runs against a resource type goes through here, or a hidden resource linked from a
+     * visible one would come back. Service and admin tokens, and clients that are not enrolled, are
+     * not filtered. A failed lookup throws, so the graph fails closed.
+     * @param {ParsedArgs} parsedArgs the args of the link query; changed in place
+     * @param {string} resourceType the type the query reads
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @return {Promise<ParsedArgs>}
+     */
+    async applyViewControlAsync({ parsedArgs, resourceType, base_version, requestInfo }) {
+        return await this.patientDataViewControlExclusion.applyAsync({
+            parsedArgs, resourceType, base_version, requestInfo
+        });
     }
 
     getLinkAccessRequested({requestInfo, readLetter}) {
@@ -360,12 +387,12 @@ class GraphHelper {
                 }
             );
 
-            const childParseArgs = this.r4ArgsParser.parseArgs(
-                {
-                    resourceType,
-                    args
-                }
-            );
+            const childParseArgs = await this.applyViewControlAsync({
+                parsedArgs: this.r4ArgsParser.parseArgs({ resourceType, args }),
+                resourceType,
+                base_version,
+                requestInfo
+            });
             const {
                 /** @type {import('mongodb').Document}**/
                 query // /** @type {Set} **/
@@ -717,17 +744,22 @@ class GraphHelper {
             /**
              * @type {ParsedArgs}
              */
-            const relatedResourceParsedArgs = this.parseQueryStringIntoArgs(
-                {
-                    resourceType: relatedResourceType,
-                    queryString: reverseFilterWithParentIds,
-                    commonArgs: {
-                        _includeHidden: parsedArgs._includeHidden,
-                        ...(parsedArgs._debug ? {_debug: parsedArgs._debug} : {}),
-                        ...(parsedArgs._explain ? {_explain: parsedArgs._explain} : {})
+            const relatedResourceParsedArgs = await this.applyViewControlAsync({
+                parsedArgs: this.parseQueryStringIntoArgs(
+                    {
+                        resourceType: relatedResourceType,
+                        queryString: reverseFilterWithParentIds,
+                        commonArgs: {
+                            _includeHidden: parsedArgs._includeHidden,
+                            ...(parsedArgs._debug ? {_debug: parsedArgs._debug} : {}),
+                            ...(parsedArgs._explain ? {_explain: parsedArgs._explain} : {})
+                        }
                     }
-                }
-            );
+                ),
+                resourceType: relatedResourceType,
+                base_version,
+                requestInfo
+            });
             const args = {};
             args.base_version = base_version;
 
@@ -1571,6 +1603,10 @@ class GraphHelper {
             // so any POSTed data is not read as parameters
             parsedArgs.remove('resource');
 
+            // a copy, so the Consent exclusion does not reach the request's args (logs, cache keys)
+            const startParsedArgs = await this.applyViewControlAsync({
+                parsedArgs: parsedArgs.clone(), resourceType, base_version, requestInfo
+            });
             const {
                 /** @type {import('mongodb').Document}**/
                 query
@@ -1584,7 +1620,7 @@ class GraphHelper {
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                 actor: requestInfo.actor,
                 requestId: requestInfo.requestId,
-                parsedArgs,
+                parsedArgs: startParsedArgs,
                 operation: READ,
                 accessRequested: this.getLinkAccessRequested({requestInfo, readLetter: 'r'}),
                 everythingChunkIndex: graphChunkIndex

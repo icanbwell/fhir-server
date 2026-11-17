@@ -593,7 +593,7 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             consent.id = '0d6b1c1e-0000-5000-8000-000000000002';
             await seed();
             await merge('Consent', consent);
-            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentForPersonAsync');
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync');
             try {
                 const resp = await request.get('/4_0_0/CarePlan').set(headers());
                 expect(resp.status).toBe(200);
@@ -741,6 +741,79 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
 
             expect(resp.status).toBe(200);
             expect(idsOf(resp.body).sort()).toEqual(expectedIds);
+        });
+    });
+
+    // $summary is built on the same graph as $graph, so both are covered by the filter on the graph's
+    // link queries: the start resource, a reverse link and a forward link.
+    describe('$graph and $summary', () => {
+        const PATIENT_UUID = '24a5930e-11b4-5525-b482-669174917044';
+        const graphDefinition = (start, link) => ({
+            resourceType: 'GraphDefinition', id: 'g', name: 'g', status: 'active', start, link
+        });
+        const reverseCarePlanGraph = graphDefinition('Patient', [
+            { target: [{ type: 'CarePlan', params: 'patient={ref}' }] }
+        ]);
+        const forwardPatientGraph = graphDefinition('CarePlan', [
+            { path: 'subject', target: [{ type: 'Patient' }] }
+        ]);
+        const postGraph = (r, url, body, headers) => r.post(url).set(headers).send(body);
+        // $graph answers with source ids and $summary with uuids, so a resource counts as returned
+        // under either
+        const carePlanIds = (resp) => allIdValues(resp.body).filter((id) => [
+            BLOCKED, UNBLOCKED, BLOCKED_UUID, UNBLOCKED_UUID
+        ].includes(id));
+        const returns = (resp, ...ids) => ids.some((id) => allIdValues(resp.body).includes(id));
+
+        test.each([
+            ['$graph reverse link', (r, h) => postGraph(r, `/4_0_0/Patient/${PATIENT_UUID}/$graph`, reverseCarePlanGraph, h)],
+            ['$summary', (r, h) => r.get(`/4_0_0/Patient/person.${PERSON_ID}/$summary`).set(h)]
+        ])('%s hides the blocked CarePlan from a user token but not from a service token', async (_name, send) => {
+            await seed();
+
+            const user = await send(request, userHeaders());
+            expect(user.status).toBe(200);
+            expect(returns(user, BLOCKED, BLOCKED_UUID)).toBe(false);
+            expect(returns(user, UNBLOCKED, UNBLOCKED_UUID)).toBe(true);
+
+            const service = await send(request, getHeaders());
+            expect(service.status).toBe(200);
+            expect(returns(service, BLOCKED, BLOCKED_UUID)).toBe(true);
+        });
+
+        test('$graph started on the blocked CarePlan returns nothing to a user token', async () => {
+            await seed();
+            const simple = graphDefinition('CarePlan', [{ path: 'subject', target: [{ type: 'Patient' }] }]);
+            const user = await postGraph(request, `/4_0_0/CarePlan/${BLOCKED_UUID}/$graph`, simple, userHeaders());
+            expect(returns(user, BLOCKED, BLOCKED_UUID)).toBe(false);
+
+            const service = await postGraph(request, `/4_0_0/CarePlan/${BLOCKED_UUID}/$graph`, simple, getHeaders());
+            expect(returns(service, BLOCKED, BLOCKED_UUID)).toBe(true);
+        });
+
+        test('$graph forward link does not return a Patient the Consent hides', async () => {
+            await seed(consentBlocking([`Patient/${PATIENT_UUID}`]));
+            const user = await postGraph(request, `/4_0_0/CarePlan/${UNBLOCKED_UUID}/$graph`, forwardPatientGraph, userHeaders());
+            expect(returns(user, 'patient1', PATIENT_UUID)).toBe(false);
+
+            const service = await postGraph(request, `/4_0_0/CarePlan/${UNBLOCKED_UUID}/$graph`, forwardPatientGraph, getHeaders());
+            expect(returns(service, 'patient1', PATIENT_UUID)).toBe(true);
+        });
+
+        test.each([
+            ['$graph', (r) => postGraph(r, `/4_0_0/Patient/${PATIENT_UUID}/$graph`, reverseCarePlanGraph, userHeaders())],
+            ['$summary', (r) => r.get(`/4_0_0/Patient/person.${PERSON_ID}/$summary`).set(userHeaders())]
+        ])('a failed Consent lookup returns no data: %s', async (_name, send) => {
+            await seed();
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync')
+                .mockRejectedValue(new Error('consent store unavailable'));
+            try {
+                const resp = await send(request);
+                expect(carePlanIds(resp)).toEqual([]);
+                expect(String(resp.text)).not.toContain('consent store unavailable');
+            } finally {
+                spy.mockRestore();
+            }
         });
     });
 

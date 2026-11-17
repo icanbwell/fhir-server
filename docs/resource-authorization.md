@@ -295,9 +295,9 @@ of the §5 patient-scope query. Full model, including the read-only operation re
 `dataConnectionViewControl`-category Consent whose `provision.data` references them. It applies to
 user tokens whose Person's owner is in `configManager.clientsWithDataConnectionViewControl`
 (env `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`), on every user read path: REST search and
-read-by-id (a hidden resource is a 404), GraphQL v1 and v2, `/mcp`, and Patient/Person
-`$everything` (including cache replays). History/version reads are not filtered and are rejected
-for user tokens; `$graph` and `$summary` are not covered yet.
+read-by-id (a hidden resource is a 404), GraphQL v1 and v2, `/mcp`, `$graph` and `$summary`, and
+Patient/Person `$everything` (including cache replays). History/version reads are not filtered and
+are rejected for user tokens.
 - *Where:* `PatientDataViewControlExclusion` (`src/utils/patientDataViewControlExclusion.js`) loads
   the Consent once per request per subject Person, using
   `PatientDataViewControlManager.getConsentAsync` (`src/utils/patientDataViewController.js`), and
