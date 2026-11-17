@@ -26,6 +26,7 @@ jestObj.mock('../../../../utils/nullRemover', () => ({
 
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { assertIsValid } = require('../../../../utils/assertType');
+const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
 
 /**
  * Creates a mock ParsedArgsItem for testing
@@ -520,6 +521,35 @@ describe('ParsedArgs', () => {
             ['no parameters', [], false]
         ])('%s', (name, items, expected) => {
             expect(build(...items).isRequestById()).toBe(expected);
+        });
+    });
+    describe('isRequestById access outcome with _id and _id:not', () => {
+        // the letter isRequestById picks is what searchBundle / searchStreaming hand the scope check
+        const parsedArgs = new ParsedArgs({
+            base_version: '4_0_0',
+            parsedArgItems: [
+                createMockParsedArgsItem({ queryParameter: '_id', value: 'X' }),
+                createMockParsedArgsItem({ queryParameter: '_id', value: 'Y', modifiers: ['not'] })
+            ]
+        });
+        // only the scope matcher is exercised; it needs nothing but the config flag
+        const scopesValidator = Object.create(ScopesValidator.prototype);
+        scopesValidator.configManager = { enableSmartV2CrudsScopes: true };
+
+        test.each([
+            ['a read-only token', ['user/Patient.r'], true],
+            ['a search-only token', ['user/Patient.s'], false]
+        ])('%s is %s for _id=X&_id:not=Y', (name, scopes, allowed) => {
+            const accessRequested = parsedArgs.isRequestById() ? 'r' : 's';
+
+            const result = scopesValidator.evaluateResourceTypeScopeMatch({
+                scopes,
+                resourceType: 'Patient',
+                accessRequested
+            });
+
+            expect(accessRequested).toBe('r');
+            expect(result.success).toBe(allowed);
         });
     });
 });
