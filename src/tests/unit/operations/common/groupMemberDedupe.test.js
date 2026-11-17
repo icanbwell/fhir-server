@@ -1,6 +1,12 @@
-const { describe, test, expect } = require('@jest/globals');
+const { describe, test, expect, beforeEach, jest: jestObj } = require('@jest/globals');
+
+jestObj.mock('../../../../operations/common/logging', () => ({
+    logInfo: jestObj.fn()
+}));
+
 const deepcopy = require('deepcopy');
 const { mergeMemberEntry, mergeDuplicateMembers, unchangedStoredEntries } = require('../../../../operations/common/groupMemberDedupe');
+const { logInfo } = require('../../../../operations/common/logging');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 const SAA = 'test-owner';
@@ -147,6 +153,30 @@ describe('mergeDuplicateMembers', () => {
         mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
 
         expect(members).toEqual(membersBefore);
+    });
+});
+
+describe('mergeDuplicateMembers logging', () => {
+    beforeEach(() => {
+        jestObj.clearAllMocks();
+    });
+
+    test('logs the Group id and how many entries were merged away', () => {
+        const members = [member('Patient/a'), member('Patient/b'), member('Patient/a'), member('Patient/a'), member('Patient/b')];
+
+        mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA, groupId: 'group-1' });
+
+        expect(logInfo).toHaveBeenCalledWith('Group member entries of the same member merged into one', {
+            groupId: 'group-1',
+            membersWithRepeatedEntriesCount: 2,
+            mergedAwayEntriesCount: 3
+        });
+    });
+
+    test('logs nothing when no member is listed twice', () => {
+        mergeDuplicateMembers({ members: [member('Patient/a'), member('Patient/b')], sourceAssigningAuthority: SAA, groupId: 'group-1' });
+
+        expect(logInfo).not.toHaveBeenCalled();
     });
 });
 

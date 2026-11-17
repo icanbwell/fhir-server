@@ -75,6 +75,11 @@ function mergeDuplicateMembers({ members, sourceAssigningAuthority, olderEntries
         );
         laterIndexes.forEach((index) => mergedAwayIndexes.add(index));
     }
+    logInfo('Group member entries of the same member merged into one', {
+        groupId,
+        membersWithRepeatedEntriesCount: entryIndexesByMemberUuid.size,
+        mergedAwayEntriesCount: mergedAwayIndexes.size
+    });
     return mergedMembers.filter((_entry, index) => !mergedAwayIndexes.has(index));
 }
 
