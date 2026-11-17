@@ -29,6 +29,10 @@ const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
 const CLIENT_PERSON_UUID = '33226ded-51e8-590e-8342-1197955a2af7';
 const PROXY_OBSERVATION_ID = 'everythingproxyboundary-obs';
 const headers = { ...getHeaders('user/*.read access/client.*'), prefer: 'global_id=false' };
+const otherTenantHeaders = {
+    ...getHeaders('user/*.read access/other.*'),
+    prefer: 'global_id=false'
+};
 
 /**
  * Builds a client Person linked to exactly linkedPatientCount Patients (the client Patient, the PROA
@@ -66,6 +70,7 @@ function buildFixtures(linkedPatientCount) {
 
 const LINKED_PATIENT_COUNTS = [3, 9, 10, 11, 12, 19, 20, 21, 29, 30, 31];
 const BOUNDARY_AND_NEIGHBOUR_COUNTS = [9, 10, 11, 20, 30];
+const BOUNDARY_COUNTS = [10, 20, 30];
 
 describe('Person $everything and proxy-referenced data at batch boundaries', () => {
     let hintSpy;
@@ -82,12 +87,14 @@ describe('Person $everything and proxy-referenced data at batch boundaries', () 
 
     /**
      * Merges the fixtures for a Person with linkedPatientCount linked Patients and the given
-     * consent, then runs $everything as the client and returns the ids it returned.
+     * consent, then runs $everything as the given caller and returns the response status and the
+     * ids it returned.
      * @param {number} linkedPatientCount
      * @param {object} consent
-     * @returns {Promise<string[]>}
+     * @param {object} callerHeaders
+     * @returns {Promise<{status: number, ids: string[]}>}
      */
-    async function everythingIds(linkedPatientCount, consent) {
+    async function everythingResult(linkedPatientCount, consent, callerHeaders = headers) {
         const { person, extraPatients, proxyObservation } = buildFixtures(linkedPatientCount);
         const request = await createTestRequest();
         const merge = await request
@@ -107,10 +114,23 @@ describe('Person $everything and proxy-referenced data at batch boundaries', () 
 
         const resp = await request
             .get(`/4_0_0/Person/${CLIENT_PERSON_UUID}/$everything`)
-            .set(headers);
+            .set(callerHeaders);
 
-        expect(resp.status).toBe(200);
-        return (resp.body.entry || []).map((e) => e.resource && e.resource.id);
+        return {
+            status: resp.status,
+            ids: ((resp.body && resp.body.entry) || []).map((e) => e.resource && e.resource.id)
+        };
+    }
+
+    /**
+     * @param {number} linkedPatientCount
+     * @param {object} consent
+     * @returns {Promise<string[]>} the ids $everything returned to the client
+     */
+    async function everythingIds(linkedPatientCount, consent) {
+        const { status, ids } = await everythingResult(linkedPatientCount, consent);
+        expect(status).toBe(200);
+        return ids;
     }
 
     test.each(LINKED_PATIENT_COUNTS.map((count) => [count]))(
@@ -128,6 +148,20 @@ describe('Person $everything and proxy-referenced data at batch boundaries', () 
             const ids = await everythingIds(linkedPatientCount, consentDenied);
 
             expect(ids).not.toContain(PROXY_OBSERVATION_ID);
+        }
+    );
+
+    test.each(BOUNDARY_COUNTS.map((count) => [count]))(
+        'with consent given, a caller without the owner access tag gets none of the Person data at %i linked Patients',
+        async (linkedPatientCount) => {
+            const { status, ids } = await everythingResult(
+                linkedPatientCount,
+                consentGiven,
+                otherTenantHeaders
+            );
+
+            expect(status).toBe(200);
+            expect(ids).toEqual([]);
         }
     );
 });
