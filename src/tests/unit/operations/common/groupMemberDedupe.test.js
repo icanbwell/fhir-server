@@ -73,7 +73,15 @@ describe('mergeDuplicateMembers', () => {
         ['the id|sourceAssigningAuthority form matches the plain id', ['Patient/a', 'Patient/b', `Patient/a|${SAA}`], [`Patient/a|${SAA}`, 'Patient/b']],
         ['the uuid form matches the plain id', ['Patient/a', `Patient/${generateUUIDv5(`a|${SAA}`)}`], [`Patient/${generateUUIDv5(`a|${SAA}`)}`]],
         ['the same id under another owner is a different member', ['Patient/a', 'Patient/a|other-owner'], ['Patient/a', 'Patient/a|other-owner']],
-        ['an entry without a reference is kept in place', ['Patient/a', null, 'Patient/a'], ['Patient/a', null]]
+        ['an entry without a reference is kept in place', ['Patient/a', null, 'Patient/a'], ['Patient/a', null]],
+        ['versioned references of different members stay apart', ['Patient/x/_history/2', 'Patient/y/_history/2'], ['Patient/x/_history/2', 'Patient/y/_history/2']],
+        [
+            'absolute references to different resource types stay apart',
+            ['https://example.org/fhir/Patient/x', 'https://example.org/fhir/Practitioner/x'],
+            ['https://example.org/fhir/Patient/x', 'https://example.org/fhir/Practitioner/x']
+        ],
+        ['a reference that is not Type/id is not merged, even when repeated', ['Patient/a/_history/1', 'Patient/a/_history/1'], ['Patient/a/_history/1', 'Patient/a/_history/1']],
+        ['a reference with no id is not merged', ['Patient/', 'Patient/'], ['Patient/', 'Patient/']]
     ])('%s', (_label, inputReferences, expectedReferences) => {
         const members = inputReferences.map((reference) => (reference ? member(reference) : { entity: { display: 'no reference' } }));
 

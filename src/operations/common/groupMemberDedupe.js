@@ -32,7 +32,8 @@ function mergeMemberEntry(olderEntry, newerEntry) {
  *
  * A member's entries are merged with mergeMemberEntry, oldest first: entries in olderEntries in
  * member[] order, then the others in member[] order. The merged entry takes the position of the
- * member's first entry. Entries with no resolvable entity.reference are kept as they are.
+ * member's first entry. Entries whose entity.reference is missing or not a relative `Type/id`
+ * reference (see referenceUuidOf) are kept as they are.
  *
  * @param {Object} params
  * @param {Object[]} params.members - the Group's member[]; not modified
@@ -151,10 +152,18 @@ function memberUuidOf(member, groupSourceAssigningAuthority) {
 /**
  * @param {unknown} reference - an entity.reference
  * @param {string|undefined} sourceAssigningAuthority - used when the reference has no `|<owner>`
- * @returns {string|null} null when the reference is not a string
+ * @returns {string|null} null when the reference is not a relative `Type/id` or `Type/id|<owner>`
+ *   reference
  */
 function referenceUuidOf(reference, sourceAssigningAuthority) {
     if (typeof reference !== 'string') {
+        return null;
+    }
+    // The uuid is computed from the first and the last segment of the reference, so it names one
+    // member only for a relative `Type/id` reference: `Patient/x/_history/2` and
+    // `Patient/y/_history/2`, or `https://h/Patient/x` and `https://h/Practitioner/x`, would share one
+    const [resourceType, id, ...otherSegments] = reference.split('/');
+    if (!resourceType || !id || otherSegments.length > 0) {
         return null;
     }
     const referenceToEnrich = [{ entity: { reference } }];
