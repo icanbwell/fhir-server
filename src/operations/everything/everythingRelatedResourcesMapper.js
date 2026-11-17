@@ -61,7 +61,7 @@ const patientLinkedResources = [
             proxyPatientQuery: `{"securityContext.{idType}":"{resourceType}/{id}"}`,
             proxyPatientRequiredValues: ["resourceType", "id", "idType"]
         },
-        indexHintName: "securityContextUuid_uuid"
+        indexHintName: "securityContext_uuid_uuid"
     },
     {
         type: "BiologicallyDerivedProduct",
