@@ -202,7 +202,10 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
                 mergeAsync: jest.fn().mockResolvedValue([{ created: true }]),
                 mergeAsyncStream: jest.fn().mockResolvedValue(undefined)
             },
-            everythingOperation: { everythingAsync: jest.fn().mockResolvedValue({ resourceType: 'Bundle', id: 'everything' }) },
+            everythingOperation: {
+                everythingAsync: jest.fn().mockResolvedValue({ resourceType: 'Bundle', id: 'everything' }),
+                preloadViewControlAsync: jest.fn().mockResolvedValue(undefined)
+            },
             summaryOperation: { summaryAsync: jest.fn().mockResolvedValue(undefined) },
             removeOperation: { removeAsync: jest.fn().mockResolvedValue({ deleted: 3 }) },
             searchByVersionIdOperation: { searchByVersionIdAsync: jest.fn().mockResolvedValue({ id: 'v1' }) },
@@ -748,6 +751,20 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
                     expect(ops.searchStreamingOperation.searchStreamingAsync).not.toHaveBeenCalled();
                     expect(ops.searchByIdOperation.searchByIdAsync).not.toHaveBeenCalled();
                 });
+
+            test.each([['yes'], ['on'], [''], [['true', 'true']], [{ a: 1 }]])(
+                'a malformed value (%p) is a 400, never read as "no opt-in"', async (value) => {
+                    await expect(send('search', { _applyDataViewControl: value })).rejects.toMatchObject({
+                        statusCode: 400,
+                        message: expect.stringContaining('must be one of true, 1, false or 0')
+                    });
+                    expect(ops.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+                });
+
+            test('a malformed value is a 400 for a user token too', async () => {
+                requestInfo.isUser = true;
+                await expect(send('search', { _applyDataViewControl: 'yes' })).rejects.toMatchObject({ statusCode: 400 });
+            });
 
             test.each([['false'], ['0'], [undefined]])(
                 'a service token that does not ask for it (value %p) is unaffected', async (value) => {

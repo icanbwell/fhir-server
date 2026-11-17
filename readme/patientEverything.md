@@ -216,8 +216,10 @@ The Person is the one in the URL; the block applies only when that Person's owne
 <br>
 Default: false
 
-- Only on Person $everything, with one Person id. On Patient $everything, or with more than one id, the request is a 400.
-- A Person the token can't see is a 404, the same as a Person that doesn't exist.
+- Only on a Person $everything read (GET), with one Person id. On Patient $everything, on a DELETE, or with more than one id, the request is a 400.
+- The value must be `true`, `1`, `false` or `0`. Anything else, such as `yes` or a repeated parameter, is a 400.
+- Not supported on `/mcp`, where the parameter does nothing.
+- A token without read scope for the Person gets a 403 before anything is looked up. A Person the token can't see is a 404, the same as a Person that doesn't exist.
 - If the Person's owner or Consent can't be loaded, the request fails with an HTTP error; no data is returned.
 - User tokens are always filtered, so the parameter changes nothing for them.
 

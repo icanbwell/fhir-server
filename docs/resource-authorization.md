@@ -294,26 +294,16 @@ of the §5 patient-scope query. Full model, including the read-only operation re
 **d. Patient Data View Control consent** — lets a user hide specific resources with an active
 `dataConnectionViewControl`-category Consent whose `provision.data` references them. It applies to
 user tokens whose Person's owner is in `configManager.clientsWithDataConnectionViewControl`
-(env `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`), on every user read path: REST search and
-read-by-id (a hidden resource is a 404), GraphQL v1 and v2, `/mcp`, `$graph` and `$summary`, and
-Patient/Person `$everything` (including cache replays). History/version reads are not filtered and
-are rejected for user tokens.
+(env `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`). The read paths it covers, and the history/version
+exceptions, are listed in `readme/patientDataViewControl.md`.
 - *Where:* `PatientDataViewControlExclusion` (`src/utils/patientDataViewControlExclusion.js`) loads
-  the Consent once per request per subject Person, using
-  `PatientDataViewControlManager.getConsentAsync` (`src/utils/patientDataViewController.js`), and
-  adds an `_id:not` of the hidden ids to the query (`applyAsync`). `$everything` uses the same
-  lookup in `everythingHelper.js`.
-- *Subject Person:* the user in the token (`ViewControlSubject.fromToken`). Service and admin
-  tokens are not filtered, except a service token sending `_applyDataViewControl=true` on Person
-  `$everything`, which is filtered by the Person in the URL (`ViewControlSubject.fromUrlPerson`,
-  read through the caller's access filter; see
+  the Consent once per request per subject Person and adds an `_id:not` of the hidden ids to the
+  query. `$everything` uses the same lookup in `everythingHelper.js`.
+- *Subject Person:* the user in the token. Service and admin tokens are not filtered, except a service
+  token sending `_applyDataViewControl=true` on Person `$everything`, which is filtered by the Person
+  in the URL (see
   `docs/adr/0004-service-token-opt-in-for-data-view-control-on-person-everything.md`).
-- *Composition sections:* `DataViewControlCompositionEnrichmentProvider` removes sections whose
-  entries reference a hidden resource, using the exclude map the read path passes in the
-  enrichment context (§10's section filter is a separate, sensitivity-based rule).
-- *Fails closed:* a failed Consent lookup fails the request instead of returning unfiltered data. A
-  user's Person without an owner tag is treated as enrolled, so the Consent still applies; the
-  service-token opt-in on a Person without an owner tag fails the request.
+- *Fails closed:* a failed Consent lookup fails the request instead of returning unfiltered data.
 
 Full detail: `readme/patientDataViewControl.md`.
 

@@ -992,6 +992,88 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             expect(JSON.stringify(resp.body.issue)).toContain('one Person per request');
         });
 
+        test.each([['yes'], ['on'], ['']])('a malformed value (%p) is a 400, not an unfiltered record', async (value) => {
+            const resp = await personEverything(`_applyDataViewControl=${value}`);
+            expect(resp.status).toBe(400);
+            expect(hasBlocked(resp)).toBe(false);
+            expect(hasUnblocked(resp)).toBe(false);
+        });
+
+        test('a repeated parameter is a 400, not an unfiltered record', async () => {
+            const resp = await personEverything(`${OPT_IN}&${OPT_IN}`);
+            expect(resp.status).toBe(400);
+            expect(hasUnblocked(resp)).toBe(false);
+        });
+
+        test.each([['false'], ['0']])('the value %p is accepted and applies nothing', async (value) => {
+            const resp = await personEverything(`_applyDataViewControl=${value}`);
+            expect(resp.status).toBe(200);
+            expect(hasBlocked(resp)).toBe(true);
+        });
+
+        test('the opt-in on DELETE $everything is a 400 and deletes nothing', async () => {
+            const resp = await request.delete(`/4_0_0/Person/${PERSON_ID}/$everything?${OPT_IN}`).set(getHeaders());
+            expect(resp.status).toBe(400);
+            expect(hasUnblocked(await personEverything())).toBe(true);
+        });
+
+        describe('with the $everything cache on', () => {
+            const CACHE_ENV = [
+                'ENABLE_REDIS',
+                'ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION',
+                'ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION'
+            ];
+            let savedCacheEnv;
+            beforeEach(() => {
+                savedCacheEnv = CACHE_ENV.map((name) => process.env[name]);
+                CACHE_ENV.forEach((name) => { process.env[name] = '1'; });
+                getTestContainer().redisClient.streams.clear();
+            });
+            afterEach(() => {
+                CACHE_ENV.forEach((name, i) => {
+                    if (savedCacheEnv[i] === undefined) {
+                        delete process.env[name];
+                    } else {
+                        process.env[name] = savedCacheEnv[i];
+                    }
+                });
+            });
+
+            const cachedKeys = () => [...getTestContainer().redisClient.streams.keys()];
+            const userEverything = () => personEverything('', userHeaders());
+
+            test('an opt-in read is never served from, nor stored in, the cache that a user read filled', async () => {
+                const userMiss = await userEverything();
+                expect(userMiss.headers).toHaveProperty('x-cache', 'Miss');
+                expect((await userEverything()).headers).toHaveProperty('x-cache', 'Hit');
+                const keysAfterUser = cachedKeys();
+                expect(keysAfterUser).toHaveLength(1);
+
+                const optIn = await personEverything(OPT_IN);
+                expect(optIn.status).toBe(200);
+                expect(optIn.headers['x-cache']).not.toBe('Hit');
+                expect(hasBlocked(optIn)).toBe(false);
+                expect(hasUnblocked(optIn)).toBe(true);
+                // nothing new was stored, and the user's entry was not replaced
+                expect(cachedKeys()).toEqual(keysAfterUser);
+
+                // and a service read without the opt-in still gets the full record, not the user's cache
+                const plain = await personEverything();
+                expect(plain.headers['x-cache']).not.toBe('Hit');
+                expect(hasBlocked(plain)).toBe(true);
+            });
+
+            test('a user read after an opt-in read is a miss, so the opt-in stored nothing for it to hit', async () => {
+                const optIn = await personEverything(OPT_IN);
+                expect(optIn.status).toBe(200);
+                expect(cachedKeys()).toHaveLength(0);
+
+                const userFirst = await userEverything();
+                expect(userFirst.headers).toHaveProperty('x-cache', 'Miss');
+                expect(hasBlocked(userFirst)).toBe(false);
+            });
+        });
+
         test('a failed Consent lookup is an HTTP error with no data', async () => {
             const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync')
                 .mockRejectedValue(new Error('consent store unavailable'));

@@ -1,6 +1,7 @@
 const { BaseCacheKeyGenerator } = require('../common/baseCacheKeyGenerator');
 const { fhirContentTypes } = require('../../utils/contentTypes');
 const { assertTypeEquals } = require('../../utils/assertType');
+const { APPLY_DATA_VIEW_CONTROL_PARAM } = require('../../constants');
 const { RedisManager } = require('../../utils/redisManager');
 
 class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
@@ -19,7 +20,7 @@ class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
             '_excludeProxyPatientLinked',
             '_includePatientLinkedUuidOnly',
             '_includeUuidOnly',
-            '_applyDataViewControl',
+            APPLY_DATA_VIEW_CONTROL_PARAM,
             'contained'
         ];
         this.cacheableResponseTypes = [

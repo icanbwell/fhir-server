@@ -2,7 +2,14 @@
  * @name exports
  * @summary Some constants used throughout the app
  */
+/**
+ * Query parameter a service token sends on Person/{id}/$everything to have that Person's
+ * dataConnectionViewControl block applied (a service reading on a user's behalf).
+ */
+const APPLY_DATA_VIEW_CONTROL_PARAM = '_applyDataViewControl';
+
 module.exports = {
+    APPLY_DATA_VIEW_CONTROL_PARAM,
     CLIENT: 'client',
     CLIENT_DB: 'client_db',
     AUDIT_EVENT_CLIENT: 'auditEventClient',
@@ -199,7 +206,7 @@ module.exports = {
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',
         'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer', '_rewritePatientReference', '_keepOldUI',
         '_includeNonClinicalResources', '_nonClinicalResourcesDepth', '_includePatientLinkedOnly', '_includeUuidOnly',
-        '_applyDataViewControl'
+        APPLY_DATA_VIEW_CONTROL_PARAM
     ],
     /**
      * Resource types fhir-notes-vector-store extracts and Atlas-Search-indexes attachment/note

@@ -341,6 +341,23 @@ class EverythingHelper {
     }
 
     /**
+     * Loads a subject's view-control Consent lookup, which is then reused by the $everything that follows
+     * in the same request.
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} base_version
+     * @param {ViewControlSubject} viewControlSubject
+     * @returns {Promise<void>}
+     */
+    async preloadViewControlLookupAsync({ requestInfo, base_version, viewControlSubject }) {
+        await this.customTracer.trace({
+            name: 'EverythingHelper.preloadViewControlLookupAsync.patientDataViewControlExclusion.getConsentLookupAsync',
+            func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                requestInfo, base_version, subject: viewControlSubject
+            })
+        });
+    }
+
+    /**
      * Get patient UUID for a given ID
      * @param {ParsedArgs} parsedArgs
      * @param {FhirRequestInfo} requestInfo

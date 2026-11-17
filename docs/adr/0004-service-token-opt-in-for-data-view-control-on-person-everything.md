@@ -35,10 +35,17 @@ answered:
 It sits with the other `$everything` controls (`_includeHidden`, `_includePatientLinkedOnly`, and so
 on) and goes through the same handling:
 - It is listed in `SPECIFIED_QUERY_PARAMS`, so `Prefer: handling=strict` accepts it.
-- Only Person `$everything` reads it. On any other operation a service token that sends it gets a 400
-  (`FhirOperationsManager.getParsedArgsAsync`), because accepting it there would return an unfiltered
-  record to a caller that asked for a filtered one. User tokens are always filtered, so it changes
-  nothing for them.
+- Only a Person `$everything` read (GET) uses it. On any other REST operation, including `DELETE`
+  `$everything`, a service token that sends it gets a 400 (`FhirOperationsManager.getParsedArgsAsync`
+  and `getEverythingViewControlSubject`), because accepting it there would return an unfiltered
+  record to a caller that asked for a filtered one, or delete resources it asked to have hidden.
+  User tokens are always filtered, so a valid value changes nothing for them.
+- The value is parsed strictly, for every token: `true` or `1` applies the block, `false` or `0` does
+  not, and anything else (`yes`, `on`, an empty value, a repeated key) is a 400. A misspelling is
+  never read as "no opt-in", which would return an unfiltered record.
+- `/mcp` is not covered. Its `fhir_search` tool reads free-form `filters` and never goes through
+  `getParsedArgsAsync`, so the parameter does nothing there. MCP is off by default and no service
+  caller uses it for this; a caller that needs the block on MCP needs its own decision.
 - It is in `$everything`'s list of uncacheable parameters, so an opt-in response is never stored in
   or served from the `$everything` cache.
 - It shows up in the request URL in access logs and traces. It is a flag, not an identifier, so
@@ -58,6 +65,13 @@ request carries no second identifier, so there's nothing that could disagree wit
 - On Patient `$everything` the parameter is a 400. Asking for a block we can't apply is an error,
   not a silent unfiltered response.
 - A source id that matches more than one visible Person is a 400 asking for the Person uuid.
+- The Consent is keyed on the Person in the URL, which is the user's own Person (the one a user token
+  carries). A Person that links to other Persons is not walked for their Consents.
+- The Consent is searched through the caller's access filter, so the block applies only if the
+  Consent carries an access tag the caller can see. For an enrolled owner, a caller whose access
+  scopes don't cover that owner gets a 403 instead of an unfiltered record. This assumes a
+  `dataConnectionViewControl` Consent always carries its Person's owner tag; a Consent tagged for
+  another owner would look like no Consent to a tenant-scoped caller.
 - User tokens ignore the parameter: they are already filtered by their own Person.
 
 In code, the subject is a value object, `ViewControlSubject` (`src/utils/viewControlSubject.js`),
@@ -67,8 +81,10 @@ is keyed on it, so the two can't be confused within a request.
 ### 3. Fail closed
 
 For an opt-in request, the Person and the Consent are loaded before `$everything` starts writing the
-response. If either fails (the Person has no owner tag, or the Consent search errors), the request
-fails with an HTTP error and returns no data. A caller that asked for the block never gets an
+response. The caller's read scope is checked first, so a token that may not read the Person gets a
+403 whether or not the Person exists. If a lookup fails (the Person has no owner tag, or the Consent
+search errors), the request fails with an HTTP error and returns no data, and the failure is logged
+as an operation failure. A caller that asked for the block never gets an
 unfiltered record because a lookup failed.
 
 ### 4. Only `active` Consents apply (a deliberate policy change)
@@ -157,7 +173,8 @@ As described under Decision.
 ## Related Decisions
 
 - Multi-Person support for the parameter, if a caller needs it
-- View control on `$graph` and `$summary`, which are handled separately
+- View control on `$graph`, `$summary` and PROA reads, which are handled separately
+- The composition service adopting the parameter, which is tracked in that service's repository
 
 ---
 

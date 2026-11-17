@@ -48,11 +48,11 @@ const { CMSManager } = require('../utils/cmsManager');
 const { OperationAccessManager } = require('../utils/operationAccessManager');
 const { CustomTracer } = require('../utils/customTracer');
 const { PatientDataViewControlExclusion } = require('../utils/patientDataViewControlExclusion');
+const { APPLY_DATA_VIEW_CONTROL_PARAM } = require('../constants');
 const {
     getEverythingViewControlSubject,
-    APPLY_DATA_VIEW_CONTROL_PARAM
+    parseApplyDataViewControl
 } = require('./everything/everythingViewControlSubject');
-const { isTrue } = require('../utils/isTrue');
 
 class FhirOperationsManager {
     /**
@@ -345,7 +345,9 @@ class FhirOperationsManager {
         const { base_version } = args;
 
         // user tokens are always filtered, so the opt-in changes nothing for them (as in $everything)
-        if (!acceptsApplyDataViewControlParam && !requestInfo?.isUser && isTrue(args[APPLY_DATA_VIEW_CONTROL_PARAM])) {
+        // a malformed value is a 400 for every token; only a service token's valid opt-in can be unsupported here
+        const optIn = parseApplyDataViewControl(args[APPLY_DATA_VIEW_CONTROL_PARAM]);
+        if (optIn && !acceptsApplyDataViewControlParam && !requestInfo?.isUser) {
             throw new BadRequestError(new Error(
                 `${APPLY_DATA_VIEW_CONTROL_PARAM} is only supported on Person $everything`
             ));
@@ -893,17 +895,14 @@ class FhirOperationsManager {
         // whose view-control block filters this request: the user, or for a service token that opts
         // in, the Person in the URL
         const viewControlSubject = getEverythingViewControlSubject({
-            parsedArgs, requestInfo, isPersonEverything, personIds: idsList
+            parsedArgs, requestInfo, isPersonEverything, personIds: idsList, method: req.method
         });
         if (viewControlSubject?.isUrlPerson) {
             // load it before the response starts streaming, so a Person the token can't see (404) or a
             // failed lookup is an HTTP error rather than an error entry in a 200 stream; $everything
             // then reuses this lookup
-            await this.customTracer.trace({
-                name: 'FhirOperationsManager.everything.patientDataViewControlExclusion.getConsentLookupAsync',
-                func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
-                    requestInfo, base_version: parsedArgs.base_version, subject: viewControlSubject
-                })
+            await this.everythingOperation.preloadViewControlAsync({
+                requestInfo, parsedArgs, resourceType, viewControlSubject
             });
         }
 

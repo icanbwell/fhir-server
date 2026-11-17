@@ -135,6 +135,45 @@ class EverythingOperation {
     }
 
     /**
+     * Loads the view-control Consent lookup of a Person named in the URL, before the response starts
+     * streaming, so a failure is an HTTP error rather than an error entry in a 200 stream. The caller's
+     * read scope is checked first, as everythingBundleAsync does, so a token that may not read the
+     * Person learns nothing about whether it exists. Both failures are logged as operation failures.
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {ParsedArgs} parsedArgs
+     * @param {string} resourceType
+     * @param {import('../../utils/viewControlSubject').ViewControlSubject} viewControlSubject
+     * @return {Promise<void>}
+     */
+    async preloadViewControlAsync({ requestInfo, parsedArgs, resourceType, viewControlSubject }) {
+        const startTime = Date.now();
+        // logs a scope failure itself
+        await this.scopesValidator.verifyHasValidScopesAsync({
+            requestInfo,
+            parsedArgs,
+            resourceType,
+            startTime,
+            action: 'everything',
+            accessRequested: 'r'
+        });
+        try {
+            await this.everythingHelper.preloadViewControlLookupAsync({
+                requestInfo, base_version: parsedArgs.base_version, viewControlSubject
+            });
+        } catch (err) {
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: 'everything',
+                error: err
+            });
+            throw err;
+        }
+    }
+
+    /**
      * does a FHIR $everything
      * @typedef everythingBundleAsyncParams
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
