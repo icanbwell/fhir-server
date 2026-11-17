@@ -129,6 +129,12 @@ describe('ResourceMerger Tests', () => {
                 [member('Patient/b'), member('Patient/a', { period: PERIOD })]
             ],
             [
+                'a member matched by id when it is stored twice',
+                [member('Patient/a', { id: 'm-a', period: { start: '2025-01-01' } }), member('Patient/b'), member('Patient/a', { period: PERIOD })],
+                [member('Patient/a', { id: 'm-a', period: { start: '2027-01-01' } })],
+                [member('Patient/a', { id: 'm-a', period: { start: '2027-01-01' } }), member('Patient/b')]
+            ],
+            [
                 'stored duplicates and a body without member',
                 [member('Patient/a'), member('Patient/a', { period: PERIOD })],
                 undefined,

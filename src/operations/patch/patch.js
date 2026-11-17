@@ -33,6 +33,7 @@ const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identif
 const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
 const { promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
 const { GroupMemberMerger } = require('../common/groupMemberMerger');
+const { unchangedStoredEntries } = require('../common/groupMemberDedupe');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
@@ -446,24 +447,20 @@ class PatchOperation {
                 throw new BadRequestError(error);
             }
             // Make the changes indicated in the patch
-            const resourceToPatch = deepcopy(foundResource);
-            // fast-json-patch applies ops to these same objects in place, so after the PATCH an entry
-            // in this set is a stored entry (possibly edited by an op) and any other entry is new
-            const storedMemberEntries = new Set(Array.isArray(resourceToPatch.member) ? resourceToPatch.member : []);
             /**
              * @type {Object}
              */
             const resource_incoming = this.resourceMerger.fastApplyPatch({
-                currentResource: resourceToPatch, patchContent: deepcopy(effectivePatchContent)
+                currentResource: deepcopy(foundResource), patchContent: deepcopy(effectivePatchContent)
             });
             // A member of an embedded Group appears once, on every PATCH of the Group, so members
-            // stored more than once are merged too. Entries the PATCH created (not stored objects,
-            // which fast-json-patch edits in place) are merged last, so the values a PATCH sends
-            // win over the stored entry even when an indexed add puts the new entry first.
+            // stored more than once are merged too. Entries the PATCH created or changed are merged
+            // after the member's entries it left as stored, so the values a PATCH sends win, even
+            // when an indexed add puts the new entry first or an op edits one of two stored entries.
             this.groupMemberMerger.mergeMembers({
                 resource: resource_incoming,
                 requestInfo,
-                olderEntries: storedMemberEntries
+                olderEntries: unchangedStoredEntries(foundResource.member)
             });
             /**
              * @type {Object}

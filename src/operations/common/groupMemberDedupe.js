@@ -1,4 +1,5 @@
 const deepcopy = require('deepcopy');
+const deepEqual = require('fast-deep-equal');
 const { enrichMemberReferences } = require('../../utils/referenceEnricher');
 const { mergeObject } = require('../../utils/mergeHelper');
 const { logInfo } = require('./logging');
@@ -36,8 +37,8 @@ function mergeMemberEntry(olderEntry, newerEntry) {
  * @param {Object} params
  * @param {Object[]} params.members - the Group's member[]; not modified
  * @param {string} params.sourceAssigningAuthority - the Group's sourceAssigningAuthority
- * @param {Set<Object>} [params.olderEntries] - entries the others win over, e.g. the stored
- *   entries of a Group a PATCH was applied to
+ * @param {{has: function(Object): boolean}} [params.olderEntries] - entries the others win
+ *   over, e.g. unchangedStoredEntries of the Group a write was applied to
  * @param {string} [params.groupId] - for logging only
  * @returns {Object[]} members itself when no member has more than one entry, else a new array
  */
@@ -74,6 +75,33 @@ function mergeDuplicateMembers({ members, sourceAssigningAuthority, olderEntries
         laterIndexes.forEach((index) => mergedAwayIndexes.add(index));
     }
     return mergedMembers.filter((_entry, index) => !mergedAwayIndexes.has(index));
+}
+
+/**
+ * The entries of a written Group's member[] that are still as stored, for mergeDuplicateMembers'
+ * olderEntries: an entry counts when it equals an entry of storedMembers. A stored entry the write
+ * changed and a new entry do not count, so they merge after the member's stored entries and the
+ * values the write sent win.
+ *
+ * Only asked about entries of members with more than one entry, so the stored entries are grouped
+ * by entity.reference on first use, and an entry is compared only with those of its reference.
+ *
+ * @param {Object[]|undefined} storedMembers - the Group's member[] before the write; not modified
+ * @returns {{has: function(Object): boolean}}
+ */
+function unchangedStoredEntries(storedMembers) {
+    /** @type {Map<string|undefined, Object[]>|undefined} */
+    let storedEntriesByReference;
+    return {
+        has(entry) {
+            if (!Array.isArray(storedMembers)) {
+                return false;
+            }
+            storedEntriesByReference ??= Map.groupBy(storedMembers, (storedEntry) => storedEntry?.entity?.reference);
+            const storedEntries = storedEntriesByReference.get(entry?.entity?.reference) ?? [];
+            return storedEntries.some((storedEntry) => deepEqual(storedEntry, entry));
+        }
+    };
 }
 
 /**
@@ -136,5 +164,6 @@ function referenceUuidOf(reference, sourceAssigningAuthority) {
 
 module.exports = {
     mergeMemberEntry,
-    mergeDuplicateMembers
+    mergeDuplicateMembers,
+    unchangedStoredEntries
 };

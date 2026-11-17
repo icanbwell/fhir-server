@@ -11,6 +11,7 @@ const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumnHandler");
 const { GroupMemberMerger } = require('./groupMemberMerger');
+const { unchangedStoredEntries } = require('./groupMemberDedupe');
 const deepcopy = require('deepcopy');
 const { logInfo } = require('./logging');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
@@ -433,8 +434,14 @@ class ResourceMerger {
         // A member can have a second entry here: the sent Group may list it twice, mergeObject
         // appends a member that differs from every stored entry, and two $merge entries for one
         // Group are combined the same way. Merge such entries before the diff, so a merge that
-        // ends up equal to the stored Group is still no change.
-        mergedObject = this.groupMemberMerger.mergeMembers({ resource: mergedObject, requestInfo });
+        // ends up equal to the stored Group is still no change. With smartMerge the stored entries
+        // are kept, and one the sent Group did not change may come after the entry it changed, so
+        // the entries still as stored merge first and the sent values win.
+        mergedObject = this.groupMemberMerger.mergeMembers({
+            resource: mergedObject,
+            requestInfo,
+            olderEntries: smartMerge ? unchangedStoredEntries(currentResource.member) : undefined
+        });
 
         // now create a patch between the document in db and the incoming document
         // this returns an array of patchecurrentResources

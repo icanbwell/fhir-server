@@ -32,7 +32,7 @@ class GroupMemberMerger {
      * @param {Object} params.resource - run through preSave, so _sourceAssigningAuthority is set;
      *   its member[] is replaced when entries are merged
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} [params.requestInfo]
-     * @param {Set<Object>} [params.olderEntries] - see mergeDuplicateMembers
+     * @param {{has: function(Object): boolean}} [params.olderEntries] - see mergeDuplicateMembers
      * @returns {Object} resource
      */
     mergeMembers({ resource, requestInfo, olderEntries }) {

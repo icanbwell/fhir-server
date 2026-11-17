@@ -1,9 +1,10 @@
 const { describe, test, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
-const { mergeMemberEntry, mergeDuplicateMembers } = require('../../../../operations/common/groupMemberDedupe');
+const { mergeMemberEntry, mergeDuplicateMembers, unchangedStoredEntries } = require('../../../../operations/common/groupMemberDedupe');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 const SAA = 'test-owner';
+const PERIOD_2024 = { start: '2024-01-01' };
 const PERIOD_2025 = { start: '2025-01-01' };
 const PERIOD_2026 = { start: '2026-01-01' };
 
@@ -138,5 +139,42 @@ describe('mergeDuplicateMembers', () => {
         mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
 
         expect(members).toEqual(membersBefore);
+    });
+});
+
+describe('unchangedStoredEntries', () => {
+    const STORED = [member('Patient/a', { period: PERIOD_2025 }), member('Patient/b')];
+
+    test.each([
+        ['an entry equal to a stored entry', STORED, member('Patient/a', { period: PERIOD_2025 }), true],
+        ['a stored entry the write changed', STORED, member('Patient/a', { period: PERIOD_2026 }), false],
+        ['a new member', STORED, member('Patient/c'), false],
+        ['an entry without a reference', [...STORED, { entity: { display: 'no reference' } }], { entity: { display: 'no reference' } }, true],
+        ['a Group with no stored member[]', undefined, member('Patient/a', { period: PERIOD_2025 }), false]
+    ])('%s counts as still stored: %s', (_label, storedMembers, entry, expected) => {
+        expect(unchangedStoredEntries(storedMembers).has(entry)).toBe(expected);
+    });
+
+    test.each([
+        [
+            'an edited first entry wins over a later one still as stored',
+            [member('Patient/a', { period: PERIOD_2025 }), member('Patient/b'), member('Patient/a', { period: PERIOD_2024, inactive: true })],
+            [member('Patient/a', { period: PERIOD_2026 }), member('Patient/b'), member('Patient/a', { period: PERIOD_2024, inactive: true })],
+            [member('Patient/a', { period: PERIOD_2026, inactive: true }), member('Patient/b')]
+        ],
+        [
+            'a sent entry merged into the first slot by id wins over a later stored entry',
+            [member('Patient/a', { id: 'm-a', period: PERIOD_2025 }), member('Patient/a', { period: { end: '2025-12-31' } })],
+            [member('Patient/a', { id: 'm-a', period: { start: '2025-01-01', end: '2026-12-31' } }), member('Patient/a', { period: { end: '2025-12-31' } })],
+            [member('Patient/a', { id: 'm-a', period: { start: '2025-01-01', end: '2026-12-31' } })]
+        ]
+    ])('with mergeDuplicateMembers, %s', (_label, storedMembers, writtenMembers, expectedMembers) => {
+        const result = mergeDuplicateMembers({
+            members: writtenMembers,
+            sourceAssigningAuthority: SAA,
+            olderEntries: unchangedStoredEntries(storedMembers)
+        });
+
+        expect(result).toEqual(expectedMembers);
     });
 });

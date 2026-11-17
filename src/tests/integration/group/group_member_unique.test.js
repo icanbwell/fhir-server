@@ -267,6 +267,11 @@ describe('Group keeps one member per entity.reference', () => {
             'remove /member/0',
             [{ op: 'remove', path: '/member/0' }],
             [{ reference: 'Patient/a', period: PERIOD }, { reference: 'Patient/b' }]
+        ],
+        [
+            'add /member/0/period, editing the first of the two entries',
+            [{ op: 'add', path: '/member/0/period', value: { start: '2027-01-01' } }],
+            [{ reference: 'Patient/a', period: { start: '2027-01-01' } }, { reference: 'Patient/b' }]
         ]
     ])('PATCH %s on members stored twice applies to the entries as stored, then merges them', async (_label, patchOps, expectedMembers) => {
         const id = await postGroup([member('Patient/a'), member('Patient/b')]);
