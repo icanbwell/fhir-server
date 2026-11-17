@@ -334,6 +334,34 @@ describe('MongoGroupMemberRepository', () => {
         });
     });
 
+    describe('resolveMemberWritesAsync per-member request limit', () => {
+        const addOf = (entityUuid, i) => ({ entity: { reference: 'Patient/1', _uuid: entityUuid }, period: { start: `20${10 + i}-01-01` }, op: 'add' });
+
+        beforeEach(() => {
+            Object.defineProperty(mockConfigManager, 'groupMemberMaxEntriesPerMember', { get: () => 2 });
+            mockDatabaseQueryFactory.createQuery = jest.fn().mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue({ toArrayAsync: jest.fn().mockResolvedValue([]) })
+            });
+        });
+
+        test('rejects more requests for one member than the limit before reading anything', async () => {
+            const writeRequests = [0, 1, 2].map((i) => addOf('patient-1-uuid', i));
+
+            await expect(
+                repository.resolveMemberWritesAsync({ base_version: '4_0_0', groupUuid: 'group-a', writeRequests })
+            ).rejects.toThrow('Group.member has 3 entries for one member, more than the 2 allowed');
+            expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+        });
+
+        test('resolves requests at the limit for each member', async () => {
+            const writeRequests = [addOf('patient-1-uuid', 0), addOf('patient-2-uuid', 0), addOf('patient-1-uuid', 1), addOf('patient-2-uuid', 1)];
+
+            const resolved = await repository.resolveMemberWritesAsync({ base_version: '4_0_0', groupUuid: 'group-a', writeRequests });
+
+            expect([...resolved.values()].map((write) => write.writeType)).toEqual(['create', 'create']);
+        });
+    });
+
     describe('applyResolvedMemberWritesAsync', () => {
         const requestInfo = { requestId: 'req-1' };
 

@@ -9,6 +9,8 @@ const { GROUP_MEMBER_RESOURCE_TYPE, GROUP_MEMBER_COLLECTION_NAME } = require('..
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { logError, logInfo } = require('../../operations/common/logging');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { recordGroupMemberMergeEntries, GROUP_MEMBER_MERGE_OUTCOME } = require('../../utils/metrics');
 const { QueryItem } = require('../../operations/graph/queryItem');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { ConfigManager } = require('../../utils/configManager');
@@ -36,7 +38,7 @@ const CASCADE_MAX_NO_PROGRESS_PASSES = 10;
  * /member. This is a plain resource write, not an event log: each requested write resolves to
  * a real create/update/delete of a GroupMember_4_0_0 document. Writes go through
  * FastDatabaseBulkInserter -- insertOneAsync() for a fresh member, replaceOneAsync() for an
- * update/reactivation (see applyResolvedMemberWritesAsync for why the split matters); reads use
+ * update of an existing one (see applyResolvedMemberWritesAsync for why the split matters); reads use
  * the raw-document path, not toObjectArrayAsync().
  *
  * Callers always call resolveMemberWritesAsync() first (a read-only lookup against the live
@@ -186,15 +188,16 @@ class MongoGroupMemberRepository {
     }
 
     /**
-     * Reads current membership for the given requested writes and, for each one, resolves (via
-     * resolveMemberWrite) exactly what it needs: create/update/delete/none. Writes nothing
-     * itself.
+     * Reads current membership for the given requested writes and, for each member they name,
+     * resolves (via resolveMemberWrite, which folds that member's requests in request
+     * order: an add merges onto the member, a remove clears it) exactly what its row needs:
+     * create/update/delete/none. Writes nothing itself.
      *
      * Resolving always requires a DB read (to know what's already there), so there's no reason
      * to pay for that read twice per PATCH request. Callers that need to know ahead of time
      * whether a batch of requested writes is a genuine no-op (e.g. removing an already-absent
-     * member, or re-adding one with identical period/type/display/inactive -- both resolve to
-     * 'none') call this once, and -- if it isn't a no-op -- pass the very same Map into
+     * member, or re-adding one that sends nothing the stored member doesn't already have --
+     * both resolve to 'none') call this once, and -- if it isn't a no-op -- pass the very same Map into
      * applyResolvedMemberWritesAsync to actually write it, instead of resolving a second time.
      *
      * @param {Object} params
@@ -202,17 +205,34 @@ class MongoGroupMemberRepository {
      * @param {string} params.groupUuid
      * @param {Array<Object>} params.writeRequests
      * @returns {Promise<Map<string, {writeRequest: Object, writeType: 'create'|'update'|'delete'|'none', member: Object|undefined}>>}
+     *   keyed by member uuid; writeRequest is that member's last request
+     * @throws {BadRequestError} when more than configManager.groupMemberMaxEntriesPerMember
+     *   requests name one member, checked before anything is read or folded
      */
     async resolveMemberWritesAsync({ base_version, groupUuid, writeRequests }) {
         if (!writeRequests || writeRequests.length === 0) {
             return new Map();
         }
 
-        // De-dupe by member identity within one call -- last requested write for a given entity wins.
-        const writeRequestsByMemberUuid = new Map();
-        for (const writeRequest of writeRequests) {
-            const memberUuid = MongoGroupMemberRepository.deriveMemberUuid(groupUuid, writeRequest.entity._uuid);
-            writeRequestsByMemberUuid.set(memberUuid, writeRequest);
+        // Group the requests by member identity, keeping request order, so several writes for one
+        // member in one PATCH resolve to a single write of that member's row.
+        /** @type {Map<string, Object[]>} member uuid -> its write requests in request order */
+        const writeRequestsByMemberUuid = Map.groupBy(writeRequests, (writeRequest) =>
+            MongoGroupMemberRepository.deriveMemberUuid(groupUuid, writeRequest.entity._uuid)
+        );
+        const maxEntriesPerMember = this.configManager.groupMemberMaxEntriesPerMember;
+        let mostRequestsForOneMember = 0;
+        for (const memberWriteRequests of writeRequestsByMemberUuid.values()) {
+            mostRequestsForOneMember = Math.max(mostRequestsForOneMember, memberWriteRequests.length);
+        }
+        if (mostRequestsForOneMember > maxEntriesPerMember) {
+            recordGroupMemberMergeEntries(GROUP_MEMBER_MERGE_OUTCOME.REJECTED, mostRequestsForOneMember);
+            throw new BadRequestError(
+                new Error(
+                    `Group.member has ${mostRequestsForOneMember} entries for one member, more than the ` +
+                    `${maxEntriesPerMember} allowed`
+                )
+            );
         }
 
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
@@ -227,10 +247,10 @@ class MongoGroupMemberRepository {
         const existingMembersByUuid = new Map(existingMembers.map((m) => [m._uuid, m]));
 
         const resolvedMemberWrites = new Map();
-        for (const [memberUuid, writeRequest] of writeRequestsByMemberUuid) {
+        for (const [memberUuid, memberWriteRequests] of writeRequestsByMemberUuid) {
             const existingMember = existingMembersByUuid.get(memberUuid);
-            const { writeType, member } = resolveMemberWrite(existingMember?.member, writeRequest);
-            resolvedMemberWrites.set(memberUuid, { writeRequest, writeType, member });
+            const { writeType, member } = resolveMemberWrite(existingMember?.member, memberWriteRequests);
+            resolvedMemberWrites.set(memberUuid, { writeRequest: memberWriteRequests.at(-1), writeType, member });
         }
         return resolvedMemberWrites;
     }
