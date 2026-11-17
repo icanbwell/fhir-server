@@ -202,7 +202,19 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
 
         test.each([
             ['REST search', (r) => r.get('/4_0_0/CarePlan').set(userHeaders()),
-                (resp) => expect(resp.status).toBeGreaterThanOrEqual(500)]
+                (resp) => expect(resp.status).toBeGreaterThanOrEqual(500)],
+            // the stream has started when the lookup fails, so the status is already 200: the failure
+            // shows as an error OperationOutcome entry and no CarePlan is sent
+            ['live $everything', (r) => r.get(`/4_0_0/Patient/person.${PERSON_ID}/$everything`).set(userHeaders()),
+                (resp) => {
+                    const outcomes = (resp.body.entry || [])
+                        .map((e) => e.resource)
+                        .filter((r) => r?.resourceType === 'OperationOutcome');
+                    expect(outcomes).toHaveLength(1);
+                    expect(outcomes[0].issue[0].severity).toBe('error');
+                    expect(allIdValues(resp.body)).not.toContain(BLOCKED_UUID);
+                    expect(allIdValues(resp.body)).not.toContain(UNBLOCKED_UUID);
+                }]
         ])('a failed Consent lookup fails the request and returns no data: %s', async (_name, send, assertFailed) => {
             const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentForPersonAsync')
                 .mockRejectedValue(new Error('consent store unavailable'));
@@ -414,6 +426,34 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
             expect(body).not.toContain(BLOCKED);
             expect(body).not.toContain(UNBLOCKED);
             expect(body).not.toContain(UNBLOCKED_UUID);
+        });
+    });
+
+    describe('caller has no Person record but an active Consent names that Person', () => {
+        const MISSING_PERSON_ID = '0d6b1c1e-0000-5000-8000-000000000000';
+        const headers = () => getHeadersWithCustomPayload({
+            ...USER_PAYLOAD,
+            clientFhirPersonId: MISSING_PERSON_ID,
+            clientFhirPatientId: '0d6b1c1e-0000-5000-8000-000000000001'
+        });
+
+        // Pins today's behavior: the lookup does not search the Consent for a Person it cannot find, and
+        // with default config the user's patient scope holds only the proxy id, so nothing is returned.
+        test('REST search returns nothing and runs no Consent search', async () => {
+            const consent = consentBlocking([`CarePlan/${BLOCKED_UUID}`]);
+            consent.patient = { reference: `Patient/person.${MISSING_PERSON_ID}` };
+            consent.id = '0d6b1c1e-0000-5000-8000-000000000002';
+            await seed();
+            await merge('Consent', consent);
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentForPersonAsync');
+            try {
+                const resp = await request.get('/4_0_0/CarePlan').set(headers());
+                expect(resp.status).toBe(200);
+                expect(idsOf(resp.body)).toEqual([]);
+                expect(spy).not.toHaveBeenCalled();
+            } finally {
+                spy.mockRestore();
+            }
         });
     });
 
