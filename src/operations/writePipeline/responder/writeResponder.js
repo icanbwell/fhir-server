@@ -76,8 +76,10 @@ class WriteResponder {
 
     /**
      * Called on success by `WritePipeline.runAsync`, after the audit, the success log and the
-     * access log, and before `recordMetrics`. Returns the operation's response for the results.
+     * access log, and before `recordMetrics`. Returns the operation's response for the items and
+     * the results.
      * @param {import('../writeContext').WriteContext} context
+     * @param {import('../writeItem').WriteItem[]} items
      * @param {Object[]} results
      * @param {boolean} wasIncomingAList
      * @param {string} resourceType
@@ -85,7 +87,7 @@ class WriteResponder {
      * @param {number} stopTime
      * @returns {*}
      */
-    toResponse ({ context, results, wasIncomingAList, resourceType, startTime, stopTime }) {
+    toResponse ({ context, items, results, wasIncomingAList, resourceType, startTime, stopTime }) {
         throw new Error('WriteResponder.toResponse is not implemented');
     }
 

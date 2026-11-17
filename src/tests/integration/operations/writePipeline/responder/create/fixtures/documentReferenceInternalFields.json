@@ -1,0 +1,38 @@
+{
+  "resourceType": "DocumentReference",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "status": "current",
+  "subject": {
+    "reference": "Patient/parity-patient-1"
+  },
+  "content": [
+    {
+      "attachment": {
+        "contentType": "text/plain",
+        "_file_id": "000000000000000000000001"
+      }
+    },
+    {
+      "attachment": {
+        "contentType": "text/plain",
+        "data": "cGFyaXR5",
+        "_file_id": "000000000000000000000002"
+      }
+    }
+  ],
+  "id": "client-id",
+  "_uuid": "client-uuid",
+  "_sourceAssigningAuthority": "other"
+}

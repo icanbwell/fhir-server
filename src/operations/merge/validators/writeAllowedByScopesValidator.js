@@ -35,9 +35,12 @@ class WriteAllowedByScopesValidator extends BaseValidator {
      * @param {Resource|Resource[]} incomingResources
      * @param {string} base_version
      * @param {boolean} effectiveSmartMerge
+     * @param {string} [accessRequested] the SMART scope letter the scope checks require, 'u' by default
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate ({ requestInfo, incomingResources, base_version, effectiveSmartMerge }) {
+    async validate ({
+        requestInfo, incomingResources, base_version, effectiveSmartMerge, accessRequested = 'u'
+    }) {
         /**
          * @type {MergeResultEntry[]}
          */
@@ -53,7 +56,7 @@ class WriteAllowedByScopesValidator extends BaseValidator {
 
                 if (foundResource) {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        resource: foundResource, requestInfo, base_version, accessRequested: 'u'
+                        resource: foundResource, requestInfo, base_version, accessRequested
                     });
                     // SEC-1580 F2: the check above ran against the resource as stored, so the access tags
                     // on the incoming body still need to be validated before they're merged in. A smart
@@ -64,16 +67,16 @@ class WriteAllowedByScopesValidator extends BaseValidator {
                         currentResource: foundResource,
                         updatedResource: resource,
                         ignoreRemovals: effectiveSmartMerge,
-                        accessRequested: 'u'
+                        accessRequested
                     });
                 } else {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                        resource, requestInfo, base_version, accessRequested: 'u'
+                        resource, requestInfo, base_version, accessRequested
                     });
                     // SEC-1580 F3: this is a create, so the "old" access tag set is empty and every
                     // access tag on the incoming resource counts as an addition
                     this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
-                        requestInfo, currentResource: null, updatedResource: resource, accessRequested: 'u'
+                        requestInfo, currentResource: null, updatedResource: resource, accessRequested
                     });
                 }
                 validIncomingResources.push(resource);

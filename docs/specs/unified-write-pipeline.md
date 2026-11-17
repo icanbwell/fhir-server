@@ -61,8 +61,9 @@ Any of these is a failure even if the code works:
 
 - **Responses and outputs stay the same.** That covers status codes, bodies, headers,
   OperationOutcome text, per-resource `$merge` results, `$import` output lines, access-log entry
-  data, audit events, history rows, Kafka change events and Group member writes. These are the only
-  accepted differences:
+  data (except one POST field, see "Source assigning authority in the access log" under POST in
+  "Changes to announce"), audit events, history rows, Kafka change events and Group member writes.
+  These are the only accepted differences:
   1. A request that fails two checks may get a different one of the two errors than today, because
      the step order is fixed (see "Step order").
   2. Concurrent PUT or PATCH requests on the same resource use a version check and retry instead of
@@ -163,7 +164,8 @@ Every operation runs these steps in this order:
 6. **Validate new resource**: the meta check for an item with no stored doc
 7. **Access before build** (stored doc, and for merge and import also the incoming body)
 8. **Build new doc**
-9. **Validate result**
+9. **Validate result**: checks on the built doc, including `validateResourceAsync` (the Group
+   member limit, the schema of the write-serialized doc, and Person.link)
 10. **Access on result**
 11. **Attachments**
 12. **No-op check**
@@ -214,10 +216,11 @@ operations) or reported as that item's result (`$merge`, `$import`).
 itself, one line per step, in the order above, so the whole flow reads top to bottom in one function.
 There is no step list and no loop. The step classes live in `src/operations/writePipeline/steps/`.
 A profile is plain data that says only what differs from the default: its name, the scope letter
-and action, and the steps it turns `off`. Every step the profile doesn't turn off runs. A profile
-with an unknown setting or an unknown step name fails before anything runs. Step 10 (access on
-result) has no implementation yet. `$merge` never ran it, so the pipeline doesn't call it, and the
-first operation that needs it adds both the call and the name.
+and action, the steps it turns `off`, and the step variants it uses. Every step the profile doesn't
+turn off runs. A profile with an unknown setting, an unknown step name or an unregistered variant
+fails before anything runs. Step 10 (access on result) has no implementation yet. `$merge` never
+ran it, so the pipeline doesn't call it, and the first operation that needs it adds both the call
+and the name.
 
 **Per-operation pieces (user decision).** Each operation adds two files and passes both to
 `WritePipeline.runAsync`:
@@ -249,8 +252,15 @@ reporting of failures differs:
 
 When those operations move to the pipeline, their run must not also write per-item error audits.
 
-A later operation that does a step differently, such as PATCH's search lookup or PUT's replace,
-adds a named variant to that step. Its profile then picks the variant by name, still as plain data.
+An operation that does a step differently, such as POST's insert, PATCH's search lookup or PUT's
+replace, adds a named variant to that step. A variant is a separate step instance that
+`WritePipeline` holds by step name and variant name (its `stepVariants`). The profile picks it by
+name in its `variants` setting, still as plain data, and `WritePipeline` runs it in place of the
+default step. A step the profile names no variant for runs its default, and adding a variant doesn't
+change the step it replaces. POST is the first user. It picks only `buildDocument: 'insert'`, and
+turns `findExisting` off, because a new resource has no stored doc to load and no operation needs a
+loader that loads nothing. It runs the shared identify, validate incoming, validate new resource
+and validate result steps. Its id is a new UUID, so identify only copies the id to `_uuid`.
 
 A step records a failure as a neutral value: which check failed, the OperationOutcome or error,
 and the item's identity at that moment. The responder turns that value into the operation's result
@@ -280,12 +290,12 @@ the code disagree, the code wins.
 |---|---|---|---|---|---|---|
 | Scope letter | `c` | `u`, also for create-via-PUT | `u` | `u`, also when the resource is new | `u` | none in the pipeline (the admin route checks admin scope, as today) |
 | `_` fields | strip | strip | reject with 400 any op whose path starts with `/_` (this also rejects primitive-extension paths such as `/_birthDate`) | strip for validation, then restore `_uuid` and `_sourceAssigningAuthority` | strip | none (no client body) |
-| Validate incoming | schema, Person.link tenant check, AuditEvent size limit; the pipe-in-id check never fires, because POST replaces the id with a new UUID | schema, Person.link; the size and pipe-in-id checks run but never fire: AuditEvent update gets 405 from `ResourceOperationAccessProvider`, and `IdParser` puts only the part before the first `\|` into the body id | – (the body is a JSON Patch) | on the stripped body: AuditEvent size limit and pipe-in-id check, then schema with relaxed required fields | owner tag backfilled first; pipe-in-id check, as today; new: the AuditEvent size limit and the schema check, as in `$merge` (accepted difference 6) | – (no client body) |
-| Find existing | none | by `_uuid` | search with the access filter: 0 hits is 404, more than 1 is 400 | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by `_uuid` with the access filter, 404 (see "Admin") |
-| Validate new resource | meta | – (meta is checked in validate result) | – | meta (owner tag) for a new resource | meta for a new resource, as today | – |
-| Access before build | new: full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403) | stored doc | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: stored doc and every linked resource |
+| Validate incoming | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); the pipe-in-id check never fires, because POST replaces the id with a new UUID | schema, Person.link; the size and pipe-in-id checks run but never fire: AuditEvent update gets 405 from `ResourceOperationAccessProvider`, and `IdParser` puts only the part before the first `\|` into the body id | – (the body is a JSON Patch) | on the stripped body: AuditEvent size limit and pipe-in-id check, then schema with relaxed required fields | owner tag backfilled first; pipe-in-id check, as today; new: the AuditEvent size limit and the schema check, as in `$merge` (accepted difference 6) | – (no client body) |
+| Find existing | off (no stored-document lookup) | by `_uuid` | search with the access filter: 0 hits is 404, more than 1 is 400 | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by `_uuid` with the access filter, 404 (see "Admin") |
+| Validate new resource | meta; new: after the size and schema checks, as in `$merge` (accepted difference 1) | – (meta is checked in validate result) | – | meta (owner tag) for a new resource | meta for a new resource, as today | – |
+| Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403) | stored doc | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: stored doc and every linked resource |
 | Build new doc | insert | replace (no smart merge) | apply the JSON Patch; Group member strategy for Group | smart merge | smart merge | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
-| Validate result | – (same doc as incoming) | meta | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
+| Validate result | new: on, `validateResourceAsync` on the built document (Group member limit, schema of the write-serialized document, Person.link), as for a new `$merge` doc | meta | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
 | Access on result | – (new: done before build) | access-tag change only | access-tag change only | off (the merged doc is not re-checked today) | off | new: full check and access-tag change for a created Person, access-tag change for an update |
 | No-op | – | no write, 200 | no write; new: internal result `updated: false` (see "No-op fixes") | `created: false, updated: false` | new: counted as skipped (see "No-op fixes") | no write, silent |
 | Write | insert (`If-None-Match: *` rejects existing) | `If-Match` / `If-None-Match`; a lost create is rebased as an update (200), and 409 when the rounds run out; new: updates are versioned too (see "Concurrency") | `_uuid` filter only; new: versioned, except Group PATCHes that change members | version filter, concurrent write resolver | version filter, concurrent write resolver | version filter |
@@ -452,7 +462,10 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
   26 tests in 25 files, all failing only on accepted difference 5: 24 expect results sorted by
   `_uuid`, one expects the written result first among resources that share one `_uuid`, and one
   expects change events in the old order. `merge.changeEvents.test.js` checks that both paths send
-  the same change events.
+  the same change events. For POST it is 1 test in 1 file, `create_fast_serializer.test.js`
+  (copied as `oldWriteCreateFastSerializer.test.js`), failing only on accepted difference 1: it
+  expects a Group over the member limit that also fails the schema check to get the `too-costly`
+  400.
 - **Old path coverage (my call).** With the new path on by default, the old path is run by the
   `oldWrite` copies and the parity tests only. The coverage report the CI merges across its jobs
   shows how much of it they keep; more test files get `oldWrite` copies until the old path's
@@ -480,6 +493,25 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
     a missing access check.
   - A `test.each` unit test for parsing `WRITE_PIPELINE_OPERATIONS`, including empty, single,
     several and unknown names.
+  - POST, in `src/tests/integration/operations/writePipeline/responder/create/`:
+    - `create.test.js`: parity, 25 cases run on both paths against goldens recorded from the old
+      path, plus a routing test for each switch position. One case,
+      `typeMismatchWithoutMetaSource`, pins the type-mismatch case of accepted difference 1 with a
+      golden per path. Another, `emptyBody`, pins the 400 for a POST with no body with a status
+      and a golden per path. Five more, `invalidSchemaWithoutOwner`,
+      `personLinkOtherTenantTagNotGrantable`, `auditEventTooLargeWithoutMetaSource`,
+      `auditEventTooLargeInvalidSchema` and `groupOverLimitWithInvalidField`, pin the two-check
+      cases of `$merge`'s validation order with a golden per path, recorded from each path, and a
+      status per path where it differs. One more, `auditEventTooLargeAccessTagNotGrantable`, pins that an oversized AuditEvent with an
+      access tag the caller can't grant gets 413 on both paths, with one golden.
+    - `create.audit.test.js`, `create.accessLog.test.js` and `create.attachments.test.js`: the
+      AuditEvents, the access-log entry, and the attachment stored for a POST rejected with 403, on
+      both paths.
+    - `create.metrics.test.js`: the `fhir_validation_failure_total` labels and count for each
+      failing validation case, on both paths.
+  - The unit test `src/tests/unit/operations/writePipeline/responder/create.test.js`, for the
+    errors `CreateResponder` throws per failure stage, for a missing body, and for a flush that
+    returns no usable result, which can't be produced end to end.
 - The existing access and tenant-isolation suites for these operations run on the new path in the
   main CI job.
 
@@ -554,11 +586,66 @@ today.
   rejected with a per-resource error. Today it is written.
 
 **POST**
-- **Access check before validation** (accepted difference 1). The full access check and the
-  access-tag change check run on the body before the reference, Person.link and Group member
-  limit checks. A POST that fails both gets 403 where today it gets 400.
 - **No attachment writes on 403.** Today attachments and base64 data are stored before the access
   check, so a POST rejected with 403 has already stored them. The new path stores nothing for it.
+- **Which error a POST gets** (accepted difference 1). The new path reads the body before the scope
+  check: it rejects a missing body, an array body, and a body whose `resourceType` doesn't match
+  the URL, with 400. A caller without the scope who sends one of these gets that 400 where today it
+  gets 403.
+- **Type mismatch with another failure** (accepted difference 1, like the scope case above). A
+  body whose `resourceType` doesn't match the URL, and that also fails the meta check or the Group
+  member limit, gets the type-mismatch 400. Today it gets the meta or member-limit 400. The status
+  stays 400 and the outcome text differs. In `fhir_validation_failure_total`, the meta case is now
+  counted at the `schema` stage for the URL's type; today it is counted at the `meta` stage for the
+  body's type. The member-limit case is now counted as a `schema` failure; today it isn't counted,
+  because the member-limit check returns before any failure is recorded.
+- **`$merge`'s validation order** (accepted difference 1). POST runs the same validation steps as
+  `$merge`, in the same order: the AuditEvent size check (with the pipe-in-id check, which never
+  fires for POST), the raw body's schema, the meta check, the access check, then `validateResourceAsync` on the built document (the Group member limit,
+  the schema of the write-serialized document and the Person.link tenant check). Today it runs the
+  meta check, `validateResourceAsync` on the body (the member limit, the schema, then the
+  Person.link tenant check), the schema of the write-serialized body, the size check, then the
+  access check. A request that fails two of these checks can get the other error:
+  - A body that fails a check in `validateResourceAsync` on the built document (the Group member
+    limit, the Person.link tenant check, or the schema of the write-serialized document), and also
+    the access check, gets the 403 instead of the 400.
+  - A body that fails the schema and the meta check gets the schema 400 instead of the meta 400.
+  - An AuditEvent over the size limit that also fails the meta or schema check gets 413 instead of
+    400: the size check now runs first, and today it runs after the meta check and both schema
+    checks. Today's POST also checks the size before the access check, so an oversized AuditEvent
+    that fails the access check gets 413 on both paths.
+
+  In `fhir_validation_failure_total`, the second case is counted at the `schema` stage instead of
+  `meta`. The first case no longer counts its Person.link failure (`reference` stage) or its schema
+  failure, and the third no longer counts its meta or schema failure, because the access and size
+  checks record nothing there. The client's `meta.lastUpdated` is still ignored, as today: the new
+  path removes it when it reads the body.
+- **Group member limit after the schema and access checks** (accepted difference 1, user
+  decision). POST checks the Group member limit in `validateResourceAsync` on the built document,
+  after the raw body's schema check and the access check, as `$merge` does. Today it checks the
+  limit right after the meta check, before the schema and access checks. A Group over the limit
+  that also fails the schema check gets the schema 400 instead of the `too-costly` 400, and is
+  counted in `fhir_validation_failure_total` at the `schema` stage, where today it isn't counted.
+  An over-limit Group is rejected only after the schema check, the access check and the build, so
+  rejecting a large one takes longer than today.
+- **400 for a POST with no body.** A POST whose body the server doesn't parse (no `Content-Length`
+  or `Transfer-Encoding`, or the `application/fhir+ndjson` content type) gets 400
+  `Request body is required.` Today a caller with the scope gets 500, and a caller without the
+  scope gets 403. The scope-less case is accepted difference 1: the request fails both the scope
+  check and the body check.
+- **More operation failures logged.** With the switch on, POST also logs an operation failure when
+  there is no body, when the body is an array, when a validation call throws
+  (`validateResourceAsync`, for example the Person.link lookup or `DateColumnHandler`), when the
+  attachment transform fails, or when the base64 insert fails. The old path threw these before or
+  outside its failure logging. Only logging changes.
+- **GridFS file metadata.** GridFS files stored by a POST on the new path carry
+  `metadata.resource_uuid` and `metadata.resource_sourceId`, as `$merge`'s files already do. Today
+  POST's files have only `metadata.active: true`. Nothing in `src` reads these fields.
+- **Source assigning authority in the access log.** When a POST fails a check of
+  `validateResourceAsync` on the built document (the Group member limit, the Person.link tenant
+  check, or the schema of the write-serialized document), its failure access-log entry now carries
+  the `sourceAssigningAuthority` from the resource's own tag. Today that field is empty, because
+  the old path validates before it reads the tag. Every other field of the entry is unchanged.
 
 **PATCH**
 - **400 instead of 500** (accepted difference 7) when the write returns no result.
@@ -573,8 +660,8 @@ today.
 - There is one PR per operation, each turning on only its own switch.
 - `$merge` goes first. That PR lands the pipeline core along with the batch model, the bulk preload,
   the smart-merge builder and the per-resource responder.
-- The rest follow in this order (my call): import, create, update, patch, admin. `$import` comes
-  next because it reuses most of the merge profile.
+- The rest follow in this order: create, import, update, patch, admin. POST goes before `$import`
+  (user decision). `$import` follows it because it reuses most of the merge profile.
 - The work is based on `main`. The write-flow cleanup PR goes first, and the `$merge` PR stacks on
   it until it merges (user decision). The PUT and PATCH PRs, which rely on the concurrent write
   resolver, wait for it to merge.

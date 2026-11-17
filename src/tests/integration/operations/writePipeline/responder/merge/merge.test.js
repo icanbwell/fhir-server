@@ -22,6 +22,9 @@ const observationResource = require('./fixtures/observation.json');
 const bundleResource = require('./fixtures/bundle.json');
 const bundleWithEmptyEntryResource = require('./fixtures/bundleWithEmptyEntry.json');
 const parametersEmptyResource = require('./fixtures/parametersEmpty.json');
+const groupOverLimitWithInvalidFieldResource = require(
+    './fixtures/groupOverLimitWithInvalidField.json'
+);
 const auditEventOwnerOnlyResource = require('./fixtures/auditEventOwnerOnly.json');
 
 const expectedCreated = require('./fixtures/expected/created.json');
@@ -58,6 +61,12 @@ const expectedStoredExistingByIdAndUuid = require('./fixtures/expected/storedExi
 const expectedStoredCreatedByIdAndUuid = require('./fixtures/expected/storedCreatedByIdAndUuid.json');
 const expectedUnchangedByIdAndUuid = require('./fixtures/expected/unchangedByIdAndUuid.json');
 const expectedUnchangedThenUpdatedByUuid = require('./fixtures/expected/unchangedThenUpdatedByUuid.json');
+const expectedGroupOverLimitWithInvalidField = require(
+    './fixtures/expected/groupOverLimitWithInvalidField.json'
+);
+const expectedNotStoredGroupOverLimitWithInvalidField = require(
+    './fixtures/expected/notStoredGroupOverLimitWithInvalidField.json'
+);
 const expectedNewMixedFailures = require('./fixtures/expected/newPath/mixedFailures.json');
 const expectedNewBundle = require('./fixtures/expected/newPath/bundle.json');
 const expectedNewPreferOperationOutcome = require('./fixtures/expected/newPath/preferOperationOutcome.json');
@@ -93,10 +102,20 @@ const AUDIT_EVENT_SIZE_AS_SENT = Buffer.byteLength(
 );
 
 /**
- * Posts the body to Patient `$merge` with the given headers.
+ * The environment variables a case or a path switch may change, restored after every test.
  */
-const mergeResources = (request, body, headers = getHeaders()) =>
-    request.post('/4_0_0/Patient/$merge').send(body).set(headers);
+const ENVIRONMENT_KEYS = [
+    'WRITE_PIPELINE_OPERATIONS',
+    'ENABLE_EXTENDED_GROUP',
+    'GROUP_MEMBER_PROMOTION_LIMIT',
+    'AUDIT_EVENT_MAX_SIZE_BYTES'
+];
+
+/**
+ * Posts the body to `$merge` of the resource type, Patient by default, with the given headers.
+ */
+const mergeResources = (request, body, headers = getHeaders(), resourceType = 'Patient') =>
+    request.post(`/4_0_0/${resourceType}/$merge`).send(body).set(headers);
 
 /**
  * Sends `$merge` to the new write pipeline or the old path by setting `WRITE_PIPELINE_OPERATIONS`.
@@ -118,23 +137,21 @@ const withEachPath = (cases) =>
 const entryIds = (bundle) => bundle.entry.map((entry) => entry.resource.id ?? null);
 
 describe('$merge parity between the old and the new write path', () => {
-    const originalOperations = process.env.WRITE_PIPELINE_OPERATIONS;
-    const originalAuditEventMaxSizeBytes = process.env.AUDIT_EVENT_MAX_SIZE_BYTES;
+    const originalEnvironment = Object.fromEntries(
+        ENVIRONMENT_KEYS.map((key) => [key, process.env[key]])
+    );
 
     beforeEach(async () => {
         await commonBeforeEach();
     });
 
     afterEach(async () => {
-        if (originalOperations === undefined) {
-            delete process.env.WRITE_PIPELINE_OPERATIONS;
-        } else {
-            process.env.WRITE_PIPELINE_OPERATIONS = originalOperations;
-        }
-        if (originalAuditEventMaxSizeBytes === undefined) {
-            delete process.env.AUDIT_EVENT_MAX_SIZE_BYTES;
-        } else {
-            process.env.AUDIT_EVENT_MAX_SIZE_BYTES = originalAuditEventMaxSizeBytes;
+        for (const [key, value] of Object.entries(originalEnvironment)) {
+            if (value === undefined) {
+                delete process.env[key];
+            } else {
+                process.env[key] = value;
+            }
         }
         jest.restoreAllMocks();
         await commonAfterEach();
@@ -213,6 +230,21 @@ describe('$merge parity between the old and the new write path', () => {
                 id: 'parity-bad-date',
                 headers: getHeaders(),
                 expected: expectedNotStoredSchemaError
+            }
+        },
+        {
+            name: 'reports a new Group over the member limit that also fails the schema check',
+            resourceType: 'Group',
+            env: { ENABLE_EXTENDED_GROUP: '1', GROUP_MEMBER_PROMOTION_LIMIT: '3' },
+            previous: [],
+            body: groupOverLimitWithInvalidFieldResource,
+            headers: getHeaders(),
+            status: 200,
+            expected: expectedGroupOverLimitWithInvalidField,
+            absent: {
+                id: 'parity-group-over-limit',
+                headers: getHeaders(),
+                expected: expectedNotStoredGroupOverLimitWithInvalidField
             }
         },
         {
@@ -378,6 +410,8 @@ describe('$merge parity between the old and the new write path', () => {
 
     test.each(withEachPath(cases))('$name on the $path path', async ({
         path,
+        resourceType = 'Patient',
+        env = {},
         previous,
         body,
         headers,
@@ -393,12 +427,13 @@ describe('$merge parity between the old and the new write path', () => {
         for (const resource of previous) {
             await mergeResources(request, resource).expect(200);
         }
+        Object.assign(process.env, env);
         useWritePath(path);
         if (auditEventMaxSizeBytes !== undefined) {
             process.env.AUDIT_EVENT_MAX_SIZE_BYTES = String(auditEventMaxSizeBytes);
         }
 
-        const resp = await mergeResources(request, body, headers);
+        const resp = await mergeResources(request, body, headers, resourceType);
 
         const expectedResponse = path === 'new' && expectedNew ? expectedNew : expected;
         expect(resp.status).toBe(status);
@@ -407,12 +442,16 @@ describe('$merge parity between the old and the new write path', () => {
         }
         expect(resp).toHaveResponse(expectedResponse);
         if (stored) {
-            const storedResp = await request.get(`/4_0_0/Patient/${stored.id}`).set(getHeaders());
+            const storedResp = await request
+                .get(`/4_0_0/${resourceType}/${stored.id}`)
+                .set(getHeaders());
             expect(storedResp.status).toBe(200);
             expect(storedResp).toHaveResponse(stored.expected);
         }
         if (absent) {
-            const absentResp = await request.get(`/4_0_0/Patient/${absent.id}`).set(absent.headers);
+            const absentResp = await request
+                .get(`/4_0_0/${resourceType}/${absent.id}`)
+                .set(absent.headers);
             expect(absentResp.status).toBe(404);
             expect(absentResp).toHaveResponse(absent.expected);
         }

@@ -1,0 +1,13 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "forbidden",
+      "details": {
+        "text": "user imran can only add or remove access tags it has write access to, for resource Person with id 00000000-0000-4000-8000-000000000001"
+      },
+      "diagnostics": "user imran can only add or remove access tags it has write access to, for resource Person with id 00000000-0000-4000-8000-000000000001"
+    }
+  ]
+}

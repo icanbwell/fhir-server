@@ -29,14 +29,17 @@ class IncomingAndStoredAccessChecker {
      * propagates.
      * @param {WriteItem[]} items
      * @param {WriteContext} context
+     * @param {string} [accessRequested] the SMART scope letter the checks require, passed on to the
+     * validator, which uses 'u' when it is not given
      * @returns {Promise<(WriteFailure|null)[]>}
      */
-    async checkAsync ({ items, context }) {
+    async checkAsync ({ items, context, accessRequested }) {
         const { validatedObjects, preCheckErrors } = await this.writeAllowedByScopesValidator.validate({
             requestInfo: context.requestInfo,
             incomingResources: items.map((item) => item.incoming),
             base_version: context.base_version,
-            effectiveSmartMerge: context.smartMerge
+            effectiveSmartMerge: context.smartMerge,
+            accessRequested
         });
         const allowedResources = new Set(validatedObjects);
         const forbiddenItems = items.filter((item) => !allowedResources.has(item.incoming));

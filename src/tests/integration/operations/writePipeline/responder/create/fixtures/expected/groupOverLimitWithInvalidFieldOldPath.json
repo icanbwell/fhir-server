@@ -1,0 +1,10 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "too-costly",
+      "diagnostics": "Limit exceeded (4 > 3). This operation is too costly to process in a single request.\n\nAlternative approaches:\n1. For writes: Use PATCH with JSON Patch to add members incrementally (example: [{\"op\":\"add\",\"path\":\"/member/-\",\"value\":{\"entity\":{\"reference\":\"Patient/123\"}}}]). See: https://www.hl7.org/fhir/http.html#patch\n2. For reads: Use pagination with _count parameter (example: GET /Group/{id}?_count=100)\n3. For reads: Use streaming with _streamResponse=true for large result sets"
+    }
+  ]
+}

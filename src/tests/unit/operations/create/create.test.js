@@ -50,6 +50,9 @@ const { Base64DataManager } = require('../../../../dataLayer/base64DataManager')
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { WritePipelineSwitch } = require('../../../../operations/writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('../../../../operations/writePipeline/writePipeline');
+const { CreateResponder } = require('../../../../operations/writePipeline/responder/create');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
@@ -81,7 +84,10 @@ describe('CreateOperation', () => {
             configManager: createMockInstance(ConfigManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
-            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider)
+            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
+            writePipelineSwitch: createMockInstance(WritePipelineSwitch),
+            writePipeline: createMockInstance(WritePipeline),
+            createResponder: createMockInstance(CreateResponder)
         };
 
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
@@ -102,6 +108,7 @@ describe('CreateOperation', () => {
         mocks.postRequestProcessor.add = jest.fn();
         mocks.auditLogger.logAuditEntryAsync = jest.fn().mockResolvedValue(undefined);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jest.fn();
+        mocks.writePipelineSwitch.useNewPathFor = jest.fn().mockReturnValue(false);
 
         mockParsedArgs = createMockInstance(ParsedArgs);
         mockParsedArgs.base_version = '4_0_0';

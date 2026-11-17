@@ -1,0 +1,13 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "forbidden",
+      "details": {
+        "text": "user imran has no access to resource Patient with id 00000000-0000-4000-8000-000000000001"
+      },
+      "diagnostics": "user imran has no access to resource Patient with id 00000000-0000-4000-8000-000000000001"
+    }
+  ]
+}

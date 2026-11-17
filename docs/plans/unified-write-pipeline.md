@@ -410,7 +410,8 @@ Each PR adds its name to `WRITE_PIPELINE_OPERATIONS` in `jest/setEnvVars.js` and
    - The responder writes per-line entries with `sourceByteOffset`.
    - No-op lines count as `skipped`.
    - Counts come from the flush results.
-2. **POST.**
+2. **POST.** Its plan is `docs/plans/unified-write-pipeline-create.md`. POST goes before `$import`
+   (user decision).
    - A reader for a single body.
    - `accessRequested: 'c'`.
    - `FindExistingStep` with a loader that finds nothing.
