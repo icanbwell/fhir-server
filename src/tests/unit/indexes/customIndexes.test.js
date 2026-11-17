@@ -119,6 +119,16 @@ describe('customIndexes', () => {
         expect(subjectIndex.keys['subject._uuid']).toBe(1);
     });
 
+    test.each([
+        ['securityContextUuid_uuid', { 'securityContext._uuid': 1, _uuid: 1 }],
+        ['securityContextSourceId_uuid', { 'securityContext._sourceId': 1, _uuid: 1 }]
+    ])('Binary_4_0_0 has the patient-scope index %s', (name, keys) => {
+        const { customIndexes } = loadCustomIndexes();
+        const index = customIndexes.Binary_4_0_0.find((idx) => idx.options.name === name);
+        expect(index).toBeDefined();
+        expect(index.keys).toEqual(keys);
+    });
+
     test('each index entry has keys and options properties', () => {
         const { customIndexes } = loadCustomIndexes();
         for (const [collectionKey, indexes] of Object.entries(customIndexes)) {
