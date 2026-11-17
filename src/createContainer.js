@@ -1016,7 +1016,8 @@ const createContainer = function () {
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository: c.mongoGroupMemberRepository,
-            auditLogger: c.auditLogger
+            auditLogger: c.auditLogger,
+            groupMemberMerger: c.groupMemberMerger
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
