@@ -104,6 +104,11 @@ function createApp({fnGetContainer}) {
     const configManager = container.configManager;
 
     const accessLogger = container.accessLogger;
+    /**
+     * Records request timings for the stall readiness check (a no-op tracker when it is disabled)
+     * @type {import('./utils/stallReadiness').RequestStallTracker}
+     */
+    const requestStallTracker = container.requestStallTracker;
 
     // Urls to be ignored for which access logs are to be created in db.
     const ignoredUrls = ['/live', '/health', '/ready'];
@@ -141,6 +146,11 @@ function createApp({fnGetContainer}) {
             });
         }
         const startTime = new Date().getTime();
+        // A request whose body is still arriving does no server work yet. Only fully received
+        // requests are tracked, so a client trickling a body cannot register as a stall.
+        const endStallTracking = (ignoredUrls.some(url => reqPath.startsWith(url)) || !req.complete)
+            ? () => {}
+            : requestStallTracker.startRequest();
         res.on('finish', () => {
             const username = req.authInfo?.context?.username ||
                 req.authInfo?.context?.subject ||
@@ -210,6 +220,7 @@ function createApp({fnGetContainer}) {
         res.on('close', () => {
             // Decrement the request count
             decrementRequestCount();
+            endStallTracking();
 
             if (!res.writableFinished && !ignoredUrls.some(url => reqPath.startsWith(url))) {
                 const abortTime = new Date().getTime();

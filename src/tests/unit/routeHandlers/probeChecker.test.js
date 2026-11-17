@@ -9,7 +9,8 @@ jestObj.mock('../../../utils/requestCounter', () => ({
     getRequestCount: jestObj.fn()
 }));
 
-const { handleReadinessCheck, handleLivenessCheck } = require('../../../routeHandlers/probeChecker');
+const { handleReadinessCheck, handleLivenessCheck, createReadinessCheck } = require('../../../routeHandlers/probeChecker');
+const { StallVerdict, VERDICT_REASON } = require('../../../utils/stallReadiness');
 const { getRequestCount } = require('../../../utils/requestCounter');
 const { HealthCheckError } = require('@godaddy/terminus');
 
@@ -121,6 +122,34 @@ describe('probeChecker route handler', () => {
             getRequestCount.mockReturnValue(51);
 
             expect(() => handleReadinessCheck()).toThrow(HealthCheckError);
+        });
+    });
+
+    describe('createReadinessCheck (stall check)', () => {
+        const providerReturning = (verdict) => ({ getVerdict: () => verdict });
+
+        test.each([
+            ['disabled', StallVerdict.DISABLED, false],
+            ['below min samples', new StallVerdict({ ready: true, reason: VERDICT_REASON.BELOW_MIN_SAMPLES, total: 3, stalled: 3 }), false],
+            ['within threshold', new StallVerdict({ ready: true, reason: VERDICT_REASON.WITHIN_THRESHOLD, total: 100, stalled: 5 }), false],
+            ['stalled share exceeded', new StallVerdict({ ready: false, reason: VERDICT_REASON.STALLED_SHARE_EXCEEDED, total: 100, stalled: 40 }), true]
+        ])('when the pod verdict is %s, throws=%s', (_label, verdict, throws) => {
+            getRequestCount.mockReturnValue(0);
+            const check = createReadinessCheck({ stallVerdictProvider: providerReturning(verdict) });
+
+            if (throws) {
+                expect(() => check()).toThrow(HealthCheckError);
+            } else {
+                expect(() => check()).not.toThrow();
+            }
+        });
+
+        test('still applies the request-count check before the stall check', () => {
+            process.env.NO_OF_REQUESTS_PER_POD_REDINESS_CHECK = '10';
+            getRequestCount.mockReturnValue(11);
+            const check = createReadinessCheck({ stallVerdictProvider: providerReturning(StallVerdict.DISABLED) });
+
+            expect(() => check()).toThrow(HealthCheckError);
         });
     });
 

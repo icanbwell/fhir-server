@@ -1,6 +1,8 @@
 // noinspection JSUnresolvedReference
 
+const cluster = require('cluster');
 const {SimpleContainer} = require('./utils/simpleContainer');
+const {createRequestStallTracker, createStallVerdictProvider} = require('./utils/stallReadiness');
 const {AccessLogger} = require('./utils/accessLogger');
 const {ChangeEventProducer} = require('./utils/changeEventProducer');
 const {ResourceManager} = require('./operations/common/resourceManager');
@@ -211,6 +213,17 @@ const createContainer = function () {
     }));
 
     container.register('requestSpecificCache', () => new RequestSpecificCache());
+
+    // Stall readiness (off by default): the tracker records request timings in app.js and the
+    // verdict provider answers the /ready stall check, from the cluster primary's pod-level
+    // aggregate when running as a cluster worker.
+    container.register('requestStallTracker', (c) => createRequestStallTracker(c.configManager.stallReadinessConfig));
+    container.register('stallVerdictProvider', (c) => createStallVerdictProvider({
+        config: c.configManager.stallReadinessConfig,
+        tracker: c.requestStallTracker,
+        isClusterWorker: cluster.isWorker,
+        ipc: process
+    }));
 
     container.register('patientFilterManager', (c) => new PatientFilterManager({
         configManager: c.configManager
