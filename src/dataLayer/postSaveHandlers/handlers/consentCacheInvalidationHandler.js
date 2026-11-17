@@ -9,6 +9,7 @@ const { PersonToPatientIdsExpander } = require('../../../utils/personToPatientId
 const { PERSON_PROXY_PREFIX, CONSENT_CATEGORY } = require('../../../constants');
 const { logDebug, logError } = require('../../../operations/common/logging');
 const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
+const { VERSIONS } = require('../../../middleware/fhir/utils/constants');
 const { recordEverythingCacheInvalidationFailed, CACHE_INVALIDATION_FAILURE } = require('../../../utils/metrics');
 
 // A failed bump leaves a cached $everything that can still hold what the Consent now hides, until
@@ -16,6 +17,17 @@ const { recordEverythingCacheInvalidationFailed, CACHE_INVALIDATION_FAILURE } = 
 // given up on and counted. The handler runs after the response is sent, so the wait costs no request.
 const BUMP_MAX_RETRIES = 3;
 const BUMP_INITIAL_DELAY_MS = 100;
+
+/**
+ * The Redis key of a cache generation counter, e.g. `ClientPerson:<uuid>:Everything:Generation`.
+ * @param {'Patient'|'ClientPerson'} owner
+ * @param {string} uuid
+ * @param {'Everything'|'Summary'} cache
+ * @return {string}
+ */
+function generationKey(owner, uuid, cache) {
+    return `${owner}:${uuid}:${cache}:Generation`;
+}
 
 /**
  * Post-save handler that invalidates the Patient/$everything Redis cache whenever a
@@ -136,27 +148,14 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
             // Proxy-patient reference (Patient/person.<personUuid>) -> this Consent is about
             // a Person directly, so bump that Person's Everything-cache generation.
             if (rawId.startsWith(PERSON_PROXY_PREFIX)) {
-                const personUuid = rawId.replace(PERSON_PROXY_PREFIX, '');
-                if (isUuid(personUuid)) {
-                    if (everythingCacheOn) {
-                        await this.incrementGenerationAsync(`ClientPerson:${personUuid}:Everything:Generation`, {
-                            requestId, consentId: doc.id
-                        });
-                        if (this.isDataViewControlConsent(doc)) {
-                            await this.bumpLinkedPatientGenerationsAsync({ personUuid, requestId, consentId: doc.id });
-                        }
-                    }
-                    // a user's cached $summary leaves out what their view control Consent hides
-                    if (summaryCacheOn && this.isDataViewControlConsent(doc)) {
-                        await this.incrementGenerationAsync(`ClientPerson:${personUuid}:Summary:Generation`, {
-                            requestId, consentId: doc.id
-                        });
-                    }
-                } else {
-                    logDebug('ConsentCacheInvalidationHandler: proxy-patient reference did not contain a valid person uuid, skipping', {
-                        requestId, consentId: doc.id, referenceValue
-                    });
-                }
+                await this.invalidateForProxyPersonAsync({
+                    doc,
+                    personUuid: rawId.replace(PERSON_PROXY_PREFIX, ''),
+                    everythingCacheOn,
+                    summaryCacheOn,
+                    requestId,
+                    referenceValue
+                });
                 return;
             }
 
@@ -184,7 +183,7 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
                 return;
             }
 
-            await this.incrementGenerationAsync(`Patient:${patientUuid}:Everything:Generation`, {
+            await this.incrementGenerationAsync(generationKey('Patient', patientUuid, 'Everything'), {
                 requestId, consentId: doc.id
             });
 
@@ -224,7 +223,7 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
                 }
 
                 for (const personUuid of personUuidsToBump) {
-                    await this.incrementGenerationAsync(`ClientPerson:${personUuid}:Everything:Generation`, {
+                    await this.incrementGenerationAsync(generationKey('ClientPerson', personUuid, 'Everything'), {
                         requestId, consentId: doc.id, patientUuid
                     });
                 }
@@ -243,6 +242,41 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
             logError('ConsentCacheInvalidationHandler: failed to invalidate Everything cache for Consent change', {
                 error, requestId, consentId: doc && doc.id, resourceType, eventType
             });
+        }
+    }
+
+    /**
+     * A Consent about a Person (`patient: Patient/person.<uuid>`): bumps that Person's `$everything`
+     * generation and, for a data view control Consent, the linked Patients' and the Person's `$summary`.
+     * @param {Object} params
+     * @param {Object} params.doc the Consent
+     * @param {string} params.personUuid
+     * @param {boolean} params.everythingCacheOn
+     * @param {boolean} params.summaryCacheOn
+     * @param {string} params.requestId
+     * @param {string} params.referenceValue
+     * @return {Promise<void>}
+     */
+    async invalidateForProxyPersonAsync({
+        doc, personUuid, everythingCacheOn, summaryCacheOn, requestId, referenceValue
+    }) {
+        if (!isUuid(personUuid)) {
+            logDebug('ConsentCacheInvalidationHandler: proxy-patient reference did not contain a valid person uuid, skipping', {
+                requestId, consentId: doc.id, referenceValue
+            });
+            return;
+        }
+        const logContext = { requestId, consentId: doc.id };
+        const isViewControl = this.isDataViewControlConsent(doc);
+        if (everythingCacheOn) {
+            await this.incrementGenerationAsync(generationKey('ClientPerson', personUuid, 'Everything'), logContext);
+            if (isViewControl) {
+                await this.bumpLinkedPatientGenerationsAsync({ personUuid, requestId, consentId: doc.id });
+            }
+        }
+        // a user's cached $summary leaves out what their view control Consent hides
+        if (summaryCacheOn && isViewControl) {
+            await this.incrementGenerationAsync(generationKey('ClientPerson', personUuid, 'Summary'), logContext);
         }
     }
 
@@ -270,7 +304,7 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
         try {
             const relatedIds = await retryWithBackoff({
                 fn: () => this.personToPatientIdsExpander.getAllRelatedPatients({
-                    base_version: '4_0_0',
+                    base_version: VERSIONS['4_0_0'],
                     idsSet: new Set([personUuid])
                 }),
                 maxRetries: BUMP_MAX_RETRIES,
@@ -282,7 +316,7 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
                 relatedIds.filter((id) => !id.startsWith(PERSON_PROXY_PREFIX) && isUuid(id))
             );
             for (const patientUuid of patientUuids) {
-                await this.incrementGenerationAsync(`Patient:${patientUuid}:Everything:Generation`, {
+                await this.incrementGenerationAsync(generationKey('Patient', patientUuid, 'Everything'), {
                     requestId, consentId, personUuid
                 });
             }

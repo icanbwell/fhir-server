@@ -844,6 +844,15 @@ class SearchManager {
                 projection.id = 1;
                 projection.url = 1;
             }
+            // the view control filter judges a Composition by its sections, and removes `text` when it
+            // removes one, so the sections must be read even when only `text` is requested.
+            // ResourcePreparer drops them again unless the caller asked for them.
+            if (
+                resourceType === 'Composition' &&
+                Object.values(parsedArgs.viewControlExcludeMap || {}).some((ids) => ids?.length)
+            ) {
+                projection.section = 1;
+            }
             // always include _uuid for audit logging
             projection._uuid = 1;
             // the extended tag in meta.tag is derived from _extended at read time

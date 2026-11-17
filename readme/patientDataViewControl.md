@@ -132,7 +132,7 @@ removed too.
 - When any section was removed, the Composition's top-level `text` is removed too, and so is the
   `text` of a kept section that held a removed child, because a narrative is usually generated from
   the sections and can still describe the hidden resource. Sections that lost nothing keep their `text`.
-- Only `section.entry` is checked, not `section.focus`. Other references on the Composition
+- A section's `entry` and its `focus` are checked. Other references on the Composition
   (`subject`, `author`, `event.detail`, ...) are not checked.
 
 This applies on every path above, including `_elements`, and to `$everything` responses replayed from the

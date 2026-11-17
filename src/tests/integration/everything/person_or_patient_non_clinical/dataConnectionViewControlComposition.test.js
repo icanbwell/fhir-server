@@ -22,6 +22,10 @@ const { PatientDataViewControlManager } = require('../../../../utils/patientData
 const { callMcpTool, bundleFromToolResult } = require('../../mcp/mcpTestHelpers');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
+const {
+    PERSON_ID, PATIENT_UUID, OWNER, USER_PAYLOAD, userHeaders
+} = require('./viewControlUserFixtures');
+
 const fx = (p) => require(`./fixtures/${p}`);
 const SEED = [
     'Person/topLevelPerson.json',
@@ -31,14 +35,12 @@ const SEED = [
     'CarePlan/carePlan.json',
     'CarePlan/carePlan2.json'
 ];
-const PERSON_ID = '5f3ca115-8630-5e55-a97d-4d6ee26c0adc';
-const PATIENT_UUID = '24a5930e-11b4-5525-b482-669174917044';
 // consent1.json blocks CarePlan/care-plan-1 by uuid; care-plan-2 stays visible
 const BLOCKED_UUID = 'f49c5e15-81b5-57a9-bade-77e9e744fb2e';
 const BLOCKED_TEXT = 'VC-BLOCKED-SECTION-TEXT';
+const BLOCKED_NARRATIVE = 'VC-BLOCKED-NARRATIVE-TEXT';
 const HEALTH_SUMMARY = { system: 'http://loinc.org', code: '18776-5' };
 const ENCOUNTER_SUMMARY = { system: 'http://loinc.org', code: '34133-9' };
-const OWNER = 'healthsystem1';
 const SECURITY = [
     { system: 'https://www.icanbwell.com/owner', code: OWNER },
     { system: 'https://www.icanbwell.com/access', code: OWNER },
@@ -63,7 +65,10 @@ const composition = (id, type, sections) => ({
 });
 // A health summary with one section per care plan, and a group of nested sections.
 const COMPOSITIONS = [
-    composition(COMPOSITION_A, HEALTH_SUMMARY, [
+    {
+        // a narrative generated from the sections, so it also describes the blocked CarePlan
+        text: { status: 'generated', div: `<div xmlns="http://www.w3.org/1999/xhtml">${BLOCKED_NARRATIVE}</div>` },
+        ...composition(COMPOSITION_A, HEALTH_SUMMARY, [
         section('vc-section-blocked', 'CarePlan/care-plan-1', {
             text: { status: 'generated', div: `<div xmlns="http://www.w3.org/1999/xhtml">${BLOCKED_TEXT}</div>` }
         }),
@@ -74,7 +79,8 @@ const COMPOSITIONS = [
                 section('vc-section-group-unblocked', 'CarePlan/care-plan-2')
             ]
         })
-    ]),
+        ])
+    },
     // an encounter summary whose only section is blocked
     composition(COMPOSITION_B, ENCOUNTER_SUMMARY, [section('vc-section-b-blocked', 'CarePlan/care-plan-1')])
 ];
@@ -88,17 +94,6 @@ const ALL_SECTIONS = [
 ];
 const VISIBLE_SECTIONS = ['vc-section-group', 'vc-section-group-unblocked', 'vc-section-unblocked'];
 
-const USER_PAYLOAD = {
-    scope: 'patient/*.* user/*.* access/*.*',
-    username: 'test',
-    client_id: 'client',
-    clientFhirPersonId: PERSON_ID,
-    clientFhirPatientId: PATIENT_UUID,
-    bwellFhirPersonId: 'master-person',
-    bwellFhirPatientId: 'master-patient',
-    token_use: 'access'
-};
-const userHeaders = () => getHeadersWithCustomPayload(USER_PAYLOAD);
 const userToken = () => userHeaders().Authorization.replace(/^Bearer /, '');
 
 /** the sorted, distinct section ids anywhere in a body (only Composition sections use this prefix) */
@@ -122,6 +117,10 @@ const V1_QUERY = `query { composition(patient: { value: "Patient/${PATIENT_UUID}
     entry { resource { id section { id text { div } section { id } } } } } }`;
 const V2_QUERY = `query { compositions(patient: { value: "Patient/${PATIENT_UUID}" }) {
     entry { resource { id section { id text { div } section { id } } } } } }`;
+const V1_TEXT_QUERY = `query { composition(patient: { value: "Patient/${PATIENT_UUID}" }) {
+    entry { resource { id text { div } } } } }`;
+const V2_TEXT_QUERY = `query { compositions(patient: { value: "Patient/${PATIENT_UUID}" }) {
+    entry { resource { id text { div } } } } }`;
 const graphql = (path, query, headers) => (r) =>
     r.post(path).send({ operationName: null, variables: {}, query }).set(headers);
 
@@ -182,6 +181,32 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
         expect(sectionIdsIn(parse(body))).toEqual(VISIBLE_SECTIONS);
         expect(JSON.stringify(body)).not.toContain(BLOCKED_TEXT);
     });
+
+    // asking for the narrative alone must not return what the sections hold back
+    const narrativeOnlyReads = (rest, v1Headers, v2Headers) => [
+        ['REST search with _elements=text', (r) => r.get(`${restSearch}&_elements=text`).set(rest())],
+        ['REST streaming search with _elements=text', (r) =>
+            r.get(`${restSearch}&_elements=text&_streamResponse=1`).set(rest())],
+        ['GraphQL v1 text only', graphql('/$graphql', V1_TEXT_QUERY, v1Headers())],
+        ['GraphQL v2 text only', graphql('/4_0_0/$graphqlv2', V2_TEXT_QUERY, v2Headers())]
+    ];
+
+    test.each(narrativeOnlyReads(userHeaders, () => getCustomGraphQLHeaders(USER_PAYLOAD),
+        () => getCustomGraphQLHeaders(USER_PAYLOAD)))(
+        '%s does not return the narrative of a blocked section', async (_name, send) => {
+            const resp = await send(request);
+            expect(resp.status).toBe(200);
+            expect(JSON.stringify(resp.body) + String(resp.text)).not.toContain(BLOCKED_NARRATIVE);
+        }
+    );
+
+    test.each(narrativeOnlyReads(getHeaders, () => getGraphQLHeaders(), () => getGraphQLHeaders()))(
+        '%s with a service token still returns the narrative', async (_name, send) => {
+            const resp = await send(request);
+            expect(resp.status).toBe(200);
+            expect(JSON.stringify(resp.body) + String(resp.text)).toContain(BLOCKED_NARRATIVE);
+        }
+    );
 
     test('the /mcp Composition tool removes the sections that reference the blocked CarePlan', async () => {
         const { resp, rpc } = await callMcpTool(request, userToken(), 'search_composition', {
@@ -305,6 +330,42 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
                 }
             });
             getTestContainer().redisClient.streams.clear();
+        });
+
+        // $merge adds to a Consent's provision.data; a PUT replaces it, so the Consent can be restored
+        const replaceConsent = async (consent) => {
+            const resp = await request.put(`/4_0_0/Consent/${consent.id}`).send(consent).set(getHeaders());
+            expect(resp.status).toBeLessThan(300);
+        };
+
+        test('saving a Consent invalidates the cached $everything, so the next read is rebuilt under it', async () => {
+            const miss = await userEverything();
+            expect(miss.headers).toHaveProperty('x-cache', 'Miss');
+            expectBlockedCarePlanAbsent(miss.text);
+            expect((await userEverything()).headers).toHaveProperty('x-cache', 'Hit');
+
+            // the Consent now hides the other CarePlan instead
+            const changed = deepcopy(fx('Consent/consent1.json'));
+            changed.provision.data = [{
+                id: 'data-0', meaning: 'instance', reference: { reference: 'CarePlan/care-plan-2' }
+            }];
+            try {
+                await replaceConsent(changed);
+                // the invalidation runs after the response is sent: poll until the cache is rebuilt
+                let rebuilt;
+                for (let attempt = 0; attempt < 50; attempt++) {
+                    rebuilt = await userEverything();
+                    if (rebuilt.headers['x-cache'] === 'Miss') {
+                        break;
+                    }
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                }
+                expect(rebuilt.headers).toHaveProperty('x-cache', 'Miss');
+                expectBlockedCarePlanPresent(rebuilt.text);
+                expect(carePlanIdsIn(rebuilt.text)).not.toContain('care-plan-2');
+            } finally {
+                await replaceConsent(fx('Consent/consent1.json'));
+            }
         });
 
         test('a cache hit removes the sections that reference the blocked CarePlan', async () => {

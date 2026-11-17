@@ -738,36 +738,37 @@ class FhirDataSource {
      * @return {Promise<void>}
      */
     traceViewControlLookupOnceAsync ({ base_version }) {
-        if (!this.tracedViewControlLookup) {
-            this.tracedViewControlLookup = this.customTracer.trace({
-                name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
-                func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
-                    requestInfo: this.requestInfo,
-                    base_version
-                })
-            }).then(({ viewControlConsentQueries, viewControlConsentQueryOptions }) => {
-                if (this.debugMode && viewControlConsentQueries.length > 0) {
-                    this.metaList.push({
-                        tag: [
-                            {
-                                system: 'https://www.icanbwell.com/query',
-                                display: mongoQueryAndOptionsStringify({
-                                    query: viewControlConsentQueries[0],
-                                    options: viewControlConsentQueryOptions[0]
-                                })
-                            },
-                            {
-                                system: 'https://www.icanbwell.com/queryCollection',
-                                code: viewControlConsentQueries[0].collectionName
-                            }
-                        ]
-                    });
-                }
-            });
-            this.tracedViewControlLookup.catch(() => {
-                this.tracedViewControlLookup = undefined;
-            });
+        if (this.tracedViewControlLookup) {
+            return this.tracedViewControlLookup;
         }
+        this.tracedViewControlLookup = this.customTracer.trace({
+            name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
+            func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                requestInfo: this.requestInfo,
+                base_version
+            })
+        }).then(({ viewControlConsentQueries, viewControlConsentQueryOptions }) => {
+            if (this.debugMode && viewControlConsentQueries.length > 0) {
+                this.metaList.push({
+                    tag: [
+                        {
+                            system: 'https://www.icanbwell.com/query',
+                            display: mongoQueryAndOptionsStringify({
+                                query: viewControlConsentQueries[0],
+                                options: viewControlConsentQueryOptions[0]
+                            })
+                        },
+                        {
+                            system: 'https://www.icanbwell.com/queryCollection',
+                            code: viewControlConsentQueries[0].collectionName
+                        }
+                    ]
+                });
+            }
+        });
+        this.tracedViewControlLookup.catch(() => {
+            this.tracedViewControlLookup = undefined;
+        });
         return this.tracedViewControlLookup;
     }
 

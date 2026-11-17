@@ -131,6 +131,11 @@ class ResourcePreparer {
             [element] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({
                 resources: [element]
             });
+            // Security: the view control filter needs the whole Composition: it removes `text` along with a
+            // hidden section, and selectSpecificElements would drop `section` first
+            [element] = await this.dataViewControlCompositionEnrichmentProvider.enrichAsync({
+                resources: [element], parsedArgs, enrichmentContext
+            });
             /**
              * @type {Resource}
              */
@@ -141,9 +146,6 @@ class ResourcePreparer {
             });
             // Security: filter sensitive sections even with _elements
             [element] = await this.compositionSectionFilterEnrichmentProvider.enrichAsync({
-                resources: [element], parsedArgs, enrichmentContext
-            });
-            [element] = await this.dataViewControlCompositionEnrichmentProvider.enrichAsync({
                 resources: [element], parsedArgs, enrichmentContext
             });
         }

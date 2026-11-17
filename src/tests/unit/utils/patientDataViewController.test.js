@@ -74,7 +74,6 @@ describe('PatientDataViewControlManager', () => {
                 base_version: '4_0_0',
                 personId: 'person-123',
                 owner: 'clientA',
-                patientFilterReferences: null,
                 ...overrides
             });
 
@@ -113,8 +112,7 @@ describe('PatientDataViewControlManager', () => {
                     requestInfo: createRequestInfo('person-456'),
                     personId: 'person-456',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith({
@@ -127,46 +125,13 @@ describe('PatientDataViewControlManager', () => {
                 });
             });
 
-            test('includes actor when patientFilterReferences provided', async () => {
+            test('does not filter by actor', async () => {
 
                 await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-456'),
                     personId: 'person-456',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: ['Patient/pat-1', 'Patient/pat-2']
-                });
-
-                expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith({
-                    resourceType: 'Consent',
-                    args: expect.objectContaining({
-                        actor: 'Patient/pat-1,Patient/pat-2'
-                    })
-                });
-            });
-
-            test('does NOT include actor when patientFilterReferences is null', async () => {
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-456'),
-                    personId: 'person-456',
-                    owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                const parsedCall = mockR4ArgsParser.parseArgs.mock.calls[0][0];
-                expect(parsedCall.args.actor).toBeUndefined();
-            });
-
-            test('does NOT include actor when patientFilterReferences is empty array', async () => {
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-456'),
-                    personId: 'person-456',
-                    owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: []
+                    base_version: '4_0_0'
                 });
 
                 const parsedCall = mockR4ArgsParser.parseArgs.mock.calls[0][0];
@@ -186,8 +151,7 @@ describe('PatientDataViewControlManager', () => {
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({});
@@ -216,8 +180,7 @@ describe('PatientDataViewControlManager', () => {
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({
@@ -249,8 +212,7 @@ describe('PatientDataViewControlManager', () => {
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 const map = result.viewControlResourceToExcludeMap;
@@ -291,8 +253,7 @@ describe('PatientDataViewControlManager', () => {
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({
@@ -314,8 +275,7 @@ describe('PatientDataViewControlManager', () => {
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({});
@@ -336,8 +296,7 @@ describe('PatientDataViewControlManager', () => {
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({});
@@ -364,8 +323,7 @@ describe('PatientDataViewControlManager', () => {
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({

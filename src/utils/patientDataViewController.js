@@ -68,8 +68,7 @@ class PatientDataViewControlManager {
      *  requestInfo: FhirRequestInfo,
      *  base_version: string,
      *  personId: string,
-     *  owner: string|null|undefined,
-     *  patientFilterReferences?: string[] | null
+     *  owner: string|null|undefined
      * }}
      * @return {Promise<{
      *  viewControlResourceToExcludeMap: {[resourceType: string]: string[]},
@@ -81,8 +80,7 @@ class PatientDataViewControlManager {
         requestInfo,
         base_version,
         personId,
-        owner,
-        patientFilterReferences
+        owner
     }) {
         assertIsValid(personId, 'dataConnectionViewControl: personId is required');
 
@@ -100,7 +98,7 @@ class PatientDataViewControlManager {
         // `constructor` or `__proto__` must be an ordinary key, not an Object.prototype member
         const viewControlResourceToExcludeMap = Object.create(null);
 
-        let consentArgs = {
+        const consentArgs = {
             base_version,
             // only an active Consent applies, as in the other Consent lookups; status also lets the
             // query use the {status, patient._uuid} index instead of scanning the collection
@@ -110,10 +108,6 @@ class PatientDataViewControlManager {
             patient: `Patient/person.${personId}`,
             category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
         };
-
-        if (patientFilterReferences && patientFilterReferences.length > 0) {
-            consentArgs.actor = patientFilterReferences.join(',');
-        }
 
         let {
             entries: viewControlConsentEntries,

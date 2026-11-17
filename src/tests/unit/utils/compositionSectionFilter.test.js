@@ -484,6 +484,20 @@ describe('filterCompositionBlockedReferenceSections', () => {
     });
 
     test.each([
+        ['the blocked uuid', { reference: `CarePlan/${BLOCKED_UUID}` }],
+        ['the blocked source id', { reference: 'CarePlan/care-plan-1' }]
+    ])('removes a section whose focus is %s', (_name, focus) => {
+        const resource = composition([
+            { id: 'blocked', focus, entry: [{ reference: 'CarePlan/care-plan-3' }] },
+            { id: 'kept', focus: { reference: 'CarePlan/care-plan-3' } }
+        ]);
+
+        filterBlocked(resource, { CarePlan: [BLOCKED_UUID, 'care-plan-1'] });
+
+        expect(sectionIds(resource.section)).toEqual(['kept']);
+    });
+
+    test.each([
         ['the same id on a different resource type', { reference: 'Observation/care-plan-1' }],
         ['an extension with another url', {
             reference: 'CarePlan/care-plan-3', extension: [{ url: 'https://example.com/other', valueString: 'CarePlan/care-plan-1' }]

@@ -291,6 +291,28 @@ describe('FhirDataSource (graphql)', () => {
         });
     });
 
+    describe('Binary lookup through a CodeSystem', () => {
+        test('looks up the Consent for the caller\'s token while searching as a non-user token', async () => {
+            const callerRequestInfo = {
+                requestId: 'req-1', headers: {}, scope: 'user/*.read patient/*.read', isUser: true,
+                personIdFromJwtToken: 'person-1'
+            };
+            const ds = createDataSource({ requestInfo: callerRequestInfo });
+            defineGetter(ds.configManager, 'enablePatientScopedBinary', true);
+            ds.searchBundleOperation.searchBundleAsync.mockResolvedValue({ entry: [] });
+
+            await ds.findBinaryForCodeSystemAsync({
+                codeSystem: { id: 'cs-1' }, binaryReference: 'Binary/binary-1', args: {}, context: {}, info: {}
+            });
+
+            const { requestInfo } = ds.searchBundleOperation.searchBundleAsync.mock.calls[0][0];
+            expect(requestInfo.isUser).toBe(false);
+            expect(ds.patientDataViewControlExclusion.applyAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Binary', requestInfo: callerRequestInfo })
+            );
+        });
+    });
+
     describe('getParsedArgsForMutationAsync', () => {
         test('parses args without rewrite', async () => {
             const result = await dataSource.getParsedArgsForMutationAsync({ args: { base_version: '4_0_0' }, resourceType: 'Patient', headers: { prefer: 'x' } });

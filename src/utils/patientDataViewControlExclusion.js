@@ -111,8 +111,7 @@ class PatientDataViewControlExclusion {
                 requestInfo,
                 base_version,
                 personId,
-                owner,
-                patientFilterReferences: null
+                owner
             });
         const lookup = freezeLookup({
             viewControlResourceToExcludeMap: viewControlResourceToExcludeMap || {},

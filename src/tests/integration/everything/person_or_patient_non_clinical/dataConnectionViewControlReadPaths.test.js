@@ -24,6 +24,8 @@ const {
 } = require('../../common');
 const { callMcpTool, parseMcpRpcResponse } = require('../../mcp/mcpTestHelpers');
 
+const { PERSON_ID, USER_PAYLOAD, userHeaders, userGraphqlHeaders } = require('./viewControlUserFixtures');
+
 const fx = (p) => require(`./fixtures/${p}`);
 // enables delegated-access detection for the delegated actor tests
 class DelegatedAccessConfigManager extends ConfigManager {
@@ -41,7 +43,6 @@ const SEED = [
     'Procedure/procedure.json',
     'Condition/condition.json'
 ];
-const PERSON_ID = '5f3ca115-8630-5e55-a97d-4d6ee26c0adc';
 // uuid of CarePlan/care-plan-1 (the resource consent1.json blocks)
 const BLOCKED_UUID = 'f49c5e15-81b5-57a9-bade-77e9e744fb2e';
 // resource.id as returned by search / GraphQL is the source id
@@ -51,18 +52,6 @@ const UNBLOCKED = 'care-plan-2';
 const UNBLOCKED_UUID = '98edd83a-bb70-547b-8f36-7f243658152f';
 const CONSENT_ID = '6c599219-4242-5cad-89bb-80f7c0b4aa3f';
 
-const USER_PAYLOAD = {
-    scope: 'patient/*.* user/*.* access/*.*',
-    username: 'test',
-    client_id: 'client',
-    clientFhirPersonId: PERSON_ID,
-    clientFhirPatientId: '24a5930e-11b4-5525-b482-669174917044',
-    bwellFhirPersonId: 'master-person',
-    bwellFhirPatientId: 'master-patient',
-    token_use: 'access'
-};
-const userHeaders = () => getHeadersWithCustomPayload(USER_PAYLOAD);
-const userGraphqlHeaders = () => getCustomGraphQLHeaders(USER_PAYLOAD);
 
 /** consent blocking only the given references */
 function consentBlocking(references) {
@@ -814,6 +803,59 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             } finally {
                 spy.mockRestore();
             }
+        });
+    });
+
+    describe('saving a Consent invalidates the cached $summary', () => {
+        const CACHE_ENV = [
+            'ENABLE_REDIS',
+            'ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION',
+            'ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION'
+        ];
+        let savedCacheEnv;
+        beforeEach(() => {
+            savedCacheEnv = CACHE_ENV.map((name) => process.env[name]);
+            CACHE_ENV.forEach((name) => { process.env[name] = '1'; });
+        });
+        afterEach(() => {
+            CACHE_ENV.forEach((name, i) => {
+                if (savedCacheEnv[i] === undefined) {
+                    delete process.env[name];
+                } else {
+                    process.env[name] = savedCacheEnv[i];
+                }
+            });
+        });
+
+        test('the next read is rebuilt under the new Consent', async () => {
+            await seed();
+            const summary = () => request.get(`/4_0_0/Patient/person.${PERSON_ID}/$summary`).set(userHeaders());
+            const returns = (resp, ...ids) => ids.some((id) => allIdValues(resp.body).includes(id));
+
+            const miss = await summary();
+            expect(miss.headers).toHaveProperty('x-cache', 'Miss');
+            expect(returns(miss, BLOCKED, BLOCKED_UUID)).toBe(false);
+            expect(returns(miss, UNBLOCKED, UNBLOCKED_UUID)).toBe(true);
+            expect((await summary()).headers).toHaveProperty('x-cache', 'Hit');
+
+            // the Consent now hides the other CarePlan instead; a PUT replaces provision.data, where
+            // $merge would add to it
+            const changed = consentBlocking([`CarePlan/${UNBLOCKED_UUID}`]);
+            const put = await request.put(`/4_0_0/Consent/${changed.id}`).send(changed).set(getHeaders());
+            expect(put.status).toBeLessThan(300);
+
+            // the invalidation runs after the response is sent: poll until the cache is rebuilt
+            let rebuilt;
+            for (let attempt = 0; attempt < 50; attempt++) {
+                rebuilt = await summary();
+                if (rebuilt.headers['x-cache'] === 'Miss') {
+                    break;
+                }
+                await new Promise((resolve) => setTimeout(resolve, 100));
+            }
+            expect(rebuilt.headers).toHaveProperty('x-cache', 'Miss');
+            expect(returns(rebuilt, BLOCKED, BLOCKED_UUID)).toBe(true);
+            expect(returns(rebuilt, UNBLOCKED, UNBLOCKED_UUID)).toBe(false);
         });
     });
 

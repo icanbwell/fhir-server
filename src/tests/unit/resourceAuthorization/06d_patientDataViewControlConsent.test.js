@@ -88,7 +88,6 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             base_version: '4_0_0',
             personId: 'person-1',
             owner: 'clientA',
-            patientFilterReferences: null,
             ...overrides
         });
 
@@ -133,15 +132,8 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
             });
         });
 
-        test('passes patientFilterReferences through as the Consent search actor filter, joined by comma', async () => {
-            await getConsent({ patientFilterReferences: ['Patient/p1', 'Patient/p2'] });
-
-            const { args } = mockR4ArgsParser.parseArgs.mock.calls[0][0];
-            expect(args.actor).toBe('Patient/p1,Patient/p2');
-        });
-
-        test('omits the actor filter entirely when patientFilterReferences is null or empty', async () => {
-            await getConsent({ patientFilterReferences: [] });
+        test('does not filter the Consent search by actor: every active Consent of the Person applies', async () => {
+            await getConsent();
 
             const { args } = mockR4ArgsParser.parseArgs.mock.calls[0][0];
             expect(args.actor).toBeUndefined();
@@ -172,8 +164,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                 requestInfo: requestInfo('person-1'),
                 base_version: '4_0_0',
                 personId: 'person-1',
-                owner: 'clientA',
-                patientFilterReferences: null
+                owner: 'clientA'
             });
 
             expect(result.viewControlResourceToExcludeMap).toEqual({
@@ -207,8 +198,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                 requestInfo: requestInfo('person-1'),
                 base_version: '4_0_0',
                 personId: 'person-1',
-                owner: 'clientA',
-                patientFilterReferences: null
+                owner: 'clientA'
             });
 
             expect(result.viewControlResourceToExcludeMap).toEqual({ Observation: ['obs-1'] });
@@ -225,8 +215,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                 requestInfo: requestInfo('person-1'),
                 base_version: '4_0_0',
                 personId: 'person-1',
-                owner: 'clientA',
-                patientFilterReferences: null
+                owner: 'clientA'
             });
 
             expect(result.viewControlResourceToExcludeMap).toEqual({});
@@ -358,14 +347,14 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                     ['update', SKIPS, 'write'],
                     ['merge', SKIPS, 'write'],
                     ['everything', SKIPS, '$everything applies view control itself, through the wrapper'],
-                    ['summary', SKIPS, '$summary is covered by a separate ticket'],
+                    ['summary', SKIPS, '$summary applies view control inside the operation, to its graph and its Composition search'],
                     ['remove', SKIPS, 'write'],
                     ['remove_by_query', SKIPS, 'write'],
                     ['getHistoryParsedArgsAsync', SKIPS, 'history and version reads reject patient scope'],
                     ['getHistoryParsedArgsAsync', SKIPS, 'history and version reads reject patient scope'],
                     ['patch', SKIPS, 'write'],
                     ['validate', SKIPS, '$validate returns an OperationOutcome, not stored resources'],
-                    ['graph', SKIPS, '$graph is covered by a separate ticket'],
+                    ['graph', SKIPS, '$graph applies view control to each link query in GraphHelper'],
                     ['accessHistory', SKIPS, 'returns access-log aggregates for the caller\'s own Person, not resources']
                 ],
                 'admin/adminExportManager.js': [
@@ -449,7 +438,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                     ['searchStreaming', 'searchStreamingAsync', APPLIES, 'getParsedArgsAsync']
                 ],
                 'operations/summary/summary.js': [
-                    ['summaryBundleAsync', 'searchBundleAsync', SKIPS, '$summary is covered by a separate ticket']
+                    ['summaryBundleAsync', 'searchBundleAsync', APPLIES, 'applyAsync in the same method']
                 ]
             };
 

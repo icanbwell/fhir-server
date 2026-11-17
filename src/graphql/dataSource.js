@@ -434,7 +434,9 @@ class FhirDataSource {
                 args: { base_version: '4_0_0', id: referenceObj.id, _bundle: '1' },
                 resourceType: 'Binary',
                 headers: lookupRequestInfo.headers,
-                requestInfo: lookupRequestInfo
+                requestInfo: lookupRequestInfo,
+                // the lookup runs as a non-user token, but the Consent is the caller's
+                viewControlRequestInfo: this.requestInfo
             }),
             useAggregationPipeline: false
         });
@@ -783,9 +785,11 @@ class FhirDataSource {
      * @param {string} resourceType
      * @param {Object|undefined} headers
      * @param {FhirRequestInfo} [requestInfo]
+     * @param {FhirRequestInfo} [viewControlRequestInfo] whose token the Consent is looked up for, when
+     *  that is not the token of requestInfo
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync ({ args, resourceType, headers, requestInfo }) {
+    async getParsedArgsAsync ({ args, resourceType, headers, requestInfo, viewControlRequestInfo }) {
         const { base_version } = args;
         /**
          * @type {ParsedArgs}
@@ -800,7 +804,8 @@ class FhirDataSource {
         // hide resources blocked by the patient's dataConnectionViewControl Consent (user tokens of
         // enrolled clients only); memoized per request, so this is one Consent lookup per request
         await this.patientDataViewControlExclusion.applyAsync({
-            parsedArgs, resourceType, base_version, requestInfo: requestInfo || this.requestInfo
+            parsedArgs, resourceType, base_version,
+            requestInfo: viewControlRequestInfo || requestInfo || this.requestInfo
         });
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(

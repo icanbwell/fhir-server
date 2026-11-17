@@ -1,7 +1,8 @@
 /**
  * Cost of the dataConnectionViewControl Consent on user reads: p50/p95 latency for a user of an
  * enrolled client versus a non-enrolled one, on REST search, GraphQL v1 and Patient $everything
- * (fresh and from the Redis cache), plus a check that the Consent lookup's query uses an index.
+ * (fresh and from the Redis cache). That the Consent lookup's query uses an index is checked by
+ * dataConnectionViewControlConsentIndex.test.js, which runs in CI.
  *
  * The production indexes are built after seeding (merges create collections with only _id). The
  * in-memory test database shows the relative cost of the lookup, not production latency.
@@ -20,21 +21,19 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getHeadersNdJson,
     createTestRequest,
-    getHeadersWithCustomPayload,
     getCustomGraphQLHeaders,
     getTestContainer
 } = require('../../common');
-const { PatientDataViewControlManager } = require('../../../../utils/patientDataViewController');
 const { PatientDataViewControlExclusion } = require('../../../../utils/patientDataViewControlExclusion');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
+const {
+    PATIENT_UUID, OWNER, USER_PAYLOAD, userHeaders, ndjsonUserHeaders
+} = require('../../everything/person_or_patient_non_clinical/viewControlUserFixtures');
+
 const fixtures = '../../everything/person_or_patient_non_clinical/fixtures';
 const fx = (p) => require(`${fixtures}/${p}`);
-const PERSON_ID = '5f3ca115-8630-5e55-a97d-4d6ee26c0adc';
-const PATIENT_UUID = '24a5930e-11b4-5525-b482-669174917044';
-const OWNER = 'healthsystem1';
 
 // a realistic record: the user's CarePlans, of which the Consent hides some, plus other users'
 // Consents in the same collection
@@ -54,18 +53,6 @@ const CACHE_ENV = [
 const carePlanId = (i) => `vc-perf-care-plan-${i}`;
 const carePlanUuid = (i) => generateUUIDv5(`${carePlanId(i)}|${OWNER}`);
 
-const USER_PAYLOAD = {
-    scope: 'patient/*.* user/*.* access/*.*',
-    username: 'test',
-    client_id: 'client',
-    clientFhirPersonId: PERSON_ID,
-    clientFhirPatientId: PATIENT_UUID,
-    bwellFhirPersonId: 'master-person',
-    bwellFhirPatientId: 'master-patient',
-    token_use: 'access'
-};
-const userHeaders = () => getHeadersWithCustomPayload(USER_PAYLOAD);
-const ndjsonUserHeaders = () => ({ ...getHeadersNdJson(), Authorization: userHeaders().Authorization });
 
 const PATHS = [
     ['REST CarePlan search', (r) => r.get('/4_0_0/CarePlan?_count=500').set(userHeaders())],
@@ -185,26 +172,6 @@ describe('dataConnectionViewControl performance', () => {
             process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = savedEnrolled;
         }
         await commonAfterEach();
-    });
-
-    test('the Consent lookup query uses an index, not a collection scan', async () => {
-        setEnrolled(true);
-        const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync');
-        try {
-            expect((await request.get('/4_0_0/CarePlan').set(userHeaders())).status).toBe(200);
-            const { viewControlConsentQueries } = await spy.mock.results[0].value;
-            expect(viewControlConsentQueries).toHaveLength(1);
-            const { query, collectionName } = viewControlConsentQueries[0];
-            const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
-            const plan = JSON.stringify(
-                (await db.collection(collectionName).find(query).explain('queryPlanner')).queryPlanner.winningPlan
-            );
-            process.stdout.write(`\nConsent lookup on ${collectionName}: ${JSON.stringify(query)}\nwinning plan: ${plan}\n`);
-            expect(plan).toContain('IXSCAN');
-            expect(plan).not.toContain('COLLSCAN');
-        } finally {
-            spy.mockRestore();
-        }
     });
 
     test.each(PATHS.flatMap(([path, send]) => [[path, send, true], [path, send, false]]))(

@@ -154,15 +154,16 @@ function parseEntryReference(form) {
 }
 
 /**
- * Does any entry of this section (not its nested sections, which the walk visits on their own)
- * reference a blocked resource of the same resourceType?
+ * Does the `focus` or any entry of this section (not its nested sections, which the walk visits on
+ * their own) reference a blocked resource of the same resourceType?
  * @param {Object} section
  * @param {Map<string, Set<string>>} blockedIdSetByType
  * @return {boolean}
  */
 function referencesBlockedResource({ section, blockedIdSetByType }) {
-    return (section?.entry || []).some((entry) =>
-        getEntryReferenceForms(entry).some((form) => {
+    const references = section?.focus ? [section.focus, ...(section.entry || [])] : section?.entry || [];
+    return references.some((reference) =>
+        getEntryReferenceForms(reference).some((form) => {
             const { resourceType, id } = parseEntryReference(form);
             return Boolean(resourceType) && blockedIdSetByType.get(resourceType)?.has(id) === true;
         })
