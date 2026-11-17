@@ -274,26 +274,6 @@ module.exports = {
                 }
             }
         ],
-        Binary_4_0_0: [
-            {
-                keys: {
-                    'securityContext._uuid': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'securityContextUuid_uuid'
-                }
-            },
-            {
-                keys: {
-                    'securityContext._sourceId': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'securityContextSourceId_uuid'
-                }
-            }
-        ],
         BiologicallyDerivedProduct_4_0_0: [
             {
                 keys: {
