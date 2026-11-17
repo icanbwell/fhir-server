@@ -1,4 +1,4 @@
-const { describe, test, expect, jest: jestObj } = require('@jest/globals');
+const { describe, test, expect } = require('@jest/globals');
 const { MongoQuerySimplifier } = require('../../../utils/mongoQuerySimplifier');
 
 describe('MongoQuerySimplifier', () => {

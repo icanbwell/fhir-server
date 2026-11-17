@@ -1,5 +1,12 @@
 const { removeDuplicatesByKey } = require('./list.util');
 
+/**
+ * key used to decide whether two filter clauses are duplicates
+ * @param {*} clause
+ * @return {string}
+ */
+const filterKey = (clause) => JSON.stringify(clause);
+
 class MongoQuerySimplifier {
     /**
      * simplifies the filter by removing duplicate segments and $or statements with just one child
@@ -17,7 +24,7 @@ class MongoQuerySimplifier {
         }
         // simplify $or
         if (filter.$or && filter.$or.length > 1) {
-            filter.$or = removeDuplicatesByKey(filter.$or, (f) => JSON.stringify(f));
+            filter.$or = removeDuplicatesByKey(filter.$or, filterKey);
         }
         // remove nested $or if there is a parent $or
         if (filter.$or && filter.$or.length > 0) {
@@ -92,14 +99,14 @@ class MongoQuerySimplifier {
         }
         // simplify $nor
         if (filter.$nor && filter.$nor.length > 1) {
-            filter.$nor = removeDuplicatesByKey(filter.$nor, (f) => JSON.stringify(f));
+            filter.$nor = removeDuplicatesByKey(filter.$nor, filterKey);
         }
         if (filter.$nor && filter.$nor.length > 0) {
             filter.$nor = filter.$nor.map(f => this.simplifyFilter({ filter: f }));
         }
         // simplify $and
         if (filter.$and && filter.$and.length > 1) {
-            filter.$and = removeDuplicatesByKey(filter.$and, (f) => JSON.stringify(f));
+            filter.$and = removeDuplicatesByKey(filter.$and, filterKey);
         }
         if (filter.$and && filter.$and.length > 0) {
             filter.$and = filter.$and.map(f => this.simplifyFilter({ filter: f }));
@@ -122,7 +129,7 @@ class MongoQuerySimplifier {
         }
 
         if (filter?.$in && filter?.$in.length > 1) {
-            filter.$in = removeDuplicatesByKey(filter.$in, (f) => JSON.stringify(f));
+            filter.$in = removeDuplicatesByKey(filter.$in, filterKey);
         }
 
         // simplify $in
