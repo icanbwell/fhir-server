@@ -38,7 +38,7 @@ class BulkWriteExecutor {
     async executeBulkAsync ({
         resourceType, operations, requestInfo, base_version,
         useHistoryCollection, maintainOrder, isAccessLogOperation,
-        insertOneHistoryFn
+        retryOnPoolWaitTimeout, insertOneHistoryFn
     }) {
         throw new Error('must override');
     }

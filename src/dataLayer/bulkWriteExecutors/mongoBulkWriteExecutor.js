@@ -16,6 +16,7 @@ const { buildOperationOutcomeIssue } = require('../../utils/operationOutcomeBuil
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../../constants');
 const { MongoInvalidArgumentError } = require('mongodb');
+const { retryOnPoolWaitTimeoutAsync } = require('../../utils/mongoPoolWaitRetry');
 const { BulkWriteExecutor } = require('./bulkWriteExecutor');
 const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
 const { ConfigManager } = require('../../utils/configManager');
@@ -161,6 +162,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
         requestInfo,
         maintainOrder = true,
         isAccessLogOperation = false,
+        retryOnPoolWaitTimeout = false,
         insertOneHistoryFn
     }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -276,7 +278,18 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                      */
                     let result;
                     try {
-                        result = await collection.bulkWrite(bulkOperations, options);
+                        // Post-request history and access-log writes run on pools with a longer
+                        // wait, so a checkout timeout is retried instead of losing the record.
+                        // Access-log writes always run after the response; history writes opt in
+                        // through retryOnPoolWaitTimeout. Request-path writes keep failing fast.
+                        const bulkWriteAsync = () => collection.bulkWrite(bulkOperations, options);
+                        result = (retryOnPoolWaitTimeout || isAccessLogOperation)
+                            ? await retryOnPoolWaitTimeoutAsync({
+                                fn: bulkWriteAsync,
+                                description: `bulkWrite ${collectionName}`,
+                                requestId
+                            })
+                            : await bulkWriteAsync();
                     } catch (error) {
                         await logSystemErrorAsync({
                             event: 'mongoBulkWriteExecutor',

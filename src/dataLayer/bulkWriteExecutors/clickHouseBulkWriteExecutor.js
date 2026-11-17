@@ -90,6 +90,7 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
         useHistoryCollection,
         maintainOrder,
         isAccessLogOperation,
+        retryOnPoolWaitTimeout,
         insertOneHistoryFn
     }) {
         const schema = this.schemaRegistry.getSchema(resourceType);
@@ -154,6 +155,7 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
                     useHistoryCollection,
                     maintainOrder,
                     isAccessLogOperation,
+                    retryOnPoolWaitTimeout,
                     insertOneHistoryFn
                 });
             }

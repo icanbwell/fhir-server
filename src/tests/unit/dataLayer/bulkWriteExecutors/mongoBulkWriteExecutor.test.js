@@ -50,7 +50,7 @@ const {
 const { BulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/bulkWriteExecutor');
 const { BulkInsertUpdateEntry } = require('../../../../dataLayer/bulkInsertUpdateEntry');
 const { RethrownError } = require('../../../../utils/rethrownError');
-const { MongoInvalidArgumentError } = require('mongodb');
+const { MongoInvalidArgumentError, MongoBulkWriteError } = require('mongodb');
 const { MONGO_ERROR, ACCESS_LOGS_COLLECTION_NAME } = require('../../../../constants');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 
@@ -186,6 +186,17 @@ describe('MongoBulkWriteExecutor', () => {
     });
 
     /**
+     * What collection.bulkWrite throws when the pool checkout times out: the driver wraps the
+     * original error in a MongoBulkWriteError that keeps only its message.
+     */
+    function driverWrappedPoolTimeout () {
+        return new MongoBulkWriteError(
+            new Error('Timed out while checking out a connection from connection pool: maxPoolSize: 5'),
+            { insertedCount: 0, matchedCount: 0, modifiedCount: 0, deletedCount: 0, upsertedCount: 0 }
+        );
+    }
+
+    /**
      * @param {Object} [overrides]
      */
     function run (overrides = {}) {
@@ -318,6 +329,31 @@ describe('MongoBulkWriteExecutor', () => {
             expect(resourceLocator.getCollectionByNameAsync).toHaveBeenCalledWith('Patient_4_0_0_History');
             expect(insertOneHistoryFn).not.toHaveBeenCalled();
             expect(postRequestProcessor.add).not.toHaveBeenCalled();
+        });
+
+        test.each([
+            ['post-request history write', { useHistoryCollection: true, retryOnPoolWaitTimeout: true }],
+            ['access-log write', { isAccessLogOperation: true }]
+        ])('%s: a pool checkout timeout is retried', async (_label, overrides) => {
+            collection.bulkWrite
+                .mockRejectedValueOnce(driverWrappedPoolTimeout())
+                .mockResolvedValue(makeBulkWriteResult({ upsertedCount: 1 }));
+            resourceLocator.getAccessLogCollectionAsync = jestGlobal.fn().mockResolvedValue(collection);
+
+            await run(overrides);
+
+            expect(collection.bulkWrite).toHaveBeenCalledTimes(2);
+        });
+
+        test.each([
+            ['request-path history write', { useHistoryCollection: true }],
+            ['request-path main write', {}]
+        ])('%s: a pool checkout timeout fails fast', async (_label, overrides) => {
+            collection.bulkWrite.mockRejectedValue(driverWrappedPoolTimeout());
+
+            await expect(run(overrides)).rejects.toThrow();
+
+            expect(collection.bulkWrite).toHaveBeenCalledTimes(1);
         });
 
         test('the live-object cleanup runs on the main-collection pass', async () => {

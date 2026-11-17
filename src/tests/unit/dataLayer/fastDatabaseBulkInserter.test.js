@@ -66,6 +66,7 @@ function createFastInserter(overrides = {}) {
         customTracer
     });
     inst._mockExecutor = mockExecutor;
+    inst._mockPostRequestProcessor = postRequestProcessor;
     return inst;
 }
 
@@ -206,6 +207,38 @@ describe('FastDatabaseBulkInserter', () => {
             expect(ops.length).toBe(1);
             expect(ops[0].operation.replaceOne.filter).toBeNull();
             expect(ops[0].operation.replaceOne.replacement.meta.versionId).toBe('3');
+        });
+    });
+
+    describe('history writes: pool wait retry flag', () => {
+        const seedHistory = (requestInfo) => {
+            const doc = { resourceType: 'Patient', id: 'ph', _uuid: 'uh', _sourceAssigningAuthority: 'a', meta: { versionId: '1' } };
+            inserter.getHistoryOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).set('Patient', [
+                { id: 'ph', uuid: 'uh', resourceType: 'Patient', operationType: 'insertUniqueId', operation: { insertOne: { document: doc } }, isCreateOperation: true }
+            ]);
+        };
+
+        test('the post-request history write asks for the retry', async () => {
+            const requestInfo = createMockFhirRequestInfo();
+            seedHistory(requestInfo);
+
+            await inserter.executeHistoryInPostRequestAsync({ requestInfo, base_version: '4_0_0' });
+            await inserter._mockPostRequestProcessor.add.mock.calls[0][0].fnTask();
+
+            expect(inserter._mockExecutor.executeBulkAsync).toHaveBeenLastCalledWith(
+                expect.objectContaining({ useHistoryCollection: true, retryOnPoolWaitTimeout: true })
+            );
+        });
+
+        test('the request-path history write does not ask for the retry', async () => {
+            const requestInfo = createMockFhirRequestInfo();
+            seedHistory(requestInfo);
+
+            await inserter.executeHistoryAsync({ requestInfo, base_version: '4_0_0' });
+
+            expect(inserter._mockExecutor.executeBulkAsync).toHaveBeenLastCalledWith(
+                expect.objectContaining({ useHistoryCollection: true, retryOnPoolWaitTimeout: false })
+            );
         });
     });
 
