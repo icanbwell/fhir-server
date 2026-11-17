@@ -13,15 +13,13 @@ const {
     PayloadTooLargeError
 } = require('../../../utils/httpErrors');
 const { generateUUID } = require('../../../utils/uid.util');
-const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
-const { getResourceTypeMismatchOutcome } = require('../../../utils/validator.util');
 const { getCircularReplacer } = require('../../../utils/getCircularReplacer');
-const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../../utils/metrics');
 const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../../constants');
 const { WriteItem, WRITE_ITEM_STATUS } = require('../writeItem');
 const { WriteContext } = require('../writeContext');
 const { WriteFailure, WRITE_FAILURE_STAGE } = require('../writeFailure');
 const { WriteResponder } = require('./writeResponder');
+const { readSingleResourceBody } = require('./singleResourceBody');
 
 /**
  * The failure stages for which create stores the rejected resource in the access log before it
@@ -73,19 +71,13 @@ class CreateResponder extends WriteResponder {
      * @returns {Promise<{context: WriteContext, items: WriteItem[], requestErrors: Object[], wasIncomingAList: boolean}>}
      */
     async readAsync ({ requestInfo, parsedArgs, resourceType }) {
-        const body = requestInfo.body;
-        if (body === null || typeof body !== 'object') {
-            throw new BadRequestError(new Error('Request body is required.'));
-        }
-        if (Array.isArray(body)) {
-            throw new BadRequestError(new Error('Only single resource can be sent to create.'));
-        }
-        body.id = generateUUID();
-        removeUnderscoreFieldsRecursive(body);
-        if (body.meta !== null && typeof body.meta === 'object') {
-            delete body.meta.lastUpdated;
-        }
-
+        const { item } = readSingleResourceBody({
+            body: requestInfo.body,
+            id: generateUUID(),
+            resourceType,
+            path: requestInfo.path,
+            operationName: 'create'
+        });
         const context = new WriteContext({
             requestInfo,
             base_version: parsedArgs.base_version,
@@ -93,27 +85,6 @@ class CreateResponder extends WriteResponder {
             smartMerge: false,
             operationName: 'create'
         });
-        const item = new WriteItem({ index: 0, incoming: body });
-        const resourceTypeMismatchOutcome = getResourceTypeMismatchOutcome({
-            resourceBody: body,
-            resourceName: resourceType,
-            path: requestInfo.path
-        });
-        if (resourceTypeMismatchOutcome) {
-            recordValidationFailure(
-                resourceTypeMismatchOutcome,
-                resourceType,
-                VALIDATION_STAGE.SCHEMA,
-                PATH.SAVE
-            );
-            item.fail({
-                failure: new WriteFailure({
-                    stage: WRITE_FAILURE_STAGE.STRUCTURE,
-                    subject: WriteFailure.subjectOf(body),
-                    operationOutcome: resourceTypeMismatchOutcome
-                })
-            });
-        }
         return { context, items: [item], requestErrors: [], wasIncomingAList: false };
     }
 

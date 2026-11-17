@@ -82,6 +82,18 @@ const { K8sClient } = require('../../utils/k8sClient');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { ChangeEventProducer } = require('../../utils/changeEventProducer');
 const { PatientPersonDataChangeEventProducer } = require('../../utils/patientPersonDataChangeEventProducer');
+const { IdentifyStep } = require('../../operations/writePipeline/steps/identifyStep');
+const { BuildDocumentStep } = require('../../operations/writePipeline/steps/buildDocumentStep');
+const { WriteStep } = require('../../operations/writePipeline/steps/writeStep');
+const { SourceIdentityResolver } = require('../../operations/writePipeline/steps/identify/sourceIdentityResolver');
+const { UrlIdentityResolver } = require('../../operations/writePipeline/steps/identify/urlIdentityResolver');
+const { SmartMergeBuilder } = require('../../operations/writePipeline/steps/build/smartMergeBuilder');
+const { InsertBuilder } = require('../../operations/writePipeline/steps/build/insertBuilder');
+const { ReplaceBuilder } = require('../../operations/writePipeline/steps/build/replaceBuilder');
+const { MERGE_WRITE_PROFILE } = require('../../operations/writePipeline/profiles/merge');
+const { CREATE_WRITE_PROFILE } = require('../../operations/writePipeline/profiles/create');
+const { UPDATE_WRITE_PROFILE } = require('../../operations/writePipeline/profiles/update');
+const { UpdateResponder } = require('../../operations/writePipeline/responder/update');
 
 // Registrations that require infrastructure-specific config this test file does not (and should
 // not) provide; excluded only from the "every name resolves" sweep. Each has its own dedicated,
@@ -198,6 +210,39 @@ describe('createContainer', () => {
             expect(operation.databaseBulkInserter).toBe(container.fastDatabaseBulkInserter);
         }
     );
+
+    test('writePipeline registers the url identify, replace build and httpPreconditions write variants', () => {
+        const container = createContainer();
+        const { identify, buildDocument, write } = container.writePipeline.stepVariants;
+        expect(identify.url).toBeInstanceOf(IdentifyStep);
+        expect(identify.url.identityResolver).toBeInstanceOf(UrlIdentityResolver);
+        expect(buildDocument.replace).toBeInstanceOf(BuildDocumentStep);
+        expect(buildDocument.replace.builder).toBeInstanceOf(ReplaceBuilder);
+        expect(buildDocument.replace.builder.insertBuilder).toBeInstanceOf(InsertBuilder);
+        expect(write.httpPreconditions).toBeInstanceOf(WriteStep);
+        expect(write.httpPreconditions.honorHttpPreconditions).toBe(true);
+        expect(write.httpPreconditions.databaseBulkInserter).toBe(container.fastDatabaseBulkInserter);
+    });
+
+    test('updateOperation is wired to the write pipeline, its switch and the update responder', () => {
+        const container = createContainer();
+        const operation = container.updateOperation;
+        expect(operation.writePipeline).toBe(container.writePipeline);
+        expect(operation.writePipelineSwitch).toBe(container.writePipelineSwitch);
+        expect(operation.updateResponder).toBeInstanceOf(UpdateResponder);
+        expect(operation.updateResponder).toBe(container.updateResponder);
+        expect(() => container.writePipeline._assertValidProfile(UPDATE_WRITE_PROFILE)).not.toThrow();
+    });
+
+    test('writePipeline still resolves the $merge and create profiles to their steps', () => {
+        const pipeline = createContainer().writePipeline;
+        expect(MERGE_WRITE_PROFILE.variants).toBeUndefined();
+        expect(pipeline.identifyStep.identityResolver).toBeInstanceOf(SourceIdentityResolver);
+        expect(pipeline.buildDocumentStep.builder).toBeInstanceOf(SmartMergeBuilder);
+        expect(pipeline.writeStep.honorHttpPreconditions).toBe(false);
+        expect(CREATE_WRITE_PROFILE.variants).toStrictEqual({ buildDocument: 'insert' });
+        expect(pipeline.stepVariants.buildDocument.insert.builder).toBeInstanceOf(InsertBuilder);
+    });
 
     test('preSaveManager orders SourceAssigningAuthorityColumnHandler before UuidColumnHandler before ReferenceGlobalIdHandler', () => {
         // preSave.js's factory comment: "UuidColumnHandler MUST come after

@@ -62,7 +62,8 @@ Any of these is a failure even if the code works:
 - **Responses and outputs stay the same.** That covers status codes, bodies, headers,
   OperationOutcome text, per-resource `$merge` results, `$import` output lines, access-log entry
   data (except one POST field, see "Source assigning authority in the access log" under POST in
-  "Changes to announce"), audit events, history rows, Kafka change events and Group member writes.
+  "Changes to announce", and the PUT entry "Failure access-log entry" there), audit
+  events, history rows, Kafka change events and Group member writes.
   These are the only accepted differences:
   1. A request that fails two checks may get a different one of the two errors than today, because
      the step order is fixed (see "Step order").
@@ -162,7 +163,8 @@ Every operation runs these steps in this order:
    check, for every operation, then the schema check
 5. **Find existing**: load the stored doc
 6. **Validate new resource**: the meta check for an item with no stored doc
-7. **Access before build** (stored doc, and for merge and import also the incoming body)
+7. **Access before build** (stored doc, and for PUT, POST, merge and import also the incoming
+   body: its access and its access-tag change)
 8. **Build new doc**
 9. **Validate result**: checks on the built doc, including `validateResourceAsync` (the Group
    member limit, the schema of the write-serialized doc, and Person.link)
@@ -218,9 +220,9 @@ There is no step list and no loop. The step classes live in `src/operations/writ
 A profile is plain data that says only what differs from the default: its name, the scope letter
 and action, the steps it turns `off`, and the step variants it uses. Every step the profile doesn't
 turn off runs. A profile with an unknown setting, an unknown step name or an unregistered variant
-fails before anything runs. Step 10 (access on result) has no implementation yet. `$merge` never
-ran it, so the pipeline doesn't call it, and the first operation that needs it adds both the call
-and the name.
+fails before anything runs. Step 10 (access on result) has no implementation yet, so the pipeline
+doesn't call it. PATCH adds the call and the name: its body is a JSON Patch, so its access tags are
+known only after the build. Admin uses it later.
 
 **Per-operation pieces (user decision).** Each operation adds two files and passes both to
 `WritePipeline.runAsync`:
@@ -260,7 +262,11 @@ default step. A step the profile names no variant for runs its default, and addi
 change the step it replaces. POST is the first user. It picks only `buildDocument: 'insert'`, and
 turns `findExisting` off, because a new resource has no stored doc to load and no operation needs a
 loader that loads nothing. It runs the shared identify, validate incoming, validate new resource
-and validate result steps. Its id is a new UUID, so identify only copies the id to `_uuid`.
+and validate result steps. Its id is a new UUID, so identify only copies the id to `_uuid`. PUT
+picks three variants and turns nothing off: `identify: 'url'` (the identity from the URL id),
+`buildDocument: 'replace'` (the `If-Match` / `If-None-Match` checks, then a replace of the stored
+doc, or POST's insert when none is stored) and `write: 'httpPreconditions'` (a versioned write that
+queues the `If-Match` list, so a replayed write checks it again).
 
 A step records a failure as a neutral value: which check failed, the OperationOutcome or error,
 and the item's identity at that moment. The responder turns that value into the operation's result
@@ -280,6 +286,17 @@ the incoming body's access in `WriteAllowedByScopesValidator`, before any merge.
 that check is part of step 7, not step 10. Otherwise a rejected item would already have had its
 stored GridFS attachments deleted inside "build new doc".
 
+**Every operation with a resource body checks its access tags in step 7.** PUT, POST, `$merge` and
+`$import` check the access-tag change on the incoming body before the build. For each, the check on
+the body gives the same answer as a check on the built doc:
+- PUT replaces (`smartMerge: false`), so the built doc has exactly the body's access tags, plus the
+  owner and source assigning authority tags the merger forces. A body without `meta.security` gets
+  only those two. Removals count.
+- POST inserts the body; it doesn't go through the merger.
+- `$merge` and `$import` smart-merge, which keeps every stored `meta.security` entry and adds the
+  body's new ones. They only add tags, so checking the body's additions, with removals ignored,
+  gives the same answer.
+
 ## Profiles
 
 The table is today's behavior, mapped from the code at the start of this work and updated for the
@@ -290,15 +307,15 @@ the code disagree, the code wins.
 |---|---|---|---|---|---|---|
 | Scope letter | `c` | `u`, also for create-via-PUT | `u` | `u`, also when the resource is new | `u` | none in the pipeline (the admin route checks admin scope, as today) |
 | `_` fields | strip | strip | reject with 400 any op whose path starts with `/_` (this also rejects primitive-extension paths such as `/_birthDate`) | strip for validation, then restore `_uuid` and `_sourceAssigningAuthority` | strip | none (no client body) |
-| Validate incoming | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); the pipe-in-id check never fires, because POST replaces the id with a new UUID | schema, Person.link; the size and pipe-in-id checks run but never fire: AuditEvent update gets 405 from `ResourceOperationAccessProvider`, and `IdParser` puts only the part before the first `\|` into the body id | – (the body is a JSON Patch) | on the stripped body: AuditEvent size limit and pipe-in-id check, then schema with relaxed required fields | owner tag backfilled first; pipe-in-id check, as today; new: the AuditEvent size limit and the schema check, as in `$merge` (accepted difference 6) | – (no client body) |
-| Find existing | off (no stored-document lookup) | by `_uuid` | search with the access filter: 0 hits is 404, more than 1 is 400 | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by `_uuid` with the access filter, 404 (see "Admin") |
-| Validate new resource | meta; new: after the size and schema checks, as in `$merge` (accepted difference 1) | – (meta is checked in validate result) | – | meta (owner tag) for a new resource | meta for a new resource, as today | – |
-| Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403) | stored doc | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: stored doc and every linked resource |
-| Build new doc | insert | replace (no smart merge) | apply the JSON Patch; Group member strategy for Group | smart merge | smart merge | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
-| Validate result | new: on, `validateResourceAsync` on the built document (Group member limit, schema of the write-serialized document, Person.link), as for a new `$merge` doc | meta | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
-| Access on result | – (new: done before build) | access-tag change only | access-tag change only | off (the merged doc is not re-checked today) | off | new: full check and access-tag change for a created Person, access-tag change for an update |
+| Validate incoming | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); the pipe-in-id check never fires, because POST replaces the id with a new UUID | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); Person.link moves to validate result; the size and pipe-in-id checks never fire: AuditEvent update gets 405 from `ResourceOperationAccessProvider` before the pipeline, and `IdParser` puts only the part before the first `\|` into the body id | – (the body is a JSON Patch) | on the stripped body: AuditEvent size limit and pipe-in-id check, then schema with relaxed required fields | owner tag backfilled first; pipe-in-id check, as today; new: the AuditEvent size limit and the schema check, as in `$merge` (accepted difference 6) | – (no client body) |
+| Find existing | off (no stored-document lookup) | by `_uuid`, as today; new: a bulk preload of one (`BulkPreloadLoader`, no access filter, as today) | search with the access filter: 0 hits is 404, more than 1 is 400 | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by `_uuid` with the access filter, 404 (see "Admin") |
+| Validate new resource | meta; new: after the size and schema checks, as in `$merge` (accepted difference 1) | new: meta, for create-via-PUT (today it runs on the body after the build) | – | meta (owner tag) for a new resource | meta for a new resource, as today | – |
+| Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403); new: as `$merge`: the stored doc, then the access-tag change from the stored doc to the body, removals counted; for create-via-PUT, POST's full check and access-tag change. Today the tag check runs on the built doc, after the build and the uploads | stored doc | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: stored doc and every linked resource |
+| Build new doc | insert | replace (no smart merge), after the extended Group 400 and the `If-None-Match` / `If-Match` 412s; create-via-PUT builds as POST's insert, after the `If-Match` 412 | apply the JSON Patch; Group member strategy for Group | smart merge | smart merge | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
+| Validate result | new: on, `validateResourceAsync` on the built document (Group member limit, schema of the write-serialized document, Person.link), as for a new `$merge` doc | new: as `$merge`: for an update, meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); for create-via-PUT, `validateResourceAsync`. Today: `validateResourceAsync` on the body before the build, then the schema of the write-serialized body, then meta on the built doc | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
+| Access on result | – (new: done before build) | off; new: the access-tag change is checked before the build. Today it runs here | access-tag change only | off (the merged doc is not re-checked today) | off | new: full check and access-tag change for a created Person, access-tag change for an update |
 | No-op | – | no write, 200 | no write; new: internal result `updated: false` (see "No-op fixes") | `created: false, updated: false` | new: counted as skipped (see "No-op fixes") | no write, silent |
-| Write | insert (`If-None-Match: *` rejects existing) | `If-Match` / `If-None-Match`; a lost create is rebased as an update (200), and 409 when the rounds run out; new: updates are versioned too (see "Concurrency") | `_uuid` filter only; new: versioned, except Group PATCHes that change members | version filter, concurrent write resolver | version filter, concurrent write resolver | version filter |
+| Write | insert (`If-None-Match: *` rejects existing) | `If-Match` / `If-None-Match`; new: updates are versioned (`_uuid` and the stored `versionId`), and a lost race goes through today's replay, which re-checks `If-Match`, until the resolver (see "Concurrency") | `_uuid` filter only; new: versioned, except Group PATCHes that change members | version filter, concurrent write resolver | version filter, concurrent write resolver | version filter |
 | Audit | create | create or update | update | batched | the worker's own batching | new: create or update |
 | Respond | thrown errors | thrown errors (412 possible) | thrown errors | per-resource issue, HTTP 200 | per-line result entry | new: thrown errors in the standard format |
 
@@ -320,7 +337,9 @@ caller's document into the latest stored version without re-running the access c
 access tag removed by another writer between the check and the write can come back, and a create
 that loses to another tenant's create of the same `_uuid` is merged into that document (owner and
 source assigning authority stay protected). This is today's behavior, found by the security review
-of the `$merge` PR; the resolver's access re-check closes it.
+of the `$merge` PR; the resolver's access re-check closes it. A PUT's replay replaces instead of
+merging, because its entries are queued with `smartMerge: false`: the caller's body replaces the
+latest stored version, still without the access re-check.
 
 - **`$merge`, `$import` and the GraphQL mutations** behave in the new path exactly as in the old
   one.
@@ -329,6 +348,33 @@ of the `$merge` PR; the resolver's access re-check closes it.
   built from, so a concurrent write makes them lose, and the resolver handles them.
   - **PUT:** the rebase is a replace (`smartMerge: false`), which the resolver already supports for
     a PUT that loses its create.
+  - **PUT ships before the resolver (user decision),** with the version filter: the resolver
+    changes only the retry, not the filter. Until it lands, a PUT that loses a race goes through
+    today's one-by-one replay. The update is queued with `smartMerge: false` and its `If-Match`
+    list, so the replay replaces the latest stored version with the caller's body and checks
+    `If-Match` against that version again (412 if it no longer matches).
+    - When the replay's retries run out, the caller gets today's 500 (`Unable to save resource
+      <T>/<uuid> with version <v> (original=<o>) after 10 tries.`). The resolver changes it to 409.
+    - A create without `If-None-Match` that loses to another create of the same `_uuid` is replayed
+      as a replace of the winner, on the winner's identity, and answers 201, until the resolver.
+      Today the replay merges it into the winner. With `If-None-Match: *` it gets 412, as today.
+    - The forced Group write (an unchanged ClickHouse-backed Group whose body sends members) keeps
+      today's `replaceOneAsync` call and its `If-Match` filter. Without a specific `If-Match` it
+      writes by `_uuid` alone, with no version check, like Group PATCHes that change members. With
+      one, the `If-Match` versions are in the filter, so a lost write goes through today's replay
+      and gets 412 if `If-Match` no longer matches.
+    - A changed Group whose body sends members, when the request asks for external storage and
+      ClickHouse is on for Group, is also written by `_uuid` alone unless the request sends a
+      specific `If-Match`, as today. Its members are not in the stored doc, so a lost versioned
+      write whose replay finds the doc unchanged would be skipped with its member write and
+      answered 200. With a specific `If-Match` it keeps the version filter, and a lost write gets
+      412 from the replay if `If-Match` no longer matches.
+    - The new path doesn't pass `alwaysCreateNew` to the base64 upload, now that PUT is versioned:
+      an unchanged base64 value keeps its live key, as in `$merge`, and a lost race is reconciled by
+      the replay.
+    - After a replay the response body, `ETag` and version are those of the attempt that lost, one
+      version behind the stored doc. That is today's replay behavior on both paths; the resolver
+      fixes it.
   - **PATCH:** the rebase must re-apply the JSON Patch to the rebase target. The resolver only
     merges, so it needs an opt-in per-entry rebase. The default is today's merge, and the old path
     never sets it. "Validate result" runs again on the re-patched doc.
@@ -341,6 +387,19 @@ of the `$merge` PR; the resolver's access re-check closes it.
     is the builder's call. The resolver already deletes base64 uploads from uncommitted attempts.
 - `SKIP_HANDLE_CONCURRENCY` turns conflict handling off in the new path too, as it does in the old
   one.
+  - **PUT with conflict handling off.** A versioned write that loses is then not replayed, so it
+    would be dropped and still answered 200. So PUT writes by `_uuid` alone, today's
+    last-write-wins, unless the request sends a specific `If-Match` (not `*`). With one, it keeps
+    the stored `versionId` in the filter, which the build has checked is in the `If-Match` list, as
+    today's `If-Match` filter does. A PUT that then loses the race is dropped and answered 200 with
+    the caller's body, on both paths: the stored doc stays the competitor's, and history gets a row
+    for the dropped version with the caller's body.
+  - One edge differs (user decision, kept): an `If-Match` that lists several versions, where a
+    competing write moves the doc from one listed version to another before the write. Today the
+    filter matches any listed version, so the PUT lands. The new path filters on the version it
+    built from, so the PUT is dropped and answered 200.
+  - Not changed by this work: with conflict handling off, a `$merge` write that loses its version
+    filter is dropped the same way on both paths today.
 - **Group PATCHes that change members are excluded.** They keep today's `_uuid`-only write, with no
   version check and no retry. Member rows are committed before the Group document is written
   (`commitPendingMemberWrites` in `patch.js`), and for ClickHouse-backed Groups the member strategy
@@ -448,8 +507,8 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
 - **New path by default in tests (user decision).** `jest/setEnvVars.js` sets
   `WRITE_PIPELINE_OPERATIONS` to every switch that has shipped, so the full suite in the existing
   16-shard `test` job, and every local run, uses the new path. Each operation's PR adds its name
-  there. `configManager` reads the environment on each call, so a test file can set the variable
-  for itself.
+  there; it is now `merge,create,update`. `configManager` reads the environment on each call, so a
+  test file can set the variable for itself.
 - **Retry-dependent case.** The parity case for a new resource sent by id and by `_uuid` in one
   request runs on the new path only. The new path queues one write for it (accepted difference 5);
   the old path's result depends on which retry code is in place, so it is not pinned.
@@ -465,7 +524,11 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
   the same change events. For POST it is 1 test in 1 file, `create_fast_serializer.test.js`
   (copied as `oldWriteCreateFastSerializer.test.js`), failing only on accepted difference 1: it
   expects a Group over the member limit that also fails the schema check to get the `too-costly`
-  400.
+  400. For PUT it is 2 files: `update_fast_serializer.test.js` (copied as
+  `oldWriteUpdateFastSerializer.test.js`), failing only on accepted difference 1 with the same
+  over-limit Group with an invalid field, and `blobStorage.test.js` (copied as
+  `oldWriteBlobStorage.test.js`), whose PUT with an unchanged base64 value now keeps its live key
+  (see "Base64 live key kept" under PUT). Both copies turn only `update` off.
 - **Old path coverage (my call).** With the new path on by default, the old path is run by the
   `oldWrite` copies and the parity tests only. The coverage report the CI merges across its jobs
   shows how much of it they keep; more test files get `oldWrite` copies until the old path's
@@ -482,6 +545,7 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
   - Integration tests for PUT and PATCH concurrency with the switch on: two concurrent writes both
     land, the version goes up by two, no PATCH operation is lost, and a write that keeps losing gets
     409 with a `conflict` OperationOutcome. A Group member PATCH still takes the `_uuid`-only write.
+    PUT's 409 test comes with the resolver PR; until then PUT's concurrency test pins today's 500.
   - Integration tests for the no-op fixes: an unchanged `$import` line counts as skipped.
   - Integration tests for the admin changes, parameterized over the five operations: non-UUID ids
     get 400; a missing or inaccessible target or linked resource gets 404; a caller without access
@@ -512,6 +576,30 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
   - The unit test `src/tests/unit/operations/writePipeline/responder/create.test.js`, for the
     errors `CreateResponder` throws per failure stage, for a missing body, and for a flush that
     returns no usable result, which can't be produced end to end.
+  - PUT, in `src/tests/integration/operations/writePipeline/responder/update/`:
+    - `update.test.js`: parity, 51 cases run on both paths against goldens recorded from the old
+      path, with the status, body, `ETag` (for a 2xx), `Location` and `Content-Location`, and the
+      stored doc and history rows after the request. One case, `auditEventPut405`, pins that an
+      AuditEvent PUT gets 405 on both paths, before the pipeline. Twelve cases have a golden and
+      status per path, and each traces to a PUT entry in "Changes to announce": `emptyBody`,
+      `arrayBody`, `typeMismatchWithoutScope`, `invalidSchemaStoredNotAccessible`,
+      `ifMatchMismatchPatientReferenceChanged`, `accessTagRemoveNotGrantableInvalidReference`,
+      `createViaPutPersonLinkOtherTenantAccessDenied`, `groupOverLimitWithInvalidField`,
+      `noOpGroupOverLoweredLimit`, `base64UnrelatedFieldChanged`, `noMetaSecurityScopedCaller` and
+      `noMetaSecurityFullAccess`.
+    - `update.audit.test.js`, `update.accessLog.test.js`, `update.attachments.test.js` and
+      `update.metrics.test.js`: the AuditEvents, the access-log entry, the GridFS files and base64
+      objects stored or deleted, and the `fhir_validation_failure_total` labels and count, on both
+      paths.
+    - `update.concurrency.test.js`, new path only: two concurrent PUTs both land, `If-Match` and
+      `If-None-Match: *` re-checked on a lost race, a lost create replayed as a replace, today's
+      500 when the retries run out, and both `SKIP_HANDLE_CONCURRENCY` cases.
+  - PUT unit tests, under `src/tests/unit/operations/writePipeline/`: `responder/update.test.js`
+    (the errors `UpdateResponder` throws per failure stage, and its results and response),
+    `steps/identify/urlIdentityResolver.test.js`, `steps/build/replaceBuilder.test.js`,
+    `steps/writeStep.test.js` (the queued filter, `If-Match` and `smartMerge`, also with conflict
+    handling off) and `httpPreconditions.test.js`; and
+    `src/tests/unit/dataLayer/fastDatabaseBulkInserter.test.js` for the two opt-in parameters.
 - The existing access and tenant-isolation suites for these operations run on the new path in the
   main CI job.
 
@@ -647,6 +735,80 @@ today.
   the `sourceAssigningAuthority` from the resource's own tag. Today that field is empty, because
   the old path validates before it reads the tag. Every other field of the entry is unchanged.
 
+**PUT**
+- **No attachment writes, and no GridFS deletions, on 403.** Today attachments and base64 data are
+  stored before the access-tag check, so a PUT rejected with 403 for an access tag it can't add,
+  or a create-via-PUT rejected with 403, has already stored them. A PUT rejected for an access-tag
+  change whose body drops a stored GridFS attachment has also had that file marked inactive inside
+  the build. The new path checks the access tags before the build, so it stores and deletes
+  nothing for these.
+- **Which error a PUT gets** (accepted difference 1). The new path reads the body before the scope
+  check: it rejects a missing body, an array body, and a body whose `resourceType` doesn't match
+  the URL, with 400. A caller without the scope who sends one of these gets that 400 where today it
+  gets 403. The type mismatch is now counted in `fhir_validation_failure_total` at the `schema`
+  stage; today the 403 isn't counted. An array body gets 400
+  `Only single resource can be sent to update.`; today it gets a 400 from a later check, such as
+  the missing owner tag for a non-UUID id.
+- **`$merge`'s validation order** (accepted difference 1). PUT runs the same validation steps as
+  `$merge`, in the same order: the raw body's schema, the meta check for a create-via-PUT, the
+  access check on the stored doc and then on the body's access tags, the build with its 412s and
+  the extended Group 400, then, on the built doc, the meta check and `validateResourceAsync` (the
+  Group member limit, the schema, references, the patient reference and Person.link). Today it
+  checks access to the stored doc, runs `validateResourceAsync` on the body, the schema of the
+  write-serialized body, the build with its 412s, the meta check, and the access-tag check on the
+  built doc last. A request that fails two of these checks can get the other error:
+  - A body that fails the schema check, for a stored doc the caller can't access, gets the schema
+    400 instead of the 403. It is now counted at the `schema` stage; today it isn't counted.
+  - A body that changes the patient reference, sent with an `If-Match` that doesn't match, gets
+    the 412 instead of the patient-reference 400, and is no longer counted at the `reference`
+    stage.
+  - A body that removes an access tag the caller can't write and has an invalid reference gets the
+    403 instead of the reference 400, and is no longer counted at the `schema` stage.
+  - A create-via-PUT of a Person linked to another tenant's Patient, with an access tag the caller
+    can't add, gets the access-tag 403 instead of the Person.link 400, and is no longer counted at
+    the `reference` stage.
+- **Group member limit after the schema check** (accepted difference 1, as for POST). A Group over
+  the member limit that also fails the schema check gets the schema 400 instead of the
+  `too-costly` 400, and is counted at the `schema` stage, where today it isn't counted.
+- **400 for a PUT with no body.** A PUT whose body the server doesn't parse, as for POST, gets 400
+  `Request body is required.` Today a caller with the scope gets 500, and a caller without the
+  scope gets 403. The scope-less case is accepted difference 1.
+- **Body without `meta.security`.** A PUT with a UUID id whose body has no `meta.security` gets 500
+  today (`sourceAssigningAuthority is null` in the merger). The new path answers it as any other
+  body that drops the stored access tags: 403 when the caller can't write a dropped tag, and 200
+  for a caller who can, with the doc stored with only its owner and source assigning authority
+  tags.
+- **Versioned updates** (accepted difference 2). Two concurrent PUTs to the same resource both
+  land, the version goes up by two, and the stored doc is the later writer's body. Today both
+  write by `_uuid` alone, so the later one overwrites the other and both can get the same version.
+  A Group PUT that writes ClickHouse members still writes by `_uuid` alone, as today, unless it
+  sends a specific `If-Match` (see "Concurrency"). A PUT that keeps losing the race gets today's replay 500 when the retries run out; today a PUT
+  can't lose a race. A create that loses to another create of the same `_uuid` is replayed as a
+  replace into the winner instead of being merged into it, and still answers 201. The winner's
+  content and access tags are replaced by the caller's, and its owner and source assigning
+  authority are kept. There is still no access re-check until the resolver. An update that loses
+  to a write of the same content writes nothing and answers 200 as a no-op, as today. With
+  `SKIP_HANDLE_CONCURRENCY` PUT keeps today's behavior, except for one `If-Match` edge (see
+  "Concurrency").
+- **Base64 live key kept.** A PUT that doesn't change a base64 value keeps its live key and
+  uploads nothing, as `$merge` does. Today every PUT that writes uploads the value again, to a new
+  live key.
+- **A no-op PUT skips `validateResourceAsync`.** Today a PUT whose body equals the stored doc still
+  runs it. The body has passed the raw schema check and changes nothing, so only a stored doc that
+  no longer passes now gets 200 where today it gets 400: for example a Group over a member limit
+  lowered since it was stored, or a reference format that has since become invalid.
+- **Failure access-log entry.** The failure entry of a create-via-PUT now carries the derived
+  `uuid`, and for a non-UUID id the `sourceAssigningAuthority`; today both are empty. For an
+  existing resource with a UUID id, it no longer carries `sourceAssigningAuthority`; the other
+  fields are unchanged.
+- **More operation failures logged.** With the switch on, PUT also logs an operation failure when
+  there is no body. The old path failed on it before its failure logging. The old path also logs
+  each 412 at info level; the new path logs a 412 only in the pipeline's failure entry. Only
+  logging changes.
+- **GridFS file metadata.** GridFS files stored by a create-via-PUT on the new path carry
+  `metadata.resource_uuid` and `metadata.resource_sourceId`, as POST's files on the new path do.
+  Today they have only `metadata.active: true`. Files stored by an update already carry them.
+
 **PATCH**
 - **400 instead of 500** (accepted difference 7) when the write returns no result.
 
@@ -660,11 +822,12 @@ today.
 - There is one PR per operation, each turning on only its own switch.
 - `$merge` goes first. That PR lands the pipeline core along with the batch model, the bulk preload,
   the smart-merge builder and the per-resource responder.
-- The rest follow in this order: create, import, update, patch, admin. POST goes before `$import`
-  (user decision). `$import` follows it because it reuses most of the merge profile.
+- The rest follow in this order: create, update, import, patch, admin. POST and then PUT go before
+  `$import` (user decision). `$import` follows them because it reuses most of the merge profile.
 - The work is based on `main`. The write-flow cleanup PR goes first, and the `$merge` PR stacks on
-  it until it merges (user decision). The PUT and PATCH PRs, which rely on the concurrent write
-  resolver, wait for it to merge.
+  it until it merges (user decision). Only the PATCH PR waits for the concurrent write resolver,
+  because it needs the resolver's re-patch rebase. PUT ships before it, with the version filter and
+  today's replay (user decision; see "Concurrency").
 - Every PR runs the repo's security review against `review.md`, because these are write paths.
 
 ## ADR

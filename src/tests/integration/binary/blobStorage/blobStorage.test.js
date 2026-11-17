@@ -1434,13 +1434,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         });
     });
 
-    test('PUT with unchanged data, other field changed: zero downloads (content still re-uploads — alwaysCreateNew is unaffected by this design)', async () => {
-        // PUT's INSERT call uses alwaysCreateNew: true, which bypasses the hash-skip branch
-        // entirely and always uploads to a fresh key — that wasteful-but-documented behavior is
-        // explicitly out of scope for this design (see the TODO in update.js). What this design
-        // changes is only that the MERGE/DIFF step doesn't download to discover the hash match —
-        // it still correctly finds "unchanged" (no patch entry emitted) even though the upload
-        // still happens afterward, unconditionally, exactly as today.
+    test('PUT with unchanged data, other field changed: zero downloads and the live key is kept', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -1452,6 +1446,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         const seededKey = liveKeyOf(seeded);
 
         const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const uploadSpy = jest.spyOn(liveClient, 'uploadAsync');
         try {
             await request
                 .put(`/4_0_0/Binary/${id}`)
@@ -1462,14 +1457,13 @@ describe('Binary base64 S3 offload — write paths', () => {
             await drainPostRequest(container);
             const doc = await readBinaryFromMongo(container, id);
             expect(doc.contentType).toBe('application/xml');
-            // Content is byte-identical, but the key still rotates (alwaysCreateNew, unaffected by
-            // this design) — the old key is retained, the new one holds the same bytes.
-            const newKey = liveKeyOf(doc);
-            expect(newKey).not.toBe(seededKey);
+            expect(doc.meta.versionId).toBe('2');
+            expect(liveKeyOf(doc)).toBe(seededKey);
+            expect(uploadSpy).not.toHaveBeenCalled();
             expect(liveClient.uploadedData[seededKey]).toBe(LARGE_DATA);
-            expect(liveClient.uploadedData[newKey]).toBe(LARGE_DATA);
         } finally {
             downloadSpy.mockRestore();
+            uploadSpy.mockRestore();
         }
     });
 

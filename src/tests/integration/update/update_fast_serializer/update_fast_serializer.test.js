@@ -7,7 +7,6 @@ const {
     mockHttpContext
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { assertTooCostlyOperationOutcome } = require('../../group/groupTestHelpers');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 const practitionerPayload = () => ({
@@ -393,7 +392,7 @@ describe('Update with fast serializer', () => {
         expect(resp).toHaveStatusCode(400);
     });
 
-    test('an oversized Group put is rejected as too-costly before its member[] is schema validated', async () => {
+    test('an oversized Group put that fails the schema check gets the schema error', async () => {
         const savedExtendedGroup = process.env.ENABLE_EXTENDED_GROUP;
         const savedPromotionLimit = process.env.GROUP_MEMBER_PROMOTION_LIMIT;
         process.env.ENABLE_EXTENDED_GROUP = '1';
@@ -424,7 +423,15 @@ describe('Update with fast serializer', () => {
                     member: Array.from({ length: 4 }, (_, i) => ({ entity: { reference: `Patient/oversized-${i}` } }))
                 })
                 .set(getHeaders());
-            assertTooCostlyOperationOutcome(resp, 4, 3);
+            expect(resp).toHaveStatusCode(400);
+            expect(resp.body.issue.map((issue) => issue.code)).toStrictEqual([
+                'invalid',
+                'invalid'
+            ]);
+            expect(resp.body.issue[0].details.text).toStrictEqual(
+                `/4_0_0/Group/${created.body.id} should NOT have additional properties ` +
+                    ':{"additionalProperty":"notAFhirField"}: at position root'
+            );
         } finally {
             process.env.ENABLE_EXTENDED_GROUP = savedExtendedGroup;
             if (savedExtendedGroup === undefined) {

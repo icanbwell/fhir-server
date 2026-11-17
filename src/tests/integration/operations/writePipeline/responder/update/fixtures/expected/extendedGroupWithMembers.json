@@ -1,0 +1,10 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "too-costly",
+      "diagnostics": "Group put-parity-group stores its members in extended member storage, so PUT and $merge can only change its other fields. Use PATCH with JSON Patch to add members incrementally on /4_0_0/Group/put-parity-group (example: [{\"op\":\"add\",\"path\":\"/member/-\",\"value\":{\"entity\":{\"reference\":\"Patient/123\"}}}]). See: https://www.hl7.org/fhir/http.html#patch"
+    }
+  ]
+}

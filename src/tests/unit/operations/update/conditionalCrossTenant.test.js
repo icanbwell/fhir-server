@@ -84,6 +84,9 @@ const { UuidColumnHandler } = require('../../../../preSaveHandlers/handlers/uuid
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
+const { WritePipelineSwitch } = require('../../../../operations/writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('../../../../operations/writePipeline/writePipeline');
+const { UpdateResponder } = require('../../../../operations/writePipeline/responder/update');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { QueryRewriterManager } = require('../../../../queryRewriters/queryRewriterManager');
@@ -154,7 +157,10 @@ describe('Conditional Update — Cross-Tenant Security', () => {
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
-            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider)
+            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
+            writePipelineSwitch: createMockInstance(WritePipelineSwitch),
+            writePipeline: createMockInstance(WritePipeline),
+            updateResponder: createMockInstance(UpdateResponder)
         };
 
         // Basic mocks
@@ -171,6 +177,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         mocks.postSaveHandlerFactory.getHandlers = jestGlobal.fn().mockReturnValue([]);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jestGlobal.fn();
         mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jestGlobal.fn(({ resources }) => Promise.resolve(resources));
+        mocks.writePipelineSwitch.useNewPathFor = jestGlobal.fn().mockReturnValue(false);
         mocks.fastDatabaseBulkInserter.insertOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mocks.fastDatabaseBulkInserter.replaceOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mocks.fastDatabaseBulkInserter.executeAsync = jestGlobal.fn().mockResolvedValue([{
