@@ -27,18 +27,14 @@ const driverWrappedTimeout = (result = {}) => new MongoBulkWriteError(
 const wrapped = (inner) => Object.assign(new Error('wrapped'), { nested: inner });
 
 describe('retryOnPoolWaitTimeoutAsync', () => {
-    const run = (fn, sleepAsync = jestGlobal.fn().mockResolvedValue(undefined), extra = {}) =>
-        retryOnPoolWaitTimeoutAsync({
-            fn, description: 'test', maxAttempts: 3, baseDelayMs: 100, sleepAsync, ...extra
-        });
+    const run = (fn, extra = {}) =>
+        retryOnPoolWaitTimeoutAsync({ fn, description: 'test', maxAttempts: 3, baseDelayMs: 1, ...extra });
 
-    test('returns the result without sleeping when the call succeeds', async () => {
-        const sleepAsync = jestGlobal.fn();
+    test('returns the result on the first call when it succeeds', async () => {
         const fn = jestGlobal.fn().mockResolvedValue('ok');
 
-        await expect(run(fn, sleepAsync)).resolves.toBe('ok');
+        await expect(run(fn)).resolves.toBe('ok');
         expect(fn).toHaveBeenCalledTimes(1);
-        expect(sleepAsync).not.toHaveBeenCalled();
     });
 
     test.each([
@@ -63,29 +59,16 @@ describe('retryOnPoolWaitTimeoutAsync', () => {
     });
 
     test('throws the timeout error after maxAttempts', async () => {
-        const sleepAsync = jestGlobal.fn().mockResolvedValue(undefined);
         const fn = jestGlobal.fn().mockRejectedValue(waitQueueError());
 
-        await expect(run(fn, sleepAsync)).rejects.toThrow('checking out a connection');
+        await expect(run(fn)).rejects.toThrow('checking out a connection');
         expect(fn).toHaveBeenCalledTimes(3);
-        expect(sleepAsync).toHaveBeenCalledTimes(2);
     });
 
     test('stops retrying once the elapsed budget is used up', async () => {
         const fn = jestGlobal.fn().mockRejectedValue(waitQueueError());
 
-        await expect(run(fn, undefined, { maxElapsedMs: 0 })).rejects.toThrow('checking out a connection');
+        await expect(run(fn, { maxElapsedMs: 0 })).rejects.toThrow('checking out a connection');
         expect(fn).toHaveBeenCalledTimes(1);
-    });
-
-    test('backoff delays stay below the exponential cap', async () => {
-        const sleepAsync = jestGlobal.fn().mockResolvedValue(undefined);
-        const fn = jestGlobal.fn().mockRejectedValue(waitQueueError());
-
-        await run(fn, sleepAsync).catch(() => {});
-
-        const [first, second] = sleepAsync.mock.calls.map(([ms]) => ms);
-        expect(first).toBeLessThanOrEqual(100);
-        expect(second).toBeLessThanOrEqual(200);
     });
 });

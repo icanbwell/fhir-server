@@ -152,6 +152,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
      * @param {boolean} maintainOrder
      * @param {boolean} isAccessLogOperation
      * @param {Function} insertOneHistoryFn - bound from the inserter
+     * @param {boolean} [params.retryOnPoolWaitTimeout] retry a bulk write that hit a Mongo pool checkout timeout (post-request writes only)
      * @returns {Promise<BulkWriteExecutionResult>}
      */
     async executeBulkAsync ({

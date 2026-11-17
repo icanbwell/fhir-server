@@ -33,6 +33,7 @@ class BulkWriteExecutor {
      * @param {boolean} params.maintainOrder
      * @param {boolean} params.isAccessLogOperation
      * @param {Function} params.insertOneHistoryFn
+     * @param {boolean} [params.retryOnPoolWaitTimeout] retry a bulk write that hit a Mongo pool checkout timeout (post-request writes only)
      * @returns {Promise<BulkWriteExecutionResult>}
      */
     async executeBulkAsync ({
