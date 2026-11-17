@@ -453,15 +453,6 @@ class PatchOperation {
             const resource_incoming = this.resourceMerger.fastApplyPatch({
                 currentResource: deepcopy(foundResource), patchContent: deepcopy(effectivePatchContent)
             });
-            // A member of an embedded Group appears once, on every PATCH of the Group, so members
-            // stored more than once are merged too. Entries the PATCH created or changed are merged
-            // after the member's entries it left as stored, so the values a PATCH sends win, even
-            // when an indexed add puts the new entry first or an op edits one of two stored entries.
-            this.groupMemberMerger.mergeMembers({
-                resource: resource_incoming,
-                requestInfo,
-                olderEntries: unchangedStoredEntries(foundResource.member)
-            });
             /**
              * @type {Object}
              */
@@ -482,6 +473,17 @@ class PatchOperation {
 
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             resource = await this.preSaveManager.preSaveAsync({ resource, options: preSaveOptions });
+            // A member of an embedded Group appears once, on every PATCH of the Group, so members
+            // stored more than once are merged too. Entries the PATCH created or changed are merged
+            // after the member's entries it left as stored, so the values a PATCH sends win, even
+            // when an indexed add puts the new entry first or an op edits one of two stored entries.
+            // Run after preSave, which recomputes each entity._uuid from the patched reference, since the
+            // member merge uses entity._uuid as it is.
+            this.groupMemberMerger.mergeMembers({
+                resource,
+                requestInfo,
+                olderEntries: unchangedStoredEntries(foundResource.member)
+            });
 
             // the pre-patch check above ran against originalResource as stored, so any
             // access tag the patch itself added or removed still needs to be validated. JSON patch ops

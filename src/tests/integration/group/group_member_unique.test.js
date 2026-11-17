@@ -284,6 +284,30 @@ describe('Group keeps one member per entity.reference', () => {
         expect(memberSummary(group.member)).toEqual(expectedMembers);
     });
 
+    test.each([
+        [
+            "pointing an entry at another member's reference merges it with that member",
+            [{ op: 'replace', path: '/member/0/entity/reference', value: 'Patient/b' }],
+            [{ reference: 'Patient/b', period: PERIOD }]
+        ],
+        [
+            'pointing an entry at a new reference and adding its old reference keeps all three',
+            [
+                { op: 'replace', path: '/member/0/entity/reference', value: 'Patient/c' },
+                { op: 'add', path: '/member/-', value: member('Patient/a') }
+            ],
+            [{ reference: 'Patient/c' }, { reference: 'Patient/b', period: PERIOD }, { reference: 'Patient/a' }]
+        ]
+    ])('PATCH %s, matched on the patched reference', async (_label, patchOps, expectedMembers) => {
+        const id = await postGroup([member('Patient/a'), member('Patient/b', { period: PERIOD })]);
+
+        const response = await request.patch(`/4_0_0/Group/${id}`).send(patchOps).set(getHeadersJsonPatch());
+
+        expect(response.status).toBe(200);
+        const group = await getGroup(id);
+        expect(memberSummary(group.member)).toEqual(expectedMembers);
+    });
+
     test('a POST with the useexternalstorage header and ClickHouse off merges a member listed twice', async () => {
         const id = await postGroup(
             [member('Patient/a'), member('Patient/a', { period: PERIOD })],

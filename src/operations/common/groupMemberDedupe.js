@@ -142,8 +142,12 @@ function entryIndexesOfRepeatedMembers(memberUuids) {
  * The uuid a member's entity.reference resolves to, computed the way referenceGlobalIdHandler
  * stamps entity._uuid on save, so `Patient/x`, `Patient/x|<owner>` and `Patient/<uuid>` are the
  * same member. As on save, a reference with no `|<owner>` uses the entity's own
- * _sourceAssigningAuthority when it has one, and the Group's otherwise. A stored entity._uuid is
- * not used, since a write may have changed the reference it was computed from.
+ * _sourceAssigningAuthority when it has one, and the Group's otherwise.
+ *
+ * An entity._uuid on the entry is that uuid and is used as it is: POST, PUT and $merge drop every
+ * `_` field a client sends, and every write merges members only after preSave has stamped
+ * _uuid from the current reference, or before any _uuid is set (a Group being created). An entry
+ * with no _uuid has its uuid computed.
  *
  * @param {Object} member
  * @param {string} groupSourceAssigningAuthority - the Group's own sourceAssigningAuthority
@@ -151,16 +155,17 @@ function entryIndexesOfRepeatedMembers(memberUuids) {
  */
 function memberUuidOf(member, groupSourceAssigningAuthority) {
     const entity = member?.entity;
-    return referenceUuidOf(entity?.reference, entity?._sourceAssigningAuthority || groupSourceAssigningAuthority);
+    return referenceUuidOf(entity, entity?._sourceAssigningAuthority || groupSourceAssigningAuthority);
 }
 
 /**
- * @param {unknown} reference - an entity.reference
+ * @param {Object|undefined} entity - a member's entity; not modified
  * @param {string|undefined} sourceAssigningAuthority - used when the reference has no `|<owner>`
- * @returns {string|null} null when the reference is not a relative `Type/id` or `Type/id|<owner>`
- *   reference
+ * @returns {string|null} null when entity.reference is not a relative `Type/id` or
+ *   `Type/id|<owner>` reference
  */
-function referenceUuidOf(reference, sourceAssigningAuthority) {
+function referenceUuidOf(entity, sourceAssigningAuthority) {
+    const reference = entity?.reference;
     if (typeof reference !== 'string') {
         return null;
     }
@@ -171,7 +176,10 @@ function referenceUuidOf(reference, sourceAssigningAuthority) {
     if (!resourceType || !id || otherSegments.length > 0) {
         return null;
     }
-    const referenceToEnrich = [{ entity: { reference } }];
+    // enrichMemberReferences keeps the _uuid of an entity preSave has stamped, and computes it
+    // otherwise. Only the fields it reads are copied, so the entity is not modified.
+    const { _uuid, _sourceId, _sourceAssigningAuthority } = entity;
+    const referenceToEnrich = [{ entity: { reference, _uuid, _sourceId, _sourceAssigningAuthority } }];
     enrichMemberReferences(referenceToEnrich, sourceAssigningAuthority);
     return referenceToEnrich[0].entity._uuid;
 }

@@ -7,6 +7,7 @@ jestObj.mock('../../../../operations/common/logging', () => ({
 const deepcopy = require('deepcopy');
 const { mergeMemberEntry, mergeDuplicateMembers, unchangedStoredEntries } = require('../../../../operations/common/groupMemberDedupe');
 const { logInfo } = require('../../../../operations/common/logging');
+const { ReferenceGlobalIdHandler } = require('../../../../preSaveHandlers/handlers/referenceGlobalIdHandler');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 const SAA = 'test-owner';
@@ -16,6 +17,18 @@ const PERIOD_2026 = { start: '2026-01-01' };
 
 function member(reference, extra = {}) {
     return { entity: { reference }, ...extra };
+}
+
+/** An entry as the save path stores it, with the given _uuid */
+function storedEntry(reference, uuid, owner = SAA) {
+    return { entity: { reference, _uuid: uuid, _sourceId: reference.split('|')[0], _sourceAssigningAuthority: owner } };
+}
+
+/** The entries as preSave stamps them */
+async function savedEntries(references) {
+    const group = { resourceType: 'Group', id: 'group-1', _sourceAssigningAuthority: SAA, member: references.map((reference) => member(reference)) };
+    await new ReferenceGlobalIdHandler().preSaveAsync({ resource: group });
+    return group.member;
 }
 
 function references(members) {
@@ -129,17 +142,6 @@ describe('mergeDuplicateMembers', () => {
         expect(result[0].inactive).toBe(true);
     });
 
-    test('a stored entity._uuid is not used, so entries are matched on their current reference', () => {
-        const members = [
-            { entity: { reference: 'Patient/a', _uuid: 'Patient/same-uuid' } },
-            { entity: { reference: 'Patient/b', _uuid: 'Patient/same-uuid' } }
-        ];
-
-        const result = mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
-
-        expect(result).toHaveLength(2);
-    });
-
     test('returns the same array when nothing is merged', () => {
         const members = [member('Patient/a'), member('Patient/b')];
 
@@ -153,6 +155,57 @@ describe('mergeDuplicateMembers', () => {
         mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
 
         expect(members).toEqual(membersBefore);
+    });
+});
+
+describe('mergeDuplicateMembers with entity._uuid stamped by preSave', () => {
+    const referenceForms = [
+        'Patient/a',
+        `Patient/a|${SAA}`,
+        'Patient/a|other-owner',
+        `Patient/${generateUUIDv5(`a|${SAA}`)}`,
+        `Patient/${generateUUIDv5('a|other-owner')}`,
+        'Patient/b',
+        'Practitioner/a'
+    ];
+    const savedUuidOf = async (reference) => (await savedEntries([reference]))[0].entity._uuid;
+
+    test.each(referenceForms.flatMap((first) => referenceForms.map((second) => [first, second])))(
+        '%s and %s are one member exactly when preSave gives them the same _uuid, stamped or not',
+        async (first, second) => {
+            const sameUuid = (await savedUuidOf(first)) === (await savedUuidOf(second));
+
+            const stampedResult = mergeDuplicateMembers({ members: await savedEntries([first, second]), sourceAssigningAuthority: SAA });
+            const unstampedResult = mergeDuplicateMembers({ members: [member(first), member(second)], sourceAssigningAuthority: SAA });
+
+            expect(stampedResult).toHaveLength(sameUuid ? 1 : 2);
+            expect(unstampedResult).toHaveLength(sameUuid ? 1 : 2);
+        }
+    );
+
+    test('entity._uuid is used as it is, so entries with one _uuid are one member', () => {
+        const members = [storedEntry('Patient/a', 'Patient/same'), storedEntry('Patient/b', 'Patient/same')];
+
+        const result = mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
+
+        expect(result).toHaveLength(1);
+    });
+
+    test('an entry with no entity._uuid is computed from its reference', async () => {
+        const members = [member('Patient/a'), storedEntry(`Patient/a|${SAA}`, await savedUuidOf('Patient/a'))];
+
+        const result = mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
+
+        expect(result).toHaveLength(1);
+    });
+
+    test('absolute references sharing one entity._uuid are not merged', () => {
+        const inputReferences = ['https://example.org/fhir/Patient/x', 'https://example.org/fhir/Practitioner/x'];
+        const members = inputReferences.map((reference) => storedEntry(reference, 'https:/same'));
+
+        const result = mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA });
+
+        expect(references(result)).toEqual(inputReferences);
     });
 });
 
