@@ -343,4 +343,94 @@ describe('Group keeps one member per entity.reference', () => {
         expect(storedGroup.member).toHaveLength(3);
         expect(storedGroup.meta.versionId).toBe('1');
     });
+
+    describe('with a per-member entry limit of 2', () => {
+        const LIMIT_MESSAGE = 'Group.member has 3 entries for one member, more than the 2 allowed';
+        const THREE_ENTRIES_OF_A = ['2010', '2011', '2012'].map((year) => member('Patient/a', { period: { start: `${year}-01-01` } }));
+        let savedLimit;
+
+        beforeAll(() => {
+            savedLimit = process.env.GROUP_MEMBER_MAX_ENTRIES_PER_MEMBER;
+            process.env.GROUP_MEMBER_MAX_ENTRIES_PER_MEMBER = '2';
+        });
+
+        afterAll(() => {
+            if (savedLimit === undefined) {
+                delete process.env.GROUP_MEMBER_MAX_ENTRIES_PER_MEMBER;
+            } else {
+                process.env.GROUP_MEMBER_MAX_ENTRIES_PER_MEMBER = savedLimit;
+            }
+        });
+
+        test.each([
+            [
+                'POST',
+                async () => request.post('/4_0_0/Group').send(groupBody(undefined, { member: THREE_ENTRIES_OF_A })).set(getHeaders())
+            ],
+            [
+                'PUT that creates the Group',
+                async () => request.put('/4_0_0/Group/group-limit-put').send(groupBody('group-limit-put', { member: THREE_ENTRIES_OF_A })).set(getHeaders())
+            ],
+            [
+                'PATCH adding the entries',
+                async () => {
+                    const id = await postGroup([member('Patient/b')]);
+                    const addOps = THREE_ENTRIES_OF_A.map((value) => ({ op: 'add', path: '/member/-', value }));
+                    return request.patch(`/4_0_0/Group/${id}`).send(addOps).set(getHeadersJsonPatch());
+                }
+            ]
+        ])('%s sending one member 3 times is rejected with 400', async (_label, write) => {
+            const response = await write();
+
+            expect(response.status).toBe(400);
+            expect(response.body.issue[0].code).toBe('invalid');
+            expect(response.body.issue[0].details.text).toBe(LIMIT_MESSAGE);
+        });
+
+        test('$merge sending one member 3 times reports the limit for that Group and stores nothing', async () => {
+            const response = await request.post('/4_0_0/Group/$merge').send(groupBody('group-limit-merge', { member: THREE_ENTRIES_OF_A })).set(getHeaders());
+
+            expect(response.status).toBe(200);
+            const [result] = [].concat(response.body);
+            expect(result.created).toBe(false);
+            expect(result.issue.details.text).toBe(LIMIT_MESSAGE);
+            const groupCollection = await getGroupCollection();
+            expect(await groupCollection.findOne({ id: 'group-limit-merge' })).toBeNull();
+        });
+
+        test('a member sent as often as the limit is merged', async () => {
+            const id = await postGroup(THREE_ENTRIES_OF_A.slice(0, 2));
+
+            const group = await getGroup(id);
+
+            expect(memberSummary(group.member)).toEqual([{ reference: 'Patient/a', period: { start: '2011-01-01' } }]);
+        });
+
+        const SENT_FOR_A = [member('Patient/a', { inactive: true }), member('Patient/a', { period: { end: '2013-01-01' } })];
+
+        test.each([
+            [
+                'PATCH adding the entries',
+                async (id) => request.patch(`/4_0_0/Group/${id}`).send(SENT_FOR_A.map((value) => ({ op: 'add', path: '/member/-', value }))).set(getHeadersJsonPatch())
+            ],
+            [
+                '$merge sending the entries',
+                async (id) => request.post('/4_0_0/Group/$merge').send(groupBody(id, { member: SENT_FOR_A })).set(getHeaders())
+            ]
+        ])('%s on a Group storing a member more times than the limit merges them all, since stored entries do not count', async (_label, write) => {
+            const id = await postGroup([member('Patient/a'), member('Patient/b')]);
+            await storeMembersDirectly(id, [...THREE_ENTRIES_OF_A, member('Patient/b')]);
+
+            const response = await write(id);
+
+            expect(response.status).toBe(200);
+            expect(JSON.stringify(response.body)).not.toContain('allowed');
+            const group = await getGroup(id);
+            expect(memberSummary(group.member)).toEqual([
+                { reference: 'Patient/a', period: { start: '2012-01-01', end: '2013-01-01' }, inactive: true },
+                { reference: 'Patient/b' }
+            ]);
+            expect(group.meta.versionId).toBe('2');
+        });
+    });
 });

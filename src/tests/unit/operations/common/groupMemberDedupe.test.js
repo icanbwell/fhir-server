@@ -10,6 +10,7 @@ const { logInfo } = require('../../../../operations/common/logging');
 const { ReferenceGlobalIdHandler } = require('../../../../preSaveHandlers/handlers/referenceGlobalIdHandler');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { groupMemberMergeEntriesCounter } = require('../../../../utils/metrics');
+const { BadRequestError } = require('../../../../utils/httpErrors');
 
 const mergeEntriesCounted = jestObj.spyOn(groupMemberMergeEntriesCounter, 'add');
 
@@ -251,6 +252,43 @@ describe('mergeDuplicateMembers logging and metrics', () => {
 
         expect(logInfo).not.toHaveBeenCalled();
         expect(mergeEntriesCounted).not.toHaveBeenCalled();
+    });
+});
+
+describe('mergeDuplicateMembers per-member entry limit', () => {
+    const LIMIT = 2;
+    const entriesOfA = (count) => Array.from({ length: count }, (_, i) => member('Patient/a', { period: { start: `20${10 + i}-01-01` } }));
+
+    beforeEach(() => {
+        jestObj.clearAllMocks();
+    });
+
+    test.each([
+        ['at the limit', entriesOfA(2), LIMIT],
+        ['over the limit with no limit passed', entriesOfA(3), undefined]
+    ])('merges a member sent %s', (_name, members, maxEntriesPerMember) => {
+        const result = mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA, maxEntriesPerMember });
+
+        expect(references(result)).toEqual(['Patient/a']);
+    });
+
+    test('rejects a member sent more times than the limit with a 400, and counts its entries', () => {
+        const merge = () => mergeDuplicateMembers({ members: entriesOfA(3), sourceAssigningAuthority: SAA, maxEntriesPerMember: LIMIT });
+
+        expect(merge).toThrow(BadRequestError);
+        expect(merge).toThrow('Group.member has 3 entries for one member, more than the 2 allowed');
+        expect(mergeEntriesCounted).toHaveBeenCalledWith(3, { outcome: 'rejected' });
+    });
+
+    test('does not count entries the Group already stores', () => {
+        const stored = entriesOfA(3);
+        const members = [...stored, member('Patient/a', { inactive: true })];
+
+        const result = mergeDuplicateMembers({
+            members, sourceAssigningAuthority: SAA, olderEntries: new Set(stored), maxEntriesPerMember: LIMIT
+        });
+
+        expect(result).toEqual([member('Patient/a', { period: { start: '2012-01-01' }, inactive: true })]);
     });
 });
 

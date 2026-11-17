@@ -182,8 +182,13 @@ class MergeManager {
         // Members the Group already stores more than once are merged before the sent Group is
         // merged in: a sent member matched by id is merged into the stored entry in place, so a
         // later stored entry of the same member would otherwise win over it. A merge that changes
-        // nothing else then compares equal to this Group and writes nothing.
-        currentResource = this.groupMemberMerger.mergeMembers({ resource: currentResource, requestInfo });
+        // nothing else then compares equal to this Group and writes nothing. Every entry here is
+        // stored, so none counts toward the per-member entry limit.
+        currentResource = this.groupMemberMerger.mergeMembers({
+            resource: currentResource,
+            requestInfo,
+            olderEntries: new Set(currentResource.member)
+        });
 
         // Extended Group's member[] doesn't exist on the live document -- a submitted member
         // must go through PATCH instead (design doc §5.1). Checked before any merge/persist

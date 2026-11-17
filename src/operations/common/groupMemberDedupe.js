@@ -4,6 +4,7 @@ const { enrichMemberReferences } = require('../../utils/referenceEnricher');
 const { mergeObject } = require('../../utils/mergeHelper');
 const { logInfo } = require('./logging');
 const { recordGroupMemberMergeEntries, GROUP_MEMBER_MERGE_OUTCOME } = require('../../utils/metrics');
+const { BadRequestError } = require('../../utils/httpErrors');
 
 /**
  * Combines two entries of the same Group member into one, the way $merge combines a resource:
@@ -36,15 +37,28 @@ function mergeMemberEntry(olderEntry, newerEntry) {
  * member's first entry. Entries whose entity.reference is missing or not a relative `Type/id`
  * reference (see referenceUuidOf) are kept as they are.
  *
+ * Merging a member's entries costs more per entry as the merged entry grows, so a write that
+ * sends more than maxEntriesPerMember entries for one member is rejected before they are merged.
+ * Entries in olderEntries are what the Group already stores and are not counted.
+ *
  * @param {Object} params
  * @param {Object[]} params.members - the Group's member[]; not modified
  * @param {string} params.sourceAssigningAuthority - the Group's sourceAssigningAuthority
  * @param {{has: function(Object): boolean}} [params.olderEntries] - entries the others win
  *   over, e.g. unchangedStoredEntries of the Group a write was applied to
+ * @param {number} [params.maxEntriesPerMember] - most entries a write may send for one member;
+ *   not checked when omitted
  * @param {string} [params.groupId] - for logging only
  * @returns {Object[]} members itself when no member has more than one entry, else a new array
+ * @throws {BadRequestError} when the write sends more than maxEntriesPerMember entries for a member
  */
-function mergeDuplicateMembers({ members, sourceAssigningAuthority, olderEntries = new Set(), groupId }) {
+function mergeDuplicateMembers({
+    members,
+    sourceAssigningAuthority,
+    olderEntries = new Set(),
+    maxEntriesPerMember,
+    groupId
+}) {
     if (!Array.isArray(members)) {
         return members;
     }
@@ -67,13 +81,18 @@ function mergeDuplicateMembers({ members, sourceAssigningAuthority, olderEntries
     const mergedAwayIndexes = new Set();
     for (const [firstIndex, ...laterIndexes] of entryIndexesByMemberUuid.values()) {
         const entries = [firstIndex, ...laterIndexes].map((index) => members[index]);
-        if (entries.length > MAX_ENTRIES_PER_MEMBER) {
-            throw new Error(`Group member has ${entries.length} entries, more than the ${MAX_ENTRIES_PER_MEMBER} allowed`);
+        const storedEntries = entries.filter((entry) => olderEntries.has(entry));
+        const sentEntries = entries.filter((entry) => !olderEntries.has(entry));
+        if (maxEntriesPerMember !== undefined && sentEntries.length > maxEntriesPerMember) {
+            recordGroupMemberMergeEntries(GROUP_MEMBER_MERGE_OUTCOME.REJECTED, sentEntries.length);
+            throw new BadRequestError(
+                new Error(
+                    `Group.member has ${sentEntries.length} entries for one member, more than the ` +
+                    `${maxEntriesPerMember} allowed`
+                )
+            );
         }
-        const entriesOldestFirst = [
-            ...entries.filter((entry) => olderEntries.has(entry)),
-            ...entries.filter((entry) => !olderEntries.has(entry))
-        ];
+        const entriesOldestFirst = [...storedEntries, ...sentEntries];
         mergedMembers[firstIndex] = entriesOldestFirst.reduce(
             (mergedEntry, entry) => mergeMemberEntry(mergedEntry, entry),
             undefined

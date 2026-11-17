@@ -59,6 +59,9 @@ Rules:
 - Members already stored more than once are merged by the next write to the Group.
 - An entry whose `entity.reference` is not a relative `Type/id` reference is stored as sent and not
   merged, since its uuid would not name one member.
+- A write may send at most `GROUP_MEMBER_MAX_ENTRIES_PER_MEMBER` (default 100) entries for one
+  member. Entries the Group already stores are not counted. A write over the limit fails with a 400
+  before any entry is merged; in `$merge` that Group's result carries the error.
 - A write whose members go to ClickHouse (the `useexternalstorage` header on a non-extended Group,
   with ClickHouse enabled for Group) keeps `member[]` as sent; that path diffs `member[]` itself.
 
@@ -77,8 +80,12 @@ write paths, and `resolveMemberWrite` on the extended PATCH path.
 - Bad: a write that lists a member twice succeeds with one stored entry. It is visible through the
   `Group member entries of the same member merged into one` log (Group id and counts only) and the
   `fhir_group_member_merge_entries_total` counter by `outcome` (`merged_away`, `left_as_is`,
-  `no_change`). The counter has no tenant label, because metrics are never labelled by
+  `no_change`, `rejected`). The counter has no tenant label, because metrics are never labelled by
   sourceAssigningAuthority.
+- Bad: a write that sends more than 100 entries for one member now fails. Merging a member's
+  entries costs more per entry as the merged entry grows (about 13 s for 4,000 entries with
+  distinct extensions), so the limit keeps one write from holding a request thread. Rejections are
+  counted with `outcome` `rejected`.
 - Cost: a write that creates a Group hashes each member reference once (about 120 ms for 50,000
   members). A write over a stored Group reuses the `entity._uuid` preSave sets (about 10 ms for
   50,000 members).

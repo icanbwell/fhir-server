@@ -1483,6 +1483,17 @@ class ConfigManager {
     }
 
     /**
+     * Maximum number of entries a write may send for one Group member. Merging a member's entries
+     * costs more per entry as the merged entry grows, so a write that sends more is rejected with
+     * 400 before its entries are merged. Entries the Group already stores are not counted.
+     * Default: 100.
+     * @returns {number}
+     */
+    get groupMemberMaxEntriesPerMember() {
+        return parseInt(env.GROUP_MEMBER_MAX_ENTRIES_PER_MEMBER || '100', 10);
+    }
+
+    /**
      * Maximum number of JSON Patch operations allowed per PATCH request for Group.member
      * Default: 10000 (empirically determined based on performance testing)
      * Can be overridden via GROUP_PATCH_OPERATIONS_LIMIT environment variable

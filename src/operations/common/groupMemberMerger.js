@@ -35,6 +35,8 @@ class GroupMemberMerger {
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} [params.requestInfo]
      * @param {{has: function(Object): boolean}} [params.olderEntries] - see mergeDuplicateMembers
      * @returns {Object} resource
+     * @throws {import('../../utils/httpErrors').BadRequestError} when the write sends more than
+     *   configManager.groupMemberMaxEntriesPerMember entries for one member
      */
     mergeMembers({ resource, requestInfo, olderEntries }) {
         if (
@@ -48,6 +50,7 @@ class GroupMemberMerger {
             members: resource.member,
             sourceAssigningAuthority: resource._sourceAssigningAuthority,
             olderEntries,
+            maxEntriesPerMember: this.configManager.groupMemberMaxEntriesPerMember,
             groupId: resource.id
         });
         return resource;

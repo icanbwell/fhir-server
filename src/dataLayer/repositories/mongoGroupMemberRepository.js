@@ -9,6 +9,8 @@ const { GROUP_MEMBER_RESOURCE_TYPE, GROUP_MEMBER_COLLECTION_NAME } = require('..
 const { resolveMemberWrite } = require('../../operations/common/resolveMemberWrite');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { logError, logInfo } = require('../../operations/common/logging');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { recordGroupMemberMergeEntries, GROUP_MEMBER_MERGE_OUTCOME } = require('../../utils/metrics');
 const { QueryItem } = require('../../operations/graph/queryItem');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { ConfigManager } = require('../../utils/configManager');
@@ -204,6 +206,8 @@ class MongoGroupMemberRepository {
      * @param {Array<Object>} params.writeRequests
      * @returns {Promise<Map<string, {writeRequest: Object, writeType: 'create'|'update'|'delete'|'none', member: Object|undefined}>>}
      *   keyed by member uuid; writeRequest is that member's last request
+     * @throws {BadRequestError} when more than configManager.groupMemberMaxEntriesPerMember
+     *   requests name one member, checked before anything is read or folded
      */
     async resolveMemberWritesAsync({ base_version, groupUuid, writeRequests }) {
         if (!writeRequests || writeRequests.length === 0) {
@@ -216,6 +220,20 @@ class MongoGroupMemberRepository {
         const writeRequestsByMemberUuid = Map.groupBy(writeRequests, (writeRequest) =>
             MongoGroupMemberRepository.deriveMemberUuid(groupUuid, writeRequest.entity._uuid)
         );
+        const maxEntriesPerMember = this.configManager.groupMemberMaxEntriesPerMember;
+        let mostRequestsForOneMember = 0;
+        for (const memberWriteRequests of writeRequestsByMemberUuid.values()) {
+            mostRequestsForOneMember = Math.max(mostRequestsForOneMember, memberWriteRequests.length);
+        }
+        if (mostRequestsForOneMember > maxEntriesPerMember) {
+            recordGroupMemberMergeEntries(GROUP_MEMBER_MERGE_OUTCOME.REJECTED, mostRequestsForOneMember);
+            throw new BadRequestError(
+                new Error(
+                    `Group.member has ${mostRequestsForOneMember} entries for one member, more than the ` +
+                    `${maxEntriesPerMember} allowed`
+                )
+            );
+        }
 
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: GROUP_MEMBER_RESOURCE_TYPE,

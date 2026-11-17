@@ -146,7 +146,9 @@ const GROUP_MEMBER_MERGE_OUTCOME = Object.freeze({
     // not merged because its entity.reference is not a relative Type/id reference
     LEFT_AS_IS: 'left_as_is',
     // an add equal to the stored member, so nothing was written (extended Group)
-    NO_CHANGE: 'no_change'
+    NO_CHANGE: 'no_change',
+    // sent for a member over the per-member entry limit, so the write was rejected
+    REJECTED: 'rejected'
 });
 
 const UNKNOWN = 'unknown';
@@ -345,7 +347,7 @@ const kafkaConsumerGroupJoinsCounter = meter.createCounter('fhir_kafka_consumer_
 });
 
 const groupMemberMergeEntriesCounter = meter.createCounter('fhir_group_member_merge_entries_total', {
-    description: 'Group member entries a write did not store as sent, by outcome: merged_away (merged into the first entry of the same member), left_as_is (not merged, entity.reference is not a relative Type/id reference; counted only when the same write merged other entries) and no_change (an extended Group add equal to the stored member, so nothing was written).'
+    description: 'Group member entries a write did not store as sent, by outcome: merged_away (merged into the first entry of the same member), left_as_is (not merged, entity.reference is not a relative Type/id reference; counted only when the same write merged other entries), no_change (an extended Group add equal to the stored member, so nothing was written) and rejected (sent for a member over the per-member entry limit, so the write was rejected).'
 });
 
 const mongoPoolCheckoutDurationHistogram = meter.createHistogram('fhir_mongo_pool_checkout_duration_seconds', {

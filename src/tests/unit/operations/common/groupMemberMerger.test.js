@@ -67,4 +67,12 @@ describe('GroupMemberMerger', () => {
 
         expect(result.member).toEqual([{ entity: { reference: 'Patient/a' }, period: { start: '2026-01-01' } }]);
     });
+
+    test('rejects a member sent more times than groupMemberMaxEntriesPerMember', () => {
+        const merger = new GroupMemberMerger({ configManager: { ...CLICKHOUSE_DISABLED, groupMemberMaxEntriesPerMember: 1 } });
+
+        expect(() => merger.mergeMembers({ resource: group(), requestInfo: NO_HEADER })).toThrow(
+            'Group.member has 2 entries for one member, more than the 1 allowed'
+        );
+    });
 });
