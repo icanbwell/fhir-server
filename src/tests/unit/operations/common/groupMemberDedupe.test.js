@@ -10,7 +10,6 @@ const { logInfo } = require('../../../../operations/common/logging');
 const { ReferenceGlobalIdHandler } = require('../../../../preSaveHandlers/handlers/referenceGlobalIdHandler');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { groupMemberMergeEntriesCounter } = require('../../../../utils/metrics');
-const { BadRequestError } = require('../../../../utils/httpErrors');
 
 const mergeEntriesCounted = jestObj.spyOn(groupMemberMergeEntriesCounter, 'add');
 
@@ -273,10 +272,20 @@ describe('mergeDuplicateMembers per-member entry limit', () => {
     });
 
     test('rejects a member sent more times than the limit with a 400, and counts its entries', () => {
-        const merge = () => mergeDuplicateMembers({ members: entriesOfA(3), sourceAssigningAuthority: SAA, maxEntriesPerMember: LIMIT });
+        let thrown;
+        try {
+            mergeDuplicateMembers({ members: entriesOfA(3), sourceAssigningAuthority: SAA, maxEntriesPerMember: LIMIT });
+        } catch (e) {
+            thrown = e;
+        }
 
-        expect(merge).toThrow(BadRequestError);
-        expect(merge).toThrow('Group.member has 3 entries for one member, more than the 2 allowed');
+        // ServerError resets the prototype of its subclasses, so a BadRequestError is not an
+        // instanceof BadRequestError; its 400 is the statusCode it carries
+        expect(thrown).toMatchObject({
+            statusCode: 400,
+            message: 'Group.member has 3 entries for one member, more than the 2 allowed'
+        });
+        expect(mergeEntriesCounted).toHaveBeenCalledTimes(1);
         expect(mergeEntriesCounted).toHaveBeenCalledWith(3, { outcome: 'rejected' });
     });
 
