@@ -384,13 +384,12 @@ class FhirDataSource {
      * 'Binary/<id>').
      *
      * Binary is patient-filtered, which would hide a CodeSystem-owned Binary (it belongs to no
-     * patient) from every patient-scoped caller. So the
-     * lookup is evaluated for this one read as if the token carried no patient/ scopes: the
-     * caller's user/ scopes gate the read and its access/ codes give the tenant filter. A token
-     * with no user/ or access/ scopes is therefore refused rather than widened. The opt-out is
-     * built here from the request itself, never from a query argument, and the result is still
-     * returned only if the Binary's securityContext is absent or exactly the parent CodeSystem
-     * (isBinaryReadableViaCodeSystem).
+     * patient) from every patient-scoped caller. So the lookup is evaluated for this one read as
+     * if the token carried no patient/ scopes: the caller's user/ scopes gate the read and its
+     * access/ codes give the tenant filter. A token with no user/ or access/ scopes is therefore
+     * refused rather than widened. The opt-out is built here from the request itself, never from
+     * a query argument, and the result is still returned only if the Binary's securityContext is
+     * absent or exactly the parent CodeSystem (isBinaryReadableViaCodeSystem).
      * @param {Resource} codeSystemProperty the CodeSystem property holding the Binary reference
      * @param {{id?: string, _uuid?: string, _sourceId?: string}|undefined} codeSystem parent CodeSystem
      * @param {string} binaryReference 'Binary/<id>'
