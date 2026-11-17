@@ -121,6 +121,7 @@ describe('PatchOperation', () => {
         mocks.databaseAttachmentManager.transformAttachments = jest.fn((doc) => Promise.resolve(doc));
         mocks.base64DataManager.transformAsync = jest.fn((doc) => Promise.resolve(doc));
         mocks.preSaveManager.preSaveAsync = jest.fn(({ resource }) => Promise.resolve(resource));
+        mocks.groupMemberMerger.mergeMembers = jest.fn(({ resource }) => resource);
         mocks.resourceMerger.fastApplyPatch = jest.fn(({ currentResource }) => ({
             ...currentResource,
             status: 'amended'

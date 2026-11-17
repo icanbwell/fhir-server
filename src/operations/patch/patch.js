@@ -374,9 +374,8 @@ class PatchOperation {
             // Now that we've validated the resource exists and user has access, determine which
             // group member type (if any) should handle the member ops. A plain embedded Group
             // determines to 'embedded' and falls through to the standard patch flow below, which
-            // applies its ops as ordinary JSON Patch and then keeps one entry per member, so an add
-            // of a member already in member[] is merged into that member instead of duplicating it
-            // (see groupMemberMerger below). 'extended' and 'externalStorage' are two entirely
+            // applies its ops as ordinary JSON Patch and then keeps one entry per member (see
+            // groupMemberMerger below). 'extended' and 'externalStorage' are two entirely
             // separate branches below, each calling its own dedicated strategy
             // method -- they don't share a commit path, so a change to one type's write
             // semantics can't silently affect the other.
@@ -473,13 +472,11 @@ class PatchOperation {
 
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             resource = await this.preSaveManager.preSaveAsync({ resource, options: preSaveOptions });
-            // A member of an embedded Group appears once, on every PATCH of the Group, so members
-            // stored more than once are merged too. Entries the PATCH created or changed are merged
-            // after the member's entries it left as stored, so the values a PATCH sends win, even
-            // when an indexed add puts the new entry first or an op edits one of two stored entries.
-            // Run after preSave, which recomputes each entity._uuid from the patched reference, since the
-            // member merge uses entity._uuid as it is.
-            this.groupMemberMerger.mergeMembers({
+            // Every PATCH of an embedded Group merges its repeated members, stored ones included. The
+            // entries the PATCH left as stored are the olderEntries, so an entry it added or edited
+            // wins wherever it sits in member[]. Runs after preSave, which recomputes each
+            // entity._uuid from the patched reference, since the member merge uses entity._uuid as is.
+            resource = this.groupMemberMerger.mergeMembers({
                 resource,
                 requestInfo,
                 olderEntries: unchangedStoredEntries(foundResource.member)

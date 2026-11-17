@@ -1,5 +1,6 @@
 const { mergeDuplicateMembers } = require('./groupMemberDedupe');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
+const { COLLECTION } = require('../../constants');
 
 /**
  * Keeps one entry per member in an embedded Group's member[], on every write that stores one:
@@ -37,7 +38,7 @@ class GroupMemberMerger {
      */
     mergeMembers({ resource, requestInfo, olderEntries }) {
         if (
-            resource?.resourceType !== 'Group' ||
+            resource?.resourceType !== COLLECTION.GROUP ||
             !Array.isArray(resource.member) ||
             this.sendsMembersToClickHouse({ resource, requestInfo })
         ) {

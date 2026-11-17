@@ -1,5 +1,6 @@
 const deepEqual = require('fast-deep-equal');
 const { mergeMemberEntry } = require('./groupMemberDedupe');
+const { recordGroupMemberMergeEntries, GROUP_MEMBER_MERGE_OUTCOME } = require('../../utils/metrics');
 
 /**
  * Resolves the requested writes (add/remove) for one member, in request order, against its
@@ -9,11 +10,9 @@ const { mergeMemberEntry } = require('./groupMemberDedupe');
  * Used by the Mongo-native (extended) regime, via MongoGroupMemberRepository. An embedded Group
  * merges a member's entries the same way in mergeDuplicateMembers (groupMemberDedupe.js).
  *
- * An add merges onto the member as it stands (see mergeMemberEntry): the add's values win and
- * fields it does not send are kept, so `inactive` changes only when the add sends it. A remove
- * clears the member, so an add after it starts from nothing. The result compares the final
- * member with the stored row: an add equal to the stored member resolves to 'none', so a retried
- * add writes nothing.
+ * An add merges onto the member as it stands with mergeMemberEntry. A remove clears the member,
+ * so an add after it starts from nothing. The result compares the final member with the stored
+ * row: an add equal to the stored member resolves to 'none', so a retried add writes nothing.
  *
  * The caller builds each write request by spreading the client's op.value (plus `op`) after
  * enrichMemberReferences has set entity._uuid/_sourceId/_sourceAssigningAuthority, so the request
@@ -47,6 +46,7 @@ function resolveMemberWrite(existingMember, writeRequests) {
         return { writeType: 'create', member };
     }
     if (deepEqual(existingMember, member)) {
+        recordGroupMemberMergeEntries(GROUP_MEMBER_MERGE_OUTCOME.NO_CHANGE);
         return { writeType: 'none' };
     }
     return { writeType: 'update', member };

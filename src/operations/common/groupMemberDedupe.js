@@ -3,6 +3,7 @@ const deepEqual = require('fast-deep-equal');
 const { enrichMemberReferences } = require('../../utils/referenceEnricher');
 const { mergeObject } = require('../../utils/mergeHelper');
 const { logInfo } = require('./logging');
+const { recordGroupMemberMergeEntries, GROUP_MEMBER_MERGE_OUTCOME } = require('../../utils/metrics');
 
 /**
  * Combines two entries of the same Group member into one, the way $merge combines a resource:
@@ -59,6 +60,7 @@ function mergeDuplicateMembers({ members, sourceAssigningAuthority, olderEntries
             groupId,
             entriesWithoutReferenceCount
         });
+        recordGroupMemberMergeEntries(GROUP_MEMBER_MERGE_OUTCOME.LEFT_AS_IS, entriesWithoutReferenceCount);
     }
 
     const mergedMembers = [...members];
@@ -80,14 +82,14 @@ function mergeDuplicateMembers({ members, sourceAssigningAuthority, olderEntries
         membersWithRepeatedEntriesCount: entryIndexesByMemberUuid.size,
         mergedAwayEntriesCount: mergedAwayIndexes.size
     });
+    recordGroupMemberMergeEntries(GROUP_MEMBER_MERGE_OUTCOME.MERGED_AWAY, mergedAwayIndexes.size);
     return mergedMembers.filter((_entry, index) => !mergedAwayIndexes.has(index));
 }
 
 /**
  * The entries of a written Group's member[] that are still as stored, for mergeDuplicateMembers'
  * olderEntries: an entry counts when it equals an entry of storedMembers. A stored entry the write
- * changed and a new entry do not count, so they merge after the member's stored entries and the
- * values the write sent win.
+ * changed and a new entry do not count.
  *
  * Only asked about entries of members with more than one entry, so the stored entries are grouped
  * by entity.reference on first use, and an entry is compared only with those of its reference.

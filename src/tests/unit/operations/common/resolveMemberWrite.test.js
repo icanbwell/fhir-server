@@ -1,6 +1,9 @@
-const { describe, test, expect } = require('@jest/globals');
+const { describe, test, expect, beforeEach, jest: jestObj } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 const { resolveMemberWrite } = require('../../../../operations/common/resolveMemberWrite');
+const { groupMemberMergeEntriesCounter } = require('../../../../utils/metrics');
+
+const mergeEntriesCounted = jestObj.spyOn(groupMemberMergeEntriesCounter, 'add');
 
 describe('resolveMemberWrite', () => {
     test('add with no existing member classifies as create, leaving inactive unset (FHIR 0..1: missing means active)', () => {
@@ -422,5 +425,31 @@ describe('resolveMemberWrite', () => {
         ]
     ])('several requests for one member: %s', (_label, existing, writeRequests, expected) => {
         expect(resolveMemberWrite(existing, writeRequests)).toEqual(expected);
+    });
+});
+
+describe('resolveMemberWrite metrics', () => {
+    const STORED = { entity: { reference: 'Patient/1' }, period: { start: '2024-01-01' } };
+
+    beforeEach(() => {
+        jestObj.clearAllMocks();
+    });
+
+    test('an add equal to the stored member counts one no_change', () => {
+        resolveMemberWrite(STORED, [{ ...deepcopy(STORED), op: 'add' }]);
+
+        expect(mergeEntriesCounted).toHaveBeenCalledTimes(1);
+        expect(mergeEntriesCounted).toHaveBeenCalledWith(1, { outcome: 'no_change' });
+    });
+
+    test.each([
+        ['an add that changes the stored member', STORED, [{ entity: { reference: 'Patient/1' }, inactive: true, op: 'add' }]],
+        ['an add of a new member', undefined, [{ entity: { reference: 'Patient/1' }, op: 'add' }]],
+        ['a remove of a stored member', STORED, [{ entity: { reference: 'Patient/1' }, op: 'remove' }]],
+        ['a remove of a member that is not stored', undefined, [{ entity: { reference: 'Patient/1' }, op: 'remove' }]]
+    ])('%s counts nothing', (_name, existing, writeRequests) => {
+        resolveMemberWrite(existing, writeRequests);
+
+        expect(mergeEntriesCounted).not.toHaveBeenCalled();
     });
 });

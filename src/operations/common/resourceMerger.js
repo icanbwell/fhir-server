@@ -435,8 +435,8 @@ class ResourceMerger {
         // appends a member that differs from every stored entry, and two $merge entries for one
         // Group are combined the same way. Merge such entries before the diff, so a merge that
         // ends up equal to the stored Group is still no change. With smartMerge the stored entries
-        // are kept, and one the sent Group did not change may come after the entry it changed, so
-        // the entries still as stored merge first and the sent values win.
+        // are kept, so the ones still as stored are the olderEntries and the entries the sent
+        // Group changed win wherever they sit in member[].
         mergedObject = this.groupMemberMerger.mergeMembers({
             resource: mergedObject,
             requestInfo,

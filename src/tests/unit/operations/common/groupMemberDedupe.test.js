@@ -9,6 +9,9 @@ const { mergeMemberEntry, mergeDuplicateMembers, unchangedStoredEntries } = requ
 const { logInfo } = require('../../../../operations/common/logging');
 const { ReferenceGlobalIdHandler } = require('../../../../preSaveHandlers/handlers/referenceGlobalIdHandler');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
+const { groupMemberMergeEntriesCounter } = require('../../../../utils/metrics');
+
+const mergeEntriesCounted = jestObj.spyOn(groupMemberMergeEntriesCounter, 'add');
 
 const SAA = 'test-owner';
 const PERIOD_2024 = { start: '2024-01-01' };
@@ -209,12 +212,12 @@ describe('mergeDuplicateMembers with entity._uuid stamped by preSave', () => {
     });
 });
 
-describe('mergeDuplicateMembers logging', () => {
+describe('mergeDuplicateMembers logging and metrics', () => {
     beforeEach(() => {
         jestObj.clearAllMocks();
     });
 
-    test('logs the Group id and how many entries were merged away', () => {
+    test('logs the Group id and how many entries were merged away, and counts them', () => {
         const members = [member('Patient/a'), member('Patient/b'), member('Patient/a'), member('Patient/a'), member('Patient/b')];
 
         mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA, groupId: 'group-1' });
@@ -224,12 +227,30 @@ describe('mergeDuplicateMembers logging', () => {
             membersWithRepeatedEntriesCount: 2,
             mergedAwayEntriesCount: 3
         });
+        expect(mergeEntriesCounted).toHaveBeenCalledTimes(1);
+        expect(mergeEntriesCounted).toHaveBeenCalledWith(3, { outcome: 'merged_away' });
     });
 
-    test('logs nothing when no member is listed twice', () => {
-        mergeDuplicateMembers({ members: [member('Patient/a'), member('Patient/b')], sourceAssigningAuthority: SAA, groupId: 'group-1' });
+    test('logs and counts the entries left as is when other entries are merged', () => {
+        const members = [member('Patient/a'), member('https://example.org/fhir/Patient/x'), member('Patient/a'), member(undefined)];
+
+        mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA, groupId: 'group-1' });
+
+        expect(logInfo).toHaveBeenCalledWith(
+            'Group members with no resolvable entity.reference left as is when merging duplicates',
+            { groupId: 'group-1', entriesWithoutReferenceCount: 2 }
+        );
+        expect(mergeEntriesCounted).toHaveBeenCalledWith(2, { outcome: 'left_as_is' });
+        expect(mergeEntriesCounted).toHaveBeenCalledWith(1, { outcome: 'merged_away' });
+    });
+
+    test('logs and counts nothing when no member is listed twice', () => {
+        const members = [member('Patient/a'), member('Patient/b'), member('https://example.org/fhir/Patient/a')];
+
+        mergeDuplicateMembers({ members, sourceAssigningAuthority: SAA, groupId: 'group-1' });
 
         expect(logInfo).not.toHaveBeenCalled();
+        expect(mergeEntriesCounted).not.toHaveBeenCalled();
     });
 });
 
