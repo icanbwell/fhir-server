@@ -383,8 +383,8 @@ class FhirDataSource {
      * Reads the Binary a CodeSystem property points at (CodeSystem.concept.property.valueString =
      * 'Binary/<id>').
      *
-     * Binary is patient-filtered, which would hide a
-     * CodeSystem-owned Binary (it belongs to no patient) from every patient-scoped caller. So the
+     * Binary is patient-filtered, which would hide a CodeSystem-owned Binary (it belongs to no
+     * patient) from every patient-scoped caller. So the
      * lookup is evaluated for this one read as if the token carried no patient/ scopes: the
      * caller's user/ scopes gate the read and its access/ codes give the tenant filter. A token
      * with no user/ or access/ scopes is therefore refused rather than widened. The opt-out is
