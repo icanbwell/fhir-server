@@ -23,9 +23,9 @@ machinery then applies unchanged: no bespoke person tag, no unowned/owned read s
 
 - **Write parity with Task.** A patient-scoped token may create, update, patch and delete a Binary
   whose `securityContext` is one of its reachable patients (no create-only guard).
-- **One default-off flag**, `ENABLE_PATIENT_SCOPED_BINARY`, gates the whole behavior (the mapping is
-  active only when on). It is enabled only after the `securityContext` backfill is done, then
-  removed.
+- **Rollout flag (since removed).** `ENABLE_PATIENT_SCOPED_BINARY` gated the behavior until the
+  `securityContext` backfill was done and the flag was on in every environment. The mapping is now
+  unconditional.
 - **Tenant tags on patient-scoped create match Task as-is** (no extra `meta.security` validation).
 - **`securityContext` format.** The caller supplies either a Patient reachable through the identity
   graph, or its own client person id from the access token (proxy patient
@@ -35,9 +35,9 @@ machinery then applies unchanged: no bespoke person tag, no unowned/owned read s
 ## Behavior
 
 ### Reads
-With the flag on, patient-scoped reads of Binary use the ordinary `getQueryWithPatientFilter`
+Patient-scoped reads of Binary use the ordinary `getQueryWithPatientFilter`
 (`securityContext._uuid` / `_sourceId`). A Binary without a `securityContext` is hidden from
-patient-scoped tokens. Flag off equals `main`. This includes the DocumentReference -> Binary hop in
+patient-scoped tokens. This includes the DocumentReference -> Binary hop in
 `$everything` and GraphQL.
 
 ### Writes
@@ -84,6 +84,5 @@ read under the caller's authorization.
 
 ## Rollout
 
-Backfill complete -> enable `ENABLE_PATIENT_SCOPED_BINARY` in dev/staging -> prod -> remove the flag.
-Until the backfill has run, existing Binary without `securityContext` would be invisible to
-patient-scoped tokens, so the flag stays off.
+Done: backfill complete -> flag enabled in dev/staging/sandbox/prod -> flag removed. Binary without
+`securityContext` is invisible to patient-scoped tokens.
