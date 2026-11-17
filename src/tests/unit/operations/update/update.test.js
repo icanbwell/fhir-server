@@ -48,6 +48,7 @@ const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
@@ -79,7 +80,8 @@ describe('UpdateOperation', () => {
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
-            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider)
+            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
+            groupMemberMerger: createMockInstance(GroupMemberMerger)
         };
 
         // Setup mocks
@@ -112,6 +114,7 @@ describe('UpdateOperation', () => {
         mocks.postSaveHandlerFactory.getHandlers = jest.fn().mockReturnValue([]);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jest.fn();
         mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jest.fn(({ resources }) => Promise.resolve(resources));
+        mocks.groupMemberMerger.mergeMembers = jest.fn(({ resource }) => resource);
 
         Object.defineProperty(mocks.configManager, 'useAccessIndex', { get: () => false });
         Object.defineProperty(mocks.configManager, 'preSaveCodingIdUpdateResources', { get: () => [] });

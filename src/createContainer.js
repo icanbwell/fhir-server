@@ -853,7 +853,8 @@ const createContainer = function () {
                 fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                identifierEnrichmentProvider: c.identifierEnrichmentProvider
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+                groupMemberMerger: c.groupMemberMerger
             }
         )
     );
@@ -875,7 +876,8 @@ const createContainer = function () {
                 uuidColumnHandler: c.uuidColumnHandler,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-                groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
+                groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
+                groupMemberMerger: c.groupMemberMerger
             }
         )
     );

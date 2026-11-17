@@ -23,6 +23,7 @@ const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSer
 const deepcopy = require('deepcopy');
 const { validateResource } = require('../../utils/validator.util');
 const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
+const { GroupMemberMerger } = require('../common/groupMemberMerger');
 
 class CreateOperation {
     /**
@@ -36,6 +37,7 @@ class CreateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {GroupMemberMerger} groupMemberMerger
      */
     constructor (
         {
@@ -47,7 +49,8 @@ class CreateOperation {
             fastDatabaseBulkInserter,
             databaseAttachmentManager,
             base64DataManager,
-            identifierEnrichmentProvider
+            identifierEnrichmentProvider,
+            groupMemberMerger
         }
     ) {
         /**
@@ -100,6 +103,12 @@ class CreateOperation {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * @type {GroupMemberMerger}
+         */
+        this.groupMemberMerger = groupMemberMerger;
+        assertTypeEquals(groupMemberMerger, GroupMemberMerger);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -248,6 +257,8 @@ class CreateOperation {
              */
             let doc = resource;
             Object.assign(doc, { id: resource_incoming.id });
+            // A Group that lists a member more than once is stored with one entry for it
+            doc = this.groupMemberMerger.mergeMembers({ resource: doc, requestInfo });
 
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
