@@ -70,10 +70,11 @@ read under the caller's authorization.
 
 ## Known risks (from reading the code; each needs a test to confirm)
 
-- **Update checks run on the stored resource only.** For an existing resource, PUT (`update.js`),
-  PATCH (`patch.js`) and `$merge` (`writeAllowedByScopesValidator.js`) authorize against the stored
-  document, then re-check only access-tag changes on the result. A member could re-point their own
-  Binary's `securityContext` at another patient. `Task.for` has the same gap today.
+- **Re-pointing `securityContext` on update is rejected.** For a patient-scoped caller, PUT, PATCH
+  and `$merge` compare the incoming patient reference with the stored one
+  (`resourceValidator.js`, "did not match with patient reference") and answer 400 when it differs, so
+  a member cannot move their Binary to another patient. `patientReferenceReassignment.test.js` covers
+  this for Binary and Observation.
 - **Bytes can be wiped by the owner.** `$merge?smartMerge=false` without `data` deletes the bytes and
   the S3 object; with write parity a member can do this to their own Binary. PUT writes a new S3
   object each time (`alwaysCreateNew`; the previous one is retained per ).
