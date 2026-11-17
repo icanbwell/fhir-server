@@ -74,10 +74,10 @@ read under the caller's authorization.
   and `$merge` compare the incoming patient reference with the stored one
   (`resourceValidator.js`, "did not match with patient reference") and answer 400 when it differs, so
   a member cannot move their Binary to another patient. `patientReferenceReassignment.test.js` covers
-  this for Binary and Observation.
+  this for Binary, Observation and Task (`Task.for`).
 - **Bytes can be wiped by the owner.** `$merge?smartMerge=false` without `data` deletes the bytes and
   the S3 object; with write parity a member can do this to their own Binary. PUT writes a new S3
-  object each time (`alwaysCreateNew`; the previous one is retained per ).
+  object each time (`alwaysCreateNew`; the previous one is retained).
 - **`securityContext._uuid` must be populated.** `getValueOfPropertyFromResource` reads it, so preSave
   must set it for both `Patient/<uuid>` and the proxy `Patient/person.<id>` (non-uuid, matched in the
   non-uuid branch).
