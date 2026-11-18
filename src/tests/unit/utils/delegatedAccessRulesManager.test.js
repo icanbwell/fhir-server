@@ -49,6 +49,7 @@ const buildValidConsent = () => ({
     }],
     patient: {
         reference: `Patient/person.${GRANTOR_PERSON_UUID}`,
+        _uuid: `Patient/person.${GRANTOR_PERSON_UUID}`,
         _sourceId: `Patient/person.${GRANTOR_PERSON_UUID}`
     },
     provision: {
@@ -1009,8 +1010,11 @@ describe('DelegatedAccessRulesManager', () => {
                 false
             ],
             [
-                'a person proxy patient by _sourceId',
-                { _sourceId: `Patient/person.${GRANTOR_PERSON_UUID}` },
+                'a person proxy patient as the server stores it',
+                {
+                    _uuid: `Patient/person.${GRANTOR_PERSON_UUID}`,
+                    _sourceId: `Patient/person.${GRANTOR_PERSON_UUID}`
+                },
                 `Patient/person.${GRANTOR_PERSON_UUID}`,
                 true
             ],
