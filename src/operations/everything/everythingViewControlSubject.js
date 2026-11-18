@@ -70,4 +70,4 @@ function getEverythingViewControlSubject({ parsedArgs, requestInfo, isPersonEver
     return ViewControlSubject.fromUrlPerson({ personId: personIds[0] });
 }
 
-module.exports = { getEverythingViewControlSubject, parseApplyDataViewControl, APPLY_DATA_VIEW_CONTROL_PARAM };
+module.exports = { getEverythingViewControlSubject, parseApplyDataViewControl };

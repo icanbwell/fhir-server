@@ -1101,15 +1101,15 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             expect(hasBlocked(resp)).toBe(false);
         });
 
-        // decision made while building this: the opt-in is only defined for Person $everything, so
-        // asking for it elsewhere is an error rather than silently returning unfiltered data
+        // the opt-in is only defined for Person $everything, so asking for it elsewhere is an error
+        // rather than silently returning unfiltered data
         test('the opt-in on Patient $everything is a 400', async () => {
             const resp = await request.get(`/4_0_0/Patient/patient1/$everything?${OPT_IN}`).set(getHeaders());
             expect(resp.status).toBe(400);
         });
 
-        // decision made while building this: user tokens are always filtered, so the opt-in
-        // changes nothing for them (and its single-Person rule doesn't apply)
+        // user tokens are always filtered, so the opt-in changes nothing for them (and its
+        // single-Person rule doesn't apply)
         test('a user token is filtered with or without the opt-in', async () => {
             const resp = await personEverything(OPT_IN, userHeaders());
             expect(resp.status).toBe(200);
