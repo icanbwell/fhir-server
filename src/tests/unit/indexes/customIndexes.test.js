@@ -28,6 +28,16 @@ describe('customIndexes', () => {
         expect(Array.isArray(customIndexes['*'])).toBe(true);
     });
 
+    test.each([['securityContext._uuid'], ['securityContext._sourceId']])(
+        'Binary_4_0_0 has an index led by %s for patient-scoped reads',
+        field => {
+            const { customIndexes } = loadCustomIndexes();
+            const index = customIndexes.Binary_4_0_0.find(idx => Object.keys(idx.keys)[0] === field);
+            expect(index).toBeDefined();
+            expect(index.keys._uuid).toBe(1);
+        }
+    );
+
     test('wildcard indexes include meta.source index', () => {
         const { customIndexes } = loadCustomIndexes();
         const metaSourceIndex = customIndexes['*'].find(

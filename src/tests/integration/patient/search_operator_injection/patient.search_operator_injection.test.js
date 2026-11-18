@@ -147,7 +147,7 @@ describe('Search operator injection', () => {
             expect(response).toHaveMongoQuery(deepcopy(expectedSortFallback));
         });
 
-        test('_sort=$$$ (malformed value) is dropped instead of crashing or rejecting the request (SEC-1580 SAE-4)', async () => {
+        test('_sort=$$$ (malformed value) is dropped instead of crashing or rejecting the request', async () => {
             const request = await createTestRequest();
 
             const resp = await request

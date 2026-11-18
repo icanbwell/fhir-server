@@ -27,6 +27,7 @@ const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscoreFields');
 const { rejectMemberOnExtendedGroupWrite } = require('../../utils/mongoGroupExtendedTag');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
+const { GroupMemberMerger } = require('../common/groupMemberMerger');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const deepcopy = require('deepcopy');
 const { validateResource } = require('../../utils/validator.util');
@@ -60,6 +61,7 @@ class UpdateOperation {
      * @param {WritePipelineSwitch} writePipelineSwitch
      * @param {WritePipeline} writePipeline
      * @param {UpdateResponder} updateResponder
+     * @param {GroupMemberMerger} groupMemberMerger
      */
     constructor (
         {
@@ -80,7 +82,8 @@ class UpdateOperation {
             groupExtendedTagEnrichmentProvider,
             writePipelineSwitch,
             writePipeline,
-            updateResponder
+            updateResponder,
+            groupMemberMerger
         }
     ) {
         /**
@@ -185,6 +188,12 @@ class UpdateOperation {
          */
         this.updateResponder = updateResponder;
         assertTypeEquals(updateResponder, UpdateResponder);
+
+        /**
+         * @type {GroupMemberMerger}
+         */
+        this.groupMemberMerger = groupMemberMerger;
+        assertTypeEquals(groupMemberMerger, GroupMemberMerger);
     }
 
     /**
@@ -456,7 +465,7 @@ class UpdateOperation {
                     // Check resource-specific mongo-with-clickhouse dual-write storage
                     // Currently only Group.member uses dual-write (MongoDB + ClickHouse)
                     if (hasMemberField) {
-                        doc = resource_incoming;
+                        doc = this.groupMemberMerger.mergeMembers({ resource: resource_incoming, requestInfo });
                     }
                     // Future: Add other mongo-with-clickhouse dual-write resources here
                 }
@@ -477,7 +486,7 @@ class UpdateOperation {
                 doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo, { alwaysCreateNew: true });
 
                 if (data && data.meta) {
-                    // SEC-1580 F2: the pre-merge check above ran against foundResource as stored, so the
+                    // the pre-merge check above ran against foundResource as stored, so the
                     // access tags the merge (smartMerge: false, so a full replace) took from the incoming
                     // body still need to be validated before the merged doc is persisted
                     this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
@@ -503,11 +512,14 @@ class UpdateOperation {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                         resource: doc, requestInfo, base_version, accessRequested: 'u'
                     });
-                    // SEC-1580 F3: this is a create-via-PUT, so the "old" access tag set is empty and
+                    // this is a create-via-PUT, so the "old" access tag set is empty and
                     // every access tag on doc counts as an addition the caller must be authorized for
                     this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
                         requestInfo, currentResource: null, updatedResource: doc, accessRequested: 'u'
                     });
+                    // A Group that lists a member more than once is stored with one entry for it; a
+                    // PUT over a stored Group is merged in ResourceMerger.fastMergeResourceAsync
+                    doc = this.groupMemberMerger.mergeMembers({ resource: doc, requestInfo });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 

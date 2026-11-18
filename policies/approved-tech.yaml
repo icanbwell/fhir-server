@@ -143,7 +143,7 @@ categories:
       - name: "ClickHouse"
         type: "analytics"
         versions: ["23.x", "24.x"]
-        notes: "OLAP database for analytics and time-series data. Also an active EA-approved track (EA-2126) as a hybrid FHIR storage backend for resources that exceed MongoDB's 16MB BSON limit (e.g. Group at 1M+ members) — see reference-architectures/fhir-server-group-scaling.md. That is a reviewed, in-flight direction for the specific fhir-server use case, not a blanket approval to use ClickHouse as a general operational datastore; a new use case still requires a Tech Design Review."
+        notes: "OLAP database for analytics and time-series data. Also an active EA-approved track as a hybrid FHIR storage backend for resources that exceed MongoDB's 16MB BSON limit (e.g. Group at 1M+ members) — see reference-architectures/fhir-server-group-scaling.md. That is a reviewed, in-flight direction for the specific fhir-server use case, not a blanket approval to use ClickHouse as a general operational datastore; a new use case still requires a Tech Design Review."
 
       - name: "Databricks"
         type: "analytics-platform"

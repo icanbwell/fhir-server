@@ -1177,6 +1177,26 @@ module.exports = {
                 }
             }
        ],
+        Binary_4_0_0: [
+            {
+                keys: {
+                    'securityContext._uuid': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'securityContext_uuid_uuid'
+                }
+            },
+            {
+                keys: {
+                    'securityContext._sourceId': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'securityContext_sourceId_uuid'
+                }
+            }
+        ],
         Vitals_4_0_0: [
             {
                 keys: {

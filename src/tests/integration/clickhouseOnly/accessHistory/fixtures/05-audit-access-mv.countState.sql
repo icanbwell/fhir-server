@@ -1,4 +1,4 @@
--- Test fixture: AUDIT_ACCESS_AGG / AUDIT_ACCESS_MV as shipped before DCON-4898 (DCON-6108 daily
+-- Test fixture: AUDIT_ACCESS_AGG / AUDIT_ACCESS_MV as shipped before (daily
 -- buckets, countState access_count). Used by accessHistoryAggUpgrade.test.js to exercise the
 -- drop-and-recreate upgrade. Do not apply to a real environment.
 

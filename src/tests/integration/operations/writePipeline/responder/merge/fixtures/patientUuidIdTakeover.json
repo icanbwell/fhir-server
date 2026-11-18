@@ -1,0 +1,25 @@
+{
+  "resourceType": "Patient",
+  "id": "3f6e9c3a-7b1d-4a52-9e0c-5d8f2a1b6c47",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "Parity",
+      "given": [
+        "Takeover"
+      ]
+    }
+  ]
+}

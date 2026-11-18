@@ -1,5 +1,5 @@
 /**
- * GraphQL Group.member for extended Groups (DCON-5911)
+ * GraphQL Group.member for extended Groups
  *
  * An extended Group keeps its roster in GroupMember_4_0_0. GraphQL cannot stream, so:
  * - wherever an extended Group appears, Group.member(_offset, _count) serves a bounded page of the

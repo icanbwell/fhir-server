@@ -5,6 +5,7 @@ const { PreSaveManager } = require('../../../../../../preSaveHandlers/preSave');
 const { SourceAssigningAuthorityColumnHandler } = require('../../../../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const { UuidColumnHandler } = require('../../../../../../preSaveHandlers/handlers/uuidColumnHandler');
 const { ResourceMerger } = require('../../../../../../operations/common/resourceMerger');
+const { GroupMemberMerger } = require('../../../../../../operations/common/groupMemberMerger');
 const { DatabaseAttachmentManager } = require('../../../../../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../../../../../dataLayer/base64DataManager');
 const { PostSaveHandlerFactory } = require('../../../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory');
@@ -88,11 +89,12 @@ const buildBuilder = ({ clickHouseGroup }) => {
             new UuidColumnHandler()
         ]
     });
+    const groupMemberMerger = new GroupMemberMerger({ configManager });
     const postSaveHandlerFactory = Object.create(PostSaveHandlerFactory.prototype);
     postSaveHandlerFactory.getHandlers = (resourceType) =>
         clickHouseGroup && resourceType === 'Group' ? [{ name: 'clickHouseGroupHandler' }] : [];
     return new ReplaceBuilder({
-        resourceMerger: new ResourceMerger({ preSaveManager, configManager }),
+        resourceMerger: new ResourceMerger({ preSaveManager, configManager, groupMemberMerger }),
         databaseAttachmentManager: new DatabaseAttachmentManager({
             mongoDatabaseManager: Object.create(MongoDatabaseManager.prototype),
             configManager
@@ -103,7 +105,7 @@ const buildBuilder = ({ clickHouseGroup }) => {
             preSaveManager
         }),
         postSaveHandlerFactory,
-        insertBuilder: new InsertBuilder()
+        insertBuilder: new InsertBuilder({ groupMemberMerger })
     });
 };
 

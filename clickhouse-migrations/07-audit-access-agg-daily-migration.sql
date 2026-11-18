@@ -1,4 +1,4 @@
--- Migration: AUDIT_ACCESS_AGG monthly → daily buckets (DCON-6108)
+-- Migration: AUDIT_ACCESS_AGG monthly → daily buckets
 -- Fixes: $access-history returned accesses older than ACCESS_HISTORY_WINDOW_DAYS because the
 --        aggregate was bucketed by month, so the window could only start at the first of the
 --        month containing the cutoff (up to ~31 extra days).

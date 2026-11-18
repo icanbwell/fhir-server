@@ -1,5 +1,5 @@
 /**
- * Cascade hard-delete of GroupMember rows on extended Group deletion (DCON-5655)
+ * Cascade hard-delete of GroupMember rows on extended Group deletion
  *
  * DELETE /4_0_0/Group/{id} on an extended Group tombstones and hard-deletes every
  * GroupMember_4_0_0 row first, in bounded batches, and only then deletes the Group document.

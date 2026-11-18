@@ -41,7 +41,7 @@ style (inline person/patient objects, no `$merge` fixtures needed for these unit
   (confirmed against the real, currently-passing
   `src/tests/patientScope/search_with_duplicate_patient_id.person_scope_uuid` fixture). Two prior
   attempts to close a related gap by adding a same-tenant/tag-match requirement were built, merged
-  as a first cut, and then reverted for exactly this reason: `8542592a5` (DCON-4806, write-path tag
+  as a first cut, and then reverted for exactly this reason: `8542592a5` (write-path tag
   match) reverted in `a5ded4a4a`, and an owner-tag fallback for the pure-patient-scope case
   reverted in `e5b649607`. Any new gate in this area — including this plan's assurance check —
   must default to **off**, ship with a **dry-run/log-only** mode first, and get a real signal from

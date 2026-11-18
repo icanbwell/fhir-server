@@ -80,6 +80,7 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
      * @param {boolean} params.maintainOrder - ignored (ClickHouse inserts are atomic)
      * @param {boolean} params.isAccessLogOperation - ignored
      * @param {Function} params.insertOneHistoryFn - ignored (no history for append-only)
+     * @param {boolean} [params.retryOnPoolWaitTimeout] retry a bulk write that hit a Mongo pool checkout timeout (post-request writes only); forwarded to the fallback executor, the ClickHouse write itself is not retried by it
      * @returns {Promise<BulkWriteExecutionResult>}
      */
     async executeBulkAsync ({
@@ -90,6 +91,7 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
         useHistoryCollection,
         maintainOrder,
         isAccessLogOperation,
+        retryOnPoolWaitTimeout,
         insertOneHistoryFn
     }) {
         const schema = this.schemaRegistry.getSchema(resourceType);
@@ -154,6 +156,7 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
                     useHistoryCollection,
                     maintainOrder,
                     isAccessLogOperation,
+                    retryOnPoolWaitTimeout,
                     insertOneHistoryFn
                 });
             }

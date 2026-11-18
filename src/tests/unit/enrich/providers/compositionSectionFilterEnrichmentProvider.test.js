@@ -62,7 +62,7 @@ describe('CompositionSectionFilterEnrichmentProvider', () => {
             expect(result.size).toBe(4);
         });
 
-        test('returns a Set containing only the hardcoded unclassified code when deniedSensitiveCategories is empty array (DCON-4892)', () => {
+        test('returns a Set containing only the hardcoded unclassified code when deniedSensitiveCategories is empty array', () => {
             const enrichmentContext = {
                 actor: {
                     _filteringRules: {
@@ -78,7 +78,7 @@ describe('CompositionSectionFilterEnrichmentProvider', () => {
             expect(result.has(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)).toBe(true);
         });
 
-        test('returns a Set containing only the hardcoded unclassified code when deniedSensitiveCategories is undefined (DCON-4892)', () => {
+        test('returns a Set containing only the hardcoded unclassified code when deniedSensitiveCategories is undefined', () => {
             const enrichmentContext = {
                 actor: {
                     _filteringRules: {}
@@ -92,7 +92,7 @@ describe('CompositionSectionFilterEnrichmentProvider', () => {
             expect(result.has(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)).toBe(true);
         });
 
-        test('always folds in the hardcoded unclassified code regardless of what the grantor Consent denies -- mirrors DataSharingManager.updateQueryForDelegatedAccessSensitiveData (DCON-4892)', () => {
+        test('always folds in the hardcoded unclassified code regardless of what the grantor Consent denies -- mirrors DataSharingManager.updateQueryForDelegatedAccessSensitiveData', () => {
             const enrichmentContext = {
                 actor: {
                     _filteringRules: {

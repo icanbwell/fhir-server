@@ -1,6 +1,6 @@
 /**
- * Group/{id}/$export against a Mongo-native ("extended") Group (DCON-5531, DCON-5799).
- * Originally an EA-2324 evidence test (PR #2620) pinning the silent zero-patient bug; converted
+ * Group/{id}/$export against a Mongo-native ("extended") Group.
+ * Originally an evidence test (PR #2620) pinning the silent zero-patient bug; converted
  * to assert the fix: the roster is seek-paged from GroupMember_4_0_0 via
  * MongoGroupMemberRepository, no useExternalStorage header is involved, and an extended Group
  * with ENABLE_EXTENDED_GROUP off fails loudly instead of resolving an empty roster.

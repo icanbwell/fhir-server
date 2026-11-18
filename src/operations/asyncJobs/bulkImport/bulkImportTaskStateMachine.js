@@ -8,6 +8,7 @@ const { MergeManager } = require('../../merge/mergeManager');
 const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 const { generateUUID } = require('../../../utils/uid.util');
 const { BULK_IMPORT_TASK } = require('../../../constants');
+const { getBulkImportTaskUuid } = require('./bulkImportTaskUuid');
 const { logError, logInfo } = require('../../common/logging');
 const { recordImportTaskFinished, IMPORT_TASK_STATUS } = require('../../../utils/metrics');
 
@@ -111,7 +112,7 @@ class BulkImportTaskStateMachine {
         });
         return databaseQueryManager.fastFindOneAsync({
             query: {
-                id: taskId,
+                _uuid: getBulkImportTaskUuid(taskId),
                 'code.coding': {
                     $elemMatch: {
                         system: BULK_IMPORT_TASK.TYPE_SYSTEM,

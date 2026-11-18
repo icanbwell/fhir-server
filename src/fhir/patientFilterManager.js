@@ -1,8 +1,5 @@
 class PatientFilterManager {
-    /**
-     * @param {ConfigManager} [configManager]
-     */
-    constructor({ configManager } = {}) {
+    constructor() {
         /**
          * defines the field in each resource that links to patient
          * @type {Object}
@@ -15,6 +12,7 @@ class PatientFilterManager {
             AppointmentResponse: 'actor.reference',
             AuditEvent: 'agent.who.reference',
             Basic: 'subject.reference',
+            Binary: 'securityContext.reference',
             BiologicallyDerivedProduct: 'collection.source.reference',
             BodyStructure: 'patient.reference',
             CarePlan: 'subject.reference',
@@ -81,10 +79,6 @@ class PatientFilterManager {
             Task: 'for.reference',
             VisionPrescription: 'patient.reference'
         };
-
-        if (configManager?.enablePatientScopedBinary) {
-            this.patientFilterMapping.Binary = 'securityContext.reference';
-        }
 
         /**
          * defines the field in each resource that links to person

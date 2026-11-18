@@ -80,7 +80,7 @@ class ResourceValidator {
     }
 
     /**
-     * DCON-4844: for a non-user (access-scoped) caller adding to Person.link, verifies every newly
+     * for a non-user (access-scoped) caller adding to Person.link, verifies every newly
      * added link target resolves to a resource the caller has access to. Existing link targets and
      * removals are left alone -- only additions can expand the identity graph into another tenant.
      *
@@ -108,7 +108,7 @@ class ResourceValidator {
      * reference was a bare id, `referenceGlobalIdHandler`'s pre-save enrichment defaults the
      * generated `_uuid` to the *referencing* resource's authority (see `updateReferenceAsync`),
      * which is wrong for a genuinely cross-tenant-but-accessible match (e.g. a consent-bridged PROA
-     * patient, as in the DCON-4847 W-chain tests). We now correct this on `resourceObj` -- the
+     * patient, as in the W-chain tests). We now correct this on `resourceObj` -- the
      * resource instance the caller persists, which `create.js` passes directly. The
      * update/merge/patch/graph paths validate a separate copy, so they do not yet receive the
      * rewrite; making it universal requires `validateResourceAsync` to return the corrected body and
@@ -138,7 +138,7 @@ class ResourceValidator {
         for (const reference of addedReferences) {
             const { resourceType, id, sourceAssigningAuthority } = ReferenceParser.parseReference(reference);
             if (!resourceType || !id) {
-                // DCON-4844 follow-up: a link target we can't parse into resourceType + id
+                // a link target we can't parse into resourceType + id
                 // (e.g. an absolute-URL reference) can't be resolved to a tenant, so we cannot
                 // verify the caller is allowed to link it. Silently skipping it -- the previous
                 // behavior -- is a bypass of this whole check, so fail closed and reject instead.
@@ -201,7 +201,7 @@ class ResourceValidator {
                 });
             }
 
-            // Reviewer step 5 (DCON-4844): exactly one accessible match. When the caller referenced
+            // Reviewer step 5: exactly one accessible match. When the caller referenced
             // it by a bare id (no _uuid, no explicit authority) we rewrite the reference to carry the
             // resolved resource's real sourceAssigningAuthority, so the correct _uuid is generated at
             // persist time. This matters when the accessible match lives in a different authority than
@@ -236,7 +236,7 @@ class ResourceValidator {
     }
 
     /**
-     * DCON-4844: rewrite a matching Person.link target reference in place on the resource instance
+     * rewrite a matching Person.link target reference in place on the resource instance
      * that will be persisted, so a corrected sourceAssigningAuthority flows into _uuid generation.
      * No-op if the resource has no matching link (fail-safe).
      * @param {Resource} resourceObj
@@ -267,7 +267,7 @@ class ResourceValidator {
      */
     async validatePatientReference ({ currentResource, resourceToValidateJson, isUser, user, scope, base_version, resourceObj = null, accessRequested = 'write' }) {
         if (!currentResource) {
-            // DCON-4844: mergeInsertAsync/create.js never pass a currentResource (there's nothing
+            // mergeInsertAsync/create.js never pass a currentResource (there's nothing
             // to diff a brand-new resource against), so this is the only place a non-user caller
             // creating a new Person with the cross-tenant link already inlined would otherwise
             // skip the check entirely. Every link on a newly-inserted resource counts as added.
@@ -316,7 +316,7 @@ class ResourceValidator {
             if (Array.isArray(currentValue) || Array.isArray(newValue)) {
                 // If this is an array field, then allow update for non patient scopes
                 if (!isUser) {
-                    // DCON-4844: that trust must not extend to linking a Person into another
+                    // that trust must not extend to linking a Person into another
                     // tenant's Person/Patient -- see validateNewPersonLinkTargetsBelongToCallersTenant
                     if (currentResource.resourceType === 'Person') {
                         const crossTenantLinkOutcome = await this.validateNewPersonLinkTargetsBelongToCallersTenant({

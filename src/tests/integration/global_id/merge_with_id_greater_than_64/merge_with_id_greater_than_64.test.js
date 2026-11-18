@@ -91,7 +91,7 @@ describe('Observation Tests', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1')
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getHeaders('user/*.read user/*.write access/*.* admin/*.read'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllResources);
@@ -106,7 +106,7 @@ describe('Observation Tests', () => {
             // search by sourceAssigningAuthority security tag should only return 1
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1&id=12345678901234567890123456789012345678901234567890123456789012345678901234567890&_security=https://www.icanbwell.com/sourceAssigningAuthority|C')
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getHeaders('user/*.read user/*.write access/*.* admin/*.read'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationBySourceAssigningAuthorityResources);
@@ -114,7 +114,7 @@ describe('Observation Tests', () => {
             // search by id but no security tag should return both
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&id=12345678901234567890123456789012345678901234567890123456789012345678901234567890&_debug=1')
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getHeaders('user/*.read user/*.write access/*.* admin/*.read'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllByIdResources);

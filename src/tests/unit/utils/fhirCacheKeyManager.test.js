@@ -57,11 +57,11 @@ describe('FhirCacheKeyManager', () => {
             expect(mockRedisClient.bulkDeleteKeys).toHaveBeenCalledWith([]);
         });
 
-        // DCON-4808: cacheKeys arrives from an admin API endpoint's request body with no
+        // cacheKeys arrives from an admin API endpoint's request body with no
         // prior validation -- without a namespace check, any admin-scoped caller could
         // delete arbitrary Redis keys (session data, rate-limit counters, etc.), not just
         // FHIR cache entries.
-        describe('arbitrary Redis key deletion (DCON-4808)', () => {
+        describe('arbitrary Redis key deletion', () => {
             test('drops keys outside the FHIR cache namespace', async () => {
                 const cacheKeys = ['session:abc123', 'ratelimit:ip:1.2.3.4', 'some-other-app-key'];
 

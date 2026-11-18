@@ -138,7 +138,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText1
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -151,7 +151,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText2
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -164,7 +164,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText3
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -195,7 +195,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText1
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -208,7 +208,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText2
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -221,7 +221,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText3
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -252,7 +252,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText1
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -265,7 +265,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText2
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -278,7 +278,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText3
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -309,7 +309,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText1
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -322,7 +322,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText2
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -335,7 +335,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText3
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -366,7 +366,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText1
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -379,7 +379,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText2
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -392,7 +392,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText3
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -438,7 +438,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText1
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -451,7 +451,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText2
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction
@@ -464,7 +464,7 @@ describe('GraphQLV2 Range filters Tests', () => {
                     variables: {},
                     query: graphqlQueryText3
                 })
-                // DCON-4808 gates _debug behind admin scope
+                // gates _debug behind admin scope
                 .set(getGraphQLHeaders('user/*.read user/*.write access/*.* admin/*.read'))
                 .expect(200);
             // noinspection JSUnresolvedFunction

@@ -1,5 +1,5 @@
 // ============================================================================
-// FAIL-BY-DESIGN security test — SEC-1580 SAE-5 (mongo-only; no ClickHouse).
+// FAIL-BY-DESIGN security test —  (mongo-only; no ClickHouse).
 // Gap: ids carry the owning tenant, so tenant A writing to tenant B's source
 // id creates a SECOND record sharing that source id rather than overwriting
 // B's. B's data is intact, but a read by that source id now returns 400 for

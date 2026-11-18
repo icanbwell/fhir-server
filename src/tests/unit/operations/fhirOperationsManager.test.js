@@ -583,7 +583,7 @@ describe('FhirOperationsManager', () => {
         });
 
         test('truncates to the configured cap instead of building an unbounded $in or failing the whole search', async () => {
-            // DCON-5855: a chain criterion that's too broad (e.g. matches a large share of a
+            // a chain criterion that's too broad (e.g. matches a large share of a
             // resource type) must not be allowed to accumulate an unbounded id list across
             // pages -- that's a performance/DoS risk and functionally close to "no
             // restriction" even when it isn't literally unfiltered. The caller has no way to

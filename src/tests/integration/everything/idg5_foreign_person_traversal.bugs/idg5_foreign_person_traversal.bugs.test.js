@@ -1,5 +1,5 @@
 // ============================================================================
-// FAIL-BY-DESIGN security test — SEC-1580 IDG-5 (mongo-only; no ClickHouse).
+// FAIL-BY-DESIGN security test —  (mongo-only; no ClickHouse).
 // Gap: naming another tenant's person id as the `patient=Patient/person.<id>` proxy
 // on a plain search runs the link traversal. The per-resource access-tag filter
 // still applies, so no record the caller couldn't otherwise read comes back --

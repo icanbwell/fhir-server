@@ -191,7 +191,7 @@ describe('FhirDataSource (graphqlv2)', () => {
         });
     });
 
-    describe('getResources (DCON-4846)', () => {
+    describe('getResources', () => {
         test('checks operation access before executing the search', async () => {
             const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' } };
             await dataSource.getResources(null, {}, context, {}, 'Patient');
@@ -216,7 +216,7 @@ describe('FhirDataSource (graphqlv2)', () => {
         });
     });
 
-    describe('getResourcesBundle (DCON-4846)', () => {
+    describe('getResourcesBundle', () => {
         test('checks operation access before executing the search', async () => {
             const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' }, req: {} };
             await dataSource.getResourcesBundle(null, {}, context, {}, 'Patient');
@@ -241,7 +241,7 @@ describe('FhirDataSource (graphqlv2)', () => {
         });
     });
 
-    describe('getResourcesInBatch (DCON-4846)', () => {
+    describe('getResourcesInBatch', () => {
         test('checks operation access per resourceType group before executing the search', async () => {
             const requestInfo = { user: 'test', scope: 'access/tenant_a.*' };
             await dataSource.getResourcesInBatch({
@@ -281,7 +281,7 @@ describe('FhirDataSource (graphqlv2)', () => {
     });
 
     describe('extractFieldsForResource', () => {
-        test('SEC-1585: forces extension into the Subscription projection even when not requested', () => {
+        test('forces extension into the Subscription projection even when not requested', () => {
             dataSource.resourceProjections = {};
             dataSource.extractFieldsForResource({
                 Subscription: { id: { name: 'id' }, resourceType: { name: 'resourceType' } }
@@ -289,7 +289,7 @@ describe('FhirDataSource (graphqlv2)', () => {
             expect(dataSource.resourceProjections.Subscription.has('extension')).toBe(true);
         });
 
-        test('SEC-1585: forces extension into the SubscriptionStatus projection even when not requested', () => {
+        test('forces extension into the SubscriptionStatus projection even when not requested', () => {
             dataSource.resourceProjections = {};
             dataSource.extractFieldsForResource({
                 SubscriptionStatus: { id: { name: 'id' }, resourceType: { name: 'resourceType' } }
@@ -297,7 +297,7 @@ describe('FhirDataSource (graphqlv2)', () => {
             expect(dataSource.resourceProjections.SubscriptionStatus.has('extension')).toBe(true);
         });
 
-        test('SEC-1585: forces identifier into the SubscriptionTopic projection even when not requested', () => {
+        test('forces identifier into the SubscriptionTopic projection even when not requested', () => {
             dataSource.resourceProjections = {};
             dataSource.extractFieldsForResource({
                 SubscriptionTopic: { id: { name: 'id' }, resourceType: { name: 'resourceType' } }
