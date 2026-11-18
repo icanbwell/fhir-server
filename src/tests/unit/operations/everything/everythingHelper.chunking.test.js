@@ -135,3 +135,47 @@ describe('getEverythingIdChunks with several Persons', () => {
         expect(chunks[1][5]).toBe(`${PERSON_PROXY_PREFIX}person-1`);
     });
 });
+
+describe('getEverythingIdChunks with proxy ids of Persons that have no linked Patients', () => {
+    test.each([
+        [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+        [[10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+        [[5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5]],
+        [[10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    ])(
+        'with linked Patient counts %j no batch is larger than one more than the batch size and no id is lost',
+        (linkedPatientCounts) => {
+            const ids = buildIdsForPersons(linkedPatientCounts);
+
+            const chunks = getEverythingIdChunks(ids, BATCH_SIZE);
+
+            expect(chunks.flat()).toEqual(ids);
+            expect(Math.max(...chunks.map((chunk) => chunk.length))).toBeLessThanOrEqual(
+                BATCH_SIZE + 1
+            );
+        }
+    );
+
+    test('keeps batches of the batch size when every Person has no linked Patients', () => {
+        const ids = buildIdsForPersons(Array.from({ length: 100 }, () => 0));
+
+        const chunks = getEverythingIdChunks(ids, BATCH_SIZE);
+
+        expect(chunks).toHaveLength(10);
+        expect(chunks.every((chunk) => chunk.length === BATCH_SIZE)).toBe(true);
+    });
+
+    test('moves only the proxy id that follows a Patient id, not the proxy ids after it', () => {
+        const ids = buildIdsForPersons([10, 0, 0]);
+
+        const chunks = getEverythingIdChunks(ids, BATCH_SIZE);
+
+        expect(chunks).toHaveLength(2);
+        expect(chunks[0]).toHaveLength(11);
+        expect(chunks[0][10]).toBe(`${PERSON_PROXY_PREFIX}person-0`);
+        expect(chunks[1]).toEqual([
+            `${PERSON_PROXY_PREFIX}person-1`,
+            `${PERSON_PROXY_PREFIX}person-2`
+        ]);
+    });
+});
