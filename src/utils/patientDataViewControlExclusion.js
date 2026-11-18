@@ -254,4 +254,21 @@ function freezeLookup(lookup) {
     return Object.freeze(lookup);
 }
 
-module.exports = { PatientDataViewControlExclusion };
+/**
+ * The exclude map of the user in the token, for a read that applies it to the results rather than to
+ * a query (Composition sections, cached replays). Undefined for any other token, so those reads leave
+ * the results alone. The lookup is memoized per request.
+ * @param {PatientDataViewControlExclusion} exclusion
+ * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
+ * @param {string} base_version
+ * @return {Promise<ViewControlConsentLookup['viewControlResourceToExcludeMap']|undefined>}
+ */
+async function getUserViewControlExcludeMapAsync({ exclusion, requestInfo, base_version }) {
+    if (!requestInfo.isUser) {
+        return undefined;
+    }
+    return (await exclusion.getConsentLookupAsync({ requestInfo, base_version }))
+        .viewControlResourceToExcludeMap;
+}
+
+module.exports = { PatientDataViewControlExclusion, getUserViewControlExcludeMapAsync };

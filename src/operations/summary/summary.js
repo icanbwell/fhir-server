@@ -24,7 +24,10 @@ const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { BaseResponseHandler } = require('../../utils/responseHandler/baseResponseHandler');
 const { EnrichmentManager } = require('../../enrich/enrich');
-const { PatientDataViewControlExclusion } = require('../../utils/patientDataViewControlExclusion');
+const {
+    PatientDataViewControlExclusion,
+    getUserViewControlExcludeMapAsync
+} = require('../../utils/patientDataViewControlExclusion');
 const { createViewControlHiddenResourceMatcher } = require('../../utils/viewControlHiddenResourceMatcher');
 
 class SummaryOperation {
@@ -498,11 +501,11 @@ class SummaryOperation {
             } else {
                 // Composition sections that point at a hidden resource are dropped (user tokens only).
                 // Here, after the cache read, so a cached bundle is filtered by the current Consent too.
-                const viewControlExcludeMap = requestInfo.isUser
-                    ? (await this.patientDataViewControlExclusion.getConsentLookupAsync({
-                        requestInfo, base_version: parsedArgs.base_version
-                    })).viewControlResourceToExcludeMap
-                    : undefined;
+                const viewControlExcludeMap = await getUserViewControlExcludeMapAsync({
+                    exclusion: this.patientDataViewControlExclusion,
+                    requestInfo,
+                    base_version: parsedArgs.base_version
+                });
                 if (readFromCache) {
                     // a cached bundle can predate the current Consent (e.g. the cache generation bump
                     // after a Consent save failed), so drop what the Consent now hides, as $everything does

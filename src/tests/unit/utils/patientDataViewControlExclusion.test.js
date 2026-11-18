@@ -9,7 +9,10 @@ jest.mock('express-http-context', () => ({
     set: (k, v) => mockStore.set(k, v)
 }));
 
-const { PatientDataViewControlExclusion } = require('../../../utils/patientDataViewControlExclusion');
+const {
+    PatientDataViewControlExclusion,
+    getUserViewControlExcludeMapAsync
+} = require('../../../utils/patientDataViewControlExclusion');
 const { PatientDataViewControlManager } = require('../../../utils/patientDataViewController');
 const { PatientScopeManager } = require('../../../operations/security/patientScopeManager');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -240,6 +243,29 @@ describe('PatientDataViewControlExclusion', () => {
         });
         expect(getConsentAsync).not.toHaveBeenCalled();
         expect(getPatientIdsFromScopeAsync).not.toHaveBeenCalled();
+    });
+
+    describe('getUserViewControlExcludeMapAsync', () => {
+        test('returns the exclude map of the user in the token', async () => {
+            getConsentAsync.mockResolvedValue({
+                viewControlResourceToExcludeMap: { CarePlan: [UUID_A] },
+                viewControlConsentQueries: [],
+                viewControlConsentQueryOptions: []
+            });
+            const map = await getUserViewControlExcludeMapAsync({
+                exclusion, requestInfo: user, base_version: '4_0_0'
+            });
+            expect(map).toEqual({ CarePlan: [UUID_A] });
+        });
+
+        test('returns undefined for a service token, without any lookup', async () => {
+            const lookup = jest.spyOn(exclusion, 'getConsentLookupAsync');
+            const map = await getUserViewControlExcludeMapAsync({
+                exclusion, requestInfo: { isUser: false }, base_version: '4_0_0'
+            });
+            expect(map).toBeUndefined();
+            expect(lookup).not.toHaveBeenCalled();
+        });
     });
 
     describe('outcome metric (once per subject per request)', () => {

@@ -742,7 +742,7 @@ class FhirDataSource {
             return this.tracedViewControlLookup;
         }
         this.tracedViewControlLookup = this.customTracer.trace({
-            name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
+            name: 'GraphQLV2DataSource.patientDataViewControlExclusion.getConsentLookupAsync',
             func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
                 requestInfo: this.requestInfo,
                 base_version

@@ -52,7 +52,10 @@ const { isFalseWithFallback } = require('../../utils/isFalse');
 const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const { CustomTracer } = require('../../utils/customTracer');
-const { PatientDataViewControlExclusion } = require('../../utils/patientDataViewControlExclusion');
+const {
+    PatientDataViewControlExclusion,
+    getUserViewControlExcludeMapAsync
+} = require('../../utils/patientDataViewControlExclusion');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
@@ -636,14 +639,14 @@ class EverythingHelper {
                     // Entries are cached before enrichment, so the user's view-control lookup
                     // (memoized per request) is loaded here to filter Composition sections on replay.
                     // A failed lookup throws before anything is written and falls back to MongoDB.
-                    const viewControlExcludeMap = requestInfo.isUser
-                        ? (await this.customTracer.trace({
-                            name: 'EverythingHelper.cachedReplay.patientDataViewControlExclusion.getConsentLookupAsync',
-                            func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
-                                requestInfo, base_version
-                            })
-                        })).viewControlResourceToExcludeMap
-                        : undefined;
+                    const viewControlExcludeMap = await this.customTracer.trace({
+                        name: 'EverythingHelper.cachedReplay.patientDataViewControlExclusion.getConsentLookupAsync',
+                        func: async () => await getUserViewControlExcludeMapAsync({
+                            exclusion: this.patientDataViewControlExclusion,
+                            requestInfo,
+                            base_version
+                        })
+                    });
                     await cachedStreamer.streamFromCacheAsync({
                         streamedResources,
                         enrichmentContext: {
@@ -1006,7 +1009,7 @@ class EverythingHelper {
                     viewControlConsentQueries,
                     viewControlConsentQueryOptions
                 } = await this.customTracer.trace({
-                    name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
+                    name: 'EverythingHelper.patientDataViewControlExclusion.getConsentLookupAsync',
                     func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
                         requestInfo,
                         base_version

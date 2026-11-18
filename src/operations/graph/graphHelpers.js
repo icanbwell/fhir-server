@@ -45,7 +45,10 @@ const {SearchParametersManager} = require('../../searchParameters/searchParamete
 const { RemoveHelper } = require('../remove/removeHelper');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { PatientDataViewControlExclusion } = require('../../utils/patientDataViewControlExclusion');
+const {
+    PatientDataViewControlExclusion,
+    getUserViewControlExcludeMapAsync
+} = require('../../utils/patientDataViewControlExclusion');
 
 /**
  * This class helps with creating graph responses
@@ -1762,11 +1765,11 @@ class GraphHelper {
 
             // the caller's view-control block, so a Composition section pointing at a hidden resource is
             // dropped as on REST search (user tokens only; the lookup is memoized per request)
-            const viewControlExcludeMap = requestInfo.isUser
-                ? (await this.patientDataViewControlExclusion.getConsentLookupAsync({
-                    requestInfo, base_version
-                })).viewControlResourceToExcludeMap
-                : undefined;
+            const viewControlExcludeMap = await getUserViewControlExcludeMapAsync({
+                exclusion: this.patientDataViewControlExclusion,
+                requestInfo,
+                base_version
+            });
 
             /**
              * @type {ResourceIdentifier[]}
