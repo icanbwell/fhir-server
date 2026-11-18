@@ -1486,7 +1486,27 @@
             }
           ]
         },
-        "resourceType": "Binary"
+        "resourceType": "Binary",
+        "securityContext": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/patient1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem1"
+            }
+          ],
+          "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+        }
       }
     },
     {
@@ -1517,7 +1537,27 @@
             }
           ]
         },
-        "resourceType": "Binary"
+        "resourceType": "Binary",
+        "securityContext": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/patient1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem1"
+            }
+          ],
+          "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+        }
       }
     },
     {
