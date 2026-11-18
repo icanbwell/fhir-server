@@ -51,7 +51,7 @@ const patientLinkedResources = [
     },
     {
         // Binary is owned by a patient through securityContext (a Patient or the proxy patient),
-        // so it is found directly, in addition to the DocumentReference -> Binary reference hop.
+        // so it is found directly, like any other patient-linked type.
         type: "Binary",
         customQuery: {
             query: `{"securityContext._uuid":"{resourceType}/{_uuid}"}`,

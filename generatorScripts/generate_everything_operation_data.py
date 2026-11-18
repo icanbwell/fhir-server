@@ -379,7 +379,6 @@ def get_non_clinical_rechability_map(
     """
     # Get direct references (level 0)
     resource_referenced_by_map = non_clinical_data.resource_referenced_by_map
-    resource_referenced_by_map["Binary"].add("DocumentReference")
 
     direct_references = {k: v for k, v in resource_referenced_by_map.items() if k not in clinical_resources and k not in ['AuditEvent', 'Resource']}
 
@@ -485,11 +484,6 @@ def main():
             json_file,
             indent=2,
         )
-
-    # add custom field for accessing Binary resource from DocumentReference
-    non_clinical_data.non_clinical_map_uuid["DocumentReference"].append(
-        "content.attachment.url"
-    )
 
     json_file_path = everything_operation.joinpath("generated.non_clinical_resources_fields.json")
     with open(json_file_path, "w") as json_file:

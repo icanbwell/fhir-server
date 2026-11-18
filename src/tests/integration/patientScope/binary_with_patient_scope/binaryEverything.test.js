@@ -48,7 +48,8 @@ describe('Binary patient $everything by securityContext', () => {
 
     /**
      * Seeds the Person linked to patient1, patient1, and three Binary resources
-     * (owned by patient1, owned by someone else, and without a securityContext)
+     * (owned by patient1, owned by someone else, and without a securityContext, the last one
+     * referenced by a DocumentReference of patient1)
      * @param {import('supertest').Agent} request
      * @return {Promise<string>} the _uuid of the merged Person linked to patient1
      */
@@ -70,6 +71,16 @@ describe('Binary patient $everything by securityContext', () => {
         unowned.id = 'binary-unowned';
         delete unowned.securityContext;
         await mergeResourceAsync(request, unowned);
+
+        // a DocumentReference for patient1 that points at the unowned Binary must not pull it in
+        await mergeResourceAsync(request, {
+            resourceType: 'DocumentReference',
+            id: 'docref-unowned',
+            meta: patientResource.meta,
+            status: 'current',
+            subject: { reference: 'Patient/patient1' },
+            content: [{ attachment: { contentType: 'text/plain', url: 'Binary/binary-unowned' } }]
+        });
         return personUuid;
     }
 

@@ -363,8 +363,7 @@
     "author._uuid",
     "authenticator._uuid",
     "custodian._uuid",
-    "context.related._uuid",
-    "content.attachment.url"
+    "context.related._uuid"
   ],
   "Encounter": [
     "participant.individual._uuid",
