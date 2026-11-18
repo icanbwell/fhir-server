@@ -37,8 +37,8 @@ describe('Binary patient $everything by securityContext', () => {
      * @return {Promise<{status: number, sourceIds: string[]}>} the response status and the
      * securityContext sourceId values (extension valueString) of the Binary resources returned
      */
-    async function everythingBinarySourceIdsAsync (request, headers) {
-        const resp = await request.get('/4_0_0/Patient/patient1/$everything').set(headers);
+    async function everythingBinarySourceIdsAsync (request, headers, path = 'Patient/patient1') {
+        const resp = await request.get(`/4_0_0/${path}/$everything`).set(headers);
         const sourceIds = (resp.body.entry ?? [])
             .map((e) => e.resource)
             .filter((r) => r?.resourceType === 'Binary')
@@ -89,16 +89,38 @@ describe('Binary patient $everything by securityContext', () => {
         expect(sourceIds).toEqual(['Patient/patient1']);
     });
 
-    test('returns no Binary to a patient-scoped token whose Person is not linked to the patient', async () => {
+    test('Person $everything returns only the Binary owned by a linked patient', async () => {
         const request = await createTestRequest();
         await seedAsync(request);
+
+        const { status, sourceIds } = await everythingBinarySourceIdsAsync(
+            request,
+            getHeaders('user/*.* access/*.* admin/*.*'),
+            'Person/person1'
+        );
+
+        expect(status).toBe(200);
+        expect(sourceIds).toEqual(['Patient/patient1']);
+    });
+
+    test('returns no Binary to a patient-scoped token whose Person is not linked to the patient', async () => {
+        const request = await createTestRequest();
+        const personUuid = await seedAsync(request);
+
+        // control: the linked Person sees the owned Binary, so an empty result below is filtering
+        const linked = await everythingBinarySourceIdsAsync(
+            request,
+            personScopedHeaders(personUuid, 'patient/*.read access/*.*')
+        );
+        expect(linked.status).toBe(200);
+        expect(linked.sourceIds).toEqual(['Patient/patient1']);
 
         const { status, sourceIds } = await everythingBinarySourceIdsAsync(
             request,
             personScopedHeaders('00000000-0000-4000-8000-000000000000', 'patient/*.read access/*.*')
         );
 
-        expect([200, 403]).toContain(status);
+        expect(status).toBe(200);
         expect(sourceIds).toEqual([]);
     });
 });
