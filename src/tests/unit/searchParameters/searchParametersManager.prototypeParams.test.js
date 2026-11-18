@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * SEC-1580 - a query parameter whose name collides with an Object.prototype member resolves to the
+ * - a query parameter whose name collides with an Object.prototype member resolves to the
  * inherited prototype value instead of `undefined`.
  *
  * `SearchParametersManager.getPropertyObject()` looked its argument up with bare bracket access on

@@ -1,7 +1,7 @@
 /**
  * Tests for PatientScopeManager.canWriteResourceAsync — non-patient-filterable resource types.
  *
- * DCON-4806: canWriteResourceAsync previously returned `true` unconditionally whenever
+ * canWriteResourceAsync previously returned `true` unconditionally whenever
  * `isAccessAllowedByPatientScopes` was false, which conflated two different cases: (a) the
  * caller holds no patient scope at all (safe to defer to the access-scope check elsewhere),
  * and (b) the caller holds a patient scope but the resource type isn't patient-filterable

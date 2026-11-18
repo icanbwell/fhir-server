@@ -238,17 +238,14 @@ as separate authorization paths, specifically to keep this restriction from bein
   via link-following gets the same filter a direct search would apply — not a weaker one. Both
   GraphQL APIs (`src/graphql/dataSource.js` and `src/graphqlv2/dataSource.js`) funnel through the
   same `searchBundleAsync` path rather than an independent query builder.
-- **`Binary` is patient-filterable only behind `ENABLE_PATIENT_SCOPED_BINARY`** (default off). With the
-  flag on, `patientFilterMapping` maps `Binary` to `securityContext.reference`, exactly like `Task`
+- **`Binary` is patient-filterable.** `patientFilterMapping` maps `Binary` to `securityContext.reference`, exactly like `Task`
   (`for.reference`): a patient-scoped caller reads, creates, updates, patches and deletes a `Binary`
   only when its `securityContext` is the caller's proxy patient (`Patient/person.<uuid>`) or a linked
-  `Patient`. A `Binary` with no `securityContext` is hidden from patient-scoped tokens, so enable the
-  flag only after existing `Binary` resources have been stamped. For a mixed token such as
-  `patient/*.* user/*.* access/*.*`, only the `patient/` scopes are evaluated for `Binary` while the flag
-  is on (the `user/` write restriction applies to non-filterable types only). As with every
+  `Patient`. A `Binary` with no `securityContext` is hidden from patient-scoped tokens. For a mixed token
+  such as `patient/*.* user/*.* access/*.*`, only the `patient/` scopes are evaluated for `Binary`
+  (the `user/` write restriction applies to non-filterable types only). As with every
   patient-scoped create, the `meta.security` tags a caller supplies are not validated against its
-  scopes, and an update is authorized against the stored resource only. Flag off behaves as before:
-  `Binary` is not patient-filterable and a patient scope cannot write it.
+  scopes, and an update is authorized against the stored resource only.
   The GraphQL v1 `CodeSystem.concept.property.valueString` lookup of `Binary/<id>`
   (`FhirDataSource.findBinaryForCodeSystemAsync`) is the one exception: a CodeSystem-owned `Binary`
   has no patient, so for that single read the token is evaluated without its `patient/` scopes (the
@@ -271,7 +268,7 @@ or expand what's returned, each with its own category code and its own code path
 (`src/operations/search/proaConsentManager.js`) to find active, `permit`-type Consents and OR's a
 connection-type-filtered query branch onto the search.
 
-As of `DCON-4962` (#2511), this expansion is scoped to genuine `Person $everything` requests
+As of #2511, this expansion is scoped to genuine `Person $everything` requests
 only: `SearchManager.constructQueryAsync`'s `allowConsentedProaDataAccess` parameter defaults to
 `false` and is set to `true` only by `everythingHelper.js`, and only when
 `isPersonEverything` is true (`Boolean(isPersonEverything)` — explicitly `false` for
@@ -524,7 +521,7 @@ regression tripwire rather than fixed outright).
   this method's job for a patient-scoped caller was never tenant isolation by tag — that's
   `PatientScopeManager.canWriteResourceAsync` (Person/Patient-id ownership matching), which every
   real write path ANDs in via `ScopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes`.
-  This was tried once already, for real: commit `8542592a5` (DCON-4806) added a tag-match
+  This was tried once already, for real: commit `8542592a5` added a tag-match
   requirement here and was reverted in `a5ded4a4a` because it broke legitimate patient-scoped
   writes — re-adding it repeats that regression. (Tests that assert this method alone should
   enforce tenant isolation, in isolation from the ANDed ownership check, produce a false positive;
@@ -729,7 +726,7 @@ regression tripwire rather than fixed outright).
   calls the new method and bumps the Redis generation counter for every id it returns, not just the
   two endpoints. `src/tests/unit/utils/bwellPersonFinder.test.js` was previously excluded in
   `jest.config.js`'s `testPathIgnorePatterns` for an unrelated tracked bug (`isBwellPerson` throwing
-  on a null `meta`, from DCON-4775); confirmed the whole file now passes cleanly and removed its
+  on a null `meta`, from ); confirmed the whole file now passes cleanly and removed its
   exclusion entry as part of this fix. Covered by new cases in `bwellPersonFinder.test.js` and a
   3+-hop test added to `consentCacheInvalidationHandler.test.js`.
 
@@ -757,7 +754,7 @@ regression tripwire rather than fixed outright).
 - **Investigated, does not reproduce — "W-chain" self-granted delegated-access consent combined with
   a link-graft to reach cross-tenant data (§5, §6c, §10).** The hypothesized exploit (a delegated
   actor self-granting a Consent, then grafting a `Person.link` to widen the identity graph it's
-  applied against) is entirely gated by the same `Person.link` write path covered by the DCON-4844
+  applied against) is entirely gated by the same `Person.link` write path covered by the
   FIXED finding above — once that landed, the link-graft half of the chain can't get a cross-tenant
   target past validation, which is a sufficient fix for the whole chain. The control test built to
   exercise this (`consentSelfGrantLinkGraft.test.js`) had its own fixture bugs (a mis-resolved

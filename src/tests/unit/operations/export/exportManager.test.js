@@ -453,7 +453,7 @@ describe('ExportManager', () => {
             expect(call.context).toEqual({});
         });
 
-        // DCON-4805: scriptCommand is later split on spaces into the container's argv array,
+        // scriptCommand is later split on spaces into the container's argv array,
         // so an unvalidated batch-size param containing a space could inject extra CLI flags
         // into the spawned Kubernetes job (e.g. overriding --bulkExportS3BucketName or
         // --exportStatusId). These params must be rejected unless they are a bare integer.

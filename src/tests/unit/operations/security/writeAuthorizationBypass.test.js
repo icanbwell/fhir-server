@@ -267,12 +267,12 @@ describe('Write Operation Authorization Bypass Vulnerabilities', () => {
     // that protects them. resourceMerger.overWriteNonWritableFields (called from patch.js) reverts
     // any attempted change to the owner/sourceAssigningAuthority tags and to meta.source/versionId/
     // lastUpdated, for every caller (see src/tests/patch/patch_meta/patch_meta.test.js's "doesn't
-    // work" tests). DCON-4841 fixed the one gap in that: patch.js only called it when meta.source
+    // work" tests). fixed the one gap in that: patch.js only called it when meta.source
     // was present on either side, so a REQUIRE_META_SOURCE_TAGS=false resource with no meta.source
     // at all could skip the revert entirely. See
     // src/tests/patch/patch_owner_tag_change/patch_owner_tag_change.test.js for that regression test.
     // meta.security's ACCESS tags are a separate, already-correct mechanism
-    // (scopesValidator.isAccessTagChangeAllowedByAccessScopes, SEC-1580 F2/F3), unaffected by this.
+    // (scopesValidator.isAccessTagChangeAllowedByAccessScopes), unaffected by this.
     // =========================================================================
 
     // =========================================================================
@@ -293,7 +293,7 @@ describe('Write Operation Authorization Bypass Vulnerabilities', () => {
             });
         });
 
-        test.skip('KNOWN OPEN GAP (distinct from the fixed update-path bug, see DCON-4854): a caller holding BOTH a patient/ scope and an access/ scope for a DIFFERENT tenant can still create a resource with an arbitrary owner/access tag', () => {
+        test.skip('KNOWN OPEN GAP (distinct from the fixed update-path bug, see ): a caller holding BOTH a patient/ scope and an access/ scope for a DIFFERENT tenant can still create a resource with an arbitrary owner/access tag', () => {
             // This is a narrower, still-open variant of the create-time tag question. On create,
             // isAccessTagChangeAllowedByScopes intentionally still short-circuits to true for any
             // caller whose scope contains a matching patient/ token (see scopesManager.crossTenant.test.js
@@ -364,7 +364,7 @@ describe('Write Operation Authorization Bypass Vulnerabilities', () => {
     });
 
     // =========================================================================
-    // VULNERABILITY 5 (KNOWN OPEN GAP, distinct question, see DCON-4854): whether canWriteResourceAsync's
+    // VULNERABILITY 5 (KNOWN OPEN GAP, distinct question, see ): whether canWriteResourceAsync's
     // literal-string id matching (patientScopeManager.js's canWriteResourceWithAllowedPatientIdsAsync)
     // can be defeated by a source-system patient id that collides across two tenants (as opposed to a
     // globally-unique _uuid) is a separate, deeper identity-normalization question this file's original

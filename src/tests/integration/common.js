@@ -146,7 +146,7 @@ const getFullAccessToken = (module.exports.getFullAccessToken = () => {
 });
 
 // admin/*.read is added on top of the full-access scope so tests can exercise
-// _explain/_debug/_setIndexHint (DCON-4808) without switching to a token whose
+// _explain/_debug/_setIndexHint without switching to a token whose
 // scope string differs from the plain full-access one in ways other assertions
 // (e.g. an echoed-back `scope` field) might compare against literally.
 const getFullAccessTokenWithAdmin = (module.exports.getFullAccessTokenWithAdmin = () => {
@@ -188,7 +188,7 @@ module.exports.getHeaders = (scope) => {
 };
 
 // Full-access headers plus admin/*.read, for requests that use _explain/_debug/_setIndexHint
-// (DCON-4808) purely to assert on query construction, not to test the admin gate itself.
+// purely to assert on query construction, not to test the admin gate itself.
 module.exports.getHeadersWithAdmin = () => {
     return {
         'Content-Type': 'application/fhir+json',
@@ -263,7 +263,7 @@ module.exports.getGraphQLHeaders = (scope) => {
 };
 
 // Full-access GraphQL headers plus admin/*.read, for queries that use _explain/_debug
-// (DCON-4808) purely to assert on query construction, not to test the admin gate itself.
+// purely to assert on query construction, not to test the admin gate itself.
 module.exports.getGraphQLHeadersWithAdmin = () => {
     return {
         'Content-Type': 'application/json; charset=utf-8',

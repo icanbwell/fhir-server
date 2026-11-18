@@ -267,7 +267,7 @@ class BaseHistoryOperationProcessor {
             throw error;
         }
 
-        // SEC-1580 SAE-1: see ScopesManager.hasHistoryAccess for why a tenant-scoped access
+        // see ScopesManager.hasHistoryAccess for why a tenant-scoped access
         // code is never sufficient to read history.
         const accessRequested = currentOperationName === 'historyById' ? 'r' : 's';
         if (!this.scopesManager.hasHistoryAccess({ resourceType, scope, accessRequested })) {

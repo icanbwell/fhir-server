@@ -4,6 +4,7 @@ const { ConfigManager } = require('../../../../utils/configManager');
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
 const { PreSaveOptions } = require('../../../../preSaveHandlers/preSaveOptions');
 const { ResourceMerger } = require('../../../common/resourceMerger');
+const { GroupMemberMerger } = require('../../../common/groupMemberMerger');
 const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { BadRequestError } = require('../../../../utils/httpErrors');
@@ -31,13 +32,15 @@ class SmartMergeBuilder {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
+     * @param {GroupMemberMerger} groupMemberMerger
      */
     constructor ({
         preSaveManager,
         resourceMerger,
         configManager,
         databaseAttachmentManager,
-        base64DataManager
+        base64DataManager,
+        groupMemberMerger
     }) {
         /**
          * @type {PreSaveManager}
@@ -64,6 +67,11 @@ class SmartMergeBuilder {
          */
         this.base64DataManager = base64DataManager;
         assertTypeEquals(base64DataManager, Base64DataManager);
+        /**
+         * @type {GroupMemberMerger}
+         */
+        this.groupMemberMerger = groupMemberMerger;
+        assertTypeEquals(groupMemberMerger, GroupMemberMerger);
     }
 
     /**
@@ -78,7 +86,7 @@ class SmartMergeBuilder {
         if (item.stored && item.stored.meta && item.incoming.resourceType !== 'AuditEvent') {
             return await this.buildFromStoredAsync({ item, context });
         }
-        this.buildNew({ item });
+        this.buildNew({ item, context });
         return null;
     }
 
@@ -94,11 +102,13 @@ class SmartMergeBuilder {
     }
 
     /**
-     * Runs preSave on the stored document, then merges the body into it with
-     * `ResourceMerger.fastMergeResourceAsync`. Sets `candidate` to the merged document, or null
-     * when nothing changed, and sets `writeMode` to 'update'. Returns a `BUILD`
-     * failure, without merging, when the body sends members for a Group whose members are kept
-     * outside the document.
+     * Runs preSave on the stored document, merges the entries of a member the stored Group lists
+     * more than once (every stored entry is an older entry, so none counts toward the per-member
+     * entry limit), then merges the body into it with `ResourceMerger.fastMergeResourceAsync`.
+     * Merging the stored entries first keeps a body that changes nothing else equal to the stored
+     * Group, so it writes nothing. Sets `candidate` to the merged document, or null when nothing
+     * changed, and sets `writeMode` to 'update'. Returns a `BUILD` failure, without merging, when
+     * the body sends members for a Group whose members are kept outside the document.
      * @param {WriteItem} item
      * @param {WriteContext} context
      * @returns {Promise<WriteFailure|null>}
@@ -109,6 +119,11 @@ class SmartMergeBuilder {
         const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
         item.stored = await this.preSaveManager.preSaveAsync({
             resource: item.stored, options: preSaveOptions
+        });
+        item.stored = this.groupMemberMerger.mergeMembers({
+            resource: item.stored,
+            requestInfo,
+            olderEntries: new Set(item.stored.member)
         });
 
         const extendedGroupMemberWriteError = getExtendedGroupMemberWriteError({
@@ -141,12 +156,15 @@ class SmartMergeBuilder {
 
     /**
      * Uses the body as the new document, sets its `meta.versionId` to '1' and `meta.lastUpdated` to
-     * now when it has a `meta`, and sets `writeMode` to 'insert'. Throws a `BadRequestError`, which
-     * fails only this item, when source tags are required and the body has no `meta.source`.
+     * now when it has a `meta`, merges the entries of a Group member it lists more than once, and
+     * sets `writeMode` to 'insert'. Throws a `BadRequestError`, which fails only this item, when
+     * source tags are required and the body has no `meta.source`, or when the body sends more
+     * entries for one member than the limit allows.
      * @param {WriteItem} item
+     * @param {WriteContext} context
      * @returns {void}
      */
-    buildNew ({ item }) {
+    buildNew ({ item, context }) {
         const incoming = item.incoming;
         if (this.configManager.requireMetaSourceTags && (!incoming.meta || !incoming.meta.source)) {
             throw new BadRequestError(new Error(MISSING_SOURCE_TAG_MESSAGE));
@@ -155,7 +173,10 @@ class SmartMergeBuilder {
             incoming.meta.versionId = '1';
             incoming.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         }
-        item.candidate = incoming;
+        item.candidate = this.groupMemberMerger.mergeMembers({
+            resource: incoming,
+            requestInfo: context.requestInfo
+        });
         item.writeMode = 'insert';
     }
 }

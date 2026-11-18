@@ -1,5 +1,5 @@
 /**
- * Extended Group PUT/$merge rejection (DCON-5527, design doc §5.1)
+ * Extended Group PUT/$merge rejection (design doc §5.1)
  *
  * An extended Group's roster lives entirely in GroupMember_4_0_0 -- member[] doesn't exist on
  * the live document. A PUT or $merge that submits a `member` field against an extended Group is
@@ -27,7 +27,7 @@ function defaultMeta(extraTags = []) {
     };
 }
 
-describe('Extended Group PUT/$merge rejection (DCON-5527)', () => {
+describe('Extended Group PUT/$merge rejection', () => {
     let request;
 
     beforeAll(async () => {

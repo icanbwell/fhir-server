@@ -414,7 +414,7 @@ describe('GraphHelper', () => {
             expect(result).toBeUndefined();
         });
 
-        // DCON-4808: filterProperty is parsed from a caller-supplied GraphDefinition
+        // filterProperty is parsed from a caller-supplied GraphDefinition
         // link.path (e.g. "subject:role=doctor") and was used as a raw MongoDB query key,
         // letting a value like "$where" inject a MongoDB operator into the query.
         describe('filterProperty MongoDB operator injection', () => {

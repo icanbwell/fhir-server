@@ -1,6 +1,5 @@
 # Add SMART on FHIR v2 `system/` scope support alongside `user/`
 
-**Ticket:** [DCON-5551](https://icanbwell.atlassian.net/browse/DCON-5551) (epic: [DCON-5401](https://icanbwell.atlassian.net/browse/DCON-5401))
 
 This document is the implementation plan for adding `system/` scope support. It is being shared
 for review before any code is written — no implementation has landed yet.
@@ -47,7 +46,7 @@ already reach.
   the flag flipped. That risk was the only reason for the flag, so it was checked directly: a
   Groundcover audit of `scope` values seen over a 14-day window across **every**
   `fhir-server*` namespace (prod and non-prod, 37 namespaces total) found **zero** occurrences of
-  a `system/` scope string anywhere in current traffic (see DCON-5551 for the query and results).
+  a `system/` scope string anywhere in current traffic.
   With no pre-existing caller to accidentally activate, the flag has nothing left to guard against
   — it only adds a second code path (flag-on/flag-off) to test and reason about — so it was removed
   before merge. `getResourceTypeScopes` unions `user/` and `system/` unconditionally.
@@ -503,7 +502,7 @@ JEST_MAX_OLD_SPACE_SIZE=6144 make tests && make lint
 
 | # | Step | Gate |
 |---|---|---|
-| 0 | Audit OAuth client + `AUTH_CUSTOM_GROUP` provisioning, and live traffic (Groundcover, all `fhir-server*` namespaces, 14 days), for pre-existing `system/` strings. Result: zero found — this is why the rollout ships unconditionally, no kill switch (see DCON-5551). | — |
+| 0 | Audit OAuth client + `AUTH_CUSTOM_GROUP` provisioning, and live traffic (Groundcover, all `fhir-server*` namespaces, 14 days), for pre-existing `system/` strings. Result: zero found — this is why the rollout ships unconditionally, no kill switch. | — |
 | 1 | `constants.js` | `make lint` |
 | 2 | `scopesManager.js` — the two new methods | §5.1 green; **full existing suite still green** (nothing calls them yet) |
 | 3 | §5.1 unit tests | green |
@@ -518,7 +517,7 @@ JEST_MAX_OLD_SPACE_SIZE=6144 make tests && make lint
 | 12 | Full `make tests` | green |
 | 13 | PR with the review.md adversarial report | — |
 
-**Conventions** (AGENTS.md): branch `{initials}-{PROJ}-{ticket}` (this PR uses `MKS-DCON-5551`),
+**Conventions** (AGENTS.md): branch `{initials}-{PROJ}-{ticket}`,
 commits prefixed with the JIRA key, no `feat:`/`fix:` prefixes, no AI attribution /
 `Co-Authored-By`.
 

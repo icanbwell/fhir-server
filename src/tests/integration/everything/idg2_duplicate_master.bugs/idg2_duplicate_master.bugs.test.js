@@ -1,5 +1,5 @@
 // ============================================================================
-// FAIL-BY-DESIGN security test — SEC-1580 D-IDG2 / spec IDG-2 (mongo-only; no ClickHouse).
+// FAIL-BY-DESIGN security test — D-IDG2 / spec IDG-2 (mongo-only; no ClickHouse).
 // Rule: a Person.link hop where source and target share the SAME owner tag (a duplicate /
 // erroneous "master" of the same human) must be a traversal DEAD END — the other master's
 // patients must not be pulled into this person's aggregate view.

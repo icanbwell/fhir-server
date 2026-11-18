@@ -12,7 +12,7 @@ const { JWKS_REQUESTS_PER_MINUTE, JWT_EXPIRY_CLOCK_TOLERANCE } = require('../con
 /**
  * Handles errors raised by jwks-rsa while resolving a signing key.
  *
- * Boundary (INC-322): a `SigningKeyNotFoundError` after a SUCCESSFUL JWKS fetch means
+ * Boundary: a `SigningKeyNotFoundError` after a SUCCESSFUL JWKS fetch means
  * the token's `kid` genuinely doesn't match any known key -- that is a real, permanent
  * auth failure and must stay a 401. Any OTHER error here (network failure, timeout, DNS
  * failure, etc.) means we couldn't reach/complete the JWKS lookup at all -- that's an

@@ -433,7 +433,7 @@ describe('SearchByVersionIdOperation', () => {
         });
     });
 
-    describe('extended Group roster streaming (DCON-5530)', () => {
+    describe('extended Group roster streaming', () => {
         const requestInfo = {
             user: 'admin',
             scope: 'user/*.read',

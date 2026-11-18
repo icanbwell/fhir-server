@@ -141,7 +141,7 @@ describe('Update with fast serializer', () => {
             await new Promise((resolve) => setTimeout(resolve, 250));
             row = await readHistoryRow();
         }
-        // history rows no longer carry the per-version patch list (DCON-6272)
+        // history rows no longer carry the per-version patch list
         expect(row.resource.meta.versionId).toBe('2');
         expect(row.response).toBeUndefined();
     });

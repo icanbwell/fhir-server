@@ -1,4 +1,4 @@
-// SEC-1580 F3: the write check on a resource only requires ONE access tag to match the caller's
+// the write check on a resource only requires ONE access tag to match the caller's
 // scopes, so without a separate check on the set of access tags themselves, a caller authorized
 // for only one tenant could create a resource tagged for multiple tenants at once - sharing it
 // with a tenant whose authorization was never checked.
@@ -27,7 +27,7 @@ function patientWithAccessCodes (accessCodes) {
     };
 }
 
-describe('SEC-1580 F3 - create with access tag the caller has no access to', () => {
+describe('create with access tag the caller has no access to', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });

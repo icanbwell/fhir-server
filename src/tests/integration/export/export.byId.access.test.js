@@ -19,7 +19,7 @@ describe('Export byId access tests', () => {
         await commonAfterEach();
     });
 
-    test('a caller who did not start the export cannot poll its status (SEC-1580 F7)', async () => {
+    test('a caller who did not start the export cannot poll its status', async () => {
         const request = await createTestRequest((c) => {
             c.register('k8sClient', (c) => new MockK8sClient({
                 configManager: c.configManager

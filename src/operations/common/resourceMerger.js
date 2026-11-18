@@ -10,6 +10,8 @@ const { mergeObject } = require('../../utils/mergeHelper');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumnHandler");
+const { GroupMemberMerger } = require('./groupMemberMerger');
+const { unchangedStoredEntries } = require('./groupMemberDedupe');
 const deepcopy = require('deepcopy');
 const { logInfo } = require('./logging');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
@@ -63,10 +65,11 @@ class ResourceMerger {
      * @typedef {Object} Params
      * @property {PreSaveManager} preSaveManager
      * @property {import('../../utils/configManager').ConfigManager|null} [configManager]
+     * @property {GroupMemberMerger} groupMemberMerger
      *
      * @param {Params}
      */
-    constructor ({ preSaveManager, configManager = null }) {
+    constructor ({ preSaveManager, configManager = null, groupMemberMerger }) {
         /**
          * @type {PreSaveManager}
          */
@@ -76,6 +79,11 @@ class ResourceMerger {
          * @type {import('../../utils/configManager').ConfigManager|null}
          */
         this.configManager = configManager;
+        /**
+         * @type {GroupMemberMerger}
+         */
+        this.groupMemberMerger = groupMemberMerger;
+        assertTypeEquals(groupMemberMerger, GroupMemberMerger);
     }
 
     /**
@@ -423,6 +431,17 @@ class ResourceMerger {
         else {
             mergedObject = deepcopy(resourceToMerge);
         }
+        // A member can have a second entry here: the sent Group may list it twice, mergeObject
+        // appends a member that differs from every stored entry, and two $merge entries for one
+        // Group are combined the same way. Merge such entries before the diff, so a merge that
+        // ends up equal to the stored Group is still no change. With smartMerge the stored entries
+        // are kept, so the ones still as stored are the olderEntries and the entries the sent
+        // Group changed win wherever they sit in member[].
+        mergedObject = this.groupMemberMerger.mergeMembers({
+            resource: mergedObject,
+            requestInfo,
+            olderEntries: smartMerge ? unchangedStoredEntries(currentResource.member) : undefined
+        });
 
         // now create a patch between the document in db and the incoming document
         // this returns an array of patchecurrentResources

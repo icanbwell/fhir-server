@@ -162,7 +162,7 @@ describe('SearchBundleOperation', () => {
             });
         });
 
-        // DCON-4808: _explain/_debug/_setIndexHint expose Mongo query plans, collection
+        // _explain/_debug/_setIndexHint expose Mongo query plans, collection
         // internals, and let the caller pick the query's index. Only an admin-scoped
         // caller may use them; everyone else has these cleared before the search runs.
         describe('admin-scope gating of _explain/_debug/_setIndexHint', () => {

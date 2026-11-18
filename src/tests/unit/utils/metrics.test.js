@@ -5,9 +5,11 @@ const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
 // Mock @opentelemetry/api before requiring the module under test
 jest.mock('@opentelemetry/api', () => {
     const mockCounter = { add: jest.fn() };
+    const mockUpDownCounter = { add: jest.fn() };
     const mockHistogram = { record: jest.fn() };
     const mockMeter = {
         createCounter: jest.fn(() => mockCounter),
+        createUpDownCounter: jest.fn(() => mockUpDownCounter),
         createHistogram: jest.fn(() => mockHistogram)
     };
     return {
@@ -34,8 +36,15 @@ const {
     recordImportFileSize,
     recordImportRanges,
     recordImportTaskFinished,
+    recordGroupMemberMergeEntries,
     recordKafkaConsumerGroupJoin,
+    recordMongoPoolConnectionsInUseChange,
+    recordMongoPoolWaitQueueSizeChange,
+    mongoPoolConnectionsInUseUpDownCounter,
+    mongoPoolWaitQueueSizeUpDownCounter,
     importRangesCounter,
+    groupMemberMergeEntriesCounter,
+    GROUP_MEMBER_MERGE_OUTCOME,
     importTasksCounter,
     importTaskDurationHistogram,
     kafkaConsumerGroupJoinsCounter,
@@ -276,6 +285,28 @@ describe('metrics.js', () => {
         });
     });
 
+    describe('recordGroupMemberMergeEntries', () => {
+        test.each(Object.values(GROUP_MEMBER_MERGE_OUTCOME))('emits outcome=%s with the given count', (outcome) => {
+            recordGroupMemberMergeEntries(outcome, 3);
+            expect(groupMemberMergeEntriesCounter.add).toHaveBeenCalledWith(3, { [LABEL.OUTCOME]: outcome });
+        });
+
+        test('defaults the count to 1', () => {
+            recordGroupMemberMergeEntries(GROUP_MEMBER_MERGE_OUTCOME.NO_CHANGE);
+            expect(groupMemberMergeEntriesCounter.add).toHaveBeenCalledWith(1, { [LABEL.OUTCOME]: 'no_change' });
+        });
+
+        test('collapses an unknown outcome to UNKNOWN so cardinality stays bounded', () => {
+            recordGroupMemberMergeEntries('collapsed');
+            expect(groupMemberMergeEntriesCounter.add).toHaveBeenCalledWith(1, { [LABEL.OUTCOME]: UNKNOWN });
+        });
+
+        test.each([0, -1, NaN])('does not emit for a non-positive count (%p)', (count) => {
+            recordGroupMemberMergeEntries(GROUP_MEMBER_MERGE_OUTCOME.MERGED_AWAY, count);
+            expect(groupMemberMergeEntriesCounter.add).not.toHaveBeenCalled();
+        });
+    });
+
     describe('recordImportTaskFinished', () => {
         test.each(Object.values(IMPORT_TASK_STATUS))('emits tasks_total and duration for status=%s', (status) => {
             recordImportTaskFinished(status, 125.5);
@@ -306,6 +337,26 @@ describe('metrics.js', () => {
         test('uses UNKNOWN when the group id is missing', () => {
             recordKafkaConsumerGroupJoin(undefined);
             expect(kafkaConsumerGroupJoinsCounter.add).toHaveBeenCalledWith(1, { [LABEL.GROUP_ID]: UNKNOWN });
+        });
+    });
+
+    describe.each([
+        ['recordMongoPoolConnectionsInUseChange', recordMongoPoolConnectionsInUseChange, mongoPoolConnectionsInUseUpDownCounter],
+        ['recordMongoPoolWaitQueueSizeChange', recordMongoPoolWaitQueueSizeChange, mongoPoolWaitQueueSizeUpDownCounter]
+    ])('%s', (_name, recordChange, upDownCounter) => {
+        test.each([1, -1, -3])('applies a delta of %d labelled by pool', (delta) => {
+            recordChange('fhir', delta);
+            expect(upDownCounter.add).toHaveBeenCalledWith(delta, { [LABEL.POOL]: 'fhir' });
+        });
+
+        test('uses UNKNOWN when the pool name is missing', () => {
+            recordChange(undefined, 1);
+            expect(upDownCounter.add).toHaveBeenCalledWith(1, { [LABEL.POOL]: UNKNOWN });
+        });
+
+        test.each([0, NaN, undefined, Infinity])('drops a non-change delta of %p', (delta) => {
+            recordChange('fhir', delta);
+            expect(upDownCounter.add).not.toHaveBeenCalled();
         });
     });
 
@@ -580,6 +631,10 @@ describe('metrics.js', () => {
 
         test('DIRECTION is frozen', () => {
             expect(Object.isFrozen(DIRECTION)).toBe(true);
+        });
+
+        test('GROUP_MEMBER_MERGE_OUTCOME is frozen', () => {
+            expect(Object.isFrozen(GROUP_MEMBER_MERGE_OUTCOME)).toBe(true);
         });
     });
 });

@@ -417,8 +417,8 @@ describe('SECURITY MATRIX — read paths', () => {
     // History and old versions. A version written before a tag change can
     // still carry the older, wider tags, so a tenant-scoped access code can
     // still match a stale tag on an old version even after the current
-    // version's tags have been narrowed away from that tenant (SEC-1580
-    // SAE-1). Rather than re-evaluating each historical version against the
+    // version's tags have been narrowed away from that tenant
+    // (SAE-1). Rather than re-evaluating each historical version against the
     // resource's current tags, history reads (both _history and a specific
     // _history/{vid}) require a non-tenant-specific access scope
     // (access/*.read or access/*.*) -- a tenant scope alone is never enough,

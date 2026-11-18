@@ -8,7 +8,7 @@ const { generateUUIDv5 } = require('../../../utils/uid.util');
 const { getHeadersWithCustomPayload } = require('../common');
 
 /**
- * A patient-scoped caller's identity (SEC-1580 IDG-5, #2481) is now matched strictly against
+ * A patient-scoped caller's identity (#2481) is now matched strictly against
  * the Person collection's _uuid field, never falling back to _sourceId -- so a JWT's
  * clientFhirPersonId/bwellFhirPersonId claim must carry the Person's real _uuid, not the raw
  * FHIR `id` used to create it in a test fixture. UuidColumnHandler computes
@@ -28,7 +28,7 @@ function personUuid (personId, owner = 'client') {
 
 /**
  * A patient-scoped JWT payload whose clientFhirPersonId/bwellFhirPersonId is the given
- * personId's Person._uuid (SEC-1580 IDG-5, #2481, tightened this to an exact _uuid match with
+ * personId's Person._uuid (#2481, tightened this to an exact _uuid match with
  * no _sourceId fallback -- see personUuid's doc comment above). Full user/access grants are
  * included alongside the patient scope so that scope *narrowing* (not an outright access
  * denial) is what's under test -- mirrors src/tests/graphqlv2/observation/observation.test.js's

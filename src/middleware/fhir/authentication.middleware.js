@@ -38,7 +38,7 @@ const sendServiceUnavailableJson = (res) => {
  * infrastructure problem (e.g. JWKS or userinfo endpoint unreachable) rather
  * than a genuine, permanent auth failure (invalid/expired/malformed token).
  *
- * INC-322: transient infra failures must never be reported as a hard 401 --
+ * transient infra failures must never be reported as a hard 401 --
  * doing so signals downstream systems that the credential itself is bad,
  * which can permanently revoke a grant for what was only a temporary outage.
  * @param {*} candidate
@@ -95,7 +95,7 @@ const authenticateWithJsonFailure = (strategy, options = {session: false}) => {
                 // (self.fail()) -- see AuthService.verify()'s userinfo-fetch-failure
                 // path, which calls done(error) with a transient/503-marked error.
                 // That must be classified and sanitized the same way as the `info`
-                // transient-failure path below, not forwarded raw (INC-322).
+                // transient-failure path below, not forwarded raw.
                 if (isTransientAuthFailure(err)) {
                     return respondToTransientAuthFailure(req, res, next);
                 }
@@ -105,7 +105,7 @@ const authenticateWithJsonFailure = (strategy, options = {session: false}) => {
                 // A transient infrastructure failure (e.g. JWKS/userinfo endpoint
                 // unreachable) is carried here as `info` rather than `err` because
                 // passport-jwt's secretOrKeyProvider errors go through self.fail(),
-                // not self.error(). Surface it as 503, not 401 (INC-322).
+                // not self.error(). Surface it as 503, not 401.
                 if (isTransientAuthFailure(info)) {
                     return respondToTransientAuthFailure(req, res, next);
                 }

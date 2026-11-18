@@ -1,0 +1,436 @@
+/**
+ * An embedded Group keeps one member for each entity.reference, however it is written: POST, PUT,
+ * $merge or PATCH. Entries are the same member when their reference resolves to the same uuid,
+ * so `Patient/x` and `Patient/x|<owner>` match and the same id under another owner does not.
+ * A Group that lists a member more than once is stored with one entry for it, the entries merged
+ * with the $merge rules. A member sent again that is already stored is merged onto the stored
+ * entry, and members stored more than once are merged on the next write that changes the Group.
+ */
+const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getHeaders, getHeadersJsonPatch } = require('../common');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
+
+const GROUP_COLLECTION_NAME = 'Group_4_0_0';
+const OWNER = 'test-owner';
+const PERIOD = { start: '2026-01-01' };
+
+const meta = {
+    source: 'http://test-system.com/Group',
+    security: [
+        { system: 'https://www.icanbwell.com/owner', code: OWNER },
+        { system: 'https://www.icanbwell.com/access', code: 'test-access' }
+    ]
+};
+
+function member(reference, extra = {}) {
+    return { entity: { reference }, ...extra };
+}
+
+/**
+ * toEqual ignores fields that are undefined, so an expected entry lists only the fields it has.
+ * @param {Object[]} members
+ * @returns {{reference: string, period: Object|undefined, inactive: boolean|undefined}[]}
+ */
+function memberSummary(members) {
+    return (members || []).map((m) => ({ reference: m.entity.reference, period: m.period, inactive: m.inactive }));
+}
+
+describe('Group keeps one member per entity.reference', () => {
+    let request;
+
+    beforeAll(async () => {
+        await commonBeforeEach();
+        request = await createTestRequest();
+    });
+
+    afterAll(async () => {
+        await commonAfterEach();
+    });
+
+    function groupBody(id, extra = {}) {
+        return { resourceType: 'Group', id, type: 'person', actual: true, name: 'before', meta, ...extra };
+    }
+
+    /**
+     * POST assigns the Group's id, so the id the server returns is the one to read and write.
+     * @returns {Promise<string>}
+     */
+    async function postGroup(members, headers = getHeaders()) {
+        const response = await request.post('/4_0_0/Group').send(groupBody(undefined, { member: members })).set(headers);
+        expect(response.status).toBe(201);
+        return response.body.id;
+    }
+
+    async function getGroup(id) {
+        const response = await request.get(`/4_0_0/Group/${id}`).set(getHeaders());
+        expect(response.status).toBe(200);
+        return response.body;
+    }
+
+    async function getGroupCollection() {
+        const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+        return db.collection(GROUP_COLLECTION_NAME);
+    }
+
+    /**
+     * Writes member[] straight to the stored Group, bypassing the server, to stand in for a Group
+     * saved with duplicate members before they were merged on write. Each entry takes the
+     * server-computed entity fields (_uuid, _sourceId, ...) of the stored entry with its reference.
+     */
+    async function storeMembersDirectly(id, members) {
+        const groupCollection = await getGroupCollection();
+        const storedGroup = await groupCollection.findOne({ id });
+        const storedEntityByReference = new Map(storedGroup.member.map((m) => [m.entity.reference, m.entity]));
+        const stampedMember = (m) => ({ ...m, entity: { ...storedEntityByReference.get(m.entity.reference) } });
+        const result = await groupCollection.updateOne({ id }, { $set: { member: members.map(stampedMember) } });
+        expect(result.modifiedCount).toBe(1);
+    }
+
+    async function mergeGroup(body) {
+        const response = await request.post('/4_0_0/Group/$merge').send(body).set(getHeaders());
+        expect(response.status).toBe(200);
+        return response.body;
+    }
+
+    const LISTED_TWICE = [member('Patient/a'), member('Patient/b'), member('Patient/a', { period: PERIOD })];
+
+    test.each([
+        [
+            'POST',
+            async () => postGroup(LISTED_TWICE),
+            [{ reference: 'Patient/a', period: PERIOD }, { reference: 'Patient/b' }],
+            '1'
+        ],
+        [
+            'PUT that creates the Group',
+            async () => {
+                const response = await request.put('/4_0_0/Group/group-put-create').send(groupBody('group-put-create', { member: LISTED_TWICE })).set(getHeaders());
+                expect(response.status).toBe(201);
+                return 'group-put-create';
+            },
+            [{ reference: 'Patient/a', period: PERIOD }, { reference: 'Patient/b' }],
+            '1'
+        ],
+        [
+            'PUT over a stored Group',
+            async () => {
+                const id = await postGroup([member('Patient/b')]);
+                const response = await request.put(`/4_0_0/Group/${id}`).send(groupBody(id, { member: LISTED_TWICE })).set(getHeaders());
+                expect(response.status).toBe(200);
+                return id;
+            },
+            [{ reference: 'Patient/a', period: PERIOD }, { reference: 'Patient/b' }],
+            '2'
+        ],
+        [
+            '$merge that creates the Group',
+            async () => {
+                await mergeGroup(groupBody('group-merge-create', { member: LISTED_TWICE }));
+                return 'group-merge-create';
+            },
+            [{ reference: 'Patient/a', period: PERIOD }, { reference: 'Patient/b' }],
+            '1'
+        ],
+        [
+            '$merge over a stored Group',
+            async () => {
+                const id = await postGroup([member('Patient/b')]);
+                await mergeGroup(groupBody(id, { member: LISTED_TWICE }));
+                return id;
+            },
+            [{ reference: 'Patient/b' }, { reference: 'Patient/a', period: PERIOD }],
+            '2'
+        ]
+    ])('%s listing a member twice stores one merged entry for it', async (_label, write, expectedMembers, expectedVersionId) => {
+        const id = await write();
+
+        const group = await getGroup(id);
+        expect(memberSummary(group.member)).toEqual(expectedMembers);
+        expect(group.meta.versionId).toBe(expectedVersionId);
+    });
+
+    test('POST listing the plain and the |owner form of one reference stores one entry for it', async () => {
+        const id = await postGroup([member('Patient/a'), member('Patient/b'), member(`Patient/a|${OWNER}`, { period: PERIOD })]);
+
+        const group = await getGroup(id);
+        expect(group.member).toHaveLength(2);
+        const memberA = group.member.filter((m) => m.entity.reference.startsWith('Patient/a'));
+        expect(memberA).toHaveLength(1);
+        expect(memberA[0].period).toEqual(PERIOD);
+    });
+
+    test.each([
+        [
+            'an existing Group',
+            async () => postGroup([member('Patient/b')]),
+            [{ reference: 'Patient/b' }, { reference: 'Patient/a', period: PERIOD }]
+        ],
+        ['a new Group', async () => 'group-created-by-two-entries', [{ reference: 'Patient/a', period: PERIOD }]]
+    ])('$merge of two entries for %s, each listing the same member once, keeps one entry for it', async (_label, groupIdFor, expectedMembers) => {
+        const id = await groupIdFor();
+
+        await mergeGroup([groupBody(id, { member: [member('Patient/a')] }), groupBody(id, { member: [member('Patient/a', { period: PERIOD })] })]);
+
+        const group = await getGroup(id);
+        expect(memberSummary(group.member)).toEqual(expectedMembers);
+    });
+
+    test.each([
+        [
+            're-sending a member with a period',
+            [member('Patient/a'), member('Patient/b')],
+            [member('Patient/a', { period: PERIOD })],
+            [{ reference: 'Patient/a', period: PERIOD }, { reference: 'Patient/b' }],
+            '2'
+        ],
+        [
+            're-sending a member with fewer fields',
+            [member('Patient/a', { period: PERIOD }), member('Patient/b')],
+            [member('Patient/a')],
+            [{ reference: 'Patient/a', period: PERIOD }, { reference: 'Patient/b' }],
+            '1'
+        ],
+        [
+            'sending a period with only a start, which merges with the stored end',
+            [member('Patient/a', { period: { start: '2024-01-01', end: '2024-06-30' } })],
+            [member('Patient/a', { period: PERIOD })],
+            [{ reference: 'Patient/a', period: { ...PERIOD, end: '2024-06-30' } }],
+            '2'
+        ]
+    ])('$merge %s keeps one entry per member', async (_label, storedMembers, sentMembers, expectedMembers, expectedVersionId) => {
+        const id = await postGroup(storedMembers);
+
+        await mergeGroup(groupBody(id, { member: sentMembers }));
+
+        const group = await getGroup(id);
+        expect(memberSummary(group.member)).toEqual(expectedMembers);
+        expect(group.meta.versionId).toBe(expectedVersionId);
+    });
+
+    test('$merge re-sending a member in the id|sourceAssigningAuthority form keeps one entry for it', async () => {
+        const id = await postGroup([member('Patient/a'), member('Patient/b')]);
+
+        await mergeGroup(groupBody(id, { member: [member(`Patient/a|${OWNER}`, { period: PERIOD })] }));
+
+        const group = await getGroup(id);
+        expect(group.member).toHaveLength(2);
+        const memberA = group.member.filter((m) => m.entity.reference.startsWith('Patient/a'));
+        expect(memberA).toHaveLength(1);
+        expect(memberA[0].period).toEqual(PERIOD);
+    });
+
+    test('the same patient id under two owners stays two members', async () => {
+        const id = await postGroup([member('Patient/a|owner-one'), member('Patient/a|owner-two')]);
+
+        const group = await getGroup(id);
+
+        expect(group.member).toHaveLength(2);
+    });
+
+    test.each([
+        ['$merge changing name', async (id) => mergeGroup(groupBody(id, { name: 'after' }))],
+        [
+            'PATCH replace /name',
+            async (id) => {
+                const response = await request
+                    .patch(`/4_0_0/Group/${id}`)
+                    .send([{ op: 'replace', path: '/name', value: 'after' }])
+                    .set(getHeadersJsonPatch());
+                expect(response.status).toBe(200);
+            }
+        ]
+    ])('a %s merges members already stored twice, once', async (_label, write) => {
+        const id = await postGroup([member('Patient/a'), member('Patient/b')]);
+        await storeMembersDirectly(id, [member('Patient/a'), member('Patient/b'), member('Patient/a', { period: PERIOD })]);
+
+        await write(id);
+        const groupAfterFirstWrite = await getGroup(id);
+        await write(id);
+        const groupAfterSecondWrite = await getGroup(id);
+
+        expect(memberSummary(groupAfterFirstWrite.member)).toEqual([
+            { reference: 'Patient/a', period: PERIOD },
+            { reference: 'Patient/b' }
+        ]);
+        expect(groupAfterFirstWrite.name).toBe('after');
+        expect(groupAfterFirstWrite.meta.versionId).toBe('2');
+        expect(groupAfterSecondWrite.meta.versionId).toBe('2');
+    });
+
+    test.each([
+        [
+            'add /member/2/inactive',
+            [{ op: 'add', path: '/member/2/inactive', value: true }],
+            [{ reference: 'Patient/a', period: PERIOD }, { reference: 'Patient/b', inactive: true }]
+        ],
+        [
+            'remove /member/0',
+            [{ op: 'remove', path: '/member/0' }],
+            [{ reference: 'Patient/a', period: PERIOD }, { reference: 'Patient/b' }]
+        ],
+        [
+            'add /member/0/period, editing the first of the two entries',
+            [{ op: 'add', path: '/member/0/period', value: { start: '2027-01-01' } }],
+            [{ reference: 'Patient/a', period: { start: '2027-01-01' } }, { reference: 'Patient/b' }]
+        ]
+    ])('PATCH %s on members stored twice applies to the entries as stored, then merges them', async (_label, patchOps, expectedMembers) => {
+        const id = await postGroup([member('Patient/a'), member('Patient/b')]);
+        await storeMembersDirectly(id, [member('Patient/a'), member('Patient/a', { period: PERIOD }), member('Patient/b')]);
+
+        const response = await request.patch(`/4_0_0/Group/${id}`).send(patchOps).set(getHeadersJsonPatch());
+
+        expect(response.status).toBe(200);
+        const group = await getGroup(id);
+        expect(memberSummary(group.member)).toEqual(expectedMembers);
+    });
+
+    test.each([
+        [
+            "pointing an entry at another member's reference merges it with that member",
+            [{ op: 'replace', path: '/member/0/entity/reference', value: 'Patient/b' }],
+            [{ reference: 'Patient/b', period: PERIOD }]
+        ],
+        [
+            'pointing an entry at a new reference and adding its old reference keeps all three',
+            [
+                { op: 'replace', path: '/member/0/entity/reference', value: 'Patient/c' },
+                { op: 'add', path: '/member/-', value: member('Patient/a') }
+            ],
+            [{ reference: 'Patient/c' }, { reference: 'Patient/b', period: PERIOD }, { reference: 'Patient/a' }]
+        ]
+    ])('PATCH %s, matched on the patched reference', async (_label, patchOps, expectedMembers) => {
+        const id = await postGroup([member('Patient/a'), member('Patient/b', { period: PERIOD })]);
+
+        const response = await request.patch(`/4_0_0/Group/${id}`).send(patchOps).set(getHeadersJsonPatch());
+
+        expect(response.status).toBe(200);
+        const group = await getGroup(id);
+        expect(memberSummary(group.member)).toEqual(expectedMembers);
+    });
+
+    test('a POST with the useexternalstorage header and ClickHouse off merges a member listed twice', async () => {
+        const id = await postGroup(
+            [member('Patient/a'), member('Patient/a', { period: PERIOD })],
+            { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' }
+        );
+
+        const group = await getGroup(id);
+        expect(memberSummary(group.member)).toEqual([{ reference: 'Patient/a', period: PERIOD }]);
+    });
+
+    test('$merge matching a member by id on a Group storing that member twice keeps the sent values', async () => {
+        const id = await postGroup([member('Patient/a'), member('Patient/b')]);
+        await storeMembersDirectly(id, [
+            member('Patient/a', { id: 'member-a' }),
+            member('Patient/a', { period: { start: '2025-01-01' } }),
+            member('Patient/b')
+        ]);
+
+        await mergeGroup(groupBody(id, { member: [member('Patient/a', { id: 'member-a', period: PERIOD })] }));
+
+        const group = await getGroup(id);
+        expect(memberSummary(group.member)).toEqual([{ reference: 'Patient/a', period: PERIOD }, { reference: 'Patient/b' }]);
+    });
+
+    test('a $merge that changes nothing leaves members stored twice as they are and creates no version', async () => {
+        const id = await postGroup([member('Patient/a'), member('Patient/b')]);
+        await storeMembersDirectly(id, [member('Patient/a'), member('Patient/b'), member('Patient/a', { period: PERIOD })]);
+
+        await mergeGroup(groupBody(id, { member: [member('Patient/b')] }));
+
+        const groupCollection = await getGroupCollection();
+        const storedGroup = await groupCollection.findOne({ id });
+        expect(storedGroup.member).toHaveLength(3);
+        expect(storedGroup.meta.versionId).toBe('1');
+    });
+
+    describe('with a per-member entry limit of 2', () => {
+        const LIMIT_MESSAGE = 'Group.member has 3 entries for one member, more than the 2 allowed';
+        const THREE_ENTRIES_OF_A = ['2010', '2011', '2012'].map((year) => member('Patient/a', { period: { start: `${year}-01-01` } }));
+        let savedLimit;
+
+        beforeAll(() => {
+            savedLimit = process.env.GROUP_MEMBER_MAX_ENTRIES_PER_MEMBER;
+            process.env.GROUP_MEMBER_MAX_ENTRIES_PER_MEMBER = '2';
+        });
+
+        afterAll(() => {
+            if (savedLimit === undefined) {
+                delete process.env.GROUP_MEMBER_MAX_ENTRIES_PER_MEMBER;
+            } else {
+                process.env.GROUP_MEMBER_MAX_ENTRIES_PER_MEMBER = savedLimit;
+            }
+        });
+
+        test.each([
+            [
+                'POST',
+                async () => request.post('/4_0_0/Group').send(groupBody(undefined, { member: THREE_ENTRIES_OF_A })).set(getHeaders())
+            ],
+            [
+                'PUT that creates the Group',
+                async () => request.put('/4_0_0/Group/group-limit-put').send(groupBody('group-limit-put', { member: THREE_ENTRIES_OF_A })).set(getHeaders())
+            ],
+            [
+                'PATCH adding the entries',
+                async () => {
+                    const id = await postGroup([member('Patient/b')]);
+                    const addOps = THREE_ENTRIES_OF_A.map((value) => ({ op: 'add', path: '/member/-', value }));
+                    return request.patch(`/4_0_0/Group/${id}`).send(addOps).set(getHeadersJsonPatch());
+                }
+            ]
+        ])('%s sending one member 3 times is rejected with 400', async (_label, write) => {
+            const response = await write();
+
+            expect(response.status).toBe(400);
+            expect(response.body.issue[0].code).toBe('invalid');
+            expect(response.body.issue[0].details.text).toBe(LIMIT_MESSAGE);
+        });
+
+        test('$merge sending one member 3 times reports the limit for that Group and stores nothing', async () => {
+            const response = await request.post('/4_0_0/Group/$merge').send(groupBody('group-limit-merge', { member: THREE_ENTRIES_OF_A })).set(getHeaders());
+
+            expect(response.status).toBe(200);
+            const [result] = [].concat(response.body);
+            expect(result.created).toBe(false);
+            expect(result.issue.details.text).toBe(LIMIT_MESSAGE);
+            const groupCollection = await getGroupCollection();
+            expect(await groupCollection.findOne({ id: 'group-limit-merge' })).toBeNull();
+        });
+
+        test('a member sent as often as the limit is merged', async () => {
+            const id = await postGroup(THREE_ENTRIES_OF_A.slice(0, 2));
+
+            const group = await getGroup(id);
+
+            expect(memberSummary(group.member)).toEqual([{ reference: 'Patient/a', period: { start: '2011-01-01' } }]);
+        });
+
+        const SENT_FOR_A = [member('Patient/a', { inactive: true }), member('Patient/a', { period: { end: '2013-01-01' } })];
+
+        test.each([
+            [
+                'PATCH adding the entries',
+                async (id) => request.patch(`/4_0_0/Group/${id}`).send(SENT_FOR_A.map((value) => ({ op: 'add', path: '/member/-', value }))).set(getHeadersJsonPatch())
+            ],
+            [
+                '$merge sending the entries',
+                async (id) => request.post('/4_0_0/Group/$merge').send(groupBody(id, { member: SENT_FOR_A })).set(getHeaders())
+            ]
+        ])('%s on a Group storing a member more times than the limit merges them all, since stored entries do not count', async (_label, write) => {
+            const id = await postGroup([member('Patient/a'), member('Patient/b')]);
+            await storeMembersDirectly(id, [...THREE_ENTRIES_OF_A, member('Patient/b')]);
+
+            const response = await write(id);
+
+            expect(response.status).toBe(200);
+            expect(JSON.stringify(response.body)).not.toContain('allowed');
+            const group = await getGroup(id);
+            expect(memberSummary(group.member)).toEqual([
+                { reference: 'Patient/a', period: { start: '2012-01-01', end: '2013-01-01' }, inactive: true },
+                { reference: 'Patient/b' }
+            ]);
+            expect(group.meta.versionId).toBe('2');
+        });
+    });
+});

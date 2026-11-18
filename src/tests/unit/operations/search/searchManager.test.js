@@ -1468,7 +1468,7 @@ describe('SearchManager.streamGroupMemberArrayAsync', () => {
     });
 
     test('streams via a cursor with no getQuery() when rebuildCursorAsync is supplied instead ' +
-        '(e.g. an aggregation-pipeline cursor, per DCON-5530\'s point-in-time reconstruction)', async () => {
+        '(e.g. an aggregation-pipeline cursor, for point-in-time reconstruction)', async () => {
         const sm = makeStreamingSearchManager();
         const groupResourceJson = { resourceType: 'Group', id: 'group-1', active: true };
         const docs = [{ member: { entity: { reference: 'Patient/1' }, inactive: false } }];

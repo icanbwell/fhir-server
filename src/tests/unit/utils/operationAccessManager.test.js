@@ -254,7 +254,7 @@ describe('OperationAccessManager', () => {
         });
     });
 
-    describe('verifyGraphQLReadAccess (DCON-4846)', () => {
+    describe('verifyGraphQLReadAccess', () => {
         test('overrides method to GET before delegating, without mutating the original requestInfo', () => {
             manager = new OperationAccessManager({
                 accessProviders: [mockProvider1]

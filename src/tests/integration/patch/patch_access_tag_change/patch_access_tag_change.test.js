@@ -1,4 +1,4 @@
-// SEC-1580 F2/F3: patch, like update, validated write access only against the resource as
+// patch, like update, validated write access only against the resource as
 // currently stored. A JSON patch that adds (or removes) a meta.security access tag needs the same
 // "every changed tag must be one the caller is authorized for" check as update/create/merge.
 const {
@@ -32,7 +32,7 @@ const addClientBAccessTagPatch = [
     }
 ];
 
-describe('SEC-1580 F2 - patch cannot re-tag a resource to a tenant the caller has no access to', () => {
+describe('patch cannot re-tag a resource to a tenant the caller has no access to', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });

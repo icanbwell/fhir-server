@@ -2,7 +2,7 @@ const { describe, test, expect, jest, beforeEach, afterEach } = require('@jest/g
 const { ConfigManager } = require('../../../utils/configManager');
 
 /**
- * EA-2320 socket-stability configuration wiring.
+ * socket-stability configuration wiring.
  *
  * The ECONNRESET/EPIPE fix has two halves: (1) draining response streams
  * (covered in clickHouseClientManager.test.js) and (2) constructing the client

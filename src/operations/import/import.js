@@ -1,5 +1,6 @@
 const moment = require('moment-timezone');
 const deepcopy = require('deepcopy');
+const { ReadPreference } = require('mongodb');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { AuditLogger } = require('../../utils/auditLogger');
@@ -17,7 +18,8 @@ const { SecurityTagManager } = require('../common/securityTagManager');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY, CLOUD_EVENT, BULK_IMPORT_TASK } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
-const { generateUUID, isUuid, generateUUIDv5 } = require('../../utils/uid.util');
+const { generateUUID } = require('../../utils/uid.util');
+const { getBulkImportTaskUuid } = require('../asyncJobs/bulkImport/bulkImportTaskUuid');
 const { logInfo, logError } = require('../common/logging');
 
 class ImportOperation {
@@ -175,7 +177,7 @@ class ImportOperation {
             base_version: '4_0_0'
         });
 
-        const uuid = isUuid(id) ? id : generateUUIDv5(`${id}|${BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY}`);
+        const uuid = getBulkImportTaskUuid(id);
         const existing = await databaseQueryManager.fastFindOneAsync({
             query: { _uuid: uuid }
         });
@@ -275,7 +277,11 @@ class ImportOperation {
             resourceType: 'Task',
             base_version: '4_0_0'
         });
-        const task = await databaseQueryManager.fastFindOneAsync({ query: { id: taskId } });
+        const task = await databaseQueryManager.fastFindOneAsync({
+            query: { _uuid: getBulkImportTaskUuid(taskId) },
+            // the Task was inserted moments ago; a secondary may not have it yet
+            options: { readPreference: ReadPreference.PRIMARY }
+        });
         if (!task) {
             return;
         }

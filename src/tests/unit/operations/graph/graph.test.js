@@ -71,7 +71,7 @@ describe('GraphOperation', () => {
 
         mockScopesValidator = createMockInstance(ScopesValidator, {
             verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined),
-            // Default to admin so pre-existing tests (unrelated to the DCON-4808 admin-scope
+            // Default to admin so pre-existing tests (unrelated to the admin-scope
             // gating) keep exercising their original code path.
             isAdminScope: jest.fn().mockReturnValue(true)
         });
@@ -162,7 +162,7 @@ describe('GraphOperation', () => {
             expect(mockGraphHelper.processGraphAsync).not.toHaveBeenCalled();
         });
 
-        // DCON-4806: verifyHasValidScopesAsync must be checked as a write for DELETE,
+        // verifyHasValidScopesAsync must be checked as a write for DELETE,
         // otherwise a read-only-scoped caller could delete the resource graph.
         test('should verify write scope (not read) when method is DELETE', async () => {
             mockRequestInfo.method = 'DELETE';
@@ -178,7 +178,7 @@ describe('GraphOperation', () => {
             );
         });
 
-        // DCON-4808: _explain/_debug/_setIndexHint expose Mongo query plans, collection
+        // _explain/_debug/_setIndexHint expose Mongo query plans, collection
         // internals, and let the caller pick the query's index -- graph.js was not
         // previously gating these, unlike history.js/searchBundle.js/searchStreaming.js.
         test('non-admin caller: _explain/_debug/_setIndexHint are cleared before processGraphAsync', async () => {

@@ -355,7 +355,7 @@ describe('filterCompositionSensitiveSections', () => {
         });
     });
 
-    describe('hardcoded unclassified category (DCON-4892)', () => {
+    describe('hardcoded unclassified category', () => {
         // filterCompositionSensitiveSections/shouldRemoveSection is a pure denylist-membership
         // check -- it has no built-in knowledge of the hardcoded unclassified code. Folding
         // 'unclassified' into the denylist unconditionally (so it's always stripped regardless of

@@ -1,7 +1,7 @@
 const { describe, test, expect, beforeEach, afterEach } = require('@jest/globals');
 const { createTestRequest } = require('../common');
 
-describe('#oauth callback routes (DCON-4804)', () => {
+describe('#oauth callback routes', () => {
     let savedEnv;
 
     beforeEach(() => {

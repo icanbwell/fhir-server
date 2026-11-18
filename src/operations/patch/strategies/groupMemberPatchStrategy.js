@@ -15,7 +15,7 @@ const deepcopy = require('deepcopy');
  * - ClickHouse (per-request `useexternalstorage` header) -- genuinely event-sourced; writes
  *   events to the ClickHouse event log via the Group's registered post-save handler.
  * - Mongo-native "extended" storage (permanent, internal, non-FHIR marker field on the Group
- *   resource class, design doc §3.1, DCON-5527) -- a plain resource write, not an event log:
+ *   resource class, design doc §3.1) -- a plain resource write, not an event log:
  *   each requested add/remove resolves directly to a create/update/delete of a
  *   GroupMember_4_0_0 row through MongoGroupMemberRepository, targeting GroupMember_4_0_0 /
  *   GroupMember_4_0_0_History via the shared write pipeline. Split across two dedicated methods
@@ -366,10 +366,10 @@ class GroupMemberPatchStrategy {
         // each op inline with add/remove as it's encountered -- this preserves the client's
         // actual submitted sequence, unlike bucketing into separate add/remove arrays and
         // concatenating them back together (which would always place every remove after every
-        // add regardless of the client's real op order, making resolveMemberWritesAsync's
-        // last-wins-per-entity de-dupe always favor removal for a member that appears in both an
-        // add and a remove op in the same PATCH, even when the client's actual last op for that
-        // member was the add).
+        // add regardless of the client's real op order, so resolveMemberWritesAsync, which folds
+        // a member's requests in request order, would always end with the removal for a member
+        // that appears in both an add and a remove op in the same PATCH, even when the client's
+        // actual last op for that member was the add).
         const orderedMemberWriteRequests = [];
 
         for (const op of memberOperations) {

@@ -212,7 +212,7 @@ describe('ResourceValidator', () => {
         // (resourceValidator.js ~line 123), which is also what allows the still-open,
         // quarantined Person.link cross-tenant forgery gap documented in
         // src/tests/unit/operations/merge/merge.crossTenant.test.js ("MUST validate that
-        // link target Person belongs to same tenant before creating link", DCON-4844) --
+        // link target Person belongs to same tenant before creating link") --
         // see review.md section B (Person/Patient link traversal & expansion). If that gap
         // is fixed by adding a target-tenant check for Person.link specifically (tracked in
         // PR #2436), this test (which only exercises a generic `Appointment` reference
@@ -228,7 +228,7 @@ describe('ResourceValidator', () => {
                 currentResource, resourceToValidateJson, isUser: false
             });
 
-            // DCON-4844's cross-tenant check is scoped to Person.link -- this is a tripwire: if the
+            // The cross-tenant check is scoped to Person.link -- this is a tripwire: if the
             // gap for other array reference fields (see review.md section B) is ever fixed by
             // tightening this validator generically instead of Person-specifically, this test
             // should keep passing unchanged, since it doesn't touch Person at all.
@@ -236,7 +236,7 @@ describe('ResourceValidator', () => {
         });
     });
 
-    describe('validatePatientReference — Person.link cross-tenant check (DCON-4844)', () => {
+    describe('validatePatientReference — Person.link cross-tenant check', () => {
         /**
          * @type {ScopesManager}
          */
@@ -365,7 +365,7 @@ describe('ResourceValidator', () => {
             expect(mockFindAsync).not.toHaveBeenCalled();
         });
 
-        it('rejects linking to a target that cannot be found (DCON-4844 redesign: not-found is no longer silently allowed)', async () => {
+        it('rejects linking to a target that cannot be found (redesign: not-found is no longer silently allowed)', async () => {
             resolveTargetsAs([]);
 
             const result = await personResourceValidator.validatePatientReference({
@@ -528,7 +528,7 @@ describe('ResourceValidator', () => {
         });
 
         it('rejects a link target that cannot be parsed into resourceType + id (e.g. an absolute URL) instead of silently skipping it', async () => {
-            // DCON-4844 follow-up: an unparseable/URL target can't be resolved to a tenant, so it
+            // an unparseable/URL target can't be resolved to a tenant, so it
             // must not be waved through. It should be rejected before any DB lookup is attempted.
             const result = await personResourceValidator.validatePatientReference({
                 currentResource: personWithLinks(['uuid-a']),

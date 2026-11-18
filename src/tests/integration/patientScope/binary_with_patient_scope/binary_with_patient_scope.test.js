@@ -1,19 +1,11 @@
-// The test app is cached per file, so the flag-off case lives in binary_flag_off.test.js.
 const binary1Resource = require('./fixtures/binary1.json');
 const { personScopedHeaders, mergePersonAsync } = require('./binaryScopeTestHelpers');
 
 const deepcopy = require('deepcopy');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest } = require('../../common');
-const { ConfigManager } = require('../../../../utils/configManager');
 
-class FlagOnConfigManager extends ConfigManager {
-    get enablePatientScopedBinary () {
-        return true;
-    }
-}
-
-describe('Binary patient scope (ENABLE_PATIENT_SCOPED_BINARY on)', () => {
+describe('Binary patient scope', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -26,10 +18,7 @@ describe('Binary patient scope (ENABLE_PATIENT_SCOPED_BINARY on)', () => {
      * @return {Promise<{request: import('supertest').Agent, personUuid: string}>}
      */
     async function setupAsync () {
-        const request = await createTestRequest((c) => {
-            c.register('configManager', () => new FlagOnConfigManager());
-            return c;
-        });
+        const request = await createTestRequest();
         return { request, personUuid: await mergePersonAsync(request) };
     }
 
