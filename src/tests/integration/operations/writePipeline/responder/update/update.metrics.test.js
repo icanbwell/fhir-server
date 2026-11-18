@@ -291,11 +291,8 @@ describe('PUT validation failure metric on the old and the new write path', () =
                 subject: { reference: 'Patient/parity-patient-2' }
             }),
             headers: { ...getHeaders(), 'If-Match': 'W/"7"' },
-            statusByPath: { old: 400, new: 412 },
-            labelsByPath: {
-                old: [failureLabels('Observation', metrics.VALIDATION_STAGE.REFERENCE)],
-                new: []
-            }
+            status: 400,
+            labels: [failureLabels('Observation', metrics.VALIDATION_STAGE.REFERENCE)]
         },
         {
             name: 'accessTagRemoveNotGrantableInvalidReference',
@@ -354,7 +351,7 @@ describe('PUT validation failure metric on the old and the new write path', () =
             previous: [variant(groupResource, { member: groupMembers(4) })],
             env: GROUP_OVER_LIMIT_ENVIRONMENT,
             body: variant(groupResource, { member: groupMembers(4) }),
-            statusByPath: { old: 400, new: 200 },
+            status: 400,
             labels: []
         },
         {

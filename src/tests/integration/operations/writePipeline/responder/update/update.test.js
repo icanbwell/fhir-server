@@ -903,8 +903,8 @@ describe('PUT parity between the old and the new write path', () => {
                 subject: { reference: 'Patient/parity-patient-2' }
             }),
             headers: headersWith({ 'If-Match': 'W/"7"' }),
-            old: { status: 400, golden: 'ifMatchMismatchPatientReferenceChangedOldPath' },
-            newPath: { status: 412, golden: 'ifMatchMismatchPatientReferenceChangedNewPath' }
+            status: 400,
+            golden: 'ifMatchMismatchPatientReferenceChanged'
         },
         {
             name: 'accessTagRemoveNotGrantableInvalidReference',
@@ -951,8 +951,8 @@ describe('PUT parity between the old and the new write path', () => {
             previous: [variant(groupResource, { member: groupMembers(4) })],
             env: groupOverLimitEnvironment,
             body: variant(groupResource, { member: groupMembers(4) }),
-            old: { status: 400, golden: 'noOpGroupOverLoweredLimitOldPath' },
-            newPath: { status: 200, golden: 'noOpGroupOverLoweredLimitNewPath' }
+            status: 400,
+            golden: 'noOpGroupOverLoweredLimit'
         },
         {
             name: 'base64UnrelatedFieldChanged',

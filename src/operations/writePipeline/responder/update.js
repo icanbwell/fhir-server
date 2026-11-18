@@ -28,7 +28,8 @@ const { readSingleResourceBody } = require('./singleResourceBody');
 /**
  * The failure stages for which update stores the rejected resource in the access log before it
  * throws, when the failure has an OperationOutcome: the read-time type check, the authority-tag
- * check of the identity, the incoming checks, the size check and the result validation.
+ * check of the identity, the incoming checks, the size check, the validation against the stored
+ * document and the result validation.
  */
 const ACCESS_LOGGED_STAGES = Object.freeze([
     WRITE_FAILURE_STAGE.STRUCTURE,
@@ -36,6 +37,7 @@ const ACCESS_LOGGED_STAGES = Object.freeze([
     WRITE_FAILURE_STAGE.INCOMING_SCHEMA,
     WRITE_FAILURE_STAGE.INCOMING_META,
     WRITE_FAILURE_STAGE.SIZE,
+    WRITE_FAILURE_STAGE.STORED_VALIDATION,
     WRITE_FAILURE_STAGE.RESULT_VALIDATION
 ]);
 
@@ -133,8 +135,8 @@ class UpdateResponder extends WriteResponder {
      * a scope or access failure, a `PayloadTooLargeError` for a size failure, or the error when the
      * size check threw, the error the step wrapped for an attachments or write failure,
      * and otherwise the failure's own error (an identity, build or result-validation error, such as
-     * a 412 or a 400 from the replace build), or a `NotValidatedError` of its OperationOutcome when
-     * it has no error.
+     * a 412 from the replace build), or a `NotValidatedError` of its OperationOutcome when it has
+     * no error, such as a 400 from the validation against the stored document.
      * @param {WriteFailure} failure
      * @returns {Error}
      */

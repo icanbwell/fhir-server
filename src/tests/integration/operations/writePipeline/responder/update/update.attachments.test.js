@@ -118,6 +118,12 @@ const documentReferenceWithData = (data) =>
     });
 
 /**
+ * Returns a copy of the resource with its patient reference set to the given patient.
+ */
+const withPatientReference = (resource, patientId) =>
+    variant(resource, { subject: { reference: `Patient/${patientId}` } });
+
+/**
  * Sends PUT to the new write pipeline or the old path by setting `WRITE_PIPELINE_OPERATIONS`.
  */
 const useWritePath = (path) => {
@@ -345,6 +351,15 @@ describe('PUT attachments on the old and the new write path', () => {
                 old: { ...NO_STORAGE_CHANGE, gridFsFilesDeactivated: 1 },
                 new: NO_STORAGE_CHANGE
             }
+        },
+        {
+            name: 'patientReferenceChangedDroppingStoredGridFsAttachment returns 400',
+            type: 'DocumentReference',
+            id: documentReferenceResource.id,
+            previous: [withPatientReference(documentReferenceResource, 'put-parity-patient-1')],
+            body: withPatientReference(documentReferenceWithoutData(), 'put-parity-patient-2'),
+            status: 400,
+            expectedChange: NO_STORAGE_CHANGE
         },
         {
             name: 'noOpWithGridFsAttachment returns 200',

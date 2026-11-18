@@ -349,6 +349,18 @@ describe('UpdateResponder', () => {
             accessLogged: true
         },
         {
+            stage: WRITE_FAILURE_STAGE.STORED_VALIDATION,
+            failure: { operationOutcome: INVALID_OUTCOME },
+            expectedError: new NotValidatedError(INVALID_OUTCOME),
+            accessLogged: true
+        },
+        {
+            stage: WRITE_FAILURE_STAGE.STORED_VALIDATION,
+            failure: { error: ORIGINAL_ERROR },
+            expectedError: ORIGINAL_ERROR,
+            accessLogged: false
+        },
+        {
             stage: WRITE_FAILURE_STAGE.RESULT_VALIDATION,
             failure: { operationOutcome: INVALID_OUTCOME },
             expectedError: new NotValidatedError(INVALID_OUTCOME),

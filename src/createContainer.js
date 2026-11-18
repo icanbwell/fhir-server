@@ -178,6 +178,8 @@ const { SmartMergeBuilder } = require('./operations/writePipeline/steps/build/sm
 const { InsertBuilder } = require('./operations/writePipeline/steps/build/insertBuilder');
 const { ReplaceBuilder } = require('./operations/writePipeline/steps/build/replaceBuilder');
 const { ValidateResultStep } = require('./operations/writePipeline/steps/validateResultStep');
+const { ValidateAgainstStoredStep } = require('./operations/writePipeline/steps/validateAgainstStoredStep');
+const { ValidateUpdateResultStep } = require('./operations/writePipeline/steps/validateUpdateResultStep');
 const { AttachmentsStep } = require('./operations/writePipeline/steps/attachmentsStep');
 const { NoOpStep } = require('./operations/writePipeline/steps/noOpStep');
 const { WriteStep } = require('./operations/writePipeline/steps/writeStep');
@@ -747,6 +749,10 @@ const createContainer = function () {
                 writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
             })
         }),
+        validateAgainstStoredStep: new ValidateAgainstStoredStep({
+            resourceValidator: c.resourceValidator,
+            configManager: c.configManager
+        }),
         buildDocumentStep: new BuildDocumentStep({
             builder: new SmartMergeBuilder({
                 preSaveManager: c.preSaveManager,
@@ -797,6 +803,12 @@ const createContainer = function () {
                         insertBuilder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger }),
                         groupMemberMerger: c.groupMemberMerger
                     }),
+                    configManager: c.configManager
+                })
+            },
+            validateResult: {
+                update: new ValidateUpdateResultStep({
+                    resourceValidator: c.resourceValidator,
                     configManager: c.configManager
                 })
             },
