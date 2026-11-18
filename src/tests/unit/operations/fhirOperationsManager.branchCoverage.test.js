@@ -739,6 +739,42 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
             });
         });
 
+        test('SECURITY: a Vulcan IG child lookup applies view control, so a hidden resource cannot decide which parents match', async () => {
+            const { vulcanIgSearchQueries } = require('../../../operations/query/customQueries');
+            vulcanIgSearchQueries.Patient = {
+                condition: {
+                    filters: [{
+                        resourceType: 'Condition', searchParam: 'code', filterField: 'subject._uuid'
+                    }],
+                    resultSearchParam: 'id'
+                }
+            };
+            manager.configManager.enableVulcanIgQuery = true;
+            const parentItem = { isNotOnly: false };
+            manager.r4ArgsParser.parseArgs.mockImplementation(({ resourceType, args }) => ({
+                base_version: args.base_version,
+                parsedArgItems: resourceType === 'Patient' && args.condition
+                    ? [{ queryParameter: 'condition', modifiers: [], queryParameterValue: { value: 'code-1' } }]
+                    : [{}, parentItem],
+                add: jest.fn(),
+                addMergingExclusion: jest.fn()
+            }));
+            try {
+                await manager.searchStreaming(
+                    [], { req: makeReq({ query: { condition: 'code-1' } }), res: {} }, 'Patient'
+                );
+            } finally {
+                delete vulcanIgSearchQueries.Patient;
+            }
+
+            const applied = manager.patientDataViewControlExclusion.applyAsync.mock.calls
+                .map((c) => c[0].resourceType);
+            expect(applied).toEqual(['Patient', 'Condition']);
+            expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Condition' })
+            );
+        });
+
         test('create forwards req.path so the operation can build the Location header, and returns the created resource', async () => {
             const result = await manager.create([], { req: makeReq({ method: 'POST', path: '/4_0_0/Patient' }) }, 'Patient');
             expect(ops.createOperation.createAsync).toHaveBeenCalledWith(expect.objectContaining({

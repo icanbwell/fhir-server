@@ -511,6 +511,8 @@ class FhirOperationsManager {
                                 parsedArg.queryParameterValue.value;
                         }
 
+                        // the lookup decides which parent resources match, so a resource the user's
+                        // Consent hides must not match either, or the parent search would reveal it
                         const bundle = await this.searchBundleOperation.searchBundleAsync({
                             requestInfo,
                             resourceType: vulcanIgFilter.resourceType,
@@ -518,7 +520,8 @@ class FhirOperationsManager {
                                 args: vulcanIgFilterArgs,
                                 resourceType: vulcanIgFilter.resourceType,
                                 operation: READ,
-                                requestInfo
+                                requestInfo,
+                                applyDataViewControl: true
                             }),
                             useAggregationPipeline: false
                         });

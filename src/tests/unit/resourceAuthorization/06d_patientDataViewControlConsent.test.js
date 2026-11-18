@@ -340,7 +340,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                     ['searchResourceForChainAsync', APPLIES],
                     ['search', APPLIES],
                     ['searchStreaming', APPLIES],
-                    ['searchStreaming', SKIPS, 'Vulcan IG child lookup; research queries use service tokens'],
+                    ['searchStreaming', APPLIES],
                     ['searchStreaming', SKIPS, 'Vulcan IG: builds one filter item that is merged into the main query, keeping any view-control _id:not'],
                     ['searchById', APPLIES],
                     ['create', SKIPS, 'write'],
@@ -434,7 +434,7 @@ describe('Resource Authorization §6d — Patient Data View Control consent', ()
                     // decided per getParsedArgsAsync call site by the test above
                     ['searchResourceForChainAsync', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync'],
                     ['search', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync'],
-                    ['searchStreaming', 'searchBundleAsync', SKIPS, 'Vulcan IG child lookup; research queries use service tokens'],
+                    ['searchStreaming', 'searchBundleAsync', APPLIES, 'getParsedArgsAsync'],
                     ['searchStreaming', 'searchStreamingAsync', APPLIES, 'getParsedArgsAsync']
                 ],
                 'operations/summary/summary.js': [
