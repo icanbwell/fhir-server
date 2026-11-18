@@ -1,6 +1,9 @@
 const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
 
-const { PatientDataViewControlManager } = require('../../../utils/patientDataViewController');
+const {
+    PatientDataViewControlManager,
+    getBinaryIdFromAttachmentUrl
+} = require('../../../utils/patientDataViewController');
 const { ConfigManager } = require('../../../utils/configManager');
 const { SearchManager } = require('../../../operations/search/searchManager');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
@@ -331,5 +334,76 @@ describe('PatientDataViewControlManager', () => {
                 });
             });
         });
+    });
+
+    describe('the attachment Binary of a hidden DocumentReference', () => {
+        const consentHiding = (...references) => ({
+            entries: [{
+                resource: {
+                    provision: { data: references.map((reference) => ({ reference: { reference } })) }
+                }
+            }],
+            queryItems: [],
+            options: []
+        });
+        const getConsent = () => manager.getConsentAsync({
+            requestInfo: createRequestInfo('person-123'),
+            base_version: '4_0_0',
+            personId: 'person-123',
+            owner: 'clientA'
+        });
+
+        test('hides the Binary a hidden DocumentReference points at', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync
+                .mockResolvedValueOnce(consentHiding('DocumentReference/doc-1', 'Binary/already-hidden'))
+                .mockResolvedValueOnce({
+                    entries: [{
+                        resource: {
+                            content: [
+                                { attachment: { url: 'Binary/attachment-1' } },
+                                { attachment: { url: 'https://host/4_0_0/Binary/attachment-2' } },
+                                { attachment: { url: 'https://example.com/report.pdf' } }
+                            ]
+                        }
+                    }],
+                    queryItems: [],
+                    options: []
+                });
+
+            const { viewControlResourceToExcludeMap } = await getConsent();
+
+            expect(mockR4ArgsParser.parseArgs).toHaveBeenLastCalledWith({
+                resourceType: 'DocumentReference',
+                args: { base_version: '4_0_0', _id: 'doc-1', _elements: 'content' }
+            });
+            expect([...viewControlResourceToExcludeMap.Binary].sort()).toEqual(
+                ['already-hidden', 'attachment-1', 'attachment-2']
+            );
+            expect(viewControlResourceToExcludeMap.DocumentReference).toEqual(['doc-1']);
+        });
+
+        test('makes no DocumentReference read when no DocumentReference is hidden', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValueOnce(consentHiding('CarePlan/cp-1'));
+
+            const { viewControlResourceToExcludeMap } = await getConsent();
+
+            expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledTimes(1);
+            expect(viewControlResourceToExcludeMap.Binary).toBeUndefined();
+        });
+    });
+});
+
+describe('getBinaryIdFromAttachmentUrl', () => {
+    test.each([
+        ['a relative reference', 'Binary/123', '123'],
+        ['an absolute url', 'https://fhir.example.com/4_0_0/Binary/abc-1', 'abc-1'],
+        ['a url with a query', 'https://fhir.example.com/4_0_0/Binary/abc-1?_format=json', 'abc-1'],
+        ['a url with history', 'Binary/abc-1/_history/2', 'abc-1'],
+        ['a url to another type', 'DocumentReference/123', undefined],
+        ['an external url', 'https://example.com/report.pdf', undefined],
+        ['a type that only ends in Binary', 'NotBinary/123', undefined],
+        ['no url', undefined, undefined]
+    ])('%s', (_name, url, expected) => {
+        expect(getBinaryIdFromAttachmentUrl(url)).toBe(expected);
     });
 });

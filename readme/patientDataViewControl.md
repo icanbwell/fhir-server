@@ -28,6 +28,9 @@ reads, on every read path the user can use.
 - `patient.reference`: the user's [proxy patient](proxyPatient.md), `Patient/person.<person uuid>`.
 - `provision.data[].reference.reference`: each resource to hide, as `<ResourceType>/<id>`. The id
   can be the resource's uuid or its source id.
+- A hidden DocumentReference also hides the Binary resources its `content[].attachment.url` points
+  at. A Binary is read by its own `securityContext`, not through its DocumentReference, so without
+  this the content of a deleted document would still be returned.
 
 All of the Person's active view control Consents apply, whichever patient they name in
 `provision.actor`.

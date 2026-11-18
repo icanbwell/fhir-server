@@ -140,14 +140,85 @@ class PatientDataViewControlManager {
             }
         }
 
+        await this.hideAttachmentBinariesOfHiddenDocumentReferencesAsync({
+            requestInfo,
+            base_version,
+            viewControlResourceToExcludeMap
+        });
+
         return {
             viewControlResourceToExcludeMap,
             viewControlConsentQueries,
             viewControlConsentQueryOptions
         };
     }
+
+    /**
+     * Adds to the exclude map the Binary resources that a hidden DocumentReference points at.
+     *
+     * A Binary is found by its own securityContext rather than through its DocumentReference, so
+     * when the Consent hides a DocumentReference (the user deleted it) its content would otherwise
+     * still be returned. The DocumentReferences are read with the caller's own access, and only
+     * their `content`; the Binary ids found are only ever used to hide data.
+     * @param {{
+     *  requestInfo: FhirRequestInfo,
+     *  base_version: string,
+     *  viewControlResourceToExcludeMap: {[resourceType: string]: string[]}
+     * }}
+     * @return {Promise<void>}
+     */
+    async hideAttachmentBinariesOfHiddenDocumentReferencesAsync({
+        requestInfo,
+        base_version,
+        viewControlResourceToExcludeMap
+    }) {
+        const documentReferenceIds = viewControlResourceToExcludeMap.DocumentReference;
+        if (!documentReferenceIds || documentReferenceIds.length === 0) {
+            return;
+        }
+        const resourceType = 'DocumentReference';
+        const { entries } = await this.searchManager.fetchResourcesByArgsAsync({
+            resourceType,
+            base_version,
+            requestInfo,
+            explain: false,
+            debug: false,
+            applyPatientFilter: false,
+            parsedArgs: this.r4ArgsParser.parseArgs({
+                resourceType,
+                args: { base_version, _id: documentReferenceIds.join(','), _elements: 'content' }
+            })
+        });
+        const binaryIds = new Set(viewControlResourceToExcludeMap.Binary ?? []);
+        const sizeBefore = binaryIds.size;
+        for (const entry of entries) {
+            for (const content of entry.resource?.content ?? []) {
+                const binaryId = getBinaryIdFromAttachmentUrl(content?.attachment?.url);
+                if (binaryId) {
+                    binaryIds.add(binaryId);
+                }
+            }
+        }
+        if (binaryIds.size > sizeBefore) {
+            viewControlResourceToExcludeMap.Binary = [...binaryIds];
+        }
+    }
+}
+
+/**
+ * The Binary id in an attachment url such as `Binary/123` or `https://host/4_0_0/Binary/123`.
+ * @param {string|undefined} url
+ * @return {string|undefined}
+ */
+function getBinaryIdFromAttachmentUrl(url) {
+    if (typeof url !== 'string') {
+        return undefined;
+    }
+    const match = /(?:^|\/)Binary\/([^/?#|]+)/.exec(url);
+    return match ? match[1] : undefined;
 }
 
 module.exports = {
-    PatientDataViewControlManager
+    PatientDataViewControlManager,
+    getBinaryIdFromAttachmentUrl
 };
