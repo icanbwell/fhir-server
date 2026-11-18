@@ -1243,12 +1243,11 @@ describe('Binary base64 S3 offload — write paths', () => {
             }
         });
 
-        test('$everything hydrates a Binary reachable via DocumentReference in the patient compartment', async () => {
+        test('$everything hydrates a Binary owned by the patient through securityContext', async () => {
             const request = await createTestRequest(registerMockClients);
             const container = getTestContainer();
             const liveClient = container.base64FieldCloudStorageClient;
             const patientId = 'patient-everything-binary';
-            const docRefId = 'docref-everything-binary';
             const binaryId = 'binary-everything-target';
 
             const baseMeta = {
@@ -1262,14 +1261,9 @@ describe('Binary base64 S3 offload — write paths', () => {
             await request.post('/4_0_0/Patient/$merge')
                 .send({ resourceType: 'Patient', id: patientId, meta: baseMeta, birthDate: '2000-01-01', gender: 'female' })
                 .set(getHeaders()).expect(200);
-            await request.post('/4_0_0/DocumentReference/$merge')
-                .send({
-                    resourceType: 'DocumentReference', id: docRefId, meta: baseMeta, status: 'current',
-                    subject: { reference: `Patient/${patientId}` },
-                    content: [{ attachment: { contentType: 'application/pdf', url: `Binary/${binaryId}` } }]
-                })
-                .set(getHeaders()).expect(200);
-            await request.put(`/4_0_0/Binary/${binaryId}`).send(buildBinary({ id: binaryId, data: LARGE_DATA })).set(getHeaders()).expect(201);
+            await request.put(`/4_0_0/Binary/${binaryId}`)
+                .send({ ...buildBinary({ id: binaryId, data: LARGE_DATA }), securityContext: { reference: `Patient/${patientId}` } })
+                .set(getHeaders()).expect(201);
             await drainPostRequest(container);
             const mongoDoc = await readBinaryFromMongo(container, binaryId);
 
