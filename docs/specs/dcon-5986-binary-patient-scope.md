@@ -37,8 +37,14 @@ machinery then applies unchanged: no bespoke person tag, no unowned/owned read s
 ### Reads
 Patient-scoped reads of Binary use the ordinary `getQueryWithPatientFilter`
 (`securityContext._uuid` / `_sourceId`). A Binary without a `securityContext` is hidden from
-patient-scoped tokens. This includes the DocumentReference -> Binary hop in
-`$everything` and GraphQL.
+patient-scoped tokens.
+
+Patient and Person `$everything` reach a Binary by `securityContext` equal to one of the patients
+being traversed (or the proxy patient), like any other patient-linked type. There is no
+DocumentReference -> Binary hop: a Binary with no `securityContext` is not returned, and the
+patient data view control exclusion applies to the direct query. Like the other clinical types in
+the traversal, this hop is bounded by the parent patient set that the caller's access already
+resolved; it does not add a separate patient filter.
 
 ### Writes
 Create, PUT, PATCH, `$merge` and DELETE all reach `PatientScopeManager.canWriteResourceAsync`
