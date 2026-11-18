@@ -794,7 +794,8 @@ const createContainer = function () {
                         databaseAttachmentManager: c.databaseAttachmentManager,
                         base64DataManager: c.base64DataManager,
                         postSaveHandlerFactory: c.postSaveHandlerFactory,
-                        insertBuilder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger })
+                        insertBuilder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger }),
+                        groupMemberMerger: c.groupMemberMerger
                     }),
                     configManager: c.configManager
                 })

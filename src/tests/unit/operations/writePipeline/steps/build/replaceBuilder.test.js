@@ -105,7 +105,8 @@ const buildBuilder = ({ clickHouseGroup }) => {
             preSaveManager
         }),
         postSaveHandlerFactory,
-        insertBuilder: new InsertBuilder({ groupMemberMerger })
+        insertBuilder: new InsertBuilder({ groupMemberMerger }),
+        groupMemberMerger
     });
 };
 
@@ -283,6 +284,24 @@ describe('ReplaceBuilder', () => {
             expected: {
                 writeMode: 'update',
                 candidate: { versionId: '2', isBody: true, member: groupMembers, _uuid: generateUUIDv5('group-1|owner') }
+            }
+        },
+        {
+            name: 'an identical ClickHouse Group whose body lists a member twice is written with one entry for it',
+            storedDoc: stored(group),
+            headers: {},
+            incoming: body({
+                resourceType: 'Group',
+                id: 'group-1',
+                type: 'person',
+                actual: true,
+                member: [...groupMembers, ...groupMembers]
+            }),
+            clickHouseGroup: true,
+            fields: ['member'],
+            expected: {
+                writeMode: 'update',
+                candidate: { versionId: '2', isBody: true, member: groupMembers }
             }
         },
         {
