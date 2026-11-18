@@ -9,6 +9,7 @@ const WRITE_FAILURE_STAGE = Object.freeze({
     INCOMING_SCHEMA: 'incomingSchema',
     INCOMING_META: 'incomingMeta',
     ACCESS: 'access',
+    STORED_VALIDATION: 'storedValidation',
     BUILD: 'build',
     RESULT_VALIDATION: 'resultValidation',
     ATTACHMENTS: 'attachments',

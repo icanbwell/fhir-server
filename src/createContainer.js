@@ -167,6 +167,7 @@ const { IdentifyStep } = require('./operations/writePipeline/steps/identifyStep'
 const { FindExistingStep } = require('./operations/writePipeline/steps/findExistingStep');
 const { ValidateNewResourceStep } = require('./operations/writePipeline/steps/validateNewResourceStep');
 const { SourceIdentityResolver } = require('./operations/writePipeline/steps/identify/sourceIdentityResolver');
+const { UrlIdentityResolver } = require('./operations/writePipeline/steps/identify/urlIdentityResolver');
 const { BulkPreloadLoader } = require('./operations/writePipeline/steps/load/bulkPreloadLoader');
 const { PrepareBodyStep } = require('./operations/writePipeline/steps/prepareBodyStep');
 const { ValidateIncomingStep } = require('./operations/writePipeline/steps/validateIncomingStep');
@@ -175,13 +176,17 @@ const { IncomingAndStoredAccessChecker } = require('./operations/writePipeline/s
 const { BuildDocumentStep } = require('./operations/writePipeline/steps/buildDocumentStep');
 const { SmartMergeBuilder } = require('./operations/writePipeline/steps/build/smartMergeBuilder');
 const { InsertBuilder } = require('./operations/writePipeline/steps/build/insertBuilder');
+const { ReplaceBuilder } = require('./operations/writePipeline/steps/build/replaceBuilder');
 const { ValidateResultStep } = require('./operations/writePipeline/steps/validateResultStep');
+const { ValidateAgainstStoredStep } = require('./operations/writePipeline/steps/validateAgainstStoredStep');
+const { ValidateUpdateResultStep } = require('./operations/writePipeline/steps/validateUpdateResultStep');
 const { AttachmentsStep } = require('./operations/writePipeline/steps/attachmentsStep');
 const { NoOpStep } = require('./operations/writePipeline/steps/noOpStep');
 const { WriteStep } = require('./operations/writePipeline/steps/writeStep');
 const { MergeResponder } = require('./operations/writePipeline/responder/merge');
 const { MergeStream } = require('./operations/writePipeline/responder/mergeStream');
 const { CreateResponder } = require('./operations/writePipeline/responder/create');
+const { UpdateResponder } = require('./operations/writePipeline/responder/update');
 const { WriteAuditor } = require('./operations/writePipeline/writeAuditor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
@@ -744,6 +749,10 @@ const createContainer = function () {
                 writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
             })
         }),
+        validateAgainstStoredStep: new ValidateAgainstStoredStep({
+            resourceValidator: c.resourceValidator,
+            configManager: c.configManager
+        }),
         buildDocumentStep: new BuildDocumentStep({
             builder: new SmartMergeBuilder({
                 preSaveManager: c.preSaveManager,
@@ -771,10 +780,43 @@ const createContainer = function () {
             configManager: c.configManager
         }),
         stepVariants: {
+            identify: {
+                url: new IdentifyStep({
+                    identityResolver: new UrlIdentityResolver({
+                        resourceValidator: c.resourceValidator,
+                        sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+                        uuidColumnHandler: c.uuidColumnHandler
+                    })
+                })
+            },
             buildDocument: {
                 insert: new BuildDocumentStep({
                     builder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger }),
                     configManager: c.configManager
+                }),
+                replace: new BuildDocumentStep({
+                    builder: new ReplaceBuilder({
+                        resourceMerger: c.resourceMerger,
+                        databaseAttachmentManager: c.databaseAttachmentManager,
+                        base64DataManager: c.base64DataManager,
+                        postSaveHandlerFactory: c.postSaveHandlerFactory,
+                        insertBuilder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger }),
+                        groupMemberMerger: c.groupMemberMerger
+                    }),
+                    configManager: c.configManager
+                })
+            },
+            validateResult: {
+                update: new ValidateUpdateResultStep({
+                    resourceValidator: c.resourceValidator,
+                    configManager: c.configManager
+                })
+            },
+            write: {
+                httpPreconditions: new WriteStep({
+                    databaseBulkInserter: c.fastDatabaseBulkInserter,
+                    configManager: c.configManager,
+                    honorHttpPreconditions: true
                 })
             }
         },
@@ -799,6 +841,13 @@ const createContainer = function () {
     container.register('createResponder', (c) => new CreateResponder({
         base64DataManager: c.base64DataManager,
         identifierEnrichmentProvider: c.identifierEnrichmentProvider
+    }));
+
+    container.register('updateResponder', (c) => new UpdateResponder({
+        base64DataManager: c.base64DataManager,
+        databaseAttachmentManager: c.databaseAttachmentManager,
+        identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+        groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
     }));
 
     container.register('mergeStream', (c) => new MergeStream({
@@ -1002,6 +1051,9 @@ const createContainer = function () {
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
                 groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
+                writePipelineSwitch: c.writePipelineSwitch,
+                writePipeline: c.writePipeline,
+                updateResponder: c.updateResponder,
                 groupMemberMerger: c.groupMemberMerger
             }
         )

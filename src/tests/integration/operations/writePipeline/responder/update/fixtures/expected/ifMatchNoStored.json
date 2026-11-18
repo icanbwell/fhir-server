@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "precondition-failed",
+      "details": {
+        "text": "Version conflict: Resource does not exist, but If-Match header was provided. If-Match: W/\"1\""
+      }
+    }
+  ]
+}

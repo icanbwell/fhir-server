@@ -49,7 +49,10 @@ differences are plain data next to each other.
   runs it in place of the default step. Adding a variant doesn't change the step it replaces, so a
   profile that names no variants runs as before. POST is the first operation to use a variant,
   `buildDocument.insert`. It turns `findExisting` off, because a new resource has no stored
-  document to load.
+  document to load. PUT uses three variants: `identify.url` (the identity from the URL id),
+  `buildDocument.replace` (the `If-Match` / `If-None-Match` checks, then a replace of the stored
+  document, or POST's insert when none is stored) and `write.httpPreconditions` (a versioned write
+  that queues the `If-Match` list, so a replayed write checks it again).
 - A responder (`writePipeline/responder/<operation>.js`) turns the item results into the
   operation's response and records its metrics. The shared `WriteAuditor` writes the audit events.
 - Streaming (NDJSON) `$merge` keeps its transport out of `WritePipeline`, because no other
@@ -86,9 +89,10 @@ differences are plain data next to each other.
 
 ### Confirmation
 
-- Parity tests run each `$merge` case and each POST case on both paths and compare the responses
-  (`src/tests/integration/operations/writePipeline/responder/merge/` and
-  `src/tests/integration/operations/writePipeline/responder/create/`).
+- Parity tests run each `$merge`, POST and PUT case on both paths and compare the responses
+  (`src/tests/integration/operations/writePipeline/responder/merge/`,
+  `src/tests/integration/operations/writePipeline/responder/create/` and
+  `src/tests/integration/operations/writePipeline/responder/update/`).
 - The main CI job runs the whole suite with the shipped switches on (`jest/setEnvVars.js`). Tests
   that fail only on an accepted difference are updated and get an `oldWrite<Name>.test.js` copy
   that turns the switch off. No test is skipped.

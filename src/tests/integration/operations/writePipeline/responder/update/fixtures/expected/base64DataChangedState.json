@@ -1,0 +1,146 @@
+{
+  "headers": {
+    "etag": "W/\"2\"",
+    "location": "4_0_0/Binary/put-parity-binary",
+    "contentLocation": "http://localhost:3000/4_0_0/Binary/put-parity-binary/_history/2"
+  },
+  "documents": [
+    {
+      "_uuid": "45359a9b-f90b-56c8-83c0-e0a5981c9c0b",
+      "_access": {
+        "client": 1
+      },
+      "_blobMeta": {
+        "hash": "z4_p1BDXYcEdSWTNcUqKIXlFd9bkwUMCgjBl03I-pdw",
+        "rawSize": 1,
+        "lastUpdated": "<lastUpdated>"
+      },
+      "_sourceAssigningAuthority": "client",
+      "_sourceId": "put-parity-binary",
+      "contentType": "application/pdf",
+      "id": "put-parity-binary",
+      "meta": {
+        "source": "http://example.com/source",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "client",
+            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+          }
+        ],
+        "versionId": "2",
+        "lastUpdated": "<lastUpdated>"
+      },
+      "resourceType": "Binary"
+    }
+  ],
+  "history": [
+    {
+      "id": "45359a9b-f90b-56c8-83c0-e0a5981c9c0b",
+      "resource": {
+        "resourceType": "Binary",
+        "id": "put-parity-binary",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "contentType": "application/pdf",
+        "_uuid": "45359a9b-f90b-56c8-83c0-e0a5981c9c0b",
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "put-parity-binary",
+        "_access": {
+          "client": 1
+        },
+        "_blobMeta": {
+          "hash": "7gsTaSRT8Pg8PJv6IH73prGSf23tr12QAjnhsXdis-o",
+          "rawSize": 1,
+          "lastUpdated": "<lastUpdated>"
+        }
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "POST",
+        "url": "/4_0_0/Binary/put-parity-binary"
+      },
+      "_recorded": "<recorded>"
+    },
+    {
+      "id": "45359a9b-f90b-56c8-83c0-e0a5981c9c0b",
+      "resource": {
+        "_uuid": "45359a9b-f90b-56c8-83c0-e0a5981c9c0b",
+        "_access": {
+          "client": 1
+        },
+        "_blobMeta": {
+          "hash": "z4_p1BDXYcEdSWTNcUqKIXlFd9bkwUMCgjBl03I-pdw",
+          "rawSize": 1,
+          "lastUpdated": "<lastUpdated>"
+        },
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "put-parity-binary",
+        "contentType": "application/pdf",
+        "id": "put-parity-binary",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "versionId": "2",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "resourceType": "Binary"
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "PUT",
+        "url": "/4_0_0/Binary/put-parity-binary"
+      },
+      "_recorded": "<recorded>"
+    }
+  ],
+  "gridFsFileCount": 0,
+  "liveKeyChanged": true,
+  "liveData": "Qg=="
+}

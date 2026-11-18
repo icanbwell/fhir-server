@@ -15,6 +15,7 @@ const { ValidateIncomingStep } = require('./steps/validateIncomingStep');
 const { FindExistingStep } = require('./steps/findExistingStep');
 const { ValidateNewResourceStep } = require('./steps/validateNewResourceStep');
 const { AccessCheckStep } = require('./steps/accessCheckStep');
+const { ValidateAgainstStoredStep } = require('./steps/validateAgainstStoredStep');
 const { BuildDocumentStep } = require('./steps/buildDocumentStep');
 const { ValidateResultStep } = require('./steps/validateResultStep');
 const { AttachmentsStep } = require('./steps/attachmentsStep');
@@ -25,7 +26,8 @@ const { WriteResponder } = require('./responder/writeResponder');
 
 /**
  * The shared step names, in the order `processAsync` runs them. A profile's `off` setting may name
- * only these.
+ * only these. `validateAgainstStored` is run by PUT only and exists only because of GridFS
+ * attachments: once they are removed, delete the step and its name here.
  */
 const WRITE_STEP_NAMES = Object.freeze([
     'scopeCheck',
@@ -35,6 +37,7 @@ const WRITE_STEP_NAMES = Object.freeze([
     'findExisting',
     'validateNewResource',
     'accessBeforeBuild',
+    'validateAgainstStored',
     'buildDocument',
     'validateResult',
     'attachments',
@@ -95,7 +98,7 @@ const isObjectMap = (value) => value !== null && typeof value === 'object' && !A
  */
 class WritePipeline {
     /**
-     * Takes the twelve shared steps, the variants a profile can name in place of a default step,
+     * Takes the thirteen shared steps, the variants a profile can name in place of a default step,
      * the bulk inserter that flushes the writes, the auditor that audits every run's results, the
      * operation logging manager and the tracer. Throws when `stepVariants` is not an object of step
      * names to variant objects, names a step that is not in `WRITE_STEP_NAMES`, or has a variant
@@ -107,6 +110,7 @@ class WritePipeline {
      * @param {FindExistingStep} findExistingStep
      * @param {ValidateNewResourceStep} validateNewResourceStep
      * @param {AccessCheckStep} accessCheckStep
+     * @param {ValidateAgainstStoredStep} validateAgainstStoredStep
      * @param {BuildDocumentStep} buildDocumentStep
      * @param {ValidateResultStep} validateResultStep
      * @param {AttachmentsStep} attachmentsStep
@@ -126,6 +130,7 @@ class WritePipeline {
         findExistingStep,
         validateNewResourceStep,
         accessCheckStep,
+        validateAgainstStoredStep,
         buildDocumentStep,
         validateResultStep,
         attachmentsStep,
@@ -172,6 +177,11 @@ class WritePipeline {
          */
         this.accessCheckStep = accessCheckStep;
         assertTypeEquals(accessCheckStep, AccessCheckStep);
+        /**
+         * @type {ValidateAgainstStoredStep}
+         */
+        this.validateAgainstStoredStep = validateAgainstStoredStep;
+        assertTypeEquals(validateAgainstStoredStep, ValidateAgainstStoredStep);
         /**
          * @type {BuildDocumentStep}
          */
@@ -352,6 +362,8 @@ class WritePipeline {
                 await this._runStepAsync({ run, name: 'findExisting', step: this.findExistingStep });
                 await this._runStepAsync({ run, name: 'validateNewResource', step: this.validateNewResourceStep });
                 await this._runStepAsync({ run, name: 'accessBeforeBuild', step: this.accessCheckStep });
+                // PUT only: remove this step once GridFS attachments are removed
+                await this._runStepAsync({ run, name: 'validateAgainstStored', step: this.validateAgainstStoredStep });
                 await this._runStepAsync({ run, name: 'buildDocument', step: this.buildDocumentStep });
                 await this._runStepAsync({ run, name: 'validateResult', step: this.validateResultStep });
                 await this._runStepAsync({ run, name: 'attachments', step: this.attachmentsStep });

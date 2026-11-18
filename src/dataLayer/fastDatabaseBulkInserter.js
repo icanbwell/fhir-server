@@ -294,9 +294,17 @@ class FastDatabaseBulkInserter {
      * @param {Object} doc
      * @param {Object|null} contextData - Optional context data for resource-specific handling
      * @param {boolean} [rejectIfExists] - fail with 412 instead of folding a lost create race into an update
+     * @param {boolean} [smartMerge] - how a lost create race is folded into the stored doc: true appends to it, false replaces it; not forwarded when an insert for the same _uuid is already pending
      * @returns {Promise<void>}
      */
-    async insertOneAsync({ requestInfo, resourceType, doc, contextData = null, rejectIfExists = false }) {
+    async insertOneAsync({
+        requestInfo,
+        resourceType,
+        doc,
+        contextData = null,
+        rejectIfExists = false,
+        smartMerge = true
+    }) {
         try {
             if (!doc.meta) {
                 doc.meta = {};
@@ -378,7 +386,8 @@ class FastDatabaseBulkInserter {
                         },
                         operationType: 'insertUniqueId',
                         contextData,
-                        writePrecondition: rejectIfExists ? { rejectIfExists: true } : null
+                        writePrecondition: rejectIfExists ? { rejectIfExists: true } : null,
+                        smartMerge
                     });
                 }
             }
@@ -529,6 +538,8 @@ class FastDatabaseBulkInserter {
      * @param {string|null} previousVersionId
      * @param {Object} doc
      * @param {Object|null} contextData - Optional context data for resource-specific handling
+     * @param {boolean} [smartMerge] - how a lost write is replayed against the latest stored doc: true appends, false replaces
+     * @param {Object|null} [writePrecondition] - the If-Match precondition the replay re-checks against the latest stored doc
      * @returns {Promise<void>}
      */
     async mergeOneAsync({
@@ -537,7 +548,8 @@ class FastDatabaseBulkInserter {
         previousVersionId,
         doc,
         contextData = null,
-        smartMerge = true
+        smartMerge = true,
+        writePrecondition = null
     }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
 
@@ -640,6 +652,7 @@ class FastDatabaseBulkInserter {
                             }
                         },
                         contextData,
+                        writePrecondition,
                         smartMerge
                     });
                 }
