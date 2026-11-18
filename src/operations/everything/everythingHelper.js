@@ -1132,11 +1132,6 @@ class EverythingHelper {
                             _since: parsedArgs._since
                         };
 
-                        // for non-clinical resources, only binary support patient data view control
-                        if (resourceType === 'Binary' && resourceToExcludeIdsMap[resourceType]?.length > 0) {
-                            baseArgs["id:not"] = resourceToExcludeIdsMap[resourceType].join(',');
-                        }
-
                         // if explain query, don't break in chunks as will be limit to single resource later
                         const idChunks = this.getNonClinicalIdChunks({ ids, explain });
 

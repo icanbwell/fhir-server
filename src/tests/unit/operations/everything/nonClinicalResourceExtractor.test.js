@@ -22,14 +22,14 @@ jestGlobal.mock('../../../../operations/everything/generated.resource_types.json
         'Organization',
         'Practitioner',
         'Location',
-        'Binary',
         'HealthcareService'
     ],
     clinicalResources: [
         'Patient',
         'Encounter',
         'Observation',
-        'DocumentReference'
+        'DocumentReference',
+        'Binary'
     ]
 }), { virtual: true });
 
