@@ -69,8 +69,7 @@ describe('BulkPreloadLoader', () => {
             requestInfo: { requestId: 'synthetic-request' },
             base_version: '4_0_0',
             parsedArgs: {},
-            smartMerge: true,
-            operationName: 'merge'
+            smartMerge: true
         });
 
         await loader.loadAsync({ items, context });

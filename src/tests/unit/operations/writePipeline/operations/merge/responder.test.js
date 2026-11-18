@@ -1,13 +1,13 @@
 const { describe, test, expect } = require('@jest/globals');
-const { MergeResultEntry } = require('../../../../../operations/common/mergeResultEntry');
-const { MergeResponder } = require('../../../../../operations/writePipeline/responder/merge');
-const { BundleResourceValidator } = require('../../../../../operations/merge/validators/bundleResourceValidator');
-const { ParametersResourceValidator } = require('../../../../../operations/merge/validators/parameterResourceValidator');
-const { MergeManager } = require('../../../../../operations/merge/mergeManager');
-const { ScopesManager } = require('../../../../../operations/security/scopesManager');
-const { BundleManager } = require('../../../../../operations/common/bundleManager');
-const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../../../../operations/writePipeline/writeFailure');
-const { WriteItem } = require('../../../../../operations/writePipeline/writeItem');
+const { MergeResultEntry } = require('../../../../../../operations/common/mergeResultEntry');
+const { MergeResponder } = require('../../../../../../operations/writePipeline/operations/merge/responder');
+const { BundleResourceValidator } = require('../../../../../../operations/merge/validators/bundleResourceValidator');
+const { ParametersResourceValidator } = require('../../../../../../operations/merge/validators/parameterResourceValidator');
+const { MergeManager } = require('../../../../../../operations/merge/mergeManager');
+const { ScopesManager } = require('../../../../../../operations/security/scopesManager');
+const { BundleManager } = require('../../../../../../operations/common/bundleManager');
+const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../../../../../operations/writePipeline/writeFailure');
+const { WriteItem } = require('../../../../../../operations/writePipeline/writeItem');
 
 /**
  * Builds a synthetic Patient failure subject numbered by `index`.

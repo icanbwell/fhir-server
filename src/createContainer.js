@@ -183,10 +183,15 @@ const { ValidateUpdateResultStep } = require('./operations/writePipeline/steps/v
 const { AttachmentsStep } = require('./operations/writePipeline/steps/attachmentsStep');
 const { NoOpStep } = require('./operations/writePipeline/steps/noOpStep');
 const { WriteStep } = require('./operations/writePipeline/steps/writeStep');
-const { MergeResponder } = require('./operations/writePipeline/responder/merge');
-const { MergeStream } = require('./operations/writePipeline/responder/mergeStream');
-const { CreateResponder } = require('./operations/writePipeline/responder/create');
-const { UpdateResponder } = require('./operations/writePipeline/responder/update');
+const { VersionedWriter } = require('./operations/writePipeline/steps/write/versionedWriter');
+const { HttpPreconditionWriter } = require('./operations/writePipeline/steps/write/httpPreconditionWriter');
+const { MERGE_WRITE_PROFILE } = require('./operations/writePipeline/operations/merge/profile');
+const { CREATE_WRITE_PROFILE } = require('./operations/writePipeline/operations/create/profile');
+const { UPDATE_WRITE_PROFILE } = require('./operations/writePipeline/operations/update/profile');
+const { MergeResponder } = require('./operations/writePipeline/operations/merge/responder');
+const { MergeStream } = require('./operations/writePipeline/operations/merge/mergeStream');
+const { CreateResponder } = require('./operations/writePipeline/operations/create/responder');
+const { UpdateResponder } = require('./operations/writePipeline/operations/update/responder');
 const { WriteAuditor } = require('./operations/writePipeline/writeAuditor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
@@ -776,7 +781,7 @@ const createContainer = function () {
         }),
         noOpStep: new NoOpStep(),
         writeStep: new WriteStep({
-            databaseBulkInserter: c.fastDatabaseBulkInserter,
+            writer: new VersionedWriter({ databaseBulkInserter: c.fastDatabaseBulkInserter }),
             configManager: c.configManager
         }),
         stepVariants: {
@@ -814,12 +819,18 @@ const createContainer = function () {
             },
             write: {
                 httpPreconditions: new WriteStep({
-                    databaseBulkInserter: c.fastDatabaseBulkInserter,
-                    configManager: c.configManager,
-                    honorHttpPreconditions: true
+                    writer: new HttpPreconditionWriter({
+                        databaseBulkInserter: c.fastDatabaseBulkInserter,
+                        configManager: c.configManager,
+                        versionedWriter: new VersionedWriter({
+                            databaseBulkInserter: c.fastDatabaseBulkInserter
+                        })
+                    }),
+                    configManager: c.configManager
                 })
             }
         },
+        profiles: [MERGE_WRITE_PROFILE, CREATE_WRITE_PROFILE, UPDATE_WRITE_PROFILE],
         databaseBulkInserter: c.fastDatabaseBulkInserter,
         writeAuditor: c.writeAuditor,
         fhirLoggingManager: c.fhirLoggingManager,
@@ -851,11 +862,7 @@ const createContainer = function () {
     }));
 
     container.register('mergeStream', (c) => new MergeStream({
-        bundleResourceValidator: c.bundleResourceValidator,
-        parametersResourceValidator: c.parametersResourceValidator,
-        mergeManager: c.mergeManager,
-        scopesManager: c.scopesManager,
-        bundleManager: c.bundleManager,
+        mergeResponder: c.mergeResponder,
         writePipeline: c.writePipeline,
         writeAuditor: c.writeAuditor,
         customTracer: c.customTracer

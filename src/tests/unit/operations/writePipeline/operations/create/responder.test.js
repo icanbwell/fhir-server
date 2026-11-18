@@ -1,31 +1,31 @@
 const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/globals');
 const httpContext = require('express-http-context');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../../../../constants');
-const { CreateResponder } = require('../../../../../operations/writePipeline/responder/create');
-const { Base64DataManager } = require('../../../../../dataLayer/base64DataManager');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../../../../../constants');
+const { CreateResponder } = require('../../../../../../operations/writePipeline/operations/create/responder');
+const { Base64DataManager } = require('../../../../../../dataLayer/base64DataManager');
 const {
     IdentifierEnrichmentProvider
-} = require('../../../../../enrich/providers/identifierEnrichmentProvider');
+} = require('../../../../../../enrich/providers/identifierEnrichmentProvider');
 const {
     WriteFailure,
     WRITE_FAILURE_STAGE
-} = require('../../../../../operations/writePipeline/writeFailure');
+} = require('../../../../../../operations/writePipeline/writeFailure');
 const {
     WriteItem,
     WRITE_ITEM_STATUS
-} = require('../../../../../operations/writePipeline/writeItem');
-const { isUuid } = require('../../../../../utils/uid.util');
+} = require('../../../../../../operations/writePipeline/writeItem');
+const { isUuid } = require('../../../../../../utils/uid.util');
 const {
     BadRequestError,
     ForbiddenError,
     NotValidatedError,
     PayloadTooLargeError
-} = require('../../../../../utils/httpErrors');
-const { RethrownError } = require('../../../../../utils/rethrownError');
+} = require('../../../../../../utils/httpErrors');
+const { RethrownError } = require('../../../../../../utils/rethrownError');
 const {
     buildOperationOutcome,
     buildOperationOutcomeFromIssues
-} = require('../../../../../utils/operationOutcomeBuilder');
+} = require('../../../../../../utils/operationOutcomeBuilder');
 
 /**
  * The synthetic id of the resource every failure in these tests is about.
@@ -33,12 +33,11 @@ const {
 const RESOURCE_ID = '00000000-0000-4000-8000-000000000001';
 
 /**
- * The subject of every failure in these tests. It has no `uuid`, as for a body rejected when it is
- * read, so the tests show that the access-log entry takes its uuid from the id.
+ * The subject of every failure in these tests. Its `uuid` is the generated id, as create sets it.
  */
 const SUBJECT = Object.freeze({
     id: RESOURCE_ID,
-    uuid: undefined,
+    uuid: RESOURCE_ID,
     sourceAssigningAuthority: 'client',
     resourceType: 'Patient'
 });
@@ -204,6 +203,40 @@ describe('CreateResponder', () => {
         const { id, ...incomingWithoutId } = incoming;
         expect(isUuid(id)).toBe(true);
         expect(incomingWithoutId).toStrictEqual(expectedIncoming);
+    });
+
+    test('readAsync fails a body of another resource type with the new id as the subject uuid', async () => {
+        const { items } = await responder.readAsync({
+            requestInfo: { body: { resourceType: 'Observation' }, path: '/4_0_0/Patient/' },
+            parsedArgs: { base_version: '4_0_0' },
+            resourceType: 'Patient'
+        });
+
+        const [{ incoming, status, failure }] = items;
+        expect(status).toBe(WRITE_ITEM_STATUS.FAILED);
+        expect(failure.stage).toBe(WRITE_FAILURE_STAGE.STRUCTURE);
+        expect(isUuid(incoming.id)).toBe(true);
+        expect(failure.subject.uuid).toBe(incoming.id);
+    });
+
+    test('failureResults logs the uuid saved on the item when the failure subject has none', () => {
+        const item = buildItem();
+        item.savedIdentity = { uuid: RESOURCE_ID, sourceAssigningAuthority: undefined };
+        item.fail({
+            failure: new WriteFailure({
+                stage: WRITE_FAILURE_STAGE.SIZE,
+                subject: { ...SUBJECT, uuid: undefined },
+                operationOutcome: TOO_LONG_OUTCOME
+            })
+        });
+
+        expect(() => responder.failureResults({ items: [item], requestErrors: [] })).toThrow(
+            'Payload size too large.'
+        );
+        expect(httpContextSetSpy).toHaveBeenCalledWith(
+            ACCESS_LOGS_ENTRY_DATA,
+            accessLogEntryFor(TOO_LONG_OUTCOME)
+        );
     });
 
     test('failureResults returns no results and stores no access log when nothing failed', () => {

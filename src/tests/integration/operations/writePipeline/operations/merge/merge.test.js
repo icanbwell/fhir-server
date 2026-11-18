@@ -88,7 +88,7 @@ const {
     createTestRequest
 } = require('../../../../common');
 const { WritePipeline } = require('../../../../../../operations/writePipeline/writePipeline');
-const { MERGE_WRITE_PROFILE } = require('../../../../../../operations/writePipeline/profiles/merge');
+const { MERGE_WRITE_PROFILE } = require('../../../../../../operations/writePipeline/operations/merge/profile');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 /**

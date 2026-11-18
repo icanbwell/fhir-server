@@ -1,22 +1,22 @@
-const { assertTypeEquals } = require('../../../utils/assertType');
-const { BundleResourceValidator } = require('../../merge/validators/bundleResourceValidator');
-const { ParametersResourceValidator } = require('../../merge/validators/parameterResourceValidator');
-const { MergeManager } = require('../../merge/mergeManager');
-const { ScopesManager } = require('../../security/scopesManager');
-const { BundleManager } = require('../../common/bundleManager');
-const { MergeResultEntry } = require('../../common/mergeResultEntry');
-const { buildOperationOutcomeFromIssues } = require('../../../utils/operationOutcomeBuilder');
-const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
-const BundleSerializer = require('../../../fhir/serializers/4_0_0/resources/bundle');
-const { QueryItem } = require('../../graph/queryItem');
-const { COLLECTION } = require('../../../constants');
-const { isUuid } = require('../../../utils/uid.util');
-const { isTrue } = require('../../../utils/isTrue');
-const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../../utils/metrics');
-const { WriteItem, WRITE_ITEM_STATUS } = require('../writeItem');
-const { WriteContext } = require('../writeContext');
-const { WriteFailure, WRITE_FAILURE_STAGE } = require('../writeFailure');
-const { WriteResponder } = require('./writeResponder');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { BundleResourceValidator } = require('../../../merge/validators/bundleResourceValidator');
+const { ParametersResourceValidator } = require('../../../merge/validators/parameterResourceValidator');
+const { MergeManager } = require('../../../merge/mergeManager');
+const { ScopesManager } = require('../../../security/scopesManager');
+const { BundleManager } = require('../../../common/bundleManager');
+const { MergeResultEntry } = require('../../../common/mergeResultEntry');
+const { buildOperationOutcomeFromIssues } = require('../../../../utils/operationOutcomeBuilder');
+const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
+const BundleSerializer = require('../../../../fhir/serializers/4_0_0/resources/bundle');
+const { QueryItem } = require('../../../graph/queryItem');
+const { COLLECTION } = require('../../../../constants');
+const { isUuid } = require('../../../../utils/uid.util');
+const { isTrue } = require('../../../../utils/isTrue');
+const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../../../utils/metrics');
+const { WriteItem, WRITE_ITEM_STATUS } = require('../../writeItem');
+const { WriteContext } = require('../../writeContext');
+const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../writeFailure');
+const { WriteResponder } = require('../../writeResponder');
 
 /**
  * The statuses of items that finished without failing: unchanged and queued. `results` reports
@@ -89,8 +89,8 @@ class MergeResponder extends WriteResponder {
      * Bundle or Parameters and combining duplicate entries. Smart merge is on unless the request
      * turns it off. Each item missing what identifies it fails at the `STRUCTURE` stage. Returns
      * the context, the items, the request-level errors and whether the body was a list.
-     * @param {import('../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @param {import('../../query/parsedArgs').ParsedArgs} parsedArgs
+     * @param {import('../../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {import('../../../query/parsedArgs').ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {Promise<{context: WriteContext, items: WriteItem[], requestErrors: MergeResultEntry[], wasIncomingAList: boolean}>}
      */
@@ -111,8 +111,8 @@ class MergeResponder extends WriteResponder {
     /**
      * Returns the `merge` write context for the request, with smart merge on unless the request
      * turns it off.
-     * @param {import('../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @param {import('../../query/parsedArgs').ParsedArgs} parsedArgs
+     * @param {import('../../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {import('../../../query/parsedArgs').ParsedArgs} parsedArgs
      * @returns {WriteContext}
      */
     createContext ({ requestInfo, parsedArgs }) {
@@ -124,8 +124,7 @@ class MergeResponder extends WriteResponder {
             requestInfo,
             base_version,
             parsedArgs,
-            smartMerge: isTrue(smartMerge ?? true),
-            operationName: 'merge'
+            smartMerge: isTrue(smartMerge ?? true)
         });
     }
 
@@ -453,8 +452,8 @@ class MergeResponder extends WriteResponder {
      * Records the merge outcomes of the results and the inbound size: a Bundle's entry count, a
      * list's length, 1 for any other body (including Parameters), or 0 with no body.
      * @param {MergeResultEntry[]} results
-     * @param {import('../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @param {import('../../query/parsedArgs').ParsedArgs} parsedArgs
+     * @param {import('../../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {import('../../../query/parsedArgs').ParsedArgs} parsedArgs
      * @returns {void}
      */
     recordMetrics ({ results, requestInfo, parsedArgs }) {

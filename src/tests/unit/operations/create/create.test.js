@@ -52,7 +52,7 @@ const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/i
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
 const { WritePipelineSwitch } = require('../../../../operations/writePipeline/writePipelineSwitch');
 const { WritePipeline } = require('../../../../operations/writePipeline/writePipeline');
-const { CreateResponder } = require('../../../../operations/writePipeline/responder/create');
+const { CreateResponder } = require('../../../../operations/writePipeline/operations/create/responder');
 const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });

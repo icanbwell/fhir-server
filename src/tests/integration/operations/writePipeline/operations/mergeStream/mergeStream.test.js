@@ -20,7 +20,7 @@ const {
     createTestRequest,
     parseNdjsonResponse
 } = require('../../../../common');
-const { MergeStream } = require('../../../../../../operations/writePipeline/responder/mergeStream');
+const { MergeStream } = require('../../../../../../operations/writePipeline/operations/merge/mergeStream');
 const { WritePipeline } = require('../../../../../../operations/writePipeline/writePipeline');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 

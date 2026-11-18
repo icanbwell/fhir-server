@@ -144,8 +144,7 @@ const build = async ({ storedDoc, headers, incoming, clickHouseGroup = false, fi
         requestInfo: buildRequestInfo(headers),
         base_version: '4_0_0',
         parsedArgs: {},
-        smartMerge: false,
-        operationName: 'update'
+        smartMerge: false
     });
     const failure = await buildBuilder({ clickHouseGroup }).buildAsync({ item, context });
     if (failure) {

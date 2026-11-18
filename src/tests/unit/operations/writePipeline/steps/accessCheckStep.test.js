@@ -34,8 +34,7 @@ const buildContext = () => new WriteContext({
     requestInfo: { requestId: 'request-1' },
     base_version: '4_0_0',
     parsedArgs: {},
-    smartMerge: false,
-    operationName: 'merge'
+    smartMerge: false
 });
 
 describe('AccessCheckStep', () => {

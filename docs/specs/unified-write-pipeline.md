@@ -142,7 +142,7 @@ error.
 | `create` | `CreateOperation.createAsync` (`src/operations/create/create.js`) | POST |
 | `update` | `UpdateOperation.updateAsync` (`src/operations/update/update.js`) | PUT, including create-via-PUT |
 | `patch` | `PatchOperation.patchAsync` (`src/operations/patch/patch.js`) | PATCH (JSON Patch), including the Group member strategy |
-| `merge` | `MergeOperation.mergeAsync` and `mergeAsyncStream` (`src/operations/merge/merge.js`) | `$merge`, plus the GraphQL mutations in `patient.js` and `careTeam.js` that call `mergeAsync`. Streaming (NDJSON) `$merge` goes to `MergeStream` (`src/operations/writePipeline/responder/mergeStream.js`), a `MergeResponder` subclass that runs the shared steps on each line. Both paths keep the stream in `mergeAsyncStream`, which takes the path's handler for each line, flush and audit; it stays out of the pipeline core because no other operation streams (user decision) |
+| `merge` | `MergeOperation.mergeAsync` and `mergeAsyncStream` (`src/operations/merge/merge.js`) | `$merge`, plus the GraphQL mutations in `patient.js` and `careTeam.js` that call `mergeAsync`. Streaming (NDJSON) `$merge` goes to `MergeStream` (`src/operations/writePipeline/operations/merge/mergeStream.js`), which reads each line with the `MergeResponder` it holds and runs the shared steps on it. Both paths keep the stream in `mergeAsyncStream`, which takes the path's handler for each line, flush and audit; it stays out of the pipeline core because no other operation streams (user decision) |
 | `import` | the bulk-import handler's per-resource merge (`mergeBufferedResourceAsync` in `src/operations/asyncJobs/bulkImport/handler.js`) and its batch flush | `$import` worker |
 | `admin` | the five admin write operations in `AdminPersonPatientLinkManager` (`src/admin/adminPersonPatientLinkManager.js`) and their route handlers in `src/routeHandlers/admin.js` | see "Admin" |
 
@@ -217,7 +217,8 @@ Every operation runs these steps in this order:
 **Batches.** The pipeline works on a batch of items. POST, PUT and PATCH are a batch of one. Steps
 run per item, except "find existing" and "write", which run once for the batch: `$merge` and
 `$import` keep their bulk preload and single flush. When a check fails for an item, that item is
-marked failed. The responder piece decides whether the failure is thrown (single-resource
+marked failed and gets no further step; once no item of the batch is active, the remaining steps do
+not run. The responder piece decides whether the failure is thrown (single-resource
 operations) or reported as that item's result (`$merge`, `$import`).
 
 **One flow, called explicitly; plain-data profiles (user decision).** `WritePipeline` calls each step
@@ -225,16 +226,19 @@ itself, one line per step, in the order above, so the whole flow reads top to bo
 There is no step list and no loop. The step classes live in `src/operations/writePipeline/steps/`.
 A profile is plain data that says only what differs from the default: its name, the scope letter
 and action, the steps it turns `off`, and the step variants it uses. Every step the profile doesn't
-turn off runs. A profile with an unknown setting, an unknown step name or an unregistered variant
-fails before anything runs. Step 10 (access on result) has no implementation yet, so the pipeline
+turn off runs. The container gives `WritePipeline` every profile, and the pipeline checks them once,
+when it is built. The app builds it at startup, so a profile with an unknown setting, an unknown
+step name or an unregistered variant stops the boot. A run with a profile the pipeline was not
+given fails before anything runs. Step 10 (access on result) has no implementation yet, so the pipeline
 doesn't call it. PATCH adds the call and the name: its body is a JSON Patch, so its access tags are
 known only after the build. Admin uses it later.
 
-**Per-operation pieces (user decision).** Each operation adds two files and passes both to
+**Per-operation pieces (user decision).** Each operation has its own folder,
+`src/operations/writePipeline/operations/<operation>/`, with two files that it passes to
 `WritePipeline.runAsync`:
-- `src/operations/writePipeline/profiles/<operation>.js` holds its profile.
-- `src/operations/writePipeline/responder/<operation>.js` holds one class. It extends `WriteResponder`
-  (`responder/writeResponder.js`), whose constructor fails at startup if a method is missing. The class
+- `profile.js` holds its profile.
+- `responder.js` holds one class. It extends `WriteResponder` (`writePipeline/writeResponder.js`),
+  whose constructor fails at startup if a method is missing. The class
   holds everything that depends on the operation's request and response format: reading the request
   into items (step 0), building the results and the response (step 15), and the operation's metrics.
   The metrics stay per operation because they differ: `$merge` records `fhir_merge_outcome_total` and
@@ -248,6 +252,18 @@ resourceType })`. `runAsync` owns the rest of the request lifecycle:
 - the audit (step 14)
 - operation success and failure logging
 - the access log
+
+A caller that writes many batches in one longer job, such as streaming `$merge`, does not use
+`runAsync`. It calls `processAsync` for each batch and `executeAsync` at each flush, and does its
+own audit, logging and response.
+
+Anything else that belongs to one operation is in its folder too: `MergeStream` is in
+`operations/merge/`. What POST and PUT share is in `operations/singleResource/`.
+
+POST and PUT throw a failed check instead of reporting it as a result. Their responders share that
+in `operations/singleResource/singleResourceResult.js`: the error for each failure stage, the failure access-log
+entry (with the failed resource's uuid for both), and the check that the flush returned a result. The rules for a write that carries Group
+members are in `groupMemberWrites.js`, for the build, attachments and write steps.
 
 **The audit is shared (user decision).** Every write operation audits the same way, from the write
 results. Per resource type, it writes one `create` AuditEvent for the created ids and one `update`
@@ -272,7 +288,10 @@ and validate result steps. Its id is a new UUID, so identify only copies the id 
 picks three variants and turns nothing off: `identify: 'url'` (the identity from the URL id),
 `buildDocument: 'replace'` (the `If-Match` / `If-None-Match` checks, then a replace of the stored
 doc, or POST's insert when none is stored) and `write: 'httpPreconditions'` (a versioned write that
-queues the `If-Match` list, so a replayed write checks it again).
+queues the `If-Match` list, so a replayed write checks it again). The identify, build and write
+steps each take the piece that varies as a constructor argument, so a variant is the same step
+class with another piece: an identity resolver (`steps/identify/`), a builder (`steps/build/`) or
+a writer (`steps/write/`: `VersionedWriter` by default, `HttpPreconditionWriter` for PUT).
 
 A step records a failure as a neutral value: which check failed, the OperationOutcome or error,
 and the item's identity at that moment. The responder turns that value into the operation's result
@@ -571,7 +590,7 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
     a missing access check.
   - A `test.each` unit test for parsing `WRITE_PIPELINE_OPERATIONS`, including empty, single,
     several and unknown names.
-  - POST, in `src/tests/integration/operations/writePipeline/responder/create/`:
+  - POST, in `src/tests/integration/operations/writePipeline/operations/create/`:
     - `create.test.js`: parity, 25 cases run on both paths against goldens recorded from the old
       path, plus a routing test for each switch position. One case,
       `typeMismatchWithoutMetaSource`, pins the type-mismatch case of accepted difference 1 with a
@@ -587,10 +606,10 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
       both paths.
     - `create.metrics.test.js`: the `fhir_validation_failure_total` labels and count for each
       failing validation case, on both paths.
-  - The unit test `src/tests/unit/operations/writePipeline/responder/create.test.js`, for the
+  - The unit test `src/tests/unit/operations/writePipeline/operations/create/responder.test.js`, for the
     errors `CreateResponder` throws per failure stage, for a missing body, and for a flush that
     returns no usable result, which can't be produced end to end.
-  - PUT, in `src/tests/integration/operations/writePipeline/responder/update/`:
+  - PUT, in `src/tests/integration/operations/writePipeline/operations/update/`:
     - `update.test.js`: parity, 51 cases run on both paths against goldens recorded from the old
       path, with the status, body, `ETag` (for a 2xx), `Location` and `Content-Location`, and the
       stored doc and history rows after the request. One case, `auditEventPut405`, pins that an
@@ -608,11 +627,11 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
     - `update.concurrency.test.js`, new path only: two concurrent PUTs both land, `If-Match` and
       `If-None-Match: *` re-checked on a lost race, a lost create replayed as a replace, today's
       500 when the retries run out, and both `SKIP_HANDLE_CONCURRENCY` cases.
-  - PUT unit tests, under `src/tests/unit/operations/writePipeline/`: `responder/update.test.js`
+  - PUT unit tests, under `src/tests/unit/operations/writePipeline/`: `operations/update/responder.test.js`
     (the errors `UpdateResponder` throws per failure stage, and its results and response),
     `steps/identify/urlIdentityResolver.test.js`, `steps/build/replaceBuilder.test.js`,
-    `steps/writeStep.test.js` (the queued filter, `If-Match` and `smartMerge`, also with conflict
-    handling off) and `httpPreconditions.test.js`; and
+    `steps/write/httpPreconditionWriter.test.js` (the queued filter, `If-Match` and `smartMerge`,
+    also with conflict handling off) and `httpPreconditions.test.js`; and
     `src/tests/unit/dataLayer/fastDatabaseBulkInserter.test.js` for the two opt-in parameters.
 - The existing access and tenant-isolation suites for these operations run on the new path in the
   main CI job.
@@ -671,6 +690,11 @@ today.
   fails the size limit or has a pipe in its id no longer includes a `uuid` or
   `sourceAssigningAuthority` taken from `_uuid` or `_sourceAssigningAuthority` fields the client sent
   in the body. Today it echoes them.
+- **One scope-check log per resource type.** The scope check runs once for each resource type in
+  the request, because its answer depends only on the request and the type. A request with several
+  forbidden resources of one type logs `Scope check failed` once for that type; today it logs it
+  once per resource. Each forbidden resource still gets its own result entry and its own
+  `Write check failed for resource` log.
 - **Streaming audits** (accepted difference 9). A streaming `$merge` writes one AuditEvent entry
   per result, as buffered `$merge` does. Today a stream of more than 100 resources writes every
   AuditEvent once per commit (a 150-resource stream writes each create twice), and a stream whose

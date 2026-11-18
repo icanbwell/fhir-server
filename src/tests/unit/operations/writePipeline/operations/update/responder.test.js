@@ -1,36 +1,36 @@
 const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/globals');
 const httpContext = require('express-http-context');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../../../../constants');
-const { UpdateResponder } = require('../../../../../operations/writePipeline/responder/update');
-const { Base64DataManager } = require('../../../../../dataLayer/base64DataManager');
-const { DatabaseAttachmentManager } = require('../../../../../dataLayer/databaseAttachmentManager');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../../../../../constants');
+const { UpdateResponder } = require('../../../../../../operations/writePipeline/operations/update/responder');
+const { Base64DataManager } = require('../../../../../../dataLayer/base64DataManager');
+const { DatabaseAttachmentManager } = require('../../../../../../dataLayer/databaseAttachmentManager');
 const {
     IdentifierEnrichmentProvider
-} = require('../../../../../enrich/providers/identifierEnrichmentProvider');
+} = require('../../../../../../enrich/providers/identifierEnrichmentProvider');
 const {
     GroupExtendedTagEnrichmentProvider
-} = require('../../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
+} = require('../../../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const {
     WriteFailure,
     WRITE_FAILURE_STAGE
-} = require('../../../../../operations/writePipeline/writeFailure');
+} = require('../../../../../../operations/writePipeline/writeFailure');
 const {
     WriteItem,
     WRITE_ITEM_STATUS
-} = require('../../../../../operations/writePipeline/writeItem');
-const { WriteContext } = require('../../../../../operations/writePipeline/writeContext');
+} = require('../../../../../../operations/writePipeline/writeItem');
+const { WriteContext } = require('../../../../../../operations/writePipeline/writeContext');
 const {
     BadRequestError,
     ForbiddenError,
     NotValidatedError,
     PayloadTooLargeError,
     PreconditionFailedError
-} = require('../../../../../utils/httpErrors');
-const { RethrownError } = require('../../../../../utils/rethrownError');
+} = require('../../../../../../utils/httpErrors');
+const { RethrownError } = require('../../../../../../utils/rethrownError');
 const {
     buildOperationOutcome,
     buildOperationOutcomeFromIssues
-} = require('../../../../../utils/operationOutcomeBuilder');
+} = require('../../../../../../utils/operationOutcomeBuilder');
 
 /**
  * The synthetic URL id of the resource every test in this file writes.
@@ -261,10 +261,7 @@ describe('UpdateResponder', () => {
         });
 
         expect(context).toBeInstanceOf(WriteContext);
-        expect({ smartMerge: context.smartMerge, operationName: context.operationName }).toStrictEqual({
-            smartMerge: false,
-            operationName: 'update'
-        });
+        expect(context.smartMerge).toBe(false);
         expect(items.map(({ incoming, status }) => ({ incoming, status }))).toStrictEqual([{
             incoming: {
                 resourceType: 'Patient',
@@ -538,8 +535,7 @@ describe('UpdateResponder', () => {
             requestInfo: { headers: {} },
             base_version: '4_0_0',
             parsedArgs: parsedArgsFor(`${RESOURCE_ID}|client`),
-            smartMerge: false,
-            operationName: 'update'
+            smartMerge: false
         });
 
         const response = await responder.toResponse({ context, items: [item], results });

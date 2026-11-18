@@ -50,8 +50,8 @@ const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/provi
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
 const { WritePipelineSwitch } = require('../../../../operations/writePipeline/writePipelineSwitch');
 const { WritePipeline } = require('../../../../operations/writePipeline/writePipeline');
-const { UpdateResponder } = require('../../../../operations/writePipeline/responder/update');
-const { UPDATE_WRITE_PROFILE } = require('../../../../operations/writePipeline/profiles/update');
+const { UpdateResponder } = require('../../../../operations/writePipeline/operations/update/responder');
+const { UPDATE_WRITE_PROFILE } = require('../../../../operations/writePipeline/operations/update/profile');
 const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });

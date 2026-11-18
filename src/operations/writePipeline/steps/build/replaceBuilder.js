@@ -8,6 +8,7 @@ const { PreconditionFailedError } = require('../../../../utils/httpErrors');
 const { normalizeETag } = require('../../../../utils/ifMatchHelper');
 const { getExtendedGroupMemberWriteError } = require('../../../../utils/mongoGroupExtendedTag');
 const { HttpPreconditions } = require('../../httpPreconditions');
+const { hasGroupMembers } = require('../../groupMemberWrites');
 const { InsertBuilder } = require('./insertBuilder');
 const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../writeFailure');
 const { WriteItem } = require('../../writeItem');
@@ -102,7 +103,7 @@ class ReplaceBuilder {
      */
     async buildFromStoredAsync ({ item, context, preconditions }) {
         const incoming = item.incoming;
-        const hasMemberField = this.hasMemberField(incoming);
+        const hasMemberField = hasGroupMembers(incoming);
         const extendedGroupMemberWriteError = getExtendedGroupMemberWriteError({
             currentResource: item.stored,
             hasMemberField
@@ -174,17 +175,6 @@ class ReplaceBuilder {
             return this.groupMemberMerger.mergeMembers({ resource: incoming, requestInfo });
         }
         return null;
-    }
-
-    /**
-     * Returns whether the body is a Group with a non-empty `member` array.
-     * @param {Object} incoming
-     * @returns {boolean}
-     */
-    hasMemberField (incoming) {
-        return incoming.resourceType === 'Group' &&
-            Array.isArray(incoming.member) &&
-            incoming.member.length > 0;
     }
 
     /**
