@@ -1,5 +1,5 @@
 const { describe, test, expect } = require('@jest/globals');
-const { WriteResponder } = require('../../../../../operations/writePipeline/responder/writeResponder');
+const { WriteResponder } = require('../../../../operations/writePipeline/writeResponder');
 
 /**
  * A responder that implements every required method.

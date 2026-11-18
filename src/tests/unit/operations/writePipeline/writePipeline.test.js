@@ -14,7 +14,7 @@ const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggin
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { CustomTracer } = require('../../../../utils/customTracer');
 const { WritePipeline, WRITE_STEP_NAMES } = require('../../../../operations/writePipeline/writePipeline');
-const { MERGE_WRITE_PROFILE } = require('../../../../operations/writePipeline/profiles/merge');
+const { MERGE_WRITE_PROFILE } = require('../../../../operations/writePipeline/operations/merge/profile');
 const { WriteItem, WRITE_ITEM_STATUS } = require('../../../../operations/writePipeline/writeItem');
 const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../../../operations/writePipeline/writeFailure');
 const { WriteContext } = require('../../../../operations/writePipeline/writeContext');
@@ -34,7 +34,7 @@ const { WriteAuditor } = require('../../../../operations/writePipeline/writeAudi
 const {
     WriteResponder,
     WRITE_RESPONDER_METHOD_NAMES
-} = require('../../../../operations/writePipeline/responder/writeResponder');
+} = require('../../../../operations/writePipeline/writeResponder');
 
 /**
  * Each step's name, its `WritePipeline` constructor key and its class, in run order.

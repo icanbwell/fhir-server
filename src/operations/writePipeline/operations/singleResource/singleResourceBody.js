@@ -1,9 +1,9 @@
-const { BadRequestError } = require('../../../utils/httpErrors');
-const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
-const { getResourceTypeMismatchOutcome } = require('../../../utils/validator.util');
-const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../../utils/metrics');
-const { WriteItem } = require('../writeItem');
-const { WriteFailure, WRITE_FAILURE_STAGE } = require('../writeFailure');
+const { BadRequestError } = require('../../../../utils/httpErrors');
+const { removeUnderscoreFieldsRecursive } = require('../../../../utils/removeUnderscoreFields');
+const { getResourceTypeMismatchOutcome } = require('../../../../utils/validator.util');
+const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../../../utils/metrics');
+const { WriteItem } = require('../../writeItem');
+const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../writeFailure');
 
 /**
  * Reads the body of a single-resource write (POST or PUT) into one `WriteItem`. Throws a

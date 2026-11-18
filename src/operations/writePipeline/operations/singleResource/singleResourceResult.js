@@ -4,11 +4,11 @@ const {
     ForbiddenError,
     NotValidatedError,
     PayloadTooLargeError
-} = require('../../../utils/httpErrors');
-const { getCircularReplacer } = require('../../../utils/getCircularReplacer');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../../constants');
-const { WRITE_ITEM_STATUS } = require('../writeItem');
-const { WRITE_FAILURE_STAGE } = require('../writeFailure');
+} = require('../../../../utils/httpErrors');
+const { getCircularReplacer } = require('../../../../utils/getCircularReplacer');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../../../constants');
+const { WRITE_ITEM_STATUS } = require('../../writeItem');
+const { WRITE_FAILURE_STAGE } = require('../../writeFailure');
 
 /**
  * What the responders of single-resource writes (POST, PUT) share: a failed check is thrown as an
@@ -22,7 +22,7 @@ const { WRITE_FAILURE_STAGE } = require('../writeFailure');
  * error when the size check threw, the error the step wrapped for an attachments or write failure,
  * and otherwise the failure's own error (such as a 412 or a 400 from the build, or a validation
  * that threw), or a `NotValidatedError` of its OperationOutcome when it has no error.
- * @param {import('../writeFailure').WriteFailure} failure
+ * @param {import('../../writeFailure').WriteFailure} failure
  * @returns {Error}
  */
 function errorForFailure (failure) {
@@ -47,7 +47,7 @@ function errorForFailure (failure) {
  * result: its id, uuid, source assigning authority, resource type and OperationOutcome, neither
  * created nor updated. The uuid is the subject's, or the one `PrepareBodyStep` saved on the item
  * when the failure was recorded on a body stripped of its `_` fields.
- * @param {import('../writeItem').WriteItem} item
+ * @param {import('../../writeItem').WriteItem} item
  * @returns {void}
  */
 function storeFailureAccessLog (item) {
@@ -71,7 +71,7 @@ function storeFailureAccessLog (item) {
  * Does nothing when no item failed. Otherwise throws the error of `errorForFailure` for the first
  * failed item, after storing the rejected resource in the access log when the failure has an
  * OperationOutcome and its stage is one of `accessLoggedStages`.
- * @param {import('../writeItem').WriteItem[]} items
+ * @param {import('../../writeItem').WriteItem[]} items
  * @param {string[]} accessLoggedStages
  * @returns {void}
  */

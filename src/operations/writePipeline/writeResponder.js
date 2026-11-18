@@ -40,10 +40,10 @@ class WriteResponder {
      * run's `WriteContext` and one `WriteItem` per resource, failing the items that cannot be
      * written as read, and returns them with the request-level errors and whether the body was a
      * list.
-     * @param {import('../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @param {import('../../query/parsedArgs').ParsedArgs} parsedArgs
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @returns {Promise<{context: import('../writeContext').WriteContext, items: import('../writeItem').WriteItem[], requestErrors: Object[], wasIncomingAList: boolean}>}
+     * @returns {Promise<{context: import('./writeContext').WriteContext, items: import('./writeItem').WriteItem[], requestErrors: Object[], wasIncomingAList: boolean}>}
      */
     async readAsync ({ requestInfo, parsedArgs, resourceType }) {
         throw new Error('WriteResponder.readAsync is not implemented');
@@ -53,7 +53,7 @@ class WriteResponder {
      * Called by `WritePipeline.runAsync` after the steps and before the flush. Returns the result
      * entries for the request-level errors and the failed items, so the metrics still get the
      * failures if the flush throws.
-     * @param {import('../writeItem').WriteItem[]} items
+     * @param {import('./writeItem').WriteItem[]} items
      * @param {Object[]} requestErrors
      * @returns {Object[]}
      */
@@ -65,7 +65,7 @@ class WriteResponder {
      * Called by `WritePipeline.runAsync` after the flush. Returns the final result entries, built
      * from the request-level errors, the items and the bulk inserter's results. The pipeline audits
      * them, stores them for the access log and passes them to `toResponse` and `recordMetrics`.
-     * @param {import('../writeItem').WriteItem[]} items
+     * @param {import('./writeItem').WriteItem[]} items
      * @param {Object[]} requestErrors
      * @param {Object[]} executedResults
      * @returns {Object[]}
@@ -78,8 +78,8 @@ class WriteResponder {
      * Called on success by `WritePipeline.runAsync`, after the audit, the success log and the
      * access log, and before `recordMetrics`. Returns the operation's response for the items and
      * the results.
-     * @param {import('../writeContext').WriteContext} context
-     * @param {import('../writeItem').WriteItem[]} items
+     * @param {import('./writeContext').WriteContext} context
+     * @param {import('./writeItem').WriteItem[]} items
      * @param {Object[]} results
      * @param {boolean} wasIncomingAList
      * @param {string} resourceType
@@ -95,8 +95,8 @@ class WriteResponder {
      * Called by `WritePipeline.runAsync` once per request, on success and on error, with the
      * results built so far. Records the operation's metrics.
      * @param {Object[]} results
-     * @param {import('../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @param {import('../../query/parsedArgs').ParsedArgs} parsedArgs
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
      * @returns {void}
      */
     recordMetrics ({ results, requestInfo, parsedArgs }) {

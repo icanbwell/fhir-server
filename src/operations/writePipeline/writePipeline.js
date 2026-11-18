@@ -21,7 +21,7 @@ const { AttachmentsStep } = require('./steps/attachmentsStep');
 const { NoOpStep } = require('./steps/noOpStep');
 const { WriteStep } = require('./steps/writeStep');
 const { WriteAuditor } = require('./writeAuditor');
-const { WriteResponder } = require('./responder/writeResponder');
+const { WriteResponder } = require('./writeResponder');
 
 /**
  * The shared step names, in the order `processAsync` runs them. A profile's `off` setting may name

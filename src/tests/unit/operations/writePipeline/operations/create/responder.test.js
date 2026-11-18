@@ -1,31 +1,31 @@
 const { describe, test, expect, beforeEach, afterEach, jest } = require('@jest/globals');
 const httpContext = require('express-http-context');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../../../../constants');
-const { CreateResponder } = require('../../../../../operations/writePipeline/responder/create');
-const { Base64DataManager } = require('../../../../../dataLayer/base64DataManager');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../../../../../constants');
+const { CreateResponder } = require('../../../../../../operations/writePipeline/operations/create/responder');
+const { Base64DataManager } = require('../../../../../../dataLayer/base64DataManager');
 const {
     IdentifierEnrichmentProvider
-} = require('../../../../../enrich/providers/identifierEnrichmentProvider');
+} = require('../../../../../../enrich/providers/identifierEnrichmentProvider');
 const {
     WriteFailure,
     WRITE_FAILURE_STAGE
-} = require('../../../../../operations/writePipeline/writeFailure');
+} = require('../../../../../../operations/writePipeline/writeFailure');
 const {
     WriteItem,
     WRITE_ITEM_STATUS
-} = require('../../../../../operations/writePipeline/writeItem');
-const { isUuid } = require('../../../../../utils/uid.util');
+} = require('../../../../../../operations/writePipeline/writeItem');
+const { isUuid } = require('../../../../../../utils/uid.util');
 const {
     BadRequestError,
     ForbiddenError,
     NotValidatedError,
     PayloadTooLargeError
-} = require('../../../../../utils/httpErrors');
-const { RethrownError } = require('../../../../../utils/rethrownError');
+} = require('../../../../../../utils/httpErrors');
+const { RethrownError } = require('../../../../../../utils/rethrownError');
 const {
     buildOperationOutcome,
     buildOperationOutcomeFromIssues
-} = require('../../../../../utils/operationOutcomeBuilder');
+} = require('../../../../../../utils/operationOutcomeBuilder');
 
 /**
  * The synthetic id of the resource every failure in these tests is about.

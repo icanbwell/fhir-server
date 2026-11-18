@@ -1,9 +1,9 @@
-const { assertTypeEquals } = require('../../../utils/assertType');
-const { CustomTracer } = require('../../../utils/customTracer');
-const { WritePipeline } = require('../writePipeline');
-const { WriteAuditor } = require('../writeAuditor');
-const { MERGE_WRITE_PROFILE } = require('../profiles/merge');
-const { MergeResponder, PLACEHOLDER_STATUSES } = require('./merge');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { CustomTracer } = require('../../../../utils/customTracer');
+const { WritePipeline } = require('../../writePipeline');
+const { WriteAuditor } = require('../../writeAuditor');
+const { MERGE_WRITE_PROFILE } = require('./profile');
+const { MergeResponder, PLACEHOLDER_STATUSES } = require('./responder');
 
 /**
  * Streaming (NDJSON) `$merge` on the new write path: the stream handler that
@@ -46,10 +46,10 @@ class MergeStream {
     /**
      * Creates the new path's handler for one streaming `$merge` request, in the request's `merge`
      * write context.
-     * @param {import('../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @param {import('../../query/parsedArgs').ParsedArgs} parsedArgs
+     * @param {import('../../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {import('../../../query/parsedArgs').ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @returns {import('../../merge/merge').MergeStreamHandler}
+     * @returns {import('../../../merge/merge').MergeStreamHandler}
      */
     createStreamHandler ({ requestInfo, parsedArgs, resourceType }) {
         const context = this.mergeResponder.createContext({ requestInfo, parsedArgs });
@@ -65,7 +65,7 @@ class MergeStream {
      * Reads one NDJSON line into items, runs the shared write steps on them and pushes the line's
      * request errors and failed items. Returns the resources of its unchanged and queued items,
      * which wait for the next batch commit.
-     * @param {import('../writeContext').WriteContext} context
+     * @param {import('../../writeContext').WriteContext} context
      * @param {string} resourceType
      * @param {Object} resource
      * @param {function(Object): void} push
@@ -88,7 +88,7 @@ class MergeStream {
 
     /**
      * Flushes the queued writes and returns their results.
-     * @param {import('../writeContext').WriteContext} context
+     * @param {import('../../writeContext').WriteContext} context
      * @returns {Promise<Object[]>}
      */
     async executeBatchAsync ({ context }) {
@@ -100,7 +100,7 @@ class MergeStream {
 
     /**
      * Audits the results.
-     * @param {import('../writeContext').WriteContext} context
+     * @param {import('../../writeContext').WriteContext} context
      * @param {Object[]} results
      * @returns {Promise<void>}
      */

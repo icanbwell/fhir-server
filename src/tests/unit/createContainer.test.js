@@ -92,10 +92,10 @@ const { UrlIdentityResolver } = require('../../operations/writePipeline/steps/id
 const { SmartMergeBuilder } = require('../../operations/writePipeline/steps/build/smartMergeBuilder');
 const { InsertBuilder } = require('../../operations/writePipeline/steps/build/insertBuilder');
 const { ReplaceBuilder } = require('../../operations/writePipeline/steps/build/replaceBuilder');
-const { MERGE_WRITE_PROFILE } = require('../../operations/writePipeline/profiles/merge');
-const { CREATE_WRITE_PROFILE } = require('../../operations/writePipeline/profiles/create');
-const { UPDATE_WRITE_PROFILE } = require('../../operations/writePipeline/profiles/update');
-const { UpdateResponder } = require('../../operations/writePipeline/responder/update');
+const { MERGE_WRITE_PROFILE } = require('../../operations/writePipeline/operations/merge/profile');
+const { CREATE_WRITE_PROFILE } = require('../../operations/writePipeline/operations/create/profile');
+const { UPDATE_WRITE_PROFILE } = require('../../operations/writePipeline/operations/update/profile');
+const { UpdateResponder } = require('../../operations/writePipeline/operations/update/responder');
 
 // Registrations that require infrastructure-specific config this test file does not (and should
 // not) provide; excluded only from the "every name resolves" sweep. Each has its own dedicated,

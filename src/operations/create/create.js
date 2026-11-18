@@ -25,8 +25,8 @@ const { validateResource } = require('../../utils/validator.util');
 const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
 const { WritePipelineSwitch } = require('../writePipeline/writePipelineSwitch');
 const { WritePipeline } = require('../writePipeline/writePipeline');
-const { CreateResponder } = require('../writePipeline/responder/create');
-const { CREATE_WRITE_PROFILE } = require('../writePipeline/profiles/create');
+const { CreateResponder } = require('../writePipeline/operations/create/responder');
+const { CREATE_WRITE_PROFILE } = require('../writePipeline/operations/create/profile');
 
 class CreateOperation {
     /**

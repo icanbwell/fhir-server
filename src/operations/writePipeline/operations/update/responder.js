@@ -1,26 +1,26 @@
 const deepcopy = require('deepcopy');
-const { assertTypeEquals } = require('../../../utils/assertType');
-const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
-const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
+const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
 const {
     IdentifierEnrichmentProvider
-} = require('../../../enrich/providers/identifierEnrichmentProvider');
+} = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const {
     GroupExtendedTagEnrichmentProvider
-} = require('../../../enrich/providers/groupExtendedTagEnrichmentProvider');
-const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
-const { GRIDFS, BLOB_OP } = require('../../../constants');
-const { WriteItem, WRITE_ITEM_STATUS } = require('../writeItem');
-const { WriteContext } = require('../writeContext');
-const { WRITE_FAILURE_STAGE } = require('../writeFailure');
-const { UrlIdentityResolver } = require('../steps/identify/urlIdentityResolver');
-const { WriteResponder } = require('./writeResponder');
-const { readSingleResourceBody } = require('./singleResourceBody');
+} = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
+const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
+const { GRIDFS, BLOB_OP } = require('../../../../constants');
+const { WriteItem, WRITE_ITEM_STATUS } = require('../../writeItem');
+const { WriteContext } = require('../../writeContext');
+const { WRITE_FAILURE_STAGE } = require('../../writeFailure');
+const { UrlIdentityResolver } = require('../../steps/identify/urlIdentityResolver');
+const { WriteResponder } = require('../../writeResponder');
+const { readSingleResourceBody } = require('../singleResource/singleResourceBody');
 const {
     throwIfItemFailed,
     firstExecutedResult,
     notWrittenError
-} = require('./singleResourceResult');
+} = require('../singleResource/singleResourceResult');
 
 /**
  * The failure stages for which update stores the rejected resource in the access log before it
@@ -82,8 +82,8 @@ class UpdateResponder extends WriteResponder {
      * Reads the body into an `update` write context and one `WriteItem` with
      * `readSingleResourceBody`. The body's id becomes the URL id (without a `|authority` suffix),
      * whatever id the body had, before the identity step reads it.
-     * @param {import('../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @param {import('../../query/parsedArgs').ParsedArgs} parsedArgs
+     * @param {import('../../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {import('../../../query/parsedArgs').ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {Promise<{context: WriteContext, items: WriteItem[], requestErrors: Object[], wasIncomingAList: boolean}>}
      */

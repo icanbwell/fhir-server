@@ -1,22 +1,22 @@
 const deepcopy = require('deepcopy');
-const { assertTypeEquals } = require('../../../utils/assertType');
-const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const {
     IdentifierEnrichmentProvider
-} = require('../../../enrich/providers/identifierEnrichmentProvider');
-const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
-const { generateUUID } = require('../../../utils/uid.util');
-const { BLOB_OP } = require('../../../constants');
-const { WriteItem } = require('../writeItem');
-const { WriteContext } = require('../writeContext');
-const { WRITE_FAILURE_STAGE } = require('../writeFailure');
-const { WriteResponder } = require('./writeResponder');
-const { readSingleResourceBody } = require('./singleResourceBody');
+} = require('../../../../enrich/providers/identifierEnrichmentProvider');
+const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
+const { generateUUID } = require('../../../../utils/uid.util');
+const { BLOB_OP } = require('../../../../constants');
+const { WriteItem } = require('../../writeItem');
+const { WriteContext } = require('../../writeContext');
+const { WRITE_FAILURE_STAGE } = require('../../writeFailure');
+const { WriteResponder } = require('../../writeResponder');
+const { readSingleResourceBody } = require('../singleResource/singleResourceBody');
 const {
     throwIfItemFailed,
     firstExecutedResult,
     notWrittenError
-} = require('./singleResourceResult');
+} = require('../singleResource/singleResourceResult');
 
 /**
  * The failure stages for which create stores the rejected resource in the access log before it
@@ -63,8 +63,8 @@ class CreateResponder extends WriteResponder {
      * When its resourceType is not the one in the URL, the item fails at the `STRUCTURE` stage, with
      * the new UUID as its subject's uuid, and the failure is recorded in
      * `fhir_validation_failure_total` at the `schema` stage.
-     * @param {import('../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @param {import('../../query/parsedArgs').ParsedArgs} parsedArgs
+     * @param {import('../../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {import('../../../query/parsedArgs').ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {Promise<{context: WriteContext, items: WriteItem[], requestErrors: Object[], wasIncomingAList: boolean}>}
      */
