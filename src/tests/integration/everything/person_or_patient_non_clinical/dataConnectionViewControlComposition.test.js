@@ -123,6 +123,24 @@ const V2_TEXT_QUERY = `query { compositions(patient: { value: "Patient/${PATIENT
     entry { resource { id text { div } } } } }`;
 const graphql = (path, query, headers) => (r) =>
     r.post(path).send({ operationName: null, variables: {}, query }).set(headers);
+// $graph from the Patient, linking its Compositions
+const PATIENT_COMPOSITION_GRAPH = {
+    resourceType: 'GraphDefinition',
+    id: 'vc-patient-compositions',
+    name: 'vc-patient-compositions',
+    status: 'active',
+    start: 'Patient',
+    link: [{ target: [{ type: 'Composition', params: 'subject={ref}' }] }]
+};
+// $graph that starts at the Composition itself
+const COMPOSITION_GRAPH = {
+    resourceType: 'GraphDefinition',
+    id: 'vc-composition',
+    name: 'vc-composition',
+    status: 'active',
+    start: 'Composition',
+    link: []
+};
 
 describe('dataConnectionViewControl Consent on Composition sections', () => {
     let savedEnrolled;
@@ -172,7 +190,11 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
         ['Patient $everything', (r) => r.get(`/4_0_0/Patient/${PATIENT_UUID}/$everything`).set(userHeaders())],
         ['Patient $everything streamed', (r) => r.get(`/4_0_0/Patient/${PATIENT_UUID}/$everything`)
             .set({ ...getHeadersNdJson(), Authorization: userHeaders().Authorization })],
-        ['Person $everything', (r) => r.get(`/4_0_0/Person/${PERSON_ID}/$everything`).set(userHeaders())]
+        ['Person $everything', (r) => r.get(`/4_0_0/Person/${PERSON_ID}/$everything`).set(userHeaders())],
+        ['Patient $graph linking Compositions', (r) => r.post(`/4_0_0/Patient/${PATIENT_UUID}/$graph`)
+            .send(PATIENT_COMPOSITION_GRAPH).set(userHeaders())],
+        ['Composition $graph', (r) => r.post(`/4_0_0/Composition/${COMPOSITION_A_UUID}/$graph`)
+            .send(COMPOSITION_GRAPH).set(userHeaders())]
     ])('%s removes the sections that reference the blocked CarePlan', async (_name, send) => {
         const resp = await send(request);
         expect(resp.status).toBe(200);
@@ -232,7 +254,9 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
         ['REST search with a service token', (r) => r.get(restSearch).set(getHeaders())],
         ['GraphQL v1 with a service token', graphql('/$graphql', V1_QUERY, getGraphQLHeaders())],
         ['Person $everything with a service token', (r) =>
-            r.get(`/4_0_0/Person/${PERSON_ID}/$everything`).set(getHeaders())]
+            r.get(`/4_0_0/Person/${PERSON_ID}/$everything`).set(getHeaders())],
+        ['Patient $graph with a service token', (r) => r.post(`/4_0_0/Patient/${PATIENT_UUID}/$graph`)
+            .send(PATIENT_COMPOSITION_GRAPH).set(getHeaders())]
     ])('%s still returns every section', async (_name, send) => {
         const resp = await send(request);
         expect(resp.status).toBe(200);

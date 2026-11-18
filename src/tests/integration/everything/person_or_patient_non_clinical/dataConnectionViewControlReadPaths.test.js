@@ -857,6 +857,31 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             expect(returns(rebuilt, BLOCKED, BLOCKED_UUID)).toBe(true);
             expect(returns(rebuilt, UNBLOCKED, UNBLOCKED_UUID)).toBe(false);
         });
+
+        // e.g. the generation bump after a Consent save failed, so the stale entry is still served
+        test('a cache hit drops resources the Consent now hides, even if they were cached', async () => {
+            await seed();
+            const summary = () => request.get(`/4_0_0/Patient/person.${PERSON_ID}/$summary`).set(userHeaders());
+            const returns = (resp, ...ids) => ids.some((id) => allIdValues(resp.body).includes(id));
+
+            // the entry is cached while the Consent hides nothing
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync')
+                .mockResolvedValue({
+                    viewControlResourceToExcludeMap: {}, viewControlConsentQueries: [], viewControlConsentQueryOptions: []
+                });
+            try {
+                const miss = await summary();
+                expect(miss.headers).toHaveProperty('x-cache', 'Miss');
+                expect(returns(miss, BLOCKED, BLOCKED_UUID)).toBe(true);
+            } finally {
+                spy.mockRestore();
+            }
+
+            const hit = await summary();
+            expect(hit.headers).toHaveProperty('x-cache', 'Hit');
+            expect(returns(hit, BLOCKED, BLOCKED_UUID)).toBe(false);
+            expect(returns(hit, UNBLOCKED, UNBLOCKED_UUID)).toBe(true);
+        });
     });
 
     describe('mixed uuid / sourceId exclusion lists', () => {

@@ -1760,6 +1760,14 @@ class GraphHelper {
                     .forEach((e) => returnedResources.remember(e.resource));
             }
 
+            // the caller's view-control block, so a Composition section pointing at a hidden resource is
+            // dropped as on REST search (user tokens only; the lookup is memoized per request)
+            const viewControlExcludeMap = requestInfo.isUser
+                ? (await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                    requestInfo, base_version
+                })).viewControlResourceToExcludeMap
+                : undefined;
+
             /**
              * @type {ResourceIdentifier[]}
              */
@@ -1806,7 +1814,8 @@ class GraphHelper {
                         parsedArgs,
                         enrichmentContext: {
                             userType: requestInfo.userType,
-                            actor: requestInfo.actor
+                            actor: requestInfo.actor,
+                            viewControlExcludeMap
                         }
                     }
                 );

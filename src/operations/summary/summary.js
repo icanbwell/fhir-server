@@ -25,6 +25,7 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { BaseResponseHandler } = require('../../utils/responseHandler/baseResponseHandler');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { PatientDataViewControlExclusion } = require('../../utils/patientDataViewControlExclusion');
+const { createViewControlHiddenResourceMatcher } = require('../../utils/viewControlHiddenResourceMatcher');
 
 class SummaryOperation {
     /**
@@ -502,6 +503,14 @@ class SummaryOperation {
                         requestInfo, base_version: parsedArgs.base_version
                     })).viewControlResourceToExcludeMap
                     : undefined;
+                if (readFromCache) {
+                    // a cached bundle can predate the current Consent (e.g. the cache generation bump
+                    // after a Consent save failed), so drop what the Consent now hides, as $everything does
+                    const isHidden = createViewControlHiddenResourceMatcher(viewControlExcludeMap);
+                    if (isHidden) {
+                        patientDataBundle.entry = patientDataBundle.entry.filter((e) => !isHidden(e.resource));
+                    }
+                }
                 patientDataBundle.entry = await this.enrichmentManager.enrichBundleEntriesAsync({
                     entries: patientDataBundle.entry,
                     parsedArgs,

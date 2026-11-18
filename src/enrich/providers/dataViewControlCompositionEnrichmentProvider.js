@@ -9,8 +9,8 @@ const {
  * Consent hides, so a summary can't show what the search itself filtered out.
  *
  * It filters by the exclude map in the enrichment context, and does nothing without one. Read paths
- * that apply view control put it there (from ParsedArgs.viewControlExcludeMap, or $everything's own
- * lookup); paths that don't (service tokens, $graph, $summary) leave it out.
+ * that apply view control put it there (from ParsedArgs.viewControlExcludeMap, or the Consent lookup
+ * in $everything, $graph and $summary); service tokens without the opt-in leave it out.
  * The map is passed in rather than looked up here, because PatientDataViewControlExclusion depends
  * on the search stack that runs this provider.
  */
