@@ -1,6 +1,6 @@
 {
     "resourceType": "Consent",
-    "id": "consent-comp-filter-test-no-deny",
+    "id": "consent-comp-filter-test",
     "meta": {
         "source": "https://www.icanbwell.com/personal-access-relationship-service",
         "security": [
@@ -9,7 +9,7 @@
             { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "bwell" }
         ],
         "tag": [
-            { "system": "https://www.icanbwell.com/uuid", "code": "consent-comp-filter-test-no-deny" }
+            { "system": "https://www.icanbwell.com/uuid", "code": "consent-comp-filter-test" }
         ]
     },
     "status": "active",

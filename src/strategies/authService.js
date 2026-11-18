@@ -350,7 +350,16 @@ class AuthService {
                     context.actor = result.actor;
                     context.userType = AUTH_USER_TYPES.delegatedUser;
 
-                    if (Array.isArray(jwt_payload.entitlements)) {
+                    if (Array.isArray(jwt_payload.entitlements) && !result.actor.isOrganizationActor) {
+                        // RelatedPerson: the Consent is read and checked per request by
+                        // DelegatedAccessRulesManager.getFilteringRulesAsync, which refuses with
+                        // 403. Login never fails on it, because a 401 logs the user out. Purpose
+                        // of use is the token's own codes; the Consent entry is only a pointer.
+                        context.actor.entitlements = jwt_payload.entitlements;
+                        context.purposeOfUse = jwt_payload.entitlements.filter(
+                            (entitlement) => ReferenceParser.parseReference(entitlement).resourceType !== 'Consent'
+                        );
+                    } else if (Array.isArray(jwt_payload.entitlements)) {
                         context.purposeOfUse = jwt_payload.entitlements;
                         // Only take the async Consent-dereference path when entitlements
                         // actually names one -- bare codes stay fully synchronous.

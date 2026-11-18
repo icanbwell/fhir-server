@@ -784,7 +784,12 @@ describe('AuthService', () => {
                 expect.any(Object),
                 expect.objectContaining({
                     context: expect.objectContaining({
-                        actor: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub', isOrganizationActor: false },
+                        actor: {
+                            reference: 'RelatedPerson/rp-1',
+                            sub: 'delegate-sub',
+                            isOrganizationActor: false,
+                            entitlements: ['purpose-of-use-1']
+                        },
                         userType: 'delegatedUser',
                         purposeOfUse: ['purpose-of-use-1']
                     })
@@ -792,7 +797,7 @@ describe('AuthService', () => {
             );
         });
 
-        test('resolves a Consent/<id> entitlement to the Consent purpose codes', async () => {
+        test('resolves a Consent/<id> entitlement to the Consent purpose codes for an Organization actor', async () => {
             Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
             AuthService.jwksCache = undefined;
             AuthService.userInfoCache = undefined;
@@ -814,7 +819,7 @@ describe('AuthService', () => {
                     bwellFhirPersonId: 'bwell-person-1',
                     bwellFhirPatientId: 'bwell-patient-1',
                     sub: 'subject-1',
-                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    act: { reference: 'Organization/org-1', sub: 'delegate-sub' },
                     entitlements: ['Consent/consent-uuid-123']
                 },
                 done,
@@ -840,7 +845,7 @@ describe('AuthService', () => {
             );
         });
 
-        test('rejects auth (401-style) when a Consent/<id> entitlement cannot be resolved', async () => {
+        test('rejects auth (401-style) when an Organization actor\'s Consent/<id> entitlement cannot be resolved', async () => {
             Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
             AuthService.jwksCache = undefined;
             AuthService.userInfoCache = undefined;
@@ -863,7 +868,7 @@ describe('AuthService', () => {
                     bwellFhirPersonId: 'bwell-person-1',
                     bwellFhirPatientId: 'bwell-patient-1',
                     sub: 'subject-1',
-                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    act: { reference: 'Organization/org-1', sub: 'delegate-sub' },
                     entitlements: ['Consent/does-not-exist']
                 },
                 done,
@@ -874,7 +879,7 @@ describe('AuthService', () => {
             expect(done).toHaveBeenCalledWith(null, false, { reason: 'delegated_actor_consent_not_found' });
         });
 
-        test('propagates (does not swallow into done()) when Consent resolution rejects with a transient error', async () => {
+        test('propagates (does not swallow into done()) when an Organization actor\'s Consent resolution rejects with a transient error', async () => {
             // A transient DB/lookup failure must reject processUserInfo's own promise rather
             // than being treated as "consent not found" -- verify()'s existing .catch() chain
             // is what turns this into a 503, not a 401 via done(null,
@@ -903,7 +908,7 @@ describe('AuthService', () => {
                     bwellFhirPersonId: 'bwell-person-1',
                     bwellFhirPatientId: 'bwell-patient-1',
                     sub: 'subject-1',
-                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    act: { reference: 'Organization/org-1', sub: 'delegate-sub' },
                     entitlements: ['Consent/consent-uuid-123']
                 },
                 done,
@@ -954,6 +959,58 @@ describe('AuthService', () => {
                 expect.any(Object),
                 expect.objectContaining({
                     context: expect.objectContaining({ purposeOfUse: ['FAMRQT'] })
+                })
+            );
+        });
+
+        test.each([
+            ['a Consent and a purpose code', ['Consent/6db13a4f-fee5-485a-b245-18881c0232ac', 'FAMRQT'], ['FAMRQT']],
+            ['only a purpose code', ['FAMRQT'], ['FAMRQT']]
+        ])('keeps a RelatedPerson token\'s entitlements on the actor without reading the Consent when they hold %s', (_label, entitlements, purposeOfUse) => {
+            Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+            AuthService.jwksCache = undefined;
+            AuthService.userInfoCache = undefined;
+            authService = new AuthService({
+                configManager: mockConfigManager,
+                wellKnownConfigurationManager: mockWellKnownConfigManager,
+                delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+            });
+
+            const done = jest.fn();
+            // Not awaited: the RelatedPerson branch never awaits, so login cannot fail on the Consent.
+            authService.processUserInfo({
+                username: 'testuser',
+                subject: 'sub1',
+                isUser: true,
+                jwt_payload: {
+                    clientFhirPersonId: 'person-1',
+                    clientFhirPatientId: 'patient-1',
+                    bwellFhirPersonId: 'bwell-person-1',
+                    bwellFhirPatientId: 'bwell-patient-1',
+                    sub: 'subject-1',
+                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    entitlements
+                },
+                done,
+                client_id: 'client1',
+                scope: 'patient/Patient.read'
+            });
+
+            expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).not.toHaveBeenCalled();
+            expect(done).toHaveBeenCalledWith(
+                null,
+                expect.any(Object),
+                expect.objectContaining({
+                    context: expect.objectContaining({
+                        userType: 'delegatedUser',
+                        purposeOfUse,
+                        actor: {
+                            reference: 'RelatedPerson/rp-1',
+                            sub: 'delegate-sub',
+                            isOrganizationActor: false,
+                            entitlements
+                        }
+                    })
                 })
             );
         });

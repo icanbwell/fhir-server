@@ -17,6 +17,7 @@ const person1Resource = require('./fixtures/Person/person1.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const activeConsent = require('./fixtures/Consent/activeConsent.json');
 const activeConsentNoDeniedCategories = require('./fixtures/Consent/activeConsentNoDeniedCategories.json');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const compositionNoSensitive = require('./fixtures/Composition/compositionNoSensitive.json');
 const compositionTopLevelSensitive = require('./fixtures/Composition/compositionTopLevelSensitive.json');
 const compositionNestedSensitive = require('./fixtures/Composition/compositionNestedSensitive.json');
@@ -80,7 +81,9 @@ const delegatedPayload = {
     act: {
         reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
         sub: 'delegated-sub-123'
-    }
+    },
+    // Both Consent fixtures share this id; each test merges one of them.
+    entitlements: [`Consent/${generateUUIDv5(`${activeConsent.id}|bwell`)}`]
 };
 
 const nonDelegatedPayload = {

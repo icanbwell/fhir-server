@@ -396,6 +396,7 @@ describe('Person $access-history Tests', () => {
             .send(consent)
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
+        const consentUuid = resp.body.uuid;
 
         // Delegated user reads the Patient resource
         resp = await request
@@ -413,7 +414,8 @@ describe('Person $access-history Tests', () => {
                     act: {
                         reference: delegatedActorRef,
                         sub: 'delegated-sub-e2e'
-                    }
+                    },
+                    entitlements: [`Consent/${consentUuid}`]
                 })
             );
         expect(resp.status).toBe(200);
@@ -466,8 +468,9 @@ describe('Person $access-history Tests', () => {
             .send(consent)
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
+        const consentUuid = resp.body.uuid;
 
-        const fetchConsentSpy = jest.spyOn(DelegatedAccessRulesManager.prototype, 'fetchConsentResourcesAsync');
+        const fetchConsentSpy = jest.spyOn(DelegatedAccessRulesManager.prototype, 'findConsentByReferenceAsync');
         try {
             resp = await request
                 .get(`/4_0_0/Person/${personUuid}/$access-history`)
@@ -484,7 +487,8 @@ describe('Person $access-history Tests', () => {
                         act: {
                             reference: delegatedActorRef,
                             sub: 'delegated-sub-consent-once'
-                        }
+                        },
+                        entitlements: [`Consent/${consentUuid}`]
                     })
                 );
 

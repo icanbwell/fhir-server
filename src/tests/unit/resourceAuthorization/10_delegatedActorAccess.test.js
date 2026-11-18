@@ -62,9 +62,10 @@ jest.mock('../../../operations/common/logging', () => ({
     logWarn: jest.fn()
 }));
 
-// Only the DB-shaped internals of DelegatedAccessRulesManager.fetchConsentResourcesAsync are
-// stubbed out (query-filter builders); the caching, parsing, and error-handling logic under test
-// is the real class, exercised end-to-end through DataSharingManager.
+// These mocks are registered after the modules above are required, so those modules keep the
+// real implementations. DelegatedAccessRulesManager's caching, Consent checks, and parsing under
+// test are the real class, exercised end-to-end through DataSharingManager; only the database is
+// stubbed (mockDatabaseQueryFactory).
 jest.mock('../../../operations/query/filters/searchFilterFromReference', () => ({
     SearchFilterFromReference: {
         buildFilter: jest.fn().mockReturnValue([{ 'patient._uuid': { $in: ['person.person-1'] } }])
@@ -240,7 +241,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             );
         });
 
-        test('a `Consent/<id>` entitlement is resolved via delegatedAccessRulesManager instead of passed through verbatim', async () => {
+        test('an Organization actor\'s `Consent/<id>` entitlement is resolved via delegatedAccessRulesManager instead of passed through verbatim', async () => {
             mockDelegatedAccessRulesManagerForAuth.resolvePurposeOfEventCodesAsync.mockResolvedValue(['TREAT']);
 
             const done = jest.fn();
@@ -250,7 +251,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 isUser: true,
                 jwt_payload: {
                     ...requiredJwtFields,
-                    act: { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' },
+                    act: { reference: 'Organization/org-1', sub: 'delegate-sub' },
                     entitlements: ['Consent/consent-uuid-1']
                 },
                 done,
@@ -538,6 +539,24 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
         let mockDatabaseQueryFactory;
         let mockConfigManagerForRules;
 
+        const consentUuid = '6db13a4f-fee5-485a-b245-18881c0232ac';
+        // A stored Consent that passes every check for RelatedPerson/rp-1 acting for person-1.
+        const grantingConsent = (provisionOverrides = {}) => ({
+            _uuid: consentUuid,
+            meta: { versionId: '1' },
+            status: 'active',
+            category: [{ coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataSharingAccess' }] }],
+            patient: { reference: 'Patient/person.person-1', _sourceId: 'Patient/person.person-1' },
+            provision: {
+                type: 'permit',
+                period: { start: '2024-01-01' },
+                actor: [{ reference: { reference: 'RelatedPerson/rp-1', _sourceId: 'RelatedPerson/rp-1' } }],
+                ...provisionOverrides
+            }
+        });
+        // A RelatedPerson actor whose token names that Consent in its entitlements.
+        const relatedPersonActor = () => ({ reference: 'RelatedPerson/rp-1', entitlements: [`Consent/${consentUuid}`] });
+
         beforeEach(() => {
             mockConfigManagerForRules = createMockInstance(ConfigManager);
             Object.defineProperty(mockConfigManagerForRules, 'mongoTimeout', {
@@ -585,7 +604,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
-                actor: { reference: 'RelatedPerson/rp-1' },
+                actor: relatedPersonActor(),
                 personIdFromJwtToken: 'person-1'
             });
 
@@ -610,52 +629,44 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             expect(excludedCode).toBe('unclassified');
         });
 
-        test('MORE THAN ONE active Consent found -> throws ForbiddenError (ambiguous, fails closed)', async () => {
+        test('the named Consent id matching MORE THAN ONE Consent -> impossible query (ambiguous, fails closed)', async () => {
             mockDatabaseQueryFactory.createQuery.mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue(
-                    createCursor([
-                        { _uuid: 'consent-1', meta: { versionId: '1' } },
-                        { _uuid: 'consent-2', meta: { versionId: '1' } }
-                    ])
+                    createCursor([grantingConsent(), { ...grantingConsent(), _uuid: 'consent-2' }])
                 )
             });
 
-            await expect(
-                dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
-                    base_version: '4_0_0',
-                    query: { resourceType: 'Observation' },
-                    actor: { reference: 'RelatedPerson/rp-1' },
-                    personIdFromJwtToken: 'person-1'
-                })
-            ).rejects.toThrow(/ambiguous permissions/);
+            const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+                base_version: '4_0_0',
+                query: { resourceType: 'Observation' },
+                actor: relatedPersonActor(),
+                personIdFromJwtToken: 'person-1'
+            });
+
+            expect(result).toEqual({ _uuid: '__invalid__' });
         });
 
         test('a single Consent with deny provisions excludes those sensitivity-category codes PLUS unclassified', async () => {
             mockDatabaseQueryFactory.createQuery.mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue(
                     createCursor([
-                        {
-                            _uuid: 'consent-1',
-                            meta: { versionId: '1' },
-                            provision: {
-                                period: { start: '2024-01-01' },
-                                provision: [
-                                    {
-                                        type: 'deny',
-                                        securityLabel: [
-                                            {
-                                                system: SENSITIVE_CATEGORY.SYSTEM,
-                                                code: 'mental-health'
-                                            },
-                                            {
-                                                system: SENSITIVE_CATEGORY.SYSTEM,
-                                                code: 'substance-abuse'
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
+                        grantingConsent({
+                            provision: [
+                                {
+                                    type: 'deny',
+                                    securityLabel: [
+                                        {
+                                            system: SENSITIVE_CATEGORY.SYSTEM,
+                                            code: 'mental-health'
+                                        },
+                                        {
+                                            system: SENSITIVE_CATEGORY.SYSTEM,
+                                            code: 'substance-abuse'
+                                        }
+                                    ]
+                                }
+                            ]
+                        })
                     ])
                 )
             });
@@ -663,7 +674,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
-                actor: { reference: 'RelatedPerson/rp-1' },
+                actor: relatedPersonActor(),
                 personIdFromJwtToken: 'person-1'
             });
 
@@ -680,12 +691,8 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             mockDatabaseQueryFactory.createQuery.mockReturnValue({
                 findAsync: jest.fn().mockResolvedValue(
                     createCursor([
-                        {
-                            _uuid: 'consent-1',
-                            meta: { versionId: '1' },
-                            provision: { period: { start: '2024-01-01' } }
-                            // no nested `provision.provision` deny entries at all
-                        }
+                        grantingConsent()
+                        // no nested `provision.provision` deny entries at all
                     ])
                 )
             });
@@ -693,7 +700,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
-                actor: { reference: 'RelatedPerson/rp-1' },
+                actor: relatedPersonActor(),
                 personIdFromJwtToken: 'person-1'
             });
 
@@ -706,16 +713,12 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
 
         test('getFilteringRulesAsync is cached on the request-scoped actor object: a second call with the SAME actor does not re-fetch', async () => {
             const cursor = createCursor([
-                {
-                    _uuid: 'consent-1',
-                    meta: { versionId: '1' },
-                    provision: { period: { start: '2024-01-01' } }
-                }
+                grantingConsent()
             ]);
             const findAsync = jest.fn().mockResolvedValue(cursor);
             mockDatabaseQueryFactory.createQuery.mockReturnValue({ findAsync });
 
-            const actor = { reference: 'RelatedPerson/rp-1' };
+            const actor = relatedPersonActor();
 
             await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                 base_version: '4_0_0',
@@ -743,20 +746,12 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
                 .fn()
                 .mockResolvedValueOnce(
                     createCursor([
-                        {
-                            _uuid: 'consent-1',
-                            meta: { versionId: '1' },
-                            provision: { period: { start: '2024-01-01' } }
-                        }
+                        grantingConsent()
                     ])
                 )
                 .mockResolvedValueOnce(
                     createCursor([
-                        {
-                            _uuid: 'consent-1',
-                            meta: { versionId: '1' },
-                            provision: { period: { start: '2024-01-01' } }
-                        }
+                        grantingConsent()
                     ])
                 );
             mockDatabaseQueryFactory.createQuery.mockReturnValue({ findAsync });
@@ -764,13 +759,13 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
-                actor: { reference: 'RelatedPerson/rp-1' },
+                actor: relatedPersonActor(),
                 personIdFromJwtToken: 'person-1'
             });
             await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                 base_version: '4_0_0',
                 query: { resourceType: 'Observation' },
-                actor: { reference: 'RelatedPerson/rp-1' }, // new object, request-scoped cache does not persist
+                actor: relatedPersonActor(), // new object, request-scoped cache does not persist
                 personIdFromJwtToken: 'person-1'
             });
 

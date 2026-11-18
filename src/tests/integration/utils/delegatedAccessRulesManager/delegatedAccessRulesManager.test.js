@@ -22,7 +22,6 @@ const {
 const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
 
 const activeConsent = require('./fixtures/consentWithSensitiveCategoriesExcluded.json');
-const expectedConsentResult = require('./fixtures/expected/expected_consent_result.json');
 const expiredConsent = require('./fixtures/expiredConsent.json');
 const inactiveConsent = require('./fixtures/inactiveConsent.json');
 const aboutToExpireConsent = require('./fixtures/aboutToExpireConsent.json');
@@ -64,270 +63,105 @@ describe('DelegatedAccessRulesManager Tests', () => {
         await resetTimerAfterEach();
     });
 
-    describe('fetchConsentResourcesAsync', () => {
-        test('should fetch active consent resources and validate query structure', async () => {
+    describe('getFilteringRulesAsync by Consent id', () => {
+        const actorReference = 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7';
+        const grantorPersonId = 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9';
+
+        test.each([
+            ['an active Consent with a period around now', activeConsent, true],
+            ['an inactive Consent', inactiveConsent, false],
+            ['an expired Consent', expiredConsent, false],
+            ['a Consent that starts in the future', futureStartConsent, false],
+            ['a Consent with no period', noPeriodConsent, false],
+            ['a Consent with no period start', noStartDateConsent, true],
+            ['a Consent with no period end', noEndDateConsent, true]
+        ])('checks %s merged through the API', async (_label, consent, isAllowed) => {
             const request = await createTestRequest();
-            /**
-             * @type {DelegatedAccessRulesManager}
-             */
             const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
-            // Insert consent resources
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
-                .send([activeConsent, expiredConsent, inactiveConsent])
+                .send(consent)
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
-
-            // Fetch consent resources with debug enabled
-            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
-                base_version: '4_0_0',
-                _debug: true
-            });
-            expect(result).toBeDefined();
-            expect(result).toHaveProperty('consentResources');
-            expect(result).toHaveProperty('queryItem');
-            expect(result).toHaveProperty('options');
-
-            // Should only return the active, non-expired consent
-            expect(result.consentResources).toHaveLength(1);
-
-            // Match the subset object
-            expect(result.consentResources).toMatchObject(expectedConsentResult.consentResources);
-
-            // Verify options
-            expect(result.options).toHaveProperty('projection');
-            expect(result.options.projection).toEqual({ _id: 0 });
-
-            // Match query
-            expect(result.queryItem.query).toMatchObject(expectedConsentResult.query);
-            expect(result.queryItem.resourceType).toBe('Consent');
-            expect(result.queryItem.collectionName).toBe('Consent_4_0_0');
-            expect(result.queryItem.explanations).toBeDefined();
-            expect(Array.isArray(result.queryItem.explanations)).toBe(true);
-        });
-
-        test('should return empty when only inactive consent exists', async () => {
-            const request = await createTestRequest();
-            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
-
-            let resp = await request
-                .post('/4_0_0/Consent/$merge/?validate=true')
-                .send(inactiveConsent)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
-                base_version: '4_0_0',
-                _debug: false
-            });
-
-            expect(result.consentResources).toHaveLength(0);
-            expect(result.queryItem.resourceType).toBe('Consent');
-        });
-
-        test('should return empty when only expired consent exists', async () => {
-            const request = await createTestRequest();
-            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
-
-            let resp = await request
-                .post('/4_0_0/Consent/$merge/?validate=true')
-                .send(expiredConsent)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
-                base_version: '4_0_0',
-                _debug: false
-            });
-
-            expect(result.consentResources).toHaveLength(0);
-            expect(result.queryItem.resourceType).toBe('Consent');
-        });
-
-        test('should return empty when consent start date is in the future', async () => {
-            const request = await createTestRequest();
-            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
-
-            let resp = await request
-                .post('/4_0_0/Consent/$merge/?validate=true')
-                .send(futureStartConsent)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
-                base_version: '4_0_0',
-                _debug: false
-            });
-
-            expect(result.consentResources).toHaveLength(0);
-            expect(result.queryItem.resourceType).toBe('Consent');
-        });
-
-        test('should return consent when period.start is not defined (open-ended start)', async () => {
-            const request = await createTestRequest();
-            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
-
-            let resp = await request
-                .post('/4_0_0/Consent/$merge/?validate=true')
-                .send(noStartDateConsent)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
-                base_version: '4_0_0',
-                _debug: false
-            });
-
-            expect(result.consentResources).toHaveLength(1);
-            expect(result.consentResources[0].id).toBe('8c7d6e5f-4a3b-2c1d-0e9f-8a7b6c5d4e3f');
-        });
-
-        test('should return consent when period.end is not defined (open-ended expiration)', async () => {
-            const request = await createTestRequest();
-            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
-
-            let resp = await request
-                .post('/4_0_0/Consent/$merge/?validate=true')
-                .send(noEndDateConsent)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
-                base_version: '4_0_0',
-                _debug: false
-            });
-
-            expect(result.consentResources).toHaveLength(1);
-            expect(result.consentResources[0].id).toBe('7d8e9f0a-6b5c-4d3e-2a1b-0c9d8e7f6a5b');
-        });
-
-        test('should return empty when consent has no period (neither start nor end)', async () => {
-            const request = await createTestRequest();
-            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
-
-            let resp = await request
-                .post('/4_0_0/Consent/$merge/?validate=true')
-                .send(noPeriodConsent)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
-                base_version: '4_0_0',
-                _debug: false
-            });
-
-            expect(result.consentResources).toHaveLength(0);
-        });
-
-        test('should return multiple consents when multiple valid consents exist', async () => {
-            const request = await createTestRequest();
-            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
-
-            let resp = await request
-                .post('/4_0_0/Consent/$merge/?validate=true')
-                .send([activeConsent, aboutToExpireConsent])
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
-                base_version: '4_0_0',
-                _debug: false
-            });
-
-            expect(result.consentResources).toHaveLength(2);
-
-            const consentIds = result.consentResources.map(c => c.id).sort();
-            expect(consentIds).toEqual([
-                '6db13a4f-fee5-485a-b245-18881c0232ac',
-                'f1e2d3c4-b5a6-9788-0c1d-2e3f4a5b6c7d'
-            ].sort());
-        });
-    });
-
-    describe('getFilteringRulesAsync', () => {
-        test('should return filteringRules as null when no consent found', async () => {
-            const request = await createTestRequest();
-            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             const result = await delegatedAccessRulesManager.getFilteringRulesAsync({
-                actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                actor: { reference: actorReference, entitlements: [`Consent/${consent.id}`] },
+                personIdFromJwtToken: grantorPersonId,
                 base_version: '4_0_0',
                 _debug: false
             });
 
-            expect(result).toBeDefined();
-            expect(result.filteringRules).toBeNull();
-            expect(result.actorConsentQueries).toBeDefined();
+            if (isAllowed) {
+                expect(result.filteringRules).not.toBeNull();
+                expect(result.filteringRules.consentId).toBe(consent.id);
+            } else {
+                expect(result.filteringRules).toBeNull();
+            }
             expect(result.actorConsentQueries).toHaveLength(1);
-            expect(result.actorConsentQueryOptions).toBeDefined();
-            expect(result.actorConsentQueryOptions).toHaveLength(1);
+            expect(result.actorConsentQueries[0].query).toEqual({ _uuid: consent.id });
+            expect(result.actorConsentQueries[0].collectionName).toBe('Consent_4_0_0');
         });
 
-        test('should parse filtering rules from consent with denied categories', async () => {
+        test.each([
+            ['another grantor', { personIdFromJwtToken: '0b0f8a4e-2c7d-4e1a-9f3b-5d6c7e8f9a0b' }],
+            ['another delegate', { actorReference: 'RelatedPerson/0e6f9a35-8b0c-4c47-9b1a-2f3d4e5f6a7b' }]
+        ])('returns null when the token names the active Consent for %s', async (_label, override) => {
             const request = await createTestRequest();
             const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
                 .send(activeConsent)
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
             const result = await delegatedAccessRulesManager.getFilteringRulesAsync({
-                actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                actor: {
+                    reference: override.actorReference ?? actorReference,
+                    entitlements: [`Consent/${activeConsent.id}`]
+                },
+                personIdFromJwtToken: override.personIdFromJwtToken ?? grantorPersonId,
                 base_version: '4_0_0',
                 _debug: false
             });
 
-            expect(result).toBeDefined();
-            expect(result.filteringRules).toBeDefined();
-            expect(result.filteringRules).toStrictEqual({
-                consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
-                consentVersion: '1',
-                provisionPeriodStart: '2025-12-23T20:00:00.000Z',
-                provisionPeriodEnd: '2026-01-01T00:00:00.000Z'
-            });
-            expect(result.filteringRules.deniedSensitiveCategories).toStrictEqual(['MENTAL_HEALTH', 'HIV_AIDS']);
+            expect(result.filteringRules).toBeNull();
         });
 
-        test('should return only active consent when multiple consents with different statuses exist', async () => {
+        test('should return filteringRules as null when the named Consent does not exist', async () => {
+            await createTestRequest();
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
+
+            const result = await delegatedAccessRulesManager.getFilteringRulesAsync({
+                actor: { reference: actorReference, entitlements: [`Consent/${activeConsent.id}`] },
+                personIdFromJwtToken: grantorPersonId,
+                base_version: '4_0_0',
+                _debug: false
+            });
+
+            expect(result.filteringRules).toBeNull();
+            expect(result.actorConsentQueries).toHaveLength(1);
+            expect(result.actorConsentQueryOptions).toHaveLength(0);
+        });
+
+        test('should parse filtering rules from consent with denied categories', async () => {
             const request = await createTestRequest();
             const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
                 .send([activeConsent, expiredConsent, inactiveConsent, futureStartConsent])
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
             const result = await delegatedAccessRulesManager.getFilteringRulesAsync({
-                actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                actor: { reference: actorReference, entitlements: [`Consent/${activeConsent.id}`] },
+                personIdFromJwtToken: grantorPersonId,
                 base_version: '4_0_0',
                 _debug: false
             });
 
-            expect(result).toBeDefined();
-            expect(result.filteringRules).toBeDefined();
             expect(result.filteringRules).toStrictEqual({
                 consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
                 consentVersion: '1',
@@ -337,39 +171,24 @@ describe('DelegatedAccessRulesManager Tests', () => {
             expect(result.filteringRules.deniedSensitiveCategories).toStrictEqual(['MENTAL_HEALTH', 'HIV_AIDS']);
         });
 
-        test('should throw ForbiddenError when multiple active consents found', async () => {
+        test('uses the named Consent when the delegate has two active Consents for the grantor', async () => {
             const request = await createTestRequest();
-            /**
-             * @type {DelegatedAccessRulesManager}
-             */
             const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
                 .send([activeConsent, aboutToExpireConsent])
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
-            await expect(
-                delegatedAccessRulesManager.getFilteringRulesAsync({
-                    actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
-                    personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                    base_version: '4_0_0',
-                    _debug: true
-                })
-            ).rejects.toThrow(/ambiguous permissions found for the actor/);
+            const result = await delegatedAccessRulesManager.getFilteringRulesAsync({
+                actor: { reference: actorReference, entitlements: [`Consent/${aboutToExpireConsent.id}`] },
+                personIdFromJwtToken: grantorPersonId,
+                base_version: '4_0_0',
+                _debug: false
+            });
 
-            try {
-                await delegatedAccessRulesManager.getFilteringRulesAsync({
-                    actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
-                    personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                    base_version: '4_0_0',
-                    _debug: true
-                });
-            } catch (error) {
-                expect(error.statusCode).toBe(403);
-                expect(error.message).toContain('ambiguous permissions found for the actor');
-            }
+            expect(result.filteringRules.consentId).toBe(aboutToExpireConsent.id);
         });
     });
 
