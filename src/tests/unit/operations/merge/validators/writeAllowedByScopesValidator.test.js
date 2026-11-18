@@ -289,6 +289,49 @@ describe('WriteAllowedByScopesValidator', () => {
                 })
             );
         });
+
+        test.each([
+            { given: undefined, expected: 'u', resourceIsStored: false },
+            { given: undefined, expected: 'u', resourceIsStored: true },
+            { given: 'c', expected: 'c', resourceIsStored: false },
+            { given: 'c', expected: 'c', resourceIsStored: true }
+        ])(
+            'passes accessRequested $expected to both scope checks when given is $given and resourceIsStored is $resourceIsStored',
+            async ({ given, expected, resourceIsStored }) => {
+                const resource = createResource({ id: 'r1', uuid: 'u1' });
+                const storedResource = createResource({ id: 'r1', uuid: 'u1' });
+                databaseBulkLoader.getResourceFromExistingList.mockReturnValue(
+                    resourceIsStored ? storedResource : null
+                );
+                const params = {
+                    requestInfo,
+                    incomingResources: [resource],
+                    base_version: '4_0_0',
+                    effectiveSmartMerge: false
+                };
+                if (given !== undefined) {
+                    params.accessRequested = given;
+                }
+
+                await validator.validate(params);
+
+                expect(scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes)
+                    .toHaveBeenCalledWith({
+                        resource: resourceIsStored ? storedResource : resource,
+                        requestInfo,
+                        base_version: '4_0_0',
+                        accessRequested: expected
+                    });
+                expect(scopesValidator.isAccessTagChangeAllowedByAccessScopes).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        requestInfo,
+                        currentResource: resourceIsStored ? storedResource : null,
+                        updatedResource: resource,
+                        accessRequested: expected
+                    })
+                );
+            }
+        );
     });
 
     describe('403 error handling: resources excluded silently', () => {

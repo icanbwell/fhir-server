@@ -1,0 +1,41 @@
+{
+  "resourceType": "Group",
+  "type": "person",
+  "actual": true,
+  "notAFhirField": "x",
+  "meta": {
+    "source": "client",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "member": [
+    {
+      "entity": {
+        "reference": "Patient/oversized-0"
+      }
+    },
+    {
+      "entity": {
+        "reference": "Patient/oversized-1"
+      }
+    },
+    {
+      "entity": {
+        "reference": "Patient/oversized-2"
+      }
+    },
+    {
+      "entity": {
+        "reference": "Patient/oversized-3"
+      }
+    }
+  ]
+}

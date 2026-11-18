@@ -363,6 +363,7 @@ class MergeResponder extends WriteResponder {
      * one OperationOutcome per result; otherwise all results when the body was a list, or the first
      * one.
      * @param {WriteContext} context
+     * @param {WriteItem[]} items Not used: the response is built from the results.
      * @param {MergeResultEntry[]} results
      * @param {boolean} wasIncomingAList
      * @param {string} resourceType

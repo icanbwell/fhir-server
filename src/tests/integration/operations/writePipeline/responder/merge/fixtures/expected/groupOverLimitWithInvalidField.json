@@ -1,0 +1,27 @@
+{
+  "operationOutcome": {
+    "resourceType": "OperationOutcome",
+    "issue": [
+      {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+          "text": "/4_0_0/Group/$merge should NOT have additional properties :{\"additionalProperty\":\"notAFhirField\"}: at position root"
+        }
+      }
+    ]
+  },
+  "issue": {
+    "severity": "error",
+    "code": "invalid",
+    "details": {
+      "text": "/4_0_0/Group/$merge should NOT have additional properties :{\"additionalProperty\":\"notAFhirField\"}: at position root"
+    }
+  },
+  "created": false,
+  "id": "parity-group-over-limit",
+  "uuid": "a9662001-3cc5-5357-86cf-eaaec2f46a92",
+  "resourceType": "Group",
+  "updated": false,
+  "sourceAssigningAuthority": "client"
+}
