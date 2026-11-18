@@ -1,4 +1,4 @@
-const { describe, test, expect } = require('@jest/globals');
+const { describe, test, expect, jest } = require('@jest/globals');
 const { MongoQuerySimplifier } = require('../../../utils/mongoQuerySimplifier');
 
 describe('MongoQuerySimplifier', () => {
@@ -509,5 +509,26 @@ describe('MongoQuerySimplifier with a large _id:not list', () => {
         const unique = ids(2000);
         const result = MongoQuerySimplifier.simplifyFilter({ filter: idNotQuery([...unique, ...unique]) });
         expect(JSON.stringify(result)).toContain(`"$in":${JSON.stringify(unique)}`);
+    });
+
+    // a timing bound would be flaky, so count the key builds: the dedupe passes cost a handful per
+    // element, where a quadratic dedupe would make millions
+    test('builds a dedupe key a bounded number of times for a long list', () => {
+        const unique = ids(2000);
+        const limit = unique.length * 2 * 10;
+        const query = idNotQuery([...unique, ...unique]);
+        const stringify = JSON.stringify;
+        const spy = jest.spyOn(JSON, 'stringify').mockImplementation((...args) => {
+            // stop at the limit, so a regression fails fast instead of recording millions of calls
+            if (spy.mock.calls.length > limit) {
+                throw new Error(`more than ${limit} key builds`);
+            }
+            return stringify(...args);
+        });
+        try {
+            expect(() => MongoQuerySimplifier.simplifyFilter({ filter: query })).not.toThrow();
+        } finally {
+            spy.mockRestore();
+        }
     });
 });
