@@ -90,6 +90,7 @@ const { QueryRewriterManager } = require('../../../../queryRewriters/queryRewrit
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
@@ -154,7 +155,8 @@ describe('Conditional Update — Cross-Tenant Security', () => {
                 require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory
             ),
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
-            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider)
+            groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
+            groupMemberMerger: createMockInstance(GroupMemberMerger)
         };
 
         // Basic mocks
@@ -171,6 +173,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         mocks.postSaveHandlerFactory.getHandlers = jestGlobal.fn().mockReturnValue([]);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jestGlobal.fn();
         mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jestGlobal.fn(({ resources }) => Promise.resolve(resources));
+        mocks.groupMemberMerger.mergeMembers = jestGlobal.fn(({ resource }) => resource);
         mocks.fastDatabaseBulkInserter.insertOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mocks.fastDatabaseBulkInserter.replaceOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mocks.fastDatabaseBulkInserter.executeAsync = jestGlobal.fn().mockResolvedValue([{

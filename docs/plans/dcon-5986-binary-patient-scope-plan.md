@@ -6,7 +6,7 @@ Supersedes the implementation in #2635 and #2643.
 ## Tasks
 
 1. **Mapping behind flag.** `src/fhir/patientFilterManager.js` + `src/utils/configManager.js`: add
-   `Binary: 'securityContext.reference'` only when `ENABLE_PATIENT_SCOPED_BINARY` is on. Verify
+   `Binary: 'securityContext.reference'` (the `ENABLE_PATIENT_SCOPED_BINARY` rollout flag has since been removed). Verify
    `PatientQueryCreator.getQueryWithPatientFilter` yields `securityContext._uuid` / `_sourceId`
    filters for Binary.
 2. **Read paths.** Confirm direct read/search, `$everything` (DocumentReference -> Binary hop),
@@ -27,5 +27,4 @@ Supersedes the implementation in #2635 and #2643.
    mixed-scope token (`patient/*.* user/*.* access/*.*`); system token; `$everything`/GraphQL hop;
    CodeSystem lookup (absent, own id, other CodeSystem, `Patient/...`). Unit: mapping + flag.
 6. **Docs.** `docs/resource-authorization.md` (§5 patient-filterable list, write rules, flag).
-7. **Rollout.** Backfill complete -> enable `ENABLE_PATIENT_SCOPED_BINARY` in dev/staging -> prod ->
-   remove flag.
+7. **Rollout.** Done: backfill complete -> flag enabled in all environments -> flag removed.

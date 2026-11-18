@@ -32,6 +32,8 @@ const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
 const { promoteExistingGroupIfNeeded } = require('../../utils/groupPromotion');
+const { GroupMemberMerger } = require('../common/groupMemberMerger');
+const { unchangedStoredEntries } = require('../common/groupMemberDedupe');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
@@ -60,6 +62,7 @@ class PatchOperation {
      * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
      * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} mongoGroupMemberRepository
      * @param {AuditLogger} auditLogger
+     * @param {GroupMemberMerger} groupMemberMerger
      */
     constructor (
         {
@@ -79,7 +82,8 @@ class PatchOperation {
             identifierEnrichmentProvider,
             groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository,
-            auditLogger
+            auditLogger,
+            groupMemberMerger
         }
     ) {
         /**
@@ -199,6 +203,12 @@ class PatchOperation {
          */
         this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
         assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
+
+        /**
+         * @type {GroupMemberMerger}
+         */
+        this.groupMemberMerger = groupMemberMerger;
+        assertTypeEquals(groupMemberMerger, GroupMemberMerger);
     }
 
     /**
@@ -363,10 +373,10 @@ class PatchOperation {
             // ============ EXECUTE GROUP MEMBER OPERATIONS (AFTER VALIDATION) ============
             // Now that we've validated the resource exists and user has access, determine which
             // group member type (if any) should handle the member ops. A plain embedded Group
-            // determines to 'embedded' and falls through to the standard patch flow below,
-            // completely unmodified -- its member[] add/remove already works via ordinary JSON
-            // Patch array semantics, no new code needed. 'extended' and 'externalStorage' are
-            // two entirely separate branches below, each calling its own dedicated strategy
+            // determines to 'embedded' and falls through to the standard patch flow below, which
+            // applies its ops as ordinary JSON Patch and then keeps one entry per member (see
+            // groupMemberMerger below). 'extended' and 'externalStorage' are two entirely
+            // separate branches below, each calling its own dedicated strategy
             // method -- they don't share a commit path, so a change to one type's write
             // semantics can't silently affect the other.
             const groupMemberType = memberOpsResult
@@ -462,6 +472,15 @@ class PatchOperation {
 
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             resource = await this.preSaveManager.preSaveAsync({ resource, options: preSaveOptions });
+            // Every PATCH of an embedded Group merges its repeated members, stored ones included. The
+            // entries the PATCH left as stored are the olderEntries, so an entry it added or edited
+            // wins wherever it sits in member[]. Runs after preSave, which recomputes each
+            // entity._uuid from the patched reference, since the member merge uses entity._uuid as is.
+            resource = this.groupMemberMerger.mergeMembers({
+                resource,
+                requestInfo,
+                olderEntries: unchangedStoredEntries(foundResource.member)
+            });
 
             // the pre-patch check above ran against originalResource as stored, so any
             // access tag the patch itself added or removed still needs to be validated. JSON patch ops

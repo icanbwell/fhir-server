@@ -1168,11 +1168,6 @@ class EverythingHelper {
                             _since: parsedArgs._since
                         };
 
-                        // for non-clinical resources, only binary support patient data view control
-                        if (resourceType === 'Binary' && resourceToExcludeIdsMap[resourceType]?.length > 0) {
-                            baseArgs["id:not"] = resourceToExcludeIdsMap[resourceType].join(',');
-                        }
-
                         // if explain query, don't break in chunks as will be limit to single resource later
                         const idChunks = this.getNonClinicalIdChunks({ ids, explain });
 
@@ -1740,7 +1735,15 @@ class EverythingHelper {
                         query.$and = query.$and || [];
                         query.$and.push(customParentQuery[0]);
                     } else if (customParentQuery.length > 1) {
-                        query.$or = (query.$or || []).concat(customParentQuery);
+                        if (query.$or?.length > 0) {
+                            // Never concat into an existing top-level $or (e.g. the access-index
+                            // filter): the parent filter would become an alternative to it
+                            // instead of a restriction.
+                            query.$and = query.$and || [];
+                            query.$and.push({ $or: customParentQuery });
+                        } else {
+                            query.$or = customParentQuery;
+                        }
                     } else {
                         continue;
                     }

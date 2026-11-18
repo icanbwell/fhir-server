@@ -1,4 +1,4 @@
-// Read, update, patch, delete and mixed-token behavior with ENABLE_PATIENT_SCOPED_BINARY on.
+// Read, update, patch, delete and mixed-token behavior.
 const binary1Resource = require('./fixtures/binary1.json');
 const { personScopedHeaders, mergePersonAsync } = require('./binaryScopeTestHelpers');
 
@@ -7,18 +7,11 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const {
     commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getTestContainer, mockHttpContext
 } = require('../../common');
-const { ConfigManager } = require('../../../../utils/configManager');
-
-class FlagOnConfigManager extends ConfigManager {
-    get enablePatientScopedBinary () {
-        return true;
-    }
-}
 
 const ALL_BINARY_SCOPE = 'patient/Binary.*';
 const MIXED_SCOPE = 'patient/*.* user/*.* access/*.*';
 
-describe('Binary patient scope read/write (ENABLE_PATIENT_SCOPED_BINARY on)', () => {
+describe('Binary patient scope read/write', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -31,10 +24,7 @@ describe('Binary patient scope read/write (ENABLE_PATIENT_SCOPED_BINARY on)', ()
      * @return {Promise<{request: import('supertest').Agent, personUuid: string}>}
      */
     async function setupAsync () {
-        const request = await createTestRequest((c) => {
-            c.register('configManager', () => new FlagOnConfigManager());
-            return c;
-        });
+        const request = await createTestRequest();
         return { request, personUuid: await mergePersonAsync(request) };
     }
 

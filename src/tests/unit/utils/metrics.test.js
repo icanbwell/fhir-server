@@ -36,12 +36,15 @@ const {
     recordImportFileSize,
     recordImportRanges,
     recordImportTaskFinished,
+    recordGroupMemberMergeEntries,
     recordKafkaConsumerGroupJoin,
     recordMongoPoolConnectionsInUseChange,
     recordMongoPoolWaitQueueSizeChange,
     mongoPoolConnectionsInUseUpDownCounter,
     mongoPoolWaitQueueSizeUpDownCounter,
     importRangesCounter,
+    groupMemberMergeEntriesCounter,
+    GROUP_MEMBER_MERGE_OUTCOME,
     importTasksCounter,
     importTaskDurationHistogram,
     kafkaConsumerGroupJoinsCounter,
@@ -279,6 +282,28 @@ describe('metrics.js', () => {
         test.each([0, -1, NaN])('does not emit for a non-positive count (%p)', (count) => {
             recordImportRanges(IMPORT_RANGE_OUTCOME.PUBLISHED, count);
             expect(importRangesCounter.add).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('recordGroupMemberMergeEntries', () => {
+        test.each(Object.values(GROUP_MEMBER_MERGE_OUTCOME))('emits outcome=%s with the given count', (outcome) => {
+            recordGroupMemberMergeEntries(outcome, 3);
+            expect(groupMemberMergeEntriesCounter.add).toHaveBeenCalledWith(3, { [LABEL.OUTCOME]: outcome });
+        });
+
+        test('defaults the count to 1', () => {
+            recordGroupMemberMergeEntries(GROUP_MEMBER_MERGE_OUTCOME.NO_CHANGE);
+            expect(groupMemberMergeEntriesCounter.add).toHaveBeenCalledWith(1, { [LABEL.OUTCOME]: 'no_change' });
+        });
+
+        test('collapses an unknown outcome to UNKNOWN so cardinality stays bounded', () => {
+            recordGroupMemberMergeEntries('collapsed');
+            expect(groupMemberMergeEntriesCounter.add).toHaveBeenCalledWith(1, { [LABEL.OUTCOME]: UNKNOWN });
+        });
+
+        test.each([0, -1, NaN])('does not emit for a non-positive count (%p)', (count) => {
+            recordGroupMemberMergeEntries(GROUP_MEMBER_MERGE_OUTCOME.MERGED_AWAY, count);
+            expect(groupMemberMergeEntriesCounter.add).not.toHaveBeenCalled();
         });
     });
 
@@ -606,6 +631,10 @@ describe('metrics.js', () => {
 
         test('DIRECTION is frozen', () => {
             expect(Object.isFrozen(DIRECTION)).toBe(true);
+        });
+
+        test('GROUP_MEMBER_MERGE_OUTCOME is frozen', () => {
+            expect(Object.isFrozen(GROUP_MEMBER_MERGE_OUTCOME)).toBe(true);
         });
     });
 });

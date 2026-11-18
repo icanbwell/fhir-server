@@ -139,6 +139,18 @@ const IMPORT_TASK_STATUS = Object.freeze({
     FAILED: 'failed'
 });
 
+// What a write did with a Group member entry it did not store as sent.
+const GROUP_MEMBER_MERGE_OUTCOME = Object.freeze({
+    // merged into the first entry of the same member (embedded Group)
+    MERGED_AWAY: 'merged_away',
+    // not merged because its entity.reference is not a relative Type/id reference
+    LEFT_AS_IS: 'left_as_is',
+    // an add equal to the stored member, so nothing was written (extended Group)
+    NO_CHANGE: 'no_change',
+    // sent for a member over the per-member entry limit, so the write was rejected
+    REJECTED: 'rejected'
+});
+
 const UNKNOWN = 'unknown';
 
 const SEVERITY_RANK = { error: 3, warning: 2, information: 1 };
@@ -332,6 +344,10 @@ const importTaskDurationHistogram = meter.createHistogram('fhir_import_task_dura
 
 const kafkaConsumerGroupJoinsCounter = meter.createCounter('fhir_kafka_consumer_group_joins_total', {
     description: 'Consumer GROUP_JOIN events by group_id. One per consumer start is normal; a steady rate is rebalance or eviction churn (kafkajs rejoins after UNKNOWN_MEMBER_ID without emitting REBALANCING, so this is the only count that sees evictions).'
+});
+
+const groupMemberMergeEntriesCounter = meter.createCounter('fhir_group_member_merge_entries_total', {
+    description: 'Group member entries a write did not store as sent, by outcome: merged_away (merged into the first entry of the same member), left_as_is (not merged, entity.reference is not a relative Type/id reference; counted only when the same write merged other entries), no_change (an extended Group add equal to the stored member, so nothing was written) and rejected (sent for a member over the per-member entry limit, so the write was rejected).'
 });
 
 const mongoPoolCheckoutDurationHistogram = meter.createHistogram('fhir_mongo_pool_checkout_duration_seconds', {
@@ -649,6 +665,20 @@ function recordKafkaConsumerGroupJoin (groupId) {
 }
 
 /**
+ * Emit fhir_group_member_merge_entries_total. An outcome outside GROUP_MEMBER_MERGE_OUTCOME
+ * collapses to UNKNOWN so a typo cannot widen label cardinality.
+ * @param {string} outcome - one of GROUP_MEMBER_MERGE_OUTCOME
+ * @param {number} [count]
+ */
+function recordGroupMemberMergeEntries (outcome, count = 1) {
+    if (!(count > 0)) {
+        return;
+    }
+    const isKnown = Object.values(GROUP_MEMBER_MERGE_OUTCOME).includes(outcome);
+    groupMemberMergeEntriesCounter.add(count, { [LABEL.OUTCOME]: isKnown ? outcome : UNKNOWN });
+}
+
+/**
  * Emit fhir_mongo_pool_checkout_duration_seconds. The driver reports the wait in
  * milliseconds; the instrument is in seconds to match the other duration histograms here.
  * @param {string} pool
@@ -740,6 +770,7 @@ module.exports = {
     importTasksCounter,
     importTaskDurationHistogram,
     kafkaConsumerGroupJoinsCounter,
+    groupMemberMergeEntriesCounter,
     mongoPoolCheckoutDurationHistogram,
     mongoPoolCheckoutFailedCounter,
     mongoPoolClearedCounter,
@@ -764,6 +795,7 @@ module.exports = {
     recordImportRanges,
     recordImportTaskFinished,
     recordKafkaConsumerGroupJoin,
+    recordGroupMemberMergeEntries,
     recordMongoPoolCheckoutDuration,
     recordMongoPoolCheckoutFailed,
     recordMongoPoolCleared,
@@ -786,5 +818,6 @@ module.exports = {
     POOL_CHECKOUT_FAILURE_REASON,
     IMPORT_RANGE_OUTCOME,
     IMPORT_TASK_STATUS,
+    GROUP_MEMBER_MERGE_OUTCOME,
     UNKNOWN
 };
