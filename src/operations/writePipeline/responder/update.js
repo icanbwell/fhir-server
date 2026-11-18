@@ -1,4 +1,3 @@
-const httpContext = require('express-http-context');
 const deepcopy = require('deepcopy');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
@@ -10,20 +9,18 @@ const {
     GroupExtendedTagEnrichmentProvider
 } = require('../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
-const {
-    BadRequestError,
-    ForbiddenError,
-    NotValidatedError,
-    PayloadTooLargeError
-} = require('../../../utils/httpErrors');
-const { getCircularReplacer } = require('../../../utils/getCircularReplacer');
-const { GRIDFS, ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../../constants');
+const { GRIDFS, BLOB_OP } = require('../../../constants');
 const { WriteItem, WRITE_ITEM_STATUS } = require('../writeItem');
 const { WriteContext } = require('../writeContext');
-const { WriteFailure, WRITE_FAILURE_STAGE } = require('../writeFailure');
+const { WRITE_FAILURE_STAGE } = require('../writeFailure');
 const { UrlIdentityResolver } = require('../steps/identify/urlIdentityResolver');
 const { WriteResponder } = require('./writeResponder');
 const { readSingleResourceBody } = require('./singleResourceBody');
+const {
+    throwIfItemFailed,
+    firstExecutedResult,
+    notWrittenError
+} = require('./singleResourceResult');
 
 /**
  * The failure stages for which update stores the rejected resource in the access log before it
@@ -102,8 +99,7 @@ class UpdateResponder extends WriteResponder {
             requestInfo,
             base_version: parsedArgs.base_version,
             parsedArgs,
-            smartMerge: false,
-            operationName: 'update'
+            smartMerge: false
         });
         return { context, items: [item], requestErrors: [], wasIncomingAList: false };
     }
@@ -117,64 +113,11 @@ class UpdateResponder extends WriteResponder {
      * @returns {Object[]}
      */
     failureResults ({ items, requestErrors }) {
-        const failedItem = items.find((item) => item.status === WRITE_ITEM_STATUS.FAILED);
-        if (!failedItem) {
-            return [];
-        }
-        const { failure } = failedItem;
-        if (failure.operationOutcome && ACCESS_LOGGED_STAGES.includes(failure.stage)) {
-            this.storeFailureAccessLog(failure);
-        }
-        throw this.errorFor(failure);
-    }
-
-    /**
-     * Returns the error update throws for the failure: a `ForbiddenError` with the same message for
-     * a scope or access failure, a `PayloadTooLargeError` for a size failure, or the error when the
-     * size check threw, the error the step wrapped for an attachments or write failure,
-     * and otherwise the failure's own error (an identity, build or result-validation error, such as
-     * a 412 or a 400 from the replace build), or a `NotValidatedError` of its OperationOutcome when
-     * it has no error.
-     * @param {WriteFailure} failure
-     * @returns {Error}
-     */
-    errorFor (failure) {
-        switch (failure.stage) {
-            case WRITE_FAILURE_STAGE.SCOPE:
-            case WRITE_FAILURE_STAGE.ACCESS:
-                return new ForbiddenError(failure.operationOutcome.issue[0].details.text);
-            case WRITE_FAILURE_STAGE.SIZE:
-                return (
-                    failure.error ?? new PayloadTooLargeError(new Error('Payload size too large.'))
-                );
-            case WRITE_FAILURE_STAGE.ATTACHMENTS:
-            case WRITE_FAILURE_STAGE.WRITE:
-                return failure.error.nested ?? failure.error;
-            default:
-                return failure.error ?? new NotValidatedError(failure.operationOutcome);
-        }
-    }
-
-    /**
-     * Stores the rejected resource, from the failure's subject, as the access log's only operation
-     * result: its id, uuid, source assigning authority, resource type and OperationOutcome, neither
-     * created nor updated.
-     * @param {WriteFailure} failure
-     * @returns {void}
-     */
-    storeFailureAccessLog (failure) {
-        const { id, uuid, sourceAssigningAuthority, resourceType } = failure.subject;
-        httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-            operationResult: [{
-                id,
-                uuid,
-                sourceAssigningAuthority,
-                resourceType,
-                operationOutcome: failure.operationOutcome,
-                created: false,
-                updated: false
-            }]
+        throwIfItemFailed({
+            items,
+            accessLoggedStages: ACCESS_LOGGED_STAGES
         });
+        return [];
     }
 
     /**
@@ -196,17 +139,12 @@ class UpdateResponder extends WriteResponder {
         if (item?.status === WRITE_ITEM_STATUS.UNCHANGED) {
             return [this.unchangedEntry(item.stored)];
         }
-        const [firstResult] = executedResults ?? [];
-        if (!firstResult) {
-            throw new BadRequestError(new Error('No merge result'));
-        }
+        const firstResult = firstExecutedResult(executedResults);
         if (!firstResult.created && !firstResult.updated) {
             if (item?.writeMode === 'update' && !firstResult.issue) {
                 return [this.unchangedEntry(item.candidate)];
             }
-            throw new BadRequestError(
-                new Error(JSON.stringify(firstResult.issue, getCircularReplacer()))
-            );
+            throw notWrittenError(firstResult);
         }
         return executedResults;
     }

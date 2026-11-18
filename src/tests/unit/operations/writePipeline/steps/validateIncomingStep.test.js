@@ -140,8 +140,7 @@ const buildContext = () => new WriteContext({
     requestInfo: { requestId: 'request-1', path: '/4_0_0/Patient/$merge' },
     base_version: '4_0_0',
     parsedArgs: {},
-    smartMerge: false,
-    operationName: 'merge'
+    smartMerge: false
 });
 
 /**

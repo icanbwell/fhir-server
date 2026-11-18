@@ -261,10 +261,7 @@ describe('UpdateResponder', () => {
         });
 
         expect(context).toBeInstanceOf(WriteContext);
-        expect({ smartMerge: context.smartMerge, operationName: context.operationName }).toStrictEqual({
-            smartMerge: false,
-            operationName: 'update'
-        });
+        expect(context.smartMerge).toBe(false);
         expect(items.map(({ incoming, status }) => ({ incoming, status }))).toStrictEqual([{
             incoming: {
                 resourceType: 'Patient',
@@ -526,8 +523,7 @@ describe('UpdateResponder', () => {
             requestInfo: { headers: {} },
             base_version: '4_0_0',
             parsedArgs: parsedArgsFor(`${RESOURCE_ID}|client`),
-            smartMerge: false,
-            operationName: 'update'
+            smartMerge: false
         });
 
         const response = await responder.toResponse({ context, items: [item], results });

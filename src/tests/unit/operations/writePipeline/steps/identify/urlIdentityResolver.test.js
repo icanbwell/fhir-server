@@ -62,8 +62,7 @@ const resolve = async ({ urlId, body }) => {
         requestInfo: {},
         base_version: '4_0_0',
         parsedArgs: buildParsedArgs(urlId),
-        smartMerge: false,
-        operationName: 'update'
+        smartMerge: false
     });
     await new IdentifyStep({ identityResolver: buildResolver() }).runAsync({ items: [item], context });
     const failure = item.failure;

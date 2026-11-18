@@ -9,6 +9,7 @@ const { Base64DataManager } = require('../../../../dataLayer/base64DataManager')
 const { BadRequestError } = require('../../../../utils/httpErrors');
 const { buildOperationOutcomeFromIssues } = require('../../../../utils/operationOutcomeBuilder');
 const { getExtendedGroupMemberWriteError } = require('../../../../utils/mongoGroupExtendedTag');
+const { hasGroupMembers } = require('../../groupMemberWrites');
 const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../writeFailure');
 const { WriteItem } = require('../../writeItem');
 const { WriteContext } = require('../../writeContext');
@@ -113,9 +114,7 @@ class SmartMergeBuilder {
 
         const extendedGroupMemberWriteError = getExtendedGroupMemberWriteError({
             currentResource: item.stored,
-            hasMemberField: incoming.resourceType === 'Group' &&
-                Array.isArray(incoming.member) &&
-                incoming.member.length > 0
+            hasMemberField: hasGroupMembers(incoming)
         });
         if (extendedGroupMemberWriteError) {
             return new WriteFailure({

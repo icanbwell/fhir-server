@@ -34,8 +34,7 @@ const buildContext = () => new WriteContext({
             })
         ]
     }),
-    smartMerge: false,
-    operationName: 'merge'
+    smartMerge: false
 });
 
 /**

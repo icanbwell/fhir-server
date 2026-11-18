@@ -124,8 +124,7 @@ class MergeResponder extends WriteResponder {
             requestInfo,
             base_version,
             parsedArgs,
-            smartMerge: isTrue(smartMerge ?? true),
-            operationName: 'merge'
+            smartMerge: isTrue(smartMerge ?? true)
         });
     }
 

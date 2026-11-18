@@ -33,12 +33,11 @@ const {
 const RESOURCE_ID = '00000000-0000-4000-8000-000000000001';
 
 /**
- * The subject of every failure in these tests. It has no `uuid`, as for a body rejected when it is
- * read, so the tests show that the access-log entry takes its uuid from the id.
+ * The subject of every failure in these tests. Its `uuid` is the generated id, as create sets it.
  */
 const SUBJECT = Object.freeze({
     id: RESOURCE_ID,
-    uuid: undefined,
+    uuid: RESOURCE_ID,
     sourceAssigningAuthority: 'client',
     resourceType: 'Patient'
 });
@@ -204,6 +203,40 @@ describe('CreateResponder', () => {
         const { id, ...incomingWithoutId } = incoming;
         expect(isUuid(id)).toBe(true);
         expect(incomingWithoutId).toStrictEqual(expectedIncoming);
+    });
+
+    test('readAsync fails a body of another resource type with the new id as the subject uuid', async () => {
+        const { items } = await responder.readAsync({
+            requestInfo: { body: { resourceType: 'Observation' }, path: '/4_0_0/Patient/' },
+            parsedArgs: { base_version: '4_0_0' },
+            resourceType: 'Patient'
+        });
+
+        const [{ incoming, status, failure }] = items;
+        expect(status).toBe(WRITE_ITEM_STATUS.FAILED);
+        expect(failure.stage).toBe(WRITE_FAILURE_STAGE.STRUCTURE);
+        expect(isUuid(incoming.id)).toBe(true);
+        expect(failure.subject.uuid).toBe(incoming.id);
+    });
+
+    test('failureResults logs the uuid saved on the item when the failure subject has none', () => {
+        const item = buildItem();
+        item.savedIdentity = { uuid: RESOURCE_ID, sourceAssigningAuthority: undefined };
+        item.fail({
+            failure: new WriteFailure({
+                stage: WRITE_FAILURE_STAGE.SIZE,
+                subject: { ...SUBJECT, uuid: undefined },
+                operationOutcome: TOO_LONG_OUTCOME
+            })
+        });
+
+        expect(() => responder.failureResults({ items: [item], requestErrors: [] })).toThrow(
+            'Payload size too large.'
+        );
+        expect(httpContextSetSpy).toHaveBeenCalledWith(
+            ACCESS_LOGS_ENTRY_DATA,
+            accessLogEntryFor(TOO_LONG_OUTCOME)
+        );
     });
 
     test('failureResults returns no results and stores no access log when nothing failed', () => {

@@ -180,6 +180,11 @@ const { ValidateResultStep } = require('./operations/writePipeline/steps/validat
 const { AttachmentsStep } = require('./operations/writePipeline/steps/attachmentsStep');
 const { NoOpStep } = require('./operations/writePipeline/steps/noOpStep');
 const { WriteStep } = require('./operations/writePipeline/steps/writeStep');
+const { VersionedWriter } = require('./operations/writePipeline/steps/write/versionedWriter');
+const { HttpPreconditionWriter } = require('./operations/writePipeline/steps/write/httpPreconditionWriter');
+const { MERGE_WRITE_PROFILE } = require('./operations/writePipeline/profiles/merge');
+const { CREATE_WRITE_PROFILE } = require('./operations/writePipeline/profiles/create');
+const { UPDATE_WRITE_PROFILE } = require('./operations/writePipeline/profiles/update');
 const { MergeResponder } = require('./operations/writePipeline/responder/merge');
 const { MergeStream } = require('./operations/writePipeline/responder/mergeStream');
 const { CreateResponder } = require('./operations/writePipeline/responder/create');
@@ -767,7 +772,7 @@ const createContainer = function () {
         }),
         noOpStep: new NoOpStep(),
         writeStep: new WriteStep({
-            databaseBulkInserter: c.fastDatabaseBulkInserter,
+            writer: new VersionedWriter({ databaseBulkInserter: c.fastDatabaseBulkInserter }),
             configManager: c.configManager
         }),
         stepVariants: {
@@ -798,12 +803,18 @@ const createContainer = function () {
             },
             write: {
                 httpPreconditions: new WriteStep({
-                    databaseBulkInserter: c.fastDatabaseBulkInserter,
-                    configManager: c.configManager,
-                    honorHttpPreconditions: true
+                    writer: new HttpPreconditionWriter({
+                        databaseBulkInserter: c.fastDatabaseBulkInserter,
+                        configManager: c.configManager,
+                        versionedWriter: new VersionedWriter({
+                            databaseBulkInserter: c.fastDatabaseBulkInserter
+                        })
+                    }),
+                    configManager: c.configManager
                 })
             }
         },
+        profiles: [MERGE_WRITE_PROFILE, CREATE_WRITE_PROFILE, UPDATE_WRITE_PROFILE],
         databaseBulkInserter: c.fastDatabaseBulkInserter,
         writeAuditor: c.writeAuditor,
         fhirLoggingManager: c.fhirLoggingManager,
@@ -835,11 +846,7 @@ const createContainer = function () {
     }));
 
     container.register('mergeStream', (c) => new MergeStream({
-        bundleResourceValidator: c.bundleResourceValidator,
-        parametersResourceValidator: c.parametersResourceValidator,
-        mergeManager: c.mergeManager,
-        scopesManager: c.scopesManager,
-        bundleManager: c.bundleManager,
+        mergeResponder: c.mergeResponder,
         writePipeline: c.writePipeline,
         writeAuditor: c.writeAuditor,
         customTracer: c.customTracer

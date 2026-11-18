@@ -85,6 +85,8 @@ const { PatientPersonDataChangeEventProducer } = require('../../utils/patientPer
 const { IdentifyStep } = require('../../operations/writePipeline/steps/identifyStep');
 const { BuildDocumentStep } = require('../../operations/writePipeline/steps/buildDocumentStep');
 const { WriteStep } = require('../../operations/writePipeline/steps/writeStep');
+const { VersionedWriter } = require('../../operations/writePipeline/steps/write/versionedWriter');
+const { HttpPreconditionWriter } = require('../../operations/writePipeline/steps/write/httpPreconditionWriter');
 const { SourceIdentityResolver } = require('../../operations/writePipeline/steps/identify/sourceIdentityResolver');
 const { UrlIdentityResolver } = require('../../operations/writePipeline/steps/identify/urlIdentityResolver');
 const { SmartMergeBuilder } = require('../../operations/writePipeline/steps/build/smartMergeBuilder');
@@ -220,8 +222,9 @@ describe('createContainer', () => {
         expect(buildDocument.replace.builder).toBeInstanceOf(ReplaceBuilder);
         expect(buildDocument.replace.builder.insertBuilder).toBeInstanceOf(InsertBuilder);
         expect(write.httpPreconditions).toBeInstanceOf(WriteStep);
-        expect(write.httpPreconditions.honorHttpPreconditions).toBe(true);
-        expect(write.httpPreconditions.databaseBulkInserter).toBe(container.fastDatabaseBulkInserter);
+        expect(write.httpPreconditions.writer).toBeInstanceOf(HttpPreconditionWriter);
+        expect(write.httpPreconditions.writer.databaseBulkInserter).toBe(container.fastDatabaseBulkInserter);
+        expect(write.httpPreconditions.writer.versionedWriter).toBeInstanceOf(VersionedWriter);
     });
 
     test('updateOperation is wired to the write pipeline, its switch and the update responder', () => {
@@ -231,7 +234,7 @@ describe('createContainer', () => {
         expect(operation.writePipelineSwitch).toBe(container.writePipelineSwitch);
         expect(operation.updateResponder).toBeInstanceOf(UpdateResponder);
         expect(operation.updateResponder).toBe(container.updateResponder);
-        expect(() => container.writePipeline._assertValidProfile(UPDATE_WRITE_PROFILE)).not.toThrow();
+        expect(container.writePipeline.registeredProfiles.has(UPDATE_WRITE_PROFILE)).toBe(true);
     });
 
     test('writePipeline still resolves the $merge and create profiles to their steps', () => {
@@ -239,7 +242,9 @@ describe('createContainer', () => {
         expect(MERGE_WRITE_PROFILE.variants).toBeUndefined();
         expect(pipeline.identifyStep.identityResolver).toBeInstanceOf(SourceIdentityResolver);
         expect(pipeline.buildDocumentStep.builder).toBeInstanceOf(SmartMergeBuilder);
-        expect(pipeline.writeStep.honorHttpPreconditions).toBe(false);
+        expect(pipeline.writeStep.writer).toBeInstanceOf(VersionedWriter);
+        expect(pipeline.registeredProfiles.has(MERGE_WRITE_PROFILE)).toBe(true);
+        expect(pipeline.registeredProfiles.has(CREATE_WRITE_PROFILE)).toBe(true);
         expect(CREATE_WRITE_PROFILE.variants).toStrictEqual({ buildDocument: 'insert' });
         expect(pipeline.stepVariants.buildDocument.insert.builder).toBeInstanceOf(InsertBuilder);
     });
