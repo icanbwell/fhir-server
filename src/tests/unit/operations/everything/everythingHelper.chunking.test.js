@@ -78,3 +78,60 @@ describe('getEverythingIdChunks', () => {
         expect(getEverythingIdChunks([], BATCH_SIZE)).toEqual([]);
     });
 });
+
+/**
+ * Builds the id list $everything resolves for several Persons: for each Person its linked Patient
+ * ids followed by its proxy-patient id, one Person after the other (same order as
+ * patientProxyQueryRewriter).
+ * @param {number[]} linkedPatientCounts
+ * @returns {string[]}
+ */
+function buildIdsForPersons(linkedPatientCounts) {
+    return linkedPatientCounts.flatMap((count, personIndex) => [
+        ...Array.from({ length: count }, (_, i) => `person-${personIndex}-patient-${i}`),
+        `${PERSON_PROXY_PREFIX}person-${personIndex}`
+    ]);
+}
+
+describe('getEverythingIdChunks with several Persons', () => {
+    test.each([
+        [[10, 5]],
+        [[20, 5]],
+        [[30, 5]],
+        [[10, 10]],
+        [[10, 10, 10]],
+        [[9, 10, 10]],
+        [[5, 5, 5]],
+        [[1, 10, 1]],
+        [[3, 20, 7]]
+    ])(
+        'with linked Patient counts %j every proxy id shares a batch with a Patient of its own Person',
+        (linkedPatientCounts) => {
+            const ids = buildIdsForPersons(linkedPatientCounts);
+
+            const chunks = getEverythingIdChunks(ids, BATCH_SIZE);
+
+            expect(chunks.flat()).toEqual(ids);
+            linkedPatientCounts.forEach((_, personIndex) => {
+                const proxyId = `${PERSON_PROXY_PREFIX}person-${personIndex}`;
+                const batch = chunks.find((chunk) => chunk.includes(proxyId));
+                expect(batch.some((id) => id.startsWith(`person-${personIndex}-patient-`))).toBe(
+                    true
+                );
+            });
+        }
+    );
+
+    test('moves a proxy id that starts a batch to the previous batch', () => {
+        const ids = buildIdsForPersons([10, 5]);
+
+        const chunks = getEverythingIdChunks(ids, BATCH_SIZE);
+
+        expect(chunks).toHaveLength(2);
+        expect(chunks[0]).toHaveLength(11);
+        expect(chunks[0][10]).toBe(`${PERSON_PROXY_PREFIX}person-0`);
+        expect(chunks[1]).toHaveLength(6);
+        expect(chunks[1][0]).toBe('person-1-patient-0');
+        expect(chunks[1][5]).toBe(`${PERSON_PROXY_PREFIX}person-1`);
+    });
+});

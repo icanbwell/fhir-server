@@ -115,25 +115,35 @@ function pushAll(target, source) {
 }
 
 /**
- * Splits the ids of a $everything request into batches of `chunkSize`, without leaving a batch
- * that holds only Person proxy-patient ids (`person.<id>`).
+ * Splits the ids of a $everything request into batches of `chunkSize`, without starting a batch
+ * with Person proxy-patient ids (`person.<id>`).
  *
- * Consent is resolved per batch: a proxy-patient id is only admitted into the consented branch
- * when its batch also holds a real Patient of that Person. A trailing batch of proxy ids alone
- * would therefore drop the proxy-referenced resources for a consenting client. When that happens
- * the trailing proxy ids are appended to the previous batch, which makes it slightly larger than
- * `chunkSize`. Ids that are all proxy ids and fit in one batch are returned as that single batch,
- * as there is no real Patient to consent to in that case.
+ * The ids are the linked Patient ids of each Person followed by that Person's proxy id. Consent is
+ * resolved per batch: a proxy-patient id is only admitted into the consented branch when its batch
+ * also holds a real Patient of that Person. A proxy id that starts a batch has lost its own
+ * Person's Patients to the previous batch (and may sit next to another Person's Patients), so the
+ * proxy-referenced resources of a consenting client would be dropped. Leading proxy ids are
+ * therefore moved to the end of the previous batch, which makes it slightly larger than
+ * `chunkSize`. A first batch that starts with proxy ids is left as it is, as there is no previous
+ * batch and no real Patient of that Person to consent to.
  * @param {string[]} ids
  * @param {number} chunkSize
  * @returns {string[][]}
  */
 function getEverythingIdChunks(ids, chunkSize) {
     const chunks = sliceIntoChunks(ids, chunkSize);
-    const lastChunk = chunks[chunks.length - 1];
-    if (chunks.length > 1 && lastChunk.every((id) => id.startsWith(PERSON_PROXY_PREFIX))) {
-        chunks.pop();
-        chunks[chunks.length - 1].push(...lastChunk);
+    // go backwards so that removing a batch does not shift the batches still to be checked
+    for (let index = chunks.length - 1; index > 0; index--) {
+        const leadingProxyIdCount = chunks[index].findIndex(
+            (id) => !id.startsWith(PERSON_PROXY_PREFIX)
+        );
+        const countToMove = leadingProxyIdCount === -1 ? chunks[index].length : leadingProxyIdCount;
+        if (countToMove > 0) {
+            chunks[index - 1].push(...chunks[index].splice(0, countToMove));
+            if (chunks[index].length === 0) {
+                chunks.splice(index, 1);
+            }
+        }
     }
     return chunks;
 }
