@@ -16,6 +16,8 @@ const person1Resource = require('./fixtures/person/person1.json');
 const consent1Resource = require('./fixtures/consent/consent1.json');
 const binary1Resource = require('./fixtures/binary/binary1.json');
 const binary2Resource = require('./fixtures/binary/binary2.json');
+// a patient-scoped token only reads a Binary whose securityContext is one of its patients
+const patientOwnedBinary1Resource = { ...binary1Resource, securityContext: { reference: 'Patient/patient1' } };
 const documentReference1Resource = require('./fixtures/documentReference/documentReference1.json');
 const documentReference2Resource = require('./fixtures/documentReference/documentReference2.json');
 
@@ -115,7 +117,7 @@ describe('GraphQL DocumentReference Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
 
-        resp = await request.post('/4_0_0/Binary/1/$merge').send(binary1Resource).set(getHeaders());
+        resp = await request.post('/4_0_0/Binary/1/$merge').send(patientOwnedBinary1Resource).set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
 
@@ -175,7 +177,7 @@ describe('GraphQL DocumentReference Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
 
-        resp = await request.post('/4_0_0/Binary/1/$merge').send(binary1Resource).set(getHeaders());
+        resp = await request.post('/4_0_0/Binary/1/$merge').send(patientOwnedBinary1Resource).set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse({ created: true });
 

@@ -213,9 +213,7 @@ const createContainer = function () {
 
     container.register('requestSpecificCache', () => new RequestSpecificCache());
 
-    container.register('patientFilterManager', (c) => new PatientFilterManager({
-        configManager: c.configManager
-    }));
+    container.register('patientFilterManager', (c) => new PatientFilterManager());
 
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
