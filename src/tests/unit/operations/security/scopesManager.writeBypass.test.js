@@ -1,7 +1,7 @@
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 
 /**
- * Regression coverage for the write-path access-tag-change gap (INC-331 follow-up), companion to
+ * Regression coverage for the write-path access-tag-change gap, companion to
  * scopesManager.crossTenant.test.js. A prior version of this file asserted the same expectation
  * against ScopesManager.isAccessToResourceAllowedBySecurityTags that crossTenant.test.js's own
  * header comment explains is not a live bug - see that file for why. This file exercises
@@ -16,7 +16,7 @@ jestGlobal.mock('../../../../utils/assertType', () => ({
 
 const { ScopesManager } = require('../../../../operations/security/scopesManager');
 
-describe('ScopesManager — Write Operation Bypass (INC-331)', () => {
+describe('ScopesManager — Write Operation Bypass', () => {
     let scopesManager;
 
     beforeEach(() => {

@@ -174,7 +174,7 @@ class AuthService {
                 // permanent condition), when the truth is "we couldn't reach it right
                 // now" (transient infrastructure failure, e.g. Redis eviction/outage).
                 // Mark the error as transient/retriable and rethrow so callers (and
-                // ultimately the auth middleware) surface a 503, not a 401 (INC-322).
+                // ultimately the auth middleware) surface a 503, not a 401.
                 error.isTransient = true;
                 if (!error.statusCode) {
                     error.statusCode = 503;
@@ -195,7 +195,7 @@ class AuthService {
      * dead JWKS provider among several configured ones doesn't take down auth for
      * tokens signed by a different, healthy provider. Keys are collected from every
      * URL that succeeded; a transient/503 error is only thrown when EVERY URL failed,
-     * i.e. there are truly zero usable external keys (INC-322: an infrastructure
+     * i.e. there are truly zero usable external keys (an infrastructure
      * outage must not look like "no external keys configured").
      * @returns {Promise<Object[]>}
      */
@@ -206,7 +206,7 @@ class AuthService {
         let extJwksUrls = this.configManager.externalAuthJwksUrls;
         if (extJwksUrls.length === 0 && this.configManager.externalAuthWellKnownUrls.length > 0) {
             // getJwksUrlsAsync() throws a transient/503-marked error if EVERY configured
-            // well-known URL failed to resolve (INC-322) -- let that propagate below
+            // well-known URL failed to resolve -- let that propagate below
             // rather than treating a total well-known outage the same as "no well-known
             // URLs configured at all" (which legitimately resolves to []).
             extJwksUrls = await this.wellKnownConfigurationManager.getJwksUrlsAsync();
@@ -689,7 +689,7 @@ class AuthService {
                     // A failure to reach the userinfo endpoint is an infrastructure
                     // problem, not proof the token is invalid. Pass it through passport's
                     // done(err) signature (-> self.error() -> real error, not a fail())
-                    // so it surfaces as a 503, not a 401 (INC-322).
+                    // so it surfaces as a 503, not a 401.
                     error.isTransient = true;
                     if (!error.statusCode) {
                         error.statusCode = 503;

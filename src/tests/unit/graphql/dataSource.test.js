@@ -188,7 +188,7 @@ describe('FhirDataSource (graphql)', () => {
         });
     });
 
-    describe('getResources (DCON-4846)', () => {
+    describe('getResources', () => {
         test('checks operation access before executing the search', async () => {
             const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' } };
             await dataSource.getResources(null, {}, context, {}, 'Patient');
@@ -213,7 +213,7 @@ describe('FhirDataSource (graphql)', () => {
         });
     });
 
-    describe('getResourcesBundle (DCON-4846)', () => {
+    describe('getResourcesBundle', () => {
         test('checks operation access before executing the search', async () => {
             const context = { fhirRequestInfo: { user: 'test', scope: 'access/tenant_a.*' }, req: {} };
             await dataSource.getResourcesBundle(null, {}, context, {}, 'Patient');
@@ -238,7 +238,7 @@ describe('FhirDataSource (graphql)', () => {
         });
     });
 
-    describe('getResourcesInBatch (DCON-4846)', () => {
+    describe('getResourcesInBatch', () => {
         test('checks operation access per resourceType group before executing the search', async () => {
             const requestInfo = { user: 'test', scope: 'access/tenant_a.*' };
             await dataSource.getResourcesInBatch({

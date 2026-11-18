@@ -8,7 +8,7 @@
  * patientFilterManager.personFilterWithQueryMapping (src/fhir/patientFilterManager.js), which
  * narrows Subscription/SubscriptionStatus by a `client_person_id` extension and SubscriptionTopic
  * by a `client_person_id` identifier. Because this is a distinct, resource-specific isolation
- * mechanism in an area with a documented security-finding history (SEC-1582), it gets its own
+ * mechanism in an area with a documented security-finding history, it gets its own
  * explicit narrowing proof here rather than relying on the generic round-trip coverage in
  * dedicatedTools.test.js.
  *

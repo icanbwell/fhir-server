@@ -1,16 +1,9 @@
-// GraphQL v1 CodeSystem.concept.property.valueString -> Binary lookup with ENABLE_PATIENT_SCOPED_BINARY on.
+// GraphQL v1 CodeSystem.concept.property.valueString -> Binary lookup.
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const {
     commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getGraphQLHeaders, getTestContainer,
     mockHttpContext
 } = require('../../common');
-const { ConfigManager } = require('../../../../utils/configManager');
-
-class FlagOnConfigManager extends ConfigManager {
-    get enablePatientScopedBinary () {
-        return true;
-    }
-}
 
 const MIXED_SCOPE = 'patient/*.* user/*.read access/*.*';
 
@@ -52,7 +45,7 @@ const codesQuery = (codeArg) => `query {
     }
 }`;
 
-describe('Binary patient scope: GraphQL v1 CodeSystem property lookup (flag on)', () => {
+describe('Binary patient scope: GraphQL v1 CodeSystem property lookup', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -125,10 +118,7 @@ describe('Binary patient scope: GraphQL v1 CodeSystem property lookup (flag on)'
     );
 
     async function setupAsync () {
-        return await createTestRequest((c) => {
-            c.register('configManager', () => new FlagOnConfigManager());
-            return c;
-        });
+        return await createTestRequest();
     }
 
     test('returns Binary content only when securityContext is absent or this CodeSystem', async () => {

@@ -1,10 +1,10 @@
 /**
- * Tests for INC-316 / INC-317: meta.security deduplication during merge operations.
+ * Tests for meta.security deduplication during merge operations.
  *
- * INC-316: Concurrent $merge operations on Location resources caused meta.security
+ * Concurrent $merge operations on Location resources caused meta.security
  * tags to be duplicated exponentially, exceeding MongoDB's 16MB BSON limit.
  *
- * INC-317: Bloated meta.security caused CDC events to exceed Kafka's max message size,
+ * Bloated meta.security caused CDC events to exceed Kafka's max message size,
  * halting the CDC pipeline. Resources ingested during the outage received an
  * "unclassified" tag, breaking Delegated User reads.
  *
@@ -48,7 +48,7 @@ function createResourceWithSecurityTags(tags) {
     };
 }
 
-describe('INC-316: meta.security deduplication during merge', () => {
+describe('meta.security deduplication during merge', () => {
     describe('mergeObject should deduplicate meta.security tags', () => {
         test('after merging two resources with identical security tags, no duplicates should exist', () => {
             // Simulates concurrent merge: both the "current" resource in DB and the
@@ -74,7 +74,7 @@ describe('INC-316: meta.security deduplication during merge', () => {
         });
 
         test('repeated merges should not cause exponential growth of meta.security', () => {
-            // Simulates the INC-316 scenario: multiple consecutive merges of the same
+            // Simulates the scenario: multiple consecutive merges of the same
             // resource, each time carrying the same security tags. Without deduplication,
             // each merge doubles the array.
             const securityTags = [
@@ -127,9 +127,9 @@ describe('INC-316: meta.security deduplication during merge', () => {
     });
 });
 
-describe('INC-317: fail-closed semantics for empty meta.security after deduplication', () => {
+describe('fail-closed semantics for empty meta.security after deduplication', () => {
     test('if deduplication results in empty meta.security, access should be denied (fail-closed)', () => {
-        // INC-317: When tagging failed, resources got "unclassified" tag which broke
+        // When tagging failed, resources got "unclassified" tag which broke
         // Delegated User reads. The system should NEVER allow a resource to persist
         // with an empty meta.security — it must fail-closed (deny) rather than
         // fail-open (allow with no access controls).
@@ -166,7 +166,7 @@ describe('INC-317: fail-closed semantics for empty meta.security after deduplica
     });
 
     test('resource with only "unclassified" tag and no owner tag should be rejected', () => {
-        // INC-317 scenario: during outage, resources got only an "unclassified" tag
+        // Scenario: during outage, resources got only an "unclassified" tag
         // without proper owner/access tags. This should not be persistable.
 
         const { ResourceValidator } = require('../../../../operations/common/resourceValidator');
@@ -207,7 +207,7 @@ describe('INC-317: fail-closed semantics for empty meta.security after deduplica
     });
 });
 
-describe('INC-316: write operations should validate meta.security size before persisting', () => {
+describe('write operations should validate meta.security size before persisting', () => {
 
     test('ResourceMerger.updateSecurityTag should not produce duplicate entries for the same system', () => {
         // The updateSecurityTag method in ResourceMerger is where duplicates sneak in

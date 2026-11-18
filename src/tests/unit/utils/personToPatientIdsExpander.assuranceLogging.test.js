@@ -1,5 +1,5 @@
 /**
- * DCON-4894 Commit A: dry-run logging for Person.link traversal below a configured assurance
+ * dry-run logging for Person.link traversal below a configured assurance
  * minimum.
  *
  * This is deliberately a LOGGING-ONLY change: when configManager.logPersonLinkAssuranceBelowMinimum
@@ -47,7 +47,7 @@ function makeFakeCursor (docs) {
     };
 }
 
-describe('PersonToPatientIdsExpander — DCON-4894 dry-run assurance logging (Commit A)', () => {
+describe('PersonToPatientIdsExpander — dry-run assurance logging (Commit A)', () => {
     const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
     const { ScopesManager } = require('../../../operations/security/scopesManager');
     const { SecurityTagManager } = require('../../../operations/common/securityTagManager');

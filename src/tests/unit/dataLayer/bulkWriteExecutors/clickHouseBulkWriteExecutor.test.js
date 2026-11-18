@@ -232,7 +232,7 @@ describe('ClickHouseBulkWriteExecutor', () => {
             expect(result.mergeResultEntries[0].created).toBe(true);
         });
 
-        test('delegates to fallback after all retries exhausted', async () => {
+        test.each([[true], [false]])('delegates to fallback after all retries exhausted and forwards retryOnPoolWaitTimeout=%s', async (retryOnPoolWaitTimeout) => {
             mockRepository.insertAsync.mockRejectedValue(new Error('ClickHouse unavailable'));
 
             const executorWithFallback = new ClickHouseBulkWriteExecutor({
@@ -253,6 +253,7 @@ describe('ClickHouseBulkWriteExecutor', () => {
                 useHistoryCollection: false,
                 maintainOrder: true,
                 isAccessLogOperation: false,
+                retryOnPoolWaitTimeout,
                 insertOneHistoryFn: jestGlobal.fn()
             };
 
@@ -260,7 +261,9 @@ describe('ClickHouseBulkWriteExecutor', () => {
 
             expect(mockRepository.insertAsync).toHaveBeenCalledTimes(1);
             expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledTimes(1);
-            expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledWith(params);
+            expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ retryOnPoolWaitTimeout })
+            );
             expect(result.error).toBeNull();
         });
 

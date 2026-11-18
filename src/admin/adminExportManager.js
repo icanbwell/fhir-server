@@ -243,7 +243,7 @@ class AdminExportManager {
 
             if (updatedResource) {
                 // Prevent the merged body from re-tagging the resource into tenants the caller
-                // is not itself authorized for (SEC-1580 F2/F3).
+                // is not itself authorized for.
                 this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
                     requestInfo, currentResource: exportStatusResource, updatedResource
                 });

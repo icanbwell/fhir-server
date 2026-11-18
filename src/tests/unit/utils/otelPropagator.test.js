@@ -9,7 +9,7 @@ const {
 
 /**
  * Tests that verify the OTel propagator configuration uses W3C TraceContext only
- * and does NOT include B3 headers (EA-2307).
+ * and does NOT include B3 headers.
  *
  * The manual SDK path in otel_instrumentation.js configures:
  *   new CompositePropagator({
@@ -22,7 +22,7 @@ const {
  * These tests verify the propagator contract: fields() must include 'traceparent'
  * and must not include 'b3'.
  */
-describe('OTel propagator — W3C TraceContext only (EA-2307)', () => {
+describe('OTel propagator — W3C TraceContext only', () => {
     // GIVEN the propagators configured in otel_instrumentation.js (manual SDK path)
     const propagators = [
         new W3CTraceContextPropagator(),
@@ -54,7 +54,7 @@ describe('OTel propagator — W3C TraceContext only (EA-2307)', () => {
             // WHEN we inspect its fields
             const fields = composite.fields();
 
-            // THEN b3 must NOT be present (EA-2307 retirement)
+            // THEN b3 must NOT be present
             expect(fields).not.toContain('b3');
         });
 

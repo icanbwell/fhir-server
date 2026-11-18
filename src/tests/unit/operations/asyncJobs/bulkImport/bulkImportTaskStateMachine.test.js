@@ -16,6 +16,7 @@
 
 const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/globals');
 const { ReadPreference } = require('mongodb');
+const { getBulkImportTaskUuid } = require('../../../../../operations/asyncJobs/bulkImport/bulkImportTaskUuid');
 
 jestGlobal.mock('../../../../../operations/common/logging', () => ({
     logInfo: jestGlobal.fn(),
@@ -168,7 +169,7 @@ describe('BulkImportTaskStateMachine', () => {
             });
             expect(fastFindOneAsync).toHaveBeenCalledWith({
                 query: {
-                    id: 'task-xyz',
+                    _uuid: getBulkImportTaskUuid('task-xyz'),
                     'code.coding': {
                         $elemMatch: {
                             system: BULK_IMPORT_TASK.TYPE_SYSTEM,
@@ -188,12 +189,23 @@ describe('BulkImportTaskStateMachine', () => {
             );
         });
 
-        test('RULE 10 parameter sensitivity: the taskId argument reaches the query verbatim', async () => {
-            await stateMachine.loadTaskAsync('task-A');
-            await stateMachine.loadTaskAsync('task-B');
+        test.each([
+            ['a non-uuid id is hashed with the bwell authority', 'task-A', 'task-B'],
+            [
+                'a uuid id is used as is',
+                '11111111-1111-4111-8111-111111111111',
+                '22222222-2222-4222-8222-222222222222'
+            ]
+        ])('RULE 10 parameter sensitivity: %s', async (_name, idA, idB) => {
+            await stateMachine.loadTaskAsync(idA);
+            await stateMachine.loadTaskAsync(idB);
 
-            expect(fastFindOneAsync.mock.calls[0][0].query.id).toBe('task-A');
-            expect(fastFindOneAsync.mock.calls[1][0].query.id).toBe('task-B');
+            expect(fastFindOneAsync.mock.calls[0][0].query._uuid).toBe(getBulkImportTaskUuid(idA));
+            expect(fastFindOneAsync.mock.calls[1][0].query._uuid).toBe(getBulkImportTaskUuid(idB));
+            expect(fastFindOneAsync.mock.calls[0][0].query._uuid).not.toBe(
+                fastFindOneAsync.mock.calls[1][0].query._uuid
+            );
+            expect(fastFindOneAsync.mock.calls[0][0].query.id).toBeUndefined();
         });
 
         test('returns null when no matching bulk-import Task exists', async () => {

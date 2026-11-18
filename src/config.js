@@ -22,6 +22,89 @@ mongoUrl = encodeURI(mongoUrl);
 const queryParams = getQueryParams(mongoUrl);
 const writeConcern = queryParams.w ?? 'majority';
 delete queryParams.w;
+/**
+ * Reads a waitQueueTimeoutMS env var. Rejects anything that is not a non-negative integer
+ * instead of handing it to parseInt: parseInt('abc') is NaN, which the driver accepts and treats
+ * as "no timeout" (silently restoring the unbounded wait this setting exists to prevent), and
+ * parseInt('30s') is 30, a 30ms wait that would fail almost every checkout under load.
+ * @param {string} envName
+ * @returns {number|undefined}
+ */
+const readWaitQueueTimeoutEnv = (envName) => {
+    const value = env[String(envName)]?.trim();
+    if (value === undefined || value === '') {
+        return undefined;
+    }
+    if (!/^\d+$/.test(value)) {
+        throw new Error(`${envName} must be a non-negative integer number of milliseconds, got "${value}"`);
+    }
+    return parseInt(value, 10);
+};
+/**
+ * The driver matches URI option names case-insensitively, but getQueryParams keeps the case
+ * as written, so look the key up the same way the driver does. Otherwise a connection string
+ * with e.g. waitqueuetimeoutms=... would be silently overridden by the fallback below.
+ * @param {Object} params
+ * @returns {number|undefined}
+ */
+const urlWaitQueueTimeoutMS = (params) => {
+    const key = Object.keys(params).find((k) => k.toLowerCase() === 'waitqueuetimeoutms');
+    return key === undefined ? undefined : params[String(key)];
+};
+/**
+ * One precedence rule for waitQueueTimeoutMS on every pool: the env var for that pool class,
+ * then the pool's own connection string, then the fallback.
+ * @param {{envName: string, queryParams: Object, fallback: number}} args
+ * @returns {number}
+ */
+const resolveWaitQueueTimeoutMS = ({ envName, queryParams: params, fallback }) =>
+    readWaitQueueTimeoutEnv(envName) ?? urlWaitQueueTimeoutMS(params) ?? fallback;
+const REQUEST_PATH_WAIT_QUEUE_TIMEOUT_FALLBACK_MS = 30 * 1000;
+/**
+ * How long a request may wait for a pooled connection before the driver throws
+ * MongoWaitQueueTimeoutError. The driver default (0) waits forever, so a worker whose
+ * pool is exhausted (e.g. by cursors left open after client disconnects) hangs every
+ * later request until the caller gives up. Failing fast surfaces the error
+ * and lets the caller retry on another pod.
+ * @type {number}
+ */
+const waitQueueTimeoutMS = resolveWaitQueueTimeoutMS({
+    envName: 'MONGO_WAIT_QUEUE_TIMEOUT',
+    queryParams,
+    fallback: REQUEST_PATH_WAIT_QUEUE_TIMEOUT_FALLBACK_MS
+});
+/**
+ * Pools for audit, access-log and resource-history data when configured as their own clusters.
+ * Most of their traffic is post-request writes: those run after the response is sent and
+ * postRequestProcessor logs and drops a failed task, so a checkout timeout there loses the
+ * record. They get a longer wait than the request path for that reason.
+ *
+ * The wait is still bounded, because these pools also serve request-path reads:
+ * mongoDatabaseManager.getDatabaseForResourceAsync sends _history searches to the
+ * resource-history pool and AuditEvent searches to the audit pool when no online-archive
+ * cluster is configured. An unbounded wait there is the same pool-starvation hang on a different pool, and
+ * it would also let queued post-request tasks pile up in memory with no error to show for it.
+ *
+ * mongoDatabaseManager falls back to the primary client when AUDIT_EVENT_MONGO_URL /
+ * RESOURCE_HISTORY_MONGO_URL is unset (access logs follow the audit client), and those writes
+ * then share the primary pool and its shorter wait above. In prod every deployment sets
+ * RESOURCE_HISTORY_MONGO_URL, and AuditEvents go to Kafka -> ClickPipes
+ * (ENABLE_AUDIT_EVENT_CLICKPIPE + ENABLE_EVENTS_KAFKA_V2) rather than Mongo, so no post-request
+ * write lands on the primary pool. A deployment missing either of those (fhir-proa-server in
+ * non-prod today) writes audits to the primary pool; mongoDatabaseManager.connectAsync logs a
+ * warning at startup for that case.
+ * @type {number}
+ */
+const BACKGROUND_WAIT_QUEUE_TIMEOUT_FALLBACK_MS = 60 * 1000;
+/**
+ * @param {Object} params query params of the pool's own connection string
+ * @returns {number}
+ */
+const backgroundWaitQueueTimeoutMS = (params) => resolveWaitQueueTimeoutMS({
+    envName: 'MONGO_BACKGROUND_WAIT_QUEUE_TIMEOUT',
+    queryParams: params,
+    fallback: BACKGROUND_WAIT_QUEUE_TIMEOUT_FALLBACK_MS
+});
 // noinspection JSValidateTypes
 /**
  * https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
@@ -38,13 +121,13 @@ const options = {
     // https://medium.com/@kyle_martin/mongodb-in-production-how-connection-pool-size-can-bottleneck-application-scale-439c6e5a8424
     minPoolSize: env.MONGO_MIN_POOL_SIZE ? parseInt(env.MONGO_MIN_POOL_SIZE) : 10,
     maxPoolSize: env.MONGO_MAX_POOL_SIZE ? parseInt(env.MONGO_MAX_POOL_SIZE) : 100,
+    waitQueueTimeoutMS,
     writeConcern: {
         w: writeConcern
     }
     // keepAliveInitialDelay: 0,
     // heartbeatFrequencyMS: 30 * 1000,
     // serverSelectionTimeoutMS: 30 * 1000,
-    // waitQueueTimeoutMS: 30 * 1000
 };
 /**
  * @name mongoConfig
@@ -90,6 +173,7 @@ if (env.AUDIT_EVENT_MONGO_URL) {
             ...auditQueryParams,
             minPoolSize: env.AUDIT_EVENT_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MIN_POOL_SIZE) : options.minPoolSize,
             maxPoolSize: env.AUDIT_EVENT_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MAX_POOL_SIZE) : options.maxPoolSize,
+            waitQueueTimeoutMS: backgroundWaitQueueTimeoutMS(auditQueryParams),
             writeConcern: {
                 w: auditWriteConcern
             }
@@ -126,6 +210,12 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
             ...auditReadOnlyQueryParams,
             minPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MIN_POOL_SIZE) : 0,
             maxPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE) : 100,
+            // request-path reads (AuditEvent search): same fail-fast rule as the primary pool
+            waitQueueTimeoutMS: resolveWaitQueueTimeoutMS({
+                envName: 'MONGO_WAIT_QUEUE_TIMEOUT',
+                queryParams: auditReadOnlyQueryParams,
+                fallback: REQUEST_PATH_WAIT_QUEUE_TIMEOUT_FALLBACK_MS
+            }),
             writeConcern: {
                 w: auditReadOnlyWriteConcern
             }
@@ -168,7 +258,8 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
             ...accessLogsQueryParams,
             writeConcern: { w: accessLogsWriteConcern },
             maxPoolSize: env.ACCESS_LOGS_MAX_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MAX_POOL_SIZE) : 10,
-            minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1
+            minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1,
+            waitQueueTimeoutMS: backgroundWaitQueueTimeoutMS(accessLogsQueryParams)
         }
     };
     // This accessLogsMongoConfig is used to access Logs using FHIR Admin only
@@ -208,6 +299,7 @@ if (env.RESOURCE_HISTORY_MONGO_URL) {
             ...resourceHistoryQueryParams,
             minPoolSize: env.RESOURCE_HISTORY_MIN_POOL_SIZE ? parseInt(env.RESOURCE_HISTORY_MIN_POOL_SIZE) : options.minPoolSize,
             maxPoolSize: env.RESOURCE_HISTORY_MAX_POOL_SIZE ? parseInt(env.RESOURCE_HISTORY_MAX_POOL_SIZE) : options.maxPoolSize,
+            waitQueueTimeoutMS: backgroundWaitQueueTimeoutMS(resourceHistoryQueryParams),
             writeConcern: {
                 w: resourceHistoryWriteConcern
             }
@@ -251,7 +343,8 @@ if (env.FHIR_NOTES_MONGO_URL) {
             ...options,
             ...fhirNotesQueryParams,
             // read-only workload against a dependency-of-a-dependency cluster: small pool,
-            // short timeout so an outage there can't stall fhir-server's primary request path
+            // short connect/server-selection timeouts so an outage there can't stall
+            // fhir-server's primary request path; pool checkout waits as long as the primary pool
             minPoolSize: env.FHIR_NOTES_MIN_POOL_SIZE ? parseInt(env.FHIR_NOTES_MIN_POOL_SIZE) : 1,
             maxPoolSize: env.FHIR_NOTES_MAX_POOL_SIZE ? parseInt(env.FHIR_NOTES_MAX_POOL_SIZE) : 10,
             connectTimeoutMS: env.FHIR_NOTES_MONGO_CONNECT_TIMEOUT
@@ -259,7 +352,14 @@ if (env.FHIR_NOTES_MONGO_URL) {
                 : 5000,
             serverSelectionTimeoutMS: env.FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT
                 ? parseInt(env.FHIR_NOTES_MONGO_SERVER_SELECTION_TIMEOUT)
-                : 5000
+                : 5000,
+            // notes pool shares the request-path wait: MONGO_WAIT_QUEUE_TIMEOUT, then its own
+            // connection string, then the same 30s default as the primary pool
+            waitQueueTimeoutMS: resolveWaitQueueTimeoutMS({
+                envName: 'MONGO_WAIT_QUEUE_TIMEOUT',
+                queryParams: fhirNotesQueryParams,
+                fallback: REQUEST_PATH_WAIT_QUEUE_TIMEOUT_FALLBACK_MS
+            })
         }
     };
 }

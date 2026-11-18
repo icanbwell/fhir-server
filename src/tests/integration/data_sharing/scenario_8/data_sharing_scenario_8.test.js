@@ -101,7 +101,7 @@ describe('Data sharing test cases for different scenarios', () => {
         });
 
         // Plain (non-$everything) search intentionally stopped including PROA-consented data as
-        // of DCON-2773 (#2048, Feb 2026) — allowConsentedProaDataAccess now defaults to false and
+        // of (#2048, Feb 2026) — allowConsentedProaDataAccess now defaults to false and
         // is only passed true from everythingHelper.js. See PR #2424 for the full root-cause.
         test('Ref of master person: Get Client patient & both proa patient data, as consent provided', async () => {
             const request = await createTestRequest((c) => {
@@ -177,7 +177,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([client1ObservationResource.id]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424).
+        // Same behavior change as above (see PR #2424).
         test('Ref of master person: Get Client-1 patient & proa patient data, as consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -203,7 +203,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([client1ObservationResource.id]);
         });
 
-        // Same DCON-2773 behavior change (see PR #2424): plain search no longer varies with
+        // Same behavior change (see PR #2424): plain search no longer varies with
         // consent state, so both the pre- and post-revoke reads return client-only data.
         // Revocation itself is meaningfully testable only via $everything.
         test('Ref of master person: Get Client patient & proa patient data, consent provided, and later consent revoked.', async () => {
@@ -245,7 +245,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds1).toEqual([clientObservationResource.id]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424).
+        // Same behavior change as above (see PR #2424).
         test('Ref of master person: Get Client-1 patient & proa patient data, consent provided, and later consent revoked.', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -383,7 +383,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([clientObservationResource.id]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424).
+        // Same behavior change as above (see PR #2424).
         test('Ref of client person: Get client & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -409,7 +409,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([clientObservationResource.id]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424).
+        // Same behavior change as above (see PR #2424).
         test('Ref of client person(uuid): Get client & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -556,7 +556,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds.length).toEqual(0);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424): the proa patient is no longer
+        // Same behavior change as above (see PR #2424): the proa patient is no longer
         // resolvable via plain search regardless of consent, matching the "no consent" case above.
         test('Ref of proa patient: Get proa data only, when consent provided', async () => {
             const request = await createTestRequest((c) => {

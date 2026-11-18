@@ -48,6 +48,7 @@ const {ResourcePreparer} = require('./operations/common/resourcePreparer');
 const {BundleManager} = require('./operations/common/bundleManager');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ResourceMerger} = require('./operations/common/resourceMerger');
+const { GroupMemberMerger } = require('./operations/common/groupMemberMerger');
 const {ResourceValidator} = require('./operations/common/resourceValidator');
 const {ConfigManager} = require('./utils/configManager');
 const {AccessIndexManager} = require('./operations/common/accessIndexManager');
@@ -235,9 +236,7 @@ const createContainer = function () {
 
     container.register('requestSpecificCache', () => new RequestSpecificCache());
 
-    container.register('patientFilterManager', (c) => new PatientFilterManager({
-        configManager: c.configManager
-    }));
+    container.register('patientFilterManager', (c) => new PatientFilterManager());
 
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
@@ -298,12 +297,14 @@ const createContainer = function () {
             new ReferenceGlobalIdHandler()
         ]
     }));
+    container.register('groupMemberMerger', (c) => new GroupMemberMerger({ configManager: c.configManager }));
     container.register('sourceAssigningAuthorityColumnHandler', (c) => new SourceAssigningAuthorityColumnHandler({ configManager: c.configManager }));
     container.register('ownerColumnHandler', (c) => new OwnerColumnHandler({ configManager: c.configManager }));
     container.register('uuidColumnHandler', (_c) => new UuidColumnHandler());
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager,
-        configManager: c.configManager
+        configManager: c.configManager,
+        groupMemberMerger: c.groupMemberMerger
     }));
     container.register('delegatedAccessRulesManager', (c) => new DelegatedAccessRulesManager({
         configManager: c.configManager,
@@ -616,7 +617,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                postRequestProcessor: c.postRequestProcessor
+                postRequestProcessor: c.postRequestProcessor,
+                groupMemberMerger: c.groupMemberMerger
             }
         )
     );
@@ -748,7 +750,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                base64DataManager: c.base64DataManager
+                base64DataManager: c.base64DataManager,
+                groupMemberMerger: c.groupMemberMerger
             }),
             configManager: c.configManager
         }),
@@ -975,7 +978,8 @@ const createContainer = function () {
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
                 writePipelineSwitch: c.writePipelineSwitch,
                 writePipeline: c.writePipeline,
-                createResponder: c.createResponder
+                createResponder: c.createResponder,
+                groupMemberMerger: c.groupMemberMerger
             }
         )
     );
@@ -997,7 +1001,8 @@ const createContainer = function () {
                 uuidColumnHandler: c.uuidColumnHandler,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
-                groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
+                groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
+                groupMemberMerger: c.groupMemberMerger
             }
         )
     );
@@ -1142,7 +1147,8 @@ const createContainer = function () {
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository: c.mongoGroupMemberRepository,
-            auditLogger: c.auditLogger
+            auditLogger: c.auditLogger,
+            groupMemberMerger: c.groupMemberMerger
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(

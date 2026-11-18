@@ -101,7 +101,7 @@ describe('GridFS merge tests (Fast Merge Serializer)', () => {
             expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
-        // DCON-4806: a client-supplied _file_id (with no actual `data` uploaded) must never
+        // a client-supplied _file_id (with no actual `data` uploaded) must never
         // reach the database. _file_id is only ever meant to be set by
         // DatabaseAttachmentManager itself, after it uploads `data` to GridFS -- otherwise a
         // caller could claim an arbitrary GridFS file id (e.g. belonging to another

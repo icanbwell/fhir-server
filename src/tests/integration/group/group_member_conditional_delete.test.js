@@ -1,9 +1,9 @@
 /**
- * `DELETE /Group?member=X` for extended Groups (DCON-5910)
+ * `DELETE /Group?member=X` for extended Groups
  *
  * GroupMemberQueryRewriter is registered for DELETE as well as READ, so a conditional delete by
  * member matches the same Groups `GET /Group?member=X` returns, extended ones included. Each matched
- * Group then goes through RemoveOperation unchanged: the per-Group write check, the DCON-5655
+ * Group then goes through RemoveOperation unchanged: the per-Group write check, the
  * member cascade for a single extended Group, and the rejection of a delete that matches more than
  * one extended Group (400 too-costly, nothing deleted).
  *

@@ -21,7 +21,7 @@ const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuild
  * (a) When an `_id` constraint is supplied alongside `member`, only the
  *     requested Group is returned. ClickHouse filters by member only, so the
  *     requested id(s) must be intersected with the ClickHouse result set.
- *     Before the EA-2316 fix, every Group containing the member was returned.
+ *     Before the fix, every Group containing the member was returned.
  *
  * (b) Tenant isolation: a search scoped to one tenant's access tag must not
  *     return Groups owned by a different tenant, even when both contain the

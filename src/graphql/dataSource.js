@@ -176,7 +176,7 @@ class FhirDataSource {
                     if (!resourceType) {
                         return [];
                     }
-                    // DCON-4846: getResources/getResourcesBundle gate their own root resourceType,
+                    // getResources/getResourcesBundle gate their own root resourceType,
                     // but a reference field (e.g. Patient.generalPractitioner) resolves through this
                     // batch loader for the *referenced* resourceType, bypassing that gate entirely --
                     // gate it here too so a CMS-partner/delegated-user caller can't pivot through a
@@ -383,14 +383,13 @@ class FhirDataSource {
      * Reads the Binary a CodeSystem property points at (CodeSystem.concept.property.valueString =
      * 'Binary/<id>').
      *
-     * With ENABLE_PATIENT_SCOPED_BINARY on, Binary is patient-filtered, which would hide a
-     * CodeSystem-owned Binary (it belongs to no patient) from every patient-scoped caller. So the
-     * lookup is evaluated for this one read as if the token carried no patient/ scopes: the
-     * caller's user/ scopes gate the read and its access/ codes give the tenant filter. A token
-     * with no user/ or access/ scopes is therefore refused rather than widened. The opt-out is
-     * built here from the request itself, never from a query argument, and the result is still
-     * returned only if the Binary's securityContext is absent or exactly the parent CodeSystem
-     * (isBinaryReadableViaCodeSystem). With the flag off this is the ordinary reference lookup.
+     * Binary is patient-filtered, which would hide a CodeSystem-owned Binary (it belongs to no
+     * patient) from every patient-scoped caller. So the lookup is evaluated for this one read as
+     * if the token carried no patient/ scopes: the caller's user/ scopes gate the read and its
+     * access/ codes give the tenant filter. A token with no user/ or access/ scopes is therefore
+     * refused rather than widened. The opt-out is built here from the request itself, never from
+     * a query argument, and the result is still returned only if the Binary's securityContext is
+     * absent or exactly the parent CodeSystem (isBinaryReadableViaCodeSystem).
      * @param {Resource} codeSystemProperty the CodeSystem property holding the Binary reference
      * @param {{id?: string, _uuid?: string, _sourceId?: string}|undefined} codeSystem parent CodeSystem
      * @param {string} binaryReference 'Binary/<id>'
@@ -400,11 +399,6 @@ class FhirDataSource {
      * @return {Promise<null|Resource>}
      */
     async findBinaryForCodeSystemAsync ({ codeSystemProperty, codeSystem, binaryReference, args, context, info }) {
-        if (!this.configManager.enablePatientScopedBinary) {
-            return await this.findResourceByReference(
-                codeSystemProperty, args, context, info, { reference: binaryReference }
-            );
-        }
         if (!codeSystem) {
             return null;
         }
@@ -468,7 +462,7 @@ class FhirDataSource {
      * @return {Promise<Resource[]>}
      */
     async getResources (parent, args, context, info, resourceType) {
-        // DCON-4846: REST search runs this same allowlist check (fhirOperationsManager.search) --
+        // REST search runs this same allowlist check (fhirOperationsManager.search) --
         // GraphQL reads must too, or a CMS-partner/delegated-user caller could bypass it entirely
         this.accessManager.verifyGraphQLReadAccess({
             requestInfo: context.fhirRequestInfo,
@@ -568,7 +562,7 @@ class FhirDataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle (parent, args, context, info, resourceType, useAggregationPipeline = false) {
-        // DCON-4846: see getResources -- same allowlist check REST search already enforces
+        // see getResources -- same allowlist check REST search already enforces
         this.accessManager.verifyGraphQLReadAccess({
             requestInfo: context.fhirRequestInfo,
             resourceType,

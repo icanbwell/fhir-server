@@ -15,7 +15,7 @@
  * tags of `client`/`B` under a bare `patient/Condition.write` scope, no `access/` scope at all)
  * proved the unconditional version wrong empirically, not just in theory.
  *
- * The corrected fix (matching DCON-4854 / PR #2447, which reached this independently and first):
+ * The corrected fix (matching PR #2447, which reached this independently and first):
  * - `isAccessToResourceAllowedBySecurityTags` is NOT changed — its patient-scope bypass is safe
  *   because every real write-path caller ANDs it with `PatientScopeManager.canWriteResourceAsync`
  *   (Person/Patient-id ownership matching) via

@@ -86,6 +86,16 @@ class ClickHouseDatabaseCursor {
     }
 
     /**
+     * Rows are already in memory, so there is no server-side cursor to release. Present for
+     * interface parity with DatabaseCursor so streaming callers can close either cursor.
+     * @returns {Promise<void>}
+     */
+    async close () {
+        this._rows = [];
+        this._index = 0;
+    }
+
+    /**
      * Sets a field projection. For ClickHouse results this filters
      * which fields are returned from the already-fetched rows.
      * @param {{ projection: Object }} params

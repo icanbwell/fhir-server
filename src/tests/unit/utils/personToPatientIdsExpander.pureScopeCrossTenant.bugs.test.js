@@ -1,5 +1,5 @@
 /**
- * FIXED (DCON-4894) -- previously a KNOWN, TRACKED, UNFIXED GAP quarantined via jest.config.js
+ * FIXED -- previously a KNOWN, TRACKED, UNFIXED GAP quarantined via jest.config.js
  * testPathIgnorePatterns.
  *
  * A pure patient-scope caller (e.g. scope = "patient/Person.read" with no combined access/
@@ -107,7 +107,7 @@ describe('PersonToPatientIdsExpander — pure patient-scope caller cross-tenant 
         const configManager = createStubInstance(ConfigManager, {
             useAccessIndex: false,
             enableProxyPersonScopeCheckForEverything: true,
-            // Opt in to the DCON-4894 fix under test. Both flags default to false in real
+            // Opt in to the fix under test. Both flags default to false in real
             // code/environments -- see configManager.js's doc comments for why enforcement must
             // not be turned on for real until the dry-run logging has been observed first.
             personLinkAssuranceMinimumLevel: 'level2',

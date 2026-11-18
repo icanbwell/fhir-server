@@ -751,7 +751,7 @@ class BulkDataExportRunner {
         });
         // Reviewed false positive: groupId is a URL path segment (always a string), validated and
         // derived from a bounded FHIR-id regex match above, so a NoSQL operator-object cannot reach
-        // this query. Aikido's taint engine flags the URL->findOne flow regardless of that. See EA-2331.
+        // this query. Aikido's taint engine flags the URL->findOne flow regardless of that.
         const groupDoc = await collection.findOne(groupQuery); // nosec
 
         if (!groupDoc) {

@@ -1,5 +1,5 @@
 // ============================================================================
-// FAIL-BY-DESIGN security test — SEC-1580 SAE-4 (mongo-only; no ClickHouse).
+// FAIL-BY-DESIGN security test —  (mongo-only; no ClickHouse).
 // Gap: a `_sort` value of `$$$` returns a raw 500 instead of a 4xx. A crash is
 // a robustness concern on its own, and a 500 is the response most likely to
 // carry a stack trace, so it's the most likely place for internal detail to

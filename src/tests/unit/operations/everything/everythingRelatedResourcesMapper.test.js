@@ -129,7 +129,7 @@ describe('EverythingRelatedResourcesMapper', () => {
         });
     });
 
-    describe('INC-332: Cross-tenant SubscriptionStatus exposure', () => {
+    describe('Cross-tenant SubscriptionStatus exposure', () => {
         test('BUG: SubscriptionStatus customQuery lacks client_person_id tenant filter', () => {
             const result = mapper.relatedResources('Patient', null);
             const subscriptionStatus = result.find(r => r.type === 'SubscriptionStatus');

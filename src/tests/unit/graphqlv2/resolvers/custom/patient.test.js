@@ -166,7 +166,7 @@ describe('graphqlv2/resolvers/custom/patient', () => {
             );
         });
 
-        test('SEC-1585: excludes a SubscriptionTopic matched only by the shared source_patient_id from a different tenant', async () => {
+        test('excludes a SubscriptionTopic matched only by the shared source_patient_id from a different tenant', async () => {
             const parent = { id: 'p-st', _sourceAssigningAuthority: 'client2' };
             mockContext.dataApi.getResources.mockResolvedValue([
                 {
@@ -187,7 +187,7 @@ describe('graphqlv2/resolvers/custom/patient', () => {
             }]);
         });
 
-        test('SEC-1585: excludes a resource with no identifier array at all', async () => {
+        test('excludes a resource with no identifier array at all', async () => {
             const parent = { id: 'p-st', _sourceAssigningAuthority: 'client2' };
             mockContext.dataApi.getResources.mockResolvedValue([{ id: 'no-identifier' }]);
 
@@ -196,7 +196,7 @@ describe('graphqlv2/resolvers/custom/patient', () => {
             expect(result).toHaveLength(0);
         });
 
-        test('SEC-1585: skips the fetch entirely when parent has no _sourceAssigningAuthority', async () => {
+        test('skips the fetch entirely when parent has no _sourceAssigningAuthority', async () => {
             const parent = { id: 'p-st' };
 
             const result = await patientResolvers.Patient.subscriptionTopics(parent, {}, mockContext, mockInfo);
@@ -219,7 +219,7 @@ describe('graphqlv2/resolvers/custom/patient', () => {
             );
         });
 
-        test('SEC-1585: excludes a Subscription matched only by the shared source_patient_id from a different tenant', async () => {
+        test('excludes a Subscription matched only by the shared source_patient_id from a different tenant', async () => {
             const parent = { id: 'shared-source-patient-id', _sourceAssigningAuthority: 'client2' };
             mockContext.dataApi.getResources.mockResolvedValue([
                 {
@@ -244,7 +244,7 @@ describe('graphqlv2/resolvers/custom/patient', () => {
             expect(result[0].id).toBe('sub-client2');
         });
 
-        test('SEC-1585: excludes a resource with no extension array at all', async () => {
+        test('excludes a resource with no extension array at all', async () => {
             const parent = { id: 'p-sub', _sourceAssigningAuthority: 'client2' };
             mockContext.dataApi.getResources.mockResolvedValue([{ id: 'no-extension' }]);
 
@@ -267,7 +267,7 @@ describe('graphqlv2/resolvers/custom/patient', () => {
             );
         });
 
-        test('SEC-1585: excludes a SubscriptionStatus matched only by the shared source_patient_id from a different tenant', async () => {
+        test('excludes a SubscriptionStatus matched only by the shared source_patient_id from a different tenant', async () => {
             const parent = { id: 'shared-source-patient-id', _sourceAssigningAuthority: 'client2' };
             mockContext.dataApi.getResources.mockResolvedValue([
                 {

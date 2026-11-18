@@ -305,6 +305,13 @@ the code disagree, the code wins.
 Group details that must be kept: Group member writes happen before the Group write, as today, and
 the ClickHouse member post-save stays synchronous inside the write.
 
+A Group keeps one entry per member on every write, as the old paths do (`GroupMemberMerger`). In
+`$merge`, the build merges the stored Group's own repeated entries first, after its preSave, so a
+body that changes nothing else still equals the stored Group and writes nothing. It merges a new
+Group's entries after stamping the version and before validation, so the per-member entry limit
+fails only that item. A write that sends its members to ClickHouse keeps `member[]` as sent. The
+other operations merge members in their own builders.
+
 ## Concurrency
 
 The concurrent write resolver does all conflict handling, in both paths. It detects the writes that

@@ -5,7 +5,7 @@
  * against the current vulnerable code until the bugs are fixed.
  *
  * Vulnerabilities tested:
- * 1. INC-332: $everything Subscription/SubscriptionStatus/SubscriptionTopic custom queries
+ * 1. $everything Subscription/SubscriptionStatus/SubscriptionTopic custom queries
  *    match on source_patient_id + service_slug WITHOUT client_person_id tenant filter,
  *    allowing cross-tenant data leakage when patients are shared across tenants.
  * 2. SubscriptionStatus resources returned without tenant isolation when
@@ -28,7 +28,7 @@ describe('Subscription Cross-Tenant PHI Leakage', () => {
         mapper = new EverythingRelatedResourcesMapper();
     });
 
-    describe('INC-332: $everything custom queries missing client_person_id filter', () => {
+    describe('$everything custom queries missing client_person_id filter', () => {
         /**
          * VULNERABILITY SCENARIO:
          * - Patient "john-doe-123" exists at health system "epic-hospital" (service_slug)
@@ -114,7 +114,7 @@ describe('Subscription Cross-Tenant PHI Leakage', () => {
         });
     });
 
-    describe('INC-332: Cross-tenant query result isolation', () => {
+    describe('Cross-tenant query result isolation', () => {
         /**
          * These tests verify that the custom query structure, when evaluated against
          * a document set containing resources from multiple tenants, would only match

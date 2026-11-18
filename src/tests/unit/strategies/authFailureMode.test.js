@@ -1,7 +1,7 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
 /**
- * INC-322: Auth failure mode — transient infrastructure errors must NOT return 401.
+ * Auth failure mode — transient infrastructure errors must NOT return 401.
  *
  * Production incident: When Redis evicted cached tokens (memory exhaustion), the
  * bwell-identity-gateway returned a HARD 401 "grant removed" instead of a 503 or
@@ -86,7 +86,7 @@ function createAuthService() {
     });
 }
 
-describe('INC-322: Auth failure mode — transient errors must not produce 401', () => {
+describe('Auth failure mode — transient errors must not produce 401', () => {
     let authService;
 
     beforeEach(() => {

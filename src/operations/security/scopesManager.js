@@ -552,7 +552,7 @@ class ScopesManager {
      * A historical version keeps the access tags it had at write time, so a
      * tenant-scoped access code can still match a stale, no-longer-current
      * tag on an old version after the current version's tags have been
-     * narrowed away from that tenant (SEC-1580 SAE-1). Rather than
+     * narrowed away from that tenant. Rather than
      * re-evaluating each version against the resource's current tags,
      * history access requires a non-tenant-specific access scope
      * (access/*.read or access/*.*) -- a tenant-scoped access code is never

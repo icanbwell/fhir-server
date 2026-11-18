@@ -14,7 +14,7 @@ const { computeSafeAccessTags } = require('../../../../operations/export/script/
 const { logWarn } = require('../../../../operations/common/logging');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 
-describe('computeSafeAccessTags (DCON-4805 S3 key injection fix)', () => {
+describe('computeSafeAccessTags', () => {
     test('passes through plain alphanumeric access tags', () => {
         const metaSecurity = [
             { system: SecurityTagSystem.access, code: 'bwell' },

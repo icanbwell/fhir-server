@@ -347,12 +347,12 @@ describe('WellKnownConfigurationManager', () => {
             expect(superagent.get).not.toHaveBeenCalled();
         });
 
-        test('throws a transient/503 error when every configured URL fails (INC-322)', async () => {
+        test('throws a transient/503 error when every configured URL fails', async () => {
             // A total outage across every configured well-known URL must NOT look the
             // same as "no well-known URLs configured" (previously both returned []),
             // otherwise AuthService.getExternalJwksAsync falls through to its unguarded
             // `return []` and the caller never learns this was a transient failure --
-            // reintroducing the exact bug INC-322 was about, via the well-known fallback.
+            // reintroducing the exact bug the transient-error handling fixed, via the well-known fallback.
             manager = new WellKnownConfigurationManager({
                 configManager: {
                     externalAuthWellKnownUrls: ['https://fail.example.com/.well-known']
