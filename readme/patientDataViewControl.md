@@ -74,3 +74,8 @@ Example Consent Resource for excluding resources
 ```
 
 Patient $everything request using patient jwt for above consent: `<base_url>/Patient/3c776efa-e42f-4351-a850-fdc203a2bf5f/$everything`. The Encounter resource with id `24753e41-956d-4c4a-86f4-130920d7ea68` will be excluded from the result of patient $everything operation.
+
+
+## Logs and audit events
+
+The ids a Consent hides are not written to operation logs or to the search `AuditEvent` detail, because the list can be long and shows what the user chose to hide. The request's `_id:not` and `id:not` arguments are left out of both, so a `_id:not` the caller sent themselves is also left out. Every other argument is still recorded.

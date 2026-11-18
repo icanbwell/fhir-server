@@ -179,7 +179,7 @@ module.exports = {
     // Keys under which ParsedArgs.getRawArgs() reports an `_id:not` / `id:not` exclusion. A data view
     // control exclusion can hold thousands of hidden ids and reveals what the user chose to hide, so
     // logs and audit events leave these keys out.
-    ID_EXCLUSION_ARG_KEYS: ['_id:not', 'id:not'],
+    ID_EXCLUSION_ARG_KEYS: Object.freeze(['_id:not', 'id:not']),
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
     NON_SEARCH_QUERY_PARAMS: [
