@@ -37,8 +37,8 @@ describe('Binary patient $everything by securityContext', () => {
      * @return {Promise<{status: number, sourceIds: string[]}>} the response status and the
      * securityContext sourceId values (extension valueString) of the Binary resources returned
      */
-    async function everythingBinarySourceIdsAsync (request, headers, path = 'Patient/patient1') {
-        const resp = await request.get(`/4_0_0/${path}/$everything`).set(headers);
+    async function everythingBinarySourceIdsAsync (request, headers, path = 'Patient/patient1', query = '') {
+        const resp = await request.get(`/4_0_0/${path}/$everything${query}`).set(headers);
         const sourceIds = (resp.body.entry ?? [])
             .map((e) => e.resource)
             .filter((r) => r?.resourceType === 'Binary')
@@ -94,6 +94,24 @@ describe('Binary patient $everything by securityContext', () => {
         const { status, sourceIds } = await everythingBinarySourceIdsAsync(
             request,
             headersFor(personUuid)
+        );
+
+        expect(status).toBe(200);
+        expect(sourceIds).toEqual(['Patient/patient1']);
+    });
+
+    test.each([
+        ['Patient', 'Patient/patient1'],
+        ['Person', 'Person/person1']
+    ])('%s $everything with _type=Binary returns only the Binary owned by the patient', async (_name, path) => {
+        const request = await createTestRequest();
+        await seedAsync(request);
+
+        const { status, sourceIds } = await everythingBinarySourceIdsAsync(
+            request,
+            getHeaders('user/*.* access/*.* admin/*.*'),
+            path,
+            '?_type=Binary'
         );
 
         expect(status).toBe(200);
