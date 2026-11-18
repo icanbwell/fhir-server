@@ -95,21 +95,52 @@ class MergeResponder extends WriteResponder {
      * @returns {Promise<{context: WriteContext, items: WriteItem[], requestErrors: MergeResultEntry[], wasIncomingAList: boolean}>}
      */
     async readAsync ({ requestInfo, parsedArgs, resourceType }) {
+        const context = this.createContext({ requestInfo, parsedArgs });
+        /**
+         * @type {Object|Object[]|undefined}
+         */
+        const incomingObjects = parsedArgs.resource ? parsedArgs.resource : requestInfo.body;
+        const { items, requestErrors, wasIncomingAList } = await this.readIncomingAsync({
+            context,
+            resourceType,
+            incomingObjects
+        });
+        return { context, items, requestErrors, wasIncomingAList };
+    }
+
+    /**
+     * Returns the `merge` write context for the request, with smart merge on unless the request
+     * turns it off.
+     * @param {import('../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {import('../../query/parsedArgs').ParsedArgs} parsedArgs
+     * @returns {WriteContext}
+     */
+    createContext ({ requestInfo, parsedArgs }) {
         const {
             /** @type {string} */ base_version,
             /** @type {boolean|null|undefined} */ smartMerge
         } = parsedArgs;
-        const context = new WriteContext({
+        return new WriteContext({
             requestInfo,
             base_version,
             parsedArgs,
             smartMerge: isTrue(smartMerge ?? true),
             operationName: 'merge'
         });
-        /**
-         * @type {Object|Object[]|undefined}
-         */
-        const incomingObjects = parsedArgs.resource ? parsedArgs.resource : requestInfo.body;
+    }
+
+    /**
+     * Reads incoming objects into one `WriteItem` per resource, after unwrapping a Bundle or
+     * Parameters and combining duplicate entries. Each item missing what identifies it fails at the
+     * `STRUCTURE` stage. Returns the items, the request-level errors and whether the objects were a
+     * list.
+     * @param {WriteContext} context
+     * @param {string} resourceType
+     * @param {Object|Object[]|undefined} incomingObjects
+     * @returns {Promise<{items: WriteItem[], requestErrors: MergeResultEntry[], wasIncomingAList: boolean}>}
+     */
+    async readIncomingAsync ({ context, resourceType, incomingObjects }) {
+        const { requestInfo, base_version } = context;
         /**
          * @type {MergeResultEntry[]}
          */
@@ -161,7 +192,7 @@ class MergeResponder extends WriteResponder {
             }
         }
 
-        return { context, items, requestErrors, wasIncomingAList };
+        return { items, requestErrors, wasIncomingAList };
     }
 
     /**
@@ -441,5 +472,6 @@ class MergeResponder extends WriteResponder {
 }
 
 module.exports = {
-    MergeResponder
+    MergeResponder,
+    PLACEHOLDER_STATUSES
 };

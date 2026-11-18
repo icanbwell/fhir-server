@@ -28,6 +28,7 @@ const { CustomTracer } = require('../../utils/customTracer');
 const { WritePipelineSwitch } = require('../writePipeline/writePipelineSwitch');
 const { WritePipeline } = require('../writePipeline/writePipeline');
 const { MergeResponder } = require('../writePipeline/responder/merge');
+const { MergeStream } = require('../writePipeline/responder/mergeStream');
 const { MERGE_WRITE_PROFILE } = require('../writePipeline/profiles/merge');
 
 
@@ -43,6 +44,7 @@ class MergeOperation {
      * @param {WritePipelineSwitch} writePipelineSwitch
      * @param {WritePipeline} writePipeline
      * @param {MergeResponder} mergeResponder
+     * @param {MergeStream} mergeStream
      */
     constructor (
         {
@@ -55,7 +57,8 @@ class MergeOperation {
             customTracer,
             writePipelineSwitch,
             writePipeline,
-            mergeResponder
+            mergeResponder,
+            mergeStream
         }
     ) {
         /**
@@ -116,6 +119,12 @@ class MergeOperation {
          */
         this.mergeResponder = mergeResponder;
         assertTypeEquals(mergeResponder, MergeResponder);
+
+        /**
+         * @type {MergeStream}
+         */
+        this.mergeStream = mergeStream;
+        assertTypeEquals(mergeStream, MergeStream);
     }
 
     /**
@@ -416,6 +425,10 @@ class MergeOperation {
 
     /**
      * does a FHIR Streaming Merge
+     * Each line, batch write and audit goes through the request's stream handler: `MergeStream`'s
+     * when the write pipeline switch is on for `merge`, otherwise the old path's. Each result is
+     * audited once: the results streamed since the last audit are audited after each batch commit
+     * and when the request ends.
      * @param requestInfo
      * @param parsedArgs
      * @param resourceType
@@ -454,14 +467,16 @@ class MergeOperation {
         const currentOperationName = 'merge';
         const startTime = Date.now();
 
-        const base_version = parsedArgs.base_version;
-        const effectiveSmartMerge = isTrue(parsedArgs.smartMerge ?? true);
         const response = res ?? requestInfo.response;
+        const streamHandler = this.writePipelineSwitch?.useNewPathFor('merge')
+            ? this.mergeStream.createStreamHandler({ requestInfo, parsedArgs, resourceType })
+            : this.createStreamHandler({ requestInfo, parsedArgs, resourceType });
 
         // Final merge outcomes (successes, errors, unchanged), streamed out
         const finalMergeResults = [];
         // List of resources we attempted to merge, not yet inserted
         const resourcesToMerge = [];
+        const auditState = { auditedCount: 0 };
 
         // Inbound NDJSON resource count for the bundle-size histogram.
         // Incremented for every record entering the transform, regardless
@@ -490,53 +505,23 @@ class MergeOperation {
             async transform(resource, _, callback) {
                 inboundCount++;
                 try {
-                    const {
-                        /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
-                        /** @type {Resource[]} */ resourcesIncomingArray
-                    } = await self.mergeValidator.validateAsync({
-                        base_version,
-                        incomingObjects:resource,
-                        resourceType,
-                        requestInfo,
-                        effectiveSmartMerge
-                    });
-
-                    mergePreCheckErrors?.forEach(e => {
-                        finalMergeResults.push(e);
-                        this.push(e);
-                    });
-
-                    if (!resourcesIncomingArray) return callback(); // skip if validation failed
-                    // merge resources
-                    /**
-                     * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
-                     */
-                    const mergeResourceResults = await self.mergeManager.mergeResourceListAsync({
-                        resources_incoming: resourcesIncomingArray,
-                        resourceType:resourceType,
-                        base_version:base_version,
-                        requestInfo:requestInfo,
-                        smartMerge: effectiveSmartMerge
-                    });
-
-                    for (const result of mergeResourceResults) {
-                        if (result.mergeError) {
-                            finalMergeResults.push(result.mergeError);
-                            this.push(result.mergeError);
-                            continue;
+                    const waitingResources = await streamHandler.mergeLineAsync({
+                        resource,
+                        push: (result) => {
+                            finalMergeResults.push(result);
+                            this.push(result);
                         }
-                        if (result.resource) {
-                            resourcesToMerge.push(result.resource);
-                        }
+                    });
+                    for (const waitingResource of waitingResources) {
+                        resourcesToMerge.push(waitingResource);
                     }
 
                     if (resourcesToMerge.length  >= BATCH_SIZE) {
                         await self.insertAndLog({
                             finalMergeResults: finalMergeResults,
                             resourcesToMerge: resourcesToMerge,
-                            requestInfo,
-                            base_version,
-                            parsedArgs,
+                            streamHandler,
+                            auditState,
                             stream: this
                         });
                     }
@@ -552,9 +537,8 @@ class MergeOperation {
                         await self.insertAndLog({
                             finalMergeResults: finalMergeResults,
                             resourcesToMerge: resourcesToMerge,
-                            requestInfo,
-                            base_version,
-                            parsedArgs,
+                            streamHandler,
+                            auditState,
                             stream: this
                         });
                     }
@@ -620,6 +604,7 @@ class MergeOperation {
                 action: currentOperationName
             });
         } finally {
+            await self.auditNewResultsAsync({ streamHandler, finalMergeResults, auditState });
             // Single emission point for the streaming merge boundary.
             // finalMergeResults accumulates all pre-check errors, merge
             // errors, bulk-insert outcomes, and unchanged placeholders during
@@ -635,25 +620,20 @@ class MergeOperation {
      * Helper to insert, push results, log audit entries, and update context
      * @param {Array<MergeResultEntry>} finalMergeResults
      * @param {Resource[]} resourcesToMerge - Array of resources for merge
-     * @param {FhirRequestInfo} requestInfo
-     * @param {string} base_version
-     * @param {ParsedArgs} parsedArgs
+     * @param {MergeStreamHandler} streamHandler - writes the batch and audits the results
+     * @param {{auditedCount: number}} auditState - how many results have been audited
      * @param {Writable} stream - the stream to push to (e.g. `this` inside Transform)
      * @returns {Promise<void>}
      */
     async insertAndLog({
                            finalMergeResults,
                            resourcesToMerge,
-                           requestInfo,
-                           base_version,
-                           parsedArgs,
+                           streamHandler,
+                           auditState,
                            stream
                        }) {
 
-        const inserted = await this.databaseBulkInserter.executeAsync({
-            requestInfo,
-            base_version
-        });
+        const inserted = await streamHandler.executeAsync();
 
         const insertedUuids = new Set(inserted.map(r => r._uuid));
 
@@ -683,13 +663,7 @@ class MergeOperation {
 
         resourcesToMerge.length = 0;
 
-        await this.mergeManager.logAuditEntriesForMergeResults({
-            requestInfo:requestInfo,
-            requestId: requestInfo.requestId,
-            base_version: base_version,
-            parsedArgs: parsedArgs,
-            mergeResults:finalMergeResults
-        });
+        await this.auditNewResultsAsync({ streamHandler, finalMergeResults, auditState });
 
         let contextData =  httpContext.get(ACCESS_LOGS_ENTRY_DATA) || {};
         contextData.operationResult = finalMergeResults
@@ -697,7 +671,130 @@ class MergeOperation {
         httpContext.set(ACCESS_LOGS_ENTRY_DATA, contextData);
     }
 
+    /**
+     * Has the stream handler audit the results streamed since the last audit, and marks them as
+     * audited. Does nothing when there are none.
+     * @param {MergeStreamHandler} streamHandler
+     * @param {Array<MergeResultEntry>} finalMergeResults
+     * @param {{auditedCount: number}} auditState
+     * @returns {Promise<void>}
+     */
+    async auditNewResultsAsync({ streamHandler, finalMergeResults, auditState }) {
+        const newResults = finalMergeResults.slice(auditState.auditedCount);
+        auditState.auditedCount = finalMergeResults.length;
+        if (newResults.length > 0) {
+            await streamHandler.auditAsync({ results: newResults });
+        }
+    }
+
+    /**
+     * Creates the old path's handler for one streaming `$merge` request. Each line goes through
+     * `mergeStreamLineAsync`, a batch commit flushes the bulk inserter, and the results it is given
+     * are audited by `MergeManager`.
+     * @param {FhirRequestInfo} requestInfo
+     * @param {ParsedArgs} parsedArgs
+     * @param {string} resourceType
+     * @returns {MergeStreamHandler}
+     */
+    createStreamHandler ({ requestInfo, parsedArgs, resourceType }) {
+        const base_version = parsedArgs.base_version;
+        const effectiveSmartMerge = isTrue(parsedArgs.smartMerge ?? true);
+        return {
+            mergeLineAsync: async ({ resource, push }) => await this.mergeStreamLineAsync({
+                requestInfo,
+                resourceType,
+                base_version,
+                effectiveSmartMerge,
+                resource,
+                push
+            }),
+            executeAsync: async () => await this.databaseBulkInserter.executeAsync({
+                requestInfo,
+                base_version
+            }),
+            auditAsync: async ({ results }) =>
+                await this.mergeManager.logAuditEntriesForMergeResults({
+                    requestInfo,
+                    requestId: requestInfo.requestId,
+                    base_version,
+                    parsedArgs,
+                    mergeResults: results
+                })
+        };
+    }
+
+    /**
+     * Merges one NDJSON line on the old path: validates it, pushes its pre-check errors, merges
+     * its resources and pushes their merge errors. Returns the merged resources, which wait for
+     * the next batch commit.
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @param {boolean} effectiveSmartMerge
+     * @param {Object} resource
+     * @param {function(MergeResultEntry): void} push
+     * @returns {Promise<Resource[]>}
+     */
+    async mergeStreamLineAsync ({
+        requestInfo,
+        resourceType,
+        base_version,
+        effectiveSmartMerge,
+        resource,
+        push
+    }) {
+        const {
+            /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
+            /** @type {Resource[]} */ resourcesIncomingArray
+        } = await this.mergeValidator.validateAsync({
+            base_version,
+            incomingObjects: resource,
+            resourceType,
+            requestInfo,
+            effectiveSmartMerge
+        });
+        for (const mergePreCheckError of mergePreCheckErrors ?? []) {
+            push(mergePreCheckError);
+        }
+        if (!resourcesIncomingArray) {
+            return [];
+        }
+        /**
+         * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
+         */
+        const mergeResourceResults = await this.mergeManager.mergeResourceListAsync({
+            resources_incoming: resourcesIncomingArray,
+            resourceType,
+            base_version,
+            requestInfo,
+            smartMerge: effectiveSmartMerge
+        });
+        const mergedResources = [];
+        for (const result of mergeResourceResults) {
+            if (result.mergeError) {
+                push(result.mergeError);
+                continue;
+            }
+            if (result.resource) {
+                mergedResources.push(result.resource);
+            }
+        }
+        return mergedResources;
+    }
 }
+
+/**
+ * The write path's part of one streaming `$merge` request: how a line is merged, how a batch is
+ * written and what is audited.
+ * @typedef {Object} MergeStreamHandler
+ * @property {function(Object): Promise<Object[]>} mergeLineAsync
+ *     Gets `{ resource, push }`: merges one NDJSON line, pushes its failures with `push` and
+ *     returns the resources that wait for the next batch commit.
+ * @property {function(): Promise<Object[]>} executeAsync
+ *     Writes the waiting resources and returns their results.
+ * @property {function(Object): Promise<void>} auditAsync
+ *     Gets `{ results }`, the results streamed since the last audit, and audits them.
+ */
 
 module.exports = {
     MergeOperation
