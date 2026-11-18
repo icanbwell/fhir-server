@@ -13,7 +13,7 @@ reads, on every read path the user can use.
   the full record. A service reading on a user's behalf can opt in on Person `$everything` with
   `_applyDataViewControl=true`; the Person in the URL is then filtered as the user would be. See
   [patientEverything.md](patientEverything.md#_applydataviewcontrol) and
-  `docs/adr/0004-service-token-opt-in-for-data-view-control-on-person-everything.md`.
+  `docs/adr/0006-service-token-opt-in-for-data-view-control-on-person-everything.md`.
 
 ## Format of the Consent
 

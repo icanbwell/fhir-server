@@ -302,7 +302,7 @@ exceptions, are listed in `readme/patientDataViewControl.md`.
 - *Subject Person:* the user in the token. Service and admin tokens are not filtered, except a service
   token sending `_applyDataViewControl=true` on Person `$everything`, which is filtered by the Person
   in the URL (see
-  `docs/adr/0004-service-token-opt-in-for-data-view-control-on-person-everything.md`).
+  `docs/adr/0006-service-token-opt-in-for-data-view-control-on-person-everything.md`).
 - *Fails closed:* a failed Consent lookup fails the request instead of returning unfiltered data.
 
 Full detail: `readme/patientDataViewControl.md`.
