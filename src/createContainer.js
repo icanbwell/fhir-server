@@ -773,7 +773,7 @@ const createContainer = function () {
         stepVariants: {
             buildDocument: {
                 insert: new BuildDocumentStep({
-                    builder: new InsertBuilder(),
+                    builder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger }),
                     configManager: c.configManager
                 })
             }
