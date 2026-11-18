@@ -747,7 +747,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                base64DataManager: c.base64DataManager
+                base64DataManager: c.base64DataManager,
+                groupMemberMerger: c.groupMemberMerger
             }),
             configManager: c.configManager
         }),
