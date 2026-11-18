@@ -275,7 +275,7 @@ to decide *whether* they can see it.
   team ever renames/recreates it, an env change should fix this side without a code deploy.
 - **New connection**: a dedicated, **read-only**-credentialed Mongo client, registered in
   `createContainer.js` separately from the primary `mongoDatabaseManager`, with its own connection
-  pool and a short timeout (this cluster is a dependency of a dependency — a slow/unavailable
+  pool and short connect/server-selection timeouts (this cluster is a dependency of a dependency — a slow/unavailable
   vector-store cluster must not stall fhir-server's primary request path). Credentials should be
   scoped to read-only on this one collection; fhir-server never writes to this database.
 

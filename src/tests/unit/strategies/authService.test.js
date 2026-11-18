@@ -176,7 +176,7 @@ describe('AuthService', () => {
             expect(AuthService.jwksCache.has('http://example.com/jwks2')).toBe(false);
         });
 
-        test('throws a transient error on fetch error instead of returning empty keys (INC-322)', async () => {
+        test('throws a transient error on fetch error instead of returning empty keys', async () => {
             superagent.timeout.mockRejectedValueOnce(new Error('Network error'));
             // A fetch failure must not be swallowed into {keys: []}: that's
             // indistinguishable downstream from "this endpoint legitimately has no
@@ -258,7 +258,7 @@ describe('AuthService', () => {
             expect(result).toEqual([{ kid: 'key1' }, { kid: 'key1' }]);
         });
 
-        test('propagates a transient error on error during fetch instead of returning empty array (INC-322)', async () => {
+        test('propagates a transient error on error during fetch instead of returning empty array', async () => {
             Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', {
                 get: () => ['http://error.com/jwks'], configurable: true
             });
@@ -282,7 +282,7 @@ describe('AuthService', () => {
             });
         });
 
-        test('partial JWKS provider failure still returns keys from healthy providers (INC-322)', async () => {
+        test('partial JWKS provider failure still returns keys from healthy providers', async () => {
             // Two providers configured; one is down, one is healthy. async.map's
             // fail-fast behavior used to make the whole call reject even though a
             // healthy provider's keys were available -- Promise.allSettled must
@@ -305,7 +305,7 @@ describe('AuthService', () => {
             );
         });
 
-        test('throws a transient error when every configured JWKS provider fails (INC-322)', async () => {
+        test('throws a transient error when every configured JWKS provider fails', async () => {
             Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', {
                 get: () => ['http://down-provider-1.com/jwks', 'http://down-provider-2.com/jwks'],
                 configurable: true
@@ -328,13 +328,13 @@ describe('AuthService', () => {
             ).rejects.toMatchObject({ isTransient: true, statusCode: 503 });
         });
 
-        test('propagates a transient error when every well-known URL fails to resolve JWKS URLs (INC-322)', async () => {
+        test('propagates a transient error when every well-known URL fails to resolve JWKS URLs', async () => {
             // Before this fix, WellKnownConfigurationManager#getJwksUrlsAsync swallowed
             // per-URL failures into [] with no transient/503 marker, so a total
             // well-known outage looked exactly like "no well-known URLs configured" --
             // extJwksUrls.length === 0, and getExternalJwksAsync silently fell through
-            // to its unguarded `return []`, reintroducing the exact bug INC-322 was
-            // about via the well-known fallback path. Now getJwksUrlsAsync rethrows on
+            // to its unguarded `return []`, reintroducing the exact bug the transient-error handling fixed
+            // via the well-known fallback path. Now getJwksUrlsAsync rethrows on
             // total failure, and getExternalJwksAsync must let that propagate rather
             // than swallow it.
             Object.defineProperty(mockConfigManager, 'externalAuthJwksUrls', { get: () => [], configurable: true });
@@ -877,7 +877,7 @@ describe('AuthService', () => {
         test('propagates (does not swallow into done()) when Consent resolution rejects with a transient error', async () => {
             // A transient DB/lookup failure must reject processUserInfo's own promise rather
             // than being treated as "consent not found" -- verify()'s existing .catch() chain
-            // (INC-322 convention) is what turns this into a 503, not a 401 via done(null,
+            // is what turns this into a 503, not a 401 via done(null,
             // false, ...). If this resolved instead of rejecting, that chain would never fire.
             Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
             AuthService.jwksCache = undefined;
@@ -1555,7 +1555,7 @@ describe('AuthService', () => {
             expect(done).toHaveBeenCalled();
         });
 
-        test('passes a transient error to done() when getUserInfoFromUserInfoEndpoint fails (INC-322)', async () => {
+        test('passes a transient error to done() when getUserInfoFromUserInfoEndpoint fails', async () => {
             mockWellKnownConfigManager.getWellKnownConfigurationForIssuerAsync = jest.fn()
                 .mockRejectedValue(new Error('Network failed'));
 

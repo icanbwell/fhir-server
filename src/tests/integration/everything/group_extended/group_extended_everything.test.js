@@ -1,5 +1,5 @@
 /**
- * DCON-5657: extended Groups in Patient/Person $everything.
+ * extended Groups in Patient/Person $everything.
  *
  * An extended Group has no inline member[] (its roster lives in GroupMember_4_0_0). The Group
  * query already finds it (GroupMemberQueryRewriter); processCursorAsync must also accept it as a

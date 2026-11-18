@@ -32,7 +32,7 @@ class MockConfigManager extends ConfigManager {
 // identity is now matched strictly against the Person collection's _uuid field, so the JWT
 // must carry the actual uuid rather than the raw source id.
 const person_payload = {
-    // DCON-4808 gates _debug behind admin scope; these assertions rely on the debug meta tags.
+    // gates _debug behind admin scope; these assertions rely on the debug meta tags.
     scope: 'patient/Observation.read user/*.* access/*.* admin/*.read',
     username: 'patient-123@example.com',
     clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',

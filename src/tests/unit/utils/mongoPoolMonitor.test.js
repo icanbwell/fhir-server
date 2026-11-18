@@ -16,6 +16,11 @@ jest.mock('@opentelemetry/api', () => {
                     counters[name] = counters[name] || { add: jest.fn() };
                     return counters[name];
                 },
+                // UpDownCounters share the counter map: both expose add(), and the names differ.
+                createUpDownCounter: (name) => {
+                    counters[name] = counters[name] || { add: jest.fn() };
+                    return counters[name];
+                },
                 createHistogram: (name) => {
                     histograms[name] = histograms[name] || { record: jest.fn() };
                     return histograms[name];
@@ -34,6 +39,8 @@ const CHECKOUT_DURATION = 'fhir_mongo_pool_checkout_duration_seconds';
 const CHECKOUT_FAILED = 'fhir_mongo_pool_checkout_failed_total';
 const POOL_CLEARED = 'fhir_mongo_pool_cleared_total';
 const CONNECTION_CREATED = 'fhir_mongo_pool_connection_created_total';
+const CONNECTIONS_IN_USE = 'fhir_mongo_pool_connections_in_use';
+const WAIT_QUEUE_SIZE = 'fhir_mongo_pool_wait_queue_size';
 
 describe('registerMongoPoolMonitoring', () => {
     let client;
@@ -103,5 +110,142 @@ describe('registerMongoPoolMonitoring', () => {
         client.emit('connectionCheckedOut', {});
 
         expect(__histograms[CHECKOUT_DURATION].record).not.toHaveBeenCalled();
+    });
+
+    describe('connection occupancy levels', () => {
+        const PRIMARY = 'primary.example:27017';
+        const SECONDARY = 'secondary.example:27017';
+        const started = (address = PRIMARY) => ['connectionCheckOutStarted', { address }];
+        const checkedOut = (connectionId, address = PRIMARY) => ['connectionCheckedOut', { address, connectionId, durationMS: 1 }];
+        const failed = (reason, address = PRIMARY) => ['connectionCheckOutFailed', { address, reason, durationMS: 1 }];
+        const checkedIn = (connectionId, address = PRIMARY) => ['connectionCheckedIn', { address, connectionId }];
+        const closed = (connectionId, address = PRIMARY) => ['connectionClosed', { address, connectionId, reason: 'stale' }];
+        const poolCleared = (address = PRIMARY) => ['connectionPoolCleared', { address }];
+        const poolClosed = (address = PRIMARY) => ['connectionPoolClosed', { address }];
+
+        // The exported value is the running sum of every add() an UpDownCounter received, so
+        // replay records that sum after each event -- the level a dashboard would show.
+        const replay = (events) => {
+            const inUse = [];
+            const waiting = [];
+            let inUseLevel = 0;
+            let waitingLevel = 0;
+            for (const [name, payload] of events) {
+                const inUseBefore = __counters[CONNECTIONS_IN_USE].add.mock.calls.length;
+                const waitingBefore = __counters[WAIT_QUEUE_SIZE].add.mock.calls.length;
+                client.emit(name, payload);
+                for (const [delta] of __counters[CONNECTIONS_IN_USE].add.mock.calls.slice(inUseBefore)) {
+                    inUseLevel += delta;
+                }
+                for (const [delta] of __counters[WAIT_QUEUE_SIZE].add.mock.calls.slice(waitingBefore)) {
+                    waitingLevel += delta;
+                }
+                inUse.push(inUseLevel);
+                waiting.push(waitingLevel);
+            }
+            return { inUse, waiting };
+        };
+
+        test.each([
+            {
+                name: 'checkout then checkin',
+                events: [started(), checkedOut(1), checkedIn(1)],
+                inUse: [0, 1, 0],
+                waiting: [1, 0, 0]
+            },
+            {
+                name: 'queued requests behind an exhausted pool drain as connections come back',
+                events: [started(), checkedOut(1), started(), started(), checkedIn(1), checkedOut(1), checkedIn(1), checkedOut(1), checkedIn(1)],
+                inUse: [0, 1, 1, 1, 0, 1, 0, 1, 0],
+                waiting: [1, 0, 1, 2, 2, 1, 1, 0, 0]
+            },
+            {
+                name: 'failed checkout leaves the wait queue without taking a connection',
+                events: [started(), failed('timeout')],
+                inUse: [0, 0],
+                waiting: [1, 0]
+            },
+            {
+                name: 'pool cleared while connections are checked out: waiters fail, in-use drains on checkin',
+                events: [started(), checkedOut(1), started(), checkedOut(2), started(), poolCleared(), failed('connectionError'), checkedIn(1), closed(1), checkedIn(2), closed(2)],
+                inUse: [0, 1, 1, 2, 2, 2, 2, 1, 1, 0, 0],
+                waiting: [1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0]
+            },
+            {
+                name: 'connection closed without a checkin is no longer counted in use',
+                events: [started(), checkedOut(1), closed(1)],
+                inUse: [0, 1, 0],
+                waiting: [1, 0, 0]
+            },
+            {
+                name: 'pool closed with connections and waiters outstanding drops to zero, late checkin is ignored',
+                events: [started(), checkedOut(1), started(), poolClosed(), checkedIn(1), failed('poolClosed')],
+                inUse: [0, 1, 1, 0, 0, 0],
+                waiting: [1, 0, 1, 0, 0, 0]
+            },
+            {
+                name: 'checkin and failure with nothing outstanding never go below zero',
+                events: [checkedIn(7), failed('timeout'), closed(7), poolClosed()],
+                inUse: [0, 0, 0, 0],
+                waiting: [0, 0, 0, 0]
+            },
+            {
+                name: 'duplicate checkedOut and checkedIn for one connection count once',
+                events: [started(), checkedOut(1), checkedOut(1), checkedIn(1), checkedIn(1)],
+                inUse: [0, 1, 1, 0, 0],
+                waiting: [1, 0, 0, 0, 0]
+            },
+            {
+                name: 'checkedOut with no started (subscribed mid-flight) counts in use without a negative wait queue',
+                events: [checkedOut(3), checkedIn(3)],
+                inUse: [1, 0],
+                waiting: [0, 0]
+            },
+            {
+                name: 'out-of-order checkin before checkout does not cancel the later checkout',
+                events: [checkedIn(4), started(), checkedOut(4)],
+                inUse: [0, 0, 1],
+                waiting: [0, 1, 0]
+            },
+            {
+                name: 'server pools are tracked apart: a stray event on one cannot cancel a checkout on another',
+                events: [started(PRIMARY), checkedOut(1, PRIMARY), checkedIn(1, SECONDARY), started(SECONDARY), checkedOut(1, SECONDARY), poolClosed(SECONDARY)],
+                inUse: [0, 1, 1, 1, 2, 1],
+                waiting: [1, 0, 0, 1, 0, 0]
+            }
+        ])('$name', ({ events, inUse, waiting }) => {
+            const levels = replay(events);
+
+            expect(levels).toEqual({ inUse, waiting });
+        });
+
+        test.each([
+            ['in use', CONNECTIONS_IN_USE, [started(), checkedOut(1), checkedIn(1), checkedIn(1)]],
+            ['wait queue', WAIT_QUEUE_SIZE, [started(), failed('timeout'), failed('timeout')]]
+        ])('labels every %s change by pool and never emits a zero delta', (_level, instrumentName, events) => {
+            for (const event of events) {
+                client.emit(...event);
+            }
+
+            const calls = __counters[instrumentName].add.mock.calls;
+            expect(calls.length).toBeGreaterThan(0);
+            for (const [delta, attributes] of calls) {
+                expect(delta).not.toBe(0);
+                expect(attributes).toEqual({ pool: 'fhir' });
+            }
+        });
+
+        test('clients sharing a pool name sum into one level instead of overwriting each other', () => {
+            const archiveClient = new EventEmitter();
+            registerMongoPoolMonitoring({ client: archiveClient, poolName: 'fhir' });
+
+            client.emit(...started());
+            client.emit(...checkedOut(1));
+            archiveClient.emit(...started());
+            archiveClient.emit(...checkedOut(1));
+
+            const level = __counters[CONNECTIONS_IN_USE].add.mock.calls.reduce((sum, [delta]) => sum + delta, 0);
+            expect(level).toBe(2);
+        });
     });
 });

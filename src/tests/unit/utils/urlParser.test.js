@@ -259,10 +259,10 @@ describe('urlParser', () => {
         });
     });
 
-    // DCON-4807: the IPv4-only private-range check had no IPv6 equivalent, so any IPv6
+    // the IPv4-only private-range check had no IPv6 equivalent, so any IPv6
     // literal (loopback, IPv4-mapped, link-local, unique-local) bypassed SSRF protection
     // entirely. Fixed by rejecting all IPv6 literal addresses outright.
-    describe('validateUrl - IPv6 literals are blocked outright (DCON-4807)', () => {
+    describe('validateUrl - IPv6 literals are blocked outright', () => {
         test('blocks IPv6 loopback ::1', () => {
             expect(() => validateUrl('https://[::1]/admin')).toThrow('IPv6 literal');
         });

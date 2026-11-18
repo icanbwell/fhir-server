@@ -1,5 +1,5 @@
 // ============================================================================
-// SEC-1580 SAE-3 (mongo-only; no ClickHouse) — resolved by product decision.
+//  (mongo-only; no ClickHouse) — resolved by product decision.
 //
 // Finding: an end-user token carries a wildcard access scope (`access/*.*`),
 // so no tenant filter applies to it, and both patient-scope resource search

@@ -1,4 +1,4 @@
-# DCON-5986: Binary as a patient-scoped resource (Task parity) - Design
+# Binary as a patient-scoped resource (Task parity) - Design
 
 Fresh start; supersedes the design and implementation in #2635 and #2643.
 Implementation steps: `docs/plans/dcon-5986-binary-patient-scope-plan.md`.
@@ -23,9 +23,9 @@ machinery then applies unchanged: no bespoke person tag, no unowned/owned read s
 
 - **Write parity with Task.** A patient-scoped token may create, update, patch and delete a Binary
   whose `securityContext` is one of its reachable patients (no create-only guard).
-- **One default-off flag**, `ENABLE_PATIENT_SCOPED_BINARY`, gates the whole behavior (the mapping is
-  active only when on). It is enabled only after the `securityContext` backfill is done, then
-  removed (DCON-6075).
+- **Rollout flag (since removed).** `ENABLE_PATIENT_SCOPED_BINARY` gated the behavior until the
+  `securityContext` backfill was done and the flag was on in every environment. The mapping is now
+  unconditional.
 - **Tenant tags on patient-scoped create match Task as-is** (no extra `meta.security` validation).
 - **`securityContext` format.** The caller supplies either a Patient reachable through the identity
   graph, or its own client person id from the access token (proxy patient
@@ -35,9 +35,9 @@ machinery then applies unchanged: no bespoke person tag, no unowned/owned read s
 ## Behavior
 
 ### Reads
-With the flag on, patient-scoped reads of Binary use the ordinary `getQueryWithPatientFilter`
+Patient-scoped reads of Binary use the ordinary `getQueryWithPatientFilter`
 (`securityContext._uuid` / `_sourceId`). A Binary without a `securityContext` is hidden from
-patient-scoped tokens. Flag off equals `main`. This includes the DocumentReference -> Binary hop in
+patient-scoped tokens. This includes the DocumentReference -> Binary hop in
 `$everything` and GraphQL.
 
 ### Writes
@@ -70,13 +70,14 @@ read under the caller's authorization.
 
 ## Known risks (from reading the code; each needs a test to confirm)
 
-- **Update checks run on the stored resource only.** For an existing resource, PUT (`update.js`),
-  PATCH (`patch.js`) and `$merge` (`writeAllowedByScopesValidator.js`) authorize against the stored
-  document, then re-check only access-tag changes on the result. A member could re-point their own
-  Binary's `securityContext` at another patient. `Task.for` has the same gap today.
+- **Re-pointing `securityContext` on update is rejected.** For a patient-scoped caller, PUT, PATCH
+  and `$merge` compare the incoming patient reference with the stored one
+  (`resourceValidator.js`, "did not match with patient reference") and answer 400 when it differs, so
+  a member cannot move their Binary to another patient. `patientReferenceReassignment.test.js` covers
+  this for Binary, Observation and Task (`Task.for`).
 - **Bytes can be wiped by the owner.** `$merge?smartMerge=false` without `data` deletes the bytes and
   the S3 object; with write parity a member can do this to their own Binary. PUT writes a new S3
-  object each time (`alwaysCreateNew`; the previous one is retained per DCON-6064).
+  object each time (`alwaysCreateNew`; the previous one is retained).
 - **`securityContext._uuid` must be populated.** `getValueOfPropertyFromResource` reads it, so preSave
   must set it for both `Patient/<uuid>` and the proxy `Patient/person.<id>` (non-uuid, matched in the
   non-uuid branch).
@@ -84,6 +85,5 @@ read under the caller's authorization.
 
 ## Rollout
 
-Backfill complete -> enable `ENABLE_PATIENT_SCOPED_BINARY` in dev/staging -> prod -> remove the flag.
-Until the backfill has run, existing Binary without `securityContext` would be invisible to
-patient-scoped tokens, so the flag stays off.
+Done: backfill complete -> flag enabled in dev/staging/sandbox/prod -> flag removed. Binary without
+`securityContext` is invisible to patient-scoped tokens.

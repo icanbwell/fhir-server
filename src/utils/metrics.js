@@ -139,6 +139,18 @@ const IMPORT_TASK_STATUS = Object.freeze({
     FAILED: 'failed'
 });
 
+// What a write did with a Group member entry it did not store as sent.
+const GROUP_MEMBER_MERGE_OUTCOME = Object.freeze({
+    // merged into the first entry of the same member (embedded Group)
+    MERGED_AWAY: 'merged_away',
+    // not merged because its entity.reference is not a relative Type/id reference
+    LEFT_AS_IS: 'left_as_is',
+    // an add equal to the stored member, so nothing was written (extended Group)
+    NO_CHANGE: 'no_change',
+    // sent for a member over the per-member entry limit, so the write was rejected
+    REJECTED: 'rejected'
+});
+
 const UNKNOWN = 'unknown';
 
 const SEVERITY_RANK = { error: 3, warning: 2, information: 1 };
@@ -334,6 +346,10 @@ const kafkaConsumerGroupJoinsCounter = meter.createCounter('fhir_kafka_consumer_
     description: 'Consumer GROUP_JOIN events by group_id. One per consumer start is normal; a steady rate is rebalance or eviction churn (kafkajs rejoins after UNKNOWN_MEMBER_ID without emitting REBALANCING, so this is the only count that sees evictions).'
 });
 
+const groupMemberMergeEntriesCounter = meter.createCounter('fhir_group_member_merge_entries_total', {
+    description: 'Group member entries a write did not store as sent, by outcome: merged_away (merged into the first entry of the same member), left_as_is (not merged, entity.reference is not a relative Type/id reference; counted only when the same write merged other entries), no_change (an extended Group add equal to the stored member, so nothing was written) and rejected (sent for a member over the per-member entry limit, so the write was rejected).'
+});
+
 const mongoPoolCheckoutDurationHistogram = meter.createHistogram('fhir_mongo_pool_checkout_duration_seconds', {
     description: 'Time a request waited to check a connection out of a MongoDB pool, by pool. Recorded for successful and failed checkouts alike. This wait is invisible to the OTel mongodb instrumentation, which spans only the wire command -- a starved pool shows up there as a fast query preceded by nothing.',
     unit: 's',
@@ -355,6 +371,22 @@ const mongoPoolClearedCounter = meter.createCounter('fhir_mongo_pool_cleared_tot
 
 const mongoPoolConnectionCreatedCounter = meter.createCounter('fhir_mongo_pool_connection_created_total', {
     description: 'MongoDB connections created by pool. On a warm pool this should sit near zero; a sustained rate means churn, which puts the SCRAM auth handshake on the request hot path.'
+});
+
+// The two occupancy instruments below are UpDownCounters rather than observable gauges.
+// Two MongoClients can share a pool label (audit and its archive read-only client both use
+// AUDIT_EVENT_MONGO_DB_NAME), and an observable gauge would need a registry to sum them --
+// two callbacks observing the same attributes collapse to last-value-wins. An UpDownCounter
+// sums deltas from every client natively, matches the add() style of every other instrument
+// here, and holds no callbacks to unregister when a client closes. mongoPoolMonitor.js only
+// emits a delta when its per-client state actually changes, which is what keeps the sum
+// from drifting negative.
+const mongoPoolConnectionsInUseUpDownCounter = meter.createUpDownCounter('fhir_mongo_pool_connections_in_use', {
+    description: 'MongoDB connections currently checked out, by pool, summed across the server pools of that client. Read it alongside fhir_mongo_pool_wait_queue_size: sustained queueing means requests are waiting for a connection. Read it per process_pid, because each cluster worker has its own pool. A worker that exits keeps its last value until its series goes stale, so aggregate over a recent window (max by process_pid), not an unbounded sum.'
+});
+
+const mongoPoolWaitQueueSizeUpDownCounter = meter.createUpDownCounter('fhir_mongo_pool_wait_queue_size', {
+    description: 'Requests currently waiting to check a connection out of a MongoDB pool, by pool. Any sustained non-zero value means requests are queued behind fhir_mongo_pool_connections_in_use before their query starts. Derived from checkout started/finished events, so alert on it staying above 0 for a sustained period, not on a single sample.'
 });
 
 /**
@@ -633,6 +665,20 @@ function recordKafkaConsumerGroupJoin (groupId) {
 }
 
 /**
+ * Emit fhir_group_member_merge_entries_total. An outcome outside GROUP_MEMBER_MERGE_OUTCOME
+ * collapses to UNKNOWN so a typo cannot widen label cardinality.
+ * @param {string} outcome - one of GROUP_MEMBER_MERGE_OUTCOME
+ * @param {number} [count]
+ */
+function recordGroupMemberMergeEntries (outcome, count = 1) {
+    if (!(count > 0)) {
+        return;
+    }
+    const isKnown = Object.values(GROUP_MEMBER_MERGE_OUTCOME).includes(outcome);
+    groupMemberMergeEntriesCounter.add(count, { [LABEL.OUTCOME]: isKnown ? outcome : UNKNOWN });
+}
+
+/**
  * Emit fhir_mongo_pool_checkout_duration_seconds. The driver reports the wait in
  * milliseconds; the instrument is in seconds to match the other duration histograms here.
  * @param {string} pool
@@ -677,6 +723,32 @@ function recordMongoPoolConnectionCreated (pool) {
     mongoPoolConnectionCreatedCounter.add(1, { [LABEL.POOL]: pool || UNKNOWN });
 }
 
+/**
+ * Apply a change to fhir_mongo_pool_connections_in_use. The caller owns the occupancy
+ * state and passes only real changes, so a zero or non-finite delta is dropped here.
+ * @param {string} pool
+ * @param {number} delta
+ */
+function recordMongoPoolConnectionsInUseChange (pool, delta) {
+    if (!Number.isFinite(delta) || delta === 0) {
+        return;
+    }
+    mongoPoolConnectionsInUseUpDownCounter.add(delta, { [LABEL.POOL]: pool || UNKNOWN });
+}
+
+/**
+ * Apply a change to fhir_mongo_pool_wait_queue_size. Same contract as
+ * recordMongoPoolConnectionsInUseChange.
+ * @param {string} pool
+ * @param {number} delta
+ */
+function recordMongoPoolWaitQueueSizeChange (pool, delta) {
+    if (!Number.isFinite(delta) || delta === 0) {
+        return;
+    }
+    mongoPoolWaitQueueSizeUpDownCounter.add(delta, { [LABEL.POOL]: pool || UNKNOWN });
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -698,10 +770,13 @@ module.exports = {
     importTasksCounter,
     importTaskDurationHistogram,
     kafkaConsumerGroupJoinsCounter,
+    groupMemberMergeEntriesCounter,
     mongoPoolCheckoutDurationHistogram,
     mongoPoolCheckoutFailedCounter,
     mongoPoolClearedCounter,
     mongoPoolConnectionCreatedCounter,
+    mongoPoolConnectionsInUseUpDownCounter,
+    mongoPoolWaitQueueSizeUpDownCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -720,10 +795,13 @@ module.exports = {
     recordImportRanges,
     recordImportTaskFinished,
     recordKafkaConsumerGroupJoin,
+    recordGroupMemberMergeEntries,
     recordMongoPoolCheckoutDuration,
     recordMongoPoolCheckoutFailed,
     recordMongoPoolCleared,
     recordMongoPoolConnectionCreated,
+    recordMongoPoolConnectionsInUseChange,
+    recordMongoPoolWaitQueueSizeChange,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
@@ -740,5 +818,6 @@ module.exports = {
     POOL_CHECKOUT_FAILURE_REASON,
     IMPORT_RANGE_OUTCOME,
     IMPORT_TASK_STATUS,
+    GROUP_MEMBER_MERGE_OUTCOME,
     UNKNOWN
 };

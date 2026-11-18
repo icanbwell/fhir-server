@@ -287,7 +287,7 @@ describe('McpToolHandler', () => {
         test('surfaces a Mongo query-timeout (MaxTimeMSExpired) as FHIR IssueType "timeout", not generic "internal"', async () => {
             const { handler, searchBundleOperation } = createHandler();
             jestGlobal.spyOn(httpContext, 'get').mockReturnValue({ user: 'test-user' });
-            // Mirrors the real wrapping chain (see DCON-5311): mongoStreamReader.js's
+            // Mirrors the real wrapping chain: mongoStreamReader.js's
             // readCursorAsync wraps the raw Mongo error in a RethrownError, and searchManager.js
             // wraps that again with a query-shaped message. RethrownError.original_error resolves
             // through both layers to the innermost error, which is what isMongoTimeoutError checks.

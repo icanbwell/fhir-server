@@ -324,7 +324,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         const docAfterPatch = await readBinaryFromMongo(container, id);
         expect(liveClient.uploadedData[liveKeyOf(docAfterPatch)]).toBe(ALT_LARGE_DATA);
 
-        // New history rows carry no `response` block (DCON-6272), so no patch diagnostics exist.
+        // New history rows carry no `response` block, so no patch diagnostics exist.
         const historyDocs = await readBinaryHistoryFromMongo(container);
         const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === mongoDocAfterCreate._uuid);
         expect(matchedSnapshots.length).toBeGreaterThan(0);
@@ -363,7 +363,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(docAfterPatch._blobMeta).toBeUndefined();
         expect(Object.keys(liveClient.uploadedData)).toHaveLength(0);
 
-        // New history rows carry no `response` block (DCON-6272), so no patch diagnostics exist.
+        // New history rows carry no `response` block, so no patch diagnostics exist.
         const historyDocs = await readBinaryHistoryFromMongo(container);
         const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === mongoDocAfterCreate._uuid);
         expect(matchedSnapshots.length).toBeGreaterThan(0);
@@ -560,7 +560,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(mongoDocAfterPatch.data).toBeUndefined();
         expect(mongoDocAfterPatch._blobMeta).toBeUndefined();
 
-        // History rows no longer carry patch diagnostics (DCON-6272).
+        // History rows no longer carry patch diagnostics.
         const historyDocs = await readBinaryHistoryFromMongo(container);
         const matchedSnapshots = historyDocs.filter(h => h.resource && h.resource._uuid === mongoDocAfterCreate._uuid);
         expect(matchedSnapshots.length).toBeGreaterThan(0);

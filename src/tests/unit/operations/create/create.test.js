@@ -50,6 +50,7 @@ const { Base64DataManager } = require('../../../../dataLayer/base64DataManager')
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
@@ -81,7 +82,8 @@ describe('CreateOperation', () => {
             configManager: createMockInstance(ConfigManager),
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
-            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider)
+            identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
+            groupMemberMerger: createMockInstance(GroupMemberMerger)
         };
 
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
@@ -107,6 +109,7 @@ describe('CreateOperation', () => {
         mockParsedArgs.base_version = '4_0_0';
         mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({});
 
+        mocks.groupMemberMerger.mergeMembers = jest.fn(({ resource }) => resource);
         createOp = new CreateOperation(mocks);
     });
 

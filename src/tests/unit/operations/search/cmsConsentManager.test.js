@@ -135,7 +135,7 @@ describe('CmsConsentManager', () => {
             expect(lteClause).toBeDefined();
         });
 
-        test('SEC-1586: filters by the caller-authorized owner tags, not just proxy patient/category/status', async () => {
+        test('filters by the caller-authorized owner tags, not just proxy patient/category/status', async () => {
             await cmsConsentManager.getConsentResources(['Patient/person.p1'], ['tenant-a']);
 
             const findCall = mockQueryManager.findAsync.mock.calls[0][0];
@@ -180,7 +180,7 @@ describe('CmsConsentManager', () => {
             expect(result).toEqual(mockConsents);
         });
 
-        test('SEC-1586 regression: omits the owner filter (does not use $in: []) when ownerTags is empty, since an empty array means wildcard/full access here -- same convention searchManager uses for securityTags', async () => {
+        test('omits the owner filter (does not use $in: []) when ownerTags is empty, since an empty array means wildcard/full access here -- same convention searchManager uses for securityTags', async () => {
             await cmsConsentManager.getConsentResources(['Patient/person.p1'], []);
 
             const findCall = mockQueryManager.findAsync.mock.calls[0][0];
@@ -189,7 +189,7 @@ describe('CmsConsentManager', () => {
             );
         });
 
-        test('SEC-1586 regression: omits the owner filter when ownerTags is undefined', async () => {
+        test('omits the owner filter when ownerTags is undefined', async () => {
             await cmsConsentManager.getConsentResources(['Patient/person.p1'], undefined);
 
             const findCall = mockQueryManager.findAsync.mock.calls[0][0];
@@ -223,7 +223,7 @@ describe('CmsConsentManager', () => {
             );
         });
 
-        test('SEC-1586: threads ownerTags through to getConsentResources', async () => {
+        test('threads ownerTags through to getConsentResources', async () => {
             const getConsentSpy = jestObj.spyOn(cmsConsentManager, 'getConsentResources')
                 .mockResolvedValue([]);
 
