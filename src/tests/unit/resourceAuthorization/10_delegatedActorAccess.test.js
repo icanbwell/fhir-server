@@ -17,7 +17,7 @@
  *   6. Content-level filtering - CompositionSectionFilterEnrichmentProvider, composed with the REAL
  *      filterCompositionSensitiveSections util, proving that an `unclassified`-only section IS
  *      stripped here too, mirroring step 5's query-level filter (which always excludes
- *      `unclassified` regardless of the grantor's Consent-derived denylist). See DCON-4892.
+ *      `unclassified` regardless of the grantor's Consent-derived denylist).
  *
  * IMPORTANT: `src/tests/unit/operations/security/delegatedAccessScopeManager.test.js` is excluded
  * from CI (see jest.config.js testPathIgnorePatterns) because it asserts against an inline
@@ -833,7 +833,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             expect(result.section[0].id).toBe('kept-section');
         });
 
-        test('DCON-4892 fix: a section tagged ONLY `unclassified`, with no matching Consent-denied category, IS stripped', async () => {
+        test('fix: a section tagged ONLY `unclassified`, with no matching Consent-denied category, IS stripped', async () => {
             // Mirroring step 5's query-level exclusion (which always ANDs in the hardcoded
             // `unclassified` code regardless of what the Consent denies), this enrichment-time
             // filter now also strips sections tagged with the hardcoded `unclassified` code, even
@@ -874,7 +874,7 @@ describe('Resource Authorization §10 — Delegated actor access', () => {
             expect(result.section[0].id).toBe('kept-section');
         });
 
-        test('DCON-4892 fix: unclassified-only section is stripped even when the Consent denies NOTHING at all', async () => {
+        test('fix: unclassified-only section is stripped even when the Consent denies NOTHING at all', async () => {
             const composition = buildComposition({
                 id: 'comp-3',
                 section: [

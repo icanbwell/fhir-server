@@ -82,7 +82,7 @@ describe('HistoryOperation', () => {
         mockScopesValidator = {
             verifyHasValidScopesAsync: jest.fn().mockResolvedValue(undefined),
             // Default to admin so pre-existing _explain/_debug tests (unrelated to the
-            // DCON-4808 admin-scope gating) keep exercising their original code path.
+            // admin-scope gating) keep exercising their original code path.
             isAdminScope: jest.fn().mockReturnValue(true)
         };
         mockBundleManager = {
@@ -313,7 +313,7 @@ describe('HistoryOperation', () => {
             ).resolves.toBeDefined();
         });
 
-        // DCON-4808: _explain/_debug expose Mongo query plans/collection internals and must
+        // _explain/_debug expose Mongo query plans/collection internals and must
         // be dropped for a non-admin-scoped caller before they reach cursor.explainAsync().
         test('non-admin caller: _explain is cleared, cursor.explainAsync() is not called', async () => {
             mockScopesValidator.isAdminScope.mockReturnValue(false);

@@ -93,6 +93,7 @@ const { QueryRewriterManager } = require('../../../../queryRewriters/queryRewrit
 const { RemoveHelper } = require('../../../../operations/remove/removeHelper');
 const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositories/mongoGroupMemberRepository');
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
@@ -160,7 +161,8 @@ describe('Conditional Update — Cross-Tenant Security', () => {
             groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
             writePipelineSwitch: createMockInstance(WritePipelineSwitch),
             writePipeline: createMockInstance(WritePipeline),
-            updateResponder: createMockInstance(UpdateResponder)
+            updateResponder: createMockInstance(UpdateResponder),
+            groupMemberMerger: createMockInstance(GroupMemberMerger)
         };
 
         // Basic mocks
@@ -178,6 +180,7 @@ describe('Conditional Update — Cross-Tenant Security', () => {
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jestGlobal.fn();
         mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jestGlobal.fn(({ resources }) => Promise.resolve(resources));
         mocks.writePipelineSwitch.useNewPathFor = jestGlobal.fn().mockReturnValue(false);
+        mocks.groupMemberMerger.mergeMembers = jestGlobal.fn(({ resource }) => resource);
         mocks.fastDatabaseBulkInserter.insertOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mocks.fastDatabaseBulkInserter.replaceOneAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mocks.fastDatabaseBulkInserter.executeAsync = jestGlobal.fn().mockResolvedValue([{
@@ -669,7 +672,7 @@ describe('ScopesManager — isAccessToResourceAllowedBySecurityTags patient-scop
      * An earlier version of this describe block asserted that a combined
      * `patient/... access/<tenant>.*` scope should have its access/ code checked against the
      * resource's owner/access tags even when patient scope applies. That premise was tried
-     * once already, for real: commit `8542592a5` (DCON-4806) added exactly this tag-match
+     * once already, for real: commit `8542592a5` added exactly this tag-match
      * requirement to `isAccessToResourceAllowedBySecurityTags`, and it was reverted in
      * `a5ded4a4a` because it broke legitimate patient-scoped writes. It does not hold up: the
      * method's job for a patient-scoped caller is not tenant isolation by tag — it's deferring

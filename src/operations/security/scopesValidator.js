@@ -306,7 +306,7 @@ class ScopesValidator {
 
     /**
      * Throws forbidden error when the caller is not allowed to make this change to the resource's access
-     * tags (SEC-1580 F2/F3): a caller with write access to a resource via one access tag must not be able
+     * tags: a caller with write access to a resource via one access tag must not be able
      * to add or remove a *different* access tag it isn't itself authorized for, since that silently
      * changes who else can see/write the resource without that other tenant's authorization ever being
      * checked.

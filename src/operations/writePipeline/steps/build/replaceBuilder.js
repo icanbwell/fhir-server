@@ -1,5 +1,6 @@
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { ResourceMerger } = require('../../../common/resourceMerger');
+const { GroupMemberMerger } = require('../../../common/groupMemberMerger');
 const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { PostSaveHandlerFactory } = require('../../../../dataLayer/postSaveHandlers/postSaveHandlerFactory');
@@ -25,13 +26,15 @@ class ReplaceBuilder {
      * @param {Base64DataManager} base64DataManager
      * @param {PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {InsertBuilder} insertBuilder
+     * @param {GroupMemberMerger} groupMemberMerger
      */
     constructor ({
         resourceMerger,
         databaseAttachmentManager,
         base64DataManager,
         postSaveHandlerFactory,
-        insertBuilder
+        insertBuilder,
+        groupMemberMerger
     }) {
         /**
          * @type {ResourceMerger}
@@ -58,6 +61,11 @@ class ReplaceBuilder {
          */
         this.insertBuilder = insertBuilder;
         assertTypeEquals(insertBuilder, InsertBuilder);
+        /**
+         * @type {GroupMemberMerger}
+         */
+        this.groupMemberMerger = groupMemberMerger;
+        assertTypeEquals(groupMemberMerger, GroupMemberMerger);
     }
 
     /**
@@ -119,7 +127,8 @@ class ReplaceBuilder {
             databaseAttachmentManager: this.databaseAttachmentManager,
             base64DataManager: this.base64DataManager
         });
-        item.candidate = updatedResource || this.forcedGroupWrite({ incoming, hasMemberField });
+        item.candidate = updatedResource ||
+            this.forcedGroupWrite({ incoming, hasMemberField, requestInfo: context.requestInfo });
         item.writeMode = 'update';
         return null;
     }
@@ -154,14 +163,16 @@ class ReplaceBuilder {
      * Returns the body as the document to write when the merge found no change but the body is a
      * Group with members whose type has post-save handlers, because its members are written outside
      * the document; else null. The merge has already given the body the stored protected fields,
-     * including the stored `versionId`.
+     * including the stored `versionId`. The entries of a member the body lists more than once are
+     * merged, so the write does not bring back an entry the merge removed.
      * @param {Object} incoming
      * @param {boolean} hasMemberField
+     * @param {FhirRequestInfo} requestInfo
      * @returns {Object|null}
      */
-    forcedGroupWrite ({ incoming, hasMemberField }) {
+    forcedGroupWrite ({ incoming, hasMemberField, requestInfo }) {
         if (this.postSaveHandlerFactory.getHandlers(incoming.resourceType).length > 0 && hasMemberField) {
-            return incoming;
+            return this.groupMemberMerger.mergeMembers({ resource: incoming, requestInfo });
         }
         return null;
     }

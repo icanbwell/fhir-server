@@ -1,5 +1,5 @@
 /**
- * DCON-5657: $everything _debug lists the GroupMember_4_0_0 lookup the Group query was built from
+ * $everything _debug lists the GroupMember_4_0_0 lookup the Group query was built from
  * (GroupMemberQueryRewriter), like search does. Compared against expected fixtures, as the other
  * $everything _debug tests are.
  *

@@ -1,5 +1,5 @@
 /**
- * Point-in-time GroupMember roster reconstruction on vread (DCON-5530)
+ * Point-in-time GroupMember roster reconstruction on vread
  *
  * GET /4_0_0/Group/{id}/_history/{vid} on an extended Group streams the roster as it stood at
  * that historical version, reconstructed from GroupMember_4_0_0_History -- not the live

@@ -25,6 +25,7 @@ const { ValidateIncomingStep } = require('../../../../operations/writePipeline/s
 const { FindExistingStep } = require('../../../../operations/writePipeline/steps/findExistingStep');
 const { ValidateNewResourceStep } = require('../../../../operations/writePipeline/steps/validateNewResourceStep');
 const { AccessCheckStep } = require('../../../../operations/writePipeline/steps/accessCheckStep');
+const { ValidateAgainstStoredStep } = require('../../../../operations/writePipeline/steps/validateAgainstStoredStep');
 const { BuildDocumentStep } = require('../../../../operations/writePipeline/steps/buildDocumentStep');
 const { ValidateResultStep } = require('../../../../operations/writePipeline/steps/validateResultStep');
 const { AttachmentsStep } = require('../../../../operations/writePipeline/steps/attachmentsStep');
@@ -47,6 +48,7 @@ const STEP_DEFINITIONS = Object.freeze([
     { name: 'findExisting', key: 'findExistingStep', type: FindExistingStep },
     { name: 'validateNewResource', key: 'validateNewResourceStep', type: ValidateNewResourceStep },
     { name: 'accessBeforeBuild', key: 'accessCheckStep', type: AccessCheckStep },
+    { name: 'validateAgainstStored', key: 'validateAgainstStoredStep', type: ValidateAgainstStoredStep },
     { name: 'buildDocument', key: 'buildDocumentStep', type: BuildDocumentStep },
     { name: 'validateResult', key: 'validateResultStep', type: ValidateResultStep },
     { name: 'attachments', key: 'attachmentsStep', type: AttachmentsStep },
@@ -253,10 +255,11 @@ describe('WritePipeline', () => {
     });
 
     test.each([
-        { name: 'a fake profile', profile: FAKE_PROFILE },
-        { name: 'the merge profile', profile: MERGE_WRITE_PROFILE }
-    ])('processAsync runs the twelve steps in WRITE_STEP_NAMES order for $name', async ({
-        profile
+        { name: 'a fake profile', profile: FAKE_PROFILE, stepsOff: [] },
+        { name: 'the merge profile', profile: MERGE_WRITE_PROFILE, stepsOff: ['validateAgainstStored'] }
+    ])('processAsync runs the thirteen steps in WRITE_STEP_NAMES order, less the steps off, for $name', async ({
+        profile,
+        stepsOff
     }) => {
         const { pipeline, calls } = buildPipeline();
 
@@ -270,6 +273,7 @@ describe('WritePipeline', () => {
             'findExisting',
             'validateNewResource',
             'accessBeforeBuild',
+            'validateAgainstStored',
             'buildDocument',
             'validateResult',
             'attachments',
@@ -277,7 +281,7 @@ describe('WritePipeline', () => {
             'write'
         ]);
         expect(Object.isFrozen(WRITE_STEP_NAMES)).toBe(true);
-        expect(calls).toStrictEqual(WRITE_STEP_NAMES);
+        expect(calls).toStrictEqual(WRITE_STEP_NAMES.filter((name) => !stepsOff.includes(name)));
     });
 
     test('passes the items, the context and the profile to every step', async () => {

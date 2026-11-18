@@ -1,5 +1,5 @@
 /**
- * Unit tests for EA-2308: verify that everythingBundleAsync emits masterPersonId
+ * Unit tests for verify that everythingBundleAsync emits masterPersonId
  * as an OTel span attribute and structured log field.
  */
 

@@ -6,14 +6,14 @@ Proposed (replaces a previous draft of this ADR that prescribed strict DI for th
 
 **Scope notes:**
 - This ADR establishes the pattern for application-domain custom metrics in fhir-server. It does not change auto-instrumentation, tracing, or the existing OpenTelemetry SDK setup in `src/otel_instrumentation.js`.
-- The first set of instruments is the EA-2240 group: merge outcome, validation failure, bundle size, empty `$everything`, and Kafka retry exhaustion. Future custom metrics in this repo follow the pattern documented here.
+- The first set of instruments is the group: merge outcome, validation failure, bundle size, empty `$everything`, and Kafka retry exhaustion. Future custom metrics in this repo follow the pattern documented here.
 - A previous draft of this ADR prescribed strict DI of a typed `CustomMetrics` class injected into every consumer. That implementation produced three rounds of review-caught bugs of two shapes: (1) constructor-cascade test breakage every time a new consumer required `customMetrics`, and (2) edge-path bugs scattered across the 13 emission sites where every consumer shared responsibility for partitioning correctly. This ADR documents why we are not doing that, and what we are doing instead.
 
 ## Context
 
 Per AGENTS.md "Observability Is a Deliverable," services need meaningful application-domain metrics. The OpenTelemetry SDK is already wired (`src/otel_instrumentation.js`), with a metric exporter and reader configured. What's missing is custom application-domain instruments and the pattern for adding them.
 
-EA-2240 introduces five instruments to surface failure modes on the FHIR server's write and read paths. The shape of this work establishes a pattern that will repeat as custom metrics are added across the codebase.
+introduces five instruments to surface failure modes on the FHIR server's write and read paths. The shape of this work establishes a pattern that will repeat as custom metrics are added across the codebase.
 
 ### What didn't work: strict DI of a `CustomMetrics` class
 
@@ -250,14 +250,14 @@ What this ADR documents. Ambient `metrics.js` module with named recording functi
 
 - AGENTS.md (icanbwell/.github): https://github.com/icanbwell/.github/blob/main/AGENTS.md (specifically "Observability Is a Deliverable" and the no-global-state rule)
 - OpenTelemetry JS Metrics API: https://opentelemetry.io/docs/languages/js/instrumentation/#metrics
-- EA-2240 (Jira): the first instruments built under this pattern
-- EA-2226 (Jira): the dashboard ticket that consumes the resulting metrics
+- (Jira): the first instruments built under this pattern
+- (Jira): the dashboard ticket that consumes the resulting metrics
 - Three review rounds on the prior design (constructor cascade and emission scatter): the empirical evidence for this redesign
 
 ## Related Decisions
 
 - Future custom-metrics work in this repo follows this pattern.
-- Cross-service trace correlation (EA-2263) and per-client header propagation (EA-2262) are platform-tier concerns, not application-tier custom metrics. They follow different patterns documented separately.
+- Cross-service trace correlation and per-client header propagation are platform-tier concerns, not application-tier custom metrics. They follow different patterns documented separately.
 
 ---
 

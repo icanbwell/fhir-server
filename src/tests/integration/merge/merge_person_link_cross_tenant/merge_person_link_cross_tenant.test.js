@@ -1,4 +1,4 @@
-// DCON-4844/W3: resourceValidator.validatePatientReference skipped patient-reference validation
+// resourceValidator.validatePatientReference skipped patient-reference validation
 // entirely for non-user (access-scoped) callers on array reference fields, including
 // Person.link.target.reference. That's intentional for most such fields (ingestion pipelines need
 // to freely maintain them), but for Person.link specifically it meant an access-scoped caller could
@@ -29,7 +29,7 @@ function personOwnedBy (id, ownerCode, linkTargetReference) {
     };
 }
 
-describe('DCON-4844 - $merge cannot link a Person into another tenant\'s identity graph', () => {
+describe('- $merge cannot link a Person into another tenant\'s identity graph', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -103,7 +103,7 @@ describe('DCON-4844 - $merge cannot link a Person into another tenant\'s identit
             .set(getHeaders())
             .expect(200);
         // The bare-id reference is corrected to carry the resolved match's real
-        // sourceAssigningAuthority (DCON-4844 step 5), even though both Persons are in
+        // sourceAssigningAuthority, even though both Persons are in
         // the same tenant here and the correction doesn't change which resource the
         // reference resolves to -- id|sourceAssigningAuthority is this codebase's
         // standard reference format, not a malformed value.
@@ -141,7 +141,7 @@ describe('DCON-4844 - $merge cannot link a Person into another tenant\'s identit
     });
 
     test('rejects an access-scoped caller linking to a Person.link target that does not exist at all', async () => {
-        // DCON-4844 redesign (per reviewer request on PR #2436): a not-found target used to be
+        // redesign (per reviewer request on PR #2436): a not-found target used to be
         // silently left to other validation (and would have succeeded, per the prior "allows
         // linking to a target that cannot be found" test). Unverified references are now rejected
         // outright -- letting one through unverified is exactly how an unauthorized link could be

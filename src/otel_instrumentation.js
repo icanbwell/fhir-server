@@ -112,7 +112,7 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
         metricReader: new PeriodicExportingMetricReader({
             exporter: new OTLPMetricExporter()
         }),
-        // Explicitly configure W3C TraceContext as the sole propagator (EA-2307).
+        // Explicitly configure W3C TraceContext as the sole propagator.
         // B3 is not used; this removes any implicit B3 emission and ensures
         // Java services (which default to W3C) and this Node service are consistent.
         textMapPropagator: new CompositePropagator({
@@ -131,7 +131,7 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
             new MongoDBInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-mongodb']),
             new RedisInstrumentation(),
             new RuntimeNodeInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-runtime-node']),
-            // Kafka producer/consumer spans and W3C traceparent propagation across the Kafka hop (EA-2263).
+            // Kafka producer/consumer spans and W3C traceparent propagation across the Kafka hop.
             // The auto-instrumentation path already includes kafkajs via getNodeAutoInstrumentations;
             // this adds it to the manual SDK path so trace context propagates in both paths.
             new KafkaJsInstrumentation(),

@@ -761,7 +761,8 @@ class FastDatabaseBulkInserter {
                                         requestInfo,
                                         mapEntry: x,
                                         base_version,
-                                        useHistoryCollection: true
+                                        useHistoryCollection: true,
+                                        retryOnPoolWaitTimeout: true
                                     })
                             );
                             historyOperationsByResourceTypeMap.clear();
@@ -805,6 +806,7 @@ class FastDatabaseBulkInserter {
      * @param {boolean|null} useHistoryCollection
      * @param {boolean} maintainOrder
      * @param {boolean} isAccessLogOperation
+     * @param {boolean} [retryOnPoolWaitTimeout] retry a bulk write that hit a pool checkout timeout (post-request writes only)
      * @returns {Promise<BulkWriteExecutionResult>}
      */
     async performBulkForResourceTypeWithMapEntryAsync({
@@ -813,7 +815,8 @@ class FastDatabaseBulkInserter {
         mapEntry,
         useHistoryCollection,
         maintainOrder = true,
-        isAccessLogOperation = false
+        isAccessLogOperation = false,
+        retryOnPoolWaitTimeout = false
     }) {
         try {
             const [/** @type {string} */ resourceType, /** @type {BulkInsertUpdateEntry[]} */ operations] = mapEntry;
@@ -825,7 +828,8 @@ class FastDatabaseBulkInserter {
                 useHistoryCollection,
                 operations,
                 maintainOrder,
-                isAccessLogOperation
+                isAccessLogOperation,
+                retryOnPoolWaitTimeout
             });
         } catch (e) {
             throw new RethrownError({
@@ -844,6 +848,7 @@ class FastDatabaseBulkInserter {
      * @param {BulkInsertUpdateEntry[]} operations
      * @param {boolean} maintainOrder
      * @param {boolean} isAccessLogOperation
+     * @param {boolean} [retryOnPoolWaitTimeout] retry a bulk write that hit a pool checkout timeout (post-request writes only)
      * @returns {Promise<BulkWriteExecutionResult>}
      */
     async performBulkForResourceTypeAsync ({
@@ -853,7 +858,8 @@ class FastDatabaseBulkInserter {
         operations,
         requestInfo,
         maintainOrder = true,
-        isAccessLogOperation = false
+        isAccessLogOperation = false,
+        retryOnPoolWaitTimeout = false
     }) {
         const executor = this.bulkWriteExecutors.find(e => e.canHandle(resourceType));
         if (!executor) {
@@ -879,7 +885,7 @@ class FastDatabaseBulkInserter {
         }
         const result = await executor.executeBulkAsync({
             resourceType, operations: operationsToWrite, requestInfo, base_version,
-            useHistoryCollection, maintainOrder, isAccessLogOperation,
+            useHistoryCollection, maintainOrder, isAccessLogOperation, retryOnPoolWaitTimeout,
             insertOneHistoryFn: this.insertOneHistoryAsync.bind(this)
         });
         // Parallel history produce: only after a successful history write (a size-rejected write returns

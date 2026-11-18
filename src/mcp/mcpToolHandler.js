@@ -255,7 +255,7 @@ class McpToolHandler {
             // return -- so it gets its own FHIR IssueType('timeout') instead of being bucketed into
             // the generic 'internal' code. Without this, a caller (or an on-call engineer staring
             // at "Internal Server Error") has no way to tell a timeout apart from an actual server
-            // fault short of trawling server-side logs (see DCON-5311).
+            // fault short of trawling server-side logs.
             if (isMongoTimeoutError(err)) {
                 const operationOutcome = buildOperationOutcome({
                     severity: 'error',

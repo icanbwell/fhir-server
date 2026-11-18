@@ -422,7 +422,7 @@ describe('DataSharingManager', () => {
             expect(actor.consentPolicy).toBe('Consent/consent-uuid-1?version=3');
         });
 
-        it('SEC-1586: threads securityTags through to cmsConsentManager.getPatientIdsWithConsent', async () => {
+        it('threads securityTags through to cmsConsentManager.getPatientIdsWithConsent', async () => {
             mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync = jest.fn().mockResolvedValue({
                 patientReferenceToPersonUuid: { 'patient-1': ['person-1'] }
             });

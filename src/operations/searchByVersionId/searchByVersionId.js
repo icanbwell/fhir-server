@@ -236,7 +236,7 @@ class SearchByVersionIdOperation {
             throw error;
         }
 
-        // SEC-1580 SAE-1: see ScopesManager.hasHistoryAccess for why a tenant-scoped access
+        // see ScopesManager.hasHistoryAccess for why a tenant-scoped access
         // code is never sufficient to read a specific historical version.
         if (!this.scopesManager.hasHistoryAccess({ resourceType, scope, accessRequested: 'r' })) {
             const forbiddenError = new ForbiddenError(

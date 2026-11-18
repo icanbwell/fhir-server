@@ -57,7 +57,7 @@ const {
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
 
-// admin/*.read is required for the _debug=1 request below (DCON-4808 gates _explain/_debug/
+// admin/*.read is required for the _debug=1 request below (gates _explain/_debug/
 // _setIndexHint behind admin scope) -- these tests use it purely to get the query-echo written
 // into meta.tag for the toHaveResponse assertion, not to test the gate itself. Matches the same
 // fix already applied to client1Headers by commit 12e1ff744.
@@ -103,7 +103,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([expectedClintObservationCopy]);
         });
         // Plain (non-$everything) search intentionally stopped including PROA-consented data as
-        // of DCON-2773 (#2048, Feb 2026) — allowConsentedProaDataAccess now defaults to false and
+        // of (#2048, Feb 2026) — allowConsentedProaDataAccess now defaults to false and
         // is only passed true from everythingHelper.js. See PR #2424 for the full root-cause.
         test('Consent has provided to Client', async () => {
             const request = await createTestRequest((c) => {
@@ -184,7 +184,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([expectedClintObservationCopy]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424): the proa patient is no longer
+        // Same behavior change as above (see PR #2424): the proa patient is no longer
         // resolvable via plain search regardless of consent.
         test('Check Consented data fetching using patient ID', async () => {
             const request = await createTestRequest((c) => {
@@ -215,7 +215,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([expectedClintObservation]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424): neither proa patient is
+        // Same behavior change as above (see PR #2424): neither proa patient is
         // resolvable via plain search regardless of consent state.
         test('Check Consented data fetching for two different patient and both have consented', async () => {
             const request = await createTestRequest((c) => {
@@ -242,7 +242,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424).
+        // Same behavior change as above (see PR #2424).
         test('Check Consented data fetching for two different patient but only has consented', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -268,7 +268,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([]);
         });
 
-        // SEC-1580: the master person carries only the bwell access tag, so it's no longer a
+        // the master person carries only the bwell access tag, so it's no longer a
         // usable proxy-patient entry point for a client- or client-1-scoped caller -- neither
         // tenant can resolve anything through this shared hub anymore, consent notwithstanding.
         // (Renamed from "...it should return all consented data when searching with proxy-patient
@@ -306,7 +306,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([]);
         });
 
-        // SEC-1580: same reasoning as the test above -- master person id is no longer a valid
+        // same reasoning as the test above -- master person id is no longer a valid
         // proxy-patient entry point for either tenant, regardless of which one has consent.
         // (Renamed from "...it should return only consented data when searching with proxy-patient
         // with master person id".)
@@ -343,7 +343,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424).
+        // Same behavior change as above (see PR #2424).
         test('Should not be able to access resource if proxy-patient references is not present', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -371,7 +371,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([]);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424).
+        // Same behavior change as above (see PR #2424).
         test('Should be able to access observation of xyz and highmark if client-1 has consent', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -453,7 +453,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse(expectedPatientWithConsentForClient1Json);
         });
 
-        // Same DCON-2773 behavior change as above (see PR #2424): the Patient search itself is
+        // Same behavior change as above (see PR #2424): the Patient search itself is
         // gated by the same consent-driven query branch, so only client-1's own patient (not
         // xyz/highmark) is resolvable via the proxy-person search now.
         test('Should be able to access observation based on patient searched using proxy-person', async () => {

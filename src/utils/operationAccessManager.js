@@ -29,7 +29,7 @@ class OperationAccessManager {
     }
 
     /**
-     * DCON-4846: same allowlist check as verifyAccess, for GraphQL read (query) call sites.
+     * same allowlist check as verifyAccess, for GraphQL read (query) call sites.
      * GraphQL has no GET/POST read/write split -- every request, including a pure query, is
      * transported over HTTP POST. CMSManager.verifyAccess gates on requestInfo.method against an
      * allowlist of HTTP verbs (currently just 'get'), which is meaningful for REST but would reject

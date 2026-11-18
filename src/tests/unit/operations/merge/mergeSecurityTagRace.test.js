@@ -1,5 +1,5 @@
 /**
- * Unit tests for INC-316/317: Race condition in Fast $merge causes exponential
+ * Unit tests for the race condition in Fast $merge causes exponential
  * duplication of meta.security tags on concurrent writes to the same resource.
  *
  * Root cause: concurrent $merge operations read-then-write security tags without
@@ -31,7 +31,7 @@ jest.mock('deepcopy', () => jest.fn().mockImplementation(x => JSON.parse(JSON.st
 
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 
-describe('INC-316/317: meta.security tag duplication on concurrent $merge', () => {
+describe('meta.security tag duplication on concurrent $merge', () => {
     let mergeManager;
     let mockDatabaseBulkInserter;
     let mockResourceMerger;
@@ -120,6 +120,7 @@ describe('INC-316/317: meta.security tag duplication on concurrent $merge', () =
         mergeManager.resourceValidator = mockResourceValidator;
         mergeManager.auditLogger = { logAuditEntryAsync: jest.fn() };
         mergeManager.postRequestProcessor = { add: jest.fn() };
+        mergeManager.groupMemberMerger = { mergeMembers: jest.fn(({ resource }) => resource) };
         mergeManager.databaseQueryFactory = {
             createQuery: jest.fn().mockReturnValue({
                 fastFindOneAsync: jest.fn().mockResolvedValue(null)

@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * SEC-1580 BB.3 #11 - AccessColumnHandler never cleared the denormalized `_access` field when
+ * BB.3 #11 - AccessColumnHandler never cleared the denormalized `_access` field when
  * access tags were removed from meta.security.
  *
  * `_access` is not a cache - it is a query surface. `securityTagManager.getQueryWithSecurityTags()`
@@ -23,7 +23,7 @@ const { describe, test, expect, beforeEach } = require('@jest/globals');
 const { AccessColumnHandler } = require('../../../preSaveHandlers/handlers/accessColumnHandler');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 
-describe('AccessColumnHandler - _access stays synchronized with meta.security (SEC-1580 BB.3 #11)', () => {
+describe('AccessColumnHandler - _access stays synchronized with meta.security (BB.3 #11)', () => {
     let handler;
 
     beforeEach(() => {

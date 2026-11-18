@@ -52,6 +52,7 @@ const { WritePipelineSwitch } = require('../../../../operations/writePipeline/wr
 const { WritePipeline } = require('../../../../operations/writePipeline/writePipeline');
 const { UpdateResponder } = require('../../../../operations/writePipeline/operations/update/responder');
 const { UPDATE_WRITE_PROFILE } = require('../../../../operations/writePipeline/operations/update/profile');
+const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
@@ -86,7 +87,8 @@ describe('UpdateOperation', () => {
             groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
             writePipelineSwitch: createMockInstance(WritePipelineSwitch),
             writePipeline: createMockInstance(WritePipeline),
-            updateResponder: createMockInstance(UpdateResponder)
+            updateResponder: createMockInstance(UpdateResponder),
+            groupMemberMerger: createMockInstance(GroupMemberMerger)
         };
 
         // Setup mocks
@@ -121,6 +123,7 @@ describe('UpdateOperation', () => {
         mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jest.fn(({ resources }) => Promise.resolve(resources));
         mocks.writePipelineSwitch.useNewPathFor = jest.fn().mockReturnValue(false);
         mocks.writePipeline.runAsync = jest.fn();
+        mocks.groupMemberMerger.mergeMembers = jest.fn(({ resource }) => resource);
 
         Object.defineProperty(mocks.configManager, 'useAccessIndex', { get: () => false });
         Object.defineProperty(mocks.configManager, 'preSaveCodingIdUpdateResources', { get: () => [] });

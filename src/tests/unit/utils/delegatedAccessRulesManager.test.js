@@ -708,7 +708,7 @@ describe('DelegatedAccessRulesManager', () => {
 
         it('should reject as a transient error (isTransient/503), not resolve to null, when the Consent lookup errors', async () => {
             // A DB/lookup error is not proof the Consent doesn't exist -- it must surface as a
-            // retryable error (INC-322 convention), not the permanent 401 a genuine "not found"
+            // retryable error, not the permanent 401 a genuine "not found"
             // produces. See authService.verify()'s existing .catch() handling for this class of
             // error (mirrors getUserInfoFromUserInfoEndpoint/JWKS failures).
             ReferenceParser.parseReference.mockReturnValue({

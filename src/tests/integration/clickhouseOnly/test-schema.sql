@@ -1,5 +1,5 @@
 -- Test-only ClickHouse table for ScaffoldingTestResource
--- Used by EA-2193 integration tests. NOT a real FHIR resource.
+-- Used by integration tests. NOT a real FHIR resource.
 -- Exercises all column types the generic infrastructure supports.
 
 CREATE DATABASE IF NOT EXISTS fhir;

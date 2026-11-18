@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * DCON-5657: processCursorAsync resolves an extended Group's parent match from its
+ * processCursorAsync resolves an extended Group's parent match from its
  * GroupMember_4_0_0 roster (it has no inline member[]), only when ENABLE_EXTENDED_GROUP is on.
  */
 

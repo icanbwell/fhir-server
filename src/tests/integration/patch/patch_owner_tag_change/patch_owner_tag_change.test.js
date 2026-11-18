@@ -1,4 +1,4 @@
-// DCON-4841: resourceMerger.overWriteNonWritableFields is what reverts any PATCH attempt to change
+// resourceMerger.overWriteNonWritableFields is what reverts any PATCH attempt to change
 // a resource's owner/sourceAssigningAuthority tags or meta.source/versionId/lastUpdated -- but
 // patch.js only called it when meta.source was present on either the stored or the incoming
 // resource. A deployment with REQUIRE_META_SOURCE_TAGS=false can have resources with no meta.source
@@ -33,14 +33,14 @@ const hijackOwnerTagAndSourcePatch = [
 ];
 
 // Unlike hijackOwnerTagAndSourcePatch, this never touches meta.source, so it's the patch that
-// actually discriminates the DCON-4841 fix: under the old guard
+// actually discriminates the fix: under the old guard
 // (foundResource.meta.source || resource?.meta?.source), a source-less resource with no
 // meta.source op in the patch would leave both operands falsy and skip the revert entirely.
 const hijackOwnerTagOnlyPatch = [
     { op: 'replace', path: '/meta/security/0/code', value: 'attacker_tenant' }
 ];
 
-describe('DCON-4841 - patch cannot reassign owner tag or forge meta.source on a source-less resource', () => {
+describe('- patch cannot reassign owner tag or forge meta.source on a source-less resource', () => {
     let originalRequireMetaSourceTags;
 
     beforeEach(async () => {

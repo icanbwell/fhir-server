@@ -15,6 +15,8 @@ const patientUpdateOtherAccessResource = require('./fixtures/patientUpdateOtherA
 const patientDuplicateOtherAccessOnlyResource = require('./fixtures/patientDuplicateOtherAccessOnly.json');
 const patientDuplicateAddsOtherAccessResource = require('./fixtures/patientDuplicateAddsOtherAccess.json');
 const patientByUuidResource = require('./fixtures/patientByUuid.json');
+const patientUuidIdOtherTenantResource = require('./fixtures/patientUuidIdOtherTenant.json');
+const patientUuidIdTakeoverResource = require('./fixtures/patientUuidIdTakeover.json');
 const patientUpdatePartAByUuidResource = require('./fixtures/patientUpdatePartAByUuid.json');
 const patientNewResource = require('./fixtures/patientNew.json');
 const patientNewByUuidResource = require('./fixtures/patientNewByUuid.json');
@@ -35,6 +37,8 @@ const expectedStoredUpdated = require('./fixtures/expected/storedUpdated.json');
 const expectedMixedFailures = require('./fixtures/expected/mixedFailures.json');
 const expectedAccessForbidden = require('./fixtures/expected/accessForbidden.json');
 const expectedNotStoredAccessForbidden = require('./fixtures/expected/notStoredAccessForbidden.json');
+const expectedUuidIdOtherTenantForbidden = require('./fixtures/expected/uuidIdOtherTenantForbidden.json');
+const expectedStoredUuidIdOtherTenant = require('./fixtures/expected/storedUuidIdOtherTenant.json');
 const expectedReadOnlyScopes = require('./fixtures/expected/readOnlyScopes.json');
 const expectedNotStoredReadOnlyScopes = require('./fixtures/expected/notStoredReadOnlyScopes.json');
 const expectedSchemaError = require('./fixtures/expected/schemaError.json');
@@ -204,6 +208,18 @@ describe('$merge parity between the old and the new write path', () => {
                 id: 'parity-other',
                 headers: getHeaders('user/*.* access/other.*'),
                 expected: expectedNotStoredAccessForbidden
+            }
+        },
+        {
+            name: 'rejects a UUID id that belongs to another tenant and leaves that resource unchanged',
+            previous: [patientUuidIdOtherTenantResource],
+            body: patientUuidIdTakeoverResource,
+            headers: getHeaders('user/*.* access/client.*'),
+            status: 200,
+            expected: expectedUuidIdOtherTenantForbidden,
+            stored: {
+                id: patientUuidIdOtherTenantResource.id,
+                expected: expectedStoredUuidIdOtherTenant
             }
         },
         {

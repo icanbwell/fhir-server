@@ -53,6 +53,7 @@ const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSe
 const { WritePipelineSwitch } = require('../../../../operations/writePipeline/writePipelineSwitch');
 const { WritePipeline } = require('../../../../operations/writePipeline/writePipeline');
 const { CreateResponder } = require('../../../../operations/writePipeline/operations/create/responder');
+const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
@@ -87,7 +88,8 @@ describe('CreateOperation', () => {
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
             writePipelineSwitch: createMockInstance(WritePipelineSwitch),
             writePipeline: createMockInstance(WritePipeline),
-            createResponder: createMockInstance(CreateResponder)
+            createResponder: createMockInstance(CreateResponder),
+            groupMemberMerger: createMockInstance(GroupMemberMerger)
         };
 
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
@@ -114,6 +116,7 @@ describe('CreateOperation', () => {
         mockParsedArgs.base_version = '4_0_0';
         mockParsedArgs.getRawArgs = jest.fn().mockReturnValue({});
 
+        mocks.groupMemberMerger.mergeMembers = jest.fn(({ resource }) => resource);
         createOp = new CreateOperation(mocks);
     });
 

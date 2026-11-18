@@ -1,4 +1,4 @@
-// SEC-1580 F2: update (PUT) validated write access using only the resource as currently stored,
+// update (PUT) validated write access using only the resource as currently stored,
 // then merged in the incoming body (smartMerge: false) with no second access check - letting a
 // caller with legitimate write access to their own tenant's resource silently add (or remove) an
 // access tag for a tenant it has no authorization for.
@@ -27,7 +27,7 @@ function patientWithAccessCodes (accessCodes) {
     };
 }
 
-describe('SEC-1580 F2 - update cannot re-tag a resource to a tenant the caller has no access to', () => {
+describe('update cannot re-tag a resource to a tenant the caller has no access to', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });

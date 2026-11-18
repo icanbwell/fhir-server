@@ -165,6 +165,8 @@ Every operation runs these steps in this order:
 6. **Validate new resource**: the meta check for an item with no stored doc
 7. **Access before build** (stored doc, and for PUT, POST, merge and import also the incoming
    body: its access and its access-tag change)
+7a. **Validate against stored** (PUT only, and temporary): `validateResourceAsync` on the body
+   with the stored doc, before the build. Every other operation turns it off
 8. **Build new doc**
 9. **Validate result**: checks on the built doc, including `validateResourceAsync` (the Group
    member limit, the schema of the write-serialized doc, and Person.link)
@@ -184,7 +186,11 @@ Every operation runs these steps in this order:
 - **"Validate incoming" means checks on the body alone.** Checks that compare the body with the
   stored doc belong to "validate result", after the access check, so nothing about a stored doc
   reaches a caller who can't access it. Examples: the patient-reference check, and the Person.link
-  check against the stored links.
+  check against the stored links. PUT runs them in the "validate against stored" step (7a), after
+  the access check and before the build, because the build's merge soft-deletes the stored GridFS
+  attachments the body drops or changes, and a body that fails them must leave those attachments
+  active. Once GridFS attachments are removed, that step and the `off` entries that skip it can be
+  deleted, and "validate result" validates an update's built doc in full again.
 - **"Read items" and the scope check come before the `_uuid` is derived.** `$merge` results include
   `uuid` and `sourceAssigningAuthority`. Today a scope-forbidden entry has neither, because the scope
   check runs before identification. Deriving `_uuid` first would add them to every forbidden entry,
@@ -330,8 +336,9 @@ the code disagree, the code wins.
 | Find existing | off (no stored-document lookup) | by `_uuid`, as today; new: a bulk preload of one (`BulkPreloadLoader`, no access filter, as today) | search with the access filter: 0 hits is 404, more than 1 is 400 | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by `_uuid` with the access filter, 404 (see "Admin") |
 | Validate new resource | meta; new: after the size and schema checks, as in `$merge` (accepted difference 1) | new: meta, for create-via-PUT (today it runs on the body after the build) | – | meta (owner tag) for a new resource | meta for a new resource, as today | – |
 | Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403); new: as `$merge`: the stored doc, then the access-tag change from the stored doc to the body, removals counted; for create-via-PUT, POST's full check and access-tag change. Today the tag check runs on the built doc, after the build and the uploads | stored doc | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: stored doc and every linked resource |
+| Validate against stored | off | on, for an item with a stored doc: `validateResourceAsync` on the body with the stored doc (Group member limit, schema, Person.link, patient reference), as today's PUT does before it merges; temporary, see "Why this order" | off | off | off | off |
 | Build new doc | insert | replace (no smart merge), after the extended Group 400 and the `If-None-Match` / `If-Match` 412s; create-via-PUT builds as POST's insert, after the `If-Match` 412 | apply the JSON Patch; Group member strategy for Group | smart merge | smart merge | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
-| Validate result | new: on, `validateResourceAsync` on the built document (Group member limit, schema of the write-serialized document, Person.link), as for a new `$merge` doc | new: as `$merge`: for an update, meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); for create-via-PUT, `validateResourceAsync`. Today: `validateResourceAsync` on the body before the build, then the schema of the write-serialized body, then meta on the built doc | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
+| Validate result | new: on, `validateResourceAsync` on the built document (Group member limit, schema of the write-serialized document, Person.link), as for a new `$merge` doc | for an update, meta on the built doc, because "validate against stored" has already run `validateResourceAsync` on the body; for create-via-PUT, `validateResourceAsync` on the built doc. Today: `validateResourceAsync` on the body before the build, then the schema of the write-serialized body, then meta on the built doc | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
 | Access on result | – (new: done before build) | off; new: the access-tag change is checked before the build. Today it runs here | access-tag change only | off (the merged doc is not re-checked today) | off | new: full check and access-tag change for a created Person, access-tag change for an update |
 | No-op | – | no write, 200 | no write; new: internal result `updated: false` (see "No-op fixes") | `created: false, updated: false` | new: counted as skipped (see "No-op fixes") | no write, silent |
 | Write | insert (`If-None-Match: *` rejects existing) | `If-Match` / `If-None-Match`; new: updates are versioned (`_uuid` and the stored `versionId`), and a lost race goes through today's replay, which re-checks `If-Match`, until the resolver (see "Concurrency") | `_uuid` filter only; new: versioned, except Group PATCHes that change members | version filter, concurrent write resolver | version filter, concurrent write resolver | version filter |
@@ -340,6 +347,13 @@ the code disagree, the code wins.
 
 Group details that must be kept: Group member writes happen before the Group write, as today, and
 the ClickHouse member post-save stays synchronous inside the write.
+
+A Group keeps one entry per member on every write, as the old paths do (`GroupMemberMerger`). In
+`$merge`, the build merges the stored Group's own repeated entries first, after its preSave, so a
+body that changes nothing else still equals the stored Group and writes nothing. It merges a new
+Group's entries after stamping the version and before validation, so the per-member entry limit
+fails only that item. A write that sends its members to ClickHouse keeps `member[]` as sent. The
+other operations merge members in their own builders.
 
 ## Concurrency
 
@@ -774,18 +788,17 @@ today.
   `Only single resource can be sent to update.`; today it gets a 400 from a later check, such as
   the missing owner tag for a non-UUID id.
 - **`$merge`'s validation order** (accepted difference 1). PUT runs the same validation steps as
-  `$merge`, in the same order: the raw body's schema, the meta check for a create-via-PUT, the
-  access check on the stored doc and then on the body's access tags, the build with its 412s and
-  the extended Group 400, then, on the built doc, the meta check and `validateResourceAsync` (the
-  Group member limit, the schema, references, the patient reference and Person.link). Today it
-  checks access to the stored doc, runs `validateResourceAsync` on the body, the schema of the
-  write-serialized body, the build with its 412s, the meta check, and the access-tag check on the
-  built doc last. A request that fails two of these checks can get the other error:
+  `$merge`, in the same order, except that it validates the body against the stored doc before the
+  build, as today: the raw body's schema, the meta check for a create-via-PUT, the access check on
+  the stored doc and then on the body's access tags, then `validateResourceAsync` on the body with
+  the stored doc (the Group member limit, the schema, references, the patient reference and
+  Person.link), then the build with the extended Group 400 and the 412s, and on the built doc the
+  meta check (for a create-via-PUT, `validateResourceAsync` on the built doc).
+  Today it checks access to the stored doc, runs `validateResourceAsync` on the body, the schema
+  of the write-serialized body, the build with its 412s, the meta check, and the access-tag check
+  on the built doc last. A request that fails two of these checks can get the other error:
   - A body that fails the schema check, for a stored doc the caller can't access, gets the schema
     400 instead of the 403. It is now counted at the `schema` stage; today it isn't counted.
-  - A body that changes the patient reference, sent with an `If-Match` that doesn't match, gets
-    the 412 instead of the patient-reference 400, and is no longer counted at the `reference`
-    stage.
   - A body that removes an access tag the caller can't write and has an invalid reference gets the
     403 instead of the reference 400, and is no longer counted at the `schema` stage.
   - A create-via-PUT of a Person linked to another tenant's Patient, with an access tag the caller
@@ -817,10 +830,6 @@ today.
 - **Base64 live key kept.** A PUT that doesn't change a base64 value keeps its live key and
   uploads nothing, as `$merge` does. Today every PUT that writes uploads the value again, to a new
   live key.
-- **A no-op PUT skips `validateResourceAsync`.** Today a PUT whose body equals the stored doc still
-  runs it. The body has passed the raw schema check and changes nothing, so only a stored doc that
-  no longer passes now gets 200 where today it gets 400: for example a Group over a member limit
-  lowered since it was stored, or a reference format that has since become invalid.
 - **Failure access-log entry.** The failure entry of a create-via-PUT now carries the derived
   `uuid`, and for a non-UUID id the `sourceAssigningAuthority`; today both are empty. For an
   existing resource with a UUID id, it no longer carries `sourceAssigningAuthority`; the other

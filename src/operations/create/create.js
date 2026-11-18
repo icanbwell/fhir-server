@@ -27,6 +27,7 @@ const { WritePipelineSwitch } = require('../writePipeline/writePipelineSwitch');
 const { WritePipeline } = require('../writePipeline/writePipeline');
 const { CreateResponder } = require('../writePipeline/operations/create/responder');
 const { CREATE_WRITE_PROFILE } = require('../writePipeline/operations/create/profile');
+const { GroupMemberMerger } = require('../common/groupMemberMerger');
 
 class CreateOperation {
     /**
@@ -43,6 +44,7 @@ class CreateOperation {
      * @param {WritePipelineSwitch} writePipelineSwitch
      * @param {WritePipeline} writePipeline
      * @param {CreateResponder} createResponder
+     * @param {GroupMemberMerger} groupMemberMerger
      */
     constructor (
         {
@@ -57,7 +59,8 @@ class CreateOperation {
             identifierEnrichmentProvider,
             writePipelineSwitch,
             writePipeline,
-            createResponder
+            createResponder,
+            groupMemberMerger
         }
     ) {
         /**
@@ -128,6 +131,12 @@ class CreateOperation {
          */
         this.createResponder = createResponder;
         assertTypeEquals(createResponder, CreateResponder);
+
+        /**
+         * @type {GroupMemberMerger}
+         */
+        this.groupMemberMerger = groupMemberMerger;
+        assertTypeEquals(groupMemberMerger, GroupMemberMerger);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -277,7 +286,7 @@ class CreateOperation {
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                 requestInfo, resource, base_version, accessRequested: 'c'
             });
-            // SEC-1580 F3: creating with an access tag counts as adding it - the caller must be
+            // creating with an access tag counts as adding it - the caller must be
             // authorized for every access tag on the new resource, not just one of them
             this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
                 requestInfo, currentResource: null, updatedResource: resource, accessRequested: 'c'
@@ -287,6 +296,8 @@ class CreateOperation {
              */
             let doc = resource;
             Object.assign(doc, { id: resource_incoming.id });
+            // A Group that lists a member more than once is stored with one entry for it
+            doc = this.groupMemberMerger.mergeMembers({ resource: doc, requestInfo });
 
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document

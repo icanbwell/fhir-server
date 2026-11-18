@@ -229,7 +229,9 @@ describe('Export Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp.body.output).toHaveLength(75);
+            // Binary is patient-filterable (securityContext), so a Patient export now includes it
+            expect(resp.body.output.map((o) => o.type)).toContain('Binary');
+            expect(resp.body.output).toHaveLength(76);
             expect(resp.body.errors).toHaveLength(0);
         });
 

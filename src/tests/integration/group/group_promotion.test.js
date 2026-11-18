@@ -1,5 +1,5 @@
 /**
- * Group promotion to extended member storage (DCON-5528)
+ * Group promotion to extended member storage
  *
  * PATCH is the only write that promotes. Once a PATCH pushes an embedded Group's member[] over
  * configManager.groupMemberPromotionLimit, promoteExistingGroupIfNeeded (src/utils/groupPromotion.js)

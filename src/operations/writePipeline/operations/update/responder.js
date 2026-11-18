@@ -25,7 +25,8 @@ const {
 /**
  * The failure stages for which update stores the rejected resource in the access log before it
  * throws, when the failure has an OperationOutcome: the read-time type check, the authority-tag
- * check of the identity, the incoming checks, the size check and the result validation.
+ * check of the identity, the incoming checks, the size check, the validation against the stored
+ * document and the result validation.
  */
 const ACCESS_LOGGED_STAGES = Object.freeze([
     WRITE_FAILURE_STAGE.STRUCTURE,
@@ -33,6 +34,7 @@ const ACCESS_LOGGED_STAGES = Object.freeze([
     WRITE_FAILURE_STAGE.INCOMING_SCHEMA,
     WRITE_FAILURE_STAGE.INCOMING_META,
     WRITE_FAILURE_STAGE.SIZE,
+    WRITE_FAILURE_STAGE.STORED_VALIDATION,
     WRITE_FAILURE_STAGE.RESULT_VALIDATION
 ]);
 
@@ -107,7 +109,7 @@ class UpdateResponder extends WriteResponder {
     /**
      * Returns no results when the item did not fail. Otherwise throws the error update throws for
      * the failure, after storing the rejected resource in the access log for a type, identity,
-     * incoming, size or result-validation failure that has an OperationOutcome.
+     * incoming, size, stored-validation or result-validation failure that has an OperationOutcome.
      * @param {WriteItem[]} items
      * @param {Object[]} requestErrors
      * @returns {Object[]}

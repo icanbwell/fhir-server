@@ -22,7 +22,7 @@ const patientReferencePlusPersonProxyPrefix = `${patientReferencePrefix}${person
 const maximumRecursionDepth = 4;
 
 /**
- * DCON-4894 helper: resolves the configured Person.link assurance minimum, falling back to
+ * resolves the configured Person.link assurance minimum, falling back to
  * DEFAULT_ASSURANCE_MINIMUM_LEVEL (and logging a warning) if it is not a recognized
  * identity-assuranceLevel code -- an unrecognized minimum would otherwise rank 0 (same as a
  * missing assurance), silently making both the dry-run logging and the enforcement gate a no-op.
@@ -41,7 +41,7 @@ function resolvePersonLinkAssuranceMinimumLevel (configuredMinimumLevel) {
 }
 
 /**
- * DCON-4894 helper: classifies each Person.link entry by whether its target is actually a
+ * classifies each Person.link entry by whether its target is actually a
  * Patient/Person -- the only target types ever followed by patientIdsToAdd/
  * personResourceWithPersonReferenceLink below (Practitioner/RelatedPerson targets are legal per
  * FHIR R4 but never followed) -- and whether it meets the given assurance minimum. Computed once
@@ -69,7 +69,7 @@ function classifyPersonLinksByAssurance ({ links, minimumLevel, uuidKey }) {
 }
 
 /**
- * DCON-4894 helper: logs a dry-run warning for every classified link that is actually followable
+ * logs a dry-run warning for every classified link that is actually followable
  * (Patient/Person target) but below the configured assurance minimum. Purely observational --
  * does not change which links are followed.
  * @param {ReturnType<typeof classifyPersonLinksByAssurance>} linkAssuranceInfo
@@ -461,7 +461,7 @@ class PersonToPatientIdsExpander {
             if (person && person.link && person.link.length > 0 && !totalProcessedPersonIds.has(personId)) {
                 const linkedPatients = personToLinkedPatient.get(personId) || new Set();
 
-                // DCON-4894: Person.link.assurance-aware traversal. Commit A (dry-run logging,
+                // Person.link.assurance-aware traversal. Commit A (dry-run logging,
                 // gated behind logPersonLinkAssuranceBelowMinimum) and Commit B (enforcement,
                 // gated behind enforcePersonLinkAssuranceMinimum) both need, per link: whether
                 // its target is actually a Patient/Person (the only target types ever followed
@@ -488,7 +488,7 @@ class PersonToPatientIdsExpander {
                         logBelowMinimumAssuranceLinks({ linkAssuranceInfo, personId, minimumLevel });
                     }
 
-                    // DCON-4894 Commit B: when on, a Person.link below the configured assurance
+                    // when on, a Person.link below the configured assurance
                     // minimum is excluded from being followed at all -- it contributes neither to
                     // patientIdsToAdd nor to personResourceWithPersonReferenceLink below, so it is
                     // never returned and (if it targets a Person) never recursed into. The logging
