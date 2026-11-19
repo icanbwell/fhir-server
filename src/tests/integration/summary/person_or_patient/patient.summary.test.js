@@ -255,6 +255,39 @@ describe('Patient $summary Tests', () => {
         });
     });
 
+    test.each([
+        ['a Composition only', [{ resource: { resourceType: 'Composition', id: 'composition1' } }]],
+        [
+            'an Observation and a Composition',
+            [
+                { resource: { resourceType: 'Observation', id: 'observation1' } },
+                { resource: { resourceType: 'Composition', id: 'composition1' } }
+            ]
+        ]
+    ])(
+        'Patient $summary returns not found when the bundle has %s but no Patient',
+        async (_description, entry) => {
+            const request = await createTestRequest();
+            const graphSpy = jest
+                .spyOn(getTestContainer().graphOperation, 'graph')
+                .mockResolvedValue({ resourceType: 'Bundle', type: 'searchset', entry });
+
+            try {
+                const resp = await request
+                    .get('/4_0_0/Patient/patient1/$summary')
+                    .set(getHeaders());
+
+                expect(graphSpy).toHaveBeenCalled();
+                expect(resp.status).toBe(404);
+                const outcome = JSON.parse(resp.text).entry[0].resource;
+                expect(outcome.resourceType).toBe('OperationOutcome');
+                expect(outcome.issue[0].code).toBe('not-found');
+            } finally {
+                graphSpy.mockRestore();
+            }
+        }
+    );
+
     test('Patient $summary works with _lastUpdated', async () => {
         const request = await createTestRequest();
         // ARRANGE
