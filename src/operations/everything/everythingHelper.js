@@ -15,7 +15,7 @@ const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { logError } = require('../common/logging');
-const { sliceIntoChunksGenerator } = require('../../utils/list.util');
+const { sliceIntoChunksGenerator, sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../dataLayer/base64DataManager');
@@ -112,6 +112,40 @@ function pushAll(target, source) {
     for (const item of source) {
         target.push(item);
     }
+}
+
+/**
+ * Splits the ids of a $everything request into batches of `chunkSize`, without starting a batch
+ * with the proxy-patient id (`person.<id>`) of a Person whose Patients are in the previous batch.
+ *
+ * The ids are the linked Patient ids of each Person followed by that Person's proxy id. Consent is
+ * resolved per batch: a proxy-patient id is only admitted into the consented branch when its batch
+ * also holds a real Patient of that Person. A proxy id that starts a batch right after a real
+ * Patient id has lost its own Person's Patients to the previous batch (and may sit next to another
+ * Person's Patients), so the proxy-referenced resources of a consenting client would be dropped.
+ * That one proxy id is therefore moved to the end of the previous batch, which makes the previous
+ * batch one id larger than `chunkSize`. A proxy id that follows another proxy id belongs to a
+ * Person with no linked Patients, so there is nothing to consent to and nothing is moved: a run of
+ * such ids keeps batches of `chunkSize`.
+ * @param {string[]} ids
+ * @param {number} chunkSize
+ * @returns {string[][]} batches of at most `chunkSize + 1` ids
+ */
+function getEverythingIdChunks(ids, chunkSize) {
+    const chunks = sliceIntoChunks(ids, chunkSize);
+    // go backwards so that removing a batch does not shift the batches still to be checked
+    for (let index = chunks.length - 1; index > 0; index--) {
+        const previousChunk = chunks[index - 1];
+        const previousEndsWithPatient =
+            !previousChunk[previousChunk.length - 1].startsWith(PERSON_PROXY_PREFIX);
+        if (previousEndsWithPatient && chunks[index][0].startsWith(PERSON_PROXY_PREFIX)) {
+            previousChunk.push(chunks[index].shift());
+            if (chunks[index].length === 0) {
+                chunks.splice(index, 1);
+            }
+        }
+    }
+    return chunks;
 }
 
 /**
@@ -538,9 +572,11 @@ class EverythingHelper {
              */
             const ids = idParsedArg.queryParameterValue.values;
             /**
-             * @type {Generator<string[], void, unknown>}
+             * @type {string[][]}
              */
-            const idChunks = ids ? sliceIntoChunksGenerator(ids, this.configManager.everythingBatchSize) : [];
+            const idChunks = ids
+                ? getEverythingIdChunks(ids, this.configManager.everythingBatchSize)
+                : [];
 
             if (parsedArgs._since) {
                 parsedArgs._since = new Date(parsedArgs._since);
@@ -2218,5 +2254,6 @@ class EverythingHelper {
 module.exports = {
     EverythingHelper,
     escapeForJsonTemplate,
+    getEverythingIdChunks,
     pushAll
 };

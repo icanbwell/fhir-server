@@ -1,5 +1,9 @@
 const {isTrue, isTrueWithFallback} = require('./isTrue');
-const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
+const {
+    DEFAULT_CACHE_EXPIRY_TIME,
+    DEFAULT_EVERYTHING_BATCH_SIZE,
+    CONSENT_CATEGORY
+} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 const { DEFAULT_ASSURANCE_MINIMUM_LEVEL } = require('./personLinkAssuranceLevel');
 
@@ -427,7 +431,11 @@ class ConfigManager {
      * @return {number}
      */
     get everythingBatchSize() {
-        return parseInt(env.EVERYTHING_BATCH_SZIE, 10) || 10;
+        // EVERYTHING_BATCH_SZIE is a historical misspelling, kept as a fallback
+        const configuredSize =
+            parseInt(env.EVERYTHING_BATCH_SIZE, 10) || parseInt(env.EVERYTHING_BATCH_SZIE, 10);
+        // zero, negative and non-numeric values cannot be used to split ids into batches
+        return configuredSize > 0 ? configuredSize : DEFAULT_EVERYTHING_BATCH_SIZE;
     }
 
     /**
