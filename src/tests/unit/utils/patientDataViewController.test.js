@@ -580,6 +580,49 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
             });
         });
 
+        describe('lookup is not limited by the caller scope', () => {
+            test.each([
+                ['service token', { scope: 'user/*.* access/clientA.*', isUser: false, personIdFromJwtToken: null }],
+                ['patient-scoped user token', { scope: 'patient/*.*', isUser: true }]
+            ])('%s: the Consent search runs under the lookup scope, keeping user and request id',
+                async (_name, overrides) => {
+                    const requestInfo = createRequestInfo('person-123', { user: 'u1', requestId: 'r1', ...overrides });
+                    const original = { ...requestInfo };
+
+                    await manager.getConsentForPersonAsync({
+                        requestInfo,
+                        base_version: '4_0_0',
+                        personId: 'person-123',
+                        owner: 'clientA'
+                    });
+
+                    const passed = mockSearchManager.fetchResourcesByArgsAsync.mock.calls[0][0].requestInfo;
+                    expect(passed).toEqual(expect.objectContaining({
+                        scope: 'access/*.*',
+                        isUser: false,
+                        personIdFromJwtToken: null,
+                        user: 'u1',
+                        requestId: 'r1'
+                    }));
+                    // the caller's own request info is left alone
+                    expect(requestInfo).toEqual(original);
+                });
+
+            test('asks for hidden-tagged Consents too', async () => {
+                await manager.getConsentForPersonAsync({
+                    requestInfo: createRequestInfo('person-123'),
+                    base_version: '4_0_0',
+                    personId: 'person-123',
+                    owner: 'clientA'
+                });
+
+                expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith({
+                    resourceType: 'Consent',
+                    args: expect.objectContaining({ _includeHidden: true })
+                });
+            });
+        });
+
         describe('search parameters construction', () => {
             test('constructs correct consent args with personId', async () => {
 

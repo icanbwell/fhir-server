@@ -8,6 +8,29 @@ const { ConfigManager } = require('./configManager');
 const { SearchManager } = require('../operations/search/searchManager');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
 
+/**
+ * Scope the view-control Consent lookup runs under. The lookup only ever removes data, so it must find
+ * every active Consent for the Person whatever the caller's own scope would let it see; under the caller's
+ * scope a Consent whose access tag is outside a service client's access codes, or one carrying the
+ * restricted tag (patient-scoped callers), would not be found and the data the user hid would be returned.
+ * Access to the Consent's contents is not widened: only the resource ids it hides are read from it.
+ */
+const VIEW_CONTROL_LOOKUP_SCOPE = 'access/*.*';
+
+/**
+ * A copy of the caller's request info that searches Consents with the view-control lookup scope.
+ * The caller's user, request id and the rest are kept for logging and caching.
+ * @param {FhirRequestInfo} requestInfo
+ * @return {FhirRequestInfo}
+ */
+function toViewControlLookupRequestInfo(requestInfo) {
+    return Object.assign(Object.create(Object.getPrototypeOf(requestInfo)), requestInfo, {
+        scope: VIEW_CONTROL_LOOKUP_SCOPE,
+        isUser: false,
+        personIdFromJwtToken: null
+    });
+}
+
 class PatientDataViewControlManager {
     /**
      * @typedef {Object} PatientDataViewControlManagerParams
@@ -185,6 +208,8 @@ class PatientDataViewControlManager {
             // only an active Consent applies, as in the other Consent lookups; status also lets the
             // query use the {status, patient._uuid} index instead of scanning the collection
             status: 'active',
+            // a Consent tagged hidden is still the user's choice, so it must still apply
+            _includeHidden: true,
             patient: `Patient/person.${personId}`,
             category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
         };
@@ -200,7 +225,7 @@ class PatientDataViewControlManager {
         } = await this.searchManager.fetchResourcesByArgsAsync({
             resourceType,
             base_version,
-            requestInfo,
+            requestInfo: toViewControlLookupRequestInfo(requestInfo),
             explain: false,
             debug: false,
             applyPatientFilter: false,
