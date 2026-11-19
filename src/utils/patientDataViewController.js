@@ -158,8 +158,10 @@ class PatientDataViewControlManager {
      *
      * A Binary is found by its own securityContext rather than through its DocumentReference, so
      * when the Consent hides a DocumentReference (the user deleted it) its content would otherwise
-     * still be returned. The DocumentReferences are read with the caller's own access, and only
-     * their `content`; the Binary ids found are only ever used to hide data.
+     * still be returned. The DocumentReferences are read under the view-control lookup scope, like the
+     * Consent, so that a DocumentReference the caller's own scope cannot see (another access tag, or the
+     * restricted tag) still has its Binary hidden. Only their `content` is read; the Binary ids found
+     * are only ever used to hide data.
      * @param {{
      *  requestInfo: FhirRequestInfo,
      *  base_version: string,
@@ -180,7 +182,7 @@ class PatientDataViewControlManager {
         const { entries } = await this.searchManager.fetchResourcesByArgsAsync({
             resourceType,
             base_version,
-            requestInfo,
+            requestInfo: toViewControlLookupRequestInfo(requestInfo),
             explain: false,
             debug: false,
             applyPatientFilter: false,

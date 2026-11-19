@@ -108,6 +108,49 @@ describe('PatientDataViewControlManager', () => {
             });
         });
 
+        describe('lookup is not limited by the caller scope', () => {
+            test.each([
+                ['service token', { scope: 'user/*.* access/clientA.*', isUser: false, personIdFromJwtToken: null }],
+                ['patient-scoped user token', { scope: 'patient/*.*', isUser: true }]
+            ])('%s: the Consent search runs under the lookup scope, keeping user and request id',
+                async (_name, overrides) => {
+                    const requestInfo = createRequestInfo('person-123', { user: 'u1', requestId: 'r1', ...overrides });
+                    const original = { ...requestInfo };
+
+                    await manager.getConsentAsync({
+                        requestInfo,
+                        base_version: '4_0_0',
+                        personId: 'person-123',
+                        owner: 'clientA'
+                    });
+
+                    const passed = mockSearchManager.fetchResourcesByArgsAsync.mock.calls[0][0].requestInfo;
+                    expect(passed).toEqual(expect.objectContaining({
+                        scope: 'access/*.*',
+                        isUser: false,
+                        personIdFromJwtToken: null,
+                        user: 'u1',
+                        requestId: 'r1'
+                    }));
+                    // the caller's own request info is left alone
+                    expect(requestInfo).toEqual(original);
+                });
+
+            test('asks for hidden-tagged Consents too', async () => {
+                await manager.getConsentAsync({
+                    requestInfo: createRequestInfo('person-123'),
+                    base_version: '4_0_0',
+                    personId: 'person-123',
+                    owner: 'clientA'
+                });
+
+                expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith({
+                    resourceType: 'Consent',
+                    args: expect.objectContaining({ _includeHidden: true })
+                });
+            });
+        });
+
         describe('search parameters construction', () => {
             test('constructs correct consent args with personId', async () => {
 
@@ -380,6 +423,24 @@ describe('PatientDataViewControlManager', () => {
                 ['already-hidden', 'attachment-1', 'attachment-2']
             );
             expect(viewControlResourceToExcludeMap.DocumentReference).toEqual(['doc-1']);
+        });
+
+        test('reads the DocumentReferences under the lookup scope, not the caller scope', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync
+                .mockResolvedValueOnce(consentHiding('DocumentReference/doc-1'))
+                .mockResolvedValueOnce({ entries: [], queryItems: [], options: [] });
+            const requestInfo = createRequestInfo('person-123', {
+                scope: 'user/*.* access/clientA.*', isUser: false, personIdFromJwtToken: null
+            });
+
+            await manager.getConsentAsync({
+                requestInfo, base_version: '4_0_0', personId: 'person-123', owner: 'clientA'
+            });
+
+            const documentReferenceRead = mockSearchManager.fetchResourcesByArgsAsync.mock.calls[1][0];
+            expect(documentReferenceRead.resourceType).toBe('DocumentReference');
+            expect(documentReferenceRead.requestInfo).toEqual(expect.objectContaining({ scope: 'access/*.*' }));
+            expect(requestInfo.scope).toBe('user/*.* access/clientA.*');
         });
 
         test('makes no DocumentReference read when no DocumentReference is hidden', async () => {
