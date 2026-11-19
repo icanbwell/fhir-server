@@ -10,6 +10,8 @@
 const { describe, beforeEach, afterEach, test, expect, jest: jestObj } = require('@jest/globals');
 const { PatientDataViewControlManager } = require('../../../../utils/patientDataViewController');
 const deepcopy = require('deepcopy');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -454,6 +456,50 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
             } finally {
                 spy.mockRestore();
             }
+        });
+    });
+
+    describe('delegated actor reading for an enrolled owner', () => {
+        class DelegatedAccessConfigManager extends ConfigManager {
+            get enableDelegatedAccessDetection() {
+                return true;
+            }
+        }
+        // test databases have no custom indexes, so the delegated-access Consent query's index hint fails
+        let hintSpy;
+        beforeEach(() => {
+            hintSpy = jestObj.spyOn(DatabaseCursor.prototype, 'hint').mockReturnThis();
+        });
+        afterEach(() => {
+            hintSpy.mockRestore();
+        });
+        const delegatedHeaders = () => getHeadersWithCustomPayload({
+            ...USER_PAYLOAD,
+            scope: 'patient/*.read access/*.read',
+            act: { reference: 'RelatedPerson/rp-actor-a', sub: 'actor-a-sub' }
+        });
+
+        // The Consent lookup runs as a system read: it must not apply the delegated-access filter, which
+        // needs the caller's person id and would throw for the lookup (and narrow what it can find).
+        test.each([
+            ['default (array) response', '/4_0_0/CarePlan'],
+            ['bundle response', '/4_0_0/CarePlan?_bundle=1'],
+            ['streaming response', '/4_0_0/CarePlan?_streamResponse=1']
+        ])('REST search hides the blocked resource and keeps the unblocked one: %s', async (_name, url) => {
+            request = await createTestRequest((c) => {
+                c.register('configManager', () => new DelegatedAccessConfigManager());
+                return c;
+            });
+            for (const p of SEED) {
+                await merge(p.split('/')[0], fx(p));
+            }
+            await merge('Consent', fx('Consent/consent1.json'));
+            await merge('Consent', fx('Consent/consentDelegatedActor.json'));
+
+            const resp = await request.get(url).set(delegatedHeaders());
+
+            expect(resp.status).toBe(200);
+            expect(idsOf(resp.body)).toEqual([UNBLOCKED]);
         });
     });
 
