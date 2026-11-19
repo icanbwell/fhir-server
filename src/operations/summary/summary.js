@@ -449,6 +449,19 @@ class SummaryOperation {
                 }
             }
 
+            // The summary builder needs a Patient to build around and throws without one, which
+            // surfaced as a 500. A bundle with entries but no Patient is treated like an empty one.
+            const hasPatient = patientDataBundle?.entry?.some(
+                (entry) => entry.resource?.resourceType === 'Patient'
+            );
+            if (patientDataBundle?.entry?.length > 0 && !hasPatient) {
+                logInfo('Summary bundle has no Patient resource; returning an empty bundle', {
+                    entryCount: patientDataBundle.entry.length
+                });
+                patientDataBundle.entry = [];
+                patientDataBundle.total = 0;
+            }
+
             if (
                 !patientDataBundle ||
                 !patientDataBundle.entry ||
