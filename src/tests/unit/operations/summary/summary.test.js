@@ -2,7 +2,7 @@ const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
 jest.mock('../../../../operations/common/logging', () => {
     const { jest: j } = require('@jest/globals');
-    return { logInfo: j.fn(), logError: j.fn(), logDebug: j.fn() };
+    return { logInfo: j.fn(), logWarn: j.fn(), logError: j.fn(), logDebug: j.fn() };
 });
 
 jest.mock('../../../../graphs/patient/summary.json', () => ({
@@ -233,6 +233,27 @@ describe('SummaryOperation', () => {
                 resourceType: 'Patient',
                 responseHandler: mockResponseHandler
             });
+            expect(mockResponseHandler.sendResponseAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ entry: [] }),
+                expect.any(String)
+            );
+        });
+
+        test('sends empty bundle response when compositions are found but the graph is skipped', async () => {
+            mockParsedArgs.id = ['patient-1', 'person.person-1'];
+            mockParsedArgs._includeSummaryCompositionOnly = true;
+            mocks.searchBundleOperation.searchBundleAsync.mockResolvedValue({
+                resourceType: 'Bundle',
+                entry: [{ resource: { resourceType: 'Composition', id: 'c1' } }]
+            });
+            await summaryOp.summaryBundleAsync({
+                requestInfo: { requestId: 'r1', userType: null, accept: 'application/json', scope: 'user/*.read', skipCachedData: () => false },
+                res: {},
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient',
+                responseHandler: mockResponseHandler
+            });
+            expect(mocks.graphOperation.graph).not.toHaveBeenCalled();
             expect(mockResponseHandler.sendResponseAsync).toHaveBeenCalledWith(
                 expect.objectContaining({ entry: [] }),
                 expect.any(String)

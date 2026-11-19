@@ -272,17 +272,20 @@ describe('Patient $summary Tests', () => {
                 .spyOn(getTestContainer().graphOperation, 'graph')
                 .mockResolvedValue({ resourceType: 'Bundle', type: 'searchset', entry });
 
-            const resp = await request.get('/4_0_0/Patient/patient1/$summary').set(getHeaders());
+            try {
+                const resp = await request.get('/4_0_0/Patient/patient1/$summary').set(getHeaders());
 
-            expect(graphSpy).toHaveBeenCalled();
-            graphSpy.mockRestore();
-            expect(resp.status).toBe(200);
-            expect(resp).toHaveResponse({
-                resourceType: 'Bundle',
-                type: 'searchset',
-                total: 0,
-                entry: []
-            });
+                expect(graphSpy).toHaveBeenCalled();
+                expect(resp.status).toBe(200);
+                expect(resp).toHaveResponse({
+                    resourceType: 'Bundle',
+                    type: 'searchset',
+                    total: 0,
+                    entry: []
+                });
+            } finally {
+                graphSpy.mockRestore();
+            }
         }
     );
 

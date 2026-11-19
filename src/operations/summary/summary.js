@@ -9,7 +9,7 @@ const { ComprehensiveIPSCompositionBuilder, TBundle } = require('@icanbwell/fhir
 const deepcopy = require('deepcopy');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { logInfo, logError } = require('../common/logging');
+const { logInfo, logWarn, logError } = require('../common/logging');
 const { isUuid } = require('../../utils/uid.util');
 const { PERSON_PROXY_PREFIX, CACHE_STATUS, AUTH_USER_TYPES } = require('../../constants');
 const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
@@ -420,6 +420,12 @@ class SummaryOperation {
                         Array.isArray(compositionResult.entry) &&
                         compositionResult.entry.length > 0
                     ) {
+                        // the graph is skipped when the compositions cover every section
+                        patientDataBundle = patientDataBundle || {
+                            resourceType: 'Bundle',
+                            type: 'searchset',
+                            entry: []
+                        };
                         patientDataBundle.entry = patientDataBundle.entry || [];
                         patientDataBundle.entry = patientDataBundle.entry.concat(
                             compositionResult.entry
@@ -455,7 +461,7 @@ class SummaryOperation {
                 (entry) => entry.resource?.resourceType === 'Patient'
             );
             if (patientDataBundle?.entry?.length > 0 && !hasPatient) {
-                logInfo('Summary bundle has no Patient resource; returning an empty bundle', {
+                logWarn('Summary bundle has no Patient resource; returning an empty bundle', {
                     entryCount: patientDataBundle.entry.length
                 });
                 patientDataBundle.entry = [];
