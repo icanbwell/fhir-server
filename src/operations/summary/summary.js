@@ -11,6 +11,7 @@ const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
 const { logInfo, logError } = require('../common/logging');
 const { isUuid } = require('../../utils/uid.util');
+const { NotFoundError } = require('../../utils/httpErrors');
 const { PERSON_PROXY_PREFIX, CACHE_STATUS, AUTH_USER_TYPES } = require('../../constants');
 const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
 const { RedisManager } = require('../../utils/redisManager');
@@ -420,6 +421,12 @@ class SummaryOperation {
                         Array.isArray(compositionResult.entry) &&
                         compositionResult.entry.length > 0
                     ) {
+                        // the graph is skipped when the compositions cover every section
+                        patientDataBundle = patientDataBundle || {
+                            resourceType: 'Bundle',
+                            type: 'searchset',
+                            entry: []
+                        };
                         patientDataBundle.entry = patientDataBundle.entry || [];
                         patientDataBundle.entry = patientDataBundle.entry.concat(
                             compositionResult.entry
@@ -447,6 +454,16 @@ class SummaryOperation {
                         }
                     });
                 }
+            }
+
+            // The summary builder needs a Patient to build around and throws a plain Error without
+            // one, which surfaced as a 500. Entries with no Patient is an explicit not-found: it
+            // is not the same as an empty result, because data was found that cannot be summarized.
+            const hasPatient = patientDataBundle?.entry?.some(
+                (entry) => entry.resource?.resourceType === 'Patient'
+            );
+            if (patientDataBundle?.entry?.length > 0 && !hasPatient) {
+                throw new NotFoundError('No Patient resource was found to build the summary from');
             }
 
             if (

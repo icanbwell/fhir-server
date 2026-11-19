@@ -239,6 +239,37 @@ describe('SummaryOperation', () => {
             );
         });
 
+        test('throws not found when compositions are found but the graph is skipped', async () => {
+            mockParsedArgs.id = ['patient-1', 'person.person-1'];
+            mockParsedArgs._includeSummaryCompositionOnly = true;
+            mocks.searchBundleOperation.searchBundleAsync.mockResolvedValue({
+                resourceType: 'Bundle',
+                entry: [{ resource: { resourceType: 'Composition', id: 'c1' } }]
+            });
+            const requestInfo = {
+                requestId: 'r1',
+                userType: null,
+                accept: 'application/json',
+                scope: 'user/*.read',
+                skipCachedData: () => false
+            };
+
+            const error = await summaryOp
+                .summaryBundleAsync({
+                    requestInfo,
+                    res: {},
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient',
+                    responseHandler: mockResponseHandler
+                })
+                .catch((e) => e);
+
+            expect(error.name).toBe('NotFound');
+            expect(error.statusCode).toBe(404);
+            expect(mocks.graphOperation.graph).not.toHaveBeenCalled();
+            expect(mockResponseHandler.sendResponseAsync).not.toHaveBeenCalled();
+        });
+
         test('reads from cache when available', async () => {
             Object.defineProperty(mocks.configManager, 'writeToCacheForSummaryOperation', { get: () => true, configurable: true });
             Object.defineProperty(mocks.configManager, 'readFromCacheForSummaryOperation', { get: () => true, configurable: true });
