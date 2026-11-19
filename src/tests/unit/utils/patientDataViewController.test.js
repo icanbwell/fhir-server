@@ -583,7 +583,13 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
         describe('lookup is not limited by the caller scope', () => {
             test.each([
                 ['service token', { scope: 'user/*.* access/clientA.*', isUser: false, personIdFromJwtToken: null }],
-                ['patient-scoped user token', { scope: 'patient/*.*', isUser: true }]
+                ['patient-scoped user token', { scope: 'patient/*.*', isUser: true }],
+                ['delegated actor', {
+                    scope: 'patient/*.*',
+                    isUser: true,
+                    userType: 'delegatedUser',
+                    actor: { reference: 'RelatedPerson/rp-1' }
+                }]
             ])('%s: the Consent search runs under the lookup scope, keeping user and request id',
                 async (_name, overrides) => {
                     const requestInfo = createRequestInfo('person-123', { user: 'u1', requestId: 'r1', ...overrides });
@@ -601,6 +607,8 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                         scope: 'access/*.*',
                         isUser: false,
                         personIdFromJwtToken: null,
+                        userType: null,
+                        actor: null,
                         user: 'u1',
                         requestId: 'r1'
                     }));

@@ -19,7 +19,8 @@ const VIEW_CONTROL_LOOKUP_SCOPE = 'access/*.*';
 
 /**
  * A copy of the caller's request info that searches Consents with the view-control lookup scope.
- * The caller's user, request id and the rest are kept for logging and caching.
+ * The caller's user, request id and the rest are kept for logging and caching; the user type and
+ * delegated actor are cleared.
  * @param {FhirRequestInfo} requestInfo
  * @return {FhirRequestInfo}
  */
@@ -27,7 +28,11 @@ function toViewControlLookupRequestInfo(requestInfo) {
     return Object.assign(Object.create(Object.getPrototypeOf(requestInfo)), requestInfo, {
         scope: VIEW_CONTROL_LOOKUP_SCOPE,
         isUser: false,
-        personIdFromJwtToken: null
+        personIdFromJwtToken: null,
+        // a delegated actor's sensitive-data filter needs the person id cleared above (it throws without
+        // one) and would narrow the Consents the lookup can see, so the lookup runs as no delegated user
+        userType: null,
+        actor: null
     });
 }
 
