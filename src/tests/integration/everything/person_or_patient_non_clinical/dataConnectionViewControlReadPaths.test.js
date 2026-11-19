@@ -959,6 +959,27 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             expect(hasBlocked(resp)).toBe(true);
         });
 
+        // The caller reads the Person and its CarePlans through an access tag of its own, but its scopes
+        // don't include the Person's owner (the enrolled client that wrote the Consent). The Consent is
+        // looked up under the view-control lookup scope, so the block still applies.
+        test('with the opt-in, a caller whose scopes do not cover the Person\'s owner still gets the block', async () => {
+            const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+            const accessTag = { system: 'https://www.icanbwell.com/access', code: 'othertenant' };
+            for (const collection of ['Person_4_0_0', 'Patient_4_0_0', 'CarePlan_4_0_0']) {
+                await db.collection(collection).updateMany({}, { $push: { 'meta.security': accessTag } });
+            }
+            const headers = getHeaders('user/*.read access/othertenant.read');
+
+            const withOptIn = await personEverything(OPT_IN, headers);
+            const withoutOptIn = await personEverything('', headers);
+
+            expect(withoutOptIn.status).toBe(200);
+            expect(hasBlocked(withoutOptIn)).toBe(true);
+            expect(withOptIn.status).toBe(200);
+            expect(hasUnblocked(withOptIn)).toBe(true);
+            expect(hasBlocked(withOptIn)).toBe(false);
+        });
+
         test('the Consent is loaded once for the request', async () => {
             const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync');
             try {
