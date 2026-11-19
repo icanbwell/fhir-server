@@ -9,8 +9,9 @@ const { ComprehensiveIPSCompositionBuilder, TBundle } = require('@icanbwell/fhir
 const deepcopy = require('deepcopy');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { logInfo, logWarn, logError } = require('../common/logging');
+const { logInfo, logError } = require('../common/logging');
 const { isUuid } = require('../../utils/uid.util');
+const { NotFoundError } = require('../../utils/httpErrors');
 const { PERSON_PROXY_PREFIX, CACHE_STATUS, AUTH_USER_TYPES } = require('../../constants');
 const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
 const { RedisManager } = require('../../utils/redisManager');
@@ -455,17 +456,14 @@ class SummaryOperation {
                 }
             }
 
-            // The summary builder needs a Patient to build around and throws without one, which
-            // surfaced as a 500. A bundle with entries but no Patient is treated like an empty one.
+            // The summary builder needs a Patient to build around and throws a plain Error without
+            // one, which surfaced as a 500. Entries with no Patient is an explicit not-found: it
+            // is not the same as an empty result, because data was found that cannot be summarized.
             const hasPatient = patientDataBundle?.entry?.some(
                 (entry) => entry.resource?.resourceType === 'Patient'
             );
             if (patientDataBundle?.entry?.length > 0 && !hasPatient) {
-                logWarn('Summary bundle has no Patient resource; returning an empty bundle', {
-                    entryCount: patientDataBundle.entry.length
-                });
-                patientDataBundle.entry = [];
-                patientDataBundle.total = 0;
+                throw new NotFoundError('No Patient resource was found to build the summary from');
             }
 
             if (

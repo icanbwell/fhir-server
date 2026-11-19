@@ -265,7 +265,7 @@ describe('Patient $summary Tests', () => {
             ]
         ]
     ])(
-        'Patient $summary gives empty response when the bundle has %s but no Patient',
+        'Patient $summary returns not found when the bundle has %s but no Patient',
         async (_description, entry) => {
             const request = await createTestRequest();
             const graphSpy = jest
@@ -273,16 +273,15 @@ describe('Patient $summary Tests', () => {
                 .mockResolvedValue({ resourceType: 'Bundle', type: 'searchset', entry });
 
             try {
-                const resp = await request.get('/4_0_0/Patient/patient1/$summary').set(getHeaders());
+                const resp = await request
+                    .get('/4_0_0/Patient/patient1/$summary')
+                    .set(getHeaders());
 
                 expect(graphSpy).toHaveBeenCalled();
-                expect(resp.status).toBe(200);
-                expect(resp).toHaveResponse({
-                    resourceType: 'Bundle',
-                    type: 'searchset',
-                    total: 0,
-                    entry: []
-                });
+                expect(resp.status).toBe(404);
+                const outcome = JSON.parse(resp.text).entry[0].resource;
+                expect(outcome.resourceType).toBe('OperationOutcome');
+                expect(outcome.issue[0].code).toBe('not-found');
             } finally {
                 graphSpy.mockRestore();
             }
