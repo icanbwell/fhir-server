@@ -6,7 +6,9 @@ const { assertIsValid } = require('./assertType');
  */
 const VIEW_CONTROL_SUBJECT_SOURCE = Object.freeze({
     /** the Person in a user's token: every user read path */
-    TOKEN: 'token'
+    TOKEN: 'token',
+    /** the Person in the request URL: Person $everything when a service token opts in */
+    URL_PERSON: 'urlPerson'
 });
 
 /**
@@ -14,7 +16,8 @@ const VIEW_CONTROL_SUBJECT_SOURCE = Object.freeze({
  * Immutable; identified by toString(), which the request-scoped lookup cache keys on.
  *
  * Callers decide the subject; the view-control lookup only uses it. A user read uses the Person in
- * the token.
+ * the token. Person $everything uses the Person in the URL when a service token opts in, and other
+ * paths can choose the URL Person the same way without changing the lookup.
  */
 class ViewControlSubject {
     /**
@@ -49,6 +52,21 @@ class ViewControlSubject {
             personId: requestInfo.personIdFromJwtToken,
             source: VIEW_CONTROL_SUBJECT_SOURCE.TOKEN
         });
+    }
+
+    /**
+     * The Person named in the request URL (its id as given: a uuid or a source id).
+     * @param {Object} params
+     * @param {string} params.personId
+     * @return {ViewControlSubject}
+     */
+    static fromUrlPerson({ personId }) {
+        return new ViewControlSubject({ personId, source: VIEW_CONTROL_SUBJECT_SOURCE.URL_PERSON });
+    }
+
+    /** @return {boolean} */
+    get isUrlPerson() {
+        return this.source === VIEW_CONTROL_SUBJECT_SOURCE.URL_PERSON;
     }
 
     /**

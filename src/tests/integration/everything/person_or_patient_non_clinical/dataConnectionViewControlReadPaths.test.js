@@ -919,6 +919,251 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
         });
     });
 
+    // A service calling Person/{id}/$everything on a user's behalf can opt in to that Person's
+    // view-control block. Without the opt-in, service tokens are unchanged.
+    describe('service-token opt-in on Person $everything', () => {
+        const OPT_IN = '_applyDataViewControl=true';
+        // ids come back as uuids by default and as source ids when the caller's Prefer header doesn't
+        // ask for global ids, so check both forms
+        const has = (resp, uuid, sourceId) => {
+            const ids = allIdValues(resp.body);
+            return ids.includes(uuid) || ids.includes(sourceId);
+        };
+        const hasBlocked = (resp) => has(resp, BLOCKED_UUID, BLOCKED);
+        const hasUnblocked = (resp) => has(resp, UNBLOCKED_UUID, UNBLOCKED);
+        const personEverything = (query = '', headers = getHeaders()) =>
+            request.get(`/4_0_0/Person/${PERSON_ID}/$everything${query ? `?${query}` : ''}`).set(headers);
+
+        beforeEach(async () => {
+            await seed();
+        });
+
+        test('without the opt-in, a service token still gets the blocked CarePlan', async () => {
+            const resp = await personEverything();
+            expect(resp.status).toBe(200);
+            expect(hasBlocked(resp)).toBe(true);
+            expect(hasUnblocked(resp)).toBe(true);
+        });
+
+        test('with the opt-in, the URL Person\'s block applies to a service token', async () => {
+            const resp = await personEverything(OPT_IN);
+            expect(resp.status).toBe(200);
+            expect(hasUnblocked(resp)).toBe(true);
+            expect(hasBlocked(resp)).toBe(false);
+        });
+
+        test('with the opt-in, a Person whose owner is not enrolled is unchanged', async () => {
+            process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'some-other-client';
+            const resp = await personEverything(OPT_IN);
+            expect(resp.status).toBe(200);
+            expect(hasBlocked(resp)).toBe(true);
+        });
+
+        test('the Consent is loaded once for the request', async () => {
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync');
+            try {
+                const resp = await personEverything(OPT_IN);
+                expect(resp.status).toBe(200);
+                expect(spy).toHaveBeenCalledTimes(1);
+            } finally {
+                spy.mockRestore();
+            }
+        });
+
+        test('a Person the token cannot see and a Person that does not exist both get the same 404', async () => {
+            const otherTenant = getHeaders('user/*.read access/othertenant.read');
+            const hidden = await personEverything(OPT_IN, otherTenant);
+            const missing = await request
+                .get(`/4_0_0/Person/00000000-0000-5000-8000-000000000000/$everything?${OPT_IN}`)
+                .set(otherTenant);
+            expect(hidden.status).toBe(404);
+            expect(missing.status).toBe(404);
+            const issueTexts = (resp) => JSON.stringify(resp.body).replace(/[0-9a-f-]{36}/g, '<id>');
+            expect(issueTexts(hidden)).toEqual(issueTexts(missing));
+            expect(hasUnblocked(hidden)).toBe(false);
+        });
+
+        describe('a caller that can read the Person but whose access scopes do not cover its owner', () => {
+            // The Consent search runs under the caller's own access filter, so such a caller could not
+            // find the Consent and would get an unfiltered record. It is refused instead.
+            const OTHER_TENANT = 'othertenant';
+            const callerHeaders = (scope) => getHeaders(`user/*.read ${scope}`);
+
+            // make the Person readable by a second tenant, leaving its owner (healthsystem1) as is
+            beforeEach(async () => {
+                const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+                const result = await db.collection('Person_4_0_0').updateOne(
+                    { _uuid: PERSON_ID },
+                    { $push: { 'meta.security': { system: 'https://www.icanbwell.com/access', code: OTHER_TENANT } } }
+                );
+                expect(result.modifiedCount).toBe(1);
+            });
+
+            test('an enrolled owner is a 403 with no data, not an unfiltered record', async () => {
+                const resp = await personEverything(OPT_IN, callerHeaders(`access/${OTHER_TENANT}.read`));
+                expect(resp.status).toBe(403);
+                expect(resp.body.resourceType).toBe('OperationOutcome');
+                expect(hasBlocked(resp)).toBe(false);
+                expect(hasUnblocked(resp)).toBe(false);
+                // names neither the Person nor the owner tenant
+                const text = JSON.stringify(resp.body);
+                expect(text).not.toContain(PERSON_ID);
+                expect(text).not.toContain('healthsystem1');
+            });
+
+            test('the wildcard access scope applies the block', async () => {
+                const resp = await personEverything(OPT_IN, callerHeaders('access/*.read'));
+                expect(resp.status).toBe(200);
+                expect(hasUnblocked(resp)).toBe(true);
+                expect(hasBlocked(resp)).toBe(false);
+            });
+
+            test('an owner that is not enrolled is not refused', async () => {
+                process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'some-other-client';
+                const resp = await personEverything(OPT_IN, callerHeaders(`access/${OTHER_TENANT}.read`));
+                expect(resp.status).toBe(200);
+            });
+
+            test('without the opt-in the same caller is not refused', async () => {
+                const resp = await personEverything('', callerHeaders(`access/${OTHER_TENANT}.read`));
+                expect(resp.status).toBe(200);
+            });
+        });
+
+        test('more than one Person id with the opt-in is a 400, checked before visibility', async () => {
+            const resp = await request
+                .get(`/4_0_0/Person/${PERSON_ID},00000000-0000-5000-8000-000000000000/$everything?${OPT_IN}`)
+                .set(getHeaders('user/*.read access/othertenant.read'));
+            expect(resp.status).toBe(400);
+            expect(resp.body.resourceType).toBe('OperationOutcome');
+            expect(JSON.stringify(resp.body.issue)).toContain('one Person per request');
+        });
+
+        test.each([['yes'], ['on'], ['']])('a malformed value (%p) is a 400, not an unfiltered record', async (value) => {
+            const resp = await personEverything(`_applyDataViewControl=${value}`);
+            expect(resp.status).toBe(400);
+            expect(hasBlocked(resp)).toBe(false);
+            expect(hasUnblocked(resp)).toBe(false);
+        });
+
+        test('a repeated parameter is a 400, not an unfiltered record', async () => {
+            const resp = await personEverything(`${OPT_IN}&${OPT_IN}`);
+            expect(resp.status).toBe(400);
+            expect(hasUnblocked(resp)).toBe(false);
+        });
+
+        test.each([['false'], ['0']])('the value %p is accepted and applies nothing', async (value) => {
+            const resp = await personEverything(`_applyDataViewControl=${value}`);
+            expect(resp.status).toBe(200);
+            expect(hasBlocked(resp)).toBe(true);
+        });
+
+        test('the opt-in on DELETE $everything is a 400 and deletes nothing', async () => {
+            const resp = await request.delete(`/4_0_0/Person/${PERSON_ID}/$everything?${OPT_IN}`).set(getHeaders());
+            expect(resp.status).toBe(400);
+            expect(hasUnblocked(await personEverything())).toBe(true);
+        });
+
+        describe('with the $everything cache on', () => {
+            const CACHE_ENV = [
+                'ENABLE_REDIS',
+                'ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION',
+                'ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION'
+            ];
+            let savedCacheEnv;
+            beforeEach(() => {
+                savedCacheEnv = CACHE_ENV.map((name) => process.env[name]);
+                CACHE_ENV.forEach((name) => { process.env[name] = '1'; });
+                getTestContainer().redisClient.streams.clear();
+            });
+            afterEach(() => {
+                CACHE_ENV.forEach((name, i) => {
+                    if (savedCacheEnv[i] === undefined) {
+                        delete process.env[name];
+                    } else {
+                        process.env[name] = savedCacheEnv[i];
+                    }
+                });
+            });
+
+            const cachedKeys = () => [...getTestContainer().redisClient.streams.keys()];
+            const userEverything = () => personEverything('', userHeaders());
+
+            test('an opt-in read is never served from, nor stored in, the cache that a user read filled', async () => {
+                const userMiss = await userEverything();
+                expect(userMiss.headers).toHaveProperty('x-cache', 'Miss');
+                expect((await userEverything()).headers).toHaveProperty('x-cache', 'Hit');
+                const keysAfterUser = cachedKeys();
+                expect(keysAfterUser).toHaveLength(1);
+
+                const optIn = await personEverything(OPT_IN);
+                expect(optIn.status).toBe(200);
+                expect(optIn.headers['x-cache']).not.toBe('Hit');
+                expect(hasBlocked(optIn)).toBe(false);
+                expect(hasUnblocked(optIn)).toBe(true);
+                // nothing new was stored, and the user's entry was not replaced
+                expect(cachedKeys()).toEqual(keysAfterUser);
+
+                // and a service read without the opt-in still gets the full record, not the user's cache
+                const plain = await personEverything();
+                expect(plain.headers['x-cache']).not.toBe('Hit');
+                expect(hasBlocked(plain)).toBe(true);
+            });
+
+            test('a user read after an opt-in read is a miss, so the opt-in stored nothing for it to hit', async () => {
+                const optIn = await personEverything(OPT_IN);
+                expect(optIn.status).toBe(200);
+                expect(cachedKeys()).toHaveLength(0);
+
+                const userFirst = await userEverything();
+                expect(userFirst.headers).toHaveProperty('x-cache', 'Miss');
+                expect(hasBlocked(userFirst)).toBe(false);
+            });
+        });
+
+        test('a failed Consent lookup is an HTTP error with no data', async () => {
+            const spy = jestObj.spyOn(PatientDataViewControlManager.prototype, 'getConsentAsync')
+                .mockRejectedValue(new Error('consent store unavailable'));
+            try {
+                const resp = await personEverything(OPT_IN);
+                expect(resp.status).toBeGreaterThanOrEqual(500);
+                expect(hasUnblocked(resp)).toBe(false);
+                expect(String(resp.text)).not.toContain('consent store unavailable');
+            } finally {
+                spy.mockRestore();
+            }
+        });
+
+        test('with the opt-in, a Person with no owner tag fails the request', async () => {
+            await stripPersonOwnerTag();
+            const resp = await personEverything(OPT_IN);
+            expect(resp.status).toBeGreaterThanOrEqual(500);
+            expect(hasUnblocked(resp)).toBe(false);
+        });
+
+        test('the opt-in is accepted under strict search handling', async () => {
+            const resp = await personEverything(OPT_IN, { ...getHeaders(), Prefer: 'handling=strict' });
+            expect(resp.status).toBe(200);
+            expect(hasUnblocked(resp)).toBe(true);
+            expect(hasBlocked(resp)).toBe(false);
+        });
+
+        // the opt-in is only defined for Person $everything, so asking for it elsewhere is an error
+        // rather than silently returning unfiltered data
+        test('the opt-in on Patient $everything is a 400', async () => {
+            const resp = await request.get(`/4_0_0/Patient/patient1/$everything?${OPT_IN}`).set(getHeaders());
+            expect(resp.status).toBe(400);
+        });
+
+        // user tokens are always filtered, so the opt-in changes nothing for them (and its
+        // single-Person rule doesn't apply)
+        test('a user token is filtered with or without the opt-in', async () => {
+            const resp = await personEverything(OPT_IN, userHeaders());
+            expect(resp.status).toBe(200);
+            expect(hasBlocked(resp)).toBe(false);
+        });
+    });
+
     describe('mixed uuid / sourceId exclusion lists', () => {
         // Consent blocks CarePlan/care-plan-1 (by uuid) and the caller additionally excludes
         // care-plan-2 by its non-uuid source id: the merged _id:not list mixes both id forms.

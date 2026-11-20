@@ -10,7 +10,10 @@ reads, on every read path the user can use.
   `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`. The owner is the Person's `owner` security tag.
   Users of other clients are unaffected, and with no client listed the feature is off.
 - **Service and admin tokens are not filtered.** Pipelines, deletion and other internal flows need
-  the full record.
+  the full record. A service reading on a user's behalf can opt in on Person `$everything` with
+  `_applyDataViewControl=true`; the Person in the URL is then filtered as the user would be. See
+  [patientEverything.md](patientEverything.md#_applydataviewcontrol) and
+  `docs/adr/0006-service-token-opt-in-for-data-view-control-on-person-everything.md`.
 
 ## Format of the Consent
 
@@ -172,13 +175,16 @@ cache is on, whether or not the `$everything` cache is).
 The filter fails closed: if the block can't be determined, no data is returned.
 - The user's Person has no owner tag: this is not a failure. Enrollment can't be decided without
   an owner, so the Person is treated as enrolled and the Consent is applied. The read succeeds with
-  the hidden resources removed.
+  the hidden resources removed. With the service-token opt-in the Person is named on purpose, so
+  there a Person without an owner tag fails the request.
 - The user's Person does not exist (for example, a token issued before the Person is created):
   this is not a failure. The user is linked to no Patient and has no Consent, so the read runs
   with nothing hidden and returns only what the patient scope allows.
 - The Consent lookup fails: REST returns an error status, and GraphQL returns `errors`.
 - User `$everything` writes the response as it goes, so a failure there is a 200 with an error
   OperationOutcome and no clinical resources.
+- With the service-token opt-in, the Person and Consent are loaded before the response starts, so a
+  failure is an HTTP error.
 
 ## Logs and audit events
 

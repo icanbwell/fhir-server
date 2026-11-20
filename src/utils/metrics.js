@@ -165,9 +165,11 @@ const VIEW_CONTROL_OUTCOME = Object.freeze({
     FAIL_CLOSED: 'fail_closed'
 });
 
-// Whose Consent is applied: the user in the token.
+// Whose Consent is applied: the user in the token, or the URL Person of a service token's
+// `_applyDataViewControl` opt-in.
 const VIEW_CONTROL_SUBJECT = Object.freeze({
-    USER: 'user'
+    USER: 'user',
+    OPT_IN: 'opt_in'
 });
 
 // Why a fail_closed lookup failed; anything else collapses to `error`.
@@ -423,7 +425,7 @@ const mongoPoolWaitQueueSizeUpDownCounter = meter.createUpDownCounter('fhir_mong
 });
 
 const viewControlOutcomeCounter = meter.createCounter('fhir_view_control_outcome_total', {
-    description: 'Data view control lookups, once per subject per request, by outcome (hidden|no_consent|not_enrolled|no_person|fail_closed), subject (user) and, for fail_closed, reason. hidden / (hidden + no_consent) is how often the block changes a response; fail_closed is a read refused because the Consent could not be checked.'
+    description: 'Data view control lookups, once per subject per request, by outcome (hidden|no_consent|not_enrolled|no_person|fail_closed), subject (user|opt_in) and, for fail_closed, reason. hidden / (hidden + no_consent) is how often the block changes a response; fail_closed is a read refused because the Consent could not be checked; opt_in is service-token use of _applyDataViewControl.'
 });
 
 const everythingCacheInvalidationFailedCounter = meter.createCounter('fhir_everything_cache_invalidation_failed_total', {

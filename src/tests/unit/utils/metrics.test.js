@@ -627,11 +627,11 @@ describe('metrics.js', () => {
     describe('recordViewControlOutcome', () => {
         test.each([
             [VIEW_CONTROL_OUTCOME.HIDDEN, VIEW_CONTROL_SUBJECT.USER, undefined, { outcome: 'hidden', subject: 'user' }],
-            [VIEW_CONTROL_OUTCOME.NO_CONSENT, VIEW_CONTROL_SUBJECT.USER, undefined, { outcome: 'no_consent', subject: 'user' }],
+            [VIEW_CONTROL_OUTCOME.NO_CONSENT, VIEW_CONTROL_SUBJECT.OPT_IN, undefined, { outcome: 'no_consent', subject: 'opt_in' }],
             [VIEW_CONTROL_OUTCOME.NOT_ENROLLED, VIEW_CONTROL_SUBJECT.USER, undefined, { outcome: 'not_enrolled', subject: 'user' }],
             [VIEW_CONTROL_OUTCOME.NO_PERSON, VIEW_CONTROL_SUBJECT.USER, undefined, { outcome: 'no_person', subject: 'user' }],
-            [VIEW_CONTROL_OUTCOME.FAIL_CLOSED, VIEW_CONTROL_SUBJECT.USER, VIEW_CONTROL_FAIL_REASON.FORBIDDEN,
-                { outcome: 'fail_closed', subject: 'user', reason: 'forbidden' }],
+            [VIEW_CONTROL_OUTCOME.FAIL_CLOSED, VIEW_CONTROL_SUBJECT.OPT_IN, VIEW_CONTROL_FAIL_REASON.FORBIDDEN,
+                { outcome: 'fail_closed', subject: 'opt_in', reason: 'forbidden' }],
             ['made-up', 'someone', undefined, { outcome: UNKNOWN, subject: UNKNOWN }],
             [VIEW_CONTROL_OUTCOME.FAIL_CLOSED, VIEW_CONTROL_SUBJECT.USER, 'free text with an id',
                 { outcome: 'fail_closed', subject: 'user', reason: UNKNOWN }],

@@ -194,7 +194,9 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
         ['Patient $graph linking Compositions', (r) => r.post(`/4_0_0/Patient/${PATIENT_UUID}/$graph`)
             .send(PATIENT_COMPOSITION_GRAPH).set(userHeaders())],
         ['Composition $graph', (r) => r.post(`/4_0_0/Composition/${COMPOSITION_A_UUID}/$graph`)
-            .send(COMPOSITION_GRAPH).set(userHeaders())]
+            .send(COMPOSITION_GRAPH).set(userHeaders())],
+        ['a service token opting in on Person $everything', (r) =>
+            r.get(`/4_0_0/Person/${PERSON_ID}/$everything?_applyDataViewControl=true`).set(getHeaders())]
     ])('%s removes the sections that reference the blocked CarePlan', async (_name, send) => {
         const resp = await send(request);
         expect(resp.status).toBe(200);
@@ -253,7 +255,7 @@ describe('dataConnectionViewControl Consent on Composition sections', () => {
     test.each([
         ['REST search with a service token', (r) => r.get(restSearch).set(getHeaders())],
         ['GraphQL v1 with a service token', graphql('/$graphql', V1_QUERY, getGraphQLHeaders())],
-        ['Person $everything with a service token', (r) =>
+        ['Person $everything with a service token, without the opt-in', (r) =>
             r.get(`/4_0_0/Person/${PERSON_ID}/$everything`).set(getHeaders())],
         ['Patient $graph with a service token', (r) => r.post(`/4_0_0/Patient/${PATIENT_UUID}/$graph`)
             .send(PATIENT_COMPOSITION_GRAPH).set(getHeaders())]

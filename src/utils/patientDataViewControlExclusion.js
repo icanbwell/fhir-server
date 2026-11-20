@@ -3,6 +3,8 @@ const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ConfigManager } = require('./configManager');
 const { PatientDataViewControlManager } = require('./patientDataViewController');
 const { PatientScopeManager } = require('../operations/security/patientScopeManager');
+const { ScopesManager } = require('../operations/security/scopesManager');
+const { ForbiddenError } = require('./httpErrors');
 const {
     recordViewControlOutcome,
     VIEW_CONTROL_OUTCOME,
@@ -22,16 +24,18 @@ const { ViewControlSubject } = require('./viewControlSubject');
  * most once per subject per request.
  *
  * The subject Person is chosen by the caller (see ViewControlSubject). When a caller passes none, it
- * is the user in the token, so service and admin tokens are unaffected. Subjects whose owner is not
- * in configManager.clientsWithDataConnectionViewControl are returned untouched.
+ * is the user in the token, so service and admin tokens are unaffected unless a caller opts in with
+ * a URL Person. Subjects whose owner is not in configManager.clientsWithDataConnectionViewControl are
+ * returned untouched.
  */
 class PatientDataViewControlExclusion {
     /**
      * @param {ConfigManager} configManager
      * @param {PatientDataViewControlManager} patientDataViewControlManager
      * @param {PatientScopeManager} patientScopeManager
+     * @param {ScopesManager} scopesManager
      */
-    constructor({ configManager, patientDataViewControlManager, patientScopeManager }) {
+    constructor({ configManager, patientDataViewControlManager, patientScopeManager, scopesManager }) {
         /** @type {ConfigManager} */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -41,6 +45,9 @@ class PatientDataViewControlExclusion {
         /** @type {PatientScopeManager} */
         this.patientScopeManager = patientScopeManager;
         assertTypeEquals(patientScopeManager, PatientScopeManager);
+        /** @type {ScopesManager} */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
@@ -49,8 +56,8 @@ class PatientDataViewControlExclusion {
      * shares. Memoized per request: the promise is stored in the request-scoped httpContext, so
      * concurrent GraphQL resolvers share one lookup. The result is frozen because it is shared.
      *
-     * With no subject (a service or admin token, or a user token without a person id), or no enrolled
-     * client, the result is empty and no lookup runs.
+     * With no subject (a service or admin token that didn't opt in, or a user token without a person
+     * id), or no enrolled client, the result is empty and no lookup runs.
      * @param {import('./fhirRequestInfo').FhirRequestInfo|undefined} requestInfo
      * @param {string} base_version
      * @param {ViewControlSubject|null} [subject] defaults to the user in the token
@@ -78,7 +85,7 @@ class PatientDataViewControlExclusion {
      * @return {Promise<ViewControlConsentLookup>}
      */
     async loadAsync({ requestInfo, base_version, subject }) {
-        const metricSubject = VIEW_CONTROL_SUBJECT.USER;
+        const metricSubject = subject.isUrlPerson ? VIEW_CONTROL_SUBJECT.OPT_IN : VIEW_CONTROL_SUBJECT.USER;
         let resolved;
         try {
             resolved = await this.resolveLookupAsync({ requestInfo, base_version, subject });
@@ -96,7 +103,9 @@ class PatientDataViewControlExclusion {
      *  VIEW_CONTROL_OUTCOME (never fail_closed: that is a throw)
      */
     async resolveLookupAsync({ requestInfo, base_version, subject }) {
-        const person = await this.loadTokenPersonAsync({ requestInfo, base_version, subject });
+        const person = subject.isUrlPerson
+            ? await this.loadUrlPersonAsync({ requestInfo, base_version, subject })
+            : await this.loadTokenPersonAsync({ requestInfo, base_version, subject });
         // The walk found no Person the token can see (e.g. not provisioned yet): the user is linked
         // to no Patient and has no Consent, so there is nothing to hide.
         if (!person) {
@@ -104,8 +113,8 @@ class PatientDataViewControlExclusion {
         }
         const { personId, owner } = person;
         // Every Person should have an owner tag (writes reject a resource without one), and enrollment
-        // is decided by it. A Person without one is treated as enrolled by getConsentAsync (the
-        // Consent is applied).
+        // is decided by it. For a user, a Person without one is treated as enrolled by getConsentAsync
+        // (the Consent is applied); only an opt-in on a URL Person refuses it, in loadUrlPersonAsync.
         const { viewControlResourceToExcludeMap, viewControlConsentQueries, viewControlConsentQueryOptions } =
             await this.patientDataViewControlManager.getConsentAsync({
                 requestInfo,
@@ -152,6 +161,55 @@ class PatientDataViewControlExclusion {
             'Person was not found, so the view control cannot be applied'
         );
         return owner === HTTP_CONTEXT_KEYS.PERSON_NOT_FOUND_MARKER ? null : { personId: subject.personId, owner };
+    }
+
+    /**
+     * A Person named in the URL: read through the caller's access filter, so a Person the caller can't
+     * see is a 404 like a missing one. The Consent is keyed on the Person's uuid, whatever id form the
+     * URL used.
+     *
+     * The Consent is then searched through the same access filter, and a Consent the caller can't see
+     * looks the same as no Consent. So for an enrolled owner, a caller whose access scopes don't cover
+     * that owner is refused instead of getting an unfiltered record.
+     * @private
+     * @return {Promise<{ personId: string, owner: string|undefined }>}
+     * @throws {AssertionError} when the Person has no owner tag
+     * @throws {ForbiddenError} when the owner is enrolled and the caller can't search its Consents
+     */
+    async loadUrlPersonAsync({ requestInfo, base_version, subject }) {
+        const { uuid, owner } = await this.patientDataViewControlManager.findPersonAsync({
+            requestInfo,
+            base_version,
+            personId: subject.personId
+        });
+        // An opt-in names one Person on purpose, so a Person that can't be tied to an owner fails the
+        // request rather than guessing: the owner decides enrollment and the scope check below.
+        assertIsValid(
+            owner,
+            'dataConnectionViewControl: the Person has no owner tag, so client enrollment cannot be decided'
+        );
+        if (this.configManager.clientsWithDataConnectionViewControl.includes(owner)) {
+            this.assertCallerCanSearchOwnerConsents({ requestInfo, owner });
+        }
+        return { personId: uuid, owner };
+    }
+
+    /**
+     * @private
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {string} owner
+     * @throws {ForbiddenError} when the caller's access scopes for searching don't include the owner
+     *   (or `*`). The message names no Person and no tenant other than the caller's own scopes.
+     */
+    assertCallerCanSearchOwnerConsents({ requestInfo, owner }) {
+        // 's' is the access the Consent search itself is made with (SearchManager.fetchResourcesByArgsAsync)
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('s', requestInfo.user, requestInfo.scope);
+        if (accessCodes.length > 0 && !accessCodes.includes('*') && !accessCodes.includes(owner)) {
+            throw new ForbiddenError(
+                'The caller\'s access scopes do not cover the Person\'s owner, so its data view control ' +
+                'cannot be applied'
+            );
+        }
     }
 
     /**

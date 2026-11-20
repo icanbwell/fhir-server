@@ -202,7 +202,10 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
                 mergeAsync: jest.fn().mockResolvedValue([{ created: true }]),
                 mergeAsyncStream: jest.fn().mockResolvedValue(undefined)
             },
-            everythingOperation: { everythingAsync: jest.fn().mockResolvedValue({ resourceType: 'Bundle', id: 'everything' }) },
+            everythingOperation: {
+                everythingAsync: jest.fn().mockResolvedValue({ resourceType: 'Bundle', id: 'everything' }),
+                preloadViewControlAsync: jest.fn().mockResolvedValue(undefined)
+            },
             summaryOperation: { summaryAsync: jest.fn().mockResolvedValue(undefined) },
             removeOperation: { removeAsync: jest.fn().mockResolvedValue({ deleted: 3 }) },
             searchByVersionIdOperation: { searchByVersionIdAsync: jest.fn().mockResolvedValue({ id: 'v1' }) },
@@ -726,6 +729,54 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
                 useAggregationPipeline: false
             });
             expect(result).toEqual({ resourceType: 'Bundle', entry: [] });
+        });
+
+        describe('_applyDataViewControl outside Person $everything', () => {
+            const send = (method, query) =>
+                manager[method]([], { req: makeReq({ query }), res: { write: jest.fn() } }, 'Patient');
+
+            test.each([
+                ['search', 'search', 'true'],
+                ['search', 'search', '1'],
+                ['search', 'search', true],
+                ['searchStreaming', 'searchStreaming', 'true'],
+                ['searchById', 'searchById', 'TRUE']
+            ])('%s from a service token is a 400 instead of an unfiltered record (value %p)',
+                async (_name, method, value) => {
+                    await expect(send(method, { _applyDataViewControl: value })).rejects.toMatchObject({
+                        statusCode: 400,
+                        message: expect.stringContaining('only supported on Person $everything')
+                    });
+                    expect(ops.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+                    expect(ops.searchStreamingOperation.searchStreamingAsync).not.toHaveBeenCalled();
+                    expect(ops.searchByIdOperation.searchByIdAsync).not.toHaveBeenCalled();
+                });
+
+            test.each([['yes'], ['on'], [''], [['true', 'true']], [{ a: 1 }]])(
+                'a malformed value (%p) is a 400, never read as "no opt-in"', async (value) => {
+                    await expect(send('search', { _applyDataViewControl: value })).rejects.toMatchObject({
+                        statusCode: 400,
+                        message: expect.stringContaining('must be one of true, 1, false or 0')
+                    });
+                    expect(ops.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+                });
+
+            test('a malformed value is a 400 for a user token too', async () => {
+                requestInfo.isUser = true;
+                await expect(send('search', { _applyDataViewControl: 'yes' })).rejects.toMatchObject({ statusCode: 400 });
+            });
+
+            test.each([['false'], ['0'], [undefined]])(
+                'a service token that does not ask for it (value %p) is unaffected', async (value) => {
+                    await send('search', value === undefined ? {} : { _applyDataViewControl: value });
+                    expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(1);
+                });
+
+            test('a user token is unaffected, since it is always filtered', async () => {
+                requestInfo.isUser = true;
+                await send('search', { _applyDataViewControl: 'true' });
+                expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(1);
+            });
         });
 
         test('searchStreaming passes the response object through to the streaming operation when Vulcan IG is disabled', async () => {
