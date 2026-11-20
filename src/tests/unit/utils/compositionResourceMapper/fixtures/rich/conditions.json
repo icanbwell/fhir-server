@@ -1,0 +1,245 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "bwell Connected Health",
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization"
+          }
+        ],
+        "date": "2026-06-15T12:00:00+00:00",
+        "extension": [
+          {
+            "extension": [
+              {
+                "url": "total",
+                "valueInteger": 2
+              }
+            ],
+            "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/composition-section-count"
+          }
+        ],
+        "id": "745f9951-91fc-53f3-b55b-322398a32ddc",
+        "identifier": {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+          "value": "bwell_composition_for_health_data_summary"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "END002",
+                  "display": "Type 2 Diabetes Mellitus",
+                  "system": "http://snomed.info/sct"
+                }
+              ],
+              "text": "Type 2 Diabetes Mellitus"
+            },
+            "entry": [
+              {
+                "id": "7b6f2f49-aeb3-501e-bed0-19919f392b5b",
+                "reference": "Condition/cond-1",
+                "type": "Condition"
+              }
+            ],
+            "id": "ac48e06d-91f0-57fe-a92a-da0ff2b35471",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by recordedDate DESC"
+            },
+            "section": [
+              {
+                "id": "35e1bc17-0f87-5fa8-95b3-d531fedbd01d",
+                "text": {
+                  "div": "Type 2 Diabetes Mellitus",
+                  "status": "generated"
+                },
+                "title": "Condition Name"
+              },
+              {
+                "id": "8a39534a-0b92-5453-a945-74d99860c05f",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "94ba3619-b132-53a3-a40e-c6cb4f687eee",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Category"
+              },
+              {
+                "id": "4fcd7cc0-b5ea-5ec8-95f3-3335dca2e4a6",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Onset Date"
+              },
+              {
+                "id": "a315147d-5f4a-5777-96e7-d73b469c366d",
+                "text": {
+                  "div": "Yes",
+                  "status": "generated"
+                },
+                "title": "Is Chronic"
+              },
+              {
+                "id": "346b76ff-a250-5824-a951-609ddf1146cb",
+                "text": {
+                  "div": "Active",
+                  "status": "generated"
+                },
+                "title": "Status"
+              }
+            ],
+            "title": "Type 2 Diabetes Mellitus"
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "null",
+                  "display": "Pregnant",
+                  "system": "http://snomed.info/sct"
+                }
+              ],
+              "text": "Pregnant"
+            },
+            "entry": [
+              {
+                "id": "31663bf6-2fde-5ce4-8ea7-7a0ff81a3c68",
+                "reference": "Condition/cond-pregnancy",
+                "type": "Condition"
+              }
+            ],
+            "id": "e83f8b12-0efc-5c0d-bf5c-5fe4a04201a4",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by recordedDate DESC"
+            },
+            "section": [
+              {
+                "id": "dac018dc-be4b-51a2-b4f7-f49af4082fa7",
+                "text": {
+                  "div": "Pregnant",
+                  "status": "generated"
+                },
+                "title": "Symptom Name"
+              },
+              {
+                "id": "87cc724b-4a41-58bd-8c9b-0881e868b819",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "df7d6a8f-fcb5-5978-992a-6cc6b8116a4c",
+                "text": {
+                  "div": "2026-01-10T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "When Reported"
+              },
+              {
+                "id": "44b7c6c7-216d-51dc-ab8c-4eba5c0e17b0",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "How It Was Noted"
+              }
+            ],
+            "title": "Pregnant"
+          }
+        ],
+        "status": "preliminary",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "Condition Summary Grouped by Condition Code",
+          "status": "generated"
+        },
+        "title": "Condition Summary Grouped by Condition Code",
+        "type": {
+          "coding": [
+            {
+              "code": "condition_summary_document",
+              "display": "b.Well Condition Summary Composition Document",
+              "id": "89b5fe4a-143e-5216-ba4e-2e93738d9d6c",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition"
+            },
+            {
+              "code": "condition_code_display_view",
+              "display": "Condition Code Display View",
+              "id": "6d150a0c-cb2c-5f90-8504-44b601b640ca",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type"
+            },
+            {
+              "code": "Condition",
+              "display": "FHIR resource type",
+              "id": "e9e24822-d92e-5eb0-b84c-bffd8691b6e6",
+              "system": "https://hl7.org/fhir/condition"
+            }
+          ],
+          "text": "Condition Code Display View Composition Document"
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}

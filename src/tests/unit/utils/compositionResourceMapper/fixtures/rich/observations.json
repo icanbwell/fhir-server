@@ -1,0 +1,998 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "bwell Connected Health",
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization"
+          }
+        ],
+        "date": "2026-06-15T12:00:00+00:00",
+        "extension": [
+          {
+            "extension": [
+              {
+                "url": "total",
+                "valueInteger": 2
+              }
+            ],
+            "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/composition-section-count"
+          }
+        ],
+        "id": "729ba7b3-d0a2-5fa2-b90f-45788492b7a5",
+        "identifier": {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+          "value": "bwell_composition_for_health_data_summary"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "Comprehensive Metabolic Panel (CMP)",
+                  "display": "Comprehensive Metabolic Panel (CMP)",
+                  "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/observation-lab-group"
+                }
+              ]
+            },
+            "extension": [
+              {
+                "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-panel-is-inferred",
+                "valueBoolean": false
+              }
+            ],
+            "id": "5f40bc00-c0ca-5d68-b9ce-c91769baa2e1",
+            "section": [
+              {
+                "id": "6fe89579-00ee-582f-bfa8-6195970f1fd4",
+                "section": [
+                  {
+                    "code": {
+                      "coding": [
+                        {
+                          "code": "2345-7",
+                          "display": "Glucose, Blood",
+                          "system": "http://loinc.org"
+                        }
+                      ]
+                    },
+                    "entry": [
+                      {
+                        "reference": "Observation/obs-cmp-glucose",
+                        "type": "Observation"
+                      }
+                    ],
+                    "extension": [
+                      {
+                        "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-is-core",
+                        "valueBoolean": true
+                      },
+                      {
+                        "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-has-consistent-units",
+                        "valueBoolean": true
+                      },
+                      {
+                        "extension": [
+                          {
+                            "extension": [
+                              {
+                                "url": "effectiveDateTime",
+                                "valueString": "2026-01-03T00:00:00+00:00"
+                              },
+                              {
+                                "url": "value",
+                                "valueString": "180 mg/dL"
+                              },
+                              {
+                                "url": "observationId",
+                                "valueReference": {
+                                  "reference": "Observation/obs-cmp-glucose",
+                                  "type": "Observation"
+                                }
+                              },
+                              {
+                                "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-interpretation",
+                                "valueString": "High"
+                              }
+                            ],
+                            "url": "entry"
+                          }
+                        ],
+                        "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-history"
+                      }
+                    ],
+                    "id": "a15c6906-d88c-5fb9-8337-bc707354ee40",
+                    "mode": "working",
+                    "orderedBy": {
+                      "coding": [
+                        {
+                          "code": "event-date",
+                          "display": "Sorted by Event Date",
+                          "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                          "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                        }
+                      ],
+                      "text": "Sorted by effectiveDateTime DESC"
+                    },
+                    "section": [
+                      {
+                        "id": "0f163dce-6388-5ae3-803f-958e102cc401",
+                        "text": {
+                          "div": "Glucose, Blood",
+                          "status": "generated"
+                        },
+                        "title": "Labs Name"
+                      },
+                      {
+                        "id": "266ed969-1ac2-5672-abb2-8d8c21d66d4b",
+                        "text": {
+                          "div": "Source-A",
+                          "status": "generated"
+                        },
+                        "title": "Source"
+                      },
+                      {
+                        "id": "e09be3be-e46a-57f5-8286-478f7c2caa02",
+                        "text": {
+                          "div": "2026-01-03T00:00:00+00:00",
+                          "status": "generated"
+                        },
+                        "title": "Effective Date"
+                      },
+                      {
+                        "id": "155eee9e-a301-55ca-bb72-d81b89a658f0",
+                        "text": {
+                          "div": "laboratory",
+                          "status": "generated"
+                        },
+                        "title": "Category"
+                      },
+                      {
+                        "id": "f75d458e-4bc2-553a-abfe-41a31e5ca5bc",
+                        "text": {
+                          "div": "Final",
+                          "status": "generated"
+                        },
+                        "title": "Result Status"
+                      },
+                      {
+                        "id": "ef01fb90-14d2-5700-9d0e-d0b368d63e22",
+                        "text": {
+                          "div": "Not provided by source",
+                          "status": "generated"
+                        },
+                        "title": "Interpreted By"
+                      },
+                      {
+                        "id": "7b6ed23d-a3ce-5701-bd6f-d82e82ed2ec4",
+                        "text": {
+                          "div": "Glucose",
+                          "status": "generated"
+                        },
+                        "title": "Analyte"
+                      },
+                      {
+                        "id": "eeccc41e-45df-5fdd-813d-8f6e8220d3dc",
+                        "text": {
+                          "div": "180",
+                          "status": "generated"
+                        },
+                        "title": "valueQuantity.value"
+                      },
+                      {
+                        "id": "7b806cc6-b2cf-5db0-b4af-ccbb4e1f13af",
+                        "text": {
+                          "div": "mg/dL",
+                          "status": "generated"
+                        },
+                        "title": "valueQuantity.unit"
+                      },
+                      {
+                        "code": {
+                          "coding": [
+                            {
+                              "code": "11502-2",
+                              "system": "http://loinc.org"
+                            }
+                          ]
+                        },
+                        "section": [
+                          {
+                            "code": {
+                              "coding": [
+                                {
+                                  "code": "24323-8",
+                                  "system": "http://loinc.org"
+                                }
+                              ]
+                            },
+                            "entry": [
+                              {
+                                "reference": "DiagnosticReport/dr-cmp-1",
+                                "type": "DiagnosticReport"
+                              }
+                            ],
+                            "section": [
+                              {
+                                "id": "a76bc177-d1a8-5a4e-8018-3d0e3e22e461",
+                                "text": {
+                                  "div": "final",
+                                  "status": "generated"
+                                },
+                                "title": "Status"
+                              },
+                              {
+                                "id": "ca28e6b7-47fa-5534-ac8d-abbce2258df6",
+                                "text": {
+                                  "div": "2026-01-03T01:00:00+00:00",
+                                  "status": "generated"
+                                },
+                                "title": "Issued"
+                              },
+                              {
+                                "id": "5bfa66e1-e63a-5881-b3d3-2bb4024c80ab",
+                                "text": {
+                                  "div": "2026-01-03T00:00:00+00:00",
+                                  "status": "generated"
+                                },
+                                "title": "Effective"
+                              },
+                              {
+                                "id": "c49882dc-260a-58d5-a079-87a79178b6f7",
+                                "text": {
+                                  "div": "Observation/obs-cmp-glucose, Observation/obs-cmp-sodium",
+                                  "status": "generated"
+                                },
+                                "title": "Result"
+                              }
+                            ],
+                            "title": "Comprehensive Metabolic Panel (CMP)"
+                          }
+                        ],
+                        "title": "Diagnostic Report"
+                      }
+                    ],
+                    "title": "Glucose, Blood"
+                  }
+                ],
+                "text": {
+                  "div": "Observation.component",
+                  "status": "generated"
+                },
+                "title": "Glucose, Blood"
+              },
+              {
+                "id": "6a4bf97c-fddd-5e20-9487-5a43146d4c5b",
+                "section": [
+                  {
+                    "code": {
+                      "coding": [
+                        {
+                          "code": "2951-2",
+                          "display": "Sodium, Blood",
+                          "system": "http://loinc.org"
+                        }
+                      ]
+                    },
+                    "entry": [
+                      {
+                        "reference": "Observation/obs-cmp-sodium",
+                        "type": "Observation"
+                      }
+                    ],
+                    "extension": [
+                      {
+                        "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-is-core",
+                        "valueBoolean": true
+                      },
+                      {
+                        "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-has-consistent-units",
+                        "valueBoolean": true
+                      },
+                      {
+                        "extension": [
+                          {
+                            "extension": [
+                              {
+                                "url": "effectiveDateTime",
+                                "valueString": "2026-01-03T00:00:00+00:00"
+                              },
+                              {
+                                "url": "value",
+                                "valueString": "140 mmol/L"
+                              },
+                              {
+                                "url": "observationId",
+                                "valueReference": {
+                                  "reference": "Observation/obs-cmp-sodium",
+                                  "type": "Observation"
+                                }
+                              },
+                              {
+                                "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-interpretation",
+                                "valueString": "Normal"
+                              }
+                            ],
+                            "url": "entry"
+                          }
+                        ],
+                        "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-history"
+                      }
+                    ],
+                    "id": "d2daf584-490e-5a54-956d-b3f31308752a",
+                    "mode": "working",
+                    "orderedBy": {
+                      "coding": [
+                        {
+                          "code": "event-date",
+                          "display": "Sorted by Event Date",
+                          "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                          "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                        }
+                      ],
+                      "text": "Sorted by effectiveDateTime DESC"
+                    },
+                    "section": [
+                      {
+                        "id": "264da907-7e0a-51d9-b304-3852f9f993e0",
+                        "text": {
+                          "div": "Sodium, Blood",
+                          "status": "generated"
+                        },
+                        "title": "Labs Name"
+                      },
+                      {
+                        "id": "a2c1fa2d-b566-5002-965f-178c3f77b1fc",
+                        "text": {
+                          "div": "Source-A",
+                          "status": "generated"
+                        },
+                        "title": "Source"
+                      },
+                      {
+                        "id": "7296cada-5ae3-5771-a76f-33eab1deed78",
+                        "text": {
+                          "div": "2026-01-03T00:00:00+00:00",
+                          "status": "generated"
+                        },
+                        "title": "Effective Date"
+                      },
+                      {
+                        "id": "9716b45d-0790-5a38-b346-b3828cf3c0a1",
+                        "text": {
+                          "div": "laboratory",
+                          "status": "generated"
+                        },
+                        "title": "Category"
+                      },
+                      {
+                        "id": "b85c2957-ed04-5b76-85f2-79765974f44e",
+                        "text": {
+                          "div": "Final",
+                          "status": "generated"
+                        },
+                        "title": "Result Status"
+                      },
+                      {
+                        "id": "99c1b3ff-1837-55b9-ba0f-012f77fdb42e",
+                        "text": {
+                          "div": "Not provided by source",
+                          "status": "generated"
+                        },
+                        "title": "Interpreted By"
+                      },
+                      {
+                        "id": "c3cb3ae0-61b4-56aa-8d28-e75e90f290e3",
+                        "text": {
+                          "div": "Sodium",
+                          "status": "generated"
+                        },
+                        "title": "Analyte"
+                      },
+                      {
+                        "id": "af843c08-e0d5-5823-84e8-f74fe5a0dc0a",
+                        "text": {
+                          "div": "140",
+                          "status": "generated"
+                        },
+                        "title": "valueQuantity.value"
+                      },
+                      {
+                        "id": "d6cdf230-fa39-5e91-9f03-915fc9f05039",
+                        "text": {
+                          "div": "mmol/L",
+                          "status": "generated"
+                        },
+                        "title": "valueQuantity.unit"
+                      },
+                      {
+                        "code": {
+                          "coding": [
+                            {
+                              "code": "11502-2",
+                              "system": "http://loinc.org"
+                            }
+                          ]
+                        },
+                        "section": [
+                          {
+                            "code": {
+                              "coding": [
+                                {
+                                  "code": "24323-8",
+                                  "system": "http://loinc.org"
+                                }
+                              ]
+                            },
+                            "entry": [
+                              {
+                                "reference": "DiagnosticReport/dr-cmp-1",
+                                "type": "DiagnosticReport"
+                              }
+                            ],
+                            "section": [
+                              {
+                                "id": "ae0db791-d233-5484-a989-630c8c02e39f",
+                                "text": {
+                                  "div": "final",
+                                  "status": "generated"
+                                },
+                                "title": "Status"
+                              },
+                              {
+                                "id": "033e6e18-9418-5d52-b03f-018c8be55ab4",
+                                "text": {
+                                  "div": "2026-01-03T01:00:00+00:00",
+                                  "status": "generated"
+                                },
+                                "title": "Issued"
+                              },
+                              {
+                                "id": "d9c54371-2254-5cb1-bbda-67a7de1c99b5",
+                                "text": {
+                                  "div": "2026-01-03T00:00:00+00:00",
+                                  "status": "generated"
+                                },
+                                "title": "Effective"
+                              },
+                              {
+                                "id": "f642e59a-dde8-59b3-bba0-247d351d789b",
+                                "text": {
+                                  "div": "Observation/obs-cmp-glucose, Observation/obs-cmp-sodium",
+                                  "status": "generated"
+                                },
+                                "title": "Result"
+                              }
+                            ],
+                            "title": "Comprehensive Metabolic Panel (CMP)"
+                          }
+                        ],
+                        "title": "Diagnostic Report"
+                      }
+                    ],
+                    "title": "Sodium, Blood"
+                  }
+                ],
+                "text": {
+                  "div": "Observation.component",
+                  "status": "generated"
+                },
+                "title": "Sodium, Blood"
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "code": "11502-2",
+                      "system": "http://loinc.org"
+                    }
+                  ]
+                },
+                "section": [
+                  {
+                    "code": {
+                      "coding": [
+                        {
+                          "code": "24323-8",
+                          "system": "http://loinc.org"
+                        }
+                      ]
+                    },
+                    "entry": [
+                      {
+                        "reference": "DiagnosticReport/dr-cmp-1",
+                        "type": "DiagnosticReport"
+                      }
+                    ],
+                    "section": [
+                      {
+                        "id": "3531f543-36f7-5633-bade-4ed98ef0cc84",
+                        "text": {
+                          "div": "final",
+                          "status": "generated"
+                        },
+                        "title": "Status"
+                      },
+                      {
+                        "id": "d43a5fc5-51b1-569c-94f0-5039af6c8f9d",
+                        "text": {
+                          "div": "2026-01-03T01:00:00+00:00",
+                          "status": "generated"
+                        },
+                        "title": "Issued"
+                      },
+                      {
+                        "id": "82e27bbc-8221-5a59-bd03-aa3e52048228",
+                        "text": {
+                          "div": "2026-01-03T00:00:00+00:00",
+                          "status": "generated"
+                        },
+                        "title": "Effective"
+                      },
+                      {
+                        "id": "f85ac7c2-7d49-5627-be5d-99fb11f69809",
+                        "text": {
+                          "div": "Observation/obs-cmp-glucose, Observation/obs-cmp-sodium",
+                          "status": "generated"
+                        },
+                        "title": "Result"
+                      }
+                    ],
+                    "title": "Comprehensive Metabolic Panel (CMP)"
+                  }
+                ],
+                "title": "Diagnostic Report"
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "code": "442096005",
+                      "display": "Measurement finding outside reference range",
+                      "system": "http://snomed.info/sct"
+                    }
+                  ]
+                },
+                "section": [
+                  {
+                    "code": {
+                      "coding": [
+                        {
+                          "code": "2345-7",
+                          "display": "Glucose, Blood",
+                          "system": "http://loinc.org"
+                        }
+                      ]
+                    },
+                    "entry": [
+                      {
+                        "reference": "Observation/obs-cmp-glucose",
+                        "type": "Observation"
+                      }
+                    ],
+                    "section": [
+                      {
+                        "id": "6f7247d3-7951-5425-b7b3-209a3d866486",
+                        "text": {
+                          "div": "High",
+                          "status": "generated"
+                        },
+                        "title": "Interpretation"
+                      }
+                    ],
+                    "title": "Glucose, Blood"
+                  }
+                ],
+                "title": "Out of Range Details"
+              }
+            ],
+            "title": "Comprehensive Metabolic Panel (CMP)"
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "718-7",
+                  "display": "Hemoglobin, Blood",
+                  "system": "http://loinc.org"
+                }
+              ]
+            },
+            "entry": [
+              {
+                "reference": "Observation/obs-1",
+                "type": "Observation"
+              }
+            ],
+            "extension": [
+              {
+                "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-is-core",
+                "valueBoolean": false
+              },
+              {
+                "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-has-consistent-units",
+                "valueBoolean": true
+              },
+              {
+                "extension": [
+                  {
+                    "extension": [
+                      {
+                        "url": "effectiveDateTime",
+                        "valueString": "2026-01-01T00:00:00"
+                      },
+                      {
+                        "url": "value",
+                        "valueString": "13.5 g/dL"
+                      },
+                      {
+                        "url": "observationId",
+                        "valueReference": {
+                          "reference": "Observation/obs-1",
+                          "type": "Observation"
+                        }
+                      }
+                    ],
+                    "url": "entry"
+                  }
+                ],
+                "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-history"
+              }
+            ],
+            "id": "6d22bcc2-8ac0-54f6-8161-23eb0ea9af7d",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by effectiveDateTime DESC"
+            },
+            "section": [
+              {
+                "id": "c01f777e-275d-59aa-867e-ba1b3b07d8f0",
+                "text": {
+                  "div": "Hemoglobin, Blood",
+                  "status": "generated"
+                },
+                "title": "Labs Name"
+              },
+              {
+                "id": "49a3099c-b0f8-50b7-9287-08266c7bf0c9",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "76f85092-2e7d-5850-8b82-221e66cce098",
+                "text": {
+                  "div": "2026-01-01T00:00:00",
+                  "status": "generated"
+                },
+                "title": "Effective Date"
+              },
+              {
+                "id": "69071f8f-4488-5628-a600-31de6665a439",
+                "text": {
+                  "div": "laboratory",
+                  "status": "generated"
+                },
+                "title": "Category"
+              },
+              {
+                "id": "168b2b2d-89a0-58f6-b1a3-de62b869e506",
+                "text": {
+                  "div": "Final",
+                  "status": "generated"
+                },
+                "title": "Result Status"
+              },
+              {
+                "id": "ba7f06d0-6469-5046-bbce-9ccad00d5245",
+                "text": {
+                  "div": "Not provided by source",
+                  "status": "generated"
+                },
+                "title": "Interpreted By"
+              },
+              {
+                "id": "2042b267-04e1-5e1a-8a07-5effb165f5af",
+                "text": {
+                  "div": "Hemoglobin",
+                  "status": "generated"
+                },
+                "title": "Analyte"
+              },
+              {
+                "id": "43195ca5-f328-59cd-a2c9-98d46f405b57",
+                "text": {
+                  "div": "13.5",
+                  "status": "generated"
+                },
+                "title": "valueQuantity.value"
+              },
+              {
+                "id": "d87af9d0-f0c9-5fdb-862e-7c18cd1684b4",
+                "text": {
+                  "div": "g/dL",
+                  "status": "generated"
+                },
+                "title": "valueQuantity.unit"
+              }
+            ],
+            "title": "Hemoglobin, Blood"
+          }
+        ],
+        "status": "preliminary",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "Observation|Lab Summary Grouped by Lab Code",
+          "status": "generated"
+        },
+        "title": "Observation|Lab Summary Grouped by Lab Code",
+        "type": {
+          "coding": [
+            {
+              "code": "lab_summary_document",
+              "display": "b.Well Labs Summary Composition Document",
+              "id": "8a579e58-74b1-52e1-8445-9a1dfe4920b5",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition"
+            },
+            {
+              "code": "labs_code_display_view",
+              "display": "Labs Code Display View",
+              "id": "d2d7c6eb-3087-56c8-8da6-f0bd22370dbb",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type"
+            },
+            {
+              "code": "Observation",
+              "display": "FHIR resource type",
+              "id": "0b6cce90-2531-51c0-8058-a8cefa1d9534",
+              "system": "https://hl7.org/fhir/observation"
+            }
+          ],
+          "text": "Lab Summary Composition Document"
+        }
+      }
+    },
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "bwell Connected Health",
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization"
+          }
+        ],
+        "date": "2026-06-15T12:00:00+00:00",
+        "extension": [
+          {
+            "extension": [
+              {
+                "url": "total",
+                "valueInteger": 1
+              }
+            ],
+            "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/composition-section-count"
+          }
+        ],
+        "id": "29e385dd-cb09-5c33-9927-2dbe9bd9a8a6",
+        "identifier": {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+          "value": "bwell_composition_for_health_data_summary"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "55284-4",
+                  "display": "Blood Pressure",
+                  "system": "http://loinc.org"
+                }
+              ]
+            },
+            "entry": [
+              {
+                "reference": "Observation/obs-bp-systolic",
+                "type": "Observation"
+              },
+              {
+                "reference": "Observation/obs-bp-diastolic",
+                "type": "Observation"
+              }
+            ],
+            "extension": [
+              {
+                "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-is-core",
+                "valueBoolean": false
+              },
+              {
+                "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-has-consistent-units",
+                "valueBoolean": true
+              },
+              {
+                "extension": [
+                  {
+                    "extension": [
+                      {
+                        "url": "effectiveDateTime",
+                        "valueString": "2026-01-01T00:00:00+00:00"
+                      },
+                      {
+                        "url": "value",
+                        "valueString": "120/80"
+                      },
+                      {
+                        "url": "observationId",
+                        "valueReference": {
+                          "reference": "Observation/obs-bp-systolic",
+                          "type": "Observation"
+                        }
+                      },
+                      {
+                        "url": "observationId",
+                        "valueReference": {
+                          "reference": "Observation/obs-bp-diastolic",
+                          "type": "Observation"
+                        }
+                      }
+                    ],
+                    "url": "entry"
+                  }
+                ],
+                "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/observation-lab-history"
+              }
+            ],
+            "id": "197c91dd-410d-5b38-a8ff-2920a66815e8",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by effectiveDateTime DESC"
+            },
+            "section": [
+              {
+                "id": "a16138c1-0fc9-5b55-8143-dcddc79e59ea",
+                "text": {
+                  "div": "Blood Pressure",
+                  "status": "generated"
+                },
+                "title": "Vital Name"
+              },
+              {
+                "id": "d44d030c-c2b0-5599-9914-a2e17e34961a",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "1f46c730-6476-51e5-9ed0-c5540dcc8fca",
+                "text": {
+                  "div": "2026-01-01T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "effectiveDateTime"
+              },
+              {
+                "id": "852c41b6-e471-5bad-9fbc-739a141c3e7d",
+                "text": {
+                  "div": "120/80",
+                  "status": "generated"
+                },
+                "title": "valueString"
+              }
+            ],
+            "title": "Blood Pressure"
+          }
+        ],
+        "status": "preliminary",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "Observation|Vitals Summary Grouped by Vital Code",
+          "status": "generated"
+        },
+        "title": "Observation|Vitals Summary Grouped by Vital Code",
+        "type": {
+          "coding": [
+            {
+              "code": "vital_summary_document",
+              "display": "b.Well Vitals Summary Composition Document",
+              "id": "aa2d64c2-df2d-5cc3-a482-734a73581166",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition"
+            },
+            {
+              "code": "vital_code_display_view",
+              "display": "Vitals Code Display View",
+              "id": "585a1834-0c2e-5166-a739-39261c1441c2",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type"
+            },
+            {
+              "code": "Observation",
+              "display": "FHIR resource type",
+              "id": "c907f7d3-ea72-542a-a618-c256d5acd455",
+              "system": "https://hl7.org/fhir/observation"
+            }
+          ],
+          "text": "Vitals Code Display View Composition Document"
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}

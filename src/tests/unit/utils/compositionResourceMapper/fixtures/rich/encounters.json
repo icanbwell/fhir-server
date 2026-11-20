@@ -1,0 +1,316 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "bwell Connected Health",
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization"
+          }
+        ],
+        "date": "2026-06-15T12:00:00+00:00",
+        "extension": [
+          {
+            "extension": [
+              {
+                "url": "total",
+                "valueInteger": 1
+              },
+              {
+                "url": "upcoming",
+                "valueInteger": 0
+              },
+              {
+                "url": "past",
+                "valueInteger": 1
+              }
+            ],
+            "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/composition-section-count"
+          }
+        ],
+        "id": "24c12cb6-0053-5a4e-8e24-efacf8d41ed0",
+        "identifier": {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+          "value": "bwell_composition_for_health_data_summary"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "AMB",
+                  "display": "Ambulatory",
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                },
+                {
+                  "code": "185349003",
+                  "system": "http://snomed.info/sct"
+                }
+              ],
+              "text": "Ambulatory"
+            },
+            "entry": [
+              {
+                "reference": "Encounter/enc-1",
+                "type": "Encounter"
+              }
+            ],
+            "id": "f80c0108-9bb8-57fe-b0ff-3295edda57d1",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by Event Date DESC"
+            },
+            "section": [
+              {
+                "id": "150a1f24-14c3-593c-acab-3d544b05c851",
+                "text": {
+                  "div": "Office Visit",
+                  "status": "generated"
+                },
+                "title": "Visit Name"
+              },
+              {
+                "id": "88775b9d-ce61-50bb-b833-ca8f060eb7eb",
+                "text": {
+                  "div": "Ambulatory",
+                  "status": "generated"
+                },
+                "title": "Class"
+              },
+              {
+                "id": "e70eac3d-cd10-51c7-9d1a-fc647ebfcbf5",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Type"
+              },
+              {
+                "id": "4b721592-62c7-575d-b4a0-55ee531995d5",
+                "text": {
+                  "div": "Office visit",
+                  "status": "generated"
+                },
+                "title": "Visit Type"
+              },
+              {
+                "id": "6b284206-301e-509c-b3f2-b757c3b0929b",
+                "text": {
+                  "div": "Outpatient",
+                  "status": "generated"
+                },
+                "title": "Care Setting"
+              },
+              {
+                "id": "71a8ceed-3b6d-5bf5-bb8f-3e7af9b54ae1",
+                "text": {
+                  "div": "Finished",
+                  "status": "generated"
+                },
+                "title": "Visit Status"
+              },
+              {
+                "id": "4a6d7b9a-9fe0-55d7-a561-d32d872795bc",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "93785fe1-022d-5f68-bae5-045054c47af8",
+                "text": {
+                  "div": "2026-01-01T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Date"
+              },
+              {
+                "id": "de91bf30-495f-510b-807a-01baf8168dc0",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Reason"
+              },
+              {
+                "id": "7404a6fb-9104-568e-a580-c45da84c54dc",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Reason Code"
+              },
+              {
+                "id": "e3e2dda2-86b3-5f9c-9e0d-a00bb20b0aed",
+                "text": {
+                  "div": "Testgiven Testfamily",
+                  "status": "generated"
+                },
+                "title": "Provider"
+              },
+              {
+                "id": "ed859581-8580-5454-afee-22b4343c42a7",
+                "text": {
+                  "div": "Testgiven Testfamily",
+                  "status": "generated"
+                },
+                "title": "Practitioner"
+              },
+              {
+                "id": "84fca1c3-00f7-5ec5-bac4-64cf0c7e3280",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Practitioner NPI"
+              },
+              {
+                "id": "aec4cb21-1586-58aa-99ff-772a6d63b58e",
+                "text": {
+                  "div": "Not provided by source",
+                  "status": "generated"
+                },
+                "title": "Specialty"
+              },
+              {
+                "id": "83b2e0d3-a43f-524e-be13-09faaf7dc555",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Service"
+              },
+              {
+                "id": "8a5b5826-62f1-59d4-938e-aaa76a31c1d5",
+                "text": {
+                  "div": "Test Health Organization",
+                  "status": "generated"
+                },
+                "title": "Facility"
+              },
+              {
+                "id": "8282c2f0-11ee-57e5-8429-c0c90e95857d",
+                "text": {
+                  "div": "Test Clinic",
+                  "status": "generated"
+                },
+                "title": "Location Name"
+              },
+              {
+                "id": "4649adb0-ee5c-50f7-b16d-dde1475b3b6e",
+                "text": {
+                  "div": "Test Clinic",
+                  "status": "generated"
+                },
+                "title": "Primary Location"
+              },
+              {
+                "id": "91f880c9-1331-5c12-8f01-2866ddd086c1",
+                "text": {
+                  "div": "1 Test Way, Testville, CA",
+                  "status": "generated"
+                },
+                "title": "Location"
+              },
+              {
+                "id": "ab24f2f0-fd20-5c14-9f96-f124af814557",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Location Status"
+              },
+              {
+                "id": "1325ec0d-c035-59d9-8e2a-7060dc31f017",
+                "text": {
+                  "div": "555-0100",
+                  "status": "generated"
+                },
+                "title": "Location Phone"
+              },
+              {
+                "id": "bf8938fd-e122-52a5-8595-9850df2bec88",
+                "text": {
+                  "div": "Test Health Organization",
+                  "status": "generated"
+                },
+                "title": "Managed By"
+              }
+            ],
+            "title": "Office Visit"
+          }
+        ],
+        "status": "preliminary",
+        "subject": {
+          "reference": "Patient/person.test-person-1"
+        },
+        "text": {
+          "div": "Encounter Summary Grouped by Encounter Class and Dates",
+          "status": "generated"
+        },
+        "title": "Encounter Summary Grouped by Encounter Class and Dates",
+        "type": {
+          "coding": [
+            {
+              "code": "encounter_summary_document",
+              "display": "b.Well Encounter Summary Composition Document",
+              "id": "4b170495-2ed4-5478-b98a-21eeb7d00192",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition"
+            },
+            {
+              "code": "encounter_group_class",
+              "display": "Encounter Summary Grouped by Encounter Class",
+              "id": "f8a96071-1642-51c6-9520-e51869d458c7",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type"
+            },
+            {
+              "code": "Encounter",
+              "display": "FHIR resource type",
+              "id": "e614a9ea-c703-5070-879e-3e6b7711734f",
+              "system": "https://hl7.org/fhir/encounter"
+            }
+          ],
+          "text": "Encounter Summary Composition Document"
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}

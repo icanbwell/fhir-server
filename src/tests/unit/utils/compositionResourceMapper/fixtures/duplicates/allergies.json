@@ -1,0 +1,223 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "bwell Connected Health",
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization"
+          }
+        ],
+        "date": "2026-06-15T12:00:00+00:00",
+        "extension": [
+          {
+            "extension": [
+              {
+                "url": "total",
+                "valueInteger": 1
+              }
+            ],
+            "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/composition-section-count"
+          }
+        ],
+        "id": "ebbd4af4-7d47-5d87-bb07-bda0d5923bec",
+        "identifier": {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+          "value": "bwell_composition_for_health_data_summary"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "91936005",
+                  "display": "Unknown",
+                  "extension": [
+                    {
+                      "id": "preferred",
+                      "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                      "valueCode": "preferred"
+                    }
+                  ],
+                  "id": "dc8aa129-f01b-59b7-b853-6596ade20248",
+                  "system": "http://snomed.info/sct"
+                }
+              ],
+              "text": "Unknown"
+            },
+            "entry": [
+              {
+                "id": "dac9807b-17a7-58a9-b9f2-947a643f2d25",
+                "reference": "AllergyIntolerance/allergy-1",
+                "type": "AllergyIntolerance"
+              },
+              {
+                "id": "e5cee8c1-2ada-5abd-98cf-382200c5c9d0",
+                "reference": "AllergyIntolerance/allergy-1-source-b",
+                "type": "AllergyIntolerance"
+              }
+            ],
+            "id": "e56e576d-6fad-504e-a5fb-9afbfd5b3be5",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by recordedDate DESC"
+            },
+            "section": [
+              {
+                "id": "6fefb5f3-79c3-5d52-b449-50aa8debd08a",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Allergen Name"
+              },
+              {
+                "id": "01e34087-c2c7-57f7-99a5-b7e788a10b89",
+                "text": {
+                  "div": "Source-A, Source-B",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "249dac82-b6dd-5aea-b6df-a3858e18611b",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Criticality"
+              },
+              {
+                "id": "462dbcda-9a7d-59d4-819a-b05e64a79e90",
+                "text": {
+                  "div": "2026-01-05T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Recorded Date"
+              },
+              {
+                "id": "48ab2059-4c99-547c-aec6-d47113434554",
+                "text": {
+                  "div": "2026-01-05T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Onset"
+              },
+              {
+                "id": "69a02389-b4a1-5653-b24a-dbd7d4639db1",
+                "text": {
+                  "div": "Medication",
+                  "status": "generated"
+                },
+                "title": "Category"
+              },
+              {
+                "id": "0479ae08-63b3-5a07-90a7-4ed166654346",
+                "text": {
+                  "div": "Active",
+                  "status": "generated"
+                },
+                "title": "Clinical Status"
+              },
+              {
+                "id": "8593f8c8-1691-5c6d-9e48-fbff37aa9bad",
+                "text": {
+                  "div": "Confirmed",
+                  "status": "generated"
+                },
+                "title": "Verification Status"
+              },
+              {
+                "id": "fcf8ca7b-a7a5-5c4e-955e-6a0e1f4fea69",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Severity"
+              },
+              {
+                "id": "5152f33f-b9de-57aa-8dd0-22e354446256",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Reaction"
+              }
+            ],
+            "title": "Unknown"
+          }
+        ],
+        "status": "preliminary",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "AllergyIntolerance Summary Grouped by AllergyIntolerance Code",
+          "status": "generated"
+        },
+        "title": "AllergyIntolerance Summary Grouped by AllergyIntolerance Code",
+        "type": {
+          "coding": [
+            {
+              "code": "allergyintolerance_summary_document",
+              "display": "b.Well AllergyIntolerance Summary Composition Document",
+              "id": "a4d960c6-9949-5319-b91c-7d64d98855e5",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition"
+            },
+            {
+              "code": "allergyintolerance_code_display_view",
+              "display": "Allergyintolerance Code Display View",
+              "id": "c20c7252-fe50-56a0-9f33-37d11434d7ad",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type"
+            },
+            {
+              "code": "AllergyIntolerance",
+              "display": "FHIR resource type",
+              "id": "6c46da8e-51c3-5b81-ae3e-b981f5f7b2ef",
+              "system": "https://hl7.org/fhir/allergyintolerance"
+            }
+          ],
+          "text": "AllergyIntolerance Code Display View Composition Document"
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}

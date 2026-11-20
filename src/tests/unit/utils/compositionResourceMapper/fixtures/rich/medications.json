@@ -1,0 +1,1148 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "bwell Connected Health",
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization"
+          }
+        ],
+        "date": "2026-06-15T12:00:00+00:00",
+        "extension": [
+          {
+            "extension": [
+              {
+                "url": "total",
+                "valueInteger": 7
+              }
+            ],
+            "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/composition-section-count"
+          }
+        ],
+        "id": "87c39a5c-a4b1-5151-8157-8350600c7303",
+        "identifier": {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+          "value": "bwell_composition_for_health_data_summary"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "1049502",
+                  "display": "Oxycodone 5 MG",
+                  "extension": [
+                    {
+                      "id": "preferred",
+                      "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                      "valueCode": "preferred"
+                    }
+                  ],
+                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                }
+              ],
+              "text": "Oxycodone (Oral)"
+            },
+            "entry": [
+              {
+                "id": "70817798-e101-50a3-a3ad-b296f417f53b",
+                "reference": "MedicationStatement/70817798-e101-50a3-a3ad-b296f417f53b",
+                "type": "MedicationStatement"
+              }
+            ],
+            "id": "66ea3f07-7206-5d24-850b-9dee2b8014fb",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by authoredOn|whenPrepared|whenHandedOver DESC"
+            },
+            "section": [
+              {
+                "id": "51198cb4-2907-5d1d-85c3-6f991abf947c",
+                "text": {
+                  "div": "Oxycodone (Oral)",
+                  "status": "generated"
+                },
+                "title": "Medication Name"
+              },
+              {
+                "id": "15ab0880-2182-5893-9816-af228b40276c",
+                "text": {
+                  "div": "mr-plain",
+                  "status": "generated"
+                },
+                "title": "MedicationRequest ID"
+              },
+              {
+                "id": "09b61248-3b08-5937-8441-2ee0525d8fb4",
+                "text": {
+                  "div": "active",
+                  "status": "generated"
+                },
+                "title": "Status"
+              },
+              {
+                "id": "a6379481-da56-5de5-8d26-9427462f9856",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "97801add-e98b-5a3d-98e2-52bd79a422a3",
+                "text": {
+                  "div": "2026-03-01T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Authored On Date"
+              }
+            ],
+            "title": "Oxycodone (Oral)"
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "display": "Aspirin 81 MG"
+                }
+              ],
+              "text": "Aspirin 81 MG"
+            },
+            "entry": [
+              {
+                "id": "b435f13f-24c6-5953-af92-cef8fe687108",
+                "reference": "MedicationStatement/b435f13f-24c6-5953-af92-cef8fe687108",
+                "type": "MedicationStatement"
+              }
+            ],
+            "id": "1e61af8d-52f4-52f6-8c68-92a5d833b3e8",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by authoredOn|whenPrepared|whenHandedOver DESC"
+            },
+            "section": [
+              {
+                "id": "5386df63-052f-52bd-93f9-24b9aa938e27",
+                "text": {
+                  "div": "Aspirin 81 MG",
+                  "status": "generated"
+                },
+                "title": "Medication Name"
+              },
+              {
+                "id": "e4ae8e47-d2d9-5f16-a7e2-a97f414aad3f",
+                "text": {
+                  "div": "mr-text-only",
+                  "status": "generated"
+                },
+                "title": "MedicationRequest ID"
+              },
+              {
+                "id": "34e67d3c-b316-56ed-b255-c16e0cef0e4c",
+                "text": {
+                  "div": "active",
+                  "status": "generated"
+                },
+                "title": "Status"
+              },
+              {
+                "id": "57de39dc-7ada-584e-8e9c-185bd21ea9dc",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "2eb86a6e-a8ed-5492-aeb8-140ad9399900",
+                "text": {
+                  "div": "2026-03-01T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Authored On Date"
+              }
+            ],
+            "title": "Aspirin 81 MG"
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "243670",
+                  "display": "Ibuprofen",
+                  "extension": [
+                    {
+                      "id": "preferred",
+                      "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                      "valueCode": "preferred"
+                    }
+                  ],
+                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                }
+              ],
+              "text": "Anacin Aspirin Regimen, Bayer Aspirin, Bufferin also known as Aspirin (Oral)"
+            },
+            "entry": [
+              {
+                "id": "5cea4393-712d-59b6-ab3c-22c858746972",
+                "reference": "MedicationStatement/5cea4393-712d-59b6-ab3c-22c858746972",
+                "type": "MedicationStatement"
+              }
+            ],
+            "id": "7d1755d6-a932-58dd-afe3-213c94cdf9eb",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by authoredOn|whenPrepared|whenHandedOver DESC"
+            },
+            "section": [
+              {
+                "id": "d7c65f08-c32e-53f4-8ffe-787557bf8105",
+                "text": {
+                  "div": "Anacin Aspirin Regimen, Bayer Aspirin, Bufferin also known as Aspirin (Oral)",
+                  "status": "generated"
+                },
+                "title": "Medication Name"
+              },
+              {
+                "id": "f893f113-8a85-5607-a1ac-99762b8d2f1a",
+                "text": {
+                  "div": "mr-blank-text",
+                  "status": "generated"
+                },
+                "title": "MedicationRequest ID"
+              },
+              {
+                "id": "3c03a1af-2376-5510-93d4-ef813edc3128",
+                "text": {
+                  "div": "active",
+                  "status": "generated"
+                },
+                "title": "Status"
+              },
+              {
+                "id": "1dd0190f-7f07-5736-a3d9-d956544adb49",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "fccd37c7-072d-50ee-82c2-cb319e6b4882",
+                "text": {
+                  "div": "2026-03-01T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Authored On Date"
+              }
+            ],
+            "title": "Anacin Aspirin Regimen, Bayer Aspirin, Bufferin also known as Aspirin (Oral)"
+          },
+          {
+            "code": {
+              "coding": [
+                {}
+              ],
+              "text": "Null coding"
+            },
+            "entry": [
+              {
+                "id": "53da6a77-c370-542c-8d68-9068eef2a511",
+                "reference": "MedicationStatement/53da6a77-c370-542c-8d68-9068eef2a511",
+                "type": "MedicationStatement"
+              }
+            ],
+            "id": "0cc7c015-dd4f-5a57-a73e-5ac08dd3c7c6",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by authoredOn|whenPrepared|whenHandedOver DESC"
+            },
+            "section": [
+              {
+                "id": "23b90e60-e868-54eb-98c6-2cf8d95d3c3d",
+                "text": {
+                  "div": "Null Coding",
+                  "status": "generated"
+                },
+                "title": "Medication Name"
+              },
+              {
+                "id": "acd05e67-d6ff-5b06-b7bb-fd12adebf919",
+                "text": {
+                  "div": "mr-all-null-coding",
+                  "status": "generated"
+                },
+                "title": "MedicationRequest ID"
+              },
+              {
+                "id": "59138bab-139e-5880-8589-194827b12a47",
+                "text": {
+                  "div": "active",
+                  "status": "generated"
+                },
+                "title": "Status"
+              },
+              {
+                "id": "879520ae-7aba-517b-9520-7a05979d21c4",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "6f31dc62-a1a6-5b65-9109-4ce57a62460a",
+                "text": {
+                  "div": "2026-03-01T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Authored On Date"
+              }
+            ],
+            "title": "Null Coding"
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": " 197361 ",
+                  "display": "Lisinopril",
+                  "extension": [
+                    {
+                      "id": "preferred",
+                      "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                      "valueCode": "preferred"
+                    }
+                  ],
+                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                }
+              ],
+              "text": "Lisinopril"
+            },
+            "entry": [
+              {
+                "id": "131ca068-4af0-54b2-bccf-17f476530834",
+                "reference": "MedicationStatement/131ca068-4af0-54b2-bccf-17f476530834",
+                "type": "MedicationStatement"
+              }
+            ],
+            "id": "8785f979-0c2a-5c9b-a124-32667342bcfd",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by authoredOn|whenPrepared|whenHandedOver DESC"
+            },
+            "section": [
+              {
+                "id": "c51dd49f-a946-5a24-b847-8a2947734db5",
+                "text": {
+                  "div": "Lisinopril",
+                  "status": "generated"
+                },
+                "title": "Medication Name"
+              },
+              {
+                "id": "bc564389-8514-5d3b-bf1f-ce4d1e8cd12c",
+                "text": {
+                  "div": "mr-spacey-code",
+                  "status": "generated"
+                },
+                "title": "MedicationRequest ID"
+              },
+              {
+                "id": "9b4d8262-437e-518d-a63c-eb4bca355015",
+                "text": {
+                  "div": "active",
+                  "status": "generated"
+                },
+                "title": "Status"
+              },
+              {
+                "id": "afed5104-c479-54a1-afe6-7227ad6709b0",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "3fec8956-ac57-5b93-b10b-9855215f18d1",
+                "text": {
+                  "div": "2026-03-01T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Authored On Date"
+              }
+            ],
+            "title": "Lisinopril"
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "860975",
+                  "display": "Metformin",
+                  "extension": [
+                    {
+                      "id": "preferred",
+                      "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                      "valueCode": "preferred"
+                    }
+                  ],
+                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+                }
+              ],
+              "text": "Glucophage also known as Metformin (Oral)"
+            },
+            "entry": [
+              {
+                "id": "ea79c53c-0256-59d5-8588-0a7750263b16",
+                "reference": "MedicationStatement/ea79c53c-0256-59d5-8588-0a7750263b16",
+                "type": "MedicationStatement"
+              }
+            ],
+            "id": "2bed9187-c4c2-5c13-9586-df5472ea5517",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by authoredOn|whenPrepared|whenHandedOver DESC"
+            },
+            "section": [
+              {
+                "id": "f37f1d4b-f8d6-5aa6-ab60-7824aa3885c8",
+                "text": {
+                  "div": "Glucophage also known as Metformin (Oral)",
+                  "status": "generated"
+                },
+                "title": "Medication Name"
+              },
+              {
+                "id": "75ef56af-d6ce-5e2a-b2c9-216507862b58",
+                "text": {
+                  "div": "mr-by-reference",
+                  "status": "generated"
+                },
+                "title": "MedicationRequest ID"
+              },
+              {
+                "id": "6bfd37c6-cafa-5ddc-8429-47f5cc3de390",
+                "text": {
+                  "div": "active",
+                  "status": "generated"
+                },
+                "title": "Status"
+              },
+              {
+                "id": "f0f897bd-aec4-553a-b28c-5ba2e81b6695",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "cb57ae3e-225f-571c-aacd-6a05eed91d68",
+                "text": {
+                  "div": "2026-03-01T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Authored On Date"
+              }
+            ],
+            "title": "Glucophage also known as Metformin (Oral)"
+          },
+          {
+            "entry": [
+              {
+                "id": "a394773b-5a0d-547a-ba4e-ca033dee0edf",
+                "reference": "MedicationStatement/a394773b-5a0d-547a-ba4e-ca033dee0edf",
+                "type": "MedicationStatement"
+              }
+            ],
+            "id": "3698f45b-9ae6-5bb1-9e0e-65ffbeed7c2d",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by authoredOn|whenPrepared|whenHandedOver DESC"
+            },
+            "section": [
+              {
+                "id": "91438890-bf5a-57da-9fa1-53b87c323757",
+                "text": {
+                  "div": "Amoxicillin 500 MG",
+                  "status": "generated"
+                },
+                "title": "Medication Name"
+              },
+              {
+                "id": "c92127ad-e323-5689-a027-ee59421d5722",
+                "text": {
+                  "div": "mr-display-only-reference",
+                  "status": "generated"
+                },
+                "title": "MedicationRequest ID"
+              },
+              {
+                "id": "f8797a17-cb7c-55fe-9849-1a27045e7038",
+                "text": {
+                  "div": "active",
+                  "status": "generated"
+                },
+                "title": "Status"
+              },
+              {
+                "id": "371e539e-a9fa-57eb-b31e-ec1e9eb38e34",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "ae1093c6-40b8-57d6-a5d6-c1a05e16d31c",
+                "text": {
+                  "div": "2026-03-01T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "Authored On Date"
+              }
+            ],
+            "title": "Amoxicillin 500 MG"
+          }
+        ],
+        "status": "preliminary",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "Medication Summary Grouped by Medication Code",
+          "status": "generated"
+        },
+        "title": "Medication Summary Grouped by Medication Code",
+        "type": {
+          "coding": [
+            {
+              "code": "medication_summary_document",
+              "display": "b.Well Medication Summary Composition Document",
+              "id": "7d0d79c2-8163-56fa-9b6a-17678639c450",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition"
+            },
+            {
+              "code": "medication_code_display_view",
+              "display": "Medication Code Display View",
+              "id": "bfb4992b-8b1b-54ba-ac8d-309f16f0ba6e",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type"
+            },
+            {
+              "code": "MedicationStatement",
+              "display": "FHIR resource type",
+              "id": "bfa9ae4c-e789-56a9-941f-17151102c84b",
+              "system": "https://hl7.org/fhir/medicationstatement"
+            }
+          ],
+          "text": "Medication Code Display View Composition Document"
+        }
+      }
+    },
+    {
+      "resource": {
+        "category": {
+          "coding": [
+            {
+              "code": "derived_medication_statement",
+              "display": "b.Well Derived Medication Statement",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/category"
+            }
+          ]
+        },
+        "derivedFrom": [
+          {
+            "reference": "MedicationRequest/mr-plain",
+            "type": "MedicationRequest"
+          },
+          {
+            "reference": "MedicationDispense/md-1",
+            "type": "MedicationDispense"
+          }
+        ],
+        "id": "70817798-e101-50a3-a3ad-b296f417f53b",
+        "identifier": [
+          {
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/bwell",
+            "value": "bwell_derived_medicationstatement"
+          }
+        ],
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "code": "1049502",
+              "display": "Oxycodone 5 MG",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+            }
+          ],
+          "text": "Oxycodone (Oral)"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "MedicationStatement",
+        "status": "active",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "MedicationStatement Summary Grouped by Medication Code",
+          "status": "generated"
+        }
+      }
+    },
+    {
+      "resource": {
+        "category": {
+          "coding": [
+            {
+              "code": "derived_medication_statement",
+              "display": "b.Well Derived Medication Statement",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/category"
+            }
+          ]
+        },
+        "derivedFrom": [
+          {
+            "reference": "MedicationRequest/mr-text-only",
+            "type": "MedicationRequest"
+          }
+        ],
+        "id": "b435f13f-24c6-5953-af92-cef8fe687108",
+        "identifier": [
+          {
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/bwell",
+            "value": "bwell_derived_medicationstatement"
+          }
+        ],
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "display": "Aspirin 81 MG"
+            }
+          ],
+          "text": "Aspirin 81 MG"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "MedicationStatement",
+        "status": "active",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "MedicationStatement Summary Grouped by Medication Code",
+          "status": "generated"
+        }
+      }
+    },
+    {
+      "resource": {
+        "category": {
+          "coding": [
+            {
+              "code": "derived_medication_statement",
+              "display": "b.Well Derived Medication Statement",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/category"
+            }
+          ]
+        },
+        "derivedFrom": [
+          {
+            "reference": "MedicationRequest/mr-blank-text",
+            "type": "MedicationRequest"
+          }
+        ],
+        "id": "5cea4393-712d-59b6-ab3c-22c858746972",
+        "identifier": [
+          {
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/bwell",
+            "value": "bwell_derived_medicationstatement"
+          }
+        ],
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "code": "243670",
+              "display": "Ibuprofen",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+            }
+          ],
+          "text": "Anacin Aspirin Regimen, Bayer Aspirin, Bufferin also known as Aspirin (Oral)"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "MedicationStatement",
+        "status": "active",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "MedicationStatement Summary Grouped by Medication Code",
+          "status": "generated"
+        }
+      }
+    },
+    {
+      "resource": {
+        "category": {
+          "coding": [
+            {
+              "code": "derived_medication_statement",
+              "display": "b.Well Derived Medication Statement",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/category"
+            }
+          ]
+        },
+        "derivedFrom": [
+          {
+            "reference": "MedicationRequest/mr-all-null-coding",
+            "type": "MedicationRequest"
+          }
+        ],
+        "id": "53da6a77-c370-542c-8d68-9068eef2a511",
+        "identifier": [
+          {
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/bwell",
+            "value": "bwell_derived_medicationstatement"
+          }
+        ],
+        "medicationCodeableConcept": {
+          "coding": [
+            {}
+          ],
+          "text": "Null coding"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "MedicationStatement",
+        "status": "active",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "MedicationStatement Summary Grouped by Medication Code",
+          "status": "generated"
+        }
+      }
+    },
+    {
+      "resource": {
+        "category": {
+          "coding": [
+            {
+              "code": "derived_medication_statement",
+              "display": "b.Well Derived Medication Statement",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/category"
+            }
+          ]
+        },
+        "derivedFrom": [
+          {
+            "reference": "MedicationRequest/mr-spacey-code",
+            "type": "MedicationRequest"
+          }
+        ],
+        "id": "131ca068-4af0-54b2-bccf-17f476530834",
+        "identifier": [
+          {
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/bwell",
+            "value": "bwell_derived_medicationstatement"
+          }
+        ],
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "code": " 197361 ",
+              "display": "Lisinopril",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+            }
+          ],
+          "text": "Lisinopril"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "MedicationStatement",
+        "status": "active",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "MedicationStatement Summary Grouped by Medication Code",
+          "status": "generated"
+        }
+      }
+    },
+    {
+      "resource": {
+        "category": {
+          "coding": [
+            {
+              "code": "derived_medication_statement",
+              "display": "b.Well Derived Medication Statement",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/category"
+            }
+          ]
+        },
+        "derivedFrom": [
+          {
+            "reference": "MedicationRequest/mr-by-reference",
+            "type": "MedicationRequest"
+          }
+        ],
+        "id": "ea79c53c-0256-59d5-8588-0a7750263b16",
+        "identifier": [
+          {
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/bwell",
+            "value": "bwell_derived_medicationstatement"
+          }
+        ],
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "code": "860975",
+              "display": "Metformin",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+            }
+          ],
+          "text": "Glucophage also known as Metformin (Oral)"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "MedicationStatement",
+        "status": "active",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "MedicationStatement Summary Grouped by Medication Code",
+          "status": "generated"
+        }
+      }
+    },
+    {
+      "resource": {
+        "category": {
+          "coding": [
+            {
+              "code": "derived_medication_statement",
+              "display": "b.Well Derived Medication Statement",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/category"
+            }
+          ]
+        },
+        "derivedFrom": [
+          {
+            "reference": "MedicationRequest/mr-display-only-reference",
+            "type": "MedicationRequest"
+          }
+        ],
+        "id": "a394773b-5a0d-547a-ba4e-ca033dee0edf",
+        "identifier": [
+          {
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/medicationstatement/bwell",
+            "value": "bwell_derived_medicationstatement"
+          }
+        ],
+        "medicationCodeableConcept": {
+          "text": "Amoxicillin 500 MG"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "MedicationStatement",
+        "status": "active",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "MedicationStatement Summary Grouped by Medication Code",
+          "status": "generated"
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}

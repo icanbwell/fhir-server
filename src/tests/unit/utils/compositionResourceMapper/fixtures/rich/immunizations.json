@@ -1,0 +1,243 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "bwell Connected Health",
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization"
+          }
+        ],
+        "date": "2026-06-15T12:00:00+00:00",
+        "extension": [
+          {
+            "extension": [
+              {
+                "url": "total",
+                "valueInteger": 1
+              }
+            ],
+            "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/composition-section-count"
+          }
+        ],
+        "id": "0e859724-e849-5834-b326-cc3c2b63646f",
+        "identifier": {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+          "value": "bwell_composition_for_health_data_summary"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "88",
+                  "display": "Flu (Influenza)",
+                  "id": "f4e1cba1-7420-5f19-8e4e-d2754616e6a6",
+                  "system": "http://hl7.org/fhir/sid/cvx"
+                }
+              ],
+              "text": "Flu (Influenza)"
+            },
+            "entry": [
+              {
+                "id": "f0b98fb5-a283-51aa-b2a8-aa6a8eaefe84",
+                "reference": "Immunization/imm-1",
+                "type": "Immunization"
+              }
+            ],
+            "id": "340065fd-353b-52e0-a88e-13c04c7688eb",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by occurrenceDateTime DESC"
+            },
+            "section": [
+              {
+                "id": "844ece8c-77dd-5f55-bac5-7783dd82f0ae",
+                "text": {
+                  "div": "Flu (Influenza)",
+                  "status": "generated"
+                },
+                "title": "Immunization Name"
+              },
+              {
+                "id": "98cb3897-5984-52f8-80a9-92a38fb37811",
+                "text": {
+                  "div": "Flu (Influenza)",
+                  "status": "generated"
+                },
+                "title": "Vaccine Group"
+              },
+              {
+                "id": "eeb36a94-4f6f-5f74-ae60-5aeef65f452d",
+                "text": {
+                  "div": "Unknown Vaccine",
+                  "status": "generated"
+                },
+                "title": "Vaccine Name"
+              },
+              {
+                "id": "73a845ab-c441-5cd6-a371-dcd4d573b592",
+                "text": {
+                  "div": "CVX",
+                  "status": "generated"
+                },
+                "title": "Vaccine Code Type"
+              },
+              {
+                "id": "958cef40-02ac-5185-88ee-5ab491d078f0",
+                "text": {
+                  "div": "140",
+                  "status": "generated"
+                },
+                "title": "Vaccine Code"
+              },
+              {
+                "id": "0d3eb369-5c0c-5742-8ebb-be4dc18e70ca",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "2cf424ea-c037-54f6-b13a-11b07d0e14c4",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Performer"
+              },
+              {
+                "id": "0da8819a-10d3-5feb-90d7-f705dd0d6aba",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Location Administered"
+              },
+              {
+                "id": "cecbccb6-fdc1-594c-8e81-41dc4cab8a12",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Primary Source"
+              },
+              {
+                "id": "c7ed82fb-6d57-5420-bcc3-1250b2e8a111",
+                "text": {
+                  "div": "2026-01-01T00:00:00+00:00",
+                  "status": "generated"
+                },
+                "title": "occurrenceDateTime"
+              },
+              {
+                "id": "2d4df188-6c06-5f31-ac72-d86f8b2f21e6",
+                "text": {
+                  "div": "Completed",
+                  "status": "generated"
+                },
+                "title": "Status"
+              },
+              {
+                "id": "89ef2e5e-bd66-53a0-8a92-739923205cad",
+                "text": {
+                  "div": "1",
+                  "status": "generated"
+                },
+                "title": "Dose Count"
+              },
+              {
+                "id": "51a24d7b-3f5c-5397-a4d5-5a00f369a07e",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Documented Vaccine Dose"
+              },
+              {
+                "id": "e51c8cf1-562f-559b-9b4c-7401747f3864",
+                "text": {
+                  "div": "Unknown",
+                  "status": "generated"
+                },
+                "title": "Reason"
+              }
+            ],
+            "title": "Flu (Influenza)"
+          }
+        ],
+        "status": "preliminary",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "Immunization Summary Composition Grouped by Immunization Code",
+          "status": "generated"
+        },
+        "title": "Immunization Summary Composition Grouped by Immunization Code",
+        "type": {
+          "coding": [
+            {
+              "code": "immunization_summary_document",
+              "display": "b.Well Immunization Summary Composition Document",
+              "id": "ef57f0b0-4939-5c64-bffd-06e0b7a6a693",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition"
+            },
+            {
+              "code": "immunization_group_code_display_view",
+              "display": "Immunization Group Code Display View",
+              "id": "19e91b5c-2610-563b-8fce-03282e21b990",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type"
+            },
+            {
+              "code": "Immunization",
+              "display": "FHIR resource type",
+              "id": "f39039e2-1f85-5c55-a95d-73c3edba9a17",
+              "system": "https://hl7.org/fhir/immunization"
+            }
+          ],
+          "text": "Immunization Code Display View Composition Document"
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}

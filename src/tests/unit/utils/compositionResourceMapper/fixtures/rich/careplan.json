@@ -1,0 +1,190 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "bwell Connected Health",
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization"
+          }
+        ],
+        "date": "2026-06-15T12:00:00+00:00",
+        "id": "e1b589ff-dfab-518c-aea3-337e6b6fe3de",
+        "identifier": {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+          "value": "bwell_composition_for_health_data_summary"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "734163000",
+                  "display": "Care plan",
+                  "extension": [
+                    {
+                      "id": "preferred",
+                      "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                      "valueCode": "preferred"
+                    }
+                  ],
+                  "system": "http://snomed.info/sct"
+                }
+              ],
+              "text": "Care plan"
+            },
+            "entry": [
+              {
+                "id": "86f76734-e1a4-5aa7-8f4f-b0db1b9ae987",
+                "reference": "CarePlan/cp-1",
+                "type": "CarePlan"
+              }
+            ],
+            "id": "4e8370da-5390-55c8-9432-f0a257326cb4",
+            "mode": "working",
+            "orderedBy": {
+              "coding": [
+                {
+                  "code": "event-date",
+                  "display": "Sorted by Event Date",
+                  "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+                  "system": "http://terminology.hl7.org/CodeSystem/list-order"
+                }
+              ],
+              "text": "Sorted by event date DESC"
+            },
+            "section": [
+              {
+                "id": "c89d91cb-1abd-5288-a8c6-bfdd40692832",
+                "text": {
+                  "div": "Care plan",
+                  "status": "generated"
+                },
+                "title": "Plan Type"
+              },
+              {
+                "id": "6eb2a1f4-c7fc-5772-a847-3e8f3b6935d3",
+                "text": {
+                  "div": "Care plan",
+                  "status": "generated"
+                },
+                "title": "CarePlan Name"
+              },
+              {
+                "id": "950bec70-e3da-538f-8c5b-5b09931365d0",
+                "text": {
+                  "div": "active",
+                  "status": "generated"
+                },
+                "title": "status"
+              },
+              {
+                "id": "f613c1df-30f6-51a8-85b6-125b8c8c8f6d",
+                "text": {
+                  "div": "Not provided by source",
+                  "status": "generated"
+                },
+                "title": "period.start"
+              },
+              {
+                "id": "3d02b900-5b1d-5e40-949b-212b96e41a76",
+                "text": {
+                  "div": "Not provided by source",
+                  "status": "generated"
+                },
+                "title": "period.end"
+              },
+              {
+                "id": "5eca9221-6f1b-5742-b1b2-3e34312b54cc",
+                "text": {
+                  "div": "Plan details not provided by source",
+                  "status": "generated"
+                },
+                "title": "Plan Details"
+              },
+              {
+                "id": "6bb5d797-a4f1-5f25-9ac6-4f122b26ca1f",
+                "text": {
+                  "div": "Source-A",
+                  "status": "generated"
+                },
+                "title": "Source"
+              },
+              {
+                "id": "01e213c3-f0f7-5906-a568-59232590574e",
+                "text": {
+                  "div": "Not provided by source",
+                  "status": "generated"
+                },
+                "title": "created"
+              }
+            ],
+            "title": "Care plan"
+          }
+        ],
+        "status": "preliminary",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "Care Plan Summary",
+          "status": "generated"
+        },
+        "title": "CarePlan Summary",
+        "type": {
+          "coding": [
+            {
+              "code": "careplan_summary_document",
+              "display": "b.Well CarePlan Summary Composition Document",
+              "id": "feed607e-8d06-5664-a7f4-29385e743d39",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition"
+            },
+            {
+              "code": "careplan_summary_view",
+              "display": "CarePlan Summary View",
+              "id": "b06d148e-f3c2-5f51-a0b0-aae4e2827b75",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type"
+            },
+            {
+              "code": "CarePlan",
+              "display": "FHIR resource type",
+              "id": "1a23f78d-3c65-55db-84b5-2409745d4f73",
+              "system": "https://hl7.org/fhir/careplan"
+            }
+          ],
+          "text": "CarePlan Summary View Composition Document"
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}

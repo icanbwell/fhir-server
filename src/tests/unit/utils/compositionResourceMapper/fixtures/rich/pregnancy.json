@@ -1,0 +1,153 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "bwell Connected Health",
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization"
+          }
+        ],
+        "date": "2026-06-15T12:00:00+00:00",
+        "id": "2380a6e6-2e00-5d30-8af8-3ed88816e3bf",
+        "identifier": {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+          "value": "bwell_composition_for_health_data_summary"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "id": "60003215-daeb-579c-9438-0d9a61edcc89",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "id": "11526c89-f51c-503f-ab34-957b48bd769c",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "id": "ec1b4144-0d89-59bc-a8fc-b93ebb96634e",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "bwell",
+              "id": "97954cbe-3f4a-566f-aa2f-a5cfa49fdc06",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com/fhir-composition-service"
+        },
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "episode-info",
+                  "system": "https://www.icanbwell.com/section-type"
+                }
+              ]
+            },
+            "entry": [
+              {
+                "reference": "Condition/cond-pregnancy",
+                "type": "Condition"
+              }
+            ],
+            "id": "921f0960-65bc-5955-bf41-3e7959df4819",
+            "mode": "working",
+            "section": [
+              {
+                "id": "f4e04a17-cdc1-598f-a1d5-b296ac4b32d9",
+                "text": {
+                  "div": "1",
+                  "status": "generated"
+                },
+                "title": "Episode Sequence"
+              },
+              {
+                "id": "1d3d5ad1-5bab-5205-885b-1c76187ab79a",
+                "text": {
+                  "div": "True",
+                  "status": "generated"
+                },
+                "title": "Is Pregnant"
+              },
+              {
+                "id": "82d382c4-c9d8-52c4-a3bc-ef4eca66af79",
+                "text": {
+                  "div": "2026-09-19",
+                  "status": "generated"
+                },
+                "title": "Estimated Delivery Date"
+              },
+              {
+                "id": "0cb0f0cb-fd88-5f08-ad3e-b52f3fdd4d7a",
+                "text": {
+                  "div": "2nd trimester",
+                  "status": "generated"
+                },
+                "title": "Current Trimester"
+              },
+              {
+                "id": "53e01833-f032-5df4-b050-43ed1c1ca88d",
+                "text": {
+                  "div": "2026-01-10",
+                  "status": "generated"
+                },
+                "title": "Episode Start Date"
+              },
+              {
+                "id": "7f9dd2e3-0e68-5146-a8b0-1c43fe26ce31",
+                "text": {
+                  "div": "266",
+                  "status": "generated"
+                },
+                "title": "Episode Duration Days"
+              }
+            ],
+            "title": "Episode Information"
+          }
+        ],
+        "status": "preliminary",
+        "subject": {
+          "reference": "Patient/person.test-person-1",
+          "type": "Patient"
+        },
+        "text": {
+          "div": "Pregnancy Episode Summary",
+          "status": "generated"
+        },
+        "title": "Pregnancy Episode Summary",
+        "type": {
+          "coding": [
+            {
+              "code": "pregnancy_episode_document",
+              "display": "b.Well Pregnancy Episode Composition Document",
+              "id": "81291925-b98c-5389-a251-5d747483b120",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/"
+            },
+            {
+              "code": "pregnancy_episode_display_view",
+              "display": "Pregnancy Episode Display View",
+              "id": "c9a0cbd9-d336-5356-af67-a69295e2c574",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type"
+            },
+            {
+              "code": "pregnancy-episode",
+              "display": "Pregnancy Episode",
+              "id": "c1d6653b-d06e-5d8a-b6da-d458e7930673",
+              "system": "https://www.icanbwell.com/composition-type"
+            }
+          ],
+          "text": "Pregnancy Episode View Composition Document"
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}
