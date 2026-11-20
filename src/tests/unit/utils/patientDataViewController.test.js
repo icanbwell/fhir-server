@@ -108,11 +108,17 @@ describe('PatientDataViewControlManager', () => {
             });
         });
 
-        describe('lookup is not limited by the caller scope', () => {
+        describe('lookup runs under the caller scope', () => {
             test.each([
                 ['service token', { scope: 'user/*.* access/clientA.*', isUser: false, personIdFromJwtToken: null }],
-                ['patient-scoped user token', { scope: 'patient/*.*', isUser: true }]
-            ])('%s: the Consent search runs under the lookup scope, keeping user and request id',
+                ['patient-scoped user token', { scope: 'patient/*.*', isUser: true }],
+                ['delegated actor', {
+                    scope: 'patient/*.*',
+                    isUser: true,
+                    userType: 'delegatedUser',
+                    actor: { reference: 'RelatedPerson/rp-1' }
+                }]
+            ])('%s: the Consent search gets the caller request info unchanged',
                 async (_name, overrides) => {
                     const requestInfo = createRequestInfo('person-123', { user: 'u1', requestId: 'r1', ...overrides });
                     const original = { ...requestInfo };
@@ -125,14 +131,7 @@ describe('PatientDataViewControlManager', () => {
                     });
 
                     const passed = mockSearchManager.fetchResourcesByArgsAsync.mock.calls[0][0].requestInfo;
-                    expect(passed).toEqual(expect.objectContaining({
-                        scope: 'access/*.*',
-                        isUser: false,
-                        personIdFromJwtToken: null,
-                        user: 'u1',
-                        requestId: 'r1'
-                    }));
-                    // the caller's own request info is left alone
+                    expect(passed).toBe(requestInfo);
                     expect(requestInfo).toEqual(original);
                 });
 
@@ -458,7 +457,7 @@ describe('PatientDataViewControlManager', () => {
             expect(viewControlResourceToExcludeMap.Binary).toHaveLength(3);
         });
 
-        test('reads the DocumentReferences under the lookup scope, not the caller scope', async () => {
+        test('reads the DocumentReferences under the caller scope', async () => {
             mockSearchManager.fetchResourcesByArgsAsync
                 .mockResolvedValueOnce(consentHiding('DocumentReference/doc-1'))
                 .mockResolvedValueOnce({ entries: [], queryItems: [], options: [] });
@@ -472,8 +471,7 @@ describe('PatientDataViewControlManager', () => {
 
             const documentReferenceRead = mockSearchManager.fetchResourcesByArgsAsync.mock.calls[1][0];
             expect(documentReferenceRead.resourceType).toBe('DocumentReference');
-            expect(documentReferenceRead.requestInfo).toEqual(expect.objectContaining({ scope: 'access/*.*' }));
-            expect(requestInfo.scope).toBe('user/*.* access/clientA.*');
+            expect(documentReferenceRead.requestInfo).toBe(requestInfo);
         });
 
         test('makes no DocumentReference read when no DocumentReference is hidden', async () => {
