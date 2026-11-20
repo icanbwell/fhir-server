@@ -417,12 +417,45 @@ describe('PatientDataViewControlManager', () => {
 
             expect(mockR4ArgsParser.parseArgs).toHaveBeenLastCalledWith({
                 resourceType: 'DocumentReference',
-                args: { base_version: '4_0_0', _id: 'doc-1', _elements: 'content' }
+                args: { base_version: '4_0_0', _id: 'doc-1' }
             });
             expect([...viewControlResourceToExcludeMap.Binary].sort()).toEqual(
                 ['already-hidden', 'attachment-1', 'attachment-2']
             );
             expect(viewControlResourceToExcludeMap.DocumentReference).toEqual(['doc-1']);
+        });
+
+        test('reads only the content of the DocumentReferences, without loading attachment data', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync
+                .mockResolvedValueOnce(consentHiding('DocumentReference/doc-1'))
+                .mockResolvedValueOnce({ entries: [], queryItems: [], options: [] });
+
+            await getConsent();
+
+            expect(mockSearchManager.fetchResourcesByArgsAsync.mock.calls[1][0]).toEqual(
+                expect.objectContaining({ fields: ['content'], retrieveAttachments: false })
+            );
+        });
+
+        test('looks up a large number of hidden DocumentReferences in chunks and keeps every Binary', async () => {
+            const hiddenCount = 1203;
+            const references = Array.from({ length: hiddenCount }, (_, i) => `DocumentReference/doc-${i}`);
+            mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValueOnce(consentHiding(...references));
+            mockSearchManager.fetchResourcesByArgsAsync.mockImplementation(async () => ({
+                entries: [{ resource: { content: [{ attachment: { url: `Binary/chunk-${
+                    mockSearchManager.fetchResourcesByArgsAsync.mock.calls.length}` } }] } }],
+                queryItems: [],
+                options: []
+            }));
+
+            const { viewControlResourceToExcludeMap } = await getConsent();
+
+            // one Consent lookup, then 500 + 500 + 203 DocumentReference ids
+            const idsPerLookup = mockR4ArgsParser.parseArgs.mock.calls
+                .slice(1)
+                .map(([{ args }]) => args._id.split(',').length);
+            expect(idsPerLookup).toEqual([500, 500, 203]);
+            expect(viewControlResourceToExcludeMap.Binary).toHaveLength(3);
         });
 
         test('reads the DocumentReferences under the lookup scope, not the caller scope', async () => {

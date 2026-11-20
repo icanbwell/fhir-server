@@ -26,6 +26,12 @@ function toViewControlLookupRequestInfo(requestInfo) {
     });
 }
 
+/**
+ * Most hidden DocumentReference ids put in one `_id` query, so that a user who hid a very large number
+ * of documents does not produce one unbounded query.
+ */
+const HIDDEN_DOCUMENT_REFERENCE_LOOKUP_CHUNK_SIZE = 500;
+
 class PatientDataViewControlManager {
     /**
      * @typedef {Object} PatientDataViewControlManagerParams
@@ -160,8 +166,8 @@ class PatientDataViewControlManager {
      * when the Consent hides a DocumentReference (the user deleted it) its content would otherwise
      * still be returned. The DocumentReferences are read under the view-control lookup scope, like the
      * Consent, so that a DocumentReference the caller's own scope cannot see (another access tag, or the
-     * restricted tag) still has its Binary hidden. Only their `content` is read; the Binary ids found
-     * are only ever used to hide data.
+     * restricted tag) still has its Binary hidden. Only their `content` is read, without loading attachment
+     * data, and the ids are looked up in chunks; the Binary ids found are only ever used to hide data.
      * @param {{
      *  requestInfo: FhirRequestInfo,
      *  base_version: string,
@@ -179,25 +185,39 @@ class PatientDataViewControlManager {
             return;
         }
         const resourceType = 'DocumentReference';
-        const { entries } = await this.searchManager.fetchResourcesByArgsAsync({
-            resourceType,
-            base_version,
-            requestInfo: toViewControlLookupRequestInfo(requestInfo),
-            explain: false,
-            debug: false,
-            applyPatientFilter: false,
-            parsedArgs: this.r4ArgsParser.parseArgs({
-                resourceType,
-                args: { base_version, _id: documentReferenceIds.join(','), _elements: 'content' }
-            })
-        });
         const binaryIds = new Set(viewControlResourceToExcludeMap.Binary ?? []);
         const sizeBefore = binaryIds.size;
-        for (const entry of entries) {
-            for (const content of entry.resource?.content ?? []) {
-                const binaryId = getBinaryIdFromAttachmentUrl(content?.attachment?.url);
-                if (binaryId) {
-                    binaryIds.add(binaryId);
+        for (
+            let start = 0;
+            start < documentReferenceIds.length;
+            start += HIDDEN_DOCUMENT_REFERENCE_LOOKUP_CHUNK_SIZE
+        ) {
+            const idChunk = documentReferenceIds.slice(
+                start,
+                start + HIDDEN_DOCUMENT_REFERENCE_LOOKUP_CHUNK_SIZE
+            );
+            const { entries } = await this.searchManager.fetchResourcesByArgsAsync({
+                resourceType,
+                base_version,
+                requestInfo,
+                explain: false,
+                debug: false,
+                applyPatientFilter: false,
+                // only the attachment urls are needed: read just `content`, and skip loading the
+                // attachment bytes (GridFS, cloud storage) that a normal read would attach
+                fields: ['content'],
+                retrieveAttachments: false,
+                parsedArgs: this.r4ArgsParser.parseArgs({
+                    resourceType,
+                    args: { base_version, _id: idChunk.join(',') }
+                })
+            });
+            for (const entry of entries) {
+                for (const content of entry.resource?.content ?? []) {
+                    const binaryId = getBinaryIdFromAttachmentUrl(content?.attachment?.url);
+                    if (binaryId) {
+                        binaryIds.add(binaryId);
+                    }
                 }
             }
         }
