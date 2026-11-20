@@ -4,6 +4,7 @@ const { describe, test, expect, beforeEach, jest: jestObj } = require('@jest/glo
 
 // Mock dependencies before requiring the module
 jestObj.mock('../../../../utils/assertType', () => ({
+    assertTypeEquals: jestObj.fn(),
     assertIsValid: jestObj.fn((value, message) => {
         if (!value) {
             throw new Error(message || 'Assertion failed');
@@ -25,7 +26,10 @@ jestObj.mock('../../../../utils/nullRemover', () => ({
 }));
 
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
+const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
 const { assertIsValid } = require('../../../../utils/assertType');
+const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
 
 /**
  * Creates a mock ParsedArgsItem for testing
@@ -49,7 +53,11 @@ function createMockParsedArgsItem ({
         _queryParameterValue: queryParameterValue,
         modifiers,
         propertyObj,
-        chain
+        chain,
+        get isIdItem () { return this.queryParameter === 'id' || this.queryParameter === '_id'; },
+        get isIdExclusion () {
+            return this.isIdItem && this.modifiers?.length === 1 && this.modifiers[0] === 'not';
+        }
     };
 
     item.clone = jestObj.fn(() => {
@@ -505,17 +513,56 @@ describe('ParsedArgs', () => {
             ['_id with result-shaping parameters', [['_id'], ['_elements'], ['_count'], ['_isGraphQLRequest']], true],
             ['_id with another search parameter', [['_id'], ['gender']], false],
             ['_id with an include parameter', [['_id'], ['_include']], false],
-            ['_id with a modifier', [['_id', [':not']]], false],
-            ['_id with a :not id exclusion', [['_id'], ['_id', [':not']]], true],
-            ['id with a :not _id exclusion', [['id'], ['_id', [':not']]], true],
-            ['_id with a :not exclusion and another search parameter', [['_id'], ['_id', [':not']], ['gender']], false],
-            ['_id with a different modifier', [['_id'], ['_id', [':missing']]], false],
-            ['_id with a combined modifier', [['_id'], ['_id', [':not', ':exact']]], false],
+            ['_id with a modifier', [['_id', ['not']]], false],
+            ['_id with a not id exclusion', [['_id'], ['_id', ['not']]], true],
+            ['id with a not _id exclusion', [['id'], ['_id', ['not']]], true],
+            ['_id with a not exclusion and another search parameter', [['_id'], ['_id', ['not']], ['gender']], false],
+            ['_id with a different modifier', [['_id'], ['_id', ['missing']]], false],
+            ['_id with a combined modifier', [['_id'], ['_id', ['not', 'exact']]], false],
             ['no id', [['_format']], false],
             ['another search parameter only', [['gender']], false],
             ['no parameters', [], false]
         ])('%s', (name, items, expected) => {
             expect(build(...items).isRequestById()).toBe(expected);
+        });
+    });
+    describe('isRequestById access outcome with _id and _id:not', () => {
+        // the letter isRequestById picks is what searchBundle / searchStreaming hand the scope check
+        // real ParsedArgsItems, shaped as r4ArgsParser builds them for `_id=X&_id:not=Y` (the
+        // modifier is stored as 'not', no colon), so a parser or getter change reaches this test
+        const parsedArgs = new ParsedArgs({
+            base_version: '4_0_0',
+            parsedArgItems: [
+                new ParsedArgsItem({
+                    queryParameter: '_id',
+                    queryParameterValue: new QueryParameterValue({ value: 'X', operator: '$or' }),
+                    modifiers: []
+                }),
+                new ParsedArgsItem({
+                    queryParameter: '_id',
+                    queryParameterValue: new QueryParameterValue({ value: 'Y', operator: '$or' }),
+                    modifiers: ['not']
+                })
+            ]
+        });
+        // only the scope matcher is exercised; it needs nothing but the config flag
+        const scopesValidator = Object.create(ScopesValidator.prototype);
+        scopesValidator.configManager = { enableSmartV2CrudsScopes: true };
+
+        test.each([
+            ['a read-only token', ['user/Patient.r'], true],
+            ['a search-only token', ['user/Patient.s'], false]
+        ])('%s is %s for _id=X&_id:not=Y', (name, scopes, allowed) => {
+            const accessRequested = parsedArgs.isRequestById() ? 'r' : 's';
+
+            const result = scopesValidator.evaluateResourceTypeScopeMatch({
+                scopes,
+                resourceType: 'Patient',
+                accessRequested
+            });
+
+            expect(accessRequested).toBe('r');
+            expect(result.success).toBe(allowed);
         });
     });
 });

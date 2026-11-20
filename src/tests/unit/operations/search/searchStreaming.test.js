@@ -664,7 +664,9 @@ describe('SearchStreamingOperation', () => {
             },
             { label: 'a request with no parameters', items: [], letter: 's' }
         ])('asks $letter at the scope check and the tenant filter for $label', async ({ items, letter }) => {
-            mockParsedArgs.parsedArgItems = items;
+            // real items, so the isIdItem / isIdExclusion getters isRequestById relies on exist
+            const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
+            mockParsedArgs.parsedArgItems = items.map((item) => Object.assign(Object.create(ParsedArgsItem.prototype), item));
 
             await searchStreamingOp.searchStreamingAsync({
                 requestInfo: makeRequestInfo(),
