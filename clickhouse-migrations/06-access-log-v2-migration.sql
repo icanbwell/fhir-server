@@ -13,7 +13,7 @@
 --
 -- Repeatable: safe to re-run. Apply to dev first, validate writes/reads, then promote.
 -- Run each step against ClickHouse Cloud manually in order.
--- The DDL in step 2 must match clickhouse-init/04-access-log.sql.
+-- This file is the only DDL for fhir.AccessLog (it is no longer created by clickhouse-init/).
 
 -- Step 1: Drop the existing table (irreversible)
 DROP TABLE IF EXISTS fhir.AccessLog;

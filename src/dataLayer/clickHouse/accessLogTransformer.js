@@ -1,6 +1,6 @@
 /**
  * Transforms AccessLogger documents into ClickHouse rows for the
- * fhir.AccessLog table (see clickhouse-init/04-access-log.sql).
+ * fhir.AccessLog table (see clickhouse-migrations/06-access-log-v2-migration.sql).
  *
  * The doc shape (see src/utils/accessLogger.js logEntry) is preserved
  * verbatim in three JSON columns (agent, details, request). Materialized
