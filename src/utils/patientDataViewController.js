@@ -8,34 +8,6 @@ const { ConfigManager } = require('./configManager');
 const { SearchManager } = require('../operations/search/searchManager');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
 
-/**
- * Scope the view-control Consent lookup runs under. The lookup only ever removes data, so it must find
- * every active Consent for the Person whatever the caller's own scope would let it see; under the caller's
- * scope a Consent whose access tag is outside a service client's access codes, or one carrying the
- * restricted tag (patient-scoped callers), would not be found and the data the user hid would be returned.
- * Access to the Consent's contents is not widened: only the resource ids it hides are read from it.
- */
-const VIEW_CONTROL_LOOKUP_SCOPE = 'access/*.*';
-
-/**
- * A copy of the caller's request info that searches Consents with the view-control lookup scope.
- * The caller's user, request id and the rest are kept for logging and caching; the user type and
- * delegated actor are cleared.
- * @param {FhirRequestInfo} requestInfo
- * @return {FhirRequestInfo}
- */
-function toViewControlLookupRequestInfo(requestInfo) {
-    return Object.assign(Object.create(Object.getPrototypeOf(requestInfo)), requestInfo, {
-        scope: VIEW_CONTROL_LOOKUP_SCOPE,
-        isUser: false,
-        personIdFromJwtToken: null,
-        // a delegated actor's sensitive-data filter needs the person id cleared above (it throws without
-        // one) and would narrow the Consents the lookup can see, so the lookup runs as no delegated user
-        userType: null,
-        actor: null
-    });
-}
-
 class PatientDataViewControlManager {
     /**
      * @typedef {Object} PatientDataViewControlManagerParams
@@ -232,7 +204,7 @@ class PatientDataViewControlManager {
         } = await this.searchManager.fetchResourcesByArgsAsync({
             resourceType,
             base_version,
-            requestInfo: toViewControlLookupRequestInfo(requestInfo),
+            requestInfo,
             explain: false,
             debug: false,
             applyPatientFilter: false,

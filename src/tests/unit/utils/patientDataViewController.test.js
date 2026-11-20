@@ -580,7 +580,7 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
             });
         });
 
-        describe('lookup is not limited by the caller scope', () => {
+        describe('lookup runs under the caller scope', () => {
             test.each([
                 ['service token', { scope: 'user/*.* access/clientA.*', isUser: false, personIdFromJwtToken: null }],
                 ['patient-scoped user token', { scope: 'patient/*.*', isUser: true }],
@@ -590,7 +590,7 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                     userType: 'delegatedUser',
                     actor: { reference: 'RelatedPerson/rp-1' }
                 }]
-            ])('%s: the Consent search runs under the lookup scope, keeping user and request id',
+            ])('%s: the Consent search gets the caller request info unchanged',
                 async (_name, overrides) => {
                     const requestInfo = createRequestInfo('person-123', { user: 'u1', requestId: 'r1', ...overrides });
                     const original = { ...requestInfo };
@@ -603,16 +603,7 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                     });
 
                     const passed = mockSearchManager.fetchResourcesByArgsAsync.mock.calls[0][0].requestInfo;
-                    expect(passed).toEqual(expect.objectContaining({
-                        scope: 'access/*.*',
-                        isUser: false,
-                        personIdFromJwtToken: null,
-                        userType: null,
-                        actor: null,
-                        user: 'u1',
-                        requestId: 'r1'
-                    }));
-                    // the caller's own request info is left alone
+                    expect(passed).toBe(requestInfo);
                     expect(requestInfo).toEqual(original);
                 });
 
