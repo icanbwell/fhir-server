@@ -1496,7 +1496,8 @@ const createContainer = function () {
         return new PatientDataViewControlExclusion({
             configManager: c.configManager,
             patientDataViewControlManager: c.patientDataViewControlManager,
-            patientScopeManager: c.patientScopeManager
+            patientScopeManager: c.patientScopeManager,
+            scopesManager: c.scopesManager
         });
     });
 

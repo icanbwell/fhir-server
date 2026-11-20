@@ -67,11 +67,11 @@ request carries no second identifier, so there's nothing that could disagree wit
 - A source id that matches more than one visible Person is a 400 asking for the Person uuid.
 - The Consent is keyed on the Person in the URL, which is the user's own Person (the one a user token
   carries). A Person that links to other Persons is not walked for their Consents.
-- The Consent is searched under the view-control lookup scope (`access/*.*`), not the caller's access
-  filter, so it is found whatever access tags the caller holds or the Consent carries. Only the ids of
-  the resources it hides are read from it, so the caller sees nothing more of the Consent than before.
-  A caller whose access scopes don't cover the Person's owner but who can read the Person gets the
-  block applied; it is not refused.
+- The Consent is searched through the caller's access filter, so the block applies only if the
+  Consent carries an access tag the caller can see. For an enrolled owner, a caller whose access
+  scopes don't cover that owner gets a 403 instead of an unfiltered record. This assumes a
+  `dataConnectionViewControl` Consent always carries its Person's owner tag; a Consent tagged for
+  another owner would look like no Consent to a tenant-scoped caller.
 - User tokens ignore the parameter: they are already filtered by their own Person.
 
 In code, the subject is a value object, `ViewControlSubject` (`src/utils/viewControlSubject.js`),
@@ -121,14 +121,20 @@ changes.
   its lookup runs, so a user's lookup failure is a 200 with an error OperationOutcome and no
   clinical data, while an opt-in failure is an HTTP error.
 - One Person per request. A caller with several Persons makes several calls.
+- The Consent lookup runs under the caller's own scope, so a Consent the caller's query can't match
+  is not found and its block is not applied. That happens for a service token when the Consent's
+  access tag is outside the token's access codes, and for a patient-scoped user when the Consent
+  carries the restricted confidentiality tag. The data the user hid is returned, with no error.
+  Today's enrolled data has no such Consent, but nothing prevents one being written. A write-time
+  guard, so that a Consent carries its Person's tags, is the intended follow-up.
 
 ### Mitigations
 
 - The parameter is documented in `readme/patientEverything.md`, and its name is shared with the
   composition service's team.
 - Integration tests cover on and off, enrolled and non-enrolled owners, an invisible Person,
-  multiple ids, lookup failure, a missing owner tag, a caller whose scopes don't cover the owner,
-  strict handling, Patient `$everything` and user tokens.
+  multiple ids, lookup failure, a missing owner tag, strict handling, Patient `$everything` and
+  user tokens.
 
 ## Options Considered
 

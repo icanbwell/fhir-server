@@ -22,6 +22,7 @@ const { QueryParameterValue } = require('../../../operations/query/queryParamete
 const { searchParameterQueries } = require('../../../searchParameters/searchParameters');
 const { ViewControlSubject } = require('../../../utils/viewControlSubject');
 const { HTTP_CONTEXT_KEYS } = require('../../../constants');
+const { ScopesManager } = require('../../../operations/security/scopesManager');
 const { viewControlOutcomeCounter } = require('../../../utils/metrics');
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../../../utils/httpErrors');
 
@@ -36,6 +37,7 @@ describe('PatientDataViewControlExclusion', () => {
     let getConsentAsync;
     let getPatientIdsFromScopeAsync;
     let findPersonAsync;
+    let getAccessCodesFromScopes;
     let enrolled;
     const user = { isUser: true, personIdFromJwtToken: 'person-1' };
 
@@ -62,10 +64,15 @@ describe('PatientDataViewControlExclusion', () => {
             return [];
         });
         scopeManager.getPatientIdsFromScopeAsync = getPatientIdsFromScopeAsync;
+        // by default the caller's access scopes cover the enrolled owner
+        getAccessCodesFromScopes = jest.fn().mockReturnValue(['clientA']);
+        const scopesManager = mockOf(ScopesManager);
+        scopesManager.getAccessCodesFromScopes = getAccessCodesFromScopes;
         exclusion = new PatientDataViewControlExclusion({
             configManager,
             patientDataViewControlManager: manager,
-            patientScopeManager: scopeManager
+            patientScopeManager: scopeManager,
+            scopesManager
         });
     });
 
@@ -319,17 +326,53 @@ describe('PatientDataViewControlExclusion', () => {
         });
 
         test.each([
-            ['access/clientB.*', 'a different client'],
-            ['patient/*.read', 'patient-limiting scopes only']
-        ])('a service token with scope %s (%s) still has the enrolled owner\'s Consent looked up', async (scope) => {
-            // the Consent is read under the view-control lookup scope, so the caller's own access codes
-            // can't make it look like no Consent
+            ['covers the owner', ['clientA'], true],
+            ['covers the owner among others', ['clientB', 'clientA'], true],
+            ['is the * wildcard', ['*'], true],
+            // This guard does not refuse an empty set. SecurityTagManager.getSecurityTagsFromScope
+            // refuses it (403) in the Consent search itself unless the scopes are patient-limiting;
+            // that is covered in securityTagManager's own tests. Pinned here so a change to either
+            // side shows up as a failure rather than as a silent fail-open.
+            ['is empty', [], true],
+            ['does not cover the owner', ['clientB'], false]
+        ])('a service token whose search access %s', async (_name, accessCodes, allowed) => {
+            getAccessCodesFromScopes.mockReturnValue(accessCodes);
+            const lookup = exclusion.getConsentLookupAsync({
+                requestInfo: { isUser: false, user: 'svc', scope: 'access/x.*' },
+                base_version: '4_0_0',
+                subject: urlSubject
+            });
+            if (allowed) {
+                await expect(lookup).resolves.toBeDefined();
+                expect(getConsentAsync).toHaveBeenCalledTimes(1);
+            } else {
+                // fails closed: a Consent it can't see would look like no Consent and hide nothing
+                await expect(lookup).rejects.toMatchObject({ statusCode: 403 });
+                expect(getConsentAsync).not.toHaveBeenCalled();
+            }
+            expect(getAccessCodesFromScopes).toHaveBeenCalledWith('s', 'svc', 'access/x.*');
+        });
+
+        test.each([
+            ['patient/*.read'],
+            ['patient/*.read user/Person.read']
+        ])('a service token with only patient-limiting scopes (%s) has no access codes and is not refused by the owner check', async (scope) => {
+            getAccessCodesFromScopes.mockReturnValue([]);
             await expect(exclusion.getConsentLookupAsync({
                 requestInfo: { isUser: false, user: 'svc', scope },
                 base_version: '4_0_0',
                 subject: urlSubject
             })).resolves.toBeDefined();
+            expect(getAccessCodesFromScopes).toHaveBeenCalledWith('s', 'svc', scope);
+            // the Consent search is still made, and runs through the patient-limiting access filter
             expect(getConsentAsync).toHaveBeenCalledTimes(1);
+        });
+
+        test('the owner scope check is skipped when the Person\'s owner is not enrolled', async () => {
+            findPersonAsync.mockResolvedValueOnce({ uuid: 'url-person-uuid', owner: 'clientZ' });
+            getAccessCodesFromScopes.mockReturnValue(['clientB']);
+            await exclusion.getConsentLookupAsync({ requestInfo: service, base_version: '4_0_0', subject: urlSubject });
+            expect(getAccessCodesFromScopes).not.toHaveBeenCalled();
         });
 
         test.each([['undefined', undefined], ['null', null]])(
@@ -407,7 +450,7 @@ describe('PatientDataViewControlExclusion', () => {
 
         test.each([
             ['the Person is not found', new NotFoundError('Person not found'), 'not_found'],
-            ['the Person read is refused', new ForbiddenError('no'), 'forbidden'],
+            ['the caller\'s scopes do not cover the owner', new ForbiddenError('no'), 'forbidden'],
             ['the id matches several Persons', new BadRequestError(new Error('several')), 'bad_request'],
             ['the Consent search throws', new Error('mongo down'), 'error']
         ])('fail_closed is recorded, with a bounded reason, when %s, and the error is rethrown', async (_name, error, reason) => {
