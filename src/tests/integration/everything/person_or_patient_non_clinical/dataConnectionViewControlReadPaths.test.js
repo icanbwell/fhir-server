@@ -731,6 +731,41 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             expect(resp.status).toBe(200);
             expect(idsOf(resp.body).sort()).toEqual(expectedIds);
         });
+
+        // The Consent hides DocumentReference doc-ref-1 (attachment Binary/binary1) and Binary binary2. The
+        // DocumentReference has no connectionType tag, so if the read that finds it ran under the
+        // Organization actor's connection-type narrowing it would not be found, and binary1 would be
+        // returned. The Binaries carry the connection type, so the non-enrolled row shows they pass the
+        // narrowing, and the enrolled row hides them only because the hidden DocumentReference was found.
+        test.each([
+            ['enrolled client hides the Binary of the hidden DocumentReference', 'healthsystem1', []],
+            ['non-enrolled client sees both Binaries', 'some-other-client', ['binary1', 'binary2']]
+        ])('REST Binary search: %s', async (_name, enrolledClients, expectedIds) => {
+            process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = enrolledClients;
+            process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS = 'Binary:search';
+            request = await createTestRequest((c) => {
+                c.register('configManager', () => new DelegatedAccessConfigManager());
+                return c;
+            });
+            for (const p of [
+                'Person/topLevelPerson.json',
+                'Person/person1.json',
+                'Patient/patient1.json',
+                'DocumentReference/documentReference1.json'
+            ]) {
+                await merge(p.split('/')[0], fx(p));
+            }
+            for (const p of ['Binary/binary1.json', 'Binary/binary2.json']) {
+                await merge('Binary', withConnectionType(fx(p)));
+            }
+            await merge('Consent', fx('Consent/consent1.json'));
+            await merge('Consent', entitlementConsent());
+
+            const resp = await request.get('/4_0_0/Binary?_bundle=1').set(orgActorHeaders());
+
+            expect(resp.status).toBe(200);
+            expect(idsOf(resp.body).sort()).toEqual(expectedIds);
+        });
     });
 
     // $summary is built on the same graph as $graph, so both are covered by the filter on the graph's
