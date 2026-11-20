@@ -164,10 +164,11 @@ class PatientDataViewControlManager {
      *
      * A Binary is found by its own securityContext rather than through its DocumentReference, so
      * when the Consent hides a DocumentReference (the user deleted it) its content would otherwise
-     * still be returned. The DocumentReferences are read under the view-control lookup scope, like the
-     * Consent, so that a DocumentReference the caller's own scope cannot see (another access tag, or the
-     * restricted tag) still has its Binary hidden. Only their `content` is read, without loading attachment
-     * data, and the ids are looked up in chunks; the Binary ids found are only ever used to hide data.
+     * still be returned. The DocumentReferences are read under the caller's own scope, like the
+     * Consent. Known limit: a hidden DocumentReference the caller's scope cannot see (another access tag, or
+     * the restricted tag) is not found, so its Binary is not hidden here. Only their `content` is read,
+     * without loading attachment data, and the ids are looked up in chunks; the Binary ids found are only
+     * ever used to hide data.
      * @param {{
      *  requestInfo: FhirRequestInfo,
      *  base_version: string,
