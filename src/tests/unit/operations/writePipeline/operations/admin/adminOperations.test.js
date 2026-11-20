@@ -7,8 +7,9 @@ const {
 
 /**
  * What each of the five operations is: its change kind, the profile it runs under, whether it
- * smart merges, which of its two resources is the target and which the linked one, the two
- * lookup flags the target loader reads and the access letter the linked resource is checked with.
+ * smart merges, which of its two resources is the target and which the linked one, when the
+ * target loader looks the linked resource up, whether a missing target is created, and the access
+ * letter the linked resource is checked with.
  */
 const EXPECTED_OPERATIONS = [
     {
@@ -16,7 +17,7 @@ const EXPECTED_OPERATIONS = [
         profile: 'adminLink',
         kind: 'addLink',
         smartMerge: true,
-        lookupLinkTarget: true,
+        linkTargetLookup: 'never',
         createsMissingTarget: false,
         linkTargetAccess: 'r',
         target: { idParameter: 'bwellPersonId', resourceType: 'Person' },
@@ -27,7 +28,7 @@ const EXPECTED_OPERATIONS = [
         profile: 'adminLink',
         kind: 'removeLink',
         smartMerge: false,
-        lookupLinkTarget: false,
+        linkTargetLookup: 'never',
         createsMissingTarget: false,
         linkTargetAccess: 'r',
         target: { idParameter: 'bwellPersonId', resourceType: 'Person' },
@@ -38,7 +39,7 @@ const EXPECTED_OPERATIONS = [
         profile: 'adminLink',
         kind: 'addLink',
         smartMerge: true,
-        lookupLinkTarget: true,
+        linkTargetLookup: 'whenTargetMissing',
         createsMissingTarget: true,
         linkTargetAccess: 'r',
         target: { idParameter: 'externalPersonId', resourceType: 'Person' },
@@ -49,7 +50,7 @@ const EXPECTED_OPERATIONS = [
         profile: 'adminLink',
         kind: 'removeLink',
         smartMerge: false,
-        lookupLinkTarget: false,
+        linkTargetLookup: 'never',
         createsMissingTarget: false,
         linkTargetAccess: 'r',
         target: { idParameter: 'personId', resourceType: 'Person' },
@@ -60,7 +61,7 @@ const EXPECTED_OPERATIONS = [
         profile: 'adminPatientReference',
         kind: 'rewritePatientReference',
         smartMerge: false,
-        lookupLinkTarget: true,
+        linkTargetLookup: 'always',
         createsMissingTarget: false,
         linkTargetAccess: 'u',
         target: {
@@ -100,6 +101,20 @@ describe('ADMIN_OPERATIONS', () => {
             expect(ADMIN_OPERATIONS[name]).toMatchObject(expected);
         }
     );
+
+    test('looks the linked resource up always only for updatePatientReference, and for createPersonToPatientLink only when the Person is missing', () => {
+        const lookups = Object.values(ADMIN_OPERATIONS).map((operation) => [
+            operation.name,
+            operation.linkTargetLookup
+        ]);
+        expect(lookups).toEqual([
+            ['createPersonToPersonLink', 'never'],
+            ['removePersonToPersonLink', 'never'],
+            ['createPersonToPatientLink', 'whenTargetMissing'],
+            ['removePersonToPatientLink', 'never'],
+            ['updatePatientReference', 'always']
+        ]);
+    });
 
     test('only createPersonToPatientLink creates a missing target', () => {
         const creating = Object.values(ADMIN_OPERATIONS)

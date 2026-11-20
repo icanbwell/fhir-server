@@ -232,7 +232,7 @@ const buildItem = ({ kind, target, linkTarget, storedDoc, linked = [] }) => {
         kind,
         target,
         linkTarget,
-        lookupLinkTarget: linked.length > 0,
+        linkTargetLookup: linked.length > 0 ? 'always' : 'never',
         createsMissingTarget: storedDoc === null
     };
     item.stored = storedDoc;
@@ -772,8 +772,7 @@ describe('AdminBuilder', () => {
                 { target: storedPatientReference(OTHER_PATIENT_UUID) },
                 { target: { reference: 'Patient/patient-1', _uuid: `Patient/${PATIENT_UUID}` } }
             ],
-            expectedLinks: [`Patient/${OTHER_PATIENT_UUID}`],
-            removedLinkTarget: { reference: 'Patient/patient-1', _uuid: `Patient/${PATIENT_UUID}` }
+            expectedLinks: [`Patient/${OTHER_PATIENT_UUID}`]
         },
         {
             name: 'removeLink by id|authority drops the link whose reference is that text',
@@ -782,8 +781,7 @@ describe('AdminBuilder', () => {
                 { target: { reference: 'Patient/patient-1|owner', _uuid: `Patient/${PATIENT_UUID}` } },
                 { target: storedPatientReference(OTHER_PATIENT_UUID) }
             ],
-            expectedLinks: [`Patient/${OTHER_PATIENT_UUID}`],
-            removedLinkTarget: { reference: 'Patient/patient-1|owner', _uuid: `Patient/${PATIENT_UUID}` }
+            expectedLinks: [`Patient/${OTHER_PATIENT_UUID}`]
         },
         {
             name: 'removeLink by a _uuid drops the link whose _uuid names it, whatever its reference',
@@ -792,21 +790,19 @@ describe('AdminBuilder', () => {
                 { target: { reference: 'Patient/patient-1', _uuid: `Patient/${PATIENT_UUID}` } },
                 { target: storedPatientReference(OTHER_PATIENT_UUID) }
             ],
-            expectedLinks: [`Patient/${OTHER_PATIENT_UUID}`],
-            removedLinkTarget: { reference: 'Patient/patient-1', _uuid: `Patient/${PATIENT_UUID}` }
+            expectedLinks: [`Patient/${OTHER_PATIENT_UUID}`]
         },
         {
-            name: 'removeLink by a plain id drops every link whose reference names it and keeps the first one',
+            name: 'removeLink by a plain id drops every link whose reference names it',
             linkTargetId: 'patient-1',
             links: [
                 { target: { reference: 'Patient/patient-1' } },
                 { target: { reference: 'Patient/patient-1', _uuid: `Patient/${PATIENT_UUID}` } },
                 { target: storedPatientReference(OTHER_PATIENT_UUID) }
             ],
-            expectedLinks: [`Patient/${OTHER_PATIENT_UUID}`],
-            removedLinkTarget: { reference: 'Patient/patient-1' }
+            expectedLinks: [`Patient/${OTHER_PATIENT_UUID}`]
         }
-    ])('$name, and keeps the removed link target for the link event', async ({ linkTargetId, links, expectedLinks, removedLinkTarget }) => {
+    ])('$name', async ({ linkTargetId, links, expectedLinks }) => {
         const result = await build(buildItem({
             kind: 'removeLink',
             target: PERSON,
@@ -817,7 +813,6 @@ describe('AdminBuilder', () => {
         expect(result.failure).toBeNull();
         expect(calledBuilders(result.spies)).toStrictEqual(['replaceBuilder']);
         expect(result.item.candidate.link.map((link) => link.target.reference)).toStrictEqual(expectedLinks);
-        expect(result.item.adminChange.removedLinkTarget).toStrictEqual(removedLinkTarget);
         expect(result.item.stored).toStrictEqual(result.storedBefore);
     });
 
@@ -843,7 +838,6 @@ describe('AdminBuilder', () => {
         expect(result.failure).toBeNull();
         expect(calledBuilders(result.spies)).toStrictEqual([]);
         expect(result.item.candidate).toBeNull();
-        expect(result.item.adminChange.removedLinkTarget).toBeUndefined();
         expect(result.context.requestInfo.method).toBe(UNSET_METHOD);
     });
 
@@ -851,62 +845,68 @@ describe('AdminBuilder', () => {
         { name: 'a plain id', linkTargetId: 'patient-1' },
         { name: 'id|authority', linkTargetId: 'patient-1|owner' },
         { name: 'a _uuid', linkTargetId: PATIENT_UUID }
-    ])('addLink by $name appends a link to the loaded Patient\'s _uuid', async ({ linkTargetId }) => {
+    ])('addLink by $name to a stored Person appends a link by the id as sent, with nothing loaded', async ({ linkTargetId }) => {
         const result = await build(buildItem({
             kind: 'addLink',
             target: PERSON,
             linkTarget: { resourceType: 'Patient', id: linkTargetId },
-            storedDoc: storedPerson([{ target: storedPatientReference(OTHER_PATIENT_UUID) }]),
-            linked: [{ resourceType: 'Patient', resource: linkedPatient }]
+            storedDoc: storedPerson([{ target: storedPatientReference(OTHER_PATIENT_UUID) }])
         }));
 
         expect(result.failure).toBeNull();
+        expect(calledBuilders(result.spies)).toStrictEqual(['smartMergeBuilder']);
         expect(result.item.candidate.link.map((link) => link.target.reference)).toStrictEqual([
             `Patient/${OTHER_PATIENT_UUID}`,
-            `Patient/${PATIENT_UUID}`
+            `Patient/${linkTargetId}`
         ]);
     });
 
-    test('addLink by a plain id is a no-op when a stored link already has the loaded Patient\'s _uuid', async () => {
+    test.each([
+        {
+            name: 'a plain id whose reference is stored as sent',
+            linkTargetId: 'patient-1',
+            links: [{ target: { reference: 'Patient/patient-1', _uuid: `Patient/${PATIENT_UUID}` } }]
+        },
+        {
+            name: 'a _uuid stored as the link _uuid under another reference',
+            linkTargetId: PATIENT_UUID,
+            links: [{ target: { reference: 'Patient/patient-1', _uuid: `Patient/${PATIENT_UUID}` } }]
+        },
+        {
+            name: 'id|authority whose reference is stored as sent',
+            linkTargetId: 'patient-1|owner',
+            links: [{ target: { reference: 'Patient/patient-1|owner', _uuid: `Patient/${PATIENT_UUID}` } }]
+        }
+    ])('addLink by $name is a no-op that builds nothing', async ({ linkTargetId, links }) => {
         const result = await build(buildItem({
             kind: 'addLink',
             target: PERSON,
-            linkTarget: { resourceType: 'Patient', id: 'patient-1' },
-            storedDoc: storedPerson([{ target: storedPatientReference(PATIENT_UUID) }]),
-            linked: [{ resourceType: 'Patient', resource: linkedPatient }]
+            linkTarget: { resourceType: 'Patient', id: linkTargetId },
+            storedDoc: storedPerson(links)
         }), undefined, UNSET_METHOD);
 
         expect(result.failure).toBeNull();
-        expect(calledBuilders(result.spies)).toStrictEqual([]);
-        expect(result.item.candidate).toBeNull();
-    });
-
-    test.each([
-        { name: 'addLink to a stored Person', kind: 'addLink', target: PERSON, storedDoc: () => storedPerson([]) },
-        { name: 'addLink with no stored Person', kind: 'addLink', target: PERSON, storedDoc: () => null },
-        {
-            name: 'rewritePatientReference',
-            kind: 'rewritePatientReference',
-            target: OBSERVATION,
-            storedDoc: () => storedObservation(storedPatientReference(OLD_PATIENT_UUID))
-        }
-    ])('$name with no loaded link target fails at BUILD with an internal error and builds nothing', async ({ kind, target, storedDoc }) => {
-        const result = await build(buildItem({
-            kind,
-            target,
-            linkTarget: { resourceType: 'Patient', id: 'patient-1|owner' },
-            storedDoc: storedDoc()
-        }), undefined, UNSET_METHOD);
-
-        expect(result.failure.stage).toBe(WRITE_FAILURE_STAGE.BUILD);
-        expect(result.failure.error.constructor).toBe(Error);
-        expect(result.failure.error.message).toBe(`Admin change ${kind} has no loaded link target`);
         expect(calledBuilders(result.spies)).toStrictEqual([]);
         expect(result.item.candidate).toBeNull();
         expect(result.context.requestInfo.method).toBe(UNSET_METHOD);
     });
 
-    test('a Person created for a Patient sent by a plain id links the Patient by its _uuid', async () => {
+    test('addLink by a plain id appends a link when the stored link names the Patient only by its _uuid, as the old path does', async () => {
+        const result = await build(buildItem({
+            kind: 'addLink',
+            target: PERSON,
+            linkTarget: { resourceType: 'Patient', id: 'patient-1' },
+            storedDoc: storedPerson([{ target: storedPatientReference(PATIENT_UUID) }])
+        }));
+
+        expect(result.failure).toBeNull();
+        expect(result.item.candidate.link.map((link) => link.target.reference)).toStrictEqual([
+            `Patient/${PATIENT_UUID}`,
+            'Patient/patient-1'
+        ]);
+    });
+
+    test('a Person created for a Patient sent by a plain id links the Patient by the id as sent and copies the loaded Patient\'s meta', async () => {
         const result = await build(buildItem({
             kind: 'addLink',
             target: { resourceType: 'Person', id: 'person-1' },
@@ -916,7 +916,8 @@ describe('AdminBuilder', () => {
         }));
 
         expect(result.failure).toBeNull();
-        expect(result.item.candidate.link).toStrictEqual([{ target: { reference: `Patient/${PATIENT_UUID}` } }]);
+        expect(result.item.candidate.link).toStrictEqual([{ target: { reference: 'Patient/patient-1' } }]);
+        expect(result.item.candidate.meta.source).toBe(SOURCE);
     });
 
     test('rewritePatientReference to a Patient sent by a plain id points the field at the loaded Patient\'s _uuid', async () => {

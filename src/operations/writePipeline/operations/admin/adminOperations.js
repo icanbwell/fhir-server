@@ -29,13 +29,18 @@ function freezeDeep (value) {
  * route name and `profile` the name of the write profile it runs under. `target` is the resource
  * the change is made on and `linkTarget` the other end of the link, or the new Patient: each names
  * the request parameter that holds its id and the resource type it has (see
- * `AdminResourceDefinition`). `kind`, `lookupLinkTarget`, `createsMissingTarget` and
+ * `AdminResourceDefinition`). `kind`, `linkTargetLookup`, `createsMissingTarget` and
  * `linkTargetAccess` are copied onto the item's `adminChange`, and `smartMerge` onto the write
- * context. `linkTargetAccess` is the access letter
- * the looked-up link target is checked with: `r` for a link, which only reads it, and `u` for the
- * new Patient of a patient reference rewrite, which puts the changed resource in that Patient's
- * record. `manualLinkEvent` is the manual-link Kafka event the
- * operation sends when it writes (`isLinking` says whether it links or unlinks), or null.
+ * context. `linkTargetLookup` says when the link target is looked up: `always` (the new Patient of
+ * a patient reference rewrite, which must exist), `whenTargetMissing` (the Patient a created
+ * Person copies its meta from, looked up only when no Person is found) or `never` (a link added
+ * to or removed from a stored Person names the link target by the id sent, as the old path does,
+ * and the result validation's Person.link check checks an added one). `linkTargetAccess` is the
+ * access letter the looked-up link target is checked with: `r` for the Patient of a created
+ * Person, which is only read, and `u` for the new Patient of a patient reference rewrite, which
+ * puts the changed resource in that Patient's record. `manualLinkEvent` is the manual-link Kafka
+ * event the operation sends when it writes (`isLinking` says whether it links or unlinks), or
+ * null.
  * `responseParameters` are the request parameters the response body echoes, after `message`.
  * `messages` are the response messages, each a template whose `{name}` placeholders are request
  * parameters: `success` when the change was written, `created` when the write created the target
@@ -47,7 +52,7 @@ function freezeDeep (value) {
  * @property {'addLink'|'removeLink'|'rewritePatientReference'} kind
  * @property {AdminResourceDefinition} target
  * @property {AdminResourceDefinition} linkTarget
- * @property {boolean} lookupLinkTarget
+ * @property {'always'|'whenTargetMissing'|'never'} linkTargetLookup
  * @property {boolean} createsMissingTarget
  * @property {'r'|'u'} linkTargetAccess
  * @property {boolean} smartMerge
@@ -68,7 +73,7 @@ const ADMIN_OPERATIONS = freezeDeep({
         kind: 'addLink',
         target: { idParameter: 'bwellPersonId', resourceType: 'Person' },
         linkTarget: { idParameter: 'externalPersonId', resourceType: 'Person' },
-        lookupLinkTarget: true,
+        linkTargetLookup: 'never',
         createsMissingTarget: false,
         linkTargetAccess: 'r',
         smartMerge: true,
@@ -85,7 +90,7 @@ const ADMIN_OPERATIONS = freezeDeep({
         kind: 'removeLink',
         target: { idParameter: 'bwellPersonId', resourceType: 'Person' },
         linkTarget: { idParameter: 'externalPersonId', resourceType: 'Person' },
-        lookupLinkTarget: false,
+        linkTargetLookup: 'never',
         createsMissingTarget: false,
         linkTargetAccess: 'r',
         smartMerge: false,
@@ -102,7 +107,7 @@ const ADMIN_OPERATIONS = freezeDeep({
         kind: 'addLink',
         target: { idParameter: 'externalPersonId', resourceType: 'Person' },
         linkTarget: { idParameter: 'patientId', resourceType: 'Patient' },
-        lookupLinkTarget: true,
+        linkTargetLookup: 'whenTargetMissing',
         createsMissingTarget: true,
         linkTargetAccess: 'r',
         smartMerge: true,
@@ -120,7 +125,7 @@ const ADMIN_OPERATIONS = freezeDeep({
         kind: 'removeLink',
         target: { idParameter: 'personId', resourceType: 'Person' },
         linkTarget: { idParameter: 'patientId', resourceType: 'Patient' },
-        lookupLinkTarget: false,
+        linkTargetLookup: 'never',
         createsMissingTarget: false,
         linkTargetAccess: 'r',
         smartMerge: false,
@@ -141,7 +146,7 @@ const ADMIN_OPERATIONS = freezeDeep({
             stripsAnyTypePrefix: true
         },
         linkTarget: { idParameter: 'patientId', resourceType: 'Patient' },
-        lookupLinkTarget: true,
+        linkTargetLookup: 'always',
         createsMissingTarget: false,
         linkTargetAccess: 'u',
         smartMerge: false,

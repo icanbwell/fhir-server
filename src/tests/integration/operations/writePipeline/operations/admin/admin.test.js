@@ -131,6 +131,13 @@ const withSubject = (encounter, subject) => {
 const linkUuids = (person) => (person.link || []).map((link) => link.target._uuid);
 
 /**
+ * Returns the `reference`, `_uuid` and `_sourceId` of every link target of a stored Person, in
+ * link order.
+ */
+const linkFields = (person) =>
+    (person.link || []).map(({ target }) => [target.reference, target._uuid, target._sourceId]);
+
+/**
  * Returns the reference and the global id fields of a stored Encounter's subject.
  */
 const subjectFields = (encounter) => ({
@@ -499,8 +506,10 @@ const tenantBUuidOf = (resource) => generateUUIDv5(`${resource.id}|tenant-b`);
 /**
  * Per operation, the bodies that name its resources by their plain `id` instead of their `_uuid`,
  * bare and with a `Person/` or `Patient/` prefix (any resource type on `resourceId`), and what the
- * write must answer and store: today's body with the ids as sent, without their prefix, and links
- * and references to the `_uuid`s.
+ * write must answer and store: today's body with the ids as sent, without their prefix; an added
+ * link names the id as sent, with the `_uuid` and `_sourceId` preSave gives it, and a rewritten
+ * patient reference names the new Patient's `_uuid`. The adds run for a caller with access to
+ * every tenant, for whom the Person.link check keeps the reference as sent.
  */
 const plainIdCases = [
     {
@@ -515,9 +524,10 @@ const plainIdCases = [
             bwellPersonId: personA.id,
             externalPersonId: personA2.id
         },
+        scope: ALL_TENANTS_SCOPE,
         target: { resourceType: 'Person', uuid: PERSON_A },
-        stateOf: (person) => person.link.map((link) => [link.target.reference, link.target._uuid]),
-        expectedState: [[`Person/${PERSON_A2}`, `Person/${PERSON_A2}`]],
+        stateOf: linkFields,
+        expectedState: [[`Person/${personA2.id}`, `Person/${PERSON_A2}`, `Person/${personA2.id}`]],
         linkEvent: null
     },
     {
@@ -549,10 +559,11 @@ const plainIdCases = [
             patientId: patientA.id,
             externalPersonId: personA.id
         },
+        scope: ALL_TENANTS_SCOPE,
         target: { resourceType: 'Person', uuid: PERSON_A },
-        stateOf: (person) => person.link.map((link) => [link.target.reference, link.target._uuid]),
-        expectedState: [[`Patient/${PATIENT_A}`, `Patient/${PATIENT_A}`]],
-        linkEvent: { personId: PERSON_A, patientId: PATIENT_A, isLinking: true }
+        stateOf: linkFields,
+        expectedState: [[`Patient/${patientA.id}`, `Patient/${PATIENT_A}`, `Patient/${patientA.id}`]],
+        linkEvent: { personId: PERSON_A, patientId: patientA.id, isLinking: true }
     },
     {
         operation: 'removePersonToPatientLink',
@@ -569,7 +580,7 @@ const plainIdCases = [
         target: { resourceType: 'Person', uuid: PERSON_A },
         stateOf: linkUuids,
         expectedState: [],
-        linkEvent: { personId: PERSON_A, patientId: PATIENT_A, isLinking: false }
+        linkEvent: { personId: PERSON_A, patientId: patientA.id, isLinking: false }
     },
     {
         operation: 'updatePatientReference',
@@ -649,14 +660,6 @@ const ambiguousIdCases = [
         tenantAWrite: { resourceType: 'Person', uuid: PERSON_A, untouched: tenantBUuidOf(personA) }
     },
     {
-        name: 'createPersonToPatientLink to a Patient id stored in two tenants',
-        operation: 'createPersonToPatientLink',
-        stored: [personA, patientA, inTenantOf(patientA, personB)],
-        body: { externalPersonId: PERSON_A, patientId: patientA.id },
-        message: 'The id matches more than one Patient; pass the _uuid',
-        tenantAWrite: { resourceType: 'Person', uuid: PERSON_A, untouched: null }
-    },
-    {
         name: 'updatePatientReference of an Encounter id stored in two tenants',
         operation: 'updatePatientReference',
         stored: [encounterA, inTenantOf(encounterA, personB), patientA2],
@@ -721,13 +724,6 @@ const otherTenantPlainIdCases = [
         stored: [personB, personA2],
         body: { bwellPersonId: personB.id, externalPersonId: personA2.id },
         missing: `Person/${personB.id}`
-    },
-    {
-        name: 'createPersonToPatientLink to a Patient id stored only in tenant-b',
-        operation: 'createPersonToPatientLink',
-        stored: [personA, patientB],
-        body: { externalPersonId: personA.id, patientId: patientB.id },
-        missing: `Patient/${patientB.id}`
     },
     {
         name: 'removePersonToPatientLink from a Person id stored only in tenant-b',
@@ -835,23 +831,10 @@ const missingTargetCases = [
 ];
 
 /**
- * The bodies whose linked resource (the other Person, the Patient, the new Patient) is not stored.
+ * The bodies whose looked-up linked resource (the Patient of a created Person, the new Patient) is
+ * not stored.
  */
 const missingLinkedCases = [
-    {
-        name: 'createPersonToPersonLink to a Person that is not stored',
-        operation: 'createPersonToPersonLink',
-        stored: [personA],
-        body: { bwellPersonId: PERSON_A, externalPersonId: MISSING_UUID },
-        missing: `Person/${MISSING_UUID}`
-    },
-    {
-        name: 'createPersonToPatientLink to a Patient that is not stored, from a stored Person',
-        operation: 'createPersonToPatientLink',
-        stored: [personA],
-        body: { externalPersonId: PERSON_A, patientId: MISSING_UUID },
-        missing: `Patient/${MISSING_UUID}`
-    },
     {
         name: 'createPersonToPatientLink to a Patient that is not stored, with no Person',
         operation: 'createPersonToPatientLink',
@@ -900,23 +883,9 @@ const otherTenantTargetCases = [
 ];
 
 /**
- * The bodies whose linked resource is stored only in `tenant-b`, for a `tenant-a` caller.
+ * The bodies whose looked-up linked resource is stored only in `tenant-b`, for a `tenant-a` caller.
  */
 const otherTenantLinkedCases = [
-    {
-        name: 'createPersonToPersonLink to a Person in another tenant',
-        operation: 'createPersonToPersonLink',
-        stored: [personA, personB],
-        body: { bwellPersonId: PERSON_A, externalPersonId: PERSON_B },
-        missing: `Person/${PERSON_B}`
-    },
-    {
-        name: 'createPersonToPatientLink to a Patient in another tenant, from a stored Person',
-        operation: 'createPersonToPatientLink',
-        stored: [personA, patientB],
-        body: { externalPersonId: PERSON_A, patientId: PATIENT_B },
-        missing: `Patient/${PATIENT_B}`
-    },
     {
         name: 'createPersonToPatientLink to a Patient in another tenant, with no Person',
         operation: 'createPersonToPatientLink',
@@ -967,6 +936,117 @@ const otherTenantBothCases = [
         stored: [encounterB, patientB],
         body: { resourceType: 'Encounter', resourceId: ENCOUNTER_B, patientId: PATIENT_B },
         missing: `Encounter/${ENCOUNTER_B}`
+    }
+];
+
+/**
+ * Links added to a stored Person whose target the Person.link check of the result validation
+ * refuses, because the add doesn't look the target up: a target that is not stored, one in a
+ * tenant the caller can't access, and a bare id that more than one resource the caller can access
+ * has. Each answers a 400 with the check's issue code and writes nothing.
+ */
+const personLinkCheckCases = [
+    {
+        name: 'createPersonToPersonLink to a Person that is not stored',
+        operation: 'createPersonToPersonLink',
+        stored: [personA],
+        body: { bwellPersonId: PERSON_A, externalPersonId: MISSING_UUID },
+        scope: TENANT_A_SCOPE,
+        code: 'not-found'
+    },
+    {
+        name: 'createPersonToPatientLink to a Patient that is not stored',
+        operation: 'createPersonToPatientLink',
+        stored: [personA],
+        body: { externalPersonId: PERSON_A, patientId: 'admin-missing-patient' },
+        scope: TENANT_A_SCOPE,
+        code: 'not-found'
+    },
+    {
+        name: 'createPersonToPersonLink to a Person in another tenant',
+        operation: 'createPersonToPersonLink',
+        stored: [personA, personB],
+        body: { bwellPersonId: PERSON_A, externalPersonId: PERSON_B },
+        scope: TENANT_A_SCOPE,
+        code: 'forbidden'
+    },
+    {
+        name: 'createPersonToPatientLink to a Patient id stored only in another tenant',
+        operation: 'createPersonToPatientLink',
+        stored: [personA, patientB],
+        body: { externalPersonId: PERSON_A, patientId: patientB.id },
+        scope: TENANT_A_SCOPE,
+        code: 'forbidden'
+    },
+    {
+        name: 'createPersonToPatientLink to a Patient id stored in two tenants the caller can write',
+        operation: 'createPersonToPatientLink',
+        stored: [personA, patientA, inTenantOf(patientA, personB)],
+        body: { externalPersonId: PERSON_A, patientId: patientA.id },
+        scope: TENANT_A_AND_B_WRITE_SCOPE,
+        code: 'multiple-matches'
+    }
+];
+
+/**
+ * An add and a remove of the same link by the same ids, the plain ids for a caller with access to
+ * every tenant and the `_uuid`s for a `tenant-a` caller: the Person, its link as stored after the
+ * add, and the manual-link events of the add and the remove.
+ */
+const addThenRemoveCases = [
+    {
+        name: 'Person to Patient by plain ids',
+        add: 'createPersonToPatientLink',
+        remove: 'removePersonToPatientLink',
+        stored: [personA, patientA],
+        addBody: { externalPersonId: personA.id, patientId: patientA.id },
+        removeBody: { personId: personA.id, patientId: patientA.id },
+        scope: ALL_TENANTS_SCOPE,
+        storedLink: [`Patient/${patientA.id}`, `Patient/${PATIENT_A}`, `Patient/${patientA.id}`],
+        removeMessage: `Removed link from Person/${personA.id} to Patient/${patientA.id}`,
+        events: [
+            { personId: PERSON_A, patientId: patientA.id, isLinking: true },
+            { personId: PERSON_A, patientId: patientA.id, isLinking: false }
+        ]
+    },
+    {
+        name: 'Person to Person by plain ids',
+        add: 'createPersonToPersonLink',
+        remove: 'removePersonToPersonLink',
+        stored: [personA, personA2],
+        addBody: { bwellPersonId: personA.id, externalPersonId: personA2.id },
+        removeBody: { bwellPersonId: personA.id, externalPersonId: personA2.id },
+        scope: ALL_TENANTS_SCOPE,
+        storedLink: [`Person/${personA2.id}`, `Person/${PERSON_A2}`, `Person/${personA2.id}`],
+        removeMessage: `Removed link from Person/${personA.id} to Person/${personA2.id}`,
+        events: []
+    },
+    {
+        name: 'Person to Patient by _uuids',
+        add: 'createPersonToPatientLink',
+        remove: 'removePersonToPatientLink',
+        stored: [personA, patientA],
+        addBody: { externalPersonId: PERSON_A, patientId: PATIENT_A },
+        removeBody: { personId: PERSON_A, patientId: PATIENT_A },
+        scope: TENANT_A_SCOPE,
+        storedLink: [`Patient/${PATIENT_A}`, `Patient/${PATIENT_A}`, `Patient/${PATIENT_A}`],
+        removeMessage: `Removed link from Person/${PERSON_A} to Patient/${PATIENT_A}`,
+        events: [
+            { personId: PERSON_A, patientId: PATIENT_A, isLinking: true },
+            { personId: PERSON_A, patientId: PATIENT_A, isLinking: false }
+        ]
+    },
+    {
+        name: 'Person to Person by _uuids',
+        add: 'createPersonToPersonLink',
+        remove: 'removePersonToPersonLink',
+        stored: [personA, personA2],
+        addBody: { bwellPersonId: PERSON_A, externalPersonId: PERSON_A2 },
+        removeBody: { bwellPersonId: PERSON_A, externalPersonId: PERSON_A2 },
+        scope: TENANT_A_SCOPE,
+        storedLink: [`Person/${PERSON_A2}`, `Person/${PERSON_A2}`, `Person/${PERSON_A2}`],
+        removeMessage: `Removed link from Person/${PERSON_A} to Person/${PERSON_A2}`,
+        events: []
     }
 ];
 
@@ -1098,6 +1178,27 @@ describe('admin writes on the shared write pipeline', () => {
             expect(history[0].request.method).toBe('POST');
         });
 
+        test("links the Patient by the plain id as sent and sends the Patient's _uuid in the linking event", async () => {
+            const { request, produceEventAsync } = await createRequestWithEventSpyAsync();
+            await storeAsync(request, [patientA]);
+
+            const result = await adminPost(
+                request,
+                'createPersonToPatientLink',
+                { externalPersonId: MISSING_UUID, patientId: `Patient/${patientA.id}` },
+                ALL_TENANTS_SCOPE
+            );
+
+            expect(result.status).toBe(200);
+            const [person] = await (await collectionOf('Person')).find({}).toArray();
+            expect(linkFields(person)).toEqual([
+                [`Patient/${patientA.id}`, `Patient/${PATIENT_A}`, `Patient/${patientA.id}`]
+            ]);
+            expect(produceEventAsync.mock.calls.map(([event]) => event)).toEqual([
+                { personId: person._uuid, patientId: PATIENT_A, isLinking: true }
+            ]);
+        });
+
         test('has written a create AuditEvent for the new Person when it answers', async () => {
             const { request } = await createRequestWithEventSpyAsync();
             await storeAsync(request, [patientA]);
@@ -1193,12 +1294,12 @@ describe('admin writes on the shared write pipeline', () => {
 
     describe('ids and parameters', () => {
         test.each(plainIdCases)(
-            '$operation accepts plain ids ($form), answers with them and links or references the _uuids',
-            async ({ operation, stored, body, response, target, stateOf, expectedState, linkEvent }) => {
+            '$operation accepts plain ids ($form), answers with them, links them as sent and points a patient reference at the _uuid',
+            async ({ operation, stored, body, scope, response, target, stateOf, expectedState, linkEvent }) => {
                 const { request, produceEventAsync } = await createRequestWithEventSpyAsync();
                 await storeAsync(request, stored);
 
-                const result = await adminPost(request, operation, body);
+                const result = await adminPost(request, operation, body, scope);
 
                 expect(result.status).toBe(200);
                 expect(result.body).toEqual(response);
@@ -1336,6 +1437,139 @@ describe('admin writes on the shared write pipeline', () => {
             expectOperationOutcome(result, 400, 'invalid');
             expect(result.body.issue[0].details.text).toBe(
                 'ResourceType NotAResourceType not supported'
+            );
+            await expectNothingWrittenAsync({ before, produceEventAsync });
+        });
+    });
+
+    describe('links added to a stored Person by the id as sent', () => {
+        test.each(addThenRemoveCases)(
+            '$name: the add stores the link as sent and the remove by the same ids removes it',
+            async ({ add, remove, stored, addBody, removeBody, scope, storedLink, removeMessage, events }) => {
+                const { request, produceEventAsync } = await createRequestWithEventSpyAsync();
+                await storeAsync(request, stored);
+
+                const added = await adminPost(request, add, addBody, scope);
+                const afterAdd = await readStoredAsync('Person', PERSON_A);
+                const removed = await adminPost(request, remove, removeBody, scope);
+
+                expect(added.status).toBe(200);
+                expect(linkFields(afterAdd)).toEqual([storedLink]);
+                expect(removed.status).toBe(200);
+                expect(removed.body.message).toBe(removeMessage);
+                const afterRemove = await readStoredAsync('Person', PERSON_A);
+                expect(afterRemove.link ?? []).toEqual([]);
+                expect(afterRemove.meta.versionId).toBe('3');
+                const history = await readHistoryAsync('Person', PERSON_A);
+                expect(history.map((row) => row.resource.meta.versionId)).toEqual(['1', '2', '3']);
+                expect(produceEventAsync.mock.calls.map(([event]) => event)).toEqual(events);
+            }
+        );
+
+        test.each([
+            {
+                operation: 'createPersonToPatientLink',
+                stored: [personA, patientA],
+                body: { externalPersonId: personA.id, patientId: patientA.id },
+                message: `Link already exists from Person/${personA.id} to Patient/${patientA.id}`
+            },
+            {
+                operation: 'createPersonToPersonLink',
+                stored: [personA, personA2],
+                body: { bwellPersonId: personA.id, externalPersonId: personA2.id },
+                message: `Link already exists from ${personA.id} to ${personA2.id}`
+            }
+        ])(
+            '$operation repeated with the same plain id answers today\'s no-op body and writes nothing',
+            async ({ operation, stored, body, message }) => {
+                const { request, produceEventAsync } = await createRequestWithEventSpyAsync();
+                await storeAsync(request, stored);
+                expect((await adminPost(request, operation, body, ALL_TENANTS_SCOPE)).status).toBe(200);
+                produceEventAsync.mockClear();
+                const { auditLogger, mongoDatabaseManager } = getTestContainer();
+                await auditLogger.flushAsync();
+                await (await mongoDatabaseManager.getAuditDbAsync())
+                    .collection('AuditEvent_4_0_0')
+                    .deleteMany({});
+                const before = await snapshotAsync();
+
+                const repeated = await adminPost(request, operation, body, ALL_TENANTS_SCOPE);
+
+                expect(repeated.status).toBe(200);
+                expect(repeated.body.message).toBe(message);
+                await expectNothingWrittenAsync({ before, produceEventAsync });
+            }
+        );
+
+        test.each([
+            {
+                name: 'the link was stored as sent with an authority',
+                links: [`Patient/${patientA.id}|tenant-a`],
+                body: { personId: personA.id, patientId: `${patientA.id}|tenant-a` }
+            },
+            {
+                name: 'the link was stored by _uuid',
+                links: [`Patient/${PATIENT_A}`],
+                body: { personId: personA.id, patientId: PATIENT_A }
+            }
+        ])('removePersonToPatientLink removes a link when $name and the same text is sent', async ({ links, body }) => {
+            const { request } = await createRequestWithEventSpyAsync();
+            await storeAsync(request, [withLinks(personA, links), patientA]);
+
+            const result = await adminPost(request, 'removePersonToPatientLink', body);
+
+            expect(result.status).toBe(200);
+            expect(result.body.message).toMatch(/^Removed link/);
+            expect((await readStoredAsync('Person', PERSON_A)).link ?? []).toEqual([]);
+        });
+
+        test.each(personLinkCheckCases)(
+            '$name is refused by the Person.link check with 400 $code and writes nothing',
+            async ({ operation, stored, body, scope, code }) => {
+                const { request, produceEventAsync } = await createRequestWithEventSpyAsync();
+                await storeAsync(request, stored);
+                const before = await snapshotAsync();
+
+                const result = await adminPost(request, operation, body, scope);
+
+                expectOperationOutcome(result, 400, code);
+                expect(result.body.issue[0].details.text).toMatch(/^Person\.link target /);
+                await expectNothingWrittenAsync({ before, produceEventAsync });
+            }
+        );
+
+        test('a caller with access to every tenant skips the Person.link check: a bare Patient id stored in two tenants is linked as sent, and preSave names it in the Person\'s tenant', async () => {
+            const { request } = await createRequestWithEventSpyAsync();
+            await storeAsync(request, [personA, patientA, inTenantOf(patientA, personB)]);
+
+            const result = await adminPost(
+                request,
+                'createPersonToPatientLink',
+                { externalPersonId: PERSON_A, patientId: patientA.id },
+                ALL_TENANTS_SCOPE
+            );
+
+            expect(result.status).toBe(200);
+            expect(linkFields(await readStoredAsync('Person', PERSON_A))).toEqual([
+                [`Patient/${patientA.id}`, `Patient/${PATIENT_A}`, `Patient/${patientA.id}`]
+            ]);
+        });
+
+        test('a created Person for a Patient id stored in two tenants the caller can read answers 400 invalid asking for the _uuid and writes nothing', async () => {
+            const { request, produceEventAsync } = await createRequestWithEventSpyAsync();
+            await storeAsync(request, [patientA, inTenantOf(patientA, personB)]);
+            const before = await snapshotAsync();
+
+            const result = await adminPost(
+                request,
+                'createPersonToPatientLink',
+                { externalPersonId: MISSING_UUID, patientId: patientA.id },
+                ALL_TENANTS_SCOPE
+            );
+
+            expectOperationOutcome(result, 400, 'invalid');
+            expect(result.body.issue[0].details.text).toBe(
+                'The id matches more than one Patient; pass the _uuid'
             );
             await expectNothingWrittenAsync({ before, produceEventAsync });
         });

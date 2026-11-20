@@ -48,9 +48,10 @@ const SOURCE_ASSIGNING_AUTHORITY_SEPARATOR = '|';
  * by the target access check; and the link target with the `r` access letter, because it is only
  * read. A document the caller cannot access with that letter is not found. On a single match for
  * the target it sets the item's `stored` and copies its identity (`id`, `_uuid` and
- * `_sourceAssigningAuthority`) onto `incoming`, so a later failure names the stored document. When
- * the change says `lookupLinkTarget`, a single match for the link target is added to the item's
- * `linked`. A missing target fails the item at the `LOOKUP` stage, unless the change says
+ * `_sourceAssigningAuthority`) onto `incoming`, so a later failure names the stored document. The
+ * link target is looked up when the change's `linkTargetLookup` is `always`, or
+ * `whenTargetMissing` and no target was found; a single match is added to the item's `linked`. A
+ * missing target fails the item at the `LOOKUP` stage, unless the change says
  * `createsMissingTarget`, which leaves `stored` null; a missing link target always fails it. More
  * than one match fails the item too: for a `_uuid` with a plain `Error`, because the data should
  * never hold that, and for a plain `id` (the same id in several tenants the caller can access)
@@ -88,14 +89,14 @@ class AdminTargetLoader {
     }
 
     /**
-     * Loads the target, then the link target when the change asks for it. Stops at the first
-     * failure, which fails the item.
+     * Loads the target, then the link target when `_looksUpLinkTarget` says so. Stops at the
+     * first failure, which fails the item.
      * @param {WriteItem} item
      * @param {WriteContext} context
      * @returns {Promise<void>}
      */
     async _loadItemAsync ({ item, context }) {
-        const { target, linkTarget, lookupLinkTarget, createsMissingTarget } = item.adminChange;
+        const { target, linkTarget, createsMissingTarget } = item.adminChange;
 
         const targets = await this._findAsync({
             context,
@@ -117,7 +118,7 @@ class AdminTargetLoader {
             return;
         }
 
-        if (!lookupLinkTarget) {
+        if (!this._looksUpLinkTarget(item)) {
             return;
         }
         const linkTargets = await this._findAsync({
@@ -134,6 +135,20 @@ class AdminTargetLoader {
             return;
         }
         item.linked.push({ resourceType: linkTarget.resourceType, resource: linkTargets[0] });
+    }
+
+    /**
+     * Returns whether the item's link target is looked up: always for `always`, only when no target
+     * was found for `whenTargetMissing`, and never for `never`.
+     * @param {WriteItem} item
+     * @returns {boolean}
+     */
+    _looksUpLinkTarget (item) {
+        const { linkTargetLookup } = item.adminChange;
+        return (
+            linkTargetLookup === 'always' ||
+            (linkTargetLookup === 'whenTargetMissing' && item.stored === null)
+        );
     }
 
     /**

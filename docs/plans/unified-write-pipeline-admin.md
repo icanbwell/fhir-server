@@ -39,7 +39,7 @@ Each is a call the spec leaves open. Reverse any of them before work starts; non
 4. **Access letters.** The target is checked with `u`, linked resources with `r` (they are only read and referenced), a created Person with `c`. The Person.link tenant check at result validation still stops cross-tenant linking.
 5. **The admin write is versioned from day one.** The default `write` step writes with the stored version (the spec's "Write: version filter"), as `AdminResourceWriter` already does with `previousVersionId`. No new writer.
 6. **`AccessFilteredFinder` is extracted from `SearchExistingLoader`.** Both loaders need the same access-filtered query; `SearchExistingLoader` keeps its behavior and tests.
-7. **Manual-link Kafka events stay in the manager**, after the pipeline returns, driven by what the responder reports. A no-op produces none. Every event carries the Patient `_uuid`.
+7. **Manual-link Kafka events stay in the manager**, after the pipeline returns, driven by what the responder reports. A no-op produces none. The event carries the same Patient id as today (the spec's "Side outputs").
 8. **Epic check.** Only `$import` is left after this. Nothing here is shared with it: the new `WriteItem` fields, the `ResourceValidator` option and the finder are admin-only or default-off.
 
 ## File Structure
@@ -135,8 +135,8 @@ Input classes the spec implies and no task's own tests would exercise by acciden
 **Interfaces:**
 - Consumes: `InsertBuilder`, `SmartMergeBuilder`, `ReplaceBuilder` (each `buildAsync({ item, context })`), `PatientFilterManager.getPatientPropertyForResource`, `generateUUID`.
 - Produces: `AdminBuilder({ insertBuilder, smartMergeBuilder, replaceBuilder, patientFilterManager })` with `buildAsync({ item, context })`, the `buildDocument` variant `admin`. It reads `item.adminChange.kind`:
-  - `createPerson`: the incoming document is a new Person with a generated id and `_uuid`, `meta.source` and `meta.security` copied from `item.linked[0]` (the Patient) and one link to `Patient/<patient _uuid>`; calls `InsertBuilder`.
-  - `addLink`: the incoming document is a copy of `item.stored` with `{ target: { reference: '<Type>/<linked _uuid>' } }` appended. If a link already matches the linked `_uuid` (on `link.target._uuid`, then on the reference string as a fallback), sets `item.candidate = null`, `item.writeMode = 'update'` and returns; else calls `SmartMergeBuilder`.
+  - `createPerson`: the incoming document is a new Person with a generated id and `_uuid`, `meta.source` and `meta.security` copied from `item.linked[0]` (the Patient) and one link to `Patient/<patient _uuid>`; calls `InsertBuilder`. (Superseded: the link is `Patient/<id as sent>`, see the spec.)
+  - `addLink`: (superseded: the link is `<Type>/<id as sent>` and the target is not looked up for a stored Person, see the spec) the incoming document is a copy of `item.stored` with `{ target: { reference: '<Type>/<linked _uuid>' } }` appended. If a link already matches the linked `_uuid` (on `link.target._uuid`, then on the reference string as a fallback), sets `item.candidate = null`, `item.writeMode = 'update'` and returns; else calls `SmartMergeBuilder`.
   - `removeLink`: the incoming document is a copy of `item.stored` without the links that match `adminChange.linkedId` on `link.target._uuid` (or the reference). If none matched, the same no-op as above; else calls `ReplaceBuilder`.
   - `rewritePatientReference`: finds the patient field with `PatientFilterManager`, sets its reference to `Patient/<new Patient _uuid>` and clears its `_uuid`, `_sourceId` and `_sourceAssigningAuthority`. If the reference already points there, the same no-op; else calls `ReplaceBuilder`. A resource type with no patient field fails the item with a `BadRequestError`.
 - The builder never modifies `item.stored`.
@@ -221,7 +221,7 @@ Run the cases on the new path (`WRITE_PIPELINE_OPERATIONS` with `admin`), parame
 - [ ] **403 and format.** The admin-scope failure is a `forbidden` OperationOutcome; a 500 is "Internal Server Error".
 - [ ] **Result checks.** A Person link to another tenant's Person is refused for a caller without access to that tenant and allowed for `access/*.*`; a created Person (`createPersonToPatientLink`, no Person) copies the Patient's `meta.source` and `meta.security`, needs create access, and the Patient is checked.
 - [ ] **`updatePatientReference`.** It changes the patient reference of an Encounter, clears the old reference's `_uuid`, `_sourceId` and `_sourceAssigningAuthority`, and the same change through PUT, PATCH and `$merge` is still refused.
-- [ ] **Audit and events.** `create` for a created Person and `update` otherwise, written before the response; the manual-link events carry the Patient `_uuid` for all three branches (spy on the producer).
+- [ ] **Audit and events.** `create` for a created Person and `update` otherwise, written before the response; the manual-link events carry today's Patient id: the `_uuid` for a created Person, else the id as sent (spy on the producer).
 - [ ] **Concurrency.** Two concurrent adds of the same link leave one link; two concurrent removes leave none, and neither fails.
 
 - [ ] **Run the file; all pass.** Delete any `actual_*.json` files the local matchers write; do not stage them.

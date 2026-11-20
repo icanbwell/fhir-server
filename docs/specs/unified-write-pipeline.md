@@ -354,7 +354,7 @@ the code disagree, the code wins.
 | Validate incoming | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); the pipe-in-id check never fires, because POST replaces the id with a new UUID | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); Person.link moves to validate result; the size and pipe-in-id checks never fire: AuditEvent update gets 405 from `ResourceOperationAccessProvider` before the pipeline, and `IdParser` puts only the part before the first `\|` into the body id | – (the body is a JSON Patch) | on the stripped body: AuditEvent size limit and pipe-in-id check, then schema with relaxed required fields | owner tag backfilled first; pipe-in-id check, as today; new: the AuditEvent size limit and the schema check, as in `$merge` (accepted difference 6) | – (no client body) |
 | Find existing | off (no stored-document lookup) | by `_uuid`, as today; new: a bulk preload of one (`BulkPreloadLoader`, no access filter, as today) | `findExisting: 'search'` (`SearchExistingLoader`): the same search with the access filter as today; 0 hits is 404 `Resource not found: <Type>/<id>`, more than 1 is 400 listing the sorted `id\|authority` options; it copies the stored doc's `id`, `_uuid` and `_sourceAssigningAuthority` onto the item | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by the id sent (`_uuid`, `id` or `id\|authority`) with the access filter, 404 (see "Admin") |
 | Validate new resource | meta; new: after the size and schema checks, as in `$merge` (accepted difference 1) | new: meta, for create-via-PUT (today it runs on the body after the build) | – | meta (owner tag) for a new resource | meta for a new resource, as today | – |
-| Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403); new: as `$merge`: the stored doc, then the access-tag change from the stored doc to the body, removals counted; for create-via-PUT, POST's full check and access-tag change. Today the tag check runs on the built doc, after the build and the uploads | stored doc, scope letter `u` (`accessBeforeBuild: 'stored'`, `StoredAccessChecker`) | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: the stored doc (`u`) and every linked resource (`r`; `u` for the new Patient of `updatePatientReference`) |
+| Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403); new: as `$merge`: the stored doc, then the access-tag change from the stored doc to the body, removals counted; for create-via-PUT, POST's full check and access-tag change. Today the tag check runs on the built doc, after the build and the uploads | stored doc, scope letter `u` (`accessBeforeBuild: 'stored'`, `StoredAccessChecker`) | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: the stored doc (`u`) and every looked-up linked resource (`r` for the Patient of a created Person; `u` for the new Patient of `updatePatientReference`) |
 | Validate against stored | off | on, for an item with a stored doc: `validateResourceAsync` on the body with the stored doc (Group member limit, schema, Person.link, patient reference), as today's PUT does before it merges; temporary, see "Why this order" | off | off | off | off |
 | Build new doc | insert | replace (no smart merge), after the extended Group 400 and the `If-None-Match` / `If-Match` 412s; create-via-PUT builds as POST's insert, after the `If-Match` 412 | `buildDocument: 'patch'` (`PatchBuilder`): apply the JSON Patch to a copy of the stored doc; Group member strategy for Group (see "PATCH" below); a patch that changes nothing builds no doc | smart merge | smart merge | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
 | Validate result | new: on, `validateResourceAsync` on the built document (Group member limit, schema of the write-serialized document, Person.link), as for a new `$merge` doc | for an update, meta on the built doc, because "validate against stored" has already run `validateResourceAsync` on the body; for create-via-PUT, `validateResourceAsync` on the built doc. Today: `validateResourceAsync` on the body before the build, then the schema of the write-serialized body, then meta on the built doc | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
@@ -587,10 +587,10 @@ is true for the two create operations and false for the other three. History row
   and `updatePatientReference` match `_sourceId`, which preSave sets from `id`, so it is the same
   resource); `id|authority` matches the `_uuid` the server gives it, as the search API reads an
   `_id` value (today only `updatePatientReference` does that; the other lookups never match it).
-  The linked id of `removePersonToPersonLink` and `removePersonToPatientLink` is not looked up: it
-  is matched as today, on a link whose reference or `_uuid` is `<Type>/<id as sent>`. So
-  `id|authority` on that side matches only a link whose reference was stored as exactly that
-  text, never one stored by plain id or by `_uuid`, the same as today.
+  The linked id of the two remove operations is not looked up: it is matched as today, on a link
+  whose reference or `_uuid` is `<Type>/<id as sent>`. So `id|authority` on that side matches only
+  a link whose reference was stored as exactly that text, never one stored by plain id or by
+  `_uuid`, the same as today.
 - The id goes into search parsing, so it must be a literal: an id that is empty, longer than 255
   characters, holds a comma (which would OR two values), a backslash (the search escape
   character) or a control character, or has more than one `|` or nothing on a side of it, gets a
@@ -609,16 +609,26 @@ is true for the two create operations and false for the other three. History row
 - Lookups use the access filter, like PATCH (my call). A target that is missing or that the caller
   can't access gets a 404. The target is looked up with `u`, except in `createPersonToPatientLink`,
   which looks the Person up with `r` and creates it when it is not found (below).
-- Linked resources are looked up and must exist: the other Person in `createPersonToPersonLink`,
-  the Patient in `createPersonToPatientLink` (today only checked when a Person is created), and the
-  new Patient in `updatePatientReference` (today never checked).
-- An added link, and a rewritten patient reference, name the loaded resource by its `_uuid`
-  (`<Type>/<loaded _uuid>`), whichever id was sent, and a link is already in place when a stored
-  link's `_uuid` (or, with none, its reference) is that. Today they carry the id as sent. Removing
-  a link matches it as today: its reference or its `_uuid` is `<Type>/<id as sent>`.
+- Linked resources are looked up, and must then exist, only where the write needs them: the
+  Patient in `createPersonToPatientLink` when it creates the Person (for its `meta.source` and
+  `meta.security`, as today), and the new Patient in `updatePatientReference` (today never
+  checked). A link added to a stored Person doesn't look its target up, as today; the result
+  validation's Person.link check checks it instead: a target that is not stored, in a tenant the
+  caller can't access, or a bare id more than one accessible resource has gets a 400 with the
+  check's issue (`not-found`, `forbidden` or `multiple-matches`), where today it is written
+  unchecked. An `access/*` caller skips that check, as on the other operations.
+- An added link names the target as sent (`<Type>/<id as sent>`), as today, and preSave adds its
+  `_uuid`, `_sourceId` and `_sourceAssigningAuthority`. It is already in place when a stored link's
+  reference or `_uuid` is that text (today the reference only). Removing a link matches it the
+  same way, as today, so a link added by an id can be removed by the same id. The Person.link
+  check rewrites a bare-id reference to carry the matched target's authority
+  (`<Type>/<id>|<authority>`) for a caller without `access/*`, so for such a caller only
+  `id|authority` or the `_uuid` matches that link afterwards. A rewritten patient reference names
+  the loaded new Patient by its `_uuid`.
 - **A created Person.** When `createPersonToPatientLink` finds no Person, it creates one with a
   generated `id` and `_uuid`, the Patient's `meta.source` and `meta.security`, and one link
-  `Patient/<patient _uuid>`. A missing `externalPersonId` is a 400 (see "Changes to announce").
+  `Patient/<id as sent>`, as today. A missing `externalPersonId` is a 400 (see "Changes to
+  announce").
 - **A Person the caller can read but not update.** `createPersonToPatientLink` finds it, and the
   target access check (`u`) refuses it with a 403 `forbidden` before the build, so nothing is
   written. It does not create a second Person in the same tenant.
@@ -637,11 +647,12 @@ is true for the two create operations and false for the other three. History row
   these checks don't block them. That includes `createPersonToPersonLink`, which links Persons
   across tenants: the Person.link tenant check lets `access/*` callers through. A caller with
   narrower access scopes is limited to its own tenants.
-- The stored target and every linked resource go through the access check before the build. The
-  letters are `u` on the target, `r` on the Person or Patient a link points at, and `u` on the new
-  Patient of `updatePatientReference`, because that write puts the resource in the new Patient's
-  record (only the operations that look one up have a linked resource; the letter is
-  `linkTargetAccess` in `ADMIN_OPERATIONS`). The lookup itself finds the linked resource with `r`,
+- The stored target and every looked-up linked resource go through the access check before the
+  build. The letters are `u` on the target, `r` on the Patient a created Person copies its meta
+  from, and `u` on the new Patient of `updatePatientReference`, because that write puts the
+  resource in the new Patient's record (only those two look a linked resource up, see
+  `linkTargetLookup`; the letter is `linkTargetAccess` in `ADMIN_OPERATIONS`). The lookup itself
+  finds the linked resource with `r`,
   so a new Patient the caller can read but not write gets a 403, not a 404. The linked-resource
   check goes through the validator method that also checks patient write access for
   patient-scoped callers, so such a caller needs write access to the linked resource.
@@ -683,7 +694,7 @@ issue (400 `invalid`, 403 `forbidden`, 404 `not-found`, 409 `conflict`), and 500
 "Internal Server Error". Today every admin error is `code: 'exception'` with the message in
 `diagnostics`. Cases that return HTTP 200 with `{message}` today become errors:
 - missing parameters: 400, also with the switch off (the route checks them before the manager)
-- target or linked resource not found: 404
+- target or looked-up linked resource not found: 404
 - unsupported resource type: 400
 - the admin-scope 403: a `forbidden` OperationOutcome, for a caller with no admin scope at all and
   for one whose admin scope lacks write
@@ -700,11 +711,9 @@ responses are unchanged, with one exception: `updatePatientReference`'s message 
 
 **Side outputs.** History rows, change events and the Patient/Person manual-link Kafka events stay
 as today. The manager sends the manual-link events after the pipeline returns, from what the
-responder reports; a no-op sends none. The event's `personId` is the Person's `_uuid`. Its
-`patientId` is the loaded Patient's `_uuid` for `createPersonToPatientLink`, and for
-`removePersonToPatientLink` (which doesn't look the Patient up) the `_uuid` of the removed link,
-without its `Patient/` prefix, or the id as sent when that link has none. Today two of the three
-branches send the raw `patientId`.
+responder reports; a no-op sends none. The event carries the same ids as today: `personId` is the
+Person's `_uuid`, and `patientId` is the loaded Patient's `_uuid` when `createPersonToPatientLink`
+creates the Person, else the Patient id as sent, without its prefix.
 
 **Rollout.** Admin callers keep sending the ids they send today. A plain id that exists in several
 tenants the caller's token covers now needs the `_uuid`. Existing admin tests that rely on today's
@@ -739,8 +748,9 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
   `oldWriteBlobStorage.test.js`), whose PUT with an unchanged base64 value now keeps its live key
   (see "Base64 live key kept" under PUT). Both copies turn only `update` off. For admin it is 6
   files, all failing only on accepted difference 4 (today's 200-with-message instead of the error
-  format, a linked resource that must exist, links and events by `_uuid`, and, before plain ids
-  were accepted again, plain ids): `createPersonToPatientLink`,
+  format, a looked-up linked resource that must exist, and, before plain ids were accepted again
+  and adds named the target as sent again, plain ids and links by `_uuid`):
+  `createPersonToPatientLink`,
   `removePersonToPatientLink`, `removePersonToPersonLink` and `updatePatientReference` under
   `src/tests/integration/admin/`, `seperateHistoryCluster` and `admin_v2_cruds_scopes`. Each copy
   turns only `admin` off.
@@ -1081,6 +1091,13 @@ today.
 - **Ambiguous plain ids** (accepted difference 4). A plain id that matches resources in more than
   one tenant the caller can access is a 400 `invalid` that asks for the `_uuid`; today the write
   goes to an arbitrary first match.
+- **Added link targets are checked** (accepted difference 4). A link added to a stored Person is
+  checked by the result validation's Person.link check: a target that is not stored, in a tenant
+  the caller can't access, or a bare id more than one accessible resource has is a 400
+  (`not-found`, `forbidden`, `multiple-matches`); today it is written unchecked. For a caller
+  without `access/*` the check also rewrites a bare-id link to `<Type>/<id>|<authority>`, so that
+  caller can't remove it, or see it as already in place, by the bare id; today it is stored as
+  sent.
 - **Echoed ids.** Response bodies echo each id as sent without its prefix, as today, except that
   `updatePatientReference`'s message echoes an `id|authority` `resourceId` as sent where today it
   echoes the `_uuid` it computed, and a `<uuid>|authority` as sent where today it echoes the uuid.

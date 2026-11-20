@@ -37,13 +37,13 @@ const buildContext = () => new WriteContext({
 /**
  * Builds an admin item for a change of the Person, linking the Patient.
  */
-const buildItem = ({ index = 0, lookupLinkTarget = true, createsMissingTarget = false } = {}) => {
+const buildItem = ({ index = 0, linkTargetLookup = 'always', createsMissingTarget = false } = {}) => {
     const item = new WriteItem({ index, incoming: { resourceType: 'Person', id: PERSON_UUID } });
     item.adminChange = {
         kind: 'addLink',
         target: { resourceType: 'Person', id: PERSON_UUID },
         linkTarget: { resourceType: 'Patient', id: PATIENT_UUID },
-        lookupLinkTarget,
+        linkTargetLookup,
         createsMissingTarget
     };
     return item;
@@ -108,7 +108,7 @@ describe('AdminTargetLoader', () => {
         },
         {
             name: 'target found, link target not looked up',
-            options: { lookupLinkTarget: false },
+            options: { linkTargetLookup: 'never' },
             matches: { [PERSON_UUID]: [buildStoredPerson()], [PATIENT_UUID]: [buildStoredPatient()] },
             expected: {
                 status: WRITE_ITEM_STATUS.ACTIVE,
@@ -147,7 +147,7 @@ describe('AdminTargetLoader', () => {
         },
         {
             name: 'target not found but it is to be created, link target found',
-            options: { createsMissingTarget: true },
+            options: { createsMissingTarget: true, linkTargetLookup: 'whenTargetMissing' },
             matches: { [PATIENT_UUID]: [buildStoredPatient()] },
             expected: {
                 status: WRITE_ITEM_STATUS.ACTIVE,
@@ -160,7 +160,7 @@ describe('AdminTargetLoader', () => {
         },
         {
             name: 'target not found but it is to be created, link target not found',
-            options: { createsMissingTarget: true },
+            options: { createsMissingTarget: true, linkTargetLookup: 'whenTargetMissing' },
             matches: {},
             expected: {
                 status: WRITE_ITEM_STATUS.FAILED,
@@ -172,15 +172,28 @@ describe('AdminTargetLoader', () => {
             }
         },
         {
-            name: 'target found by the read lookup though it may be created, link target found',
-            options: { createsMissingTarget: true },
+            name: 'target found by the read lookup though it may be created: the link target is not looked up',
+            options: { createsMissingTarget: true, linkTargetLookup: 'whenTargetMissing' },
             matches: { [PERSON_UUID]: [buildStoredPerson()], [PATIENT_UUID]: [buildStoredPatient()] },
             expected: {
                 status: WRITE_ITEM_STATUS.ACTIVE,
                 stored: true,
-                linked: ['Patient'],
+                linked: [],
                 identityCopied: true,
-                lookups: ['Person:r', 'Patient:r'],
+                lookups: ['Person:r'],
+                failureMessage: null
+            }
+        },
+        {
+            name: 'target found and the link target is never looked up, even when it does not exist',
+            options: { linkTargetLookup: 'never' },
+            matches: { [PERSON_UUID]: [buildStoredPerson()] },
+            expected: {
+                status: WRITE_ITEM_STATUS.ACTIVE,
+                stored: true,
+                linked: [],
+                identityCopied: true,
+                lookups: ['Person:u'],
                 failureMessage: null
             }
         }
@@ -292,7 +305,7 @@ describe('AdminTargetLoader', () => {
         { name: 'a _uuid with an authority', id: `${PERSON_UUID}|synthetic-client`, lookupId: PERSON_UUID }
     ])('looks the target up by the search id parameter for $name', async ({ id, lookupId }) => {
         const { loader, finds } = buildLoader({ matchesByUuid: { [lookupId]: [buildStoredPerson()] } });
-        const item = buildItem({ lookupLinkTarget: false });
+        const item = buildItem({ linkTargetLookup: 'never' });
         item.adminChange.target = { resourceType: 'Person', id };
 
         await loader.loadAsync({ items: [item], context: buildContext() });
@@ -345,7 +358,7 @@ describe('AdminTargetLoader', () => {
         const { loader } = buildLoader({
             matchesByUuid: { [lookupId]: [buildStoredPerson(), buildStoredPerson()] }
         });
-        const item = buildItem({ lookupLinkTarget: false });
+        const item = buildItem({ linkTargetLookup: 'never' });
         item.adminChange.target = { resourceType: 'Person', id: 'synthetic-person-id|synthetic-client' };
 
         await loader.loadAsync({ items: [item], context: buildContext() });
@@ -356,7 +369,7 @@ describe('AdminTargetLoader', () => {
 
     test('names a plain id that is not found in the 404', async () => {
         const { loader } = buildLoader();
-        const item = buildItem({ lookupLinkTarget: false });
+        const item = buildItem({ linkTargetLookup: 'never' });
         item.adminChange.target = { resourceType: 'Person', id: 'synthetic-missing-id' };
 
         await loader.loadAsync({ items: [item], context: buildContext() });
@@ -370,9 +383,9 @@ describe('AdminTargetLoader', () => {
         const { loader, finds } = buildLoader({
             matchesByUuid: { [PERSON_UUID]: [buildStoredPerson()] }
         });
-        const failing = buildItem({ index: 0, lookupLinkTarget: false });
+        const failing = buildItem({ index: 0, linkTargetLookup: 'never' });
         failing.adminChange.target = { resourceType: 'Person', id: otherUuid };
-        const passing = buildItem({ index: 1, lookupLinkTarget: false });
+        const passing = buildItem({ index: 1, linkTargetLookup: 'never' });
 
         await loader.loadAsync({ items: [failing, passing], context: buildContext() });
 

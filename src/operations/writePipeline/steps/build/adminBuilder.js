@@ -134,27 +134,26 @@ class AdminBuilder {
     }
 
     /**
-     * Adds a link to the change's `linkTarget`. With no stored target it creates a new Person
-     * linked to the loaded Patient. With a stored target it is a no-op when a link already points
-     * at the loaded link target's `_uuid`; else it appends a link `<Type>/<loaded _uuid>` to a copy
-     * of the stored document, so the link is the same whichever id the caller sent, and has the
-     * smart merge builder build it. The link target is always loaded; with none loaded it returns
-     * the failure of `_missingLinkTargetFailure` and builds nothing.
+     * Adds a link to the change's `linkTarget`, named `<Type>/<id>` by the id the caller sent, as
+     * the old admin path does; preSave adds the link's `_uuid`, `_sourceId` and
+     * `_sourceAssigningAuthority`. With no stored target it creates a new Person linked to the
+     * Patient. With a stored target it is a no-op when a stored link's `reference` or `_uuid` is
+     * that reference (the match a link removal uses); else it appends the link to a copy of the
+     * stored document and has the smart merge builder build it.
      * @param {WriteItem} item
      * @param {WriteContext} context
      * @returns {Promise<WriteFailure|null>}
      */
     async _buildAddLinkAsync ({ item, context }) {
-        if (item.linked.length === 0) {
-            return this._missingLinkTargetFailure(item);
-        }
         if (!item.stored) {
             return await this._buildNewPersonAsync({ item, context });
         }
-        const reference = this._linkedReference(item);
+        const reference = this._referenceTo(item.adminChange.linkTarget);
         const document = deepcopy(item.stored);
         const links = document.link || [];
-        if (links.some((link) => this._pointsTo({ referenceObject: link.target, reference }))) {
+        const namesLinkTarget = (link) =>
+            this._namesReference({ referenceObject: link.target, reference });
+        if (links.some(namesLinkTarget)) {
             return this._noChange(item);
         }
         document.link = [...links, { target: { reference } }];
@@ -166,17 +165,17 @@ class AdminBuilder {
     /**
      * Builds a new Person as the item's body, as the old admin path does: a generated uuid as its
      * `id` and `_uuid`, a generated `meta.id`, the loaded Patient's `meta.source` and a copy of its
-     * `meta.security`, and one link to the Patient by its `_uuid`. Checks its meta with the
-     * validator's meta check (meta.source when required, one owner tag, no empty security system or
-     * code), because the admin profiles turn off the step that checks a new resource's meta, and
-     * returns a `BUILD` failure carrying the check's OperationOutcome (a 400) when it fails, with
-     * nothing built. Otherwise has the insert builder build it.
+     * `meta.security`, and one link `Patient/<id>` by the id the caller sent. Checks its meta with
+     * the validator's meta check (meta.source when required, one owner tag, no empty security
+     * system or code), because the admin profiles turn off the step that checks a new resource's
+     * meta, and returns a `BUILD` failure carrying the check's OperationOutcome (a 400) when it
+     * fails, with nothing built. Otherwise has the insert builder build it.
      * @param {WriteItem} item
      * @param {WriteContext} context
      * @returns {Promise<WriteFailure|null>}
      */
     async _buildNewPersonAsync ({ item, context }) {
-        const [{ resourceType, resource: patient }] = item.linked;
+        const [{ resource: patient }] = item.linked;
         const personId = generateUUID();
         const person = {
             resourceType: 'Person',
@@ -187,7 +186,7 @@ class AdminBuilder {
                 source: patient.meta?.source,
                 security: deepcopy(patient.meta?.security)
             },
-            link: [{ target: { reference: `${resourceType}/${patient._uuid}` } }]
+            link: [{ target: { reference: this._referenceTo(item.adminChange.linkTarget) } }]
         };
         item.incoming = FhirResourceWriteSerializer.serialize({ obj: person });
         const metaOutcome = this.resourceValidator.validateResourceMetaSync(item.incoming);
@@ -205,9 +204,8 @@ class AdminBuilder {
     /**
      * Removes the links to the change's `linkTarget` from a hydrated copy of the stored document
      * and has the replace builder build it. A link is removed when its `reference` or its `_uuid`
-     * is `<Type>/<id>` with the id the caller sent, as the old admin path matches it. Keeps the
-     * first removed link's target in the change's `removedLinkTarget`, for the manual-link event.
-     * A no-op when no stored link matches, found before anything is read back in.
+     * is `<Type>/<id>` with the id the caller sent, as the old admin path matches it. A no-op when
+     * no stored link matches, found before anything is read back in.
      * @param {WriteItem} item
      * @param {WriteContext} context
      * @returns {Promise<WriteFailure|null>}
@@ -216,11 +214,9 @@ class AdminBuilder {
         const reference = this._referenceTo(item.adminChange.linkTarget);
         const pointsToLinkTarget = (link) =>
             this._namesReference({ referenceObject: link.target, reference });
-        const removedLink = (item.stored.link || []).find(pointsToLinkTarget);
-        if (!removedLink) {
+        if (!(item.stored.link || []).some(pointsToLinkTarget)) {
             return this._noChange(item);
         }
-        item.adminChange.removedLinkTarget = deepcopy(removedLink.target);
         const document = await this._hydratedStoredAsync({ item, context });
         document.link = document.link.filter((link) => !pointsToLinkTarget(link));
         item.incoming = FhirResourceWriteSerializer.serialize({ obj: document });
@@ -234,16 +230,13 @@ class AdminBuilder {
      * `_sourceAssigningAuthority` so preSave recomputes them, and has the replace builder build it.
      * A no-op when the field already points at that Patient, and when the resource has no single
      * patient reference that can be rewritten; both checks run on the stored document, before
-     * anything is read back in, copied into the body or built. The new Patient is always loaded;
-     * with none loaded it returns the failure of `_missingLinkTargetFailure` and builds nothing.
+     * anything is read back in, copied into the body or built. The new Patient is always loaded
+     * (`linkTargetLookup` is `always`).
      * @param {WriteItem} item
      * @param {WriteContext} context
      * @returns {Promise<WriteFailure|null>}
      */
     async _buildRewritePatientReferenceAsync ({ item, context }) {
-        if (item.linked.length === 0) {
-            return this._missingLinkTargetFailure(item);
-        }
         const reference = this._linkedReference(item);
         const storedPatientReference = this._rewritablePatientReference(item.stored);
         if (
@@ -367,8 +360,8 @@ class AdminBuilder {
     }
 
     /**
-     * Returns the `<resourceType>/<_uuid>` reference to the item's loaded link target, which the
-     * caller has checked is loaded.
+     * Returns the `<resourceType>/<_uuid>` reference to the item's loaded link target: the new
+     * Patient of a patient reference rewrite, which the loader always loads.
      * @param {WriteItem} item
      * @returns {string}
      */
@@ -397,21 +390,6 @@ class AdminBuilder {
         item.candidate = null;
         item.writeMode = 'update';
         return null;
-    }
-
-    /**
-     * Returns a `BUILD` failure for the item carrying a plain `Error` (a 500) for a change whose
-     * link target was not loaded, which only an operation defined without `lookupLinkTarget` could
-     * reach: the link would otherwise name the resource by the id the caller sent.
-     * @param {WriteItem} item
-     * @returns {WriteFailure}
-     */
-    _missingLinkTargetFailure (item) {
-        return new WriteFailure({
-            stage: WRITE_FAILURE_STAGE.BUILD,
-            subject: WriteFailure.subjectOf(item.incoming),
-            error: new Error(`Admin change ${item.adminChange.kind} has no loaded link target`)
-        });
     }
 
     /**

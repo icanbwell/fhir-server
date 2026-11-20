@@ -90,9 +90,9 @@ function renderMessage (template, values) {
  */
 
 /**
- * The manual-link event of an admin write: the Person's `_uuid`, the Patient's `_uuid` (or, for a
- * removed link that carries no `_uuid`, the Patient id as the caller sent it) and whether the
- * write links or unlinks them.
+ * The manual-link event of an admin write: the Person's `_uuid`, the Patient id (the Patient's
+ * `_uuid` for a created Person, else the id as the caller sent it, as the old admin path sends it)
+ * and whether the write links or unlinks them.
  * @typedef {Object} AdminLinkEvent
  * @property {string} personId
  * @property {string} patientId
@@ -137,7 +137,7 @@ class AdminResponder extends WriteResponder {
             kind: operation.kind,
             target,
             linkTarget,
-            lookupLinkTarget: operation.lookupLinkTarget,
+            linkTargetLookup: operation.linkTargetLookup,
             createsMissingTarget: operation.createsMissingTarget,
             linkTargetAccess: operation.linkTargetAccess
         };
@@ -351,22 +351,15 @@ class AdminResponder extends WriteResponder {
     }
 
     /**
-     * Returns the Patient id of the manual-link event: the loaded Patient's `_uuid` when the
-     * Patient was looked up; else the `_uuid` of the link the write removed, without its
-     * `Patient/` prefix, when that link has one; else the Patient id as the caller sent it.
+     * Returns the Patient id of the manual-link event, as the old admin path sends it: the loaded
+     * Patient's `_uuid` when the Patient was looked up (a created Person), else the Patient id as
+     * the caller sent it, without its prefix (a link added to or removed from a stored Person).
      * @param {WriteItem} item
      * @returns {string}
      */
     _linkEventPatientId (item) {
         const [linked] = item.linked;
-        if (linked) {
-            return linked.resource._uuid;
-        }
-        const removedUuid = item.adminChange.removedLinkTarget?._uuid;
-        if (removedUuid) {
-            return removedUuid.slice(removedUuid.indexOf('/') + 1);
-        }
-        return item.adminChange.linkTarget.id;
+        return linked ? linked.resource._uuid : item.adminChange.linkTarget.id;
     }
 
     /**

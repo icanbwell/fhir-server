@@ -72,7 +72,7 @@ const EXPECTED_CHANGES = Object.freeze({
         kind: 'addLink',
         target: { resourceType: 'Person', id: PERSON_UUID },
         linkTarget: { resourceType: 'Person', id: OTHER_PERSON_UUID },
-        lookupLinkTarget: true,
+        linkTargetLookup: 'never',
         createsMissingTarget: false,
         linkTargetAccess: 'r'
     },
@@ -80,7 +80,7 @@ const EXPECTED_CHANGES = Object.freeze({
         kind: 'removeLink',
         target: { resourceType: 'Person', id: PERSON_UUID },
         linkTarget: { resourceType: 'Person', id: OTHER_PERSON_UUID },
-        lookupLinkTarget: false,
+        linkTargetLookup: 'never',
         createsMissingTarget: false,
         linkTargetAccess: 'r'
     },
@@ -88,7 +88,7 @@ const EXPECTED_CHANGES = Object.freeze({
         kind: 'addLink',
         target: { resourceType: 'Person', id: PERSON_UUID },
         linkTarget: { resourceType: 'Patient', id: PATIENT_UUID },
-        lookupLinkTarget: true,
+        linkTargetLookup: 'whenTargetMissing',
         createsMissingTarget: true,
         linkTargetAccess: 'r'
     },
@@ -96,7 +96,7 @@ const EXPECTED_CHANGES = Object.freeze({
         kind: 'removeLink',
         target: { resourceType: 'Person', id: PERSON_UUID },
         linkTarget: { resourceType: 'Patient', id: PATIENT_UUID },
-        lookupLinkTarget: false,
+        linkTargetLookup: 'never',
         createsMissingTarget: false,
         linkTargetAccess: 'r'
     },
@@ -104,7 +104,7 @@ const EXPECTED_CHANGES = Object.freeze({
         kind: 'rewritePatientReference',
         target: { resourceType: 'Encounter', id: ENCOUNTER_UUID },
         linkTarget: { resourceType: 'Patient', id: PATIENT_UUID },
-        lookupLinkTarget: true,
+        linkTargetLookup: 'always',
         createsMissingTarget: false,
         linkTargetAccess: 'u'
     }
@@ -680,8 +680,9 @@ describe('AdminResponder', () => {
          * Builds what `toResponse` gets for an operation: the item as the pipeline leaves it for a
          * no-op (unchanged, with its stored document), for a write of an existing document (queued,
          * with a candidate) and for a created Person (queued, no stored document, a new candidate).
-         * The stored target has `targetUuid`, and an operation that looks its linked resource up
-         * has it loaded with `linkedUuid`; both default to the ids of `GOOD_BODIES`.
+         * The stored target has `targetUuid`, and the linked resource is loaded with `linkedUuid`
+         * when the loader would load it (`always`, or `whenTargetMissing` for a created Person);
+         * both default to the ids of `GOOD_BODIES`.
          */
         const buildResponseInput = async ({
             operation,
@@ -695,7 +696,11 @@ describe('AdminResponder', () => {
                 resourceType: item.adminChange.target.resourceType,
                 _uuid: targetUuid
             };
-            if (item.adminChange.lookupLinkTarget) {
+            const { linkTargetLookup } = item.adminChange;
+            if (
+                linkTargetLookup === 'always' ||
+                (linkTargetLookup === 'whenTargetMissing' && outcome === 'created')
+            ) {
                 item.linked.push({
                     resourceType: item.adminChange.linkTarget.resourceType,
                     resource: { resourceType: item.adminChange.linkTarget.resourceType, _uuid: linkedUuid }
@@ -875,20 +880,18 @@ describe('AdminResponder', () => {
                 operation: 'createPersonToPatientLink',
                 body: { externalPersonId: 'person-one', patientId: 'patient-one' },
                 outcome: 'written',
-                removedLinkTarget: undefined,
                 json: {
                     message: 'Added link from Person/person-one to Patient/patient-one',
                     patientId: 'patient-one',
                     externalPersonId: 'person-one'
                 },
-                linkEvent: { personId: PERSON_UUID, patientId: PATIENT_UUID, isLinking: true }
+                linkEvent: { personId: PERSON_UUID, patientId: 'patient-one', isLinking: true }
             },
             {
                 name: 'createPersonToPatientLink with plain ids, for a created Person',
                 operation: 'createPersonToPatientLink',
                 body: { externalPersonId: 'person-one', patientId: 'Patient/patient-one' },
                 outcome: 'created',
-                removedLinkTarget: undefined,
                 json: {
                     message: 'Created Person and added link from Person/person-one to Patient/patient-one',
                     patientId: 'patient-one',
@@ -897,24 +900,10 @@ describe('AdminResponder', () => {
                 linkEvent: { personId: NEW_PERSON_UUID, patientId: PATIENT_UUID, isLinking: true }
             },
             {
-                name: 'removePersonToPatientLink with plain ids, removing a link with a _uuid',
+                name: 'removePersonToPatientLink with plain ids',
                 operation: 'removePersonToPatientLink',
                 body: { personId: 'Person/person-one', patientId: 'patient-one' },
                 outcome: 'written',
-                removedLinkTarget: { reference: 'Patient/patient-one', _uuid: `Patient/${PATIENT_UUID}` },
-                json: {
-                    message: 'Removed link from Person/person-one to Patient/patient-one',
-                    personId: 'person-one',
-                    patientId: 'patient-one'
-                },
-                linkEvent: { personId: PERSON_UUID, patientId: PATIENT_UUID, isLinking: false }
-            },
-            {
-                name: 'removePersonToPatientLink with plain ids, removing a link without a _uuid',
-                operation: 'removePersonToPatientLink',
-                body: { personId: 'person-one', patientId: 'patient-one' },
-                outcome: 'written',
-                removedLinkTarget: { reference: 'Patient/patient-one' },
                 json: {
                     message: 'Removed link from Person/person-one to Patient/patient-one',
                     personId: 'person-one',
@@ -923,8 +912,8 @@ describe('AdminResponder', () => {
                 linkEvent: { personId: PERSON_UUID, patientId: 'patient-one', isLinking: false }
             }
         ])(
-            '$name echoes the ids as sent and sends the stored _uuids in the link event',
-            async ({ operation, body, outcome, removedLinkTarget, json, linkEvent }) => {
+            '$name echoes the ids as sent and sends the Person _uuid and the old Patient id in the link event',
+            async ({ operation, body, outcome, json, linkEvent }) => {
                 const input = await buildResponseInput({
                     operation,
                     body,
@@ -932,9 +921,6 @@ describe('AdminResponder', () => {
                     targetUuid: PERSON_UUID,
                     linkedUuid: PATIENT_UUID
                 });
-                if (removedLinkTarget) {
-                    input.items[0].adminChange.removedLinkTarget = removedLinkTarget;
-                }
 
                 const response = responder.toResponse(input);
 

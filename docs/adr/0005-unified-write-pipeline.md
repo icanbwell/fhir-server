@@ -65,8 +65,10 @@ differences are plain data next to each other.
   four link operations) and `adminPatientReference` (`updatePatientReference`). Both turn off the
   scope check (the route asserts the admin scope) and the steps that read or compare a resource
   body, and use four variants: `findExisting.adminTargets` and `accessBeforeBuild.adminTargets`
-  (the target and the linked resources through the access filter, with `u` on the target and
-  `r` on a linked resource, except `u` on the new Patient of `updatePatientReference`; the
+  (the target and the looked-up linked resources through the access filter, with `u` on the
+  target, `r` on the Patient of a created Person and `u` on the new Patient of
+  `updatePatientReference`; a link added to a stored Person names its target as sent and is
+  checked by the result validation's Person.link check; the
   Person of `createPersonToPatientLink` is looked up with `r` and checked with `u`, so one the
   caller can read but not update is a 403, not a second Person), `buildDocument.admin`
   (`AdminBuilder`, which composes the insert, smart merge and replace builders) and
