@@ -979,8 +979,15 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             const staleEntries = deepcopy(getTestContainer().redisClient.streams.get(cacheKey));
 
             await merge('Consent', fx('Consent/consent1.json'));
-            // put the old entry back, whatever the Consent write did to the cache
-            getTestContainer().redisClient.streams.set(cacheKey, staleEntries);
+            // The Consent write bumps the cache generation, which changes the key. Replay the old
+            // entry as if that bump had not reached it (it failed, or the entry outlived it): find the key
+            // the next request reads and put the old entry there.
+            getTestContainer().redisClient.streams.clear();
+            const rebuilt = await request.get(EVERYTHING).set(userHeaders());
+            expect(rebuilt.headers).toHaveProperty('x-cache', 'Miss');
+            const [currentKey] = cacheKeysFor(PERSON_ID);
+            expect(cacheKeysFor(PERSON_ID)).toHaveLength(1);
+            getTestContainer().redisClient.streams.set(currentKey, staleEntries);
 
             const replay = await request.get(EVERYTHING).set(userHeaders());
             expect(replay.status).toBe(200);
