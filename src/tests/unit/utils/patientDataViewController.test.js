@@ -108,20 +108,13 @@ describe('PatientDataViewControlManager', () => {
             });
         });
 
-        describe('lookup runs under the caller scope', () => {
+        describe('lookup request info', () => {
             test.each([
                 ['service token', { scope: 'user/*.* access/clientA.*', isUser: false, personIdFromJwtToken: null }],
-                ['patient-scoped user token', { scope: 'patient/*.*', isUser: true }],
-                ['delegated actor', {
-                    scope: 'patient/*.*',
-                    isUser: true,
-                    userType: 'delegatedUser',
-                    actor: { reference: 'RelatedPerson/rp-1' }
-                }]
+                ['patient-scoped user token', { scope: 'patient/*.*', isUser: true }]
             ])('%s: the Consent search gets the caller request info unchanged',
                 async (_name, overrides) => {
                     const requestInfo = createRequestInfo('person-123', { user: 'u1', requestId: 'r1', ...overrides });
-                    const original = { ...requestInfo };
 
                     await manager.getConsentAsync({
                         requestInfo,
@@ -132,6 +125,41 @@ describe('PatientDataViewControlManager', () => {
 
                     const passed = mockSearchManager.fetchResourcesByArgsAsync.mock.calls[0][0].requestInfo;
                     expect(passed).toBe(requestInfo);
+                });
+
+            test.each([
+                ['RelatedPerson actor', { reference: 'RelatedPerson/rp-1' }],
+                ['Organization actor', { reference: 'Organization/org-1', isOrganizationActor: true }]
+            ])('delegated %s: user type and actor are cleared on a copy, scope and person id are kept',
+                async (_name, actor) => {
+                    const requestInfo = createRequestInfo('person-123', {
+                        user: 'u1',
+                        requestId: 'r1',
+                        scope: 'patient/*.*',
+                        userType: 'delegatedUser',
+                        actor
+                    });
+                    const original = { ...requestInfo };
+
+                    await manager.getConsentAsync({
+                        requestInfo,
+                        base_version: '4_0_0',
+                        personId: 'person-123',
+                        owner: 'clientA'
+                    });
+
+                    const passed = mockSearchManager.fetchResourcesByArgsAsync.mock.calls[0][0].requestInfo;
+                    expect(passed).not.toBe(requestInfo);
+                    expect(passed).toEqual(expect.objectContaining({
+                        userType: null,
+                        actor: null,
+                        scope: 'patient/*.*',
+                        isUser: true,
+                        personIdFromJwtToken: 'person-123',
+                        user: 'u1',
+                        requestId: 'r1'
+                    }));
+                    // the caller's own request info is left alone
                     expect(requestInfo).toEqual(original);
                 });
 
