@@ -11,7 +11,8 @@
 -- fhir-server-merge in prod, so no production audit data depends on it).
 -- Confirm that is still true for the target environment before running.
 --
--- Repeatable: safe to re-run. Apply to dev first, validate writes/reads, then promote.
+-- Re-running drops any rows written since the previous run (idempotent DDL, not data-safe).
+-- Apply to dev first, validate writes/reads, then promote.
 -- Run each step against ClickHouse Cloud manually in order.
 -- The DDL in step 2 must match clickhouse-init/04-access-log.sql.
 
