@@ -73,7 +73,10 @@ const {
     viewControlOutcomeCounter,
     VIEW_CONTROL_OUTCOME,
     VIEW_CONTROL_SUBJECT,
-    VIEW_CONTROL_FAIL_REASON
+    VIEW_CONTROL_FAIL_REASON,
+    recordEverythingCacheInvalidationFailed,
+    everythingCacheInvalidationFailedCounter,
+    CACHE_INVALIDATION_FAILURE
 } = require('../../../utils/metrics');
 
 describe('metrics.js', () => {
@@ -639,6 +642,18 @@ describe('metrics.js', () => {
 
             expect(viewControlOutcomeCounter.add).toHaveBeenCalledTimes(1);
             expect(viewControlOutcomeCounter.add).toHaveBeenCalledWith(1, labels);
+        });
+    });
+
+    describe('recordEverythingCacheInvalidationFailed', () => {
+        test.each([
+            [CACHE_INVALIDATION_FAILURE.INCREMENT, 'increment'],
+            [CACHE_INVALIDATION_FAILURE.LINKED_PATIENT_LOOKUP, 'linked_patient_lookup'],
+            ['a reason with a patient id', UNKNOWN]
+        ])('reason %s emits %s', (reason, expected) => {
+            recordEverythingCacheInvalidationFailed(reason);
+
+            expect(everythingCacheInvalidationFailedCounter.add).toHaveBeenCalledWith(1, { reason: expected });
         });
     });
 

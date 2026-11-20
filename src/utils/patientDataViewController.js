@@ -1,8 +1,7 @@
-const httpContext = require('express-http-context');
 const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ReferenceParser } = require('../utils/referenceParser');
 const { QueryItem } = require('../operations/graph/queryItem');
-const { AUTH_USER_TYPES, CONSENT_CATEGORY, HTTP_CONTEXT_KEYS } = require('../constants');
+const { AUTH_USER_TYPES, CONSENT_CATEGORY } = require('../constants');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ConfigManager } = require('./configManager');
 const { SearchManager } = require('../operations/search/searchManager');
@@ -26,6 +25,12 @@ function toViewControlLookupRequestInfo(requestInfo) {
         actor: null
     });
 }
+
+/**
+ * Most hidden DocumentReference ids put in one `_id` query, so that a user who hid a very large number
+ * of documents does not produce one unbounded query.
+ */
+const HIDDEN_DOCUMENT_REFERENCE_LOOKUP_CHUNK_SIZE = 500;
 
 class PatientDataViewControlManager {
     /**
@@ -57,107 +62,7 @@ class PatientDataViewControlManager {
     }
 
     /**
-     * Fetch the Consent resources for data connection view control
-     *
-     * When this function is called, it expects that context have been set with
-     * person's owner. And this must be ensured before calling this function.
-     * @param {{
-     *  requestInfo: FhirRequestInfo,
-     *  base_version: string,
-     *  patientFilterReferences: string[] | null,
-     *  raiseErrorForMissingUserOwner: boolean
-     * }}
-     * @return {Promise<{
-     *  viewControlResourceToExcludeMap: {[resourceType: string]: string[]},
-     *  viewControlConsentQueries: QueryItem[],
-     *  viewControlConsentQueryOptions: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]
-     * }>}
-     */
-    async getConsentAsync({
-        requestInfo,
-        base_version,
-        patientFilterReferences,
-        raiseErrorForMissingUserOwner = true
-    }) {
-        const { personIdFromJwtToken } = requestInfo;
-
-        /**
-         * @type {string | null}
-         */
-        let userOwnerFromContext = httpContext.get(`${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personIdFromJwtToken}`);
-
-        if (raiseErrorForMissingUserOwner) {
-            assertIsValid(userOwnerFromContext);
-        }
-
-        if (
-            userOwnerFromContext &&
-            !this.configManager.clientsWithDataConnectionViewControl.includes(userOwnerFromContext)
-        ) {
-            return {
-                viewControlResourceToExcludeMap: {},
-                viewControlConsentQueries: [],
-                viewControlConsentQueryOptions: []
-            };
-        }
-
-        let resourceType = 'Consent';
-        let viewControlResourceToExcludeMap = {};
-
-        let consentArgs = {
-            base_version,
-            patient: `Patient/person.${personIdFromJwtToken}`,
-            category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
-        };
-
-        if (patientFilterReferences && patientFilterReferences.length > 0) {
-            consentArgs.actor = patientFilterReferences.join(',');
-        }
-
-        let {
-            entries: viewControlConsentEntries,
-            queryItems: viewControlConsentQueries,
-            options: viewControlConsentQueryOptions
-        } = await this.searchManager.fetchResourcesByArgsAsync({
-            resourceType,
-            base_version,
-            requestInfo,
-            explain: false,
-            debug: false,
-            applyPatientFilter: false,
-            parsedArgs: this.r4ArgsParser.parseArgs({
-                resourceType,
-                args: consentArgs
-            })
-        });
-
-        viewControlConsentEntries.forEach((entry) => {
-            entry.resource.provision?.data?.forEach((ref) => {
-                if (ref?.reference?.reference) {
-                    const { resourceType: refType, id: refId } = ReferenceParser.parseReference(
-                        ref.reference.reference
-                    );
-                    if (refType && refId) {
-                        if (!viewControlResourceToExcludeMap[refType]) {
-                            viewControlResourceToExcludeMap[refType] = [];
-                        }
-                        viewControlResourceToExcludeMap[refType].push(refId);
-                    }
-                }
-            });
-        });
-
-        return {
-            viewControlResourceToExcludeMap,
-            viewControlConsentQueries,
-            viewControlConsentQueryOptions
-        };
-    }
-
-    /**
      * Fetch a Person's dataConnectionViewControl Consents and the resources they hide.
-     * Replaces getConsentAsync, which is removed once its callers have moved to
-     * PatientDataViewControlExclusion.
      *
      * The caller passes the Person and that Person's owner (the client the Person belongs to), which
      * decides enrollment: an owner that isn't in configManager.clientsWithDataConnectionViewControl
@@ -169,8 +74,7 @@ class PatientDataViewControlManager {
      *  requestInfo: FhirRequestInfo,
      *  base_version: string,
      *  personId: string,
-     *  owner: string|null|undefined,
-     *  patientFilterReferences?: string[] | null
+     *  owner: string|null|undefined
      * }}
      * @return {Promise<{
      *  viewControlResourceToExcludeMap: {[resourceType: string]: string[]},
@@ -178,12 +82,11 @@ class PatientDataViewControlManager {
      *  viewControlConsentQueryOptions: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]
      * }>}
      */
-    async getConsentForPersonAsync({
+    async getConsentAsync({
         requestInfo,
         base_version,
         personId,
-        owner,
-        patientFilterReferences
+        owner
     }) {
         assertIsValid(personId, 'dataConnectionViewControl: personId is required');
 
@@ -201,7 +104,7 @@ class PatientDataViewControlManager {
         // `constructor` or `__proto__` must be an ordinary key, not an Object.prototype member
         const viewControlResourceToExcludeMap = Object.create(null);
 
-        let consentArgs = {
+        const consentArgs = {
             base_version,
             // only an active Consent applies, as in the other Consent lookups; status also lets the
             // query use the {status, patient._uuid} index instead of scanning the collection
@@ -211,10 +114,6 @@ class PatientDataViewControlManager {
             patient: `Patient/person.${personId}`,
             category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
         };
-
-        if (patientFilterReferences && patientFilterReferences.length > 0) {
-            consentArgs.actor = patientFilterReferences.join(',');
-        }
 
         let {
             entries: viewControlConsentEntries,
@@ -247,14 +146,102 @@ class PatientDataViewControlManager {
             }
         }
 
+        await this.hideAttachmentBinariesOfHiddenDocumentReferencesAsync({
+            requestInfo: toViewControlLookupRequestInfo(requestInfo),
+            base_version,
+            viewControlResourceToExcludeMap
+        });
+
         return {
             viewControlResourceToExcludeMap,
             viewControlConsentQueries,
             viewControlConsentQueryOptions
         };
     }
+
+    /**
+     * Adds to the exclude map the Binary resources that a hidden DocumentReference points at.
+     *
+     * A Binary is found by its own securityContext rather than through its DocumentReference, so
+     * when the Consent hides a DocumentReference (the user deleted it) its content would otherwise
+     * still be returned. The DocumentReferences are read under the caller's own scope, like the
+     * Consent. Known limit: a hidden DocumentReference the caller's scope cannot see (another access tag, or
+     * the restricted tag) is not found, so its Binary is not hidden here. Only their `content` is read,
+     * without loading attachment data, and the ids are looked up in chunks; the Binary ids found are only
+     * ever used to hide data.
+     * @param {{
+     *  requestInfo: FhirRequestInfo,
+     *  base_version: string,
+     *  viewControlResourceToExcludeMap: {[resourceType: string]: string[]}
+     * }}
+     * @return {Promise<void>}
+     */
+    async hideAttachmentBinariesOfHiddenDocumentReferencesAsync({
+        requestInfo,
+        base_version,
+        viewControlResourceToExcludeMap
+    }) {
+        const documentReferenceIds = viewControlResourceToExcludeMap.DocumentReference;
+        if (!documentReferenceIds || documentReferenceIds.length === 0) {
+            return;
+        }
+        const resourceType = 'DocumentReference';
+        const binaryIds = new Set(viewControlResourceToExcludeMap.Binary ?? []);
+        const sizeBefore = binaryIds.size;
+        for (
+            let start = 0;
+            start < documentReferenceIds.length;
+            start += HIDDEN_DOCUMENT_REFERENCE_LOOKUP_CHUNK_SIZE
+        ) {
+            const idChunk = documentReferenceIds.slice(
+                start,
+                start + HIDDEN_DOCUMENT_REFERENCE_LOOKUP_CHUNK_SIZE
+            );
+            const { entries } = await this.searchManager.fetchResourcesByArgsAsync({
+                resourceType,
+                base_version,
+                requestInfo,
+                explain: false,
+                debug: false,
+                applyPatientFilter: false,
+                // only the attachment urls are needed: read just `content`, and skip loading the
+                // attachment bytes (GridFS, cloud storage) that a normal read would attach
+                fields: ['content'],
+                retrieveAttachments: false,
+                parsedArgs: this.r4ArgsParser.parseArgs({
+                    resourceType,
+                    args: { base_version, _id: idChunk.join(',') }
+                })
+            });
+            for (const entry of entries) {
+                for (const content of entry.resource?.content ?? []) {
+                    const binaryId = getBinaryIdFromAttachmentUrl(content?.attachment?.url);
+                    if (binaryId) {
+                        binaryIds.add(binaryId);
+                    }
+                }
+            }
+        }
+        if (binaryIds.size > sizeBefore) {
+            viewControlResourceToExcludeMap.Binary = [...binaryIds];
+        }
+    }
+}
+
+/**
+ * The Binary id in an attachment url such as `Binary/123` or `https://host/4_0_0/Binary/123`.
+ * @param {string|undefined} url
+ * @return {string|undefined}
+ */
+function getBinaryIdFromAttachmentUrl(url) {
+    if (typeof url !== 'string') {
+        return undefined;
+    }
+    const match = /(?:^|\/)Binary\/([^/?#|]+)/.exec(url);
+    return match ? match[1] : undefined;
 }
 
 module.exports = {
-    PatientDataViewControlManager
+    PatientDataViewControlManager,
+    getBinaryIdFromAttachmentUrl
 };

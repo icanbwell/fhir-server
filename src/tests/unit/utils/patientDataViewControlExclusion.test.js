@@ -9,7 +9,10 @@ jest.mock('express-http-context', () => ({
     set: (k, v) => mockStore.set(k, v)
 }));
 
-const { PatientDataViewControlExclusion } = require('../../../utils/patientDataViewControlExclusion');
+const {
+    PatientDataViewControlExclusion,
+    getUserViewControlExcludeMapAsync
+} = require('../../../utils/patientDataViewControlExclusion');
 const { PatientDataViewControlManager } = require('../../../utils/patientDataViewController');
 const { PatientScopeManager } = require('../../../operations/security/patientScopeManager');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -30,7 +33,7 @@ function mockOf (ClassType) {
 
 describe('PatientDataViewControlExclusion', () => {
     let exclusion;
-    let getConsentForPersonAsync;
+    let getConsentAsync;
     let getPatientIdsFromScopeAsync;
     let enrolled;
     const user = { isUser: true, personIdFromJwtToken: 'person-1' };
@@ -44,11 +47,11 @@ describe('PatientDataViewControlExclusion', () => {
         enrolled = ['clientA'];
         const configManager = mockOf(ConfigManager);
         Object.defineProperty(configManager, 'clientsWithDataConnectionViewControl', { get: () => enrolled });
-        getConsentForPersonAsync = jest.fn().mockResolvedValue({
+        getConsentAsync = jest.fn().mockResolvedValue({
             viewControlResourceToExcludeMap: { CarePlan: [UUID_A, 'source-id-1'] }
         });
         const manager = mockOf(PatientDataViewControlManager);
-        manager.getConsentForPersonAsync = getConsentForPersonAsync;
+        manager.getConsentAsync = getConsentAsync;
         const scopeManager = mockOf(PatientScopeManager);
         // walking the user's Person records its owner in httpContext, as PersonToPatientIdsExpander does
         getPatientIdsFromScopeAsync = jest.fn().mockImplementation(async ({ personIdFromJwtToken }) => {
@@ -74,9 +77,9 @@ describe('PatientDataViewControlExclusion', () => {
         expect(getPatientIdsFromScopeAsync).toHaveBeenCalledWith(
             expect.objectContaining({ addPersonOwnerToContext: true, personIdFromJwtToken: 'person-1' })
         );
-        // the user's Person and the owner recorded by walking it; getConsentForPersonAsync fails the request
+        // the user's Person and the owner recorded by walking it; getConsentAsync fails the request
         // when the owner is missing
-        expect(getConsentForPersonAsync).toHaveBeenCalledWith(
+        expect(getConsentAsync).toHaveBeenCalledWith(
             expect.objectContaining({ personId: 'person-1', owner: 'clientA' })
         );
     });
@@ -138,7 +141,7 @@ describe('PatientDataViewControlExclusion', () => {
             parsedArgs: newParsedArgs(), resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user
         });
         expect(getPatientIdsFromScopeAsync).not.toHaveBeenCalled();
-        expect(getConsentForPersonAsync).not.toHaveBeenCalled();
+        expect(getConsentAsync).not.toHaveBeenCalled();
     });
 
     test('a user whose Person was not found gets an empty result without a Consent search', async () => {
@@ -149,7 +152,7 @@ describe('PatientDataViewControlExclusion', () => {
         });
         const parsedArgs = newParsedArgs();
         await exclusion.applyAsync({ parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user });
-        expect(getConsentForPersonAsync).not.toHaveBeenCalled();
+        expect(getConsentAsync).not.toHaveBeenCalled();
         expect(parsedArgs.viewControlExcludeMap).toEqual({});
         expect(idNotItems(parsedArgs)).toHaveLength(0);
     });
@@ -160,10 +163,10 @@ describe('PatientDataViewControlExclusion', () => {
         await expect(exclusion.applyAsync({
             parsedArgs: newParsedArgs(), resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user
         })).rejects.toThrow('recorded neither the Person owner nor that the Person was not found');
-        expect(getConsentForPersonAsync).not.toHaveBeenCalled();
+        expect(getConsentAsync).not.toHaveBeenCalled();
     });
 
-    test('a user whose Person has no owner tag still reaches getConsentForPersonAsync, which applies the Consent', async () => {
+    test('a user whose Person has no owner tag still reaches getConsentAsync, which applies the Consent', async () => {
         // the Person walk found the Person and recorded that it has no owner
         getPatientIdsFromScopeAsync.mockImplementation(async ({ personIdFromJwtToken }) => {
             mockStore.set(`personOwnerFor-${personIdFromJwtToken}`, null);
@@ -171,12 +174,12 @@ describe('PatientDataViewControlExclusion', () => {
         });
         const parsedArgs = newParsedArgs();
         await exclusion.applyAsync({ parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user });
-        expect(getConsentForPersonAsync).toHaveBeenCalledWith(expect.objectContaining({ personId: 'person-1', owner: null }));
+        expect(getConsentAsync).toHaveBeenCalledWith(expect.objectContaining({ personId: 'person-1', owner: null }));
         expect(idNotItems(parsedArgs)).toHaveLength(1);
     });
 
-    test('enrollment of the caller is delegated to getConsentForPersonAsync: an empty map changes nothing', async () => {
-        getConsentForPersonAsync.mockResolvedValue({ viewControlResourceToExcludeMap: {} });
+    test('enrollment of the caller is delegated to getConsentAsync: an empty map changes nothing', async () => {
+        getConsentAsync.mockResolvedValue({ viewControlResourceToExcludeMap: {} });
         const parsedArgs = newParsedArgs();
         await exclusion.applyAsync({ parsedArgs, resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user });
         expect(idNotItems(parsedArgs)).toHaveLength(0);
@@ -190,12 +193,12 @@ describe('PatientDataViewControlExclusion', () => {
                 })
             )
         );
-        expect(getConsentForPersonAsync).toHaveBeenCalledTimes(1);
+        expect(getConsentAsync).toHaveBeenCalledTimes(1);
         expect(getPatientIdsFromScopeAsync).toHaveBeenCalledTimes(1);
     });
 
     test('getConsentLookupAsync returns the Consent queries and options alongside the exclude map', async () => {
-        getConsentForPersonAsync.mockResolvedValue({
+        getConsentAsync.mockResolvedValue({
             viewControlResourceToExcludeMap: { CarePlan: [UUID_A] },
             viewControlConsentQueries: [{ collectionName: 'Consent_4_0_0' }],
             viewControlConsentQueryOptions: [{ limit: 10 }]
@@ -238,8 +241,31 @@ describe('PatientDataViewControlExclusion', () => {
             viewControlConsentQueries: [],
             viewControlConsentQueryOptions: []
         });
-        expect(getConsentForPersonAsync).not.toHaveBeenCalled();
+        expect(getConsentAsync).not.toHaveBeenCalled();
         expect(getPatientIdsFromScopeAsync).not.toHaveBeenCalled();
+    });
+
+    describe('getUserViewControlExcludeMapAsync', () => {
+        test('returns the exclude map of the user in the token', async () => {
+            getConsentAsync.mockResolvedValue({
+                viewControlResourceToExcludeMap: { CarePlan: [UUID_A] },
+                viewControlConsentQueries: [],
+                viewControlConsentQueryOptions: []
+            });
+            const map = await getUserViewControlExcludeMapAsync({
+                exclusion, requestInfo: user, base_version: '4_0_0'
+            });
+            expect(map).toEqual({ CarePlan: [UUID_A] });
+        });
+
+        test('returns undefined for a service token, without any lookup', async () => {
+            const lookup = jest.spyOn(exclusion, 'getConsentLookupAsync');
+            const map = await getUserViewControlExcludeMapAsync({
+                exclusion, requestInfo: { isUser: false }, base_version: '4_0_0'
+            });
+            expect(map).toBeUndefined();
+            expect(lookup).not.toHaveBeenCalled();
+        });
     });
 
     describe('outcome metric (once per subject per request)', () => {
@@ -263,7 +289,7 @@ describe('PatientDataViewControlExclusion', () => {
                 mockStore.set(`personOwnerFor-${personIdFromJwtToken}`, owner);
                 return [];
             });
-            getConsentForPersonAsync.mockResolvedValue({ viewControlResourceToExcludeMap: excludeMap });
+            getConsentAsync.mockResolvedValue({ viewControlResourceToExcludeMap: excludeMap });
 
             await exclusion.getConsentLookupAsync({ requestInfo: user, base_version: '4_0_0' });
 
@@ -295,7 +321,7 @@ describe('PatientDataViewControlExclusion', () => {
             ['the id matches several Persons', new BadRequestError(new Error('several')), 'bad_request'],
             ['the Consent search throws', new Error('mongo down'), 'error']
         ])('fail_closed is recorded, with a bounded reason, when %s, and the error is rethrown', async (_name, error, reason) => {
-            getConsentForPersonAsync.mockRejectedValueOnce(error);
+            getConsentAsync.mockRejectedValueOnce(error);
 
             await expect(
                 exclusion.getConsentLookupAsync({ requestInfo: user, base_version: '4_0_0' })
@@ -315,7 +341,7 @@ describe('PatientDataViewControlExclusion', () => {
     });
 
     test('fails closed: a Consent lookup error propagates and is not memoized', async () => {
-        getConsentForPersonAsync.mockRejectedValueOnce(new Error('mongo down'));
+        getConsentAsync.mockRejectedValueOnce(new Error('mongo down'));
         await expect(
             exclusion.applyAsync({
                 parsedArgs: newParsedArgs(), resourceType: 'CarePlan', base_version: '4_0_0', requestInfo: user

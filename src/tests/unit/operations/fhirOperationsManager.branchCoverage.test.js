@@ -65,6 +65,7 @@ jest.mock('../../../operations/import/import', () => ({ ImportOperation: class I
 jest.mock('../../../operations/summary/summary', () => ({ SummaryOperation: class SummaryOperation {} }));
 jest.mock('../../../operations/query/r4ArgsParser', () => ({ R4ArgsParser: class R4ArgsParser {} }));
 jest.mock('../../../queryRewriters/queryRewriterManager', () => ({ QueryRewriterManager: class QueryRewriterManager {} }));
+jest.mock('../../../utils/patientDataViewControlExclusion', () => ({ PatientDataViewControlExclusion: class PatientDataViewControlExclusion {} }));
 jest.mock('../../../utils/configManager', () => ({ ConfigManager: class ConfigManager {} }));
 jest.mock('../../../utils/operationAccessManager', () => ({ OperationAccessManager: class OperationAccessManager {} }));
 jest.mock('../../../utils/cmsManager', () => ({ CMSManager: class CMSManager {} }));
@@ -240,6 +241,7 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
             ...ops,
             r4ArgsParser,
             queryRewriterManager,
+            patientDataViewControlExclusion: { applyAsync: jest.fn().mockImplementation(async ({ parsedArgs }) => parsedArgs) },
             configManager: { enableVulcanIgQuery: false, externalServicesWithRestrictions: {} },
             accessManager: { verifyAccess: jest.fn() },
             cmsManager: { verifyNotProxyPatientId: jest.fn() },
@@ -735,6 +737,42 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
                 parsedArgs: expect.objectContaining({ receivedResourceType: 'Patient' }),
                 resourceType: 'Patient'
             });
+        });
+
+        test('SECURITY: a Vulcan IG child lookup applies view control, so a hidden resource cannot decide which parents match', async () => {
+            const { vulcanIgSearchQueries } = require('../../../operations/query/customQueries');
+            vulcanIgSearchQueries.Patient = {
+                condition: {
+                    filters: [{
+                        resourceType: 'Condition', searchParam: 'code', filterField: 'subject._uuid'
+                    }],
+                    resultSearchParam: 'id'
+                }
+            };
+            manager.configManager.enableVulcanIgQuery = true;
+            const parentItem = { isNotOnly: false };
+            manager.r4ArgsParser.parseArgs.mockImplementation(({ resourceType, args }) => ({
+                base_version: args.base_version,
+                parsedArgItems: resourceType === 'Patient' && args.condition
+                    ? [{ queryParameter: 'condition', modifiers: [], queryParameterValue: { value: 'code-1' } }]
+                    : [{}, parentItem],
+                add: jest.fn(),
+                addMergingExclusion: jest.fn()
+            }));
+            try {
+                await manager.searchStreaming(
+                    [], { req: makeReq({ query: { condition: 'code-1' } }), res: {} }, 'Patient'
+                );
+            } finally {
+                delete vulcanIgSearchQueries.Patient;
+            }
+
+            const applied = manager.patientDataViewControlExclusion.applyAsync.mock.calls
+                .map((c) => c[0].resourceType);
+            expect(applied).toEqual(['Patient', 'Condition']);
+            expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Condition' })
+            );
         });
 
         test('create forwards req.path so the operation can build the Location header, and returns the created resource', async () => {

@@ -1,31 +1,14 @@
 const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
 
-// Mock express-http-context at top level
-jest.mock('express-http-context', () => ({
-    get: jest.fn(),
-    set: jest.fn()
-}));
-
-const httpContext = require('express-http-context');
-const { PatientDataViewControlManager } = require('../../../utils/patientDataViewController');
+const {
+    PatientDataViewControlManager,
+    getBinaryIdFromAttachmentUrl
+} = require('../../../utils/patientDataViewController');
 const { ConfigManager } = require('../../../utils/configManager');
 const { SearchManager } = require('../../../operations/search/searchManager');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
-const { HTTP_CONTEXT_KEYS, CONSENT_CATEGORY } = require('../../../constants');
+const { CONSENT_CATEGORY } = require('../../../constants');
 
-/**
- * CACHE ANALYSIS for PatientDataViewControlManager.getConsentAsync:
- *
- * 1. Cache mechanism: httpContext.get() reads person owner from request-scoped context
- * 2. Cache KEY dimensions: `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personIdFromJwtToken}` = "personOwnerFor-<personId>"
- * 3. Method PARAMETERS: requestInfo (contains personIdFromJwtToken), base_version, patientFilterReferences, raiseErrorForMissingUserOwner
- * 4. Params NOT in key: base_version, patientFilterReferences, raiseErrorForMissingUserOwner - the cache key only uses personIdFromJwtToken
- * 5. Cached VALUE: The owner code string (e.g., "clientA") set previously by PersonToPatientIdsExpander
- * 6. Downstream consumer: Used to check if owner is in clientsWithDataConnectionViewControl list
- * 7. Required test: Call with same personId but different base_version/patientFilterReferences, verify same cached owner is used
- * 8. Mock setup: httpContext.get mock returns different values; configManager with clientsWithDataConnectionViewControl getter
- * 9. Assertion: When httpContext returns stale owner, the consent logic may incorrectly skip/apply filtering
- */
 
 // Helper to create mock instances that pass assertTypeEquals
 function createMockConfigManager(overrides = {}) {
@@ -88,467 +71,12 @@ describe('PatientDataViewControlManager', () => {
     });
 
     describe('getConsentAsync', () => {
-        describe('httpContext.get behavior (cache reading)', () => {
-            test('reads person owner from httpContext using correct key', async () => {
-                httpContext.get.mockReturnValue('clientA');
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(httpContext.get).toHaveBeenCalledWith(
-                    `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}person-123`
-                );
-            });
-
-            test('throws assertion error when owner is null and raiseErrorForMissingUserOwner is true', async () => {
-                httpContext.get.mockReturnValue(null);
-
-                await expect(
-                    manager.getConsentAsync({
-                        requestInfo: createRequestInfo('person-123'),
-                        base_version: '4_0_0',
-                        patientFilterReferences: null,
-                        raiseErrorForMissingUserOwner: true
-                    })
-                ).rejects.toThrow();
-            });
-
-            test('does NOT throw when owner is null and raiseErrorForMissingUserOwner is false', async () => {
-                httpContext.get.mockReturnValue(null);
-
-                const result = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null,
-                    raiseErrorForMissingUserOwner: false
-                });
-
-                expect(result).toEqual({
-                    viewControlResourceToExcludeMap: {},
-                    viewControlConsentQueries: [],
-                    viewControlConsentQueryOptions: []
-                });
-            });
-
-            test('returns empty result when owner is NOT in clientsWithDataConnectionViewControl', async () => {
-                httpContext.get.mockReturnValue('clientC'); // Not in [clientA, clientB]
-
-                const result = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(result).toEqual({
-                    viewControlResourceToExcludeMap: {},
-                    viewControlConsentQueries: [],
-                    viewControlConsentQueryOptions: []
-                });
-                // Should NOT call searchManager since owner is not in the list
-                expect(mockSearchManager.fetchResourcesByArgsAsync).not.toHaveBeenCalled();
-            });
-
-            test('calls searchManager when owner IS in clientsWithDataConnectionViewControl', async () => {
-                httpContext.get.mockReturnValue('clientA'); // In the list
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalled();
-            });
-        });
-
-        describe('search parameters construction', () => {
-            test('constructs correct consent args with personId', async () => {
-                httpContext.get.mockReturnValue('clientA');
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-456'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith({
-                    resourceType: 'Consent',
-                    args: expect.objectContaining({
-                        base_version: '4_0_0',
-                        patient: 'Patient/person.person-456',
-                        category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
-                    })
-                });
-            });
-
-            test('includes actor when patientFilterReferences provided', async () => {
-                httpContext.get.mockReturnValue('clientA');
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-456'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: ['Patient/pat-1', 'Patient/pat-2']
-                });
-
-                expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith({
-                    resourceType: 'Consent',
-                    args: expect.objectContaining({
-                        actor: 'Patient/pat-1,Patient/pat-2'
-                    })
-                });
-            });
-
-            test('does NOT include actor when patientFilterReferences is null', async () => {
-                httpContext.get.mockReturnValue('clientA');
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-456'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                const parsedCall = mockR4ArgsParser.parseArgs.mock.calls[0][0];
-                expect(parsedCall.args.actor).toBeUndefined();
-            });
-
-            test('does NOT include actor when patientFilterReferences is empty array', async () => {
-                httpContext.get.mockReturnValue('clientA');
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-456'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: []
-                });
-
-                const parsedCall = mockR4ArgsParser.parseArgs.mock.calls[0][0];
-                expect(parsedCall.args.actor).toBeUndefined();
-            });
-        });
-
-        describe('consent entry processing', () => {
-            test('builds viewControlResourceToExcludeMap from consent entries (0 entries)', async () => {
-                httpContext.get.mockReturnValue('clientA');
-                mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
-                    entries: [],
-                    queryItems: ['query1'],
-                    options: ['opt1']
-                });
-
-                const result = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(result.viewControlResourceToExcludeMap).toEqual({});
-                expect(result.viewControlConsentQueries).toEqual(['query1']);
-                expect(result.viewControlConsentQueryOptions).toEqual(['opt1']);
-            });
-
-            test('extracts resource types and ids from consent provision data (1 entry)', async () => {
-                httpContext.get.mockReturnValue('clientA');
-                mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
-                    entries: [{
-                        resource: {
-                            provision: {
-                                data: [{
-                                    reference: {
-                                        reference: 'Observation/obs-1'
-                                    }
-                                }]
-                            }
-                        }
-                    }],
-                    queryItems: [],
-                    options: []
-                });
-
-                const result = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(result.viewControlResourceToExcludeMap).toEqual({
-                    Observation: ['obs-1']
-                });
-            });
-
-            test('groups multiple references by resource type (>1 entries)', async () => {
-                httpContext.get.mockReturnValue('clientA');
-                mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
-                    entries: [
-                        {
-                            resource: {
-                                provision: {
-                                    data: [
-                                        { reference: { reference: 'Observation/obs-1' } },
-                                        { reference: { reference: 'Observation/obs-2' } },
-                                        { reference: { reference: 'Condition/cond-1' } }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            resource: {
-                                provision: {
-                                    data: [
-                                        { reference: { reference: 'Observation/obs-3' } }
-                                    ]
-                                }
-                            }
-                        }
-                    ],
-                    queryItems: [],
-                    options: []
-                });
-
-                const result = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(result.viewControlResourceToExcludeMap).toEqual({
-                    Observation: ['obs-1', 'obs-2', 'obs-3'],
-                    Condition: ['cond-1']
-                });
-            });
-
-            test('handles consent entry with no provision', async () => {
-                httpContext.get.mockReturnValue('clientA');
-                mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
-                    entries: [{
-                        resource: {}
-                    }],
-                    queryItems: [],
-                    options: []
-                });
-
-                const result = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(result.viewControlResourceToExcludeMap).toEqual({});
-            });
-
-            test('handles consent entry with provision but no data', async () => {
-                httpContext.get.mockReturnValue('clientA');
-                mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
-                    entries: [{
-                        resource: {
-                            provision: {}
-                        }
-                    }],
-                    queryItems: [],
-                    options: []
-                });
-
-                const result = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(result.viewControlResourceToExcludeMap).toEqual({});
-            });
-
-            test('skips data entries with no reference.reference', async () => {
-                httpContext.get.mockReturnValue('clientA');
-                mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValue({
-                    entries: [{
-                        resource: {
-                            provision: {
-                                data: [
-                                    { reference: {} },  // no reference field
-                                    { reference: { reference: 'Observation/obs-1' } }, // valid
-                                    { }  // no reference object at all
-                                ]
-                            }
-                        }
-                    }],
-                    queryItems: [],
-                    options: []
-                });
-
-                const result = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(result.viewControlResourceToExcludeMap).toEqual({
-                    Observation: ['obs-1']
-                });
-            });
-        });
-
-        describe('stale httpContext cache scenarios', () => {
-            test('BUG: same personId with different base_version uses same cached owner', async () => {
-                // The cache key is ONLY based on personIdFromJwtToken.
-                // If the person's owner differs across base_versions (unlikely but possible),
-                // the cached value from the first call will be used for all subsequent calls.
-
-                // First call - httpContext returns 'clientA' (set by PersonToPatientIdsExpander for base_version 4_0_0)
-                httpContext.get.mockReturnValue('clientA');
-
-                const result1 = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                // searchManager should be called because clientA is in the list
-                expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledTimes(1);
-
-                // Second call with different base_version but same personId
-                // httpContext still returns the same 'clientA' because the cache key doesn't include base_version
-                httpContext.get.mockReturnValue('clientA');
-
-                const result2 = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '3_0_2', // different base_version
-                    patientFilterReferences: ['Patient/pat-new']
-                });
-
-                // Both calls used the same cached owner value regardless of base_version
-                expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledTimes(2);
-
-                // The second search should use base_version '3_0_2'
-                const secondCall = mockSearchManager.fetchResourcesByArgsAsync.mock.calls[1][0];
-                expect(secondCall.base_version).toBe('3_0_2');
-            });
-
-            test('BUG: stale httpContext returns wrong owner leading to incorrect skip', async () => {
-                // Scenario: PersonToPatientIdsExpander set owner as 'clientC' (not in control list)
-                // but the actual owner has changed to 'clientA' (in control list).
-                // The stale cache causes getConsentAsync to skip consent filtering entirely.
-
-                // httpContext returns stale value 'clientC' which is NOT in [clientA, clientB]
-                httpContext.get.mockReturnValue('clientC');
-
-                const result = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                // Because 'clientC' is not in the control list, it returns empty result
-                // WITHOUT even querying for consents - this is the stale cache bug
-                expect(result.viewControlResourceToExcludeMap).toEqual({});
-                expect(mockSearchManager.fetchResourcesByArgsAsync).not.toHaveBeenCalled();
-            });
-
-            test('BUG: httpContext returns stale owner leading to unnecessary consent query', async () => {
-                // Scenario: PersonToPatientIdsExpander set owner as 'clientA' (in control list)
-                // but the actual owner has changed to 'clientC' (not in control list).
-                // The stale cache causes getConsentAsync to unnecessarily query for consents.
-
-                // httpContext returns stale value 'clientA' which IS in [clientA, clientB]
-                httpContext.get.mockReturnValue('clientA');
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                // searchManager IS called because of stale cache value
-                expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledTimes(1);
-            });
-
-            test('calling with different personIds reads different cache keys', async () => {
-                httpContext.get
-                    .mockReturnValueOnce('clientA') // for person-1
-                    .mockReturnValueOnce('clientC'); // for person-2
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-1'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-2'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                expect(httpContext.get).toHaveBeenCalledWith(
-                    `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}person-1`
-                );
-                expect(httpContext.get).toHaveBeenCalledWith(
-                    `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}person-2`
-                );
-
-                // First call (clientA in list) should trigger search
-                // Second call (clientC not in list) should NOT trigger search
-                expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledTimes(1);
-            });
-        });
-
-        describe('userOwnerFromContext is null with raiseErrorForMissingUserOwner=false', () => {
-            test('BUG: proceeds to search for consents even when owner is null', async () => {
-                // When userOwnerFromContext is null and raiseErrorForMissingUserOwner is false,
-                // the code does NOT return early. The condition on line 74 is:
-                //   if (userOwnerFromContext && !this.configManager.clientsWithDataConnectionViewControl.includes(...))
-                // When null, the && short-circuits, so it falls through to the search query.
-                // This is likely a bug: with no owner context, we should not be querying for consents.
-                httpContext.get.mockReturnValue(null);
-
-                const result = await manager.getConsentAsync({
-                    requestInfo: createRequestInfo('person-123'),
-                    base_version: '4_0_0',
-                    patientFilterReferences: null,
-                    raiseErrorForMissingUserOwner: false
-                });
-
-                // BUG: searchManager IS called even when owner is null
-                // This means unnecessary consent queries are made when no owner is in context
-                expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledTimes(1);
-
-                // The result is whatever the searchManager returns (empty in this case)
-                expect(result.viewControlResourceToExcludeMap).toEqual({});
-            });
-        });
-    });
-});
-
-describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
-    let manager;
-    let mockConfigManager;
-    let mockSearchManager;
-    let mockR4ArgsParser;
-
-    beforeEach(() => {
-        jest.clearAllMocks();
-
-        mockConfigManager = createMockConfigManager({
-            clientsWithDataConnectionViewControl: ['clientA', 'clientB']
-        });
-        mockSearchManager = createMockSearchManager();
-        mockR4ArgsParser = createMockR4ArgsParser();
-
-        manager = new PatientDataViewControlManager({
-            configManager: mockConfigManager,
-            searchManager: mockSearchManager,
-            r4ArgsParser: mockR4ArgsParser
-        });
-    });
-
-    describe('getConsentForPersonAsync', () => {
         describe('owner gating (the caller passes the Person and its owner)', () => {
-            const getConsent = (overrides = {}) => manager.getConsentForPersonAsync({
+            const getConsent = (overrides = {}) => manager.getConsentAsync({
                 requestInfo: createRequestInfo('person-123'),
                 base_version: '4_0_0',
                 personId: 'person-123',
                 owner: 'clientA',
-                patientFilterReferences: null,
                 ...overrides
             });
 
@@ -588,7 +116,7 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                 async (_name, overrides) => {
                     const requestInfo = createRequestInfo('person-123', { user: 'u1', requestId: 'r1', ...overrides });
 
-                    await manager.getConsentForPersonAsync({
+                    await manager.getConsentAsync({
                         requestInfo,
                         base_version: '4_0_0',
                         personId: 'person-123',
@@ -613,7 +141,7 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                     });
                     const original = { ...requestInfo };
 
-                    await manager.getConsentForPersonAsync({
+                    await manager.getConsentAsync({
                         requestInfo,
                         base_version: '4_0_0',
                         personId: 'person-123',
@@ -636,7 +164,7 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                 });
 
             test('asks for hidden-tagged Consents too', async () => {
-                await manager.getConsentForPersonAsync({
+                await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-123'),
                     base_version: '4_0_0',
                     personId: 'person-123',
@@ -653,65 +181,30 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
         describe('search parameters construction', () => {
             test('constructs correct consent args with personId', async () => {
 
-                await manager.getConsentForPersonAsync({
+                await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-456'),
                     personId: 'person-456',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith({
                     resourceType: 'Consent',
                     args: expect.objectContaining({
                         base_version: '4_0_0',
-                        status: 'active',
                         patient: 'Patient/person.person-456',
                         category: `${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM}|${CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.CODE}`
                     })
                 });
             });
 
-            test('includes actor when patientFilterReferences provided', async () => {
+            test('does not filter by actor', async () => {
 
-                await manager.getConsentForPersonAsync({
+                await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-456'),
                     personId: 'person-456',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: ['Patient/pat-1', 'Patient/pat-2']
-                });
-
-                expect(mockR4ArgsParser.parseArgs).toHaveBeenCalledWith({
-                    resourceType: 'Consent',
-                    args: expect.objectContaining({
-                        actor: 'Patient/pat-1,Patient/pat-2'
-                    })
-                });
-            });
-
-            test('does NOT include actor when patientFilterReferences is null', async () => {
-
-                await manager.getConsentForPersonAsync({
-                    requestInfo: createRequestInfo('person-456'),
-                    personId: 'person-456',
-                    owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
-                });
-
-                const parsedCall = mockR4ArgsParser.parseArgs.mock.calls[0][0];
-                expect(parsedCall.args.actor).toBeUndefined();
-            });
-
-            test('does NOT include actor when patientFilterReferences is empty array', async () => {
-
-                await manager.getConsentForPersonAsync({
-                    requestInfo: createRequestInfo('person-456'),
-                    personId: 'person-456',
-                    owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: []
+                    base_version: '4_0_0'
                 });
 
                 const parsedCall = mockR4ArgsParser.parseArgs.mock.calls[0][0];
@@ -727,12 +220,11 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                     options: ['opt1']
                 });
 
-                const result = await manager.getConsentForPersonAsync({
+                const result = await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({});
@@ -757,12 +249,11 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                     options: []
                 });
 
-                const result = await manager.getConsentForPersonAsync({
+                const result = await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({
@@ -790,12 +281,11 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                     options: []
                 });
 
-                const result = await manager.getConsentForPersonAsync({
+                const result = await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 const map = result.viewControlResourceToExcludeMap;
@@ -832,12 +322,11 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                     options: []
                 });
 
-                const result = await manager.getConsentForPersonAsync({
+                const result = await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({
@@ -855,12 +344,11 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                     options: []
                 });
 
-                const result = await manager.getConsentForPersonAsync({
+                const result = await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({});
@@ -877,12 +365,11 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                     options: []
                 });
 
-                const result = await manager.getConsentForPersonAsync({
+                const result = await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({});
@@ -905,12 +392,11 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                     options: []
                 });
 
-                const result = await manager.getConsentForPersonAsync({
+                const result = await manager.getConsentAsync({
                     requestInfo: createRequestInfo('person-123'),
                     personId: 'person-123',
                     owner: 'clientA',
-                    base_version: '4_0_0',
-                    patientFilterReferences: null
+                    base_version: '4_0_0'
                 });
 
                 expect(result.viewControlResourceToExcludeMap).toEqual({
@@ -918,5 +404,162 @@ describe('PatientDataViewControlManager.getConsentForPersonAsync', () => {
                 });
             });
         });
+    });
+
+    describe('the attachment Binary of a hidden DocumentReference', () => {
+        const consentHiding = (...references) => ({
+            entries: [{
+                resource: {
+                    provision: { data: references.map((reference) => ({ reference: { reference } })) }
+                }
+            }],
+            queryItems: [],
+            options: []
+        });
+        const getConsent = () => manager.getConsentAsync({
+            requestInfo: createRequestInfo('person-123'),
+            base_version: '4_0_0',
+            personId: 'person-123',
+            owner: 'clientA'
+        });
+
+        test('hides the Binary a hidden DocumentReference points at', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync
+                .mockResolvedValueOnce(consentHiding('DocumentReference/doc-1', 'Binary/already-hidden'))
+                .mockResolvedValueOnce({
+                    entries: [{
+                        resource: {
+                            content: [
+                                { attachment: { url: 'Binary/attachment-1' } },
+                                { attachment: { url: 'https://host/4_0_0/Binary/attachment-2' } },
+                                { attachment: { url: 'https://example.com/report.pdf' } }
+                            ]
+                        }
+                    }],
+                    queryItems: [],
+                    options: []
+                });
+
+            const { viewControlResourceToExcludeMap } = await getConsent();
+
+            expect(mockR4ArgsParser.parseArgs).toHaveBeenLastCalledWith({
+                resourceType: 'DocumentReference',
+                args: { base_version: '4_0_0', _id: 'doc-1' }
+            });
+            expect([...viewControlResourceToExcludeMap.Binary].sort()).toEqual(
+                ['already-hidden', 'attachment-1', 'attachment-2']
+            );
+            expect(viewControlResourceToExcludeMap.DocumentReference).toEqual(['doc-1']);
+        });
+
+        test('reads only the content of the DocumentReferences, without loading attachment data', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync
+                .mockResolvedValueOnce(consentHiding('DocumentReference/doc-1'))
+                .mockResolvedValueOnce({ entries: [], queryItems: [], options: [] });
+
+            await getConsent();
+
+            expect(mockSearchManager.fetchResourcesByArgsAsync.mock.calls[1][0]).toEqual(
+                expect.objectContaining({ fields: ['content'], retrieveAttachments: false })
+            );
+        });
+
+        test('looks up a large number of hidden DocumentReferences in chunks and keeps every Binary', async () => {
+            const hiddenCount = 1203;
+            const references = Array.from({ length: hiddenCount }, (_, i) => `DocumentReference/doc-${i}`);
+            mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValueOnce(consentHiding(...references));
+            mockSearchManager.fetchResourcesByArgsAsync.mockImplementation(async () => ({
+                entries: [{ resource: { content: [{ attachment: { url: `Binary/chunk-${
+                    mockSearchManager.fetchResourcesByArgsAsync.mock.calls.length}` } }] } }],
+                queryItems: [],
+                options: []
+            }));
+
+            const { viewControlResourceToExcludeMap } = await getConsent();
+
+            // one Consent lookup, then 500 + 500 + 203 DocumentReference ids
+            const idsPerLookup = mockR4ArgsParser.parseArgs.mock.calls
+                .slice(1)
+                .map(([{ args }]) => args._id.split(',').length);
+            expect(idsPerLookup).toEqual([500, 500, 203]);
+            expect(viewControlResourceToExcludeMap.Binary).toHaveLength(3);
+        });
+
+        test('reads the DocumentReferences under the caller scope', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync
+                .mockResolvedValueOnce(consentHiding('DocumentReference/doc-1'))
+                .mockResolvedValueOnce({ entries: [], queryItems: [], options: [] });
+            const requestInfo = createRequestInfo('person-123', {
+                scope: 'user/*.* access/clientA.*', isUser: false, personIdFromJwtToken: null
+            });
+
+            await manager.getConsentAsync({
+                requestInfo, base_version: '4_0_0', personId: 'person-123', owner: 'clientA'
+            });
+
+            const documentReferenceRead = mockSearchManager.fetchResourcesByArgsAsync.mock.calls[1][0];
+            expect(documentReferenceRead.resourceType).toBe('DocumentReference');
+            expect(documentReferenceRead.requestInfo).toBe(requestInfo);
+        });
+
+        test.each([
+            ['RelatedPerson actor', { reference: 'RelatedPerson/rp-1' }],
+            ['Organization actor', { reference: 'Organization/org-1', isOrganizationActor: true }]
+        ])('delegated %s: the DocumentReference read clears user type and actor like the Consent search',
+            async (_name, actor) => {
+                mockSearchManager.fetchResourcesByArgsAsync
+                    .mockResolvedValueOnce(consentHiding('DocumentReference/doc-1'))
+                    .mockResolvedValueOnce({ entries: [], queryItems: [], options: [] });
+                const requestInfo = createRequestInfo('person-123', {
+                    user: 'u1',
+                    requestId: 'r1',
+                    scope: 'patient/*.*',
+                    userType: 'delegatedUser',
+                    actor
+                });
+
+                await manager.getConsentAsync({
+                    requestInfo, base_version: '4_0_0', personId: 'person-123', owner: 'clientA'
+                });
+
+                const [consentRead, documentReferenceRead] = mockSearchManager.fetchResourcesByArgsAsync.mock.calls
+                    .map(([args]) => args);
+                expect(documentReferenceRead.resourceType).toBe('DocumentReference');
+                expect(documentReferenceRead.requestInfo).not.toBe(requestInfo);
+                expect(documentReferenceRead.requestInfo).toEqual(expect.objectContaining({
+                    userType: null,
+                    actor: null,
+                    scope: 'patient/*.*',
+                    personIdFromJwtToken: 'person-123'
+                }));
+                expect(documentReferenceRead.requestInfo).toEqual(consentRead.requestInfo);
+                // the caller's own request info is left alone
+                expect(requestInfo.userType).toBe('delegatedUser');
+                expect(requestInfo.actor).toBe(actor);
+            });
+
+        test('makes no DocumentReference read when no DocumentReference is hidden', async () => {
+            mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValueOnce(consentHiding('CarePlan/cp-1'));
+
+            const { viewControlResourceToExcludeMap } = await getConsent();
+
+            expect(mockSearchManager.fetchResourcesByArgsAsync).toHaveBeenCalledTimes(1);
+            expect(viewControlResourceToExcludeMap.Binary).toBeUndefined();
+        });
+    });
+});
+
+describe('getBinaryIdFromAttachmentUrl', () => {
+    test.each([
+        ['a relative reference', 'Binary/123', '123'],
+        ['an absolute url', 'https://fhir.example.com/4_0_0/Binary/abc-1', 'abc-1'],
+        ['a url with a query', 'https://fhir.example.com/4_0_0/Binary/abc-1?_format=json', 'abc-1'],
+        ['a url with history', 'Binary/abc-1/_history/2', 'abc-1'],
+        ['a url to another type', 'DocumentReference/123', undefined],
+        ['an external url', 'https://example.com/report.pdf', undefined],
+        ['a type that only ends in Binary', 'NotBinary/123', undefined],
+        ['no url', undefined, undefined]
+    ])('%s', (_name, url, expected) => {
+        expect(getBinaryIdFromAttachmentUrl(url)).toBe(expected);
     });
 });

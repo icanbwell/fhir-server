@@ -1020,7 +1020,8 @@ describe('Patient $summary Tests', () => {
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(4);
-        cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639:Summary:Generation:1:Scopes:41b78b54-0a8e-5477-af30-d99864d04833';
+        // a user token's key also carries its Person, apart from a service token's unfiltered entry
+        cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639:Summary:Generation:1:Scopes:41b78b54-0a8e-5477-af30-d99864d04833:Person:7b99904f-2f85-51a3-9398-e2eed6854639';
         expect(cacheKey).toBeDefined();
         let cachedBundle = JSON.parse(redisData.get(cacheKey));
         expect(cachedBundle.entry).toHaveLength(10);

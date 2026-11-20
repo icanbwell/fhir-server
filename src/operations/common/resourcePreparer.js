@@ -2,6 +2,7 @@ const { EnrichmentManager } = require('../../enrich/enrich');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { CompositionSectionFilterEnrichmentProvider } = require('../../enrich/providers/compositionSectionFilterEnrichmentProvider');
 const { GroupExtendedTagEnrichmentProvider } = require('../../enrich/providers/groupExtendedTagEnrichmentProvider');
+const { DataViewControlCompositionEnrichmentProvider } = require('../../enrich/providers/dataViewControlCompositionEnrichmentProvider');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('../security/scopesManager');
 const { AccessIndexManager } = require('./accessIndexManager');
@@ -17,6 +18,7 @@ class ResourcePreparer {
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      * @param {CompositionSectionFilterEnrichmentProvider} compositionSectionFilterEnrichmentProvider
      * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
+     * @param {DataViewControlCompositionEnrichmentProvider} dataViewControlCompositionEnrichmentProvider
      */
     constructor({
         scopesManager,
@@ -25,7 +27,8 @@ class ResourcePreparer {
         resourceManager,
         identifierEnrichmentProvider,
         compositionSectionFilterEnrichmentProvider,
-        groupExtendedTagEnrichmentProvider
+        groupExtendedTagEnrichmentProvider,
+        dataViewControlCompositionEnrichmentProvider
     }) {
         /**
          * @type {ScopesManager}
@@ -68,6 +71,12 @@ class ResourcePreparer {
          */
         this.groupExtendedTagEnrichmentProvider = groupExtendedTagEnrichmentProvider;
         assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
+
+        /**
+         * @type {DataViewControlCompositionEnrichmentProvider}
+         */
+        this.dataViewControlCompositionEnrichmentProvider = dataViewControlCompositionEnrichmentProvider;
+        assertTypeEquals(dataViewControlCompositionEnrichmentProvider, DataViewControlCompositionEnrichmentProvider);
     }
 
     /**
@@ -121,6 +130,11 @@ class ResourcePreparer {
             // selectSpecificElements drops. When meta isn't requested, the tag goes with meta.
             [element] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({
                 resources: [element]
+            });
+            // Security: the view control filter needs the whole Composition: it removes `text` along with a
+            // hidden section, and selectSpecificElements would drop `section` first
+            [element] = await this.dataViewControlCompositionEnrichmentProvider.enrichAsync({
+                resources: [element], parsedArgs, enrichmentContext
             });
             /**
              * @type {Resource}

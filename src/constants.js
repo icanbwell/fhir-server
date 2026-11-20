@@ -176,6 +176,10 @@ module.exports = {
         PATIENT_VIEW_CONTROL_EXCLUDE_PREFIX: 'patientViewControlExcludeFor-',
         CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed'
     },
+    // Keys under which ParsedArgs.getRawArgs() reports an `_id:not` / `id:not` exclusion. A data view
+    // control exclusion can hold thousands of hidden ids and reveals what the user chose to hide, so
+    // logs and audit events leave these keys out.
+    ID_EXCLUSION_ARG_KEYS: Object.freeze(['_id:not', 'id:not']),
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
     NON_SEARCH_QUERY_PARAMS: [

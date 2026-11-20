@@ -53,12 +53,12 @@ function createMockParsedArgsItem ({
         _queryParameterValue: queryParameterValue,
         modifiers,
         propertyObj,
-        chain,
-        get isIdItem () { return this.queryParameter === 'id' || this.queryParameter === '_id'; },
-        get isIdExclusion () {
-            return this.isIdItem && this.modifiers?.length === 1 && this.modifiers[0] === 'not';
-        }
+        chain
     };
+
+    // the real item's predicates, so the mock answers isNotOnly / isIdItem / isIdExclusion as it does
+    const { isNotOnly, isIdItem, isIdExclusion } = Object.getOwnPropertyDescriptors(ParsedArgsItem.prototype);
+    Object.defineProperties(item, { isNotOnly, isIdItem, isIdExclusion });
 
     item.clone = jestObj.fn(() => {
         return createMockParsedArgsItem({
@@ -416,6 +416,15 @@ describe('ParsedArgs', () => {
             expect(args.parsedArgItems[0].queryParameterValue.value).toBe('active');
         });
 
+        test('keeps the view-control exclude map, so a clone still filters Composition sections', () => {
+            const args = new ParsedArgs({ base_version: '4_0_0', parsedArgItems: [] });
+            const excludeMap = Object.freeze({ CarePlan: Object.freeze(['care-plan-1']) });
+            args.viewControlExcludeMap = excludeMap;
+
+            expect(args.clone().viewControlExcludeMap).toBe(excludeMap);
+            expect(new ParsedArgs({ base_version: '4_0_0' }).viewControlExcludeMap).toBeUndefined();
+        });
+
         test('preserves headers in clone', () => {
             const headers = { 'x-request-id': 'abc' };
             const args = new ParsedArgs({ base_version: '4_0_0', headers });
@@ -450,6 +459,31 @@ describe('ParsedArgs', () => {
         test('returns empty object when no args', () => {
             const args = new ParsedArgs({ base_version: '4_0_0' });
             expect(args.getRawArgs()).toEqual({});
+        });
+
+        test.each([
+            ['_id', ['_id:not']],
+            ['id', ['id:not']]
+        ])('keys an %s:not exclusion apart from the plain id the caller asked for', (queryParameter, [excludedKey]) => {
+            const plain = createMockParsedArgsItem({ queryParameter, value: 'asked-for' });
+            const exclusion = createMockParsedArgsItem({ queryParameter, value: ['hidden-1', 'hidden-2'], modifiers: ['not'] });
+
+            // either order: the exclusion is added after the caller's args by the view-control filter
+            for (const items of [[plain, exclusion], [exclusion, plain]]) {
+                const raw = new ParsedArgs({ base_version: '4_0_0', parsedArgItems: items }).getRawArgs();
+                expect(raw[queryParameter]).toBe('asked-for');
+                expect(raw[excludedKey]).toEqual(['hidden-1', 'hidden-2']);
+            }
+        });
+
+        test.each([
+            ['another modifier', { queryParameter: '_id', modifiers: ['missing'] }],
+            ['a combined modifier', { queryParameter: '_id', modifiers: ['not', 'exact'] }],
+            ['another parameter with :not', { queryParameter: 'gender', modifiers: ['not'] }]
+        ])('keeps the plain key for %s (modifiers are not part of the key)', (_name, { queryParameter, modifiers }) => {
+            const item = createMockParsedArgsItem({ queryParameter, value: 'v', modifiers });
+            expect(new ParsedArgs({ base_version: '4_0_0', parsedArgItems: [item] }).getRawArgs())
+                .toEqual({ [queryParameter]: 'v' });
         });
 
         test('uses _queryParameterValue.value (internal accessor)', () => {
@@ -563,6 +597,60 @@ describe('ParsedArgs', () => {
 
             expect(accessRequested).toBe('r');
             expect(result.success).toBe(allowed);
+        });
+    });
+
+    describe('addMergingExclusion', () => {
+        const exclusion = (queryParameter, value, modifiers = ['not']) => {
+            const item = createMockParsedArgsItem({ queryParameter, modifiers });
+            item.queryParameterValue = new QueryParameterValue({ value, operator: '$or' });
+            return item;
+        };
+        const buildArgs = (...items) => new ParsedArgs({ base_version: '4_0_0', parsedArgItems: items });
+        const notItems = (args, queryParameter) => args.parsedArgItems.filter(
+            (a) => a.queryParameter === queryParameter && a.modifiers.toString() === 'not'
+        );
+
+        test.each([
+            ['overlapping ids are listed once', ['a', 'b'], ['b', 'c'], ['a', 'b', 'c']],
+            ['disjoint ids are all kept', ['a'], ['b'], ['a', 'b']],
+            ['a placeholder from an empty lookup keeps the existing ids', ['a'], ['__invalid__'], ['a', '__invalid__']]
+        ])('keeps both exclusions on the same parameter: %s', (_name, existingIds, addedIds, expected) => {
+            const args = buildArgs(exclusion('_id', existingIds));
+            args.addMergingExclusion(exclusion('_id', addedIds));
+            const items = notItems(args, '_id');
+            expect(items).toHaveLength(1);
+            expect(items[0].queryParameterValue.values).toEqual(expected);
+            expect(items[0].queryParameterValue.operator).toBe('$or');
+        });
+
+        test('add() alone replaces the existing exclusion, which is why this method exists', () => {
+            const args = buildArgs(exclusion('_id', ['a']));
+            args.add(exclusion('_id', ['b']));
+            expect(notItems(args, '_id')[0].queryParameterValue.values).toEqual(['b']);
+        });
+
+        test('adds the item as is when there is no exclusion on that parameter', () => {
+            const args = buildArgs(exclusion('_id', ['a'], []));
+            args.addMergingExclusion(exclusion('_id', ['b']));
+            expect(args.parsedArgItems).toHaveLength(2);
+            expect(notItems(args, '_id')[0].queryParameterValue.values).toEqual(['b']);
+        });
+
+        test('does not merge into an exclusion on another parameter', () => {
+            const args = buildArgs(exclusion('gender', ['a']));
+            args.addMergingExclusion(exclusion('_id', ['b']));
+            expect(notItems(args, 'gender')[0].queryParameterValue.values).toEqual(['a']);
+            expect(notItems(args, '_id')[0].queryParameterValue.values).toEqual(['b']);
+        });
+
+        test.each([
+            ['no modifier', []],
+            ['another modifier', ['missing']],
+            ['a combined modifier', ['not', 'exact']]
+        ])('rejects an item that is not only :not: %s', (_name, modifiers) => {
+            expect(() => buildArgs().addMergingExclusion(exclusion('_id', ['a'], modifiers)))
+                .toThrow('only modifier is not');
         });
     });
 });

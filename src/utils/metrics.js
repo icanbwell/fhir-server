@@ -178,6 +178,12 @@ const VIEW_CONTROL_FAIL_REASON = Object.freeze({
     ERROR: 'error'
 });
 
+// Where a Consent-save cache invalidation failed after its retries.
+const CACHE_INVALIDATION_FAILURE = Object.freeze({
+    INCREMENT: 'increment',
+    LINKED_PATIENT_LOOKUP: 'linked_patient_lookup'
+});
+
 const UNKNOWN = 'unknown';
 
 const SEVERITY_RANK = { error: 3, warning: 2, information: 1 };
@@ -418,6 +424,10 @@ const mongoPoolWaitQueueSizeUpDownCounter = meter.createUpDownCounter('fhir_mong
 
 const viewControlOutcomeCounter = meter.createCounter('fhir_view_control_outcome_total', {
     description: 'Data view control lookups, once per subject per request, by outcome (hidden|no_consent|not_enrolled|no_person|fail_closed), subject (user) and, for fail_closed, reason. hidden / (hidden + no_consent) is how often the block changes a response; fail_closed is a read refused because the Consent could not be checked.'
+});
+
+const everythingCacheInvalidationFailedCounter = meter.createCounter('fhir_everything_cache_invalidation_failed_total', {
+    description: 'Failed attempts to bump an $everything cache generation after a Consent save, after retries, by reason (increment|linked_patient_lookup). Each one leaves a window, up to the cache TTL, in which a cached $everything can still hold what the Consent now hides.'
 });
 
 /**
@@ -799,6 +809,16 @@ function recordViewControlOutcome (outcome, subject, reason) {
     viewControlOutcomeCounter.add(1, labels);
 }
 
+/**
+ * Emit fhir_everything_cache_invalidation_failed_total.
+ * @param {string} reason one of CACHE_INVALIDATION_FAILURE
+ */
+function recordEverythingCacheInvalidationFailed (reason) {
+    everythingCacheInvalidationFailedCounter.add(1, {
+        [LABEL.REASON]: Object.values(CACHE_INVALIDATION_FAILURE).includes(reason) ? reason : UNKNOWN
+    });
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -828,6 +848,7 @@ module.exports = {
     mongoPoolConnectionsInUseUpDownCounter,
     mongoPoolWaitQueueSizeUpDownCounter,
     viewControlOutcomeCounter,
+    everythingCacheInvalidationFailedCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -854,6 +875,7 @@ module.exports = {
     recordMongoPoolConnectionsInUseChange,
     recordMongoPoolWaitQueueSizeChange,
     recordViewControlOutcome,
+    recordEverythingCacheInvalidationFailed,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
@@ -871,6 +893,7 @@ module.exports = {
     VIEW_CONTROL_OUTCOME,
     VIEW_CONTROL_SUBJECT,
     VIEW_CONTROL_FAIL_REASON,
+    CACHE_INVALIDATION_FAILURE,
     IMPORT_RANGE_OUTCOME,
     IMPORT_TASK_STATUS,
     GROUP_MEMBER_MERGE_OUTCOME,
