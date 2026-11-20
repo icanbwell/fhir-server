@@ -12,12 +12,33 @@ const WRITE_ITEM_STATUS = Object.freeze({
 });
 
 /**
+ * An admin operation's description of its change: `kind` is `addLink`, `removeLink` or
+ * `rewritePatientReference`; `target` is the resource being changed, its `id` the id the caller
+ * sent without its prefix (a `_uuid`, a plain `id` or `id|authority`); `linkTarget` is the other
+ * end of the link, or the new Patient, with its `id` as the caller sent it too;
+ * `linkTargetLookup` says when `linkTarget` is looked up, and must then exist and be accessible
+ * (`always`, `whenTargetMissing` or `never`);
+ * `createsMissingTarget` is true only for `createPersonToPatientLink`; `linkTargetAccess` is the
+ * access letter the looked-up `linkTarget` is checked with (`u` for the new Patient of
+ * `updatePatientReference`, `r` for the others).
+ * @typedef {Object} AdminChange
+ * @property {'addLink'|'removeLink'|'rewritePatientReference'} kind
+ * @property {{resourceType: string, id: string}} target
+ * @property {{resourceType: string, id: string}} linkTarget
+ * @property {'always'|'whenTargetMissing'|'never'} linkTargetLookup
+ * @property {boolean} createsMissingTarget
+ * @property {'r'|'u'} [linkTargetAccess]
+ */
+
+/**
  * One resource in a write batch, with the state the steps fill in: the stored document, the built
  * document (`candidate`), the write mode, the hybrid-storage context data, the identity saved
  * before `_` fields are stripped, and its status and failure. `index` is its position in the batch,
  * which the responder orders results by. A PATCH also keeps the JSON Patch operations to apply
  * (`patch`), the writes it makes to Group members (`memberWrites`) and the operations it applied
- * (`appliedPatch`); the steps that fill them are PATCH's own.
+ * (`appliedPatch`); the steps that fill them are PATCH's own. An admin write keeps the description
+ * of its change (`adminChange`) and the resources the change links to (`linked`); the steps that
+ * fill them are the admin operations' own.
  */
 class WriteItem {
     /**
@@ -65,6 +86,17 @@ class WriteItem {
          * @type {Array|null}
          */
         this.appliedPatch = null;
+        /**
+         * The admin operation's description of its change. Null for an operation that is not an
+         * admin write.
+         * @type {AdminChange|null}
+         */
+        this.adminChange = null;
+        /**
+         * The resources looked up for the change's `linkTarget`; empty until a step fills it.
+         * @type {Array<{resourceType: string, resource: Object}>}
+         */
+        this.linked = [];
         /**
          * @type {WriteFailure|null}
          */

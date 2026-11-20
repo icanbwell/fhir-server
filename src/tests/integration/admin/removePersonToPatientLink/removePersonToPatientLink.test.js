@@ -14,6 +14,18 @@ const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHea
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { MockKafkaClient } = require('../../mocks/mockKafkaClient');
 
+const PERSON_UUID = 'cb7e34dd-2684-55ac-a1ad-bb926123ffa1';
+const PATIENT_UUID = 'cb7e34dd-2684-55ac-a1ad-bb926123ffa1';
+
+const patientResource = {
+    resourceType: 'Patient',
+    id: '1',
+    meta: {
+        source: 'test',
+        security: [{ system: 'https://www.icanbwell.com/owner', code: 'test' }]
+    }
+};
+
 describe('Person Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -24,7 +36,7 @@ describe('Person Tests', () => {
     });
 
     describe('Remove person to patient link test', () => {
-        test('person to patient link is removed & added using id', async () => {
+        test('person to patient links are removed & added using uuid', async () => {
             const ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS = process.env.ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS;
             process.env.ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS = '1';
 
@@ -65,8 +77,8 @@ describe('Person Tests', () => {
             resp = await request
                 .post('/admin/removePersonToPatientLink')
                 .send({
-                    personId: 'Person/1',
-                    patientId: 'Patient/1'
+                    personId: `Person/${PERSON_UUID}`,
+                    patientId: `Patient/${PATIENT_UUID}`
                 })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
@@ -101,8 +113,8 @@ describe('Person Tests', () => {
             expect(mockKafkaClient.cloudEventMessages.length).toBe(1);
             expect(mockKafkaClient.cloudEventMessages[0].value).toBe(
                 JSON.stringify({
-                    personId: 'cb7e34dd-2684-55ac-a1ad-bb926123ffa1',
-                    patientId: '1'
+                    personId: PERSON_UUID,
+                    patientId: PATIENT_UUID
                 })
             );
             delete mockKafkaClient.cloudEventMessages[0].headers['ce_time'];
@@ -111,12 +123,18 @@ describe('Person Tests', () => {
 
             mockKafkaClient.cloudEventMessages = [];
 
+            await request
+                .post('/4_0_0/Patient/$merge')
+                .send(patientResource)
+                .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
+                .expect(200);
+
             // Add person to patient link using admin panel
             resp = await request
                 .post('/admin/createPersonToPatientLink')
                 .send({
-                    externalPersonId: 'Person/1',
-                    patientId: 'Patient/1'
+                    externalPersonId: `Person/${PERSON_UUID}`,
+                    patientId: `Patient/${PATIENT_UUID}`
                 })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
                 .expect(200);
@@ -131,8 +149,8 @@ describe('Person Tests', () => {
             expect(mockKafkaClient.cloudEventMessages.length).toBe(1);
             expect(mockKafkaClient.cloudEventMessages[0].value).toBe(
                 JSON.stringify({
-                    personId: 'cb7e34dd-2684-55ac-a1ad-bb926123ffa1',
-                    patientId: '1'
+                    personId: PERSON_UUID,
+                    patientId: PATIENT_UUID
                 })
             );
             delete mockKafkaClient.cloudEventMessages[0].headers['ce_time'];
@@ -217,7 +235,7 @@ describe('Person Tests', () => {
             resp = await request
                 .post('/admin/removePersonToPatientLink')
                 .send({
-                    personId: 'Person/1',
+                    personId: `Person/${PERSON_UUID}`,
                     patientId: 'Patient/0bf61676-9672-50e0-ae12-347ecddca84f'
                 })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))

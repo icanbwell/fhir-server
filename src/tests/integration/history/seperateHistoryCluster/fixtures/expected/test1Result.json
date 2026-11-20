@@ -1,5 +1,5 @@
 {
-  "message": "Removed link from Person/1 to Patient/1",
-  "patientId": "1",
-  "personId": "1"
+  "message": "Removed link from Person/cb7e34dd-2684-55ac-a1ad-bb926123ffa1 to Patient/cb7e34dd-2684-55ac-a1ad-bb926123ffa1",
+  "patientId": "cb7e34dd-2684-55ac-a1ad-bb926123ffa1",
+  "personId": "cb7e34dd-2684-55ac-a1ad-bb926123ffa1"
 }

@@ -15,6 +15,36 @@ const {
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { setTimeout: sleep } = require('node:timers/promises');
 
+const ENCOUNTER_UUID = 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15';
+const PATIENT_1_UUID = 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15';
+const PATIENT_2_UUID = '941f082a-39a9-5f55-9630-5839a010e1bc';
+
+/**
+ * Returns a Patient with the id in the `client` tenant, the tenant of the Encounter fixture.
+ * @param {string} id
+ * @returns {Object}
+ */
+const patientResource = (id) => ({
+    resourceType: 'Patient',
+    id,
+    meta: {
+        source: 'https://www.icanbwell.com',
+        security: [{ system: 'https://www.icanbwell.com/owner', code: 'client' }]
+    }
+});
+
+/**
+ * Stores the Patients with the ids.
+ * @param {import('supertest').SuperTest} request
+ * @param {string[]} ids
+ * @returns {Promise<void>}
+ */
+const storePatientsAsync = async (request, ids) => {
+    for (const id of ids) {
+        await request.post('/4_0_0/Patient/$merge').send(patientResource(id)).set(getHeaders()).expect(200);
+    }
+};
+
 describe('Patient reference tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -25,7 +55,10 @@ describe('Patient reference tests', () => {
     });
 
     describe('Patient reference update', () => {
-        test('Reference update using admin for Encounter with Id', async () => {
+        test.each([
+            ['Id', '1'],
+            ['Id and sourceAssigningAuthority', '1|client']
+        ])('Reference update using admin for Encounter with %s', async (name, resourceId) => {
             const request = await createTestRequest();
 
             let resp = await request
@@ -35,6 +68,7 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
+            await storePatientsAsync(request, ['2']);
 
             resp = await request
                 .get('/4_0_0/Encounter/1')
@@ -44,65 +78,17 @@ describe('Patient reference tests', () => {
             expect(resp).toHaveResponse(expectedEncounterBeforeUpdate);
 
             resp = await request
-                .post('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=1')
+                .post('/admin/updatePatientReference')
                 .send({
                     patientId: '2',
                     resourceType: 'Encounter',
-                    resourceId: '1'
+                    resourceId
                 })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
             expect(resp).toHaveResponse({
-                message: 'Patient reference updated for Encounter with id 1',
-                patientId: '2'
-            });
-
-            resp = await request
-                .get('/4_0_0/Encounter/1')
-                .set(getHeaders())
-                .expect(200);
-
-            expect(resp).toHaveResponse(expectedEncounterAfterUpdate);
-
-            resp = await request
-                .get('/4_0_0/Encounter/1/_history/2')
-                .set(getHeaders())
-                .expect(200);
-
-            expect(resp).toHaveResponse(expectedEncounterAfterUpdate);
-        });
-
-        test('Reference update using admin for Encounter with Id and sourceAssigningAuthority', async () => {
-            const request = await createTestRequest();
-
-            let resp = await request
-                .post('/4_0_0/Encounter/$merge')
-                .send(encounter1Resource)
-                .set(getHeaders())
-                .expect(200);
-
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .get('/4_0_0/Encounter/1')
-                .set(getHeaders())
-                .expect(200);
-
-            expect(resp).toHaveResponse(expectedEncounterBeforeUpdate);
-
-            resp = await request
-                .post('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=1|client')
-                .send({
-                    patientId: '2',
-                    resourceType: 'Encounter',
-                    resourceId: '1|client'
-                })
-                .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
-                .expect(200);
-
-            expect(resp).toHaveResponse({
-                message: 'Patient reference updated for Encounter with id c87b8e53-b3db-53a0-aa92-05f4a3fb9d15',
+                message: `Patient reference updated for Encounter with id ${resourceId}`,
                 patientId: '2'
             });
 
@@ -131,6 +117,7 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
+            await storePatientsAsync(request, ['2']);
 
             resp = await request
                 .get('/4_0_0/Encounter/1')
@@ -140,18 +127,18 @@ describe('Patient reference tests', () => {
             expect(resp).toHaveResponse(expectedEncounterBeforeUpdate);
 
             resp = await request
-                .post('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')
+                .post('/admin/updatePatientReference')
                 .send({
-                    patientId: '2',
+                    patientId: PATIENT_2_UUID,
                     resourceType: 'Encounter',
-                    resourceId: 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
+                    resourceId: ENCOUNTER_UUID
                 })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
             expect(resp).toHaveResponse({
-                message: 'Patient reference updated for Encounter with id c87b8e53-b3db-53a0-aa92-05f4a3fb9d15',
-                patientId: '2'
+                message: `Patient reference updated for Encounter with id ${ENCOUNTER_UUID}`,
+                patientId: PATIENT_2_UUID
             });
 
             resp = await request
@@ -177,16 +164,17 @@ describe('Patient reference tests', () => {
                 .send(encounter1Resource)
                 .set(getHeaders())
                 .expect(200);
+            await storePatientsAsync(request, ['2']);
 
             const before = await request.get('/4_0_0/Encounter/1').set(getHeaders()).expect(200);
             await sleep(20);
 
             await request
-                .post('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15')
+                .post('/admin/updatePatientReference')
                 .send({
-                    patientId: '2',
+                    patientId: PATIENT_2_UUID,
                     resourceType: 'Encounter',
-                    resourceId: 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
+                    resourceId: ENCOUNTER_UUID
                 })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
@@ -211,6 +199,7 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
+            await storePatientsAsync(request, ['1']);
 
             resp = await request
                 .get('/4_0_0/Encounter/1')
@@ -222,16 +211,16 @@ describe('Patient reference tests', () => {
             resp = await request
                 .post('/admin/updatePatientReference')
                 .send({
-                    patientId: '1',
+                    patientId: PATIENT_1_UUID,
                     resourceType: 'Encounter',
-                    resourceId: '1'
+                    resourceId: ENCOUNTER_UUID
                 })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
                 .expect(200);
 
             expect(resp).toHaveResponse({
-                message: 'Couldn\'t update Patient reference in Encounter with id 1',
-                patientId: '1'
+                message: `Couldn't update Patient reference in Encounter with id ${ENCOUNTER_UUID}`,
+                patientId: PATIENT_1_UUID
             });
 
             resp = await request
@@ -255,18 +244,27 @@ describe('Patient reference tests', () => {
                 .set(getHeaders())
                 .expect(404);
 
+            await storePatientsAsync(request, ['2']);
+
             resp = await request
                 .post('/admin/updatePatientReference')
                 .send({
-                    patientId: '2',
+                    patientId: PATIENT_2_UUID,
                     resourceType: 'Encounter',
-                    resourceId: 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
+                    resourceId: ENCOUNTER_UUID
                 })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
-                .expect(200);
+                .expect(404);
 
             expect(resp).toHaveResponse({
-                message: 'Encounter with id c87b8e53-b3db-53a0-aa92-05f4a3fb9d15 does not exist'
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'not-found',
+                        details: { text: `Resource not found: Encounter/${ENCOUNTER_UUID}` }
+                    }
+                ]
             });
         });
 
@@ -280,6 +278,7 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
+            await storePatientsAsync(request, ['2']);
 
             resp = await request
                 .get('/4_0_0/Encounter/1')
@@ -289,18 +288,18 @@ describe('Patient reference tests', () => {
             expect(resp).toHaveResponse(expectedEncounterBeforeUpdate);
 
             resp = await request
-                .post('/admin/updatePatientReference?patientId=2&resourceType=Encounter&resourceId=1')
+                .post('/admin/updatePatientReference')
                 .send({
-                    patientId: '2',
+                    patientId: PATIENT_2_UUID,
                     resourceType: 'Encounter',
-                    resourceId: '1'
+                    resourceId: ENCOUNTER_UUID
                 })
                 .set(getHeadersWithCustomToken('user/*.* access/client1.* admin/*.*'))
                 .expect(200);
 
             expect(resp).toHaveResponse({
-                message: 'Patient reference updated for Encounter with id 1',
-                patientId: '2'
+                message: `Patient reference updated for Encounter with id ${ENCOUNTER_UUID}`,
+                patientId: PATIENT_2_UUID
             });
 
             resp = await request
@@ -328,6 +327,7 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
+            await storePatientsAsync(request, ['2']);
 
             resp = await request
                 .get('/4_0_0/Encounter/1')
@@ -339,16 +339,16 @@ describe('Patient reference tests', () => {
             resp = await request
                 .post('/admin/updatePatientReference')
                 .send({
-                    patientId: '2',
+                    patientId: PATIENT_2_UUID,
                     resourceType: 'Encounter',
-                    resourceId: '1'
+                    resourceId: ENCOUNTER_UUID
                 })
                 .set(getHeadersWithCustomToken('user/Task.* access/client1.* admin/*.*'))
                 .expect(200);
 
             expect(resp).toHaveResponse({
-                message: 'Patient reference updated for Encounter with id 1',
-                patientId: '2'
+                message: `Patient reference updated for Encounter with id ${ENCOUNTER_UUID}`,
+                patientId: PATIENT_2_UUID
             });
 
             resp = await request
@@ -376,10 +376,19 @@ describe('Patient reference tests', () => {
                     resourceId: 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
                 })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
-                .expect(200);
+                .expect(400);
 
             expect(resp).toHaveResponse({
-                message: 'No resourceId: c87b8e53-b3db-53a0-aa92-05f4a3fb9d15 or resourceType: Encounter or patientId: undefined passed'
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'Missing required parameter(s): patientId'
+                        }
+                    }
+                ]
             });
 
             resp = await request
@@ -389,10 +398,19 @@ describe('Patient reference tests', () => {
                     resourceId: 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
                 })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
-                .expect(200);
+                .expect(400);
 
             expect(resp).toHaveResponse({
-                message: 'No resourceId: c87b8e53-b3db-53a0-aa92-05f4a3fb9d15 or resourceType: undefined or patientId: 2 passed'
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'Missing required parameter(s): resourceType'
+                        }
+                    }
+                ]
             });
 
             resp = await request
@@ -402,10 +420,19 @@ describe('Patient reference tests', () => {
                     patientId: '2'
                 })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
-                .expect(200);
+                .expect(400);
 
             expect(resp).toHaveResponse({
-                message: 'No resourceId: undefined or resourceType: Encounter or patientId: 2 passed'
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'Missing required parameter(s): resourceId'
+                        }
+                    }
+                ]
             });
         });
 
@@ -420,10 +447,19 @@ describe('Patient reference tests', () => {
                     resourceId: '1'
                 })
                 .set(getHeadersWithCustomToken('user/*.* access/*.* admin/*.*'))
-                .expect(200);
+                .expect(400);
 
             expect(resp).toHaveResponse({
-                message: 'ResourceType Test not supported'
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'ResourceType Test not supported'
+                        }
+                    }
+                ]
             });
         });
 
