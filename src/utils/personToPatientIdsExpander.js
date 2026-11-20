@@ -588,7 +588,7 @@ class PersonToPatientIdsExpander {
                 if (!personIdsWithOwnerRecorded.has(requestedPersonId)) {
                     httpContext.set(
                         `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${requestedPersonId}`,
-                        HTTP_CONTEXT_KEYS.PERSON_OWNER_NOT_FOUND
+                        HTTP_CONTEXT_KEYS.PERSON_NOT_FOUND_MARKER
                     );
                 }
             }

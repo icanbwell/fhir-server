@@ -72,7 +72,7 @@ describe('PersonToPatientIdsExpander — Person owner recorded in httpContext', 
             [[ownerKey, null]]
         ],
         ['null for a Person with no meta', [{ _uuid: PERSON_ID }], [[ownerKey, null]]],
-        ['the not-found sentinel for a Person that was not found', [], [[ownerKey, HTTP_CONTEXT_KEYS.PERSON_OWNER_NOT_FOUND]]]
+        ['the not-found sentinel for a Person that was not found', [], [[ownerKey, HTTP_CONTEXT_KEYS.PERSON_NOT_FOUND_MARKER]]]
     ])('records %s', async (_name, persons, expectedOwnerWrites) => {
         const setSpy = jestGlobal.spyOn(httpContext, 'set').mockImplementation(() => {});
         const databaseQueryManager = { findAsync: jestGlobal.fn(async () => createCursor(persons)) };
