@@ -983,6 +983,53 @@ describe('dataConnectionViewControl Consent on REST search/read and GraphQL v1',
             expect(hasUnblocked(hidden)).toBe(false);
         });
 
+        describe('a caller that can read the Person but whose access scopes do not cover its owner', () => {
+            // The Consent search runs under the caller's own access filter, so such a caller could not
+            // find the Consent and would get an unfiltered record. It is refused instead.
+            const OTHER_TENANT = 'othertenant';
+            const callerHeaders = (scope) => getHeaders(`user/*.read ${scope}`);
+
+            // make the Person readable by a second tenant, leaving its owner (healthsystem1) as is
+            beforeEach(async () => {
+                const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
+                const result = await db.collection('Person_4_0_0').updateOne(
+                    { _uuid: PERSON_ID },
+                    { $push: { 'meta.security': { system: 'https://www.icanbwell.com/access', code: OTHER_TENANT } } }
+                );
+                expect(result.modifiedCount).toBe(1);
+            });
+
+            test('an enrolled owner is a 403 with no data, not an unfiltered record', async () => {
+                const resp = await personEverything(OPT_IN, callerHeaders(`access/${OTHER_TENANT}.read`));
+                expect(resp.status).toBe(403);
+                expect(resp.body.resourceType).toBe('OperationOutcome');
+                expect(hasBlocked(resp)).toBe(false);
+                expect(hasUnblocked(resp)).toBe(false);
+                // names neither the Person nor the owner tenant
+                const text = JSON.stringify(resp.body);
+                expect(text).not.toContain(PERSON_ID);
+                expect(text).not.toContain('healthsystem1');
+            });
+
+            test('the wildcard access scope applies the block', async () => {
+                const resp = await personEverything(OPT_IN, callerHeaders('access/*.read'));
+                expect(resp.status).toBe(200);
+                expect(hasUnblocked(resp)).toBe(true);
+                expect(hasBlocked(resp)).toBe(false);
+            });
+
+            test('an owner that is not enrolled is not refused', async () => {
+                process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'some-other-client';
+                const resp = await personEverything(OPT_IN, callerHeaders(`access/${OTHER_TENANT}.read`));
+                expect(resp.status).toBe(200);
+            });
+
+            test('without the opt-in the same caller is not refused', async () => {
+                const resp = await personEverything('', callerHeaders(`access/${OTHER_TENANT}.read`));
+                expect(resp.status).toBe(200);
+            });
+        });
+
         test('more than one Person id with the opt-in is a 400, checked before visibility', async () => {
             const resp = await request
                 .get(`/4_0_0/Person/${PERSON_ID},00000000-0000-5000-8000-000000000000/$everything?${OPT_IN}`)
