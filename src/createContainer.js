@@ -78,6 +78,7 @@ const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 const {PatientFilterManager} = require('./fhir/patientFilterManager');
 const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
 const {AdminResourceWriter} = require('./admin/adminResourceWriter');
+const { AdminWriteRunner } = require('./admin/adminWriteRunner');
 const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
 const {KafkaClient} = require('./utils/kafkaClient');
 const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
@@ -170,17 +171,22 @@ const { SourceIdentityResolver } = require('./operations/writePipeline/steps/ide
 const { UrlIdentityResolver } = require('./operations/writePipeline/steps/identify/urlIdentityResolver');
 const { BulkPreloadLoader } = require('./operations/writePipeline/steps/load/bulkPreloadLoader');
 const { SearchExistingLoader } = require('./operations/writePipeline/steps/load/searchExistingLoader');
+const { AccessFilteredFinder } = require('./operations/writePipeline/steps/load/accessFilteredFinder');
+const { AdminTargetLoader } = require('./operations/writePipeline/steps/load/adminTargetLoader');
 const { PrepareBodyStep } = require('./operations/writePipeline/steps/prepareBodyStep');
 const { ValidateIncomingStep } = require('./operations/writePipeline/steps/validateIncomingStep');
 const { AccessCheckStep } = require('./operations/writePipeline/steps/accessCheckStep');
 const { IncomingAndStoredAccessChecker } = require('./operations/writePipeline/steps/access/incomingAndStoredAccessChecker');
 const { AccessTagChangeChecker } = require('./operations/writePipeline/steps/access/accessTagChangeChecker');
 const { StoredAccessChecker } = require('./operations/writePipeline/steps/access/storedAccessChecker');
+const { AdminTargetsAccessChecker } = require('./operations/writePipeline/steps/access/adminTargetsAccessChecker');
+const { AdminResultAccessChecker } = require('./operations/writePipeline/steps/access/adminResultAccessChecker');
 const { BuildDocumentStep } = require('./operations/writePipeline/steps/buildDocumentStep');
 const { SmartMergeBuilder } = require('./operations/writePipeline/steps/build/smartMergeBuilder');
 const { InsertBuilder } = require('./operations/writePipeline/steps/build/insertBuilder');
 const { ReplaceBuilder } = require('./operations/writePipeline/steps/build/replaceBuilder');
 const { PatchBuilder } = require('./operations/writePipeline/steps/build/patchBuilder');
+const { AdminBuilder } = require('./operations/writePipeline/steps/build/adminBuilder');
 const { ValidateResultStep } = require('./operations/writePipeline/steps/validateResultStep');
 const { ValidateAgainstStoredStep } = require('./operations/writePipeline/steps/validateAgainstStoredStep');
 const { ValidateUpdateResultStep } = require('./operations/writePipeline/steps/validateUpdateResultStep');
@@ -194,11 +200,16 @@ const { MERGE_WRITE_PROFILE } = require('./operations/writePipeline/operations/m
 const { CREATE_WRITE_PROFILE } = require('./operations/writePipeline/operations/create/profile');
 const { UPDATE_WRITE_PROFILE } = require('./operations/writePipeline/operations/update/profile');
 const { PATCH_WRITE_PROFILE } = require('./operations/writePipeline/operations/patch/profile');
+const {
+    ADMIN_LINK_WRITE_PROFILE,
+    ADMIN_PATIENT_REFERENCE_WRITE_PROFILE
+} = require('./operations/writePipeline/operations/admin/profile');
 const { MergeResponder } = require('./operations/writePipeline/operations/merge/responder');
 const { MergeStream } = require('./operations/writePipeline/operations/merge/mergeStream');
 const { CreateResponder } = require('./operations/writePipeline/operations/create/responder');
 const { UpdateResponder } = require('./operations/writePipeline/operations/update/responder');
 const { PatchResponder } = require('./operations/writePipeline/operations/patch/responder');
+const { AdminResponder } = require('./operations/writePipeline/operations/admin/responder');
 const { GroupMemberPatchStrategy } = require('./operations/patch/strategies/groupMemberPatchStrategy');
 const { WriteAuditor } = require('./operations/writePipeline/writeAuditor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
@@ -746,6 +757,51 @@ const createContainer = function () {
         postRequestProcessor: c.postRequestProcessor
     }));
 
+    container.register('accessFilteredFinder', (c) => new AccessFilteredFinder({
+        searchManager: c.searchManager,
+        databaseQueryFactory: c.databaseQueryFactory,
+        configManager: c.configManager
+    }));
+
+    container.register('adminTargetLoader', (c) => new AdminTargetLoader({
+        accessFilteredFinder: c.accessFilteredFinder,
+        r4ArgsParser: c.r4ArgsParser
+    }));
+
+    container.register('adminTargetsAccessChecker', (c) => new AdminTargetsAccessChecker({
+        storedAccessChecker: new StoredAccessChecker({ scopesValidator: c.scopesValidator }),
+        scopesValidator: c.scopesValidator
+    }));
+
+    container.register('adminResultAccessChecker', (c) => new AdminResultAccessChecker({
+        scopesValidator: c.scopesValidator,
+        accessTagChangeChecker: new AccessTagChangeChecker({ scopesValidator: c.scopesValidator })
+    }));
+
+    container.register('adminBuilder', (c) => new AdminBuilder({
+        insertBuilder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger }),
+        smartMergeBuilder: new SmartMergeBuilder({
+            preSaveManager: c.preSaveManager,
+            resourceMerger: c.resourceMerger,
+            configManager: c.configManager,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
+            groupMemberMerger: c.groupMemberMerger
+        }),
+        replaceBuilder: new ReplaceBuilder({
+            resourceMerger: c.resourceMerger,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
+            postSaveHandlerFactory: c.postSaveHandlerFactory,
+            insertBuilder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger }),
+            groupMemberMerger: c.groupMemberMerger
+        }),
+        patientFilterManager: c.patientFilterManager,
+        databaseAttachmentManager: c.databaseAttachmentManager,
+        base64DataManager: c.base64DataManager,
+        resourceValidator: c.resourceValidator
+    }));
+
     container.register('writePipeline', (c) => new WritePipeline({
         scopeCheckStep: new ScopeCheckStep({ scopesValidator: c.scopesValidator }),
         identifyStep: new IdentifyStep({
@@ -811,7 +867,8 @@ const createContainer = function () {
                         databaseQueryFactory: c.databaseQueryFactory,
                         configManager: c.configManager
                     })
-                })
+                }),
+                adminTargets: new FindExistingStep({ existingResourceLoader: c.adminTargetLoader })
             },
             identify: {
                 url: new IdentifyStep({
@@ -825,7 +882,8 @@ const createContainer = function () {
             accessBeforeBuild: {
                 stored: new AccessCheckStep({
                     accessChecker: new StoredAccessChecker({ scopesValidator: c.scopesValidator })
-                })
+                }),
+                adminTargets: new AccessCheckStep({ accessChecker: c.adminTargetsAccessChecker })
             },
             buildDocument: {
                 insert: new BuildDocumentStep({
@@ -853,13 +911,25 @@ const createContainer = function () {
                         base64DataManager: c.base64DataManager
                     }),
                     configManager: c.configManager
+                }),
+                admin: new BuildDocumentStep({
+                    builder: c.adminBuilder,
+                    configManager: c.configManager
                 })
             },
             validateResult: {
                 update: new ValidateUpdateResultStep({
                     resourceValidator: c.resourceValidator,
                     configManager: c.configManager
+                }),
+                adminPatientReference: new ValidateResultStep({
+                    resourceValidator: c.resourceValidator,
+                    configManager: c.configManager,
+                    checkPatientReference: false
                 })
+            },
+            accessOnResult: {
+                admin: new AccessCheckStep({ accessChecker: c.adminResultAccessChecker })
             },
             attachments: {
                 alwaysCreateNew: new AttachmentsStep({
@@ -893,7 +963,14 @@ const createContainer = function () {
                 })
             }
         },
-        profiles: [MERGE_WRITE_PROFILE, CREATE_WRITE_PROFILE, UPDATE_WRITE_PROFILE, PATCH_WRITE_PROFILE],
+        profiles: [
+            MERGE_WRITE_PROFILE,
+            CREATE_WRITE_PROFILE,
+            UPDATE_WRITE_PROFILE,
+            PATCH_WRITE_PROFILE,
+            ADMIN_LINK_WRITE_PROFILE,
+            ADMIN_PATIENT_REFERENCE_WRITE_PROFILE
+        ],
         databaseBulkInserter: c.fastDatabaseBulkInserter,
         writeAuditor: c.writeAuditor,
         fhirLoggingManager: c.fhirLoggingManager,
@@ -930,6 +1007,8 @@ const createContainer = function () {
         identifierEnrichmentProvider: c.identifierEnrichmentProvider,
         groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
     }));
+
+    container.register('adminResponder', () => new AdminResponder());
 
     container.register('mergeStream', (c) => new MergeStream({
         mergeResponder: c.mergeResponder,
@@ -1462,6 +1541,14 @@ const createContainer = function () {
         requestSpecificCache: c.requestSpecificCache
     }));
 
+    container.register('adminWriteRunner', (c) => new AdminWriteRunner({
+        fhirOperationsManager: c.fhirOperationsManager,
+        writePipeline: c.writePipeline,
+        adminResponder: c.adminResponder,
+        postRequestProcessor: c.postRequestProcessor,
+        requestSpecificCache: c.requestSpecificCache
+    }));
+
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
         databaseQueryFactory: c.databaseQueryFactory,
         adminResourceWriter: c.adminResourceWriter,
@@ -1469,7 +1556,9 @@ const createContainer = function () {
         postSaveProcessor: c.postSaveProcessor,
         patientFilterManager: c.patientFilterManager,
         removeHelper: c.removeHelper,
-        patientPersonManualLinkingEventProducer: c.patientPersonManualLinkingEventProducer
+        patientPersonManualLinkingEventProducer: c.patientPersonManualLinkingEventProducer,
+        writePipelineSwitch: c.writePipelineSwitch,
+        adminWriteRunner: c.adminWriteRunner
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({

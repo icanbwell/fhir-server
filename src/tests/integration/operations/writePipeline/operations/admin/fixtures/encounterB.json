@@ -1,0 +1,25 @@
+{
+  "resourceType": "Encounter",
+  "id": "admin-encounter-b",
+  "meta": {
+    "source": "https://example.com/admin-tests/tenant-b",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "tenant-b"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "tenant-b"
+      }
+    ]
+  },
+  "status": "finished",
+  "class": {
+    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+    "code": "AMB"
+  },
+  "subject": {
+    "reference": "Patient/admin-patient-b"
+  }
+}

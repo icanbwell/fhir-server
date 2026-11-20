@@ -61,12 +61,23 @@ differences are plain data next to each other.
   (`accessBeforeBuild.stored`), the JSON Patch build (`buildDocument.patch`), an attachments step
   that always uploads a new base64 object (`attachments.alwaysCreateNew`) and a writer
   (`PatchWriter`, `write.patch`). It turns off the steps that read a resource body, because its
-  body is a JSON Patch.
+  body is a JSON Patch. Admin has two profiles under the one switch value `admin`: `adminLink` (the
+  four link operations) and `adminPatientReference` (`updatePatientReference`). Both turn off the
+  scope check (the route asserts the admin scope) and the steps that read or compare a resource
+  body, and use four variants: `findExisting.adminTargets` and `accessBeforeBuild.adminTargets`
+  (the target and the linked resources through the access filter, with `u` on the target and
+  `r` on a linked resource, except `u` on the new Patient of `updatePatientReference`; the
+  Person of `createPersonToPatientLink` is looked up with `r` and checked with `u`, so one the
+  caller can read but not update is a 403, not a second Person), `buildDocument.admin`
+  (`AdminBuilder`, which composes the insert, smart merge and replace builders) and
+  `accessOnResult.admin` (the full check with `c` for a created Person).
+  `adminPatientReference` adds `validateResult.adminPatientReference`, which turns the validator's
+  patient-reference check off for that one operation.
 - Step 10 is `accessOnResult`. It checks that the caller may make the access-tag changes between
   the stored and the built document, and runs after `validateResult`. Its default checker is on for
   PATCH, whose access tags are known only after the build, and off for POST, PUT and `$merge`,
-  which check the change before the build. `$import` keeps it off when it ships, and admin gets its
-  own variant later.
+  which check the change before the build. `$import` keeps it off when it ships, and admin has its
+  own variant, `accessOnResult.admin`.
 - A writer may have an optional `afterFlushAsync` hook. `WriteStep.afterFlushAsync` calls it, and
   `WritePipeline.runAsync` calls that once after the flush, the results and the audit, so a write
   the flush committed is audited even if the hook throws. The default writers have none, and a
@@ -77,6 +88,11 @@ differences are plain data next to each other.
   new live key every time, as today. POST, PUT and `$merge` keep the default.
 - A responder (`writePipeline/operations/<operation>/responder.js`) turns the item results into the
   operation's response and records its metrics. The shared `WriteAuditor` writes the audit events.
+- The admin operations carry ids, not a resource body. `AdminWriteRunner`
+  (`src/admin/adminWriteRunner.js`) runs one as its own request, with a fresh request id, the ids
+  in `requestInfo.body`, the post-request queue drained on success and the request cache cleared in
+  `finally`. `AdminResponder` reads the ids into one stub item and builds the response from the
+  operation table `ADMIN_OPERATIONS`, so a sixth admin operation is a new entry in that table.
 - Streaming (NDJSON) `$merge` keeps its transport out of `WritePipeline`, because no other
   operation streams: `$import` reads its files and flushes its batches itself. The stream stays in
   `MergeOperation.mergeAsyncStream` and `insertAndLog` for both paths; they take a stream handler
@@ -97,6 +113,8 @@ differences are plain data next to each other.
 - Good, because each operation can be rolled back on its own by removing its name from
   `WRITE_PIPELINE_OPERATIONS`.
 - Good, because the profiles show every kept difference between the operations in one folder.
+- Good, because PATCH and the admin operations share one access-filtered lookup,
+  `AccessFilteredFinder`, instead of each building the query.
 - Bad, because the old and the new path both exist until every switch has been on everywhere, so
   a fix to a write flow may have to be made twice in that time.
 - Bad, because the step order is fixed: a request that fails two checks can get a different one of
@@ -111,6 +129,8 @@ differences are plain data next to each other.
   together.
 - Bad, because tests that pin an accepted difference need two versions while both paths exist: the
   test updated to the new behavior, and an `oldWrite` copy that runs the old path.
+- Bad, because the old `AdminResourceWriter` stays: the admin deletes, including their link
+  cleanup, still use it, and so do the admin operations while the switch is off.
 - Bad, because both paths share the stream in `mergeAsyncStream`, so a fix to it, or a bug in it,
   reaches both: turning the switch off moves only the per-line merge and the flush back. The
   streaming audit fix (each result audited once) is such a fix, so it changes the old path too.
@@ -122,6 +142,9 @@ differences are plain data next to each other.
   `src/tests/integration/operations/writePipeline/operations/create/`,
   `src/tests/integration/operations/writePipeline/operations/update/` and
   `src/tests/integration/operations/writePipeline/operations/patch/`).
+- The admin operations have their own integration tests on the new path
+  (`src/tests/integration/operations/writePipeline/operations/admin/`), and six `oldWrite` copies of
+  existing admin tests keep the old path covered.
 - The main CI job runs the whole suite with the shipped switches on (`jest/setEnvVars.js`). Tests
   that fail only on an accepted difference are updated and get an `oldWrite<Name>.test.js` copy
   that turns the switch off. No test is skipped.

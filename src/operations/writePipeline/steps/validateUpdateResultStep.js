@@ -9,6 +9,8 @@ const { WriteContext } = require('../writeContext');
  * validates an update's built document with the meta check only. A new document is validated in
  * full, as `ValidateResultStep` does. Like `validateAgainstStored`, it can be removed once GridFS
  * attachments are removed, and then `ValidateResultStep` validates an update in full again.
+ * `checkPatientReference` is honored only on inserts, because its update override never calls
+ * `validateResourceAsync`.
  */
 class ValidateUpdateResultStep extends ValidateResultStep {
     /**

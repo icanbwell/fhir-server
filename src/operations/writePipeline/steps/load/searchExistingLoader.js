@@ -1,15 +1,12 @@
-const { assertTypeEquals } = require('../../../../utils/assertType');
 const { SearchManager } = require('../../../search/searchManager');
 const { DatabaseQueryFactory } = require('../../../../dataLayer/databaseQueryFactory');
 const { ConfigManager } = require('../../../../utils/configManager');
-const { FhirResourceWriteSerializer } = require('../../../../fhir/fhirResourceWriteSerializer');
-const { isTrue } = require('../../../../utils/isTrue');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 const { BadRequestError, NotFoundError } = require('../../../../utils/httpErrors');
-const { OPERATIONS: { WRITE } } = require('../../../../constants');
 const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../writeFailure');
 const { WriteItem } = require('../../writeItem');
 const { WriteContext } = require('../../writeContext');
+const { AccessFilteredFinder } = require('./accessFilteredFinder');
 
 /**
  * The existing-resource loader for the `findExisting` step of PATCH, once for the batch: finds each
@@ -18,7 +15,8 @@ const { WriteContext } = require('../../writeContext');
  * `{ resourceType, id }` from the URL, where `id` may be the uuid. On a single match it sets the
  * item's `stored` to the write-serialized document and copies its identity (`id`, `_uuid` and
  * `_sourceAssigningAuthority`) onto `incoming`, so a later failure names the stored document.
- * With no match, or more than one, it fails the item at the `LOOKUP` stage with the error.
+ * With no match, or more than one, it fails the item at the `LOOKUP` stage with the error. The
+ * search itself is the `AccessFilteredFinder`'s.
  */
 class SearchExistingLoader {
     /**
@@ -28,20 +26,13 @@ class SearchExistingLoader {
      */
     constructor ({ searchManager, databaseQueryFactory, configManager }) {
         /**
-         * @type {SearchManager}
+         * @type {AccessFilteredFinder}
          */
-        this.searchManager = searchManager;
-        assertTypeEquals(searchManager, SearchManager);
-        /**
-         * @type {DatabaseQueryFactory}
-         */
-        this.databaseQueryFactory = databaseQueryFactory;
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
+        this.accessFilteredFinder = new AccessFilteredFinder({
+            searchManager,
+            databaseQueryFactory,
+            configManager
+        });
     }
 
     /**
@@ -67,30 +58,17 @@ class SearchExistingLoader {
      */
     async _loadItemAsync ({ item, context }) {
         const { requestInfo, base_version, parsedArgs } = context;
-        const { user, scope, isUser, personIdFromJwtToken } = requestInfo;
         const { resourceType } = item.incoming;
         const { id } = parsedArgs;
-        const useAccessIndex = this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex);
 
-        const { query } = await this.searchManager.constructQueryAsync({
-            user,
-            scope,
-            isUser,
+        const resources = await this.accessFilteredFinder.findAsync({
+            requestInfo,
+            base_version,
             resourceType,
-            useAccessIndex,
-            personIdFromJwtToken,
             parsedArgs,
-            operation: WRITE,
-            accessRequested: 'u'
+            accessRequested: 'u',
+            currentOperationName: 'patch'
         });
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
-        const cursor = await databaseQueryManager.findAsync({
-            query,
-            extraInfo: { currentOperationName: 'patch' }
-        });
-        const resources = (await cursor.toArrayAsync()).map(
-            (resource) => FhirResourceWriteSerializer.serialize({ obj: resource })
-        );
 
         if (resources.length > 1) {
             item.fail({ failure: this._lookupFailure({ item, error: this._multipleFoundError({ id, resources }) }) });
