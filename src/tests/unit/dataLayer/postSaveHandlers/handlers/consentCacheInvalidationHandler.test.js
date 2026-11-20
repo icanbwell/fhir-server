@@ -171,6 +171,29 @@ describe('ConsentCacheInvalidationHandler', () => {
             ]);
         });
 
+        it('bumps every linked Patient of a Person with many, at most 10 at a time', async () => {
+            const patientUuids = Array.from({ length: 25 }, (_, i) => `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`);
+            mockPersonToPatientIdsExpander.getAllRelatedPatients.mockResolvedValue(patientUuids);
+            let inFlight = 0;
+            let maxInFlight = 0;
+            mockRedisManager.incrementGenerationAsync = jest.fn().mockImplementation(async (key) => {
+                inFlight++;
+                maxInFlight = Math.max(maxInFlight, inFlight);
+                await new Promise((resolve) => setTimeout(resolve, 5));
+                inFlight--;
+                bumpedKeys.push(key);
+            });
+
+            await runHandler(viewControlConsent());
+
+            const patientKeys = bumpedKeys.filter((key) => key.startsWith('Patient:'));
+            expect(patientKeys.sort()).toEqual(
+                patientUuids.map((uuid) => `Patient:${uuid}:Everything:Generation`).sort()
+            );
+            expect(maxInFlight).toBeLessThanOrEqual(10);
+            expect(maxInFlight).toBeGreaterThan(1);
+        });
+
         it.each(['U', 'D'])('does the same for an event of type %s', async (eventType) => {
             await handler.afterSaveAsync({ requestId: 'r1', eventType, resourceType: 'Consent', doc: viewControlConsent() });
 

@@ -1,3 +1,4 @@
+const async = require('async');
 const { BasePostSaveHandler } = require('../../../utils/basePostSaveHandler');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { RedisManager } = require('../../../utils/redisManager');
@@ -17,12 +18,35 @@ const { recordEverythingCacheInvalidationFailed, CACHE_INVALIDATION_FAILURE } = 
 // given up on and counted. The handler runs after the response is sent, so the wait costs no request.
 const BUMP_MAX_RETRIES = 3;
 const BUMP_INITIAL_DELAY_MS = 100;
+// Most generation keys bumped at once for the Patients linked to one Person, so a Person linked to a
+// very large number of Patients neither takes one retry-wait per key in turn nor floods Redis.
+const LINKED_PATIENT_BUMP_CONCURRENCY = 10;
+
+/**
+ * Whose cache a generation counter belongs to: the part of the key before the uuid.
+ * @readonly
+ * @enum {string}
+ */
+const CACHE_OWNER = Object.freeze({
+    PATIENT: 'Patient',
+    CLIENT_PERSON: 'ClientPerson'
+});
+
+/**
+ * Which cache a generation counter belongs to: the part of the key after the uuid.
+ * @readonly
+ * @enum {string}
+ */
+const CACHE_KIND = Object.freeze({
+    EVERYTHING: 'Everything',
+    SUMMARY: 'Summary'
+});
 
 /**
  * The Redis key of a cache generation counter, e.g. `ClientPerson:<uuid>:Everything:Generation`.
- * @param {'Patient'|'ClientPerson'} owner
+ * @param {CACHE_OWNER} owner
  * @param {string} uuid
- * @param {'Everything'|'Summary'} cache
+ * @param {CACHE_KIND} cache
  * @return {string}
  */
 function generationKey(owner, uuid, cache) {
@@ -183,7 +207,7 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
                 return;
             }
 
-            await this.incrementGenerationAsync(generationKey('Patient', patientUuid, 'Everything'), {
+            await this.incrementGenerationAsync(generationKey(CACHE_OWNER.PATIENT, patientUuid, CACHE_KIND.EVERYTHING), {
                 requestId, consentId: doc.id
             });
 
@@ -223,7 +247,7 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
                 }
 
                 for (const personUuid of personUuidsToBump) {
-                    await this.incrementGenerationAsync(generationKey('ClientPerson', personUuid, 'Everything'), {
+                    await this.incrementGenerationAsync(generationKey(CACHE_OWNER.CLIENT_PERSON, personUuid, CACHE_KIND.EVERYTHING), {
                         requestId, consentId: doc.id, patientUuid
                     });
                 }
@@ -269,14 +293,14 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
         const logContext = { requestId, consentId: doc.id };
         const isViewControl = this.isDataViewControlConsent(doc);
         if (everythingCacheOn) {
-            await this.incrementGenerationAsync(generationKey('ClientPerson', personUuid, 'Everything'), logContext);
+            await this.incrementGenerationAsync(generationKey(CACHE_OWNER.CLIENT_PERSON, personUuid, CACHE_KIND.EVERYTHING), logContext);
             if (isViewControl) {
                 await this.bumpLinkedPatientGenerationsAsync({ personUuid, requestId, consentId: doc.id });
             }
         }
         // a user's cached $summary leaves out what their view control Consent hides
         if (summaryCacheOn && isViewControl) {
-            await this.incrementGenerationAsync(generationKey('ClientPerson', personUuid, 'Summary'), logContext);
+            await this.incrementGenerationAsync(generationKey(CACHE_OWNER.CLIENT_PERSON, personUuid, CACHE_KIND.SUMMARY), logContext);
         }
     }
 
@@ -315,11 +339,12 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
             const patientUuids = new Set(
                 relatedIds.filter((id) => !id.startsWith(PERSON_PROXY_PREFIX) && isUuid(id))
             );
-            for (const patientUuid of patientUuids) {
-                await this.incrementGenerationAsync(generationKey('Patient', patientUuid, 'Everything'), {
+            // incrementGenerationAsync retries and never throws, so one failed key doesn't stop the rest
+            await async.eachLimit(patientUuids, LINKED_PATIENT_BUMP_CONCURRENCY, async (patientUuid) => {
+                await this.incrementGenerationAsync(generationKey(CACHE_OWNER.PATIENT, patientUuid, CACHE_KIND.EVERYTHING), {
                     requestId, consentId, personUuid
                 });
-            }
+            });
         } catch (error) {
             recordEverythingCacheInvalidationFailed(CACHE_INVALIDATION_FAILURE.LINKED_PATIENT_LOOKUP);
             logError('ConsentCacheInvalidationHandler: failed to look up linked Patients for view control cache invalidation; ' +
