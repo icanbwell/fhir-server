@@ -512,4 +512,98 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
             expect(idsOf(resp.body)).toEqual([]);
         });
     });
+
+    // The $everything cache holds entries from before the request-specific filtering, so a replay must
+    // apply the caller's current Consent, and each user needs an entry of their own.
+    describe('$everything Redis cache', () => {
+        const REDIS_FLAGS = [
+            'ENABLE_REDIS',
+            'ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION',
+            'ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION'
+        ];
+        // uuid of Person/person-with-common-patient, a second user linked to the same Patient as person1
+        const OTHER_PERSON_ID = '65810a24-e90c-55b6-8b32-44bb9aa18c44';
+        const otherUserHeaders = () => getHeadersWithCustomPayload({ ...USER_PAYLOAD, clientFhirPersonId: OTHER_PERSON_ID });
+        const EVERYTHING = '/4_0_0/Patient/patient1/$everything';
+        let savedRedisFlags;
+
+        const showsBlocked = (body) => {
+            const ids = allIdValues(body);
+            return ids.includes(BLOCKED) || ids.includes(BLOCKED_UUID);
+        };
+        const showsUnblocked = (body) => {
+            const ids = allIdValues(body);
+            return ids.includes(UNBLOCKED) || ids.includes(UNBLOCKED_UUID);
+        };
+        const cacheKeysFor = (personId) =>
+            Array.from(getTestContainer().redisClient.streams.keys()).filter((k) => k.endsWith(`:Person:${personId}`));
+
+        beforeEach(async () => {
+            savedRedisFlags = Object.fromEntries(REDIS_FLAGS.map((f) => [f, process.env[f]]));
+            REDIS_FLAGS.forEach((f) => {
+                process.env[f] = '1';
+            });
+            request = await createTestRequest();
+            // the mock Redis outlives a test; start without entries from an earlier one
+            getTestContainer().redisClient.streams.clear();
+            for (const p of [...SEED, 'Person/personWithCommonPatient.json']) {
+                await merge(p.split('/')[0], fx(p));
+            }
+        });
+
+        afterEach(() => {
+            for (const [flag, value] of Object.entries(savedRedisFlags)) {
+                if (value === undefined) {
+                    delete process.env[flag];
+                } else {
+                    process.env[flag] = value;
+                }
+            }
+        });
+
+        test('a replayed entry cached before the Consent existed no longer shows the blocked resource', async () => {
+            const warm = await request.get(EVERYTHING).set(userHeaders());
+            expect(warm.status).toBe(200);
+            expect(warm.headers).toHaveProperty('x-cache', 'Miss');
+            expect(showsBlocked(warm.body)).toBe(true);
+            const [cacheKey] = cacheKeysFor(PERSON_ID);
+            expect(cacheKeysFor(PERSON_ID)).toHaveLength(1);
+            const staleEntries = deepcopy(getTestContainer().redisClient.streams.get(cacheKey));
+
+            await merge('Consent', fx('Consent/consent1.json'));
+            // put the old entry back, whatever the Consent write did to the cache
+            getTestContainer().redisClient.streams.set(cacheKey, staleEntries);
+
+            const replay = await request.get(EVERYTHING).set(userHeaders());
+            expect(replay.status).toBe(200);
+            expect(replay.headers).toHaveProperty('x-cache', 'Hit');
+            expect(showsBlocked(replay.body)).toBe(false);
+            expect(showsUnblocked(replay.body)).toBe(true);
+        });
+
+        test('two users linked to the same Patient get their own cache entry and their own Consent', async () => {
+            await merge('Consent', fx('Consent/consent1.json'));
+
+            // the user whose Consent blocks the CarePlan goes first, so a shared entry would hold the
+            // filtered result and be replayed to the other user
+            const blocked = await request.get(EVERYTHING).set(userHeaders());
+            expect(blocked.headers).toHaveProperty('x-cache', 'Miss');
+            expect(showsBlocked(blocked.body)).toBe(false);
+            expect(showsUnblocked(blocked.body)).toBe(true);
+
+            const other = await request.get(EVERYTHING).set(otherUserHeaders());
+            expect(other.headers).toHaveProperty('x-cache', 'Miss');
+            expect(showsBlocked(other.body)).toBe(true);
+
+            expect(cacheKeysFor(PERSON_ID)).toHaveLength(1);
+            expect(cacheKeysFor(OTHER_PERSON_ID)).toHaveLength(1);
+
+            const blockedAgain = await request.get(EVERYTHING).set(userHeaders());
+            expect(blockedAgain.headers).toHaveProperty('x-cache', 'Hit');
+            expect(showsBlocked(blockedAgain.body)).toBe(false);
+            const otherAgain = await request.get(EVERYTHING).set(otherUserHeaders());
+            expect(otherAgain.headers).toHaveProperty('x-cache', 'Hit');
+            expect(showsBlocked(otherAgain.body)).toBe(true);
+        });
+    });
 });
