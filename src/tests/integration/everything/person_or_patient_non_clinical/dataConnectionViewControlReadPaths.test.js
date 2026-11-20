@@ -23,6 +23,12 @@ const {
 } = require('../../common');
 
 const fx = (p) => require(`./fixtures/${p}`);
+// enables delegated-access detection for the delegated actor tests
+class DelegatedAccessConfigManager extends ConfigManager {
+    get enableDelegatedAccessDetection() {
+        return true;
+    }
+}
 const SEED = [
     'Person/topLevelPerson.json',
     'Person/person1.json',
@@ -460,11 +466,6 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
     });
 
     describe('delegated actor reading for an enrolled owner', () => {
-        class DelegatedAccessConfigManager extends ConfigManager {
-            get enableDelegatedAccessDetection() {
-                return true;
-            }
-        }
         // test databases have no custom indexes, so the delegated-access Consent query's index hint fails
         let hintSpy;
         beforeEach(() => {
@@ -480,7 +481,7 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
         });
 
         // The Consent lookup runs as a system read: it must not apply the delegated-access filter, which
-        // needs the caller's person id and would throw for the lookup (and narrow what it can find).
+        // would narrow what the lookup can find.
         test.each([
             ['default (array) response', '/4_0_0/CarePlan'],
             ['bundle response', '/4_0_0/CarePlan?_bundle=1'],
@@ -504,11 +505,6 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
     });
 
     describe('delegated Organization actor reading for an enrolled owner', () => {
-        class DelegatedAccessConfigManager extends ConfigManager {
-            get enableDelegatedAccessDetection() {
-                return true;
-            }
-        }
         const CONNECTION_TYPE_SYSTEM = 'https://www.icanbwell.com/connectionType';
         const CONNECTION_TYPE = 'treatment';
         const ORG_ID = '1f0e9d8c-7b6a-4954-8321-0fedcba98765';
