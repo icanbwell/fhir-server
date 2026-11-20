@@ -40,6 +40,7 @@ const WRITE_STEP_NAMES = Object.freeze([
     'validateAgainstStored',
     'buildDocument',
     'validateResult',
+    'accessOnResult',
     'attachments',
     'noOpCheck',
     'write'
@@ -67,7 +68,9 @@ const REQUIRED_STRING_SETTINGS = Object.freeze(['name', 'accessRequested', 'acti
 
 /**
  * The alternative step instances `WritePipeline` can run in place of a default step: a step name
- * maps to its variant names, and each variant name maps to the step that runs.
+ * maps to its variant names, and each variant name maps to the step that runs. A `write` variant
+ * must have an `afterFlushAsync` function, as a `WriteStep` does, because `runAsync` calls it after
+ * the flush.
  * @typedef {Object<string, Object<string, {runAsync: function({items: WriteItem[], context: WriteContext, profile: WriteProfile}): Promise<void>}>>} StepVariants
  */
 
@@ -110,12 +113,12 @@ const isObjectMap = (value) => value !== null && typeof value === 'object' && !A
  */
 class WritePipeline {
     /**
-     * Takes the thirteen shared steps, the variants a profile can name in place of a default step,
+     * Takes the fourteen shared steps, the variants a profile can name in place of a default step,
      * the profiles the pipeline can run, the bulk inserter that flushes the writes, the auditor that
      * audits every run's results, the operation logging manager and the tracer. Throws when
      * `stepVariants` is not an object of step names to variant objects, names a step that is not in
-     * `WRITE_STEP_NAMES`, or has a variant without a `runAsync` function. Pass `{}` when no
-     * operation uses a variant. Throws when `profiles` is not an array or one of its profiles is
+     * `WRITE_STEP_NAMES`, or has a variant without a `runAsync` function, or a `write` variant
+     * without an `afterFlushAsync` function. Pass `{}` when no operation uses a variant. Throws when `profiles` is not an array or one of its profiles is
      * invalid (see `_assertValidProfile`), so a bad profile fails when the pipeline is built, before
      * any request.
      * @param {ScopeCheckStep} scopeCheckStep
@@ -128,6 +131,7 @@ class WritePipeline {
      * @param {ValidateAgainstStoredStep} validateAgainstStoredStep
      * @param {BuildDocumentStep} buildDocumentStep
      * @param {ValidateResultStep} validateResultStep
+     * @param {AccessCheckStep} accessOnResultStep
      * @param {AttachmentsStep} attachmentsStep
      * @param {NoOpStep} noOpStep
      * @param {WriteStep} writeStep
@@ -149,6 +153,7 @@ class WritePipeline {
         validateAgainstStoredStep,
         buildDocumentStep,
         validateResultStep,
+        accessOnResultStep,
         attachmentsStep,
         noOpStep,
         writeStep,
@@ -210,6 +215,11 @@ class WritePipeline {
         this.validateResultStep = validateResultStep;
         assertTypeEquals(validateResultStep, ValidateResultStep);
         /**
+         * @type {AccessCheckStep}
+         */
+        this.accessOnResultStep = accessOnResultStep;
+        assertTypeEquals(accessOnResultStep, AccessCheckStep);
+        /**
          * @type {AttachmentsStep}
          */
         this.attachmentsStep = attachmentsStep;
@@ -265,12 +275,16 @@ class WritePipeline {
     /**
      * Runs one write request and returns the responder's response. The responder reads the request
      * into items, `processAsync` runs the steps and `executeAsync` flushes the writes; then the
-     * responder builds the results, the `WriteAuditor` audits them, the success is logged, the
-     * results are stored for the access log and the responder builds the response. A profile that
-     * was not given to the constructor, or a responder that is not a `WriteResponder`, throws before
-     * anything runs; after that, an error is logged and rethrown, and the responder's
-     * `recordMetrics` runs on success and on error. A single-resource responder throws its item's
-     * failure from `failureResults`, so for POST and PUT a failed check ends the run there.
+     * responder builds the results, the `WriteAuditor` audits them, the write step's
+     * `afterFlushAsync` hook runs (the profile's write variant when it names one), the success is
+     * logged, the results are stored for the access log and the responder builds the response. The
+     * hook runs after the audit is queued, so a write the flush committed is audited even when the
+     * hook throws. A profile that was not given to the constructor, or a responder that is not a
+     * `WriteResponder`, throws before anything runs; after that, an error is logged and rethrown,
+     * and the responder's `recordMetrics` runs on success and on error. A single-resource responder
+     * throws its item's failure from `failureResults`, so for POST, PUT and PATCH a failed check
+     * ends the run there. An error from the hook is handled like an error from the flush. The hook
+     * is not a step in `WRITE_STEP_NAMES`; `processAsync` never runs it.
      * @param {WriteProfile} profile
      * @param {WriteResponder} responder
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
@@ -313,6 +327,9 @@ class WritePipeline {
                 name: `${spanName}.audit`,
                 func: async () => await this.writeAuditor.auditAsync({ context, results })
             });
+            // Run the write step's after-flush hook, which does nothing for a writer without one
+            const writeStep = this._resolveStep({ profile: runProfile, name: 'write', step: this.writeStep });
+            await writeStep.afterFlushAsync({ items, context, executedResults });
             // Log the operation's success
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
@@ -388,6 +405,7 @@ class WritePipeline {
                 await this._runStepAsync({ run, name: 'validateAgainstStored', step: this.validateAgainstStoredStep });
                 await this._runStepAsync({ run, name: 'buildDocument', step: this.buildDocumentStep });
                 await this._runStepAsync({ run, name: 'validateResult', step: this.validateResultStep });
+                await this._runStepAsync({ run, name: 'accessOnResult', step: this.accessOnResultStep });
                 await this._runStepAsync({ run, name: 'attachments', step: this.attachmentsStep });
                 await this._runStepAsync({ run, name: 'noOpCheck', step: this.noOpStep });
                 await this._runStepAsync({ run, name: 'write', step: this.writeStep });
@@ -423,8 +441,7 @@ class WritePipeline {
         if (stepsOff.has(name)) {
             return;
         }
-        const variantName = profile.variants[name];
-        const stepToRun = variantName === undefined ? step : this.stepVariants[name][variantName];
+        const stepToRun = this._resolveStep({ profile, name, step });
         const activeItems = items.filter((item) => item.isActive);
         if (activeItems.length === 0) {
             return;
@@ -434,6 +451,18 @@ class WritePipeline {
             func: async () => await stepToRun.runAsync({ items: activeItems, context, profile })
         });
         this._logFailures({ profile, context, stepName: name, items: activeItems });
+    }
+
+    /**
+     * Returns the variant the profile names for the step, or `step` itself when it names none.
+     * @param {WriteProfile} profile
+     * @param {string} name
+     * @param {{runAsync: function}} step
+     * @returns {{runAsync: function, afterFlushAsync?: function}}
+     */
+    _resolveStep ({ profile, name, step }) {
+        const variantName = profile.variants[name];
+        return variantName === undefined ? step : this.stepVariants[name][variantName];
     }
 
     /**
@@ -502,8 +531,11 @@ class WritePipeline {
 
     /**
      * Logs one failure with the operation, step, stage, the resource's identity and the origin
-     * service. An error failure is logged as an error with its error; a check failure is logged as
-     * info with only each issue's severity, code and expression, never details text or diagnostics.
+     * service. An error failure is logged with its error, as info when the error's `logLevel` is
+     * `info` (a client error such as a `BadRequestError` or a `NotFoundError`) or its status code
+     * is 412 (a `PreconditionFailedError`, which update logs as info) and as an error otherwise; a
+     * check failure is logged as info with only each issue's severity, code and expression, never
+     * details text or diagnostics.
      * @param {WriteProfile} profile
      * @param {string} stepName
      * @param {string} originService
@@ -523,7 +555,9 @@ class WritePipeline {
             originService
         };
         if (failure.error !== null) {
-            logError('Write step failed for resource', { ...fields, error: failure.error });
+            const isClientError = failure.error?.logLevel === 'info' || failure.error?.statusCode === 412;
+            const log = isClientError ? logInfo : logError;
+            log('Write step failed for resource', { ...fields, error: failure.error });
         } else {
             const issues = (failure.operationOutcome.issue ?? []).map(
                 ({ severity, code, expression }) => ({ severity, code, expression })
@@ -534,7 +568,9 @@ class WritePipeline {
 
     /**
      * Throws if `stepVariants` is not an object of step names to variant objects, names a step
-     * that is not in `WRITE_STEP_NAMES`, or has a variant without a `runAsync` function.
+     * that is not in `WRITE_STEP_NAMES`, has a variant without a `runAsync` function, or has a
+     * `write` variant without an `afterFlushAsync` function, because `runAsync` calls it after the
+     * flush.
      * @param {StepVariants} stepVariants
      * @returns {void}
      */
@@ -550,6 +586,11 @@ class WritePipeline {
             for (const [variantName, variant] of Object.entries(variants)) {
                 if (typeof variant?.runAsync !== 'function') {
                     throw new Error(`WritePipeline step variant "${stepName}.${variantName}" needs a runAsync function`);
+                }
+                if (stepName === 'write' && typeof variant.afterFlushAsync !== 'function') {
+                    throw new Error(
+                        `WritePipeline step variant "${stepName}.${variantName}" needs an afterFlushAsync function`
+                    );
                 }
             }
         }

@@ -169,14 +169,18 @@ const { ValidateNewResourceStep } = require('./operations/writePipeline/steps/va
 const { SourceIdentityResolver } = require('./operations/writePipeline/steps/identify/sourceIdentityResolver');
 const { UrlIdentityResolver } = require('./operations/writePipeline/steps/identify/urlIdentityResolver');
 const { BulkPreloadLoader } = require('./operations/writePipeline/steps/load/bulkPreloadLoader');
+const { SearchExistingLoader } = require('./operations/writePipeline/steps/load/searchExistingLoader');
 const { PrepareBodyStep } = require('./operations/writePipeline/steps/prepareBodyStep');
 const { ValidateIncomingStep } = require('./operations/writePipeline/steps/validateIncomingStep');
 const { AccessCheckStep } = require('./operations/writePipeline/steps/accessCheckStep');
 const { IncomingAndStoredAccessChecker } = require('./operations/writePipeline/steps/access/incomingAndStoredAccessChecker');
+const { AccessTagChangeChecker } = require('./operations/writePipeline/steps/access/accessTagChangeChecker');
+const { StoredAccessChecker } = require('./operations/writePipeline/steps/access/storedAccessChecker');
 const { BuildDocumentStep } = require('./operations/writePipeline/steps/buildDocumentStep');
 const { SmartMergeBuilder } = require('./operations/writePipeline/steps/build/smartMergeBuilder');
 const { InsertBuilder } = require('./operations/writePipeline/steps/build/insertBuilder');
 const { ReplaceBuilder } = require('./operations/writePipeline/steps/build/replaceBuilder');
+const { PatchBuilder } = require('./operations/writePipeline/steps/build/patchBuilder');
 const { ValidateResultStep } = require('./operations/writePipeline/steps/validateResultStep');
 const { ValidateAgainstStoredStep } = require('./operations/writePipeline/steps/validateAgainstStoredStep');
 const { ValidateUpdateResultStep } = require('./operations/writePipeline/steps/validateUpdateResultStep');
@@ -185,13 +189,17 @@ const { NoOpStep } = require('./operations/writePipeline/steps/noOpStep');
 const { WriteStep } = require('./operations/writePipeline/steps/writeStep');
 const { VersionedWriter } = require('./operations/writePipeline/steps/write/versionedWriter');
 const { HttpPreconditionWriter } = require('./operations/writePipeline/steps/write/httpPreconditionWriter');
+const { PatchWriter } = require('./operations/writePipeline/steps/write/patchWriter');
 const { MERGE_WRITE_PROFILE } = require('./operations/writePipeline/operations/merge/profile');
 const { CREATE_WRITE_PROFILE } = require('./operations/writePipeline/operations/create/profile');
 const { UPDATE_WRITE_PROFILE } = require('./operations/writePipeline/operations/update/profile');
+const { PATCH_WRITE_PROFILE } = require('./operations/writePipeline/operations/patch/profile');
 const { MergeResponder } = require('./operations/writePipeline/operations/merge/responder');
 const { MergeStream } = require('./operations/writePipeline/operations/merge/mergeStream');
 const { CreateResponder } = require('./operations/writePipeline/operations/create/responder');
 const { UpdateResponder } = require('./operations/writePipeline/operations/update/responder');
+const { PatchResponder } = require('./operations/writePipeline/operations/patch/responder');
+const { GroupMemberPatchStrategy } = require('./operations/patch/strategies/groupMemberPatchStrategy');
 const { WriteAuditor } = require('./operations/writePipeline/writeAuditor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
@@ -725,6 +733,14 @@ const createContainer = function () {
         configManager: c.configManager
     }));
 
+    container.register('groupMemberPatchStrategy', (c) => new GroupMemberPatchStrategy({
+        postSaveHandlerFactory: c.postSaveHandlerFactory,
+        configManager: c.configManager,
+        resourceMerger: c.resourceMerger,
+        databaseBulkInserter: c.fastDatabaseBulkInserter,
+        mongoGroupMemberRepository: c.mongoGroupMemberRepository
+    }));
+
     container.register('writeAuditor', (c) => new WriteAuditor({
         auditLogger: c.auditLogger,
         postRequestProcessor: c.postRequestProcessor
@@ -773,6 +789,9 @@ const createContainer = function () {
             resourceValidator: c.resourceValidator,
             configManager: c.configManager
         }),
+        accessOnResultStep: new AccessCheckStep({
+            accessChecker: new AccessTagChangeChecker({ scopesValidator: c.scopesValidator })
+        }),
         attachmentsStep: new AttachmentsStep({
             preSaveManager: c.preSaveManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
@@ -785,6 +804,15 @@ const createContainer = function () {
             configManager: c.configManager
         }),
         stepVariants: {
+            findExisting: {
+                search: new FindExistingStep({
+                    existingResourceLoader: new SearchExistingLoader({
+                        searchManager: c.searchManager,
+                        databaseQueryFactory: c.databaseQueryFactory,
+                        configManager: c.configManager
+                    })
+                })
+            },
             identify: {
                 url: new IdentifyStep({
                     identityResolver: new UrlIdentityResolver({
@@ -792,6 +820,11 @@ const createContainer = function () {
                         sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
                         uuidColumnHandler: c.uuidColumnHandler
                     })
+                })
+            },
+            accessBeforeBuild: {
+                stored: new AccessCheckStep({
+                    accessChecker: new StoredAccessChecker({ scopesValidator: c.scopesValidator })
                 })
             },
             buildDocument: {
@@ -809,12 +842,32 @@ const createContainer = function () {
                         groupMemberMerger: c.groupMemberMerger
                     }),
                     configManager: c.configManager
+                }),
+                patch: new BuildDocumentStep({
+                    builder: new PatchBuilder({
+                        resourceMerger: c.resourceMerger,
+                        preSaveManager: c.preSaveManager,
+                        groupMemberMerger: c.groupMemberMerger,
+                        groupMemberPatchStrategy: c.groupMemberPatchStrategy,
+                        databaseAttachmentManager: c.databaseAttachmentManager,
+                        base64DataManager: c.base64DataManager
+                    }),
+                    configManager: c.configManager
                 })
             },
             validateResult: {
                 update: new ValidateUpdateResultStep({
                     resourceValidator: c.resourceValidator,
                     configManager: c.configManager
+                })
+            },
+            attachments: {
+                alwaysCreateNew: new AttachmentsStep({
+                    preSaveManager: c.preSaveManager,
+                    databaseAttachmentManager: c.databaseAttachmentManager,
+                    base64DataManager: c.base64DataManager,
+                    configManager: c.configManager,
+                    alwaysCreateNewBase64: true
                 })
             },
             write: {
@@ -827,10 +880,20 @@ const createContainer = function () {
                         })
                     }),
                     configManager: c.configManager
+                }),
+                patch: new WriteStep({
+                    writer: new PatchWriter({
+                        databaseBulkInserter: c.fastDatabaseBulkInserter,
+                        groupMemberPatchStrategy: c.groupMemberPatchStrategy,
+                        mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+                        databaseAttachmentManager: c.databaseAttachmentManager,
+                        configManager: c.configManager
+                    }),
+                    configManager: c.configManager
                 })
             }
         },
-        profiles: [MERGE_WRITE_PROFILE, CREATE_WRITE_PROFILE, UPDATE_WRITE_PROFILE],
+        profiles: [MERGE_WRITE_PROFILE, CREATE_WRITE_PROFILE, UPDATE_WRITE_PROFILE, PATCH_WRITE_PROFILE],
         databaseBulkInserter: c.fastDatabaseBulkInserter,
         writeAuditor: c.writeAuditor,
         fhirLoggingManager: c.fhirLoggingManager,
@@ -855,6 +918,13 @@ const createContainer = function () {
     }));
 
     container.register('updateResponder', (c) => new UpdateResponder({
+        base64DataManager: c.base64DataManager,
+        databaseAttachmentManager: c.databaseAttachmentManager,
+        identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+        groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
+    }));
+
+    container.register('patchResponder', (c) => new PatchResponder({
         base64DataManager: c.base64DataManager,
         databaseAttachmentManager: c.databaseAttachmentManager,
         identifierEnrichmentProvider: c.identifierEnrichmentProvider,
@@ -1207,7 +1277,10 @@ const createContainer = function () {
             groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository: c.mongoGroupMemberRepository,
             auditLogger: c.auditLogger,
-            groupMemberMerger: c.groupMemberMerger
+            groupMemberMerger: c.groupMemberMerger,
+            writePipelineSwitch: c.writePipelineSwitch,
+            writePipeline: c.writePipeline,
+            patchResponder: c.patchResponder
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(

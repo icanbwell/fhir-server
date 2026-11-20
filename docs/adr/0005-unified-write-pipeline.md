@@ -56,7 +56,25 @@ differences are plain data next to each other.
   document, or POST's insert when none is stored) and `write.httpPreconditions` (a versioned write
   that queues the `If-Match` list, so a replayed write checks it again). Each of these steps takes
   the piece that varies as a constructor argument: an identity resolver, a builder, or a writer
-  (`VersionedWriter` by default, `HttpPreconditionWriter` for PUT).
+  (`VersionedWriter` by default, `HttpPreconditionWriter` for PUT). PATCH uses five variants: a
+  search lookup with the access filter (`findExisting.search`), a stored-document access check
+  (`accessBeforeBuild.stored`), the JSON Patch build (`buildDocument.patch`), an attachments step
+  that always uploads a new base64 object (`attachments.alwaysCreateNew`) and a writer
+  (`PatchWriter`, `write.patch`). It turns off the steps that read a resource body, because its
+  body is a JSON Patch.
+- Step 10 is `accessOnResult`. It checks that the caller may make the access-tag changes between
+  the stored and the built document, and runs after `validateResult`. Its default checker is on for
+  PATCH, whose access tags are known only after the build, and off for POST, PUT and `$merge`,
+  which check the change before the build. `$import` keeps it off when it ships, and admin gets its
+  own variant later.
+- A writer may have an optional `afterFlushAsync` hook. `WriteStep.afterFlushAsync` calls it, and
+  `WritePipeline.runAsync` calls that once after the flush, the results and the audit, so a write
+  the flush committed is audited even if the hook throws. The default writers have none, and a
+  streaming `$merge` never calls it. PATCH uses it to write an external-storage Group's ClickHouse
+  member events after the Group's commit.
+- The shared `AttachmentsStep` takes the option `alwaysCreateNewBase64`, off by default. PATCH
+  turns it on, because its write has no version check, so it keeps uploading a base64 value to a
+  new live key every time, as today. POST, PUT and `$merge` keep the default.
 - A responder (`writePipeline/operations/<operation>/responder.js`) turns the item results into the
   operation's response and records its metrics. The shared `WriteAuditor` writes the audit events.
 - Streaming (NDJSON) `$merge` keeps its transport out of `WritePipeline`, because no other
@@ -87,6 +105,10 @@ differences are plain data next to each other.
 - Bad, because `$merge` now runs its size and pipe-in-id checks after identification, so it can
   validate before it loads; what they measure and report changes slightly (the spec's accepted
   difference 8).
+- Bad, because PATCH stays unversioned until the concurrent write resolver lands: it writes by
+  `_uuid` alone, with no version filter, no retry and no 409, as today, so a concurrent write can
+  still be overwritten. The resolver's PR adds PATCH's version filter and its re-patch rebase
+  together.
 - Bad, because tests that pin an accepted difference need two versions while both paths exist: the
   test updated to the new behavior, and an `oldWrite` copy that runs the old path.
 - Bad, because both paths share the stream in `mergeAsyncStream`, so a fix to it, or a bug in it,
@@ -95,10 +117,11 @@ differences are plain data next to each other.
 
 ### Confirmation
 
-- Parity tests run each `$merge`, POST and PUT case on both paths and compare the responses
+- Parity tests run each `$merge`, POST, PUT and PATCH case on both paths and compare the responses
   (`src/tests/integration/operations/writePipeline/operations/merge/`,
-  `src/tests/integration/operations/writePipeline/operations/create/` and
-  `src/tests/integration/operations/writePipeline/operations/update/`).
+  `src/tests/integration/operations/writePipeline/operations/create/`,
+  `src/tests/integration/operations/writePipeline/operations/update/` and
+  `src/tests/integration/operations/writePipeline/operations/patch/`).
 - The main CI job runs the whole suite with the shipped switches on (`jest/setEnvVars.js`). Tests
   that fail only on an accepted difference are updated and get an `oldWrite<Name>.test.js` copy
   that turns the switch off. No test is skipped.

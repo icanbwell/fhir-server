@@ -1,0 +1,122 @@
+{
+  "headers": {
+    "location": null,
+    "contentLocation": null
+  },
+  "documents": [
+    {
+      "_uuid": "e7a30162-07be-5396-a19c-2bc2ba46c62e",
+      "_access": {
+        "client": 1
+      },
+      "_sourceAssigningAuthority": "client",
+      "_sourceId": "put-parity-person",
+      "active": true,
+      "id": "put-parity-person",
+      "meta": {
+        "source": "http://example.com/source",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "client",
+            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+          }
+        ],
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>"
+      },
+      "resourceType": "Person"
+    }
+  ],
+  "history": [
+    {
+      "id": "e7a30162-07be-5396-a19c-2bc2ba46c62e",
+      "resource": {
+        "resourceType": "Person",
+        "id": "put-parity-person",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "active": true,
+        "_uuid": "e7a30162-07be-5396-a19c-2bc2ba46c62e",
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "put-parity-person",
+        "_access": {
+          "client": 1
+        }
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "POST",
+        "url": "/4_0_0/Person/put-parity-person"
+      },
+      "_recorded": "<recorded>"
+    }
+  ],
+  "gridFsFileActive": [],
+  "accessLog": [
+    {
+      "statusCode": 400,
+      "operationResult": [
+        {
+          "id": "put-parity-person",
+          "uuid": "e7a30162-07be-5396-a19c-2bc2ba46c62e",
+          "sourceAssigningAuthority": "client",
+          "resourceType": "Person",
+          "operationOutcome": {
+            "resourceType": "OperationOutcome",
+            "issue": [
+              {
+                "severity": "error",
+                "code": "forbidden",
+                "details": {
+                  "text": "Person.link target Patient/parity-other-patient belongs to a tenant the caller does not have access to."
+                }
+              }
+            ]
+          },
+          "created": false,
+          "updated": false
+        }
+      ]
+    }
+  ],
+  "audit": {
+    "entries": [],
+    "errors": [
+      {
+        "errorCode": 400,
+        "errorMessage": "Bad Request"
+      }
+    ]
+  }
+}

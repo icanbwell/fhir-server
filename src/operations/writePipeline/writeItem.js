@@ -15,7 +15,9 @@ const WRITE_ITEM_STATUS = Object.freeze({
  * One resource in a write batch, with the state the steps fill in: the stored document, the built
  * document (`candidate`), the write mode, the hybrid-storage context data, the identity saved
  * before `_` fields are stripped, and its status and failure. `index` is its position in the batch,
- * which the responder orders results by.
+ * which the responder orders results by. A PATCH also keeps the JSON Patch operations to apply
+ * (`patch`), the writes it makes to Group members (`memberWrites`) and the operations it applied
+ * (`appliedPatch`); the steps that fill them are PATCH's own.
  */
 class WriteItem {
     /**
@@ -51,6 +53,18 @@ class WriteItem {
          * @type {Object|null}
          */
         this.savedIdentity = null;
+        /**
+         * @type {Array|null}
+         */
+        this.patch = null;
+        /**
+         * @type {Object|null}
+         */
+        this.memberWrites = null;
+        /**
+         * @type {Array|null}
+         */
+        this.appliedPatch = null;
         /**
          * @type {WriteFailure|null}
          */
