@@ -80,9 +80,6 @@ function createMockParsedArgsItem ({
     return item;
 }
 
-const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
-const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
-
 describe('ParsedArgs', () => {
     beforeEach(() => {
         jestObj.clearAllMocks();
