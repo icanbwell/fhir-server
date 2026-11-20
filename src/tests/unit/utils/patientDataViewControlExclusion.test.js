@@ -144,7 +144,7 @@ describe('PatientDataViewControlExclusion', () => {
     test('a user whose Person was not found gets an empty result without a Consent search', async () => {
         // the Person walk ran and recorded that it found no Person
         getPatientIdsFromScopeAsync.mockImplementation(async ({ personIdFromJwtToken }) => {
-            mockStore.set(`personOwnerFor-${personIdFromJwtToken}`, HTTP_CONTEXT_KEYS.PERSON_OWNER_NOT_FOUND);
+            mockStore.set(`personOwnerFor-${personIdFromJwtToken}`, HTTP_CONTEXT_KEYS.PERSON_NOT_FOUND_MARKER);
             return [];
         });
         const parsedArgs = newParsedArgs();
@@ -273,7 +273,7 @@ describe('PatientDataViewControlExclusion', () => {
 
         test('a user whose Person is not found records no_person', async () => {
             getPatientIdsFromScopeAsync.mockImplementation(async ({ personIdFromJwtToken }) => {
-                mockStore.set(`personOwnerFor-${personIdFromJwtToken}`, HTTP_CONTEXT_KEYS.PERSON_OWNER_NOT_FOUND);
+                mockStore.set(`personOwnerFor-${personIdFromJwtToken}`, HTTP_CONTEXT_KEYS.PERSON_NOT_FOUND_MARKER);
                 return [];
             });
 
@@ -290,7 +290,7 @@ describe('PatientDataViewControlExclusion', () => {
         });
 
         test.each([
-            ['the Person is not found', Object.assign(new NotFoundError('Person not found'), {}), 'not_found'],
+            ['the Person is not found', new NotFoundError('Person not found'), 'not_found'],
             ['the caller\'s scopes do not cover the owner', new ForbiddenError('no'), 'forbidden'],
             ['the id matches several Persons', new BadRequestError(new Error('several')), 'bad_request'],
             ['the Consent search throws', new Error('mongo down'), 'error']

@@ -132,7 +132,7 @@ class PatientDataViewControlExclusion {
 
     /**
      * The user in the token: walking their Person records its owner in httpContext, as null for a
-     * Person without an owner tag and as PERSON_OWNER_NOT_FOUND when the walk found no Person.
+     * Person without an owner tag and as PERSON_NOT_FOUND_MARKER when the walk found no Person.
      * A walk that records nothing is a failure, not "not found": the lookup fails closed instead of
      * returning an empty lookup that would hide nothing.
      * @private
@@ -152,7 +152,7 @@ class PatientDataViewControlExclusion {
             'dataConnectionViewControl: the Person walk recorded neither the Person owner nor that the ' +
             'Person was not found, so the view control cannot be applied'
         );
-        return owner === HTTP_CONTEXT_KEYS.PERSON_OWNER_NOT_FOUND ? null : { personId: subject.personId, owner };
+        return owner === HTTP_CONTEXT_KEYS.PERSON_NOT_FOUND_MARKER ? null : { personId: subject.personId, owner };
     }
 
     /**
