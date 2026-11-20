@@ -503,6 +503,111 @@ describe('dataConnectionViewControl Consent on REST search/read and $everything'
         });
     });
 
+    describe('delegated Organization actor reading for an enrolled owner', () => {
+        class DelegatedAccessConfigManager extends ConfigManager {
+            get enableDelegatedAccessDetection() {
+                return true;
+            }
+        }
+        const CONNECTION_TYPE_SYSTEM = 'https://www.icanbwell.com/connectionType';
+        const CONNECTION_TYPE = 'treatment';
+        const ORG_ID = '1f0e9d8c-7b6a-4954-8321-0fedcba98765';
+        const ENTITLEMENT_CONSENT_ID = '6c2f4a1e-3b5d-5e7f-9a1b-2c3d4e5f6a7b';
+        let savedAllowedOperations;
+
+        // Org-level grant named in the token's entitlements: it has no `patient`, and its connectionType
+        // label is what narrows an Organization actor to resources tagged with that connection type.
+        const entitlementConsent = () => ({
+            resourceType: 'Consent',
+            id: ENTITLEMENT_CONSENT_ID,
+            meta: {
+                source: 'test',
+                security: [
+                    { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
+                    { system: 'https://www.icanbwell.com/access', code: 'bwell' }
+                ]
+            },
+            status: 'active',
+            scope: {
+                coding: [{ system: 'http://terminology.hl7.org/CodeSystem/consentscope', code: 'treatment' }]
+            },
+            category: [
+                { coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataSharing' }] }
+            ],
+            performer: [{ reference: `Organization/${ORG_ID}` }],
+            provision: {
+                type: 'permit',
+                period: { start: '2025-01-01T00:00:00.000Z' },
+                actor: [
+                    {
+                        role: {
+                            coding: [
+                                {
+                                    system: 'http://terminology.hl7.org/CodeSystem/v3-ParticipationType',
+                                    code: 'IRCP'
+                                }
+                            ]
+                        },
+                        reference: { reference: `Organization/${ORG_ID}` }
+                    }
+                ],
+                purpose: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'TREAT' }],
+                securityLabel: [{ system: CONNECTION_TYPE_SYSTEM, code: CONNECTION_TYPE }]
+            }
+        });
+        const orgActorHeaders = () =>
+            getHeadersWithCustomPayload({
+                ...USER_PAYLOAD,
+                scope: 'patient/*.read access/*.read',
+                act: { reference: `Organization/${ORG_ID}`, sub: 'org-actor-sub' },
+                entitlements: [`Consent/${ENTITLEMENT_CONSENT_ID}`]
+            });
+        // the care plans carry the connection type, so only the view-control Consent can hide one
+        const withConnectionType = (carePlan) => {
+            const tagged = deepcopy(carePlan);
+            tagged.meta.security.push({ system: CONNECTION_TYPE_SYSTEM, code: CONNECTION_TYPE });
+            return tagged;
+        };
+
+        beforeEach(() => {
+            savedAllowedOperations = process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS;
+            process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS = 'CarePlan:search';
+        });
+        afterEach(() => {
+            if (savedAllowedOperations === undefined) {
+                delete process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS;
+            } else {
+                process.env.DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS = savedAllowedOperations;
+            }
+        });
+
+        // The view-control Consent has no connectionType tag. If the lookup ran under the Organization
+        // actor's connection-type narrowing it would not find that Consent, and the blocked resource
+        // would be returned. The non-enrolled row shows the care plans do pass the narrowing, so the
+        // enrolled row hides the blocked one only because the Consent was found.
+        test.each([
+            ['enrolled client hides the blocked resource', 'healthsystem1', [UNBLOCKED]],
+            ['non-enrolled client sees both resources', 'some-other-client', [BLOCKED, UNBLOCKED].sort()]
+        ])('REST search: %s', async (_name, enrolledClients, expectedIds) => {
+            process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = enrolledClients;
+            request = await createTestRequest((c) => {
+                c.register('configManager', () => new DelegatedAccessConfigManager());
+                return c;
+            });
+            for (const p of SEED) {
+                const resource = p.startsWith('CarePlan/') ? withConnectionType(fx(p)) : fx(p);
+                await merge(p.split('/')[0], resource);
+            }
+            await merge('Consent', fx('Consent/consent1.json'));
+            await merge('Consent', entitlementConsent());
+
+            const resp = await request.get('/4_0_0/CarePlan?_bundle=1').set(orgActorHeaders());
+
+            expect(resp.status).toBe(200);
+            expect(idsOf(resp.body).sort()).toEqual(expectedIds);
+        });
+    });
+
     describe('mixed uuid / sourceId exclusion lists', () => {
         // Consent blocks CarePlan/care-plan-1 (by uuid) and the caller additionally excludes
         // care-plan-2 by its non-uuid source id: the merged _id:not list mixes both id forms.
