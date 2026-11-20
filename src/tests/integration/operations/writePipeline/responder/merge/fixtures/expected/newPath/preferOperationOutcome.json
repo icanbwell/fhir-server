@@ -1,0 +1,50 @@
+{
+  "type": "batch-response",
+  "entry": [
+    {
+      "id": "parity-1",
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "id": "parity-1",
+        "issue": [
+          {
+            "severity": "information",
+            "code": "informational",
+            "details": {
+              "coding": [
+                {
+                  "system": "https://www.rfc-editor.org/rfc/rfc9110.html",
+                  "code": "201",
+                  "display": "Created"
+                }
+              ]
+            },
+            "expression": [
+              "Patient/parity-1"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "exception",
+            "details": {
+              "text": "Error merging: {\"resourceType\":\"Patient\",\"meta\":{\"source\":\"http://example.com/source\",\"security\":[{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"client\"},{\"system\":\"https://www.icanbwell.com/owner\",\"code\":\"client\"}]},\"name\":[{\"family\":\"Parity\",\"given\":[\"Alpha\"]}]}"
+            },
+            "diagnostics": "resource is missing id",
+            "expression": [
+              "Patient"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 2
+}

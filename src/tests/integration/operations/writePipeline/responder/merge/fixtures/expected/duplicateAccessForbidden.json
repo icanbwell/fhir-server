@@ -1,0 +1,30 @@
+[
+  {
+    "operationOutcome": {
+      "resourceType": "OperationOutcome",
+      "issue": [
+        {
+          "severity": "error",
+          "code": "forbidden",
+          "details": {
+            "text": "user imran can only add or remove access tags it has write access to, for resource Patient with id parity-1"
+          },
+          "diagnostics": "user imran can only add or remove access tags it has write access to, for resource Patient with id parity-1"
+        }
+      ]
+    },
+    "issue": {
+      "severity": "error",
+      "code": "forbidden",
+      "details": {
+        "text": "user imran can only add or remove access tags it has write access to, for resource Patient with id parity-1"
+      },
+      "diagnostics": "user imran can only add or remove access tags it has write access to, for resource Patient with id parity-1"
+    },
+    "created": false,
+    "id": "parity-1",
+    "uuid": "75bd8b65-de8a-55c6-b4e9-67776a776cd2",
+    "resourceType": "Patient",
+    "updated": false
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "operationOutcome": {
+      "resourceType": "OperationOutcome",
+      "issue": [
+        {
+          "severity": "error",
+          "code": "exception",
+          "details": {
+            "text": "Pipe | is not allowed in id field"
+          },
+          "diagnostics": "Pipe | is not allowed in id field",
+          "expression": [
+            "Patient"
+          ]
+        }
+      ]
+    },
+    "issue": {
+      "severity": "error",
+      "code": "exception",
+      "details": {
+        "text": "Pipe | is not allowed in id field"
+      },
+      "diagnostics": "Pipe | is not allowed in id field",
+      "expression": [
+        "Patient"
+      ]
+    },
+    "created": false,
+    "id": "parity|pipe",
+    "resourceType": "Patient",
+    "updated": false
+  },
+  {
+    "created": true,
+    "id": "parity-1",
+    "uuid": "75bd8b65-de8a-55c6-b4e9-67776a776cd2",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  }
+]

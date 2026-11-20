@@ -34,3 +34,4 @@ process.env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES = "Resource";
 process.env.SERVER_PORT = 3000;
 process.env.ENABLE_CLICKHOUSE = '0';
 process.env.CMS_ALLOWED_PURPOSE_OF_USE = 'PATRQT';
+process.env.WRITE_PIPELINE_OPERATIONS = 'merge';

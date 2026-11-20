@@ -1,0 +1,21 @@
+{
+  "resourceType": "Observation",
+  "id": "parity-obs-1",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "status": "final",
+  "code": {
+    "text": "parity code"
+  }
+}

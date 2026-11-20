@@ -1,0 +1,25 @@
+{
+  "operationOutcome": {
+    "resourceType": "OperationOutcome",
+    "issue": [
+      {
+        "severity": "error",
+        "code": "too-long",
+        "details": {
+          "text": "Payload size too large."
+        }
+      }
+    ]
+  },
+  "issue": {
+    "severity": "error",
+    "code": "too-long",
+    "details": {
+      "text": "Payload size too large."
+    }
+  },
+  "created": false,
+  "id": "parity-audit-size",
+  "resourceType": "AuditEvent",
+  "updated": false
+}

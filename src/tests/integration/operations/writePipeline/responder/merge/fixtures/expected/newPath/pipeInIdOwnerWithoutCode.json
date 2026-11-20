@@ -1,0 +1,33 @@
+{
+  "operationOutcome": {
+    "resourceType": "OperationOutcome",
+    "issue": [
+      {
+        "severity": "error",
+        "code": "exception",
+        "details": {
+          "text": "sourceAssigningAuthority is null for Patient/parity|pipe-no-code"
+        },
+        "diagnostics": "sourceAssigningAuthority is null for Patient/parity|pipe-no-code",
+        "expression": [
+          "Patient"
+        ]
+      }
+    ]
+  },
+  "issue": {
+    "severity": "error",
+    "code": "exception",
+    "details": {
+      "text": "sourceAssigningAuthority is null for Patient/parity|pipe-no-code"
+    },
+    "diagnostics": "sourceAssigningAuthority is null for Patient/parity|pipe-no-code",
+    "expression": [
+      "Patient"
+    ]
+  },
+  "created": false,
+  "id": "parity|pipe-no-code",
+  "resourceType": "Patient",
+  "updated": false
+}
