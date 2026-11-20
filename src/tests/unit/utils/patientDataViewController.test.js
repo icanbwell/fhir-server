@@ -502,6 +502,42 @@ describe('PatientDataViewControlManager', () => {
             expect(documentReferenceRead.requestInfo).toBe(requestInfo);
         });
 
+        test.each([
+            ['RelatedPerson actor', { reference: 'RelatedPerson/rp-1' }],
+            ['Organization actor', { reference: 'Organization/org-1', isOrganizationActor: true }]
+        ])('delegated %s: the DocumentReference read clears user type and actor like the Consent search',
+            async (_name, actor) => {
+                mockSearchManager.fetchResourcesByArgsAsync
+                    .mockResolvedValueOnce(consentHiding('DocumentReference/doc-1'))
+                    .mockResolvedValueOnce({ entries: [], queryItems: [], options: [] });
+                const requestInfo = createRequestInfo('person-123', {
+                    user: 'u1',
+                    requestId: 'r1',
+                    scope: 'patient/*.*',
+                    userType: 'delegatedUser',
+                    actor
+                });
+
+                await manager.getConsentAsync({
+                    requestInfo, base_version: '4_0_0', personId: 'person-123', owner: 'clientA'
+                });
+
+                const [consentRead, documentReferenceRead] = mockSearchManager.fetchResourcesByArgsAsync.mock.calls
+                    .map(([args]) => args);
+                expect(documentReferenceRead.resourceType).toBe('DocumentReference');
+                expect(documentReferenceRead.requestInfo).not.toBe(requestInfo);
+                expect(documentReferenceRead.requestInfo).toEqual(expect.objectContaining({
+                    userType: null,
+                    actor: null,
+                    scope: 'patient/*.*',
+                    personIdFromJwtToken: 'person-123'
+                }));
+                expect(documentReferenceRead.requestInfo).toEqual(consentRead.requestInfo);
+                // the caller's own request info is left alone
+                expect(requestInfo.userType).toBe('delegatedUser');
+                expect(requestInfo.actor).toBe(actor);
+            });
+
         test('makes no DocumentReference read when no DocumentReference is hidden', async () => {
             mockSearchManager.fetchResourcesByArgsAsync.mockResolvedValueOnce(consentHiding('CarePlan/cp-1'));
 

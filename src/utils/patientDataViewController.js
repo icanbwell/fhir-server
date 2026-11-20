@@ -147,7 +147,7 @@ class PatientDataViewControlManager {
         }
 
         await this.hideAttachmentBinariesOfHiddenDocumentReferencesAsync({
-            requestInfo,
+            requestInfo: toViewControlLookupRequestInfo(requestInfo),
             base_version,
             viewControlResourceToExcludeMap
         });
