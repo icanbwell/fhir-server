@@ -30,7 +30,9 @@ reads, on every read path the user can use.
   can be the resource's uuid or its source id.
 - A hidden DocumentReference also hides the Binary resources its `content[].attachment.url` points
   at. A Binary is read by its own `securityContext`, not through its DocumentReference, so without
-  this the content of a deleted document would still be returned.
+  this the content of a deleted document would still be returned. The DocumentReference is read under
+  the caller's own scope, like the Consent. A hidden DocumentReference that scope cannot see (another
+  access tag, or the restricted tag) is not found, so its Binary is not hidden.
 
 All of the Person's active view control Consents apply, whichever patient they name in
 `provision.actor`.
