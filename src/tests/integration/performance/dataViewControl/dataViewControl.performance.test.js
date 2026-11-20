@@ -11,7 +11,9 @@
  *   NODE_ENV=test node --max-old-space-size=12288 ./node_modules/.bin/jest \
  *     src/tests/integration/performance/dataViewControl --runInBand --forceExit \
  *     --testTimeout=600000 --testPathIgnorePatterns='/unit/'
- * VIEW_CONTROL_PERF_BLOCKED=<n> sets how many CarePlans the Consent hides (default 20), and
+ * VIEW_CONTROL_PERF_BLOCKED=<n> sets how many CarePlans the Consent hides (default 20),
+ * VIEW_CONTROL_PERF_BLOCKED_DOCUMENT_REFERENCES=<n> also hides n DocumentReferences (default 0), which
+ * adds the read of their attachments' Binary ids to every lookup, and
  * VIEW_CONTROL_PERF_OUT=<file> also writes the numbers as JSON. All data is synthetic.
  */
 const fs = require('fs');
@@ -40,6 +42,7 @@ const fx = (p) => require(`${fixtures}/${p}`);
 // VIEW_CONTROL_PERF_BLOCKED sets how many the Consent hides, to see how the cost grows
 const BLOCKED_CARE_PLANS = Number(process.env.VIEW_CONTROL_PERF_BLOCKED || 20);
 const CARE_PLANS = Math.max(200, BLOCKED_CARE_PLANS + 100);
+const BLOCKED_DOCUMENT_REFERENCES = Number(process.env.VIEW_CONTROL_PERF_BLOCKED_DOCUMENT_REFERENCES || 0);
 const OTHER_CONSENTS = 2000;
 const WARMUP = 5;
 const SETUP_TIMEOUT_MS = 600000;
@@ -52,6 +55,8 @@ const CACHE_ENV = [
 
 const carePlanId = (i) => `vc-perf-care-plan-${i}`;
 const carePlanUuid = (i) => generateUUIDv5(`${carePlanId(i)}|${OWNER}`);
+const documentReferenceId = (i) => `vc-perf-doc-ref-${i}`;
+const documentReferenceUuid = (i) => generateUUIDv5(`${documentReferenceId(i)}|${OWNER}`);
 
 
 const PATHS = [
@@ -134,6 +139,22 @@ describe('dataConnectionViewControl performance', () => {
         consent.provision.data = Array.from({ length: BLOCKED_CARE_PLANS }, (_, i) => ({
             id: `data-${i}`, meaning: 'instance', reference: { reference: `CarePlan/${carePlanUuid(i)}` }
         }));
+        if (BLOCKED_DOCUMENT_REFERENCES > 0) {
+            // hidden DocumentReferences, each pointing at its own Binary: the Consent lookup reads their
+            // attachment urls to hide those Binaries too
+            const docTemplate = fx('DocumentReference/documentReference1.json');
+            const docRefs = Array.from({ length: BLOCKED_DOCUMENT_REFERENCES }, (_, i) => ({
+                ...deepcopy(docTemplate),
+                id: documentReferenceId(i),
+                content: [{ attachment: { contentType: 'text/html', url: `Binary/vc-perf-binary-${i}` } }]
+            }));
+            for (let i = 0; i < docRefs.length; i += 500) {
+                await merge('DocumentReference', docRefs.slice(i, i + 500));
+            }
+            consent.provision.data.push(...docRefs.map((docRef, i) => ({
+                id: `doc-${i}`, meaning: 'instance', reference: { reference: `DocumentReference/${documentReferenceUuid(i)}` }
+            })));
+        }
         await merge('Consent', consent);
         // other users' view-control Consents: the lookup has to find this user's among them
         const others = Array.from({ length: OTHER_CONSENTS }, (_, i) => {
@@ -160,10 +181,12 @@ describe('dataConnectionViewControl performance', () => {
             `p50 ${r.p50.toFixed(1).padStart(7)} ms  p95 ${r.p95.toFixed(1).padStart(7)} ms  ` +
             `lookup p50 ${r.lookupP50.toFixed(1).padStart(6)} ms (${r.lookups} lookups)`).join('\n');
         process.stdout.write(`\ndataConnectionViewControl latency (${ITERATIONS} requests each, ` +
-            `${BLOCKED_CARE_PLANS} of ${CARE_PLANS} CarePlans blocked)\n${table}\n`);
+            `${BLOCKED_CARE_PLANS} of ${CARE_PLANS} CarePlans blocked, ` +
+            `${BLOCKED_DOCUMENT_REFERENCES} DocumentReferences blocked)\n${table}\n`);
         if (process.env.VIEW_CONTROL_PERF_OUT) {
             fs.writeFileSync(process.env.VIEW_CONTROL_PERF_OUT, JSON.stringify({
-                blocked: BLOCKED_CARE_PLANS, carePlans: CARE_PLANS, otherConsents: OTHER_CONSENTS, results
+                blocked: BLOCKED_CARE_PLANS, blockedDocumentReferences: BLOCKED_DOCUMENT_REFERENCES,
+                carePlans: CARE_PLANS, otherConsents: OTHER_CONSENTS, results
             }, null, 2));
         }
         if (savedEnrolled === undefined) {
