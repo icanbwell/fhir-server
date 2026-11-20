@@ -2,11 +2,30 @@ const httpContext = require('express-http-context');
 const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ReferenceParser } = require('../utils/referenceParser');
 const { QueryItem } = require('../operations/graph/queryItem');
-const { CONSENT_CATEGORY, HTTP_CONTEXT_KEYS } = require('../constants');
+const { AUTH_USER_TYPES, CONSENT_CATEGORY, HTTP_CONTEXT_KEYS } = require('../constants');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ConfigManager } = require('./configManager');
 const { SearchManager } = require('../operations/search/searchManager');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
+
+/**
+ * The request info the view-control Consent lookup searches with. The caller's scope is kept, so the
+ * tenant filter still applies. A delegated caller gets a copy with the user type and actor cleared: the
+ * delegated narrowing (for an Organization actor, only resources tagged with an allowed connection type)
+ * would hide the user's own Consent from the lookup, and a missed Consent means hidden data is returned.
+ * personIdFromJwtToken stays set. Any other caller's request info is passed through as is.
+ * @param {FhirRequestInfo} requestInfo
+ * @return {FhirRequestInfo}
+ */
+function toViewControlLookupRequestInfo(requestInfo) {
+    if (requestInfo?.userType !== AUTH_USER_TYPES.delegatedUser) {
+        return requestInfo;
+    }
+    return Object.assign(Object.create(Object.getPrototypeOf(requestInfo)), requestInfo, {
+        userType: null,
+        actor: null
+    });
+}
 
 class PatientDataViewControlManager {
     /**
@@ -204,7 +223,7 @@ class PatientDataViewControlManager {
         } = await this.searchManager.fetchResourcesByArgsAsync({
             resourceType,
             base_version,
-            requestInfo,
+            requestInfo: toViewControlLookupRequestInfo(requestInfo),
             explain: false,
             debug: false,
             applyPatientFilter: false,
