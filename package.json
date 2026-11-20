@@ -67,7 +67,7 @@
   "resolutions": {
     "uuid": "^14.0.0",
     "yargs": "^18.1.0",
-    "@hono/node-server": "^2.0.5",
+    "@hono/node-server": "^2.1.9",
     "protobufjs": "^8.8.0",
     "minimatch@npm:^9.0.4": "^11.0.1",
     "minimatch@npm:^10.2.2": "^11.0.1",
