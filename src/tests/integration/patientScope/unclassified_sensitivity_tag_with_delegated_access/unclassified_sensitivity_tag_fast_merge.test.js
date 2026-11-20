@@ -18,6 +18,7 @@ const person1Resource = require('./fixtures/Person/person1.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const activeConsentResource = require('./fixtures/Consent/activeConsent.json');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const expectedPatientScopedObservation = require('./fixtures/expected/patientSearchVisible.json');
 const expectedDelegatedSearchHidden = require('./fixtures/expected/delegatedSearchHidden.json');
 const expectedUnclassifiedObservation = require('./fixtures/expected/expectedUnclassifiedObservation.json');
@@ -71,7 +72,8 @@ const delegatedPayload = {
     act: {
         reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
         sub: 'delegated-sub-123'
-    }
+    },
+    entitlements: [`Consent/${generateUUIDv5(`${activeConsentResource.id}|bwell`)}`]
 };
 
 describe('Unclassified Sensitivity Tag (Fast Merge Serializer)', () => {

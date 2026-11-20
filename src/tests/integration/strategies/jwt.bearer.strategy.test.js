@@ -1649,7 +1649,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
 
     })
 
-    test('resolves a Consent/<id> entitlement to the Consent purpose codes for a delegated user', (done) => {
+    test('resolves a Consent/<id> entitlement to the Consent purpose codes for an Organization delegated user', (done) => {
         const mockDelegatedAccessRulesManager = makeMockDelegatedAccessRulesManager();
         mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockResolvedValue(['TREAT']);
         const authService = makeAuthService({ delegatedAccessRulesManager: mockDelegatedAccessRulesManager });
@@ -1664,7 +1664,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
             // `entitlements` as a Consent/<id> reference instead of a bare ActReason code.
             entitlements: ['Consent/consent-uuid-123'],
             act: {
-                reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
+                reference: 'Organization/8d5fcbff-3707-405c-b0b2-3053a3adc013',
                 sub: 'patient-1'
             }
         };
@@ -1685,7 +1685,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
         });
     });
 
-    test('rejects (401-style) when a Consent/<id> entitlement cannot be resolved', (done) => {
+    test('rejects (401-style) when an Organization actor\'s Consent/<id> entitlement cannot be resolved', (done) => {
         const mockDelegatedAccessRulesManager = makeMockDelegatedAccessRulesManager();
         // null signals "could not resolve" (Consent not found / lookup error) -- distinct from
         // [] ("resolved successfully to no codes"). Only null must fail the request closed.
@@ -1699,7 +1699,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
             ...basePayload(),
             entitlements: ['Consent/does-not-exist'],
             act: {
-                reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
+                reference: 'Organization/8d5fcbff-3707-405c-b0b2-3053a3adc013',
                 sub: 'patient-1'
             }
         };
@@ -1711,6 +1711,37 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
                 expect(err).toBeNull();
                 expect(user).toBe(false);
                 expect(info).toEqual({ reason: 'delegated_actor_consent_not_found' });
+                done();
+            }
+        });
+    });
+
+    test('authenticates a RelatedPerson token whose Consent/<id> does not exist, leaving the check to the request', (done) => {
+        const mockDelegatedAccessRulesManager = makeMockDelegatedAccessRulesManager();
+        mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockResolvedValue(null);
+        const authService = makeAuthService({ delegatedAccessRulesManager: mockDelegatedAccessRulesManager });
+
+        authService.configManager = new (class extends ConfigManager {
+            get enableDelegatedAccessDetection() { return true; }
+        });
+        const jwt_payload = {
+            ...basePayload(),
+            entitlements: ['Consent/0b0f8a4e-2c7d-4e1a-9f3b-5d6c7e8f9a0b', 'FAMRQT'],
+            act: {
+                reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
+                sub: 'patient-1'
+            }
+        };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(user).not.toBe(false);
+                expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).not.toHaveBeenCalled();
+                expect(info.context.actor.entitlements).toEqual(['Consent/0b0f8a4e-2c7d-4e1a-9f3b-5d6c7e8f9a0b', 'FAMRQT']);
+                expect(info.context.purposeOfUse).toEqual(['FAMRQT']);
                 done();
             }
         });

@@ -7,18 +7,6 @@ const { describe, beforeEach, afterEach, it, expect, jest } = require('@jest/glo
 // below MUST stay physically above the `require('../../../utils/delegatedAccessRulesManager')`
 // line (and any other require of a mocked module) -- otherwise the module under test captures
 // the real (unmocked) dependency in its own closure at require-time, silently.
-jest.mock('../../../utils/mongoQuerySimplifier', () => ({
-    MongoQuerySimplifier: {
-        simplifyFilter: jest.fn(({ filter }) => filter)
-    }
-}));
-
-jest.mock('../../../operations/query/filters/searchFilterFromReference', () => ({
-    SearchFilterFromReference: {
-        buildFilter: jest.fn().mockReturnValue([{ 'patient._uuid': { $in: ['person.person-123'] } }])
-    }
-}));
-
 jest.mock('../../../utils/referenceParser', () => ({
     ReferenceParser: {
         parseReference: jest.fn().mockReturnValue({
@@ -27,10 +15,6 @@ jest.mock('../../../utils/referenceParser', () => ({
             sourceAssigningAuthority: undefined
         })
     }
-}));
-
-jest.mock('../../../utils/querybuilder.util', () => ({
-    dateQueryBuilder: jest.fn().mockReturnValue({ $lte: '2026-01-01' })
 }));
 
 jest.mock('../../../operations/common/logging', () => ({
@@ -44,6 +28,51 @@ const { CustomTracer } = require('../../../utils/customTracer');
 const { ReferenceParser } = require('../../../utils/referenceParser');
 const { generateUUIDv5 } = require('../../../utils/uid.util');
 const { logWarn } = require('../../../operations/common/logging');
+const { RethrownError } = require('../../../utils/rethrownError');
+
+const RELATED_PERSON_UUID = 'fc2b3779-1db9-4780-bea1-73dc941b02a7';
+const GRANTOR_PERSON_UUID = '7b99904f-2f85-51a3-9398-e2eed6854639';
+const CONSENT_UUID = '6db13a4f-fee5-485a-b245-18881c0232ac';
+const ACTOR_REFERENCE = `RelatedPerson/${RELATED_PERSON_UUID}`;
+const CONSENT_REFERENCE = `Consent/${CONSENT_UUID}`;
+
+/**
+ * A stored Consent that passes every check for ACTOR_REFERENCE acting for GRANTOR_PERSON_UUID.
+ * References carry the `_uuid`/`_sourceId` fields the server adds on write.
+ */
+const buildValidConsent = () => ({
+    _uuid: CONSENT_UUID,
+    meta: { versionId: '3' },
+    status: 'active',
+    category: [{
+        coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataSharingAccess' }]
+    }],
+    patient: {
+        reference: `Patient/person.${GRANTOR_PERSON_UUID}`,
+        _uuid: `Patient/person.${GRANTOR_PERSON_UUID}`,
+        _sourceId: `Patient/person.${GRANTOR_PERSON_UUID}`
+    },
+    provision: {
+        type: 'permit',
+        period: { start: '2024-01-01T00:00:00.000Z', end: '2099-12-31T00:00:00.000Z' },
+        actor: [{ reference: { reference: ACTOR_REFERENCE, _uuid: ACTOR_REFERENCE } }]
+    }
+});
+
+const useRealReferenceParser = () => {
+    ReferenceParser.parseReference.mockImplementation(
+        jest.requireActual('../../../utils/referenceParser').ReferenceParser.parseReference
+    );
+};
+
+const restoreDefaultReferenceParserMock = () => {
+    ReferenceParser.parseReference.mockReset();
+    ReferenceParser.parseReference.mockReturnValue({
+        id: 'actor-1',
+        resourceType: 'Practitioner',
+        sourceAssigningAuthority: undefined
+    });
+};
 
 describe('DelegatedAccessRulesManager', () => {
     let manager;
@@ -68,6 +97,25 @@ describe('DelegatedAccessRulesManager', () => {
             customTracer: mockCustomTracer
         });
     });
+
+    /**
+     * Makes the Consent collection return `consents` for any query.
+     * @param {Object[]} consents
+     * @return {{ findAsync: jest.Mock }}
+     */
+    const mockConsentLookupReturning = (consents) => {
+        const mockCursor = {
+            maxTimeMS: jest.fn(),
+            getCollection: jest.fn().mockReturnValue('Consent_4_0_0'),
+            explainAsync: jest.fn().mockResolvedValue([{ stage: 'IDHACK' }]),
+            toArrayAsync: jest.fn().mockResolvedValue(consents)
+        };
+        const mockDatabaseQueryManager = {
+            findAsync: jest.fn().mockResolvedValue(mockCursor)
+        };
+        mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+        return mockDatabaseQueryManager;
+    };
 
     describe('parseConsentFilteringRules', () => {
         it('should extract basic consent filtering rules', () => {
@@ -301,6 +349,15 @@ describe('DelegatedAccessRulesManager', () => {
     });
 
     describe('getFilteringRulesAsync', () => {
+        beforeEach(() => {
+            useRealReferenceParser();
+            logWarn.mockClear();
+        });
+
+        afterEach(() => {
+            restoreDefaultReferenceParserMock();
+        });
+
         it('should return cached filtering rules when available', async () => {
             const actor = {
                 reference: 'Practitioner/actor-1',
@@ -326,40 +383,25 @@ describe('DelegatedAccessRulesManager', () => {
 
         it('should bypass cache when _debug is true', async () => {
             const actor = {
-                reference: 'Practitioner/actor-1',
+                reference: ACTOR_REFERENCE,
+                entitlements: [CONSENT_REFERENCE],
                 _filteringRules: {
                     consentId: 'cached-consent',
                     consentVersion: '1'
                 }
             };
-
-            // Mock the fetch to return something different
-            const mockCursor = {
-                maxTimeMS: jest.fn(),
-                hint: jest.fn(),
-                getCollection: jest.fn().mockReturnValue('Consent_4_0_0'),
-                explainAsync: jest.fn().mockResolvedValue([{ stage: 'IXSCAN' }]),
-                toArrayAsync: jest.fn().mockResolvedValue([{
-                    _uuid: 'new-consent',
-                    meta: { versionId: '2' },
-                    provision: { period: { start: '2025-01-01' } }
-                }])
-            };
-
-            const mockDatabaseQueryManager = {
-                findAsync: jest.fn().mockResolvedValue(mockCursor)
-            };
-            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+            mockConsentLookupReturning([buildValidConsent()]);
 
             const result = await manager.getFilteringRulesAsync({
                 actor,
-                personIdFromJwtToken: 'person-123',
+                personIdFromJwtToken: GRANTOR_PERSON_UUID,
                 _debug: true
             });
 
             // Should have queried the DB (not used cache)
             expect(mockCustomTracer.trace).toHaveBeenCalled();
-            expect(result.filteringRules.consentId).toBe('new-consent');
+            expect(result.filteringRules.consentId).toBe(CONSENT_UUID);
+            expect(result.actorConsentQueries[0].explanations).toEqual([{ stage: 'IDHACK' }]);
         });
 
         it('BUG: cached _filteringRules set to null is treated as "no cache" on subsequent calls', async () => {
@@ -382,57 +424,81 @@ describe('DelegatedAccessRulesManager', () => {
             expect(mockCustomTracer.trace).not.toHaveBeenCalled();
         });
 
-        it('should return null filteringRules when no consent found', async () => {
-            const actor = { reference: 'Practitioner/actor-1' };
-
-            const mockCursor = {
-                maxTimeMS: jest.fn(),
-                hint: jest.fn(),
-                getCollection: jest.fn().mockReturnValue('Consent_4_0_0'),
-                explainAsync: jest.fn().mockResolvedValue([]),
-                toArrayAsync: jest.fn().mockResolvedValue([])
-            };
-
-            const mockDatabaseQueryManager = {
-                findAsync: jest.fn().mockResolvedValue(mockCursor)
-            };
-            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+        it.each([
+            ['no entitlements', undefined],
+            ['only a purpose code', ['FAMRQT']],
+            ['a non-string entry', [42]],
+            ['two Consent entries', [CONSENT_REFERENCE, 'Consent/0b0f8a4e-2c7d-4e1a-9f3b-5d6c7e8f9a0b']]
+        ])('refuses without reading Consent when the token has %s', async (_label, entitlements) => {
+            const actor = { reference: ACTOR_REFERENCE, entitlements };
 
             const result = await manager.getFilteringRulesAsync({
                 actor,
-                personIdFromJwtToken: 'person-123'
+                personIdFromJwtToken: GRANTOR_PERSON_UUID
             });
 
             expect(result.filteringRules).toBeNull();
-            // Should cache the null result on actor
             expect(actor._filteringRules).toBeNull();
+            expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+            expect(logWarn).toHaveBeenCalledWith('Delegated Consent refused', expect.objectContaining({
+                args: { consentReference: null }
+            }));
         });
 
-        it('should throw ForbiddenError when multiple consents found', async () => {
-            const actor = { reference: 'Practitioner/actor-1' };
+        it.each([
+            ['is not found', []],
+            ['matches more than one Consent', [buildValidConsent(), buildValidConsent()]],
+            ['fails a check', [{ ...buildValidConsent(), status: 'inactive' }]]
+        ])('refuses when the named Consent %s', async (_label, consents) => {
+            const actor = { reference: ACTOR_REFERENCE, entitlements: [CONSENT_REFERENCE] };
+            mockConsentLookupReturning(consents);
 
-            const mockCursor = {
-                maxTimeMS: jest.fn(),
-                hint: jest.fn(),
-                getCollection: jest.fn().mockReturnValue('Consent_4_0_0'),
-                explainAsync: jest.fn().mockResolvedValue([]),
-                toArrayAsync: jest.fn().mockResolvedValue([
-                    { _uuid: 'consent-1', meta: { versionId: '1' } },
-                    { _uuid: 'consent-2', meta: { versionId: '1' } }
-                ])
-            };
+            const result = await manager.getFilteringRulesAsync({
+                actor,
+                personIdFromJwtToken: GRANTOR_PERSON_UUID
+            });
 
-            const mockDatabaseQueryManager = {
-                findAsync: jest.fn().mockResolvedValue(mockCursor)
-            };
-            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+            expect(result.filteringRules).toBeNull();
+            expect(actor._filteringRules).toBeNull();
+            expect(logWarn).toHaveBeenCalledWith('Delegated Consent refused', expect.objectContaining({
+                args: { consentReference: CONSENT_REFERENCE }
+            }));
+        });
+
+        it('reads the named Consent by uuid once per actor and leaves purposeOfUse to the token', async () => {
+            const actor = { reference: ACTOR_REFERENCE, entitlements: [CONSENT_REFERENCE, 'FAMRQT'] };
+            const mockDatabaseQueryManager = mockConsentLookupReturning([buildValidConsent()]);
+
+            const first = await manager.getFilteringRulesAsync({
+                actor,
+                personIdFromJwtToken: GRANTOR_PERSON_UUID
+            });
+            const second = await manager.getFilteringRulesAsync({
+                actor,
+                personIdFromJwtToken: GRANTOR_PERSON_UUID
+            });
+
+            expect(first.filteringRules.consentId).toBe(CONSENT_UUID);
+            expect(second.filteringRules).toBe(first.filteringRules);
+            expect(actor.purposeOfUse).toBeUndefined();
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledTimes(1);
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({ query: { _uuid: CONSENT_UUID } });
+        });
+
+        it.each([
+            ['a plain error', () => new Error('connection reset')],
+            // DatabaseCursor/DatabaseQueryManager wrap driver errors in RethrownError, which sets 500.
+            ['a RethrownError from the data layer', () => new RethrownError({ error: new Error('server selection timed out') })]
+        ])('propagates %s from the lookup as transient (503) instead of refusing with 403', async (_label, buildError) => {
+            const actor = { reference: ACTOR_REFERENCE, entitlements: [CONSENT_REFERENCE] };
+            mockDatabaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockRejectedValue(buildError())
+            });
 
             await expect(
-                manager.getFilteringRulesAsync({
-                    actor,
-                    personIdFromJwtToken: 'person-123'
-                })
-            ).rejects.toThrow('ambiguous permissions');
+                manager.getFilteringRulesAsync({ actor, personIdFromJwtToken: GRANTOR_PERSON_UUID })
+            ).rejects.toMatchObject({ isTransient: true, statusCode: 503 });
+            expect(actor._filteringRules).toBeUndefined();
         });
     });
 
@@ -464,24 +530,13 @@ describe('DelegatedAccessRulesManager', () => {
         });
 
         it('should return false when no consent found', async () => {
-            const actor = { reference: 'Practitioner/actor-1' };
-
-            const mockCursor = {
-                maxTimeMS: jest.fn(),
-                hint: jest.fn(),
-                getCollection: jest.fn().mockReturnValue('Consent_4_0_0'),
-                explainAsync: jest.fn().mockResolvedValue([]),
-                toArrayAsync: jest.fn().mockResolvedValue([])
-            };
-
-            const mockDatabaseQueryManager = {
-                findAsync: jest.fn().mockResolvedValue(mockCursor)
-            };
-            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+            useRealReferenceParser();
+            const actor = { reference: ACTOR_REFERENCE, entitlements: [CONSENT_REFERENCE] };
+            mockConsentLookupReturning([]);
 
             const result = await manager.hasValidConsentAsync({
                 actor,
-                personIdFromJwtToken: 'person-123'
+                personIdFromJwtToken: GRANTOR_PERSON_UUID
             });
 
             expect(result).toBe(false);
@@ -489,59 +544,31 @@ describe('DelegatedAccessRulesManager', () => {
         });
 
         it('should return true and set consentPolicy when consent found', async () => {
-            const actor = { reference: 'Practitioner/actor-1' };
-
-            const mockCursor = {
-                maxTimeMS: jest.fn(),
-                hint: jest.fn(),
-                getCollection: jest.fn().mockReturnValue('Consent_4_0_0'),
-                explainAsync: jest.fn().mockResolvedValue([]),
-                toArrayAsync: jest.fn().mockResolvedValue([{
-                    _uuid: 'consent-abc',
-                    meta: { versionId: '3' },
-                    provision: { period: { start: '2024-01-01', end: '2026-12-31' } }
-                }])
-            };
-
-            const mockDatabaseQueryManager = {
-                findAsync: jest.fn().mockResolvedValue(mockCursor)
-            };
-            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+            useRealReferenceParser();
+            const actor = { reference: ACTOR_REFERENCE, entitlements: [CONSENT_REFERENCE] };
+            mockConsentLookupReturning([buildValidConsent()]);
 
             const result = await manager.hasValidConsentAsync({
                 actor,
-                personIdFromJwtToken: 'person-123'
+                personIdFromJwtToken: GRANTOR_PERSON_UUID
             });
 
             expect(result).toBe(true);
-            expect(actor.consentPolicy).toBe('Consent/consent-abc?version=3');
+            expect(actor.consentPolicy).toBe(`Consent/${CONSENT_UUID}?version=3`);
         });
 
         it('BUG: consentVersion undefined produces malformed consentPolicy string', async () => {
             // When consent has no meta.versionId, consentVersion will be undefined
             // The consentPolicy string becomes: "Consent/consent-id?version=undefined"
-            const actor = { reference: 'Practitioner/actor-1' };
-
-            const mockCursor = {
-                maxTimeMS: jest.fn(),
-                hint: jest.fn(),
-                getCollection: jest.fn().mockReturnValue('Consent_4_0_0'),
-                explainAsync: jest.fn().mockResolvedValue([]),
-                toArrayAsync: jest.fn().mockResolvedValue([{
-                    _uuid: 'consent-no-meta',
-                    // No meta field!
-                    provision: { period: { start: '2024-01-01', end: '2026-12-31' } }
-                }])
-            };
-
-            const mockDatabaseQueryManager = {
-                findAsync: jest.fn().mockResolvedValue(mockCursor)
-            };
-            mockDatabaseQueryFactory.createQuery.mockReturnValue(mockDatabaseQueryManager);
+            useRealReferenceParser();
+            const actor = { reference: ACTOR_REFERENCE, entitlements: [CONSENT_REFERENCE] };
+            const consentWithoutMeta = buildValidConsent();
+            delete consentWithoutMeta.meta;
+            mockConsentLookupReturning([consentWithoutMeta]);
 
             const result = await manager.hasValidConsentAsync({
                 actor,
-                personIdFromJwtToken: 'person-123'
+                personIdFromJwtToken: GRANTOR_PERSON_UUID
             });
 
             expect(result).toBe(true);
@@ -955,6 +982,93 @@ describe('DelegatedAccessRulesManager', () => {
 
                 expect(result).toEqual(['TREAT']);
             });
+        });
+    });
+
+    describe('Consent checks', () => {
+        beforeEach(() => {
+            useRealReferenceParser();
+        });
+
+        afterEach(() => {
+            restoreDefaultReferenceParserMock();
+        });
+
+        it.each([
+            ['a uuid reference by _uuid', { _uuid: ACTOR_REFERENCE }, ACTOR_REFERENCE, true],
+            ['a uuid reference stored under another uuid', { _uuid: 'RelatedPerson/other' }, ACTOR_REFERENCE, false],
+            [
+                'an id with its source assigning authority',
+                { _sourceId: 'RelatedPerson/rp-1', _sourceAssigningAuthority: 'client-1' },
+                'RelatedPerson/rp-1|client-1',
+                true
+            ],
+            [
+                'an id with another source assigning authority',
+                { _sourceId: 'RelatedPerson/rp-1', _sourceAssigningAuthority: 'client-2' },
+                'RelatedPerson/rp-1|client-1',
+                false
+            ],
+            [
+                'a person proxy patient as the server stores it',
+                {
+                    _uuid: `Patient/person.${GRANTOR_PERSON_UUID}`,
+                    _sourceId: `Patient/person.${GRANTOR_PERSON_UUID}`
+                },
+                `Patient/person.${GRANTOR_PERSON_UUID}`,
+                true
+            ],
+            ['a missing stored reference', undefined, ACTOR_REFERENCE, false]
+        ])('referenceMatches %s', (_label, storedReference, reference, expected) => {
+            expect(DelegatedAccessRulesManager.referenceMatches(storedReference, reference)).toBe(expected);
+        });
+
+        const now = new Date('2025-12-24T20:00:00.000Z');
+        const otherRelatedPerson = 'RelatedPerson/0e6f9a35-8b0c-4c47-9b1a-2f3d4e5f6a7b';
+
+        it.each([
+            ['the valid Consent', () => {}, true],
+            ['an inactive Consent', (c) => { c.status = 'inactive'; }, false],
+            ['a deny provision', (c) => { c.provision.type = 'deny'; }, false],
+            ['no data-sharing category', (c) => { c.category = [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode', code: 'IDSCL' }] }]; }, false],
+            ['no period', (c) => { delete c.provision.period; }, false],
+            ['a start in the future', (c) => { c.provision.period.start = '2025-12-25T00:00:00.000Z'; }, false],
+            ['an unparseable start', (c) => { c.provision.period.start = 'not-a-date'; }, false],
+            ['an empty-string start', (c) => { c.provision.period.start = ''; }, false],
+            ['an empty-string end', (c) => { c.provision.period.end = ''; }, false],
+            ['empty-string start and end', (c) => { c.provision.period = { start: '', end: '' }; }, false],
+            ['an end in the past', (c) => { c.provision.period.end = '2025-12-24T00:00:00.000Z'; }, false],
+            ['a date-only end earlier today', (c) => { c.provision.period.end = '2025-12-24'; }, false],
+            ['only a past start', (c) => { delete c.provision.period.end; }, true],
+            ['only a future end', (c) => { delete c.provision.period.start; }, true],
+            [
+                'another grantor',
+                (c) => { c.patient = { reference: 'Patient/person.other', _sourceId: 'Patient/person.other' }; },
+                false
+            ],
+            [
+                'another delegate',
+                (c) => { c.provision.actor = [{ reference: { reference: otherRelatedPerson, _uuid: otherRelatedPerson } }]; },
+                false
+            ],
+            ['no provision actor', (c) => { delete c.provision.actor; }, false],
+            [
+                'the delegate as the second actor',
+                (c) => { c.provision.actor.unshift({ reference: { reference: otherRelatedPerson, _uuid: otherRelatedPerson } }); },
+                true
+            ]
+        ])('consentGrantsAccess for %s', (_label, mutate, expected) => {
+            const consent = buildValidConsent();
+            mutate(consent);
+
+            const grantsAccess = manager.consentGrantsAccess({
+                consent,
+                actorReference: ACTOR_REFERENCE,
+                personIdFromJwtToken: GRANTOR_PERSON_UUID,
+                now
+            });
+
+            expect(grantsAccess).toBe(expected);
         });
     });
 });

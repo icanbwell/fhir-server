@@ -6,6 +6,8 @@ const patient = require('./fixtures/Patient/patient1.json');
 const person = require('./fixtures/Person/person1.json');
 const observation = require('./fixtures/Observation/observation1.json');
 const consent = require('./fixtures/Consent/consent1.json');
+// The delegated token names the Consent by its uuid (uuidv5 of 'consent-for-delegated-actor|bwell').
+const CONSENT_ENTITLEMENT = 'Consent/05eb6663-b84b-5ec2-9a4d-cf20d61400dd';
 
 // expected
 // Expected remote address is 127.0.0.1: supertest 7.3+ binds the test server to IPv4 loopback only,
@@ -542,7 +544,8 @@ describe('InternalAuditLog Tests', () => {
                     act: {
                         reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
                         sub: 'related-person-sub-123'
-                    }
+                    },
+                    entitlements: [CONSENT_ENTITLEMENT]
                 }),
                 Host: 'localhost:3000'
             };
@@ -631,7 +634,7 @@ describe('InternalAuditLog Tests', () => {
                         reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
                         sub: 'related-person-sub-123'
                     },
-                    entitlements: ['FAMRQT']
+                    entitlements: [CONSENT_ENTITLEMENT, 'FAMRQT']
                 }),
                 Host: 'localhost:3000'
             };

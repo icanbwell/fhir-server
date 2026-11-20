@@ -43,6 +43,7 @@ const consentActorABroad = require('./fixtures/Consent/consent-actor-a-broad.jso
 const consentActorBHivDenied = require('./fixtures/Consent/consent-actor-b-hiv-denied.json');
 
 const { ConfigManager } = require('../../../../utils/configManager');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
 
 class MockConfigManager extends ConfigManager {
@@ -81,7 +82,8 @@ const actorAPayload = {
     act: {
         reference: 'RelatedPerson/rp-actor-a',
         sub: 'actor-a-sub'
-    }
+    },
+    entitlements: [`Consent/${generateUUIDv5(`${consentActorABroad.id}|bwell`)}`]
 };
 
 const actorBPayload = {
@@ -96,7 +98,8 @@ const actorBPayload = {
     act: {
         reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
         sub: 'delegated-sub-123'
-    }
+    },
+    entitlements: [`Consent/${generateUUIDv5(`${consentActorBHivDenied.id}|bwell`)}`]
 };
 
 const hasResourceWithSourceId = (body, sourceId) =>
