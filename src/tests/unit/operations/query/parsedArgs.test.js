@@ -4,6 +4,7 @@ const { describe, test, expect, beforeEach, jest: jestObj } = require('@jest/glo
 
 // Mock dependencies before requiring the module
 jestObj.mock('../../../../utils/assertType', () => ({
+    assertTypeEquals: jestObj.fn(),
     assertIsValid: jestObj.fn((value, message) => {
         if (!value) {
             throw new Error(message || 'Assertion failed');
@@ -25,6 +26,8 @@ jestObj.mock('../../../../utils/nullRemover', () => ({
 }));
 
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
+const { QueryParameterValue } = require('../../../../operations/query/queryParameterValue');
 const { assertIsValid } = require('../../../../utils/assertType');
 const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
 
@@ -525,11 +528,21 @@ describe('ParsedArgs', () => {
     });
     describe('isRequestById access outcome with _id and _id:not', () => {
         // the letter isRequestById picks is what searchBundle / searchStreaming hand the scope check
+        // real ParsedArgsItems, shaped as r4ArgsParser builds them for `_id=X&_id:not=Y` (the
+        // modifier is stored as 'not', no colon), so a parser or getter change reaches this test
         const parsedArgs = new ParsedArgs({
             base_version: '4_0_0',
             parsedArgItems: [
-                createMockParsedArgsItem({ queryParameter: '_id', value: 'X' }),
-                createMockParsedArgsItem({ queryParameter: '_id', value: 'Y', modifiers: ['not'] })
+                new ParsedArgsItem({
+                    queryParameter: '_id',
+                    queryParameterValue: new QueryParameterValue({ value: 'X', operator: '$or' }),
+                    modifiers: []
+                }),
+                new ParsedArgsItem({
+                    queryParameter: '_id',
+                    queryParameterValue: new QueryParameterValue({ value: 'Y', operator: '$or' }),
+                    modifiers: ['not']
+                })
             ]
         });
         // only the scope matcher is exercised; it needs nothing but the config flag

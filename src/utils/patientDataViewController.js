@@ -140,19 +140,21 @@ class PatientDataViewControlManager {
             })
         });
 
-        for (const entry of viewControlConsentEntries) {
-            for (const ref of entry.resource.provision?.data ?? []) {
-                const reference = ref?.reference?.reference;
-                if (!reference) {
-                    continue;
+        viewControlConsentEntries.forEach((entry) => {
+            entry.resource.provision?.data?.forEach((ref) => {
+                if (ref?.reference?.reference) {
+                    const { resourceType: refType, id: refId } = ReferenceParser.parseReference(
+                        ref.reference.reference
+                    );
+                    if (refType && refId) {
+                        if (!viewControlResourceToExcludeMap[refType]) {
+                            viewControlResourceToExcludeMap[refType] = [];
+                        }
+                        viewControlResourceToExcludeMap[refType].push(refId);
+                    }
                 }
-                const { resourceType: refType, id: refId } = ReferenceParser.parseReference(reference);
-                if (!refType || !refId) {
-                    continue;
-                }
-                (viewControlResourceToExcludeMap[refType] ??= []).push(refId);
-            }
-        }
+            });
+        });
 
         return {
             viewControlResourceToExcludeMap,
@@ -240,21 +242,19 @@ class PatientDataViewControlManager {
             })
         });
 
-        viewControlConsentEntries.forEach((entry) => {
-            entry.resource.provision?.data?.forEach((ref) => {
-                if (ref?.reference?.reference) {
-                    const { resourceType: refType, id: refId } = ReferenceParser.parseReference(
-                        ref.reference.reference
-                    );
-                    if (refType && refId) {
-                        if (!viewControlResourceToExcludeMap[refType]) {
-                            viewControlResourceToExcludeMap[refType] = [];
-                        }
-                        viewControlResourceToExcludeMap[refType].push(refId);
-                    }
+        for (const entry of viewControlConsentEntries) {
+            for (const ref of entry.resource.provision?.data ?? []) {
+                const reference = ref?.reference?.reference;
+                if (!reference) {
+                    continue;
                 }
-            });
-        });
+                const { resourceType: refType, id: refId } = ReferenceParser.parseReference(reference);
+                if (!refType || !refId) {
+                    continue;
+                }
+                (viewControlResourceToExcludeMap[refType] ??= []).push(refId);
+            }
+        }
 
         return {
             viewControlResourceToExcludeMap,
