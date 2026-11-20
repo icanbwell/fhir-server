@@ -1,4 +1,3 @@
-const deepcopy = require('deepcopy');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { Base64DataManager } = require('../../../../dataLayer/base64DataManager');
 const { DatabaseAttachmentManager } = require('../../../../dataLayer/databaseAttachmentManager');
@@ -8,8 +7,6 @@ const {
 const {
     GroupExtendedTagEnrichmentProvider
 } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
-const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
-const { GRIDFS, BLOB_OP } = require('../../../../constants');
 const { WriteItem, WRITE_ITEM_STATUS } = require('../../writeItem');
 const { WriteContext } = require('../../writeContext');
 const { WRITE_FAILURE_STAGE } = require('../../writeFailure');
@@ -21,6 +18,10 @@ const {
     firstExecutedResult,
     notWrittenError
 } = require('../singleResource/singleResourceResult');
+const {
+    unchangedEntry,
+    buildResponseDocumentAsync
+} = require('../singleResource/singleResourceDocument');
 
 /**
  * The failure stages for which update stores the rejected resource in the access log before it
@@ -139,33 +140,16 @@ class UpdateResponder extends WriteResponder {
     results ({ items, requestErrors, executedResults }) {
         const [item] = items;
         if (item?.status === WRITE_ITEM_STATUS.UNCHANGED) {
-            return [this.unchangedEntry(item.stored)];
+            return [unchangedEntry(item.stored)];
         }
         const firstResult = firstExecutedResult(executedResults);
         if (!firstResult.created && !firstResult.updated) {
             if (item?.writeMode === 'update' && !firstResult.issue) {
-                return [this.unchangedEntry(item.candidate)];
+                return [unchangedEntry(item.candidate)];
             }
             throw notWrittenError(firstResult);
         }
         return executedResults;
-    }
-
-    /**
-     * Returns the entry, neither created nor updated, of a document that was not written: its id,
-     * uuid, source assigning authority and resource type.
-     * @param {Object} document
-     * @returns {Object}
-     */
-    unchangedEntry (document) {
-        return {
-            created: false,
-            updated: false,
-            id: document.id,
-            uuid: document._uuid,
-            sourceAssigningAuthority: document._sourceAssigningAuthority,
-            resourceType: document.resourceType
-        };
     }
 
     /**
@@ -183,20 +167,19 @@ class UpdateResponder extends WriteResponder {
     async toResponse ({ context, items, results }) {
         const [item] = items;
         const unchanged = item.status === WRITE_ITEM_STATUS.UNCHANGED;
-        let document = deepcopy(unchanged ? item.stored : item.candidate);
-        document = await this.databaseAttachmentManager.transformAttachments(document, GRIDFS.RETRIEVE);
-        document = await this.base64DataManager.transformAsync(
-            document,
-            BLOB_OP.RETRIEVE,
-            context.requestInfo
-        );
-        this.identifierEnrichmentProvider.enrichIdentifierList(document);
-        [document] = await this.groupExtendedTagEnrichmentProvider.enrichAsync({ resources: [document] });
+        const { document, resource } = await buildResponseDocumentAsync({
+            item,
+            requestInfo: context.requestInfo,
+            databaseAttachmentManager: this.databaseAttachmentManager,
+            base64DataManager: this.base64DataManager,
+            identifierEnrichmentProvider: this.identifierEnrichmentProvider,
+            groupExtendedTagEnrichmentProvider: this.groupExtendedTagEnrichmentProvider
+        });
         return {
             id: context.parsedArgs.id,
             created: unchanged ? false : results[0].created,
             resource_version: document.meta?.versionId,
-            resource: FhirResourceSerializer.serialize(document)
+            resource
         };
     }
 

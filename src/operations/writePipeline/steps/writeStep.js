@@ -10,16 +10,17 @@ const { WriteContext } = require('../writeContext');
  * The `write` step, per item: has the writer queue each item's document in the bulk inserter, as an
  * update of the stored version or as an insert, and marks it queued. Nothing reaches the database
  * until `WritePipeline.executeAsync` flushes the queue once for the batch. An error fails only that
- * item at the `WRITE` stage.
+ * item at the `WRITE` stage. After the flush, `WritePipeline.runAsync` calls `afterFlushAsync`, which
+ * runs the writer's own `afterFlushAsync` hook if it has one; the default writers have none.
  */
 class WriteStep {
     /**
-     * @param {{queueUpdateAsync: function({item: WriteItem, context: WriteContext}): Promise<void>, queueInsertAsync: function({item: WriteItem, context: WriteContext}): Promise<void>}} writer
+     * @param {{queueUpdateAsync: function({item: WriteItem, context: WriteContext}): Promise<void>, queueInsertAsync: function({item: WriteItem, context: WriteContext}): Promise<void>, afterFlushAsync?: function({items: WriteItem[], context: WriteContext, executedResults: Object[]}): Promise<void>}} writer
      * @param {ConfigManager} configManager
      */
     constructor ({ writer, configManager }) {
         /**
-         * @type {{queueUpdateAsync: function, queueInsertAsync: function}}
+         * @type {{queueUpdateAsync: function, queueInsertAsync: function, afterFlushAsync?: function}}
          */
         this.writer = writer;
         assertIsValid(writer, 'writer is required');
@@ -43,6 +44,23 @@ class WriteStep {
             chunkSize: this.configManager.mergeParallelChunkSize,
             func: async (item) => await this.queueOneAsync({ item, context })
         });
+    }
+
+    /**
+     * Runs once after the bulk flush: calls the writer's `afterFlushAsync` with the items and the
+     * flush results when the writer has one, and does nothing when it has none. An error from the
+     * hook is thrown, not recorded on an item, because the flush has already happened. The hook
+     * receives every item, failed ones included, so a writer's hook must select the items it queued
+     * and whose flush result succeeded.
+     * @param {WriteItem[]} items
+     * @param {WriteContext} context
+     * @param {Object[]} executedResults The results the bulk flush returned.
+     * @returns {Promise<void>}
+     */
+    async afterFlushAsync ({ items, context, executedResults }) {
+        if (typeof this.writer.afterFlushAsync === 'function') {
+            await this.writer.afterFlushAsync({ items, context, executedResults });
+        }
     }
 
     /**

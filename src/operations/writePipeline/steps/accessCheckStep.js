@@ -4,10 +4,11 @@ const { WriteItem } = require('../writeItem');
 const { WriteContext } = require('../writeContext');
 
 /**
- * The `accessBeforeBuild` step, once for the batch: fails each item the access checker rejects. For
- * `$merge` the checker checks the stored document and the incoming body before the merge, so a
- * rejected item never reaches `buildDocument`, where the resource merger can delete stored GridFS
- * attachments.
+ * The `accessBeforeBuild` and `accessOnResult` steps, once for the batch: fails each item the access
+ * checker rejects. For `$merge` the `accessBeforeBuild` checker checks the stored document and the
+ * incoming body before the merge, so a rejected item never reaches `buildDocument`, where the
+ * resource merger can delete stored GridFS attachments. The `accessOnResult` checker checks the
+ * built document.
  */
 class AccessCheckStep {
     /**

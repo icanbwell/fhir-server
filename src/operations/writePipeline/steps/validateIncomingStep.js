@@ -11,9 +11,9 @@ const { WriteContext } = require('../writeContext');
  * fields: runs the size check, then the pipe-in-id check, then the schema check, then restores
  * the `_uuid` and `_sourceAssigningAuthority` saved by `PrepareBodyStep`; the first failure wins.
  * A size or pipe-in-id failure is built before the identity is restored, so it carries no `uuid`
- * or source assigning authority. Every operation runs both checks. A schema error fails the item
- * at `INCOMING_SCHEMA` and is recorded in `fhir_validation_failure_total` at the `schema` stage.
- * It runs before `findExisting`, so an item that fails here is not loaded.
+ * or source assigning authority. Every operation with a resource body runs both checks. A schema
+ * error fails the item at `INCOMING_SCHEMA` and is recorded in `fhir_validation_failure_total` at
+ * the `schema` stage. It runs before `findExisting`, so an item that fails here is not loaded.
  */
 class ValidateIncomingStep {
     /**

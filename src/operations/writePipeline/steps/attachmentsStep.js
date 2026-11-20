@@ -20,6 +20,10 @@ const { WriteContext } = require('../writeContext');
  * for the write. For an update it also keeps the stored ClickHouse Group members on the document
  * and drops duplicate `meta.security` tags. It runs after every check, so attachments are only
  * written for items that passed them all. An error fails only that item at the `ATTACHMENTS` stage.
+ *
+ * With `alwaysCreateNewBase64` on, the base64 insert uploads a fresh live object for every
+ * over-threshold payload instead of skipping an unchanged one (`Base64DataManager`'s
+ * `alwaysCreateNew`), as an operation with no version check needs. It is off by default.
  */
 class AttachmentsStep {
     /**
@@ -27,8 +31,16 @@ class AttachmentsStep {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {ConfigManager} configManager
+     * @param {boolean} [alwaysCreateNewBase64] when true, the base64 insert is called with
+     *        `{ alwaysCreateNew: true }`; when false (the default), it is called without options
      */
-    constructor ({ preSaveManager, databaseAttachmentManager, base64DataManager, configManager }) {
+    constructor ({
+        preSaveManager,
+        databaseAttachmentManager,
+        base64DataManager,
+        configManager,
+        alwaysCreateNewBase64 = false
+    }) {
         /**
          * @type {PreSaveManager}
          */
@@ -49,6 +61,10 @@ class AttachmentsStep {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+        /**
+         * @type {boolean}
+         */
+        this.alwaysCreateNewBase64 = alwaysCreateNewBase64;
     }
 
     /**
@@ -102,7 +118,11 @@ class AttachmentsStep {
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
             doc = await this.databaseAttachmentManager.transformAttachments(doc);
-            doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo);
+            doc = this.alwaysCreateNewBase64
+                ? await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo, {
+                    alwaysCreateNew: true
+                })
+                : await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo);
 
             const contextData = isUpdate
                 ? buildContextDataForHybridStorage(doc.resourceType, doc, requestInfo, { smartMerge })

@@ -9,12 +9,19 @@ jest.mock('../../../../operations/common/logging', () => ({
 const httpContext = require('express-http-context');
 const { logInfo, logError } = require('../../../../operations/common/logging');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../../../constants');
+const {
+    BadRequestError,
+    NotFoundError,
+    PreconditionFailedError
+} = require('../../../../utils/httpErrors');
 const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
 const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { CustomTracer } = require('../../../../utils/customTracer');
 const { WritePipeline, WRITE_STEP_NAMES } = require('../../../../operations/writePipeline/writePipeline');
 const { MERGE_WRITE_PROFILE } = require('../../../../operations/writePipeline/operations/merge/profile');
+const { CREATE_WRITE_PROFILE } = require('../../../../operations/writePipeline/operations/create/profile');
+const { UPDATE_WRITE_PROFILE } = require('../../../../operations/writePipeline/operations/update/profile');
 const { WriteItem, WRITE_ITEM_STATUS } = require('../../../../operations/writePipeline/writeItem');
 const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../../../operations/writePipeline/writeFailure');
 const { WriteContext } = require('../../../../operations/writePipeline/writeContext');
@@ -51,6 +58,7 @@ const STEP_DEFINITIONS = Object.freeze([
     { name: 'validateAgainstStored', key: 'validateAgainstStoredStep', type: ValidateAgainstStoredStep },
     { name: 'buildDocument', key: 'buildDocumentStep', type: BuildDocumentStep },
     { name: 'validateResult', key: 'validateResultStep', type: ValidateResultStep },
+    { name: 'accessOnResult', key: 'accessOnResultStep', type: AccessCheckStep },
     { name: 'attachments', key: 'attachmentsStep', type: AttachmentsStep },
     { name: 'noOpCheck', key: 'noOpStep', type: NoOpStep },
     { name: 'write', key: 'writeStep', type: WriteStep }
@@ -114,7 +122,8 @@ const buildStepVariants = (registered, calls = []) => Object.fromEntries(
 /**
  * Builds a `WritePipeline` with fake steps, bulk inserter, auditor and logging manager that record
  * each call in `calls`. Each step runs its function in `behaviors`, if any, and `received` keeps
- * the items each step got. `stepVariants` is the pipeline's variant registry, none by default, and
+ * the items each step got. The default write step also has a fake `afterFlushAsync` hook that
+ * records `afterFlushAsync`. `stepVariants` is the pipeline's variant registry, none by default, and
  * `profiles` are the profiles it can run, `FAKE_PROFILE` and the merge profile by default.
  */
 const buildPipeline = ({
@@ -138,6 +147,9 @@ const buildPipeline = ({
         steps[key] = step;
         stepsByName[name] = step;
     }
+    steps.writeStep.afterFlushAsync = jest.fn(async () => {
+        calls.push('afterFlushAsync');
+    });
     const databaseBulkInserter = Object.create(FastDatabaseBulkInserter.prototype);
     databaseBulkInserter.executeAsync = jest.fn(async () => {
         calls.push('executeAsync');
@@ -256,8 +268,12 @@ describe('WritePipeline', () => {
 
     test.each([
         { name: 'a fake profile', profile: FAKE_PROFILE, stepsOff: [] },
-        { name: 'the merge profile', profile: MERGE_WRITE_PROFILE, stepsOff: ['validateAgainstStored'] }
-    ])('processAsync runs the thirteen steps in WRITE_STEP_NAMES order, less the steps off, for $name', async ({
+        {
+            name: 'the merge profile',
+            profile: MERGE_WRITE_PROFILE,
+            stepsOff: ['validateAgainstStored', 'accessOnResult']
+        }
+    ])('processAsync runs the fourteen steps in WRITE_STEP_NAMES order, less the steps off, for $name', async ({
         profile,
         stepsOff
     }) => {
@@ -276,12 +292,41 @@ describe('WritePipeline', () => {
             'validateAgainstStored',
             'buildDocument',
             'validateResult',
+            'accessOnResult',
             'attachments',
             'noOpCheck',
             'write'
         ]);
         expect(Object.isFrozen(WRITE_STEP_NAMES)).toBe(true);
         expect(calls).toStrictEqual(WRITE_STEP_NAMES.filter((name) => !stepsOff.includes(name)));
+    });
+
+    test.each([
+        { profile: CREATE_WRITE_PROFILE },
+        { profile: UPDATE_WRITE_PROFILE },
+        { profile: MERGE_WRITE_PROFILE }
+    ])('the $profile.name profile turns the accessOnResult step off', ({ profile }) => {
+        expect(profile.off).toContain('accessOnResult');
+    });
+
+    test('runs the accessOnResult step on the active items after validateResult and before attachments', async () => {
+        const { pipeline, calls, received } = buildPipeline({
+            behaviors: {
+                validateResult: (stepItems) => stepItems[0].fail({ failure: buildFailure(stepItems[0]) })
+            }
+        });
+        const items = buildItems(2);
+
+        await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items });
+
+        expect(calls.slice(calls.indexOf('validateResult'))).toStrictEqual([
+            'validateResult',
+            'accessOnResult',
+            'attachments',
+            'noOpCheck',
+            'write'
+        ]);
+        expect(received.accessOnResult).toStrictEqual([items[1]]);
     });
 
     test('passes the items, the context and the profile to every step', async () => {
@@ -468,9 +513,30 @@ describe('WritePipeline', () => {
             name: 'a variant without a runAsync function',
             stepVariants: { buildDocument: { copy: { runAsync: 'not a function' } } },
             message: 'WritePipeline step variant "buildDocument.copy" needs a runAsync function'
+        },
+        {
+            name: 'a write variant without an afterFlushAsync function',
+            stepVariants: { write: { copy: { runAsync: jest.fn() } } },
+            message: 'WritePipeline step variant "write.copy" needs an afterFlushAsync function'
+        },
+        {
+            name: 'a write variant whose afterFlushAsync is not a function',
+            stepVariants: { write: { copy: { runAsync: jest.fn(), afterFlushAsync: 'not a function' } } },
+            message: 'WritePipeline step variant "write.copy" needs an afterFlushAsync function'
         }
     ])('throws when constructed with $name', ({ stepVariants, message }) => {
         expect(() => buildPipeline({ stepVariants })).toThrow(message);
+    });
+
+    test('accepts a write variant with an afterFlushAsync function and a variant of another step without one', () => {
+        const stepVariants = {
+            write: { copy: { runAsync: jest.fn(), afterFlushAsync: jest.fn() } },
+            buildDocument: { copy: { runAsync: jest.fn() } }
+        };
+
+        const { pipeline } = buildPipeline({ stepVariants });
+
+        expect(Object.keys(pipeline.stepVariants)).toStrictEqual(['write', 'buildDocument']);
     });
 
     test('freezes a copy of stepVariants, so a later change to the argument is not seen', () => {
@@ -781,6 +847,58 @@ describe('WritePipeline', () => {
     });
 
     test.each([
+        {
+            name: 'a BadRequestError, which is a client error',
+            error: new BadRequestError(new Error('synthetic bad request')),
+            expectedLogger: logInfo,
+            otherLogger: logError
+        },
+        {
+            name: 'a NotFoundError, which is a client error',
+            error: new NotFoundError(new Error('synthetic not found')),
+            expectedLogger: logInfo,
+            otherLogger: logError
+        },
+        {
+            name: 'a PreconditionFailedError, which update logs as info',
+            error: new PreconditionFailedError('synthetic precondition failure'),
+            expectedLogger: logInfo,
+            otherLogger: logError
+        },
+        {
+            name: 'an error without a log level',
+            error: new Error('synthetic failure'),
+            expectedLogger: logError,
+            otherLogger: logInfo
+        },
+        {
+            name: 'an error whose log level is not info',
+            error: Object.assign(new Error('synthetic failure'), { logLevel: 'error' }),
+            expectedLogger: logError,
+            otherLogger: logInfo
+        }
+    ])('logs an error failure for $name at the level of the error', async ({ error, expectedLogger, otherLogger }) => {
+        const items = buildItems(1);
+        const failure = new WriteFailure({
+            stage: WRITE_FAILURE_STAGE.WRITE,
+            subject: WriteFailure.subjectOf(items[0].incoming),
+            error
+        });
+        const { pipeline } = buildPipeline({
+            behaviors: { write: (stepItems) => stepItems[0].fail({ failure }) }
+        });
+
+        await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items });
+
+        expect(expectedLogger).toHaveBeenCalledTimes(1);
+        expect(expectedLogger).toHaveBeenCalledWith(
+            'Write step failed for resource',
+            expect.objectContaining({ operation: 'fake', step: 'write', stage: WRITE_FAILURE_STAGE.WRITE, error })
+        );
+        expect(otherLogger).not.toHaveBeenCalled();
+    });
+
+    test.each([
         { name: 'logInfo', logger: logInfo, failure: (item) => buildFailure(item) },
         {
             name: 'logError',
@@ -834,7 +952,9 @@ describe('WritePipeline', () => {
     });
 
     test('runAsync reads, runs the steps, executes, audits, logs and responds in order', async () => {
-        const { pipeline, calls, received, databaseBulkInserter, writeAuditor, fhirLoggingManager } = buildPipeline();
+        const {
+            pipeline, calls, received, stepsByName, databaseBulkInserter, writeAuditor, fhirLoggingManager
+        } = buildPipeline();
         httpContextSetSpy.mockImplementation(() => calls.push('httpContext.set'));
         const requestInfo = { requestId: 'request-1', headers: {} };
         const parsedArgs = new ParsedArgs({ base_version: '4_0_0' });
@@ -874,6 +994,7 @@ describe('WritePipeline', () => {
             'executeAsync',
             'results',
             'writeAuditor.auditAsync',
+            'afterFlushAsync',
             'logOperationSuccessAsync',
             'httpContext.set',
             'toResponse',
@@ -883,6 +1004,9 @@ describe('WritePipeline', () => {
         expect(received.scopeCheck).toStrictEqual(items);
         expect(responder.failureResults).toHaveBeenCalledWith({ items, requestErrors });
         expect(databaseBulkInserter.executeAsync).toHaveBeenCalledWith({ requestInfo, base_version: '4_0_0' });
+        expect(stepsByName.write.afterFlushAsync).toHaveBeenCalledTimes(1);
+        expect(stepsByName.write.afterFlushAsync).toHaveBeenCalledWith({ items, context, executedResults });
+        expect(stepsByName.write.afterFlushAsync.mock.calls[0][0].executedResults).toBe(executedResults);
         expect(responder.results).toHaveBeenCalledWith({ items, requestErrors, executedResults });
         expect(writeAuditor.auditAsync).toHaveBeenCalledTimes(1);
         expect(writeAuditor.auditAsync).toHaveBeenCalledWith({ context, results });
@@ -952,6 +1076,137 @@ describe('WritePipeline', () => {
         expect(httpContextSetSpy).not.toHaveBeenCalled();
         expect(responder.recordMetrics).toHaveBeenCalledTimes(1);
         expect(responder.recordMetrics.mock.calls[0][0].results).toBe(failureResults);
+    });
+
+    test("afterFlushAsync runs once, after the flush, the results and the audit, on the profile's write variant", async () => {
+        const calls = [];
+        const variantHook = jest.fn(async () => {
+            calls.push('write.fake.afterFlushAsync');
+        });
+        const stepVariants = {
+            write: {
+                fake: {
+                    runAsync: jest.fn(async () => {
+                        calls.push('write.fake');
+                    }),
+                    afterFlushAsync: variantHook
+                }
+            }
+        };
+        const profile = buildProfile({ variants: { write: 'fake' } });
+        const { pipeline, stepsByName, databaseBulkInserter } = buildPipeline({
+            calls,
+            stepVariants,
+            profiles: [profile]
+        });
+        const requestInfo = { requestId: 'request-1', headers: {} };
+        const context = buildContext(requestInfo);
+        const items = buildItems(2);
+        const executedResults = [{ id: 'patient-0', created: true }];
+        databaseBulkInserter.executeAsync.mockImplementation(async () => {
+            calls.push('executeAsync');
+            return executedResults;
+        });
+        const responder = buildResponder({ calls, context, items });
+
+        await pipeline.runAsync({
+            profile,
+            responder,
+            requestInfo,
+            parsedArgs: new ParsedArgs({ base_version: '4_0_0' }),
+            resourceType: 'Patient'
+        });
+
+        expect(calls.filter((name) => name.endsWith('afterFlushAsync'))).toStrictEqual([
+            'write.fake.afterFlushAsync'
+        ]);
+        expect(calls.indexOf('executeAsync')).toBeLessThan(calls.indexOf('write.fake.afterFlushAsync'));
+        expect(calls.indexOf('executeAsync')).toBeLessThan(calls.indexOf('results'));
+        expect(calls.indexOf('results')).toBeLessThan(calls.indexOf('writeAuditor.auditAsync'));
+        expect(calls.indexOf('writeAuditor.auditAsync')).toBeLessThan(calls.indexOf('write.fake.afterFlushAsync'));
+        expect(calls.indexOf('write.fake.afterFlushAsync')).toBeLessThan(calls.indexOf('logOperationSuccessAsync'));
+        expect(variantHook).toHaveBeenCalledTimes(1);
+        expect(variantHook).toHaveBeenCalledWith({ items, context, executedResults });
+        expect(stepsByName.write.afterFlushAsync).not.toHaveBeenCalled();
+    });
+
+    test('an error from the hook is thrown, logged as the failure and leaves the audit queued', async () => {
+        const { pipeline, calls, stepsByName, writeAuditor, fhirLoggingManager } = buildPipeline();
+        const requestInfo = { requestId: 'request-1', headers: {} };
+        const parsedArgs = new ParsedArgs({ base_version: '4_0_0' });
+        const context = buildContext(requestInfo);
+        const results = [{ id: 'result' }];
+        const error = new Error('synthetic hook failure');
+        stepsByName.write.afterFlushAsync.mockImplementation(async () => {
+            calls.push('afterFlushAsync');
+            throw error;
+        });
+        const responder = buildResponder({
+            calls,
+            context,
+            items: buildItems(1),
+            outputs: { results }
+        });
+
+        await expect(pipeline.runAsync({
+            profile: FAKE_PROFILE,
+            responder,
+            requestInfo,
+            parsedArgs,
+            resourceType: 'Patient'
+        })).rejects.toBe(error);
+
+        expect(calls).toStrictEqual([
+            'readAsync',
+            ...WRITE_STEP_NAMES,
+            'failureResults',
+            'executeAsync',
+            'results',
+            'writeAuditor.auditAsync',
+            'afterFlushAsync',
+            'logOperationFailureAsync',
+            'recordMetrics'
+        ]);
+        expect(writeAuditor.auditAsync).toHaveBeenCalledTimes(1);
+        expect(writeAuditor.auditAsync).toHaveBeenCalledWith({ context, results });
+        expect(fhirLoggingManager.logOperationFailureAsync).toHaveBeenCalledWith({
+            requestInfo,
+            args: {},
+            resourceType: 'Patient',
+            startTime: expect.any(Number),
+            action: 'fake',
+            error
+        });
+        expect(fhirLoggingManager.logOperationSuccessAsync).not.toHaveBeenCalled();
+        expect(httpContextSetSpy).not.toHaveBeenCalled();
+        expect(responder.toResponse).not.toHaveBeenCalled();
+        expect(responder.recordMetrics.mock.calls[0][0].results).toBe(results);
+    });
+
+    test('does not run the hook or audit when the responder throws while building the results', async () => {
+        const { pipeline, calls, stepsByName, writeAuditor } = buildPipeline();
+        const requestInfo = { requestId: 'request-1', headers: {} };
+        const error = new Error('synthetic results failure');
+        const responder = buildResponder({
+            calls,
+            context: buildContext(requestInfo),
+            items: buildItems(1)
+        });
+        responder.results.mockImplementation(() => {
+            calls.push('results');
+            throw error;
+        });
+
+        await expect(pipeline.runAsync({
+            profile: FAKE_PROFILE,
+            responder,
+            requestInfo,
+            parsedArgs: new ParsedArgs({ base_version: '4_0_0' }),
+            resourceType: 'Patient'
+        })).rejects.toBe(error);
+
+        expect(stepsByName.write.afterFlushAsync).not.toHaveBeenCalled();
+        expect(writeAuditor.auditAsync).not.toHaveBeenCalled();
     });
 
     test('runAsync logs the failure, rethrows it and records empty results when readAsync rejects', async () => {
@@ -1044,6 +1299,9 @@ describe('WriteItem', () => {
             writeMode: null,
             contextData: null,
             savedIdentity: null,
+            patch: null,
+            memberWrites: null,
+            appliedPatch: null,
             failure: null,
             status: WRITE_ITEM_STATUS.ACTIVE
         });

@@ -1,0 +1,46 @@
+{
+  "actual": true,
+  "id": "put-parity-group",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client",
+        "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client",
+        "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client",
+        "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+      }
+    ],
+    "versionId": "2",
+    "tag": [
+      {
+        "id": "8f74265b-3b86-58e4-baaf-e3b4e12bb3a1",
+        "system": "https://www.icanbwell.com/groupSize",
+        "code": "extended"
+      }
+    ]
+  },
+  "resourceType": "Group",
+  "type": "person",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "put-parity-group"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "60ec7c65-db79-5938-a83c-bd3150e08a1d"
+    }
+  ]
+}

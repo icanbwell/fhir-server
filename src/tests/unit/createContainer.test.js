@@ -96,6 +96,15 @@ const { MERGE_WRITE_PROFILE } = require('../../operations/writePipeline/operatio
 const { CREATE_WRITE_PROFILE } = require('../../operations/writePipeline/operations/create/profile');
 const { UPDATE_WRITE_PROFILE } = require('../../operations/writePipeline/operations/update/profile');
 const { UpdateResponder } = require('../../operations/writePipeline/operations/update/responder');
+const { PATCH_WRITE_PROFILE } = require('../../operations/writePipeline/operations/patch/profile');
+const { PatchResponder } = require('../../operations/writePipeline/operations/patch/responder');
+const { FindExistingStep } = require('../../operations/writePipeline/steps/findExistingStep');
+const { AccessCheckStep } = require('../../operations/writePipeline/steps/accessCheckStep');
+const { AttachmentsStep } = require('../../operations/writePipeline/steps/attachmentsStep');
+const { SearchExistingLoader } = require('../../operations/writePipeline/steps/load/searchExistingLoader');
+const { StoredAccessChecker } = require('../../operations/writePipeline/steps/access/storedAccessChecker');
+const { PatchBuilder } = require('../../operations/writePipeline/steps/build/patchBuilder');
+const { PatchWriter } = require('../../operations/writePipeline/steps/write/patchWriter');
 
 // Registrations that require infrastructure-specific config this test file does not (and should
 // not) provide; excluded only from the "every name resolves" sweep. Each has its own dedicated,
@@ -237,6 +246,35 @@ describe('createContainer', () => {
         expect(container.writePipeline.registeredProfiles.has(UPDATE_WRITE_PROFILE)).toBe(true);
     });
 
+    test('writePipeline registers the patch variants for its search, stored access, patch build, always-new attachments and patch write steps', () => {
+        const container = createContainer();
+        const { findExisting, accessBeforeBuild, buildDocument, attachments, write } =
+            container.writePipeline.stepVariants;
+        expect(findExisting.search).toBeInstanceOf(FindExistingStep);
+        expect(findExisting.search.existingResourceLoader).toBeInstanceOf(SearchExistingLoader);
+        expect(accessBeforeBuild.stored).toBeInstanceOf(AccessCheckStep);
+        expect(accessBeforeBuild.stored.accessChecker).toBeInstanceOf(StoredAccessChecker);
+        expect(buildDocument.patch).toBeInstanceOf(BuildDocumentStep);
+        expect(buildDocument.patch.builder).toBeInstanceOf(PatchBuilder);
+        expect(attachments.alwaysCreateNew).toBeInstanceOf(AttachmentsStep);
+        expect(attachments.alwaysCreateNew.alwaysCreateNewBase64).toBe(true);
+        expect(container.writePipeline.attachmentsStep.alwaysCreateNewBase64).toBe(false);
+        expect(write.patch).toBeInstanceOf(WriteStep);
+        expect(write.patch.writer).toBeInstanceOf(PatchWriter);
+        expect(write.patch.writer.databaseBulkInserter).toBe(container.fastDatabaseBulkInserter);
+        expect(write.patch.writer.groupMemberPatchStrategy).toBe(buildDocument.patch.builder.groupMemberPatchStrategy);
+    });
+
+    test('patchOperation is wired to the write pipeline, its switch and the patch responder', () => {
+        const container = createContainer();
+        const operation = container.patchOperation;
+        expect(operation.writePipeline).toBe(container.writePipeline);
+        expect(operation.writePipelineSwitch).toBe(container.writePipelineSwitch);
+        expect(operation.patchResponder).toBeInstanceOf(PatchResponder);
+        expect(operation.patchResponder).toBe(container.patchResponder);
+        expect(container.writePipeline.registeredProfiles.has(PATCH_WRITE_PROFILE)).toBe(true);
+    });
+
     test('writePipeline still resolves the $merge and create profiles to their steps', () => {
         const pipeline = createContainer().writePipeline;
         expect(MERGE_WRITE_PROFILE.variants).toBeUndefined();
@@ -247,6 +285,22 @@ describe('createContainer', () => {
         expect(pipeline.registeredProfiles.has(CREATE_WRITE_PROFILE)).toBe(true);
         expect(CREATE_WRITE_PROFILE.variants).toStrictEqual({ buildDocument: 'insert' });
         expect(pipeline.stepVariants.buildDocument.insert.builder).toBeInstanceOf(InsertBuilder);
+    });
+
+    test('the patch profile asks for the u letter with the patch action, turns off the body steps and names the five patch variants', () => {
+        expect(PATCH_WRITE_PROFILE).toStrictEqual({
+            name: 'patch',
+            accessRequested: 'u',
+            action: 'patch',
+            off: ['identify', 'prepareBody', 'validateIncoming', 'validateNewResource', 'validateAgainstStored'],
+            variants: {
+                findExisting: 'search',
+                accessBeforeBuild: 'stored',
+                buildDocument: 'patch',
+                attachments: 'alwaysCreateNew',
+                write: 'patch'
+            }
+        });
     });
 
     test('preSaveManager orders SourceAssigningAuthorityColumnHandler before UuidColumnHandler before ReferenceGlobalIdHandler', () => {

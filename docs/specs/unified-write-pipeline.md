@@ -32,8 +32,9 @@ describes conflict handling by the resolver, the one-by-one replay does that job
   in its profile.
 - The new path is behind a switch per operation. With an operation's switch off, its existing code
   runs exactly as today.
-- In the new path, PUT and PATCH write with a version check and retry on conflict. Group PATCHes
-  that change members are the exception (see "Concurrency").
+- In the new path, PUT writes with a version check and retries on conflict. PATCH gets the same
+  with the concurrent write resolver; until then it keeps today's `_uuid`-only write (see
+  "Concurrency").
 
 ## Non-goals
 
@@ -62,13 +63,15 @@ Any of these is a failure even if the code works:
 - **Responses and outputs stay the same.** That covers status codes, bodies, headers,
   OperationOutcome text, per-resource `$merge` results, `$import` output lines, access-log entry
   data (except one POST field, see "Source assigning authority in the access log" under POST in
-  "Changes to announce", and the PUT entry "Failure access-log entry" there), audit
+  "Changes to announce", the PUT entry "Failure access-log entry" there, and the PATCH entry
+  "A no-op PATCH" there), audit
   events, history rows, Kafka change events and Group member writes.
   These are the only accepted differences:
   1. A request that fails two checks may get a different one of the two errors than today, because
      the step order is fixed (see "Step order").
-  2. Concurrent PUT or PATCH requests on the same resource use a version check and retry instead of
-     last-write-wins (see "Concurrency").
+  2. Concurrent PUT requests on the same resource use a version check and retry instead of
+     last-write-wins (see "Concurrency"). PATCH changes the same way once the concurrent write
+     resolver lands; until then it keeps last-write-wins.
   3. No-op reporting is fixed (see "No-op fixes").
   4. Admin writes get lookups by `_uuid`, access checks, audit events and the standard error format
      (see "Admin").
@@ -170,7 +173,9 @@ Every operation runs these steps in this order:
 8. **Build new doc**
 9. **Validate result**: checks on the built doc, including `validateResourceAsync` (the Group
    member limit, the schema of the write-serialized doc, and Person.link)
-10. **Access on result**
+10. **Access on result** (`accessOnResult`): the access-tag change from the stored doc to the
+   built doc, removals counted. On for PATCH; off for POST, PUT and `$merge`, which check the
+   change in step 7
 11. **Attachments**
 12. **No-op check**
 13. **Write** (with concurrency)
@@ -202,15 +207,17 @@ Every operation runs these steps in this order:
   resource that fails a body check is not loaded.
 - **The size limit and the pipe-in-id check run at the start of step 4,** on the body stripped of
   its `_` fields, before the saved `_uuid` and source assigning authority are restored. They are
-  part of "validate incoming" for every operation, and no profile turns them off: AuditEvent
-  update, patch and remove get 405 from `ResourceOperationAccessProvider`, and every operation either
-  rejects a pipe in the id or can't produce one. A resource that fails one of them skips the schema
-  check. In `$merge` today they run before identification, on the body as sent. That changes what they measure and the entry fields they report (accepted
-  difference 8). It also changes which error wins when identification fails too (accepted
-  difference 1): a non-UUID id whose owner or source assigning authority tag has no `code` passes
-  "read items", which checks only the tag's `system`, and then fails identification with
-  "sourceAssigningAuthority is null". If that resource also has a pipe in its id or is an oversized
-  AuditEvent, it now gets the identification error instead of the pipe-in-id or size error.
+  part of "validate incoming", so they apply to every operation that has a resource body. PATCH has
+  none, because its body is a JSON Patch, and turns the whole step off; no other profile turns them
+  off: AuditEvent update, patch and remove get 405 from `ResourceOperationAccessProvider`, and every
+  operation either rejects a pipe in the id or can't produce one. A resource that fails one of them
+  skips the schema check. In `$merge` today they run before identification, on the body as sent.
+  That changes what they measure and the entry fields they report (accepted difference 8). It also
+  changes which error wins when identification fails too (accepted difference 1): a non-UUID id
+  whose owner or source assigning authority tag has no `code` passes "read items", which checks only
+  the tag's `system`, and then fails identification with "sourceAssigningAuthority is null". If that
+  resource also has a pipe in its id or is an oversized AuditEvent, it now gets the identification
+  error instead of the pipe-in-id or size error.
 - **"Validate new resource" comes after "find existing".** The meta check (owner tag) applies only to
   a resource that isn't stored yet, so it needs the load. That is also where the old path runs it.
 
@@ -229,9 +236,11 @@ and action, the steps it turns `off`, and the step variants it uses. Every step 
 turn off runs. The container gives `WritePipeline` every profile, and the pipeline checks them once,
 when it is built. The app builds it at startup, so a profile with an unknown setting, an unknown
 step name or an unregistered variant stops the boot. A run with a profile the pipeline was not
-given fails before anything runs. Step 10 (access on result) has no implementation yet, so the pipeline
-doesn't call it. PATCH adds the call and the name: its body is a JSON Patch, so its access tags are
-known only after the build. Admin uses it later.
+given fails before anything runs. Step 10 is `accessOnResult`: it checks that the caller may make
+the access-tag changes between the stored doc and the built doc. Its default checker,
+`AccessTagChangeChecker`, is on for PATCH, whose body is a JSON Patch, so its access tags are known
+only after the build. It is off for POST, PUT and `$merge`, which check the change before the build
+(step 7), and `$import` keeps it off when it ships. Admin gets its own variant later.
 
 **Per-operation pieces (user decision).** Each operation has its own folder,
 `src/operations/writePipeline/operations/<operation>/`, with two files that it passes to
@@ -285,13 +294,18 @@ change the step it replaces. POST is the first user. It picks only `buildDocumen
 turns `findExisting` off, because a new resource has no stored doc to load and no operation needs a
 loader that loads nothing. It runs the shared identify, validate incoming, validate new resource
 and validate result steps. Its id is a new UUID, so identify only copies the id to `_uuid`. PUT
-picks three variants and turns nothing off: `identify: 'url'` (the identity from the URL id),
-`buildDocument: 'replace'` (the `If-Match` / `If-None-Match` checks, then a replace of the stored
-doc, or POST's insert when none is stored) and `write: 'httpPreconditions'` (a versioned write that
-queues the `If-Match` list, so a replayed write checks it again). The identify, build and write
-steps each take the piece that varies as a constructor argument, so a variant is the same step
-class with another piece: an identity resolver (`steps/identify/`), a builder (`steps/build/`) or
-a writer (`steps/write/`: `VersionedWriter` by default, `HttpPreconditionWriter` for PUT).
+picks three variants and turns off only `accessOnResult`: `identify: 'url'` (the identity from the
+URL id), `buildDocument: 'replace'` (the `If-Match` / `If-None-Match` checks, then a replace of the
+stored doc, or POST's insert when none is stored) and `write: 'httpPreconditions'` (a versioned
+write that queues the `If-Match` list, so a replayed write checks it again). PATCH picks five
+(`findExisting: 'search'`, `accessBeforeBuild: 'stored'`, `buildDocument: 'patch'`,
+`attachments: 'alwaysCreateNew'` and `write: 'patch'`) and turns off the steps that read a resource
+body (see "PATCH" under "Profiles"). The identify, load, build and write steps each take the piece
+that varies as a constructor argument, so a variant is the same step class with another piece: an
+identity resolver (`steps/identify/`), a loader for the stored doc (`steps/load/`), a builder
+(`steps/build/`) or a writer (`steps/write/`: `VersionedWriter` by default,
+`HttpPreconditionWriter` for PUT, `PatchWriter` for PATCH). The access check takes its checker the
+same way (`steps/access/`), and the attachments step takes an option for its base64 upload.
 
 A step records a failure as a neutral value: which check failed, the OperationOutcome or error,
 and the item's identity at that moment. The responder turns that value into the operation's result
@@ -331,17 +345,17 @@ the code disagree, the code wins.
 | Step | create | update | patch | merge | import | admin |
 |---|---|---|---|---|---|---|
 | Scope letter | `c` | `u`, also for create-via-PUT | `u` | `u`, also when the resource is new | `u` | none in the pipeline (the admin route checks admin scope, as today) |
-| `_` fields | strip | strip | reject with 400 any op whose path starts with `/_` (this also rejects primitive-extension paths such as `/_birthDate`) | strip for validation, then restore `_uuid` and `_sourceAssigningAuthority` | strip | none (no client body) |
+| `_` fields | strip | strip | reject with 400 any op whose path starts with `/_` (this also rejects primitive-extension paths such as `/_birthDate`); the reader also rejects a content type other than `application/json-patch+json` with 400, and both checks run before the scope check | strip for validation, then restore `_uuid` and `_sourceAssigningAuthority` | strip | none (no client body) |
 | Validate incoming | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); the pipe-in-id check never fires, because POST replaces the id with a new UUID | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); Person.link moves to validate result; the size and pipe-in-id checks never fire: AuditEvent update gets 405 from `ResourceOperationAccessProvider` before the pipeline, and `IdParser` puts only the part before the first `\|` into the body id | – (the body is a JSON Patch) | on the stripped body: AuditEvent size limit and pipe-in-id check, then schema with relaxed required fields | owner tag backfilled first; pipe-in-id check, as today; new: the AuditEvent size limit and the schema check, as in `$merge` (accepted difference 6) | – (no client body) |
-| Find existing | off (no stored-document lookup) | by `_uuid`, as today; new: a bulk preload of one (`BulkPreloadLoader`, no access filter, as today) | search with the access filter: 0 hits is 404, more than 1 is 400 | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by `_uuid` with the access filter, 404 (see "Admin") |
+| Find existing | off (no stored-document lookup) | by `_uuid`, as today; new: a bulk preload of one (`BulkPreloadLoader`, no access filter, as today) | `findExisting: 'search'` (`SearchExistingLoader`): the same search with the access filter as today; 0 hits is 404 `Resource not found: <Type>/<id>`, more than 1 is 400 listing the sorted `id\|authority` options; it copies the stored doc's `id`, `_uuid` and `_sourceAssigningAuthority` onto the item | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by `_uuid` with the access filter, 404 (see "Admin") |
 | Validate new resource | meta; new: after the size and schema checks, as in `$merge` (accepted difference 1) | new: meta, for create-via-PUT (today it runs on the body after the build) | – | meta (owner tag) for a new resource | meta for a new resource, as today | – |
-| Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403); new: as `$merge`: the stored doc, then the access-tag change from the stored doc to the body, removals counted; for create-via-PUT, POST's full check and access-tag change. Today the tag check runs on the built doc, after the build and the uploads | stored doc | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: stored doc and every linked resource |
+| Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403); new: as `$merge`: the stored doc, then the access-tag change from the stored doc to the body, removals counted; for create-via-PUT, POST's full check and access-tag change. Today the tag check runs on the built doc, after the build and the uploads | stored doc, scope letter `u` (`accessBeforeBuild: 'stored'`, `StoredAccessChecker`) | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: stored doc and every linked resource |
 | Validate against stored | off | on, for an item with a stored doc: `validateResourceAsync` on the body with the stored doc (Group member limit, schema, Person.link, patient reference), as today's PUT does before it merges; temporary, see "Why this order" | off | off | off | off |
-| Build new doc | insert | replace (no smart merge), after the extended Group 400 and the `If-None-Match` / `If-Match` 412s; create-via-PUT builds as POST's insert, after the `If-Match` 412 | apply the JSON Patch; Group member strategy for Group | smart merge | smart merge | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
+| Build new doc | insert | replace (no smart merge), after the extended Group 400 and the `If-None-Match` / `If-Match` 412s; create-via-PUT builds as POST's insert, after the `If-Match` 412 | `buildDocument: 'patch'` (`PatchBuilder`): apply the JSON Patch to a copy of the stored doc; Group member strategy for Group (see "PATCH" below); a patch that changes nothing builds no doc | smart merge | smart merge | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
 | Validate result | new: on, `validateResourceAsync` on the built document (Group member limit, schema of the write-serialized document, Person.link), as for a new `$merge` doc | for an update, meta on the built doc, because "validate against stored" has already run `validateResourceAsync` on the body; for create-via-PUT, `validateResourceAsync` on the built doc. Today: `validateResourceAsync` on the body before the build, then the schema of the write-serialized body, then meta on the built doc | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
-| Access on result | – (new: done before build) | off; new: the access-tag change is checked before the build. Today it runs here | access-tag change only | off (the merged doc is not re-checked today) | off | new: full check and access-tag change for a created Person, access-tag change for an update |
-| No-op | – | no write, 200 | no write; new: internal result `updated: false` (see "No-op fixes") | `created: false, updated: false` | new: counted as skipped (see "No-op fixes") | no write, silent |
-| Write | insert (`If-None-Match: *` rejects existing) | `If-Match` / `If-None-Match`; new: updates are versioned (`_uuid` and the stored `versionId`), and a lost race goes through today's replay, which re-checks `If-Match`, until the resolver (see "Concurrency") | `_uuid` filter only; new: versioned, except Group PATCHes that change members | version filter, concurrent write resolver | version filter, concurrent write resolver | version filter |
+| Access on result | off (new: done before build) | off; new: the access-tag change is checked before the build. Today it runs here | on: the access-tag change from the stored doc to the built doc, removals counted (`AccessTagChangeChecker`); a no-op has no built doc and is skipped | off (the merged doc is not re-checked today) | off | new: full check and access-tag change for a created Person, access-tag change for an update |
+| No-op | – | no write, 200 | no write; new: `updated: false`, the response carries the stored doc, an access-log entry is stored and the result checks are skipped (see "No-op fixes") | `created: false, updated: false` | new: counted as skipped (see "No-op fixes") | no write, silent |
+| Write | insert (`If-None-Match: *` rejects existing) | `If-Match` / `If-None-Match`; new: updates are versioned (`_uuid` and the stored `versionId`), and a lost race goes through today's replay, which re-checks `If-Match`, until the resolver (see "Concurrency") | `write: 'patch'` (`PatchWriter`): `_uuid` filter only, as today, with no version filter, no retry and no 409; the version filter comes with the resolver (see "Concurrency") | version filter, concurrent write resolver | version filter, concurrent write resolver | version filter |
 | Audit | create | create or update | update | batched | the worker's own batching | new: create or update |
 | Respond | thrown errors | thrown errors (412 possible) | thrown errors | per-resource issue, HTTP 200 | per-line result entry | new: thrown errors in the standard format |
 
@@ -354,6 +368,53 @@ body that changes nothing else still equals the stored Group and writes nothing.
 Group's entries after stamping the version and before validation, so the per-member entry limit
 fails only that item. A write that sends its members to ClickHouse keeps `member[]` as sent. The
 other operations merge members in their own builders.
+
+**PATCH.** Its body is a JSON Patch, so `PatchResponder` reads the request into one stub item that
+holds the resource type, the URL id and the patch. The steps that check a resource body
+(`identify`, `prepareBody`, `validateIncoming` and `validateNewResource`) or compare one with the
+stored doc (`validateAgainstStored`) are `off`; the size and pipe-in-id checks are in
+`validateIncoming`, because they apply to every operation that has a resource body. The profile
+names five variants:
+- `findExisting: 'search'` and `accessBeforeBuild: 'stored'` find the stored doc with the
+  access-filtered search and check that the caller may update it, with scope letter `u`. A rejected
+  PATCH reaches no GridFS, Group member or ClickHouse write.
+- `buildDocument: 'patch'` (`PatchBuilder`) never modifies the stored doc. It prepares the Group's
+  member writes (see the table below), applies the rest of the patch to a copy of the stored doc
+  with its GridFS attachments and base64 data read back in, reverts the fields a write may not
+  change, runs preSave, keeps one entry per member of an embedded Group, and checks the patched doc
+  against the schema before it is normalized. So a PATCH that adds a field FHIR does not define is
+  rejected with the schema 400, as before; the normalized copy that "validate result" checks has
+  already dropped the field. It bumps the version when the doc or a pending member write changed.
+  Otherwise the item is a no-op with no built doc, which "access on result" and "validate result"
+  skip.
+- `attachments: 'alwaysCreateNew'` is the shared attachments step with `alwaysCreateNewBase64` on,
+  because today's PATCH uploads a base64 value to a new live key every time: its write has no
+  version check. POST, PUT and `$merge` keep the default.
+- `write: 'patch'` (`PatchWriter`) runs after every check, in today's order. It marks the stored
+  GridFS files that the patch removed or replaced inactive, promotes an embedded Group that went
+  over the member limit, commits an extended Group's member rows, then queues `replaceOneAsync` by
+  `_uuid` alone, with `groupMemberEventsWritten` set when the patch has member operations. A PATCH
+  that fails a check leaves its GridFS files active.
+
+The build prepares a Group's member writes and the write commits them:
+
+| Group type | Build | Write |
+|---|---|---|
+| embedded (not extended, no external storage) | the JSON Patch, then one entry per member; no member write | promotes the Group when it is over the promotion limit (member rows written, `_extended` set), then the Group |
+| extended (`_extended`) | the member operations become pending member writes; the Group is bumped even when only members change | commits the member rows with the candidate's version, last-updated and security tags, then the Group |
+| external storage (ClickHouse) | the member operations are parsed and enriched into events; the candidate is the stored Group with its version bumped, plus the non-member patch | the Group; after the flush, the events, for an item the flush updated |
+
+The write step has an optional after-flush hook. `WriteStep.afterFlushAsync({ items, context,
+executedResults })` calls the writer's own `afterFlushAsync` when it has one, and
+`WritePipeline.runAsync` calls it once, after the flush, after it builds the results and after it
+queues the audit, so a write the flush committed is audited even if the hook throws; an error from
+the hook is still thrown. The hook has nothing to do when the results throw, because PATCH's
+results throw only when the flush returned no result or a result that was neither created nor
+updated, and `PatchWriter` writes events only for a Group the flush updated. `WritePipeline`
+rejects at construction a `write` variant that has no `afterFlushAsync` function. The default
+writers have none, and a streaming `$merge`, which doesn't use `runAsync`, never calls it. Its only
+user is PATCH: `PatchWriter` writes an external-storage Group's ClickHouse member events there, so
+they follow the Group's commit, as today.
 
 ## Concurrency
 
@@ -377,8 +438,9 @@ latest stored version, still without the access re-check.
 - **`$merge`, `$import` and the GraphQL mutations** behave in the new path exactly as in the old
   one.
 - **PUT and PATCH updates** filter only on `_uuid` today, so they can't lose a race; the resolver
-  counts them as won. In the new path they filter on `_uuid` and the `versionId` the new doc was
-  built from, so a concurrent write makes them lose, and the resolver handles them.
+  counts them as won. In the new path PUT filters on `_uuid` and the `versionId` the new doc was
+  built from, so a concurrent write makes it lose, and the resolver handles it. PATCH keeps the
+  `_uuid`-only filter until the resolver's PR (see its bullet below).
   - **PUT:** the rebase is a replace (`smartMerge: false`), which the resolver already supports for
     a PUT that loses its create.
   - **PUT ships before the resolver (user decision),** with the version filter: the resolver
@@ -393,7 +455,7 @@ latest stored version, still without the access re-check.
       Today the replay merges it into the winner. With `If-None-Match: *` it gets 412, as today.
     - The forced Group write (an unchanged ClickHouse-backed Group whose body sends members) keeps
       today's `replaceOneAsync` call and its `If-Match` filter. Without a specific `If-Match` it
-      writes by `_uuid` alone, with no version check, like Group PATCHes that change members. With
+      writes by `_uuid` alone, with no version check, like every PATCH until the resolver. With
       one, the `If-Match` versions are in the filter, so a lost write goes through today's replay
       and gets 412 if `If-Match` no longer matches.
     - A changed Group whose body sends members, when the request asks for external storage and
@@ -404,20 +466,26 @@ latest stored version, still without the access re-check.
       412 from the replay if `If-Match` no longer matches.
     - The new path doesn't pass `alwaysCreateNew` to the base64 upload, now that PUT is versioned:
       an unchanged base64 value keeps its live key, as in `$merge`, and a lost race is reconciled by
-      the replay.
+      the replay. PATCH still passes it, because its write has no version check yet.
     - After a replay the response body, `ETag` and version are those of the attempt that lost, one
       version behind the stored doc. That is today's replay behavior on both paths; the resolver
       fixes it.
-  - **PATCH:** the rebase must re-apply the JSON Patch to the rebase target. The resolver only
-    merges, so it needs an opt-in per-entry rebase. The default is today's merge, and the old path
-    never sets it. "Validate result" runs again on the re-patched doc.
-  - When the rounds run out, the request returns 409 with the `conflict` issue (`ConflictError`), as
-    a PUT that loses its create does today. A `forbidden` issue from the rebase access checks
-    returns 403. The 409, and a 403 where PATCH would have given 404, are part of accepted
-    difference 2.
-  - PATCH deletes GridFS files it no longer references before the write. An attempt that does not
-    commit must not have deleted files the stored document still references. How to prevent that
-    is the builder's call. The resolver already deletes base64 uploads from uncommitted attempts.
+  - **PATCH keeps today's write until the resolver's PR.** It writes by `_uuid` alone: no version
+    filter, no retry and no 409. A concurrent write can still be overwritten, and a resource
+    deleted between the read and the write is re-created by the executor's replay, as today. The
+    resolver's PR adds the version filter and the re-patch rebase together (and `ConflictError`).
+    The rebase must re-apply the JSON Patch to the rebase target. The resolver only merges, so it
+    needs an opt-in per-entry rebase. The default is today's merge, and the old path never sets it.
+    "Validate result" runs again on the re-patched doc.
+  - When the rounds run out, the request returns 409 with the `conflict` issue (`ConflictError`,
+    which the resolver's PR adds), as a PUT that loses its create does today. A `forbidden` issue
+    from the rebase access checks returns 403. For PATCH, the 409, and a 403 where PATCH would have
+    given 404, are part of accepted difference 2 from the resolver's PR on.
+  - PATCH deletes GridFS files it no longer references before the write: `PatchWriter` marks them
+    inactive just before it queues the write, after every check. Once PATCH has a version filter,
+    an attempt that does not commit must not have deleted files the stored document still
+    references. How to prevent that is for the resolver's PR to decide. The resolver already
+    deletes base64 uploads from uncommitted attempts.
 - `SKIP_HANDLE_CONCURRENCY` turns conflict handling off in the new path too, as it does in the old
   one.
   - **PUT with conflict handling off.** A versioned write that loses is then not replayed, so it
@@ -433,12 +501,12 @@ latest stored version, still without the access re-check.
     built from, so the PUT is dropped and answered 200.
   - Not changed by this work: with conflict handling off, a `$merge` write that loses its version
     filter is dropped the same way on both paths today.
-- **Group PATCHes that change members are excluded.** They keep today's `_uuid`-only write, with no
-  version check and no retry. Member rows are committed before the Group document is written
-  (`commitPendingMemberWrites` in `patch.js`), and for ClickHouse-backed Groups the member strategy
-  writes the Group and appends the ClickHouse member events itself. A retry would commit those rows
-  again, or append the events twice. Group PATCHes that don't touch members get the version check
-  and retry like any other PATCH.
+- **All PATCHes keep today's `_uuid`-only write until the resolver's PR,** with no version check
+  and no retry. That includes Group PATCHes that change members, which need care when that PR
+  versions PATCH: member rows are committed before the Group document is written
+  (`commitPendingMemberWrites`, called from `PatchWriter`), and for ClickHouse-backed Groups the
+  member events are appended after the flush. A retry would commit those rows again, or append the
+  events twice.
 - PUT with `If-Match` keeps today's 412 behavior. PATCH does not start honoring `If-Match`, because
   that would change responses for clients that send it.
 - Today's retry fallback lives inside the bulk write executor and always re-merges the document;
@@ -457,8 +525,11 @@ no history row, no change event and no update audit.
   `created: false, updated: false`. That is the counter and entry shape an `If-None-Exist` match
   already uses. Counts come from the pipeline's per-item results, including the flush results, so a
   rebase that finds no change also counts as skipped.
-- **PATCH:** it already skips the write, but its internal result says `updated: true`. The new path
-  returns `updated: false`. Clients don't see this field; the response writer only reads `created`.
+- **PATCH:** it already skips the write, but it answers `updated: true`. The new path answers
+  `updated: false`, with the stored doc, and stores an access-log entry for the unchanged resource.
+  It also skips the shared result checks, because there is no built doc (see "A no-op PATCH" in
+  "Changes to announce"). Clients don't see the `updated` field; the response writer only reads
+  `created`.
 - PUT, `$merge` and admin already behave this way.
 
 ## Admin
@@ -540,8 +611,8 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
 - **New path by default in tests (user decision).** `jest/setEnvVars.js` sets
   `WRITE_PIPELINE_OPERATIONS` to every switch that has shipped, so the full suite in the existing
   16-shard `test` job, and every local run, uses the new path. Each operation's PR adds its name
-  there; it is now `merge,create,update`. `configManager` reads the environment on each call, so a
-  test file can set the variable for itself.
+  there; it is now `merge,create,update,patch`. `configManager` reads the environment on each call,
+  so a test file can set the variable for itself.
 - **Retry-dependent case.** The parity case for a new resource sent by id and by `_uuid` in one
   request runs on the new path only. The new path queues one write for it (accepted difference 5);
   the old path's result depends on which retry code is in place, so it is not pinned.
@@ -577,8 +648,10 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
 - **New tests:**
   - Integration tests for PUT and PATCH concurrency with the switch on: two concurrent writes both
     land, the version goes up by two, no PATCH operation is lost, and a write that keeps losing gets
-    409 with a `conflict` OperationOutcome. A Group member PATCH still takes the `_uuid`-only write.
-    PUT's 409 test comes with the resolver PR; until then PUT's concurrency test pins today's 500.
+    409 with a `conflict` OperationOutcome. PUT's 409 test comes with the resolver PR; until then
+    PUT's concurrency test pins today's 500. PATCH's concurrency tests all come with the resolver
+    PR, which adds its version filter; until then a unit test pins that it writes by `_uuid` alone
+    (`queuesReplaceByUuidWithoutVersionFilter` in `patchWriter.test.js`).
   - Integration tests for the no-op fixes: an unchanged `$import` line counts as skipped.
   - Integration tests for the admin changes, parameterized over the five operations: non-UUID ids
     get 400; a missing or inaccessible target or linked resource gets 404; a caller without access
@@ -836,14 +909,50 @@ today.
   fields are unchanged.
 - **More operation failures logged.** With the switch on, PUT also logs an operation failure when
   there is no body. The old path failed on it before its failure logging. The old path also logs
-  each 412 at info level; the new path logs a 412 only in the pipeline's failure entry. Only
-  logging changes.
+  each 412 at info level; the new path logs a 412 only in the pipeline's failure entry, also at
+  info level. Only logging changes.
 - **GridFS file metadata.** GridFS files stored by a create-via-PUT on the new path carry
   `metadata.resource_uuid` and `metadata.resource_sourceId`, as POST's files on the new path do.
   Today they have only `metadata.active: true`. Files stored by an update already carry them.
 
 **PATCH**
 - **400 instead of 500** (accepted difference 7) when the write returns no result.
+- **Which error a PATCH gets** (accepted difference 1). The checks run in the pipeline's fixed
+  order, so a patch that fails more than one of them can get a different 400 or 403 than today. The
+  access-tag check now follows validation: a patch that fails both gets the validation 400 instead
+  of the 403. The Group member limit is checked after the schema check, so an over-limit Group that
+  also fails the schema gets the schema 400 instead of the `too-costly` 400. A patch that fails both
+  the schema check for an unknown field and the malformed-reference check lists only the schema
+  issues. A patch that fails one check gets the same status and error as today.
+- **A no-op PATCH** (accepted difference 3). A PATCH that changes nothing answers `updated: false`,
+  where it answered `updated: true`, and the response carries the stored doc. It stores an
+  access-log entry for the unchanged resource, where it stored none. It skips the shared result
+  checks (the meta check, the Group member limit, references, the patient reference and
+  Person.link), because there is no built doc. The old path ran them on an unchanged doc too, so a
+  no-op PATCH of a stored doc that fails only one of them now answers 200 `updated: false` where it
+  answered 400. The schema check of the patched doc still runs, so a stored doc that fails the
+  schema still gets the 400, and a real change to a doc that fails any of these checks gets the 400
+  as before.
+- **More operation failures logged.** With the switch on, PATCH also logs an operation failure when
+  the content type is not JSON Patch and when an operation targets an internal `_` field. Both
+  still get today's 400; the old path left them out of its failure log. Only logging changes.
+- **Group PATCH on external storage.** A PATCH that changes both the members and other fields of a
+  Group stored in ClickHouse writes the Group once, with one history row: history versions 1 and 2,
+  where today they are 1, 2 and 2. A PATCH that changes only the members of such a Group is now
+  validated, audited and success-logged like every other PATCH, validated against the schema before
+  normalization, and its response carries the enriched `identifier` entries every other PATCH
+  response has. Today it returns before validation, the audit and the success log.
+- **A rejected Group PATCH on external storage writes nothing.** A PATCH of a Group stored in
+  ClickHouse that has member operations and another operation, and is then rejected because the
+  patched Group fails validation, answers the same 400 on both paths. Today it has already bumped
+  the Group to the next version and written the ClickHouse member events by then, because the
+  member operations run before the rest of the patch is checked, which includes the access-tag
+  check. The new path prepares the events in the build and writes them after the flush, so a
+  rejected PATCH leaves the stored Group and ClickHouse as they were.
+- **GridFS files are replaced in a different order.** The new GridFS files and the base64 upload are
+  written before the stored files the patch replaced or removed are marked inactive; today the
+  stored files are marked inactive first. A PATCH whose upload fails now leaves the stored files
+  active.
 
 **Admin**
 - **`createPersonToPatientLink` without `externalPersonId`** returns 400 `invalid`, like the other
@@ -858,9 +967,10 @@ today.
 - The rest follow in this order: create, update, import, patch, admin. POST and then PUT go before
   `$import` (user decision). `$import` follows them because it reuses most of the merge profile.
 - The work is based on `main`. The write-flow cleanup PR goes first, and the `$merge` PR stacks on
-  it until it merges (user decision). Only the PATCH PR waits for the concurrent write resolver,
-  because it needs the resolver's re-patch rebase. PUT ships before it, with the version filter and
-  today's replay (user decision; see "Concurrency").
+  it until it merges (user decision). No PR waits for the concurrent write resolver. PUT ships
+  before it, with the version filter and today's replay (user decision; see "Concurrency"). PATCH
+  ships before it too, with today's `_uuid`-only write; the resolver's PR adds PATCH's version
+  filter and its re-patch rebase together.
 - Every PR runs the repo's security review against `review.md`, because these are write paths.
 
 ## ADR
