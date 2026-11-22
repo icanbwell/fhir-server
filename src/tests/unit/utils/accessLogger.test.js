@@ -250,6 +250,46 @@ describe('AccessLogger', () => {
             expect(accessLogger.queue[0].doc.details.bodyTruncated).toBe('true');
         });
 
+        test('should not cut a multi-byte character in half when truncating rawBodyBuffer', async () => {
+            mockFhirOperationsManager.getRequestInfo.mockReturnValue({
+                user: 'user-1',
+                remoteIpAddress: '10.0.0.1',
+                originalUrl: '/Patient',
+                method: 'POST',
+                scope: null,
+                userRequestId: 'user-req-1',
+                body: { resourceType: 'Patient' },
+                contentTypeFromHeader: null,
+                accept: null
+            });
+            // the 1024-byte limit falls in the middle of the 2-byte character
+            const req = {
+                resourceType: 'Patient',
+                method: 'POST',
+                url: '/Patient',
+                headers: {},
+                rawBodyBuffer: Buffer.from('x'.repeat(1023) + 'ñ' + 'x'.repeat(10), 'utf8')
+            };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            const details = accessLogger.queue[0].doc.details;
+            expect(details.bodyTruncated).toBe('true');
+            expect(details.body).toBe('x'.repeat(1023));
+        });
+
+        test('should not cut a multi-byte character in half when truncating operationResult', async () => {
+            const req = { resourceType: 'Patient', method: 'GET', url: '/Patient', headers: {} };
+            // JSON.stringify output is '[{"data":"' (10 bytes) + 1013 x + 'ñ' ..., so byte 1024 is inside it
+            const operationResult = [{ data: 'x'.repeat(1013) + 'ñ' + 'x'.repeat(10) }];
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100, operationResult
+            });
+            const details = accessLogger.queue[0].doc.details;
+            expect(details.operationResultTruncated).toBe('true');
+            expect(details.operationResult).not.toContain('\uFFFD');
+        });
+
         test('should use streamRequestBody when provided', async () => {
             mockFhirOperationsManager.getRequestInfo.mockReturnValue({
                 user: 'user-1',

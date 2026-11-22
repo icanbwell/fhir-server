@@ -7,6 +7,7 @@ const { assertTypeEquals } = require('./assertType');
 const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
 const { get_all_args } = require('../operations/common/get_all_args');
 const { getCircularReplacer } = require('./getCircularReplacer');
+const { truncateUtf8 } = require('./truncateUtf8');
 const {
     OPERATIONS: { READ, WRITE }
 } = require('../constants');
@@ -180,7 +181,10 @@ class AccessLogger {
         if (operationResult) {
             const resultStr = JSON.stringify(operationResult);
             if (Buffer.byteLength(resultStr) > this.accessLogResultLimit) {
-                details['operationResult'] = Buffer.from(resultStr).subarray(0, this.accessLogResultLimit).toString();
+                details['operationResult'] = truncateUtf8(
+                    Buffer.from(resultStr),
+                    this.accessLogResultLimit
+                ).text;
                 details['operationResultTruncated'] = 'true';
                 logInfo(
                     `AccessLogger: operationResult truncated in access log for request id: ${requestInfo.userRequestId}`
@@ -201,12 +205,10 @@ class AccessLogger {
             if (streamRequestBody) {
                 body = streamRequestBody;
             } else if (Buffer.isBuffer(req.rawBodyBuffer)) {
-                if (req.rawBodyBuffer.length > this.accessLogRequestBodyLimit) {
-                    body = req.rawBodyBuffer.toString('utf-8', 0, this.accessLogRequestBodyLimit);
-                    bodyTruncated = true;
-                } else {
-                    body = req.rawBodyBuffer.toString('utf-8');
-                }
+                ({ text: body, truncated: bodyTruncated } = truncateUtf8(
+                    req.rawBodyBuffer,
+                    this.accessLogRequestBodyLimit
+                ));
             } else {
                 body =
                     typeof requestInfo.body === 'string'
@@ -216,7 +218,7 @@ class AccessLogger {
 
             // streamRequestBody / fallback paths haven't been size-checked yet.
             if (!bodyTruncated && Buffer.byteLength(body) > this.accessLogRequestBodyLimit) {
-                body = Buffer.from(body).subarray(0, this.accessLogRequestBodyLimit).toString();
+                body = truncateUtf8(Buffer.from(body), this.accessLogRequestBodyLimit).text;
                 bodyTruncated = true;
             }
 

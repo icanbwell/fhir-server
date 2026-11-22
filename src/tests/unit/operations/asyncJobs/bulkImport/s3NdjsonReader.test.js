@@ -45,14 +45,21 @@ describe('S3NdjsonReader', () => {
      * Configures mockSend to serve byte ranges out of a fixed in-memory "file", the way
      * S3's Range header semantics work — each call returns exactly the requested slice.
      * @param {string} fullText
+     * @param {number} [bodyChunkSize] split each response body into chunks of this many bytes,
+     * the way a network stream can deliver it (default: one chunk)
      */
-    const serveFileFromMockS3 = (fullText) => {
+    const serveFileFromMockS3 = (fullText, bodyChunkSize) => {
         const buf = Buffer.from(fullText, 'utf8');
         mockSend.mockImplementation((command) => {
             const match = command.input.Range.match(/^bytes=(\d+)-(\d+)$/);
             const start = parseInt(match[1], 10);
             const end = parseInt(match[2], 10);
-            return Promise.resolve({ Body: Readable.from([buf.slice(start, end + 1)]) });
+            const body = buf.subarray(start, end + 1);
+            const chunks = [];
+            for (let i = 0; i < body.length; i += bodyChunkSize || body.length || 1) {
+                chunks.push(body.subarray(i, i + (bodyChunkSize || body.length)));
+            }
+            return Promise.resolve({ Body: Readable.from(chunks) });
         });
     };
 
@@ -231,6 +238,66 @@ describe('S3NdjsonReader', () => {
             expect(results.map((r) => r.lineNumber)).toEqual([1, 2]);
             expect(results.map((r) => r.byteOffset)).toEqual([line1Bytes, line1Bytes + line2Bytes]);
         });
+    });
+
+    describe('readNdjsonAsync line terminators and multi-byte characters', () => {
+        const readAll = async (text, bodyChunkSize, byteRangeStart = 0) => {
+            const fileSize = Buffer.byteLength(text, 'utf8');
+            serveFileFromMockS3(text, bodyChunkSize);
+            return collect(reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart,
+                byteRangeEnd: fileSize,
+                fileSize
+            }));
+        };
+
+        // synthetic names; the family name has a 2-byte character so single-byte body chunks
+        // split it
+        test.each([
+            ['LF', '\n'],
+            ['CRLF', '\r\n']
+        ])('reports true file byte offsets for %s line endings', async (label, eol) => {
+            const lines = ['{"id":"p1","family":"Muñoz"}', '{"id":"p2"}', '{"id":"p3"}'];
+            const text = lines.join(eol) + eol;
+            const expectedOffsets = [];
+            let offset = 0;
+            for (const line of lines) {
+                expectedOffsets.push(offset);
+                offset += Buffer.byteLength(line, 'utf8') + eol.length;
+            }
+
+            const results = await readAll(text);
+
+            expect(results.map((r) => r.resource.id)).toEqual(['p1', 'p2', 'p3']);
+            expect(results.map((r) => r.byteOffset)).toEqual(expectedOffsets);
+            expect(results[0].resource.family).toBe('Muñoz');
+        });
+
+        test('starts a later range on the correct line after CRLF line endings', async () => {
+            const lines = ['{"id":"p1"}', '{"id":"p2"}', '{"id":"p3"}'];
+            const text = lines.join('\r\n') + '\r\n';
+            const line1Bytes = Buffer.byteLength(lines[0], 'utf8') + 2;
+
+            // starts a few bytes into line 1, so line 1 belongs to the previous range
+            const results = await readAll(text, undefined, 3);
+
+            expect(results.map((r) => r.resource.id)).toEqual(['p2', 'p3']);
+            expect(results[0].byteOffset).toBe(line1Bytes);
+        });
+
+        test.each([1, 2, 3, 7])(
+            'keeps multi-byte characters intact when the body arrives in %i-byte chunks',
+            async (bodyChunkSize) => {
+                const text = '{"id":"p1","family":"Muñ€😀"}\r\n{"id":"p2"}';
+
+                const results = await readAll(text, bodyChunkSize);
+
+                expect(results.map((r) => r.parseError)).toEqual([null, null]);
+                expect(results[0].resource.family).toBe('Muñ€😀');
+                expect(results[1].resource.id).toBe('p2');
+            }
+        );
     });
 
     describe('readNdjsonAsync per-line error handling', () => {

@@ -1,5 +1,4 @@
 const { S3Client: S3, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
-const readline = require('readline');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { logInfo, logError } = require('../../common/logging');
@@ -16,6 +15,37 @@ function nonRetryableError (message) {
     const error = new Error(message);
     error.retryable = false;
     return error;
+}
+
+const NEWLINE_BYTE = 0x0a;
+const CARRIAGE_RETURN_BYTE = 0x0d;
+
+/**
+ * Splits a byte stream into lines on "\n" without decoding, so the caller sees the exact number
+ * of bytes each line occupies in the source (including a "\r\n" terminator, which a decoding line
+ * reader such as readline strips without reporting) and a multi-byte character is never decoded
+ * in pieces.
+ * @param {AsyncIterable<Buffer|string>} body
+ * @returns {AsyncGenerator<{content: Buffer, terminatorBytes: number}>} content excludes the
+ * "\n" terminator; terminatorBytes is 0 only for a final line with no trailing newline
+ */
+async function * readRawLinesAsync (body) {
+    let pending = Buffer.alloc(0);
+    for await (const chunk of body) {
+        const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        pending = pending.length ? Buffer.concat([pending, bytes]) : bytes;
+        let lineStart = 0;
+        let newlineIndex = pending.indexOf(NEWLINE_BYTE, lineStart);
+        while (newlineIndex !== -1) {
+            yield { content: pending.subarray(lineStart, newlineIndex), terminatorBytes: 1 };
+            lineStart = newlineIndex + 1;
+            newlineIndex = pending.indexOf(NEWLINE_BYTE, lineStart);
+        }
+        pending = pending.subarray(lineStart);
+    }
+    if (pending.length) {
+        yield { content: pending, terminatorBytes: 0 };
+    }
 }
 
 class S3NdjsonReader {
@@ -109,15 +139,11 @@ class S3NdjsonReader {
                 Range: rangeHeader
             }));
 
-            const rl = readline.createInterface({
-                input: response.Body,
-                crlfDelay: Infinity
-            });
-
             let skippedFirst = isFirstRange;
 
-            for await (const line of rl) {
-                const lineBytes = Buffer.byteLength(line, 'utf8') + 1; // +1 for newline
+            for await (const { content, terminatorBytes } of readRawLinesAsync(response.Body)) {
+                // exact source bytes, so byteOffset stays correct for CRLF files too
+                const lineBytes = content.length + terminatorBytes;
                 bytesRead += lineBytes;
 
                 if (!skippedFirst) {
@@ -128,6 +154,12 @@ class S3NdjsonReader {
                 if (!isLastRange && bytesRead - lineBytes > byteRangeEnd) {
                     break;
                 }
+
+                // a "\r" before the "\n" is part of the terminator, not the line
+                const contentBytes = content[content.length - 1] === CARRIAGE_RETURN_BYTE
+                    ? content.length - 1
+                    : content.length;
+                const line = content.toString('utf8', 0, contentBytes);
 
                 if (line.trim().length === 0) {
                     continue;
@@ -144,7 +176,7 @@ class S3NdjsonReader {
                 // A single bad line (too large, unparseable) must not abort the rest of the
                 // range -- skip it and let the caller record it in the error output, the same
                 // way a per-resource write failure is handled.
-                if (Buffer.byteLength(line, 'utf8') > maxLineSizeBytes) {
+                if (contentBytes > maxLineSizeBytes) {
                     yield {
                         lineNumber,
                         byteOffset,
