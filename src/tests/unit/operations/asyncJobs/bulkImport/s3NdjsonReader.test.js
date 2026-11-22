@@ -300,6 +300,87 @@ describe('S3NdjsonReader', () => {
         );
     });
 
+    describe('readNdjsonAsync byte ranges', () => {
+        // every split of the file into [0, E) and [E, size] must yield each line exactly once,
+        // with the same byte offsets as reading the whole file in one range
+        test.each([
+            ['LF', '\n'],
+            ['CRLF', '\r\n']
+        ])('splits %s lines across two ranges with no gap or duplicate at any boundary', async (label, eol) => {
+            const text = ['{"id":"p1","family":"Muñoz"}', '{"id":"p2"}', '{"id":"p3"}'].join(eol) + eol;
+            const fileSize = Buffer.byteLength(text, 'utf8');
+            serveFileFromMockS3(text);
+            const read = (byteRangeStart, byteRangeEnd) => collect(reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart,
+                byteRangeEnd,
+                fileSize
+            }));
+            const whole = (await read(0, fileSize)).map((r) => [r.resource.id, r.byteOffset]);
+
+            for (let boundary = 1; boundary < fileSize; boundary++) {
+                const first = await read(0, boundary);
+                const second = await read(boundary, fileSize);
+                const combined = [...first, ...second].map((r) => [r.resource.id, r.byteOffset]);
+                expect({ boundary, combined }).toEqual({ boundary, combined: whole });
+            }
+        });
+
+        test('stops reading and destroys the stream once a non-final range is done', async () => {
+            const text = ['{"id":"p1"}', '{"id":"p2"}', '{"id":"p3"}', '{"id":"p4"}'].join('\n') + '\n';
+            const fileSize = Buffer.byteLength(text, 'utf8');
+            const body = Readable.from([Buffer.from(text, 'utf8')]);
+            mockSend.mockResolvedValue({ Body: body });
+
+            const results = await collect(reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart: 0,
+                byteRangeEnd: 5,
+                fileSize
+            }));
+
+            expect(results.map((r) => r.resource.id)).toEqual(['p1']);
+            expect(body.destroyed).toBe(true);
+        });
+
+        test('does not treat a lone CR as a line break', async () => {
+            const text = '{"id":"p1"}\r{"id":"p2"}\n{"id":"p3"}\n';
+            const fileSize = Buffer.byteLength(text, 'utf8');
+            serveFileFromMockS3(text);
+
+            const results = await collect(reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart: 0,
+                byteRangeEnd: fileSize,
+                fileSize
+            }));
+
+            expect(results).toHaveLength(2);
+            expect(results[0].parseError).not.toBeNull();
+            expect(results[1].resource.id).toBe('p3');
+        });
+
+        test('reports an oversize line without buffering it and keeps later offsets exact', async () => {
+            // a limit of exactly 100 bytes
+            mockConfigManager.bulkImportMaxLineSizeMb = 100 / (1024 * 1024);
+            const oversize = '{"id":"big","pad":"' + 'x'.repeat(5000) + '"}';
+            const text = '{"id":"p1"}\r\n' + oversize + '\r\n{"id":"p3"}\r\n';
+            const fileSize = Buffer.byteLength(text, 'utf8');
+            serveFileFromMockS3(text, 64);
+
+            const results = await collect(reader.readNdjsonAsync({
+                filepath: 's3://allowed-bucket/file.ndjson',
+                byteRangeStart: 0,
+                byteRangeEnd: fileSize,
+                fileSize
+            }));
+
+            expect(results.map((r) => (r.resource ? r.resource.id : 'error'))).toEqual(['p1', 'error', 'p3']);
+            expect(results[1].parseError.message).toContain('exceeds maximum size');
+            expect(results[2].byteOffset).toBe(Buffer.byteLength(text, 'utf8') - '{"id":"p3"}\r\n'.length);
+        });
+    });
+
     describe('readNdjsonAsync per-line error handling', () => {
         test('skips an invalid-JSON line (yielding a parseError) instead of aborting the rest of the range', async () => {
             const badText = '{"resourceType":"Patient","id":"p1"}\nnot-json\n{"resourceType":"Patient","id":"p2"}\n';
