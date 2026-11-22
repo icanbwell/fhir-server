@@ -108,6 +108,68 @@ describe('NdjsonParser', () => {
             parser.end();
         });
 
+        // synthetic names with 2-, 3- and 4-byte UTF-8 characters
+        const multiByteCases = [
+            ['2-byte', 'Muñ'],
+            ['3-byte', 'Euro€'],
+            ['4-byte', 'Smile😀']
+        ];
+        const splitCases = multiByteCases.flatMap(([label, family]) => {
+            const bytes = Buffer.from(`{"family":"${family}"}\n`, 'utf8');
+            const lastChar = Array.from(family).pop();
+            const start = bytes.indexOf(Buffer.from(lastChar, 'utf8'));
+            const charLength = Buffer.byteLength(lastChar, 'utf8');
+            // every split point strictly inside the multi-byte character
+            return Array.from({ length: charLength - 1 }, (_, i) => [
+                `${label} character split after byte ${i + 1}`,
+                family,
+                start + i + 1
+            ]);
+        });
+
+        test.each(splitCases)(
+            'should keep a multi-byte character intact when a chunk boundary splits it: %s',
+            (label, family, splitAt) => {
+                const parser = new NdjsonParser({ configManager });
+                const data = [];
+                parser.on('data', (chunk) => data.push(chunk));
+                const bytes = Buffer.from(`{"family":"${family}"}\n`, 'utf8');
+
+                const ended = new Promise((resolve, reject) => {
+                    parser.on('end', resolve);
+                    parser.on('error', reject);
+                });
+                parser.write(bytes.subarray(0, splitAt));
+                parser.write(bytes.subarray(splitAt));
+                parser.end();
+
+                return ended.then(() => {
+                    expect(data).toEqual([{ family }]);
+                    expect(data[0].family).not.toContain('�');
+                });
+            }
+        );
+
+        test('should keep a multi-byte character intact when the last line has no trailing newline', () => {
+            const parser = new NdjsonParser({ configManager });
+            const data = [];
+            parser.on('data', (chunk) => data.push(chunk));
+            const bytes = Buffer.from('{"family":"Muñoz"}', 'utf8');
+            const splitAt = bytes.indexOf(Buffer.from('ñ', 'utf8')) + 1;
+
+            const ended = new Promise((resolve, reject) => {
+                parser.on('end', resolve);
+                parser.on('error', reject);
+            });
+            parser.write(bytes.subarray(0, splitAt));
+            parser.write(bytes.subarray(splitAt));
+            parser.end();
+
+            return ended.then(() => {
+                expect(data).toEqual([{ family: 'Muñoz' }]);
+            });
+        });
+
         test('should skip blank lines', (done) => {
             const parser = new NdjsonParser({ configManager });
             const data = [];

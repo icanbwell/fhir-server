@@ -1,4 +1,5 @@
 const { Transform } = require('stream');
+const { StringDecoder } = require('string_decoder');
 const httpContext = require('express-http-context');
 const { ACCESS_LOGS_ENTRY_DATA, STREAM_ACCESS_LOG_BODY_LIMIT } = require('../../constants');
 const { ConfigManager } = require('../../utils/configManager');
@@ -11,6 +12,8 @@ class NdjsonParser extends Transform {
     constructor({ configManager }) {
         super({ readableObjectMode: true, writableObjectMode: false });
         this._buffer = '';
+        // holds back an incomplete multi-byte UTF-8 sequence until the rest arrives in the next chunk
+        this._decoder = new StringDecoder('utf8');
         this.access_log_request_body = [];
 
         /**
@@ -21,7 +24,7 @@ class NdjsonParser extends Transform {
     }
 
     _transform(chunk, encoding, callback) {
-        this._buffer += chunk.toString();
+        this._buffer += this._decoder.write(chunk);
 
         let lines = this._buffer.split('\n');
         this._buffer = lines.pop(); // leave incomplete line in buffer
@@ -46,6 +49,7 @@ class NdjsonParser extends Transform {
     }
 
     _flush(callback) {
+        this._buffer += this._decoder.end();
         if (this._buffer.trim()) {
             try {
                 if (this.configManager.enableAccessLogs) {
