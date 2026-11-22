@@ -37,8 +37,9 @@ const ADMIN_LINK_WRITE_PROFILE = Object.freeze({
 /**
  * The admin patient reference profile, for the operation that points a resource's patient
  * reference at another Patient: the admin Person link profile, except that its result check
- * (`validateResult: 'adminPatientReference'`) skips the patient reference check, because the
- * operation checks the new Patient itself, in `accessBeforeBuild`.
+ * (`validateResult: 'adminPatientReference'`) skips the patient reference check, because changing
+ * that reference is the operation's purpose. As on the old path, the new Patient is not looked up
+ * or access-checked.
  */
 const ADMIN_PATIENT_REFERENCE_WRITE_PROFILE = Object.freeze({
     name: 'adminPatientReference',

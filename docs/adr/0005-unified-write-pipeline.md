@@ -66,8 +66,8 @@ differences are plain data next to each other.
   scope check (the route asserts the admin scope) and the steps that read or compare a resource
   body, and use four variants: `findExisting.adminTargets` and `accessBeforeBuild.adminTargets`
   (the target and the looked-up linked resources through the access filter, with `u` on the
-  target, `r` on the Patient of a created Person and `u` on the new Patient of
-  `updatePatientReference`; a link added to a stored Person names its target as sent and is
+  target and `r` on the Patient of a created Person; `updatePatientReference` doesn't look the new
+  Patient up, as today; a link added to a stored Person names its target as sent and is
   checked by the result validation's Person.link check; the
   Person of `createPersonToPatientLink` is looked up with `r` and checked with `u`, so one the
   caller can read but not update is a 403, not a second Person), `buildDocument.admin`

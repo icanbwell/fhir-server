@@ -19,7 +19,6 @@ const EXPECTED_OPERATIONS = [
         smartMerge: true,
         linkTargetLookup: 'never',
         createsMissingTarget: false,
-        linkTargetAccess: 'r',
         target: { idParameter: 'bwellPersonId', resourceType: 'Person' },
         linkTarget: { idParameter: 'externalPersonId', resourceType: 'Person' }
     },
@@ -30,7 +29,6 @@ const EXPECTED_OPERATIONS = [
         smartMerge: false,
         linkTargetLookup: 'never',
         createsMissingTarget: false,
-        linkTargetAccess: 'r',
         target: { idParameter: 'bwellPersonId', resourceType: 'Person' },
         linkTarget: { idParameter: 'externalPersonId', resourceType: 'Person' }
     },
@@ -41,7 +39,6 @@ const EXPECTED_OPERATIONS = [
         smartMerge: true,
         linkTargetLookup: 'whenTargetMissing',
         createsMissingTarget: true,
-        linkTargetAccess: 'r',
         target: { idParameter: 'externalPersonId', resourceType: 'Person' },
         linkTarget: { idParameter: 'patientId', resourceType: 'Patient' }
     },
@@ -52,7 +49,6 @@ const EXPECTED_OPERATIONS = [
         smartMerge: false,
         linkTargetLookup: 'never',
         createsMissingTarget: false,
-        linkTargetAccess: 'r',
         target: { idParameter: 'personId', resourceType: 'Person' },
         linkTarget: { idParameter: 'patientId', resourceType: 'Patient' }
     },
@@ -61,9 +57,8 @@ const EXPECTED_OPERATIONS = [
         profile: 'adminPatientReference',
         kind: 'rewritePatientReference',
         smartMerge: false,
-        linkTargetLookup: 'always',
+        linkTargetLookup: 'never',
         createsMissingTarget: false,
-        linkTargetAccess: 'u',
         target: {
             idParameter: 'resourceId',
             resourceTypeParameter: 'resourceType',
@@ -102,7 +97,7 @@ describe('ADMIN_OPERATIONS', () => {
         }
     );
 
-    test('looks the linked resource up always only for updatePatientReference, and for createPersonToPatientLink only when the Person is missing', () => {
+    test('looks the linked resource up only for createPersonToPatientLink, and only when the Person is missing', () => {
         const lookups = Object.values(ADMIN_OPERATIONS).map((operation) => [
             operation.name,
             operation.linkTargetLookup
@@ -112,7 +107,7 @@ describe('ADMIN_OPERATIONS', () => {
             ['removePersonToPersonLink', 'never'],
             ['createPersonToPatientLink', 'whenTargetMissing'],
             ['removePersonToPatientLink', 'never'],
-            ['updatePatientReference', 'always']
+            ['updatePatientReference', 'never']
         ]);
     });
 
@@ -121,20 +116,6 @@ describe('ADMIN_OPERATIONS', () => {
             .filter((operation) => operation.createsMissingTarget)
             .map((operation) => operation.name);
         expect(creating).toEqual(['createPersonToPatientLink']);
-    });
-
-    test('only updatePatientReference checks its linked resource with u, every other one with r', () => {
-        const letters = Object.values(ADMIN_OPERATIONS).map((operation) => [
-            operation.name,
-            operation.linkTargetAccess
-        ]);
-        expect(letters).toEqual([
-            ['createPersonToPersonLink', 'r'],
-            ['removePersonToPersonLink', 'r'],
-            ['createPersonToPatientLink', 'r'],
-            ['removePersonToPatientLink', 'r'],
-            ['updatePatientReference', 'u']
-        ]);
     });
 
     test('only the two Person to Patient operations send a manual link event', () => {

@@ -225,39 +225,28 @@ class AdminBuilder {
     }
 
     /**
-     * Points the patient field of a hydrated copy of the stored document at the loaded Patient,
-     * as `Patient/<loaded _uuid>`, clears the field's `_uuid`, `_sourceId` and
-     * `_sourceAssigningAuthority` so preSave recomputes them, and has the replace builder build it.
-     * A no-op when the field already points at that Patient, and when the resource has no single
-     * patient reference that can be rewritten; both checks run on the stored document, before
-     * anything is read back in, copied into the body or built. The new Patient is always loaded
-     * (`linkTargetLookup` is `always`).
+     * Sets the `reference` of the patient field of a hydrated copy of the stored document to
+     * `Patient/<id as sent>`, as today, and has the replace builder build it. The field's `_uuid`,
+     * `_sourceId` and `_sourceAssigningAuthority` are left as stored, so preSave recomputes them
+     * from the new reference and the stored authority. A no-op when the field's `reference` already
+     * is that text, and when the resource has no single patient reference that can be rewritten;
+     * both checks run on the stored document, before anything is read back in, copied into the
+     * body or built. The new Patient is not looked up (`linkTargetLookup` is `never`).
      * @param {WriteItem} item
      * @param {WriteContext} context
      * @returns {Promise<WriteFailure|null>}
      */
     async _buildRewritePatientReferenceAsync ({ item, context }) {
-        const reference = this._linkedReference(item);
+        const reference = this._referenceTo(item.adminChange.linkTarget);
         const storedPatientReference = this._rewritablePatientReference(item.stored);
-        if (
-            !storedPatientReference ||
-            this._pointsTo({ referenceObject: storedPatientReference, reference })
-        ) {
+        if (!storedPatientReference || storedPatientReference.reference === reference) {
             return this._noChange(item);
         }
         const document = await this._hydratedStoredAsync({ item, context });
-        const patientReference = this._rewritablePatientReference(document);
-        patientReference.reference = reference;
-        this._clearGlobalIdFields(patientReference);
+        this._rewritablePatientReference(document).reference = reference;
         item.incoming = FhirResourceWriteSerializer.serialize({ obj: document });
         this._setRequestMethod({ context, method: 'PATCH' });
-        const failure = await this.replaceBuilder.buildAsync({ item, context });
-        const builtPatientReference =
-            item.candidate && this._rewritablePatientReference(item.candidate);
-        if (!failure && builtPatientReference) {
-            this._clearGlobalIdFields(builtPatientReference);
-        }
-        return failure;
+        return await this.replaceBuilder.buildAsync({ item, context });
     }
 
     /**
@@ -274,19 +263,6 @@ class AdminBuilder {
         return await this.base64DataManager.transformAsync(
             hydrated, BLOB_OP.RETRIEVE, context.requestInfo
         );
-    }
-
-    /**
-     * Removes the `_uuid`, `_sourceId` and `_sourceAssigningAuthority` of a reference, in place, so
-     * preSave recomputes them from its `reference`. The replace builder's merge keeps the stored
-     * reference's fields on the built document, so they are cleared on the body and on the result.
-     * @param {Object} referenceObject
-     * @returns {void}
-     */
-    _clearGlobalIdFields (referenceObject) {
-        delete referenceObject._uuid;
-        delete referenceObject._sourceId;
-        delete referenceObject._sourceAssigningAuthority;
     }
 
     /**
@@ -320,23 +296,6 @@ class AdminBuilder {
     }
 
     /**
-     * Whether the reference object points at the reference: on its `_uuid` when it has one, else
-     * on its `reference` string.
-     * @param {Object|undefined} referenceObject
-     * @param {string} reference
-     * @returns {boolean}
-     */
-    _pointsTo ({ referenceObject, reference }) {
-        if (!referenceObject) {
-            return false;
-        }
-        if (referenceObject._uuid) {
-            return referenceObject._uuid === reference;
-        }
-        return referenceObject.reference === reference;
-    }
-
-    /**
      * Whether the reference object names the reference, as the old admin link removal matches a
      * link: its `reference` or its `_uuid` is the reference.
      * @param {Object|undefined} referenceObject
@@ -357,17 +316,6 @@ class AdminBuilder {
      */
     _referenceTo ({ resourceType, id }) {
         return `${resourceType}/${id}`;
-    }
-
-    /**
-     * Returns the `<resourceType>/<_uuid>` reference to the item's loaded link target: the new
-     * Patient of a patient reference rewrite, which the loader always loads.
-     * @param {WriteItem} item
-     * @returns {string}
-     */
-    _linkedReference (item) {
-        const [linked] = item.linked;
-        return this._referenceTo({ resourceType: linked.resourceType, id: linked.resource._uuid });
     }
 
     /**

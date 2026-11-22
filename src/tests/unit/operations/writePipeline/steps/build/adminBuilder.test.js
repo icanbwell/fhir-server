@@ -422,7 +422,7 @@ describe('AdminBuilder', () => {
             }
         },
         {
-            name: 'rewritePatientReference points the patient field at the new Patient and is built by the replace as the next version',
+            name: 'rewritePatientReference points the patient field at the id as sent, keeps its global id fields for preSave, and is built by the replace as the next version',
             item: () => buildItem({
                 kind: 'rewritePatientReference',
                 target: OBSERVATION,
@@ -439,7 +439,12 @@ describe('AdminBuilder', () => {
             expected: {
                 writeMode: 'update',
                 versionId: '3',
-                subject: { reference: `Patient/${PATIENT_UUID}` },
+                subject: {
+                    reference: `Patient/${PATIENT_UUID}`,
+                    _uuid: `Patient/${OLD_PATIENT_UUID}`,
+                    _sourceId: 'Patient/patient-old',
+                    _sourceAssigningAuthority: 'owner'
+                },
                 method: 'PATCH'
             }
         }
@@ -530,21 +535,7 @@ describe('AdminBuilder', () => {
                 kind: 'rewritePatientReference',
                 target: OBSERVATION,
                 linkTarget: PATIENT,
-                storedDoc: storedObservation({ reference: `Patient/${PATIENT_UUID}` }),
-                linked: [{ resourceType: 'Patient', resource: linkedPatient }]
-            })
-        },
-        {
-            name: 'rewritePatientReference already pointing at the Patient on the _uuid',
-            item: () => buildItem({
-                kind: 'rewritePatientReference',
-                target: OBSERVATION,
-                linkTarget: PATIENT,
-                storedDoc: storedObservation({
-                    reference: 'Patient/patient-1',
-                    _uuid: `Patient/${PATIENT_UUID}`
-                }),
-                linked: [{ resourceType: 'Patient', resource: linkedPatient }]
+                storedDoc: storedObservation({ reference: `Patient/${PATIENT_UUID}` })
             })
         },
         {
@@ -553,8 +544,7 @@ describe('AdminBuilder', () => {
                 kind: 'rewritePatientReference',
                 target: PERSON,
                 linkTarget: PATIENT,
-                storedDoc: storedPerson([{ target: storedPatientReference(OTHER_PATIENT_UUID) }]),
-                linked: [{ resourceType: 'Patient', resource: linkedPatient }]
+                storedDoc: storedPerson([{ target: storedPatientReference(OTHER_PATIENT_UUID) }])
             })
         },
         {
@@ -567,8 +557,7 @@ describe('AdminBuilder', () => {
                     resourceType: 'Person',
                     id: 'person-1',
                     managingOrganization: { reference: 'Organization/organization-1' }
-                }),
-                linked: [{ resourceType: 'Patient', resource: linkedPatient }]
+                })
             }),
             patientFilterManager: personMappedPatientFilterManager()
         },
@@ -578,8 +567,7 @@ describe('AdminBuilder', () => {
                 kind: 'rewritePatientReference',
                 target: { resourceType: 'Patient', id: OTHER_PATIENT_UUID },
                 linkTarget: PATIENT,
-                storedDoc: stored({ resourceType: 'Patient', id: 'patient-2' }),
-                linked: [{ resourceType: 'Patient', resource: linkedPatient }]
+                storedDoc: stored({ resourceType: 'Patient', id: 'patient-2' })
             })
         },
         {
@@ -588,8 +576,7 @@ describe('AdminBuilder', () => {
                 kind: 'rewritePatientReference',
                 target: { resourceType: 'Practitioner', id: generateUUIDv5('practitioner-1|owner') },
                 linkTarget: PATIENT,
-                storedDoc: stored({ resourceType: 'Practitioner', id: 'practitioner-1' }),
-                linked: [{ resourceType: 'Patient', resource: linkedPatient }]
+                storedDoc: stored({ resourceType: 'Practitioner', id: 'practitioner-1' })
             })
         },
         {
@@ -613,8 +600,7 @@ describe('AdminBuilder', () => {
                 kind: 'rewritePatientReference',
                 target: OBSERVATION,
                 linkTarget: PATIENT,
-                storedDoc: storedObservation(undefined),
-                linked: [{ resourceType: 'Patient', resource: linkedPatient }]
+                storedDoc: storedObservation(undefined)
             })
         }
     ])('$name is a no-op', async ({ item, patientFilterManager }) => {
@@ -920,30 +906,50 @@ describe('AdminBuilder', () => {
         expect(result.item.candidate.meta.source).toBe(SOURCE);
     });
 
-    test('rewritePatientReference to a Patient sent by a plain id points the field at the loaded Patient\'s _uuid', async () => {
+    test.each([
+        { name: 'its plain id', id: 'patient-1' },
+        { name: 'its _uuid', id: PATIENT_UUID },
+        { name: 'its id|authority', id: 'patient-1|owner' }
+    ])('rewritePatientReference to a Patient sent by $name sets the reference to the id as sent and leaves the global id fields to preSave', async ({ id }) => {
         const result = await build(buildItem({
             kind: 'rewritePatientReference',
             target: OBSERVATION,
-            linkTarget: { resourceType: 'Patient', id: 'patient-1' },
-            storedDoc: storedObservation(storedPatientReference(OLD_PATIENT_UUID)),
-            linked: [{ resourceType: 'Patient', resource: linkedPatient }]
+            linkTarget: { resourceType: 'Patient', id },
+            storedDoc: storedObservation(storedPatientReference(OLD_PATIENT_UUID))
         }));
 
         expect(result.failure).toBeNull();
-        expect(result.item.candidate.subject).toStrictEqual({ reference: `Patient/${PATIENT_UUID}` });
+        expect(result.item.candidate.subject).toStrictEqual({
+            ...storedPatientReference(OLD_PATIENT_UUID),
+            reference: `Patient/${id}`
+        });
     });
 
-    test('rewritePatientReference by a plain id is a no-op when the field already has the loaded Patient\'s _uuid', async () => {
+    test.each([
+        {
+            name: 'is a no-op when the reference already is the id as sent',
+            id: 'patient-1',
+            builders: []
+        },
+        {
+            name: 'rewrites a reference that names the Patient only on its _uuid',
+            id: PATIENT_UUID,
+            builders: ['replaceBuilder']
+        }
+    ])('rewritePatientReference $name', async ({ id, builders }) => {
         const result = await build(buildItem({
             kind: 'rewritePatientReference',
             target: OBSERVATION,
-            linkTarget: { resourceType: 'Patient', id: 'patient-1' },
-            storedDoc: storedObservation(storedPatientReference(PATIENT_UUID)),
-            linked: [{ resourceType: 'Patient', resource: linkedPatient }]
+            linkTarget: { resourceType: 'Patient', id },
+            storedDoc: storedObservation({
+                reference: 'Patient/patient-1',
+                _uuid: `Patient/${PATIENT_UUID}`,
+                _sourceId: 'Patient/patient-1',
+                _sourceAssigningAuthority: 'owner'
+            })
         }), undefined, UNSET_METHOD);
 
         expect(result.failure).toBeNull();
-        expect(calledBuilders(result.spies)).toStrictEqual([]);
-        expect(result.item.candidate).toBeNull();
+        expect(calledBuilders(result.spies)).toStrictEqual(builders);
     });
 });

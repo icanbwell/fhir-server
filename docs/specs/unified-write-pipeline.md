@@ -354,7 +354,7 @@ the code disagree, the code wins.
 | Validate incoming | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); the pipe-in-id check never fires, because POST replaces the id with a new UUID | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); Person.link moves to validate result; the size and pipe-in-id checks never fire: AuditEvent update gets 405 from `ResourceOperationAccessProvider` before the pipeline, and `IdParser` puts only the part before the first `\|` into the body id | – (the body is a JSON Patch) | on the stripped body: AuditEvent size limit and pipe-in-id check, then schema with relaxed required fields | owner tag backfilled first; pipe-in-id check, as today; new: the AuditEvent size limit and the schema check, as in `$merge` (accepted difference 6) | – (no client body) |
 | Find existing | off (no stored-document lookup) | by `_uuid`, as today; new: a bulk preload of one (`BulkPreloadLoader`, no access filter, as today) | `findExisting: 'search'` (`SearchExistingLoader`): the same search with the access filter as today; 0 hits is 404 `Resource not found: <Type>/<id>`, more than 1 is 400 listing the sorted `id\|authority` options; it copies the stored doc's `id`, `_uuid` and `_sourceAssigningAuthority` onto the item | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by the id sent (`_uuid`, `id` or `id\|authority`) with the access filter, 404 (see "Admin") |
 | Validate new resource | meta; new: after the size and schema checks, as in `$merge` (accepted difference 1) | new: meta, for create-via-PUT (today it runs on the body after the build) | – | meta (owner tag) for a new resource | meta for a new resource, as today | – |
-| Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403); new: as `$merge`: the stored doc, then the access-tag change from the stored doc to the body, removals counted; for create-via-PUT, POST's full check and access-tag change. Today the tag check runs on the built doc, after the build and the uploads | stored doc, scope letter `u` (`accessBeforeBuild: 'stored'`, `StoredAccessChecker`) | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: the stored doc (`u`) and every looked-up linked resource (`r` for the Patient of a created Person; `u` for the new Patient of `updatePatientReference`) |
+| Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403); new: as `$merge`: the stored doc, then the access-tag change from the stored doc to the body, removals counted; for create-via-PUT, POST's full check and access-tag change. Today the tag check runs on the built doc, after the build and the uploads | stored doc, scope letter `u` (`accessBeforeBuild: 'stored'`, `StoredAccessChecker`) | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: the stored doc (`u`) and every looked-up linked resource (`r`, the Patient of a created Person) |
 | Validate against stored | off | on, for an item with a stored doc: `validateResourceAsync` on the body with the stored doc (Group member limit, schema, Person.link, patient reference), as today's PUT does before it merges; temporary, see "Why this order" | off | off | off | off |
 | Build new doc | insert | replace (no smart merge), after the extended Group 400 and the `If-None-Match` / `If-Match` 412s; create-via-PUT builds as POST's insert, after the `If-Match` 412 | `buildDocument: 'patch'` (`PatchBuilder`): apply the JSON Patch to a copy of the stored doc; Group member strategy for Group (see "PATCH" below); a patch that changes nothing builds no doc | smart merge | smart merge | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
 | Validate result | new: on, `validateResourceAsync` on the built document (Group member limit, schema of the write-serialized document, Person.link), as for a new `$merge` doc | for an update, meta on the built doc, because "validate against stored" has already run `validateResourceAsync` on the body; for create-via-PUT, `validateResourceAsync` on the built doc. Today: `validateResourceAsync` on the body before the build, then the schema of the write-serialized body, then meta on the built doc | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
@@ -609,12 +609,12 @@ is true for the two create operations and false for the other three. History row
 - Lookups use the access filter, like PATCH (my call). A target that is missing or that the caller
   can't access gets a 404. The target is looked up with `u`, except in `createPersonToPatientLink`,
   which looks the Person up with `r` and creates it when it is not found (below).
-- Linked resources are looked up, and must then exist, only where the write needs them: the
-  Patient in `createPersonToPatientLink` when it creates the Person (for its `meta.source` and
-  `meta.security`, as today), and the new Patient in `updatePatientReference` (today never
-  checked). A link added to a stored Person doesn't look its target up, as today; the result
-  validation's Person.link check checks it instead: a target that is not stored, in a tenant the
-  caller can't access, or a bare id more than one accessible resource has gets a 400 with the
+- Linked resources are looked up, and must then exist, only where the write needs them: the Patient
+  in `createPersonToPatientLink` when it creates the Person (for its `meta.source` and
+  `meta.security`, as today). `updatePatientReference` doesn't look the new Patient up or check
+  access to it, as today. A link added to a stored Person doesn't look its target up, as today; the
+  result validation's Person.link check checks it instead: a target that is not stored, in a tenant
+  the caller can't access, or a bare id more than one accessible resource has gets a 400 with the
   check's issue (`not-found`, `forbidden` or `multiple-matches`), where today it is written
   unchecked. An `access/*` caller skips that check, as on the other operations.
 - An added link names the target as sent (`<Type>/<id as sent>`), as today, and preSave adds its
@@ -623,8 +623,7 @@ is true for the two create operations and false for the other three. History row
   same way, as today, so a link added by an id can be removed by the same id. The Person.link
   check rewrites a bare-id reference to carry the matched target's authority
   (`<Type>/<id>|<authority>`) for a caller without `access/*`, so for such a caller only
-  `id|authority` or the `_uuid` matches that link afterwards. A rewritten patient reference names
-  the loaded new Patient by its `_uuid`.
+  `id|authority` or the `_uuid` matches that link afterwards.
 - **A created Person.** When `createPersonToPatientLink` finds no Person, it creates one with a
   generated `id` and `_uuid`, the Patient's `meta.source` and `meta.security`, and one link
   `Patient/<id as sent>`, as today. A missing `externalPersonId` is a 400 (see "Changes to
@@ -648,12 +647,8 @@ is true for the two create operations and false for the other three. History row
   across tenants: the Person.link tenant check lets `access/*` callers through. A caller with
   narrower access scopes is limited to its own tenants.
 - The stored target and every looked-up linked resource go through the access check before the
-  build. The letters are `u` on the target, `r` on the Patient a created Person copies its meta
-  from, and `u` on the new Patient of `updatePatientReference`, because that write puts the
-  resource in the new Patient's record (only those two look a linked resource up, see
-  `linkTargetLookup`; the letter is `linkTargetAccess` in `ADMIN_OPERATIONS`). The lookup itself
-  finds the linked resource with `r`,
-  so a new Patient the caller can read but not write gets a 403, not a 404. The linked-resource
+  build. The letters are `u` on the target and `r` on the Patient a created Person copies its meta
+  from (the only linked resource that is looked up, see `linkTargetLookup`). The linked-resource
   check goes through the validator method that also checks patient write access for
   patient-scoped callers, so such a caller needs write access to the linked resource.
 - The result goes through meta and schema validation and the Person.link tenant check. The meta
@@ -664,15 +659,15 @@ is true for the two create operations and false for the other three. History row
   PUT.
 - **Allowed exception: patient-reference change.** The validator refuses any change to a resource's
   patient reference, for every caller (`validatePatientReference` in `resourceValidator.js`). The
-  `adminPatientReference` profile turns that one check off, for `updatePatientReference` only. The
-  new Patient must exist, and the caller must be able to write it (`u`). The rewritten reference
-  is `Patient/<uuid>` with the old `_uuid`, `_sourceId` and `_sourceAssigningAuthority` cleared,
-  so preSave recomputes them from the new Patient; today the old source assigning authority is
-  left on the reference.
+  `adminPatientReference` profile turns that one check off, for `updatePatientReference` only. As
+  today, the new Patient is not looked up or access-checked, the field's `reference` is set to
+  `Patient/<patientId as sent>` and nothing else on it is changed, so preSave recomputes its
+  `_uuid`, `_sourceId` and `_sourceAssigningAuthority` from that reference and the stored
+  authority. It is a no-op when the field's `reference` already is that text.
 - **`updatePatientReference` no-ops and errors.** These write nothing and answer HTTP 200 with
   today's "Couldn't update Patient reference..." body: a Person target, a resource type with no
   usable patient property, and a patient field that is missing or holds a list. A resource type
-  outside the supported list is a 400; a missing target or Patient is a 404. An existing
+  outside the supported list is a 400; a missing target is a 404. An existing
   non-Patient reference in the field (for example a Group) is still repointed, as today.
 - Removing a link replaces the Person (no smart merge). Normal operations already allow that for
   non-patient callers, so it needs no exception.
@@ -775,10 +770,10 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
     (`queuesReplaceByUuidWithoutVersionFilter` in `patchWriter.test.js`).
   - Integration tests for the no-op fixes: an unchanged `$import` line counts as skipped.
   - Integration tests for the admin changes, parameterized over the five operations: non-UUID ids
-    get 400; a missing or inaccessible target or linked resource gets 404; a caller without access
-    to the tenant gets 403/404, never a write; `updatePatientReference` changes the patient
-    reference while PUT, PATCH and `$merge` still refuse it; audit events are written; errors use
-    the standard format. They are in
+    get 400; a missing or inaccessible target or looked-up linked resource gets 404; a caller
+    without access to the tenant gets 403/404, never a write; `updatePatientReference` changes the
+    patient reference while PUT, PATCH and `$merge` still refuse it; audit events are written;
+    errors use the standard format. They are in
     `src/tests/integration/operations/writePipeline/operations/admin/admin.test.js`.
   - Admin tests use tokens with specific `access/` scopes. Today's admin test tokens always carry
     `access/*.*` (`getTokenWithCustomClaims` in `src/tests/integration/common.js`), which would hide

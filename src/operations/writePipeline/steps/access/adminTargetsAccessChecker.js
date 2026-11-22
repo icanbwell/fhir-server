@@ -7,17 +7,16 @@ const { WriteContext } = require('../../writeContext');
 const { StoredAccessChecker } = require('./storedAccessChecker');
 
 /**
- * The access letter a linked resource is checked with when the item's change names none: a link
- * only reads it, it never changes it.
+ * The access letter a linked resource is checked with: the write only reads it, it never changes
+ * it.
  */
-const DEFAULT_LINKED_ACCESS_REQUESTED = 'r';
+const LINKED_ACCESS_REQUESTED = 'r';
 
 /**
  * The access checker for the `accessBeforeBuild` step of an admin write, once for the batch. It
  * passes the items that have a stored document to the stored access checker, which checks that
  * the caller may change each target, and then checks every resource in each item's `linked`, by
- * the access scopes and the patient scopes, with the change's `linkTargetAccess` letter (`r` when
- * it has none): `r` for a link target and `u` for the new Patient of a patient reference rewrite.
+ * the access scopes and the patient scopes, with the `r` access letter.
  * An item with no stored document (a Person about to be created) has no target to check here; its
  * linked resources are still checked. The linked resources of an item whose target is forbidden
  * are not checked. Each forbidden item fails at the `ACCESS` stage, a forbidden linked resource
@@ -71,23 +70,21 @@ class AdminTargetsAccessChecker {
     }
 
     /**
-     * Returns null when the caller has the change's `linkTargetAccess` (`r` when it has none) to
-     * every linked resource of the item, else an `ACCESS` failure for the item, from the first
-     * forbidden one. Throws an error that is not a 403.
+     * Returns null when the caller has `r` access to every linked resource of the item, else an
+     * `ACCESS` failure for the item, from the first forbidden one. Throws an error that is not a
+     * 403.
      * @param {WriteItem} item
      * @param {WriteContext} context
      * @returns {Promise<WriteFailure|null>}
      */
     async _checkLinkedAsync ({ item, context }) {
-        const accessRequested =
-            item.adminChange?.linkTargetAccess ?? DEFAULT_LINKED_ACCESS_REQUESTED;
         for (const { resource } of item.linked) {
             try {
                 await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                     requestInfo: context.requestInfo,
                     resource,
                     base_version: context.base_version,
-                    accessRequested
+                    accessRequested: LINKED_ACCESS_REQUESTED
                 });
             } catch (error) {
                 if (error.statusCode !== 403) {

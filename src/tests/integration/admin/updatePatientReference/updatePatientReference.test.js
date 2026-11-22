@@ -16,34 +16,6 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const { setTimeout: sleep } = require('node:timers/promises');
 
 const ENCOUNTER_UUID = 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15';
-const PATIENT_1_UUID = 'c87b8e53-b3db-53a0-aa92-05f4a3fb9d15';
-const PATIENT_2_UUID = '941f082a-39a9-5f55-9630-5839a010e1bc';
-
-/**
- * Returns a Patient with the id in the `client` tenant, the tenant of the Encounter fixture.
- * @param {string} id
- * @returns {Object}
- */
-const patientResource = (id) => ({
-    resourceType: 'Patient',
-    id,
-    meta: {
-        source: 'https://www.icanbwell.com',
-        security: [{ system: 'https://www.icanbwell.com/owner', code: 'client' }]
-    }
-});
-
-/**
- * Stores the Patients with the ids.
- * @param {import('supertest').SuperTest} request
- * @param {string[]} ids
- * @returns {Promise<void>}
- */
-const storePatientsAsync = async (request, ids) => {
-    for (const id of ids) {
-        await request.post('/4_0_0/Patient/$merge').send(patientResource(id)).set(getHeaders()).expect(200);
-    }
-};
 
 describe('Patient reference tests', () => {
     beforeEach(async () => {
@@ -68,7 +40,6 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
-            await storePatientsAsync(request, ['2']);
 
             resp = await request
                 .get('/4_0_0/Encounter/1')
@@ -117,7 +88,6 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
-            await storePatientsAsync(request, ['2']);
 
             resp = await request
                 .get('/4_0_0/Encounter/1')
@@ -129,7 +99,7 @@ describe('Patient reference tests', () => {
             resp = await request
                 .post('/admin/updatePatientReference')
                 .send({
-                    patientId: PATIENT_2_UUID,
+                    patientId: '2',
                     resourceType: 'Encounter',
                     resourceId: ENCOUNTER_UUID
                 })
@@ -138,7 +108,7 @@ describe('Patient reference tests', () => {
 
             expect(resp).toHaveResponse({
                 message: `Patient reference updated for Encounter with id ${ENCOUNTER_UUID}`,
-                patientId: PATIENT_2_UUID
+                patientId: '2'
             });
 
             resp = await request
@@ -164,7 +134,6 @@ describe('Patient reference tests', () => {
                 .send(encounter1Resource)
                 .set(getHeaders())
                 .expect(200);
-            await storePatientsAsync(request, ['2']);
 
             const before = await request.get('/4_0_0/Encounter/1').set(getHeaders()).expect(200);
             await sleep(20);
@@ -172,7 +141,7 @@ describe('Patient reference tests', () => {
             await request
                 .post('/admin/updatePatientReference')
                 .send({
-                    patientId: PATIENT_2_UUID,
+                    patientId: '2',
                     resourceType: 'Encounter',
                     resourceId: ENCOUNTER_UUID
                 })
@@ -199,7 +168,6 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
-            await storePatientsAsync(request, ['1']);
 
             resp = await request
                 .get('/4_0_0/Encounter/1')
@@ -211,7 +179,7 @@ describe('Patient reference tests', () => {
             resp = await request
                 .post('/admin/updatePatientReference')
                 .send({
-                    patientId: PATIENT_1_UUID,
+                    patientId: '1',
                     resourceType: 'Encounter',
                     resourceId: ENCOUNTER_UUID
                 })
@@ -220,7 +188,7 @@ describe('Patient reference tests', () => {
 
             expect(resp).toHaveResponse({
                 message: `Couldn't update Patient reference in Encounter with id ${ENCOUNTER_UUID}`,
-                patientId: PATIENT_1_UUID
+                patientId: '1'
             });
 
             resp = await request
@@ -244,12 +212,10 @@ describe('Patient reference tests', () => {
                 .set(getHeaders())
                 .expect(404);
 
-            await storePatientsAsync(request, ['2']);
-
             resp = await request
                 .post('/admin/updatePatientReference')
                 .send({
-                    patientId: PATIENT_2_UUID,
+                    patientId: '2',
                     resourceType: 'Encounter',
                     resourceId: ENCOUNTER_UUID
                 })
@@ -278,7 +244,6 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
-            await storePatientsAsync(request, ['2']);
 
             resp = await request
                 .get('/4_0_0/Encounter/1')
@@ -290,7 +255,7 @@ describe('Patient reference tests', () => {
             resp = await request
                 .post('/admin/updatePatientReference')
                 .send({
-                    patientId: PATIENT_2_UUID,
+                    patientId: '2',
                     resourceType: 'Encounter',
                     resourceId: ENCOUNTER_UUID
                 })
@@ -299,7 +264,7 @@ describe('Patient reference tests', () => {
 
             expect(resp).toHaveResponse({
                 message: `Patient reference updated for Encounter with id ${ENCOUNTER_UUID}`,
-                patientId: PATIENT_2_UUID
+                patientId: '2'
             });
 
             resp = await request
@@ -327,7 +292,6 @@ describe('Patient reference tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ created: true });
-            await storePatientsAsync(request, ['2']);
 
             resp = await request
                 .get('/4_0_0/Encounter/1')
@@ -339,7 +303,7 @@ describe('Patient reference tests', () => {
             resp = await request
                 .post('/admin/updatePatientReference')
                 .send({
-                    patientId: PATIENT_2_UUID,
+                    patientId: '2',
                     resourceType: 'Encounter',
                     resourceId: ENCOUNTER_UUID
                 })
@@ -348,7 +312,7 @@ describe('Patient reference tests', () => {
 
             expect(resp).toHaveResponse({
                 message: `Patient reference updated for Encounter with id ${ENCOUNTER_UUID}`,
-                patientId: PATIENT_2_UUID
+                patientId: '2'
             });
 
             resp = await request

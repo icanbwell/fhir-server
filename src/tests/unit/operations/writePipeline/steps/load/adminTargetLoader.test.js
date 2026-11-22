@@ -37,7 +37,7 @@ const buildContext = () => new WriteContext({
 /**
  * Builds an admin item for a change of the Person, linking the Patient.
  */
-const buildItem = ({ index = 0, linkTargetLookup = 'always', createsMissingTarget = false } = {}) => {
+const buildItem = ({ index = 0, linkTargetLookup = 'never', createsMissingTarget = false } = {}) => {
     const item = new WriteItem({ index, incoming: { resourceType: 'Person', id: PERSON_UUID } });
     item.adminChange = {
         kind: 'addLink',
@@ -48,6 +48,15 @@ const buildItem = ({ index = 0, linkTargetLookup = 'always', createsMissingTarge
     };
     return item;
 };
+
+/**
+ * The change options of `createPersonToPatientLink`, the one change that looks its link target up:
+ * only when no Person is found, which it then creates.
+ */
+const CREATES_MISSING_PERSON = Object.freeze({
+    createsMissingTarget: true,
+    linkTargetLookup: 'whenTargetMissing'
+});
 
 /**
  * Builds the write-serialized Person the finder returns for the target.
@@ -94,19 +103,6 @@ const buildLoader = ({ matchesByUuid = {}, searchError = null } = {}) => {
 describe('AdminTargetLoader', () => {
     test.each([
         {
-            name: 'target and link target found',
-            options: {},
-            matches: { [PERSON_UUID]: [buildStoredPerson()], [PATIENT_UUID]: [buildStoredPatient()] },
-            expected: {
-                status: WRITE_ITEM_STATUS.ACTIVE,
-                stored: true,
-                linked: ['Patient'],
-                identityCopied: true,
-                lookups: ['Person:u', 'Patient:r'],
-                failureMessage: null
-            }
-        },
-        {
             name: 'target found, link target not looked up',
             options: { linkTargetLookup: 'never' },
             matches: { [PERSON_UUID]: [buildStoredPerson()], [PATIENT_UUID]: [buildStoredPatient()] },
@@ -133,21 +129,8 @@ describe('AdminTargetLoader', () => {
             }
         },
         {
-            name: 'target found, link target not found',
-            options: {},
-            matches: { [PERSON_UUID]: [buildStoredPerson()] },
-            expected: {
-                status: WRITE_ITEM_STATUS.FAILED,
-                stored: true,
-                linked: [],
-                identityCopied: true,
-                lookups: ['Person:u', 'Patient:r'],
-                failureMessage: `Resource not found: Patient/${PATIENT_UUID}`
-            }
-        },
-        {
             name: 'target not found but it is to be created, link target found',
-            options: { createsMissingTarget: true, linkTargetLookup: 'whenTargetMissing' },
+            options: CREATES_MISSING_PERSON,
             matches: { [PATIENT_UUID]: [buildStoredPatient()] },
             expected: {
                 status: WRITE_ITEM_STATUS.ACTIVE,
@@ -160,7 +143,7 @@ describe('AdminTargetLoader', () => {
         },
         {
             name: 'target not found but it is to be created, link target not found',
-            options: { createsMissingTarget: true, linkTargetLookup: 'whenTargetMissing' },
+            options: CREATES_MISSING_PERSON,
             matches: {},
             expected: {
                 status: WRITE_ITEM_STATUS.FAILED,
@@ -173,7 +156,7 @@ describe('AdminTargetLoader', () => {
         },
         {
             name: 'target found by the read lookup though it may be created: the link target is not looked up',
-            options: { createsMissingTarget: true, linkTargetLookup: 'whenTargetMissing' },
+            options: CREATES_MISSING_PERSON,
             matches: { [PERSON_UUID]: [buildStoredPerson()], [PATIENT_UUID]: [buildStoredPatient()] },
             expected: {
                 status: WRITE_ITEM_STATUS.ACTIVE,
@@ -238,11 +221,11 @@ describe('AdminTargetLoader', () => {
 
     test('asks the finder for the uuid of each resource, with the caller request info, the admin operation name and a limit of 2', async () => {
         const { loader, finds } = buildLoader({
-            matchesByUuid: { [PERSON_UUID]: [buildStoredPerson()], [PATIENT_UUID]: [buildStoredPatient()] }
+            matchesByUuid: { [PATIENT_UUID]: [buildStoredPatient()] }
         });
         const context = buildContext();
 
-        await loader.loadAsync({ items: [buildItem()], context });
+        await loader.loadAsync({ items: [buildItem(CREATES_MISSING_PERSON)], context });
 
         expect(finds).toStrictEqual([
             {
@@ -250,7 +233,7 @@ describe('AdminTargetLoader', () => {
                 base_version: '4_0_0',
                 resourceType: 'Person',
                 parsedArgs: { parsedFor: 'Person', base_version: '4_0_0', id: PERSON_UUID },
-                accessRequested: 'u',
+                accessRequested: 'r',
                 currentOperationName: 'admin',
                 limit: 2
             },
@@ -269,20 +252,19 @@ describe('AdminTargetLoader', () => {
     test.each([
         {
             name: 'the target',
+            options: {},
             matches: { [PERSON_UUID]: [buildStoredPerson(), buildStoredPerson()] },
             lookups: ['Person:u']
         },
         {
             name: 'the link target',
-            matches: {
-                [PERSON_UUID]: [buildStoredPerson()],
-                [PATIENT_UUID]: [buildStoredPatient(), buildStoredPatient()]
-            },
-            lookups: ['Person:u', 'Patient:r']
+            options: CREATES_MISSING_PERSON,
+            matches: { [PATIENT_UUID]: [buildStoredPatient(), buildStoredPatient()] },
+            lookups: ['Person:r', 'Patient:r']
         }
-    ])('several matches for the _uuid of $name fail the item at LOOKUP with a plain Error', async ({ matches, lookups }) => {
+    ])('several matches for the _uuid of $name fail the item at LOOKUP with a plain Error', async ({ options, matches, lookups }) => {
         const { loader, finds } = buildLoader({ matchesByUuid: matches });
-        const item = buildItem();
+        const item = buildItem(options);
 
         await loader.loadAsync({ items: [item], context: buildContext() });
 
@@ -320,6 +302,7 @@ describe('AdminTargetLoader', () => {
     test.each([
         {
             name: 'the target',
+            options: {},
             configure: (item) => {
                 item.adminChange.target = { resourceType: 'Person', id: 'shared-id' };
             },
@@ -328,18 +311,18 @@ describe('AdminTargetLoader', () => {
         },
         {
             name: 'the link target',
+            options: CREATES_MISSING_PERSON,
             configure: (item) => {
                 item.adminChange.linkTarget = { resourceType: 'Patient', id: 'shared-id' };
             },
             matches: {
-                [PERSON_UUID]: [buildStoredPerson()],
                 'shared-id': [buildStoredPatient(), { ...buildStoredPatient(), _uuid: 'other' }]
             },
             message: 'The id matches more than one Patient; pass the _uuid'
         }
-    ])('several matches for a plain id of $name fail the item with a 400 invalid that asks for the _uuid', async ({ configure, matches, message }) => {
+    ])('several matches for a plain id of $name fail the item with a 400 invalid that asks for the _uuid', async ({ options, configure, matches, message }) => {
         const { loader } = buildLoader({ matchesByUuid: matches });
-        const item = buildItem();
+        const item = buildItem(options);
         configure(item);
 
         await loader.loadAsync({ items: [item], context: buildContext() });

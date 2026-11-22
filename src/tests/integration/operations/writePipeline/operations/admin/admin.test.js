@@ -184,6 +184,17 @@ const historyCollectionOf = async (resourceType) => {
 };
 
 /**
+ * Searches Encounters by `subject` with full access and returns the ids found.
+ */
+const searchEncounterIdsAsync = async (request, subject) => {
+    const response = await request
+        .get(`/4_0_0/Encounter?subject=${encodeURIComponent(subject)}&_bundle=1`)
+        .set(getHeaders());
+    expect(response.status).toBe(200);
+    return (response.body.entry || []).map((entry) => entry.resource.id);
+};
+
+/**
  * Reads the stored document of the resource with the `_uuid`, or null.
  */
 const readStoredAsync = async (resourceType, uuid) =>
@@ -599,7 +610,10 @@ const plainIdCases = [
         },
         target: { resourceType: 'Encounter', uuid: ENCOUNTER_A },
         stateOf: (encounter) => [encounter.subject.reference, encounter.subject._uuid],
-        expectedState: [`Patient/${PATIENT_A2}`, `Patient/${PATIENT_A2}`],
+        expectedState: [
+            `Patient/${patientA2.id}`,
+            `Patient/${generateUUIDv5(`${patientA2.id}|tenant-c`)}`
+        ],
         linkEvent: null
     }
 ].flatMap(({ bodies, ...plainIdCase }) =>
@@ -738,17 +752,6 @@ const otherTenantPlainIdCases = [
         stored: [encounterB, patientA2],
         body: { resourceType: 'Encounter', resourceId: encounterB.id, patientId: patientA2.id },
         missing: `Encounter/${encounterB.id}`
-    },
-    {
-        name: 'updatePatientReference to a Patient id|authority stored only in tenant-b',
-        operation: 'updatePatientReference',
-        stored: [encounterA, patientB],
-        body: {
-            resourceType: 'Encounter',
-            resourceId: encounterA.id,
-            patientId: `${patientB.id}|tenant-b`
-        },
-        missing: `Patient/${patientB.id}|tenant-b`
     }
 ];
 
@@ -831,8 +834,7 @@ const missingTargetCases = [
 ];
 
 /**
- * The bodies whose looked-up linked resource (the Patient of a created Person, the new Patient) is
- * not stored.
+ * The bodies whose looked-up linked resource (the Patient of a created Person) is not stored.
  */
 const missingLinkedCases = [
     {
@@ -840,13 +842,6 @@ const missingLinkedCases = [
         operation: 'createPersonToPatientLink',
         stored: [],
         body: { externalPersonId: PERSON_A, patientId: MISSING_UUID },
-        missing: `Patient/${MISSING_UUID}`
-    },
-    {
-        name: 'updatePatientReference to a Patient that is not stored',
-        operation: 'updatePatientReference',
-        stored: [encounterA],
-        body: { resourceType: 'Encounter', resourceId: ENCOUNTER_A, patientId: MISSING_UUID },
         missing: `Patient/${MISSING_UUID}`
     }
 ];
@@ -891,13 +886,6 @@ const otherTenantLinkedCases = [
         operation: 'createPersonToPatientLink',
         stored: [patientB],
         body: { externalPersonId: MISSING_UUID, patientId: PATIENT_B },
-        missing: `Patient/${PATIENT_B}`
-    },
-    {
-        name: 'updatePatientReference to a Patient in another tenant',
-        operation: 'updatePatientReference',
-        stored: [encounterA, patientB],
-        body: { resourceType: 'Encounter', resourceId: ENCOUNTER_A, patientId: PATIENT_B },
         missing: `Patient/${PATIENT_B}`
     }
 ];
@@ -1734,7 +1722,38 @@ describe('admin writes on the shared write pipeline', () => {
     });
 
     describe('updatePatientReference', () => {
-        test('points the subject at the new Patient and recomputes its _uuid, _sourceId and _sourceAssigningAuthority', async () => {
+        test.each([
+            {
+                name: 'its _uuid',
+                patientId: PATIENT_A2,
+                expected: {
+                    reference: `Patient/${PATIENT_A2}`,
+                    _uuid: `Patient/${PATIENT_A2}`,
+                    _sourceId: `Patient/${PATIENT_A2}`,
+                    _sourceAssigningAuthority: 'tenant-c'
+                }
+            },
+            {
+                name: 'its plain id',
+                patientId: patientA2.id,
+                expected: {
+                    reference: `Patient/${patientA2.id}`,
+                    _uuid: `Patient/${generateUUIDv5(`${patientA2.id}|tenant-c`)}`,
+                    _sourceId: `Patient/${patientA2.id}`,
+                    _sourceAssigningAuthority: 'tenant-c'
+                }
+            },
+            {
+                name: 'its id|authority',
+                patientId: `${patientA2.id}|tenant-a`,
+                expected: {
+                    reference: `Patient/${patientA2.id}|tenant-a`,
+                    _uuid: `Patient/${PATIENT_A2}`,
+                    _sourceId: `Patient/${patientA2.id}`,
+                    _sourceAssigningAuthority: 'tenant-a'
+                }
+            }
+        ])('sets the subject reference to the Patient named by $name as sent, and preSave recomputes its global id fields from it and the stored authority, so a search by that reference finds the Encounter', async ({ patientId, expected }) => {
             const { request } = await createRequestWithEventSpyAsync();
             await storeAsync(request, [encounterA, patientA2]);
             expect(subjectFields(await readStoredAsync('Encounter', ENCOUNTER_A))).toEqual({
@@ -1747,49 +1766,70 @@ describe('admin writes on the shared write pipeline', () => {
             const result = await adminPost(request, 'updatePatientReference', {
                 resourceType: 'Encounter',
                 resourceId: ENCOUNTER_A,
-                patientId: PATIENT_A2
+                patientId
             });
 
             expect(result.status).toBe(200);
-            expect(subjectFields(await readStoredAsync('Encounter', ENCOUNTER_A))).toEqual({
-                reference: `Patient/${PATIENT_A2}`,
-                _uuid: `Patient/${PATIENT_A2}`,
-                _sourceId: `Patient/${PATIENT_A2}`,
-                _sourceAssigningAuthority: patientA2.meta.security[0].code
-            });
+            expect(result.body.patientId).toBe(patientId);
+            const stored = await readStoredAsync('Encounter', ENCOUNTER_A);
+            expect(subjectFields(stored)).toEqual(expected);
+            expect(await searchEncounterIdsAsync(request, expected.reference)).toEqual([
+                encounterA.id
+            ]);
         });
 
-        test("is refused with 403 forbidden for a caller that can read but not write the new Patient's tenant, and writes nothing", async () => {
+        test.each([
+            { name: 'is not stored', stored: [encounterA], patientId: MISSING_UUID },
+            {
+                name: 'is in a tenant the caller cannot access',
+                stored: [encounterA, patientB],
+                patientId: PATIENT_B
+            }
+        ])('points the subject at a Patient that $name, because the Patient is not looked up', async ({ stored, patientId }) => {
+            const { request } = await createRequestWithEventSpyAsync();
+            await storeAsync(request, stored);
+
+            const result = await adminPost(request, 'updatePatientReference', {
+                resourceType: 'Encounter',
+                resourceId: ENCOUNTER_A,
+                patientId
+            });
+
+            expect(result.status).toBe(200);
+            expect(result.body.message).toBe(
+                `Patient reference updated for Encounter with id ${ENCOUNTER_A}`
+            );
+            const { subject } = await readStoredAsync('Encounter', ENCOUNTER_A);
+            expect([subject.reference, subject._uuid]).toEqual([
+                `Patient/${patientId}`,
+                `Patient/${patientId}`
+            ]);
+        });
+
+        test('is a no-op when sent again for the same Patient', async () => {
             const { request, produceEventAsync } = await createRequestWithEventSpyAsync();
-            await storeAsync(request, [encounterA, patientB]);
+            await storeAsync(request, [encounterA, patientA2]);
+            const body = {
+                resourceType: 'Encounter',
+                resourceId: ENCOUNTER_A,
+                patientId: patientA2.id
+            };
+            expect((await adminPost(request, 'updatePatientReference', body)).status).toBe(200);
+            const { postRequestProcessor, mongoDatabaseManager } = getTestContainer();
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
+            await readAuditEventsAsync();
+            await (await mongoDatabaseManager.getAuditDbAsync())
+                .collection('AuditEvent_4_0_0')
+                .deleteMany({});
             const before = await snapshotAsync();
 
-            const result = await adminPost(
-                request,
-                'updatePatientReference',
-                { resourceType: 'Encounter', resourceId: ENCOUNTER_A, patientId: PATIENT_B },
-                TENANT_A_WRITE_TENANT_B_READ_SCOPE
-            );
-
-            expectOperationOutcome(result, 403, 'forbidden');
-            await expectNothingWrittenAsync({ before, produceEventAsync });
-        });
-
-        test("points the subject at a Patient in another tenant for a caller with write access to both tenants", async () => {
-            const { request } = await createRequestWithEventSpyAsync();
-            await storeAsync(request, [encounterA, patientB]);
-
-            const result = await adminPost(
-                request,
-                'updatePatientReference',
-                { resourceType: 'Encounter', resourceId: ENCOUNTER_A, patientId: PATIENT_B },
-                TENANT_A_AND_B_WRITE_SCOPE
-            );
+            const result = await adminPost(request, 'updatePatientReference', body);
 
             expect(result.status).toBe(200);
-            expect((await readStoredAsync('Encounter', ENCOUNTER_A)).subject._uuid).toBe(
-                `Patient/${PATIENT_B}`
+            expect(result.body.message).toBe(
+                `Couldn't update Patient reference in Encounter with id ${ENCOUNTER_A}`
             );
+            await expectNothingWrittenAsync({ before, produceEventAsync });
         });
 
         const refusedChanges = [

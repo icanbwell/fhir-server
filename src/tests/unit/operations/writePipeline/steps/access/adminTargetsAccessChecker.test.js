@@ -53,15 +53,11 @@ const buildStored = ({ resourceType, id, uuid, tenant }) => ({
  * Builds an admin item that changes a Person and links a Patient. A `null` `personTenant` makes it
  * a Person about to be created, with no stored document; otherwise the stored Person belongs to
  * `personTenant` and its identity is on `incoming`, as the loader leaves it. The linked Patient
- * belongs to `patientTenant`. A `linkTargetAccess` letter is put on the item's `adminChange`; with
- * none the item has no `adminChange`.
+ * belongs to `patientTenant`.
  */
-const buildItem = ({ index = 0, personTenant, patientTenant, linkTargetAccess }) => {
+const buildItem = ({ index = 0, personTenant, patientTenant }) => {
     const personUuid = `00000000-0000-4000-8000-0000000000a${index}`;
     const item = new WriteItem({ index, incoming: { resourceType: 'Person', id: personUuid } });
-    if (linkTargetAccess) {
-        item.adminChange = { linkTargetAccess };
-    }
     if (personTenant !== null) {
         item.stored = buildStored({
             resourceType: 'Person',
@@ -212,32 +208,25 @@ describe('AdminTargetsAccessChecker', () => {
         ]);
     });
 
-    test.each([
-        { name: 'u from the change', linkTargetAccess: 'u', expected: 'u' },
-        { name: 'r from the change', linkTargetAccess: 'r', expected: 'r' },
-        { name: 'r when the change names none', linkTargetAccess: undefined, expected: 'r' }
-    ])('checks the linked resource with $name', async ({ linkTargetAccess, expected }) => {
+    test('checks the target with the access letter it is given and the linked resource with r', async () => {
         const { checker, accessCheckSpy } = buildChecker();
-        const item = buildItem({ personTenant: 'client', patientTenant: 'client', linkTargetAccess });
+        const item = buildItem({ personTenant: 'client', patientTenant: 'client' });
 
         await checker.checkAsync({ items: [item], context: buildContext(), accessRequested: 'u' });
 
         expect(accessCheckSpy.mock.calls.map(([args]) => [args.resource, args.accessRequested])).toStrictEqual([
             [item.stored, 'u'],
-            [item.linked[0].resource, expected]
+            [item.linked[0].resource, 'r']
         ]);
     });
 
-    test.each([
-        { linkTargetAccess: 'u', expectedText: 'user synthetic-user has no access to resource Patient with id synthetic-patient-0' },
-        { linkTargetAccess: 'r', expectedText: null }
-    ])('with $linkTargetAccess on the change, a linked resource the caller can only read gives $expectedText', async ({ linkTargetAccess, expectedText }) => {
+    test('passes a linked resource the caller can only read', async () => {
         const { checker } = buildChecker();
-        const item = buildItem({ personTenant: 'client', patientTenant: 'reader', linkTargetAccess });
+        const item = buildItem({ personTenant: 'client', patientTenant: 'reader' });
 
         const [failure] = await checker.checkAsync({ items: [item], context: buildContext(), accessRequested: 'u' });
 
-        expect(failure?.operationOutcome.issue[0].details.text ?? null).toBe(expectedText);
+        expect(failure).toBeNull();
     });
 
     test('does not check the linked resources of an item whose target is forbidden', async () => {

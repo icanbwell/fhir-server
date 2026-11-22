@@ -73,40 +73,35 @@ const EXPECTED_CHANGES = Object.freeze({
         target: { resourceType: 'Person', id: PERSON_UUID },
         linkTarget: { resourceType: 'Person', id: OTHER_PERSON_UUID },
         linkTargetLookup: 'never',
-        createsMissingTarget: false,
-        linkTargetAccess: 'r'
+        createsMissingTarget: false
     },
     removePersonToPersonLink: {
         kind: 'removeLink',
         target: { resourceType: 'Person', id: PERSON_UUID },
         linkTarget: { resourceType: 'Person', id: OTHER_PERSON_UUID },
         linkTargetLookup: 'never',
-        createsMissingTarget: false,
-        linkTargetAccess: 'r'
+        createsMissingTarget: false
     },
     createPersonToPatientLink: {
         kind: 'addLink',
         target: { resourceType: 'Person', id: PERSON_UUID },
         linkTarget: { resourceType: 'Patient', id: PATIENT_UUID },
         linkTargetLookup: 'whenTargetMissing',
-        createsMissingTarget: true,
-        linkTargetAccess: 'r'
+        createsMissingTarget: true
     },
     removePersonToPatientLink: {
         kind: 'removeLink',
         target: { resourceType: 'Person', id: PERSON_UUID },
         linkTarget: { resourceType: 'Patient', id: PATIENT_UUID },
         linkTargetLookup: 'never',
-        createsMissingTarget: false,
-        linkTargetAccess: 'r'
+        createsMissingTarget: false
     },
     updatePatientReference: {
         kind: 'rewritePatientReference',
         target: { resourceType: 'Encounter', id: ENCOUNTER_UUID },
         linkTarget: { resourceType: 'Patient', id: PATIENT_UUID },
-        linkTargetLookup: 'always',
-        createsMissingTarget: false,
-        linkTargetAccess: 'u'
+        linkTargetLookup: 'never',
+        createsMissingTarget: false
     }
 });
 
@@ -681,7 +676,7 @@ describe('AdminResponder', () => {
          * no-op (unchanged, with its stored document), for a write of an existing document (queued,
          * with a candidate) and for a created Person (queued, no stored document, a new candidate).
          * The stored target has `targetUuid`, and the linked resource is loaded with `linkedUuid`
-         * when the loader would load it (`always`, or `whenTargetMissing` for a created Person);
+         * when the loader would load it (`whenTargetMissing`, for a created Person);
          * both default to the ids of `GOOD_BODIES`.
          */
         const buildResponseInput = async ({
@@ -697,10 +692,7 @@ describe('AdminResponder', () => {
                 _uuid: targetUuid
             };
             const { linkTargetLookup } = item.adminChange;
-            if (
-                linkTargetLookup === 'always' ||
-                (linkTargetLookup === 'whenTargetMissing' && outcome === 'created')
-            ) {
+            if (linkTargetLookup === 'whenTargetMissing' && outcome === 'created') {
                 item.linked.push({
                     resourceType: item.adminChange.linkTarget.resourceType,
                     resource: { resourceType: item.adminChange.linkTarget.resourceType, _uuid: linkedUuid }

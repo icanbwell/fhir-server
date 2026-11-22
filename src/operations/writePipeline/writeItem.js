@@ -16,18 +16,15 @@ const WRITE_ITEM_STATUS = Object.freeze({
  * `rewritePatientReference`; `target` is the resource being changed, its `id` the id the caller
  * sent without its prefix (a `_uuid`, a plain `id` or `id|authority`); `linkTarget` is the other
  * end of the link, or the new Patient, with its `id` as the caller sent it too;
- * `linkTargetLookup` says when `linkTarget` is looked up, and must then exist and be accessible
- * (`always`, `whenTargetMissing` or `never`);
- * `createsMissingTarget` is true only for `createPersonToPatientLink`; `linkTargetAccess` is the
- * access letter the looked-up `linkTarget` is checked with (`u` for the new Patient of
- * `updatePatientReference`, `r` for the others).
+ * `linkTargetLookup` says when `linkTarget` is looked up, and must then exist and be readable
+ * (`whenTargetMissing` or `never`);
+ * `createsMissingTarget` is true only for `createPersonToPatientLink`.
  * @typedef {Object} AdminChange
  * @property {'addLink'|'removeLink'|'rewritePatientReference'} kind
  * @property {{resourceType: string, id: string}} target
  * @property {{resourceType: string, id: string}} linkTarget
- * @property {'always'|'whenTargetMissing'|'never'} linkTargetLookup
+ * @property {'whenTargetMissing'|'never'} linkTargetLookup
  * @property {boolean} createsMissingTarget
- * @property {'r'|'u'} [linkTargetAccess]
  */
 
 /**

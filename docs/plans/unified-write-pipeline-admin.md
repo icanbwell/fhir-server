@@ -60,7 +60,7 @@ Input classes the spec implies and no task's own tests would exercise by acciden
 - A body id that is a plain `id` or `id|authority`: looked up through the access filter; a comma, a backslash, a control character, over 255 characters or an ambiguous plain id: 400, no write (Task 8).
 - A target or linked resource in another tenant: 404, not 403 and not a write, with a token whose `access/` scopes cover one tenant only (Task 8).
 - Adding a link that exists, removing one that is absent, and a patient reference that already points at the Patient: HTTP 200 with today's message, no write, no audit event, no Kafka event (Task 8).
-- `updatePatientReference` pointing at a Patient that does not exist or is not accessible: 404, and the old reference's `_uuid`, `_sourceId` and `_sourceAssigningAuthority` are cleared on success (Tasks 4 and 8).
+- `updatePatientReference` doesn't look up or access-check the new Patient, as today: it sets the reference to `Patient/<patientId as sent>` and preSave recomputes the reference's `_uuid`, `_sourceId` and `_sourceAssigningAuthority` (Tasks 4 and 8).
 - `createPersonToPatientLink` for a Person that does not exist, where the Patient carries security tags: the created Person copies them, and the caller needs create access for them (Tasks 3 and 8).
 
 ---
@@ -138,7 +138,7 @@ Input classes the spec implies and no task's own tests would exercise by acciden
   - `createPerson`: the incoming document is a new Person with a generated id and `_uuid`, `meta.source` and `meta.security` copied from `item.linked[0]` (the Patient) and one link to `Patient/<patient _uuid>`; calls `InsertBuilder`. (Superseded: the link is `Patient/<id as sent>`, see the spec.)
   - `addLink`: (superseded: the link is `<Type>/<id as sent>` and the target is not looked up for a stored Person, see the spec) the incoming document is a copy of `item.stored` with `{ target: { reference: '<Type>/<linked _uuid>' } }` appended. If a link already matches the linked `_uuid` (on `link.target._uuid`, then on the reference string as a fallback), sets `item.candidate = null`, `item.writeMode = 'update'` and returns; else calls `SmartMergeBuilder`.
   - `removeLink`: the incoming document is a copy of `item.stored` without the links that match `adminChange.linkedId` on `link.target._uuid` (or the reference). If none matched, the same no-op as above; else calls `ReplaceBuilder`.
-  - `rewritePatientReference`: finds the patient field with `PatientFilterManager`, sets its reference to `Patient/<new Patient _uuid>` and clears its `_uuid`, `_sourceId` and `_sourceAssigningAuthority`. If the reference already points there, the same no-op; else calls `ReplaceBuilder`. A resource type with no patient field fails the item with a `BadRequestError`.
+  - `rewritePatientReference`: finds the patient field with `PatientFilterManager`, sets its `reference` to `Patient/<patientId as sent>` and changes nothing else on it, as today. If the reference already is that text, the same no-op; else calls `ReplaceBuilder`. A resource type with no patient field fails the item with a `BadRequestError`.
 - The builder never modifies `item.stored`.
 
 - [ ] **Step 1: Write the failing tests.** One `test.each` row per kind (builds the expected document and version bump), plus each no-op, a missing patient field, and `item.stored` untouched.
@@ -217,10 +217,10 @@ Run the cases on the new path (`WRITE_PIPELINE_OPERATIONS` with `admin`), parame
 
 - [ ] **Success and no-op bodies.** Each operation's success body and, for the four that have one, its no-op body match today's strings; a no-op writes nothing (no version bump, no history row), writes no audit event and sends no manual-link event.
 - [ ] **Ids.** A non-`_uuid` id, a `Person/<uuid>` prefix (accepted), and a missing parameter (400 `invalid`, standard format) for every operation.
-- [ ] **404s.** A missing target; a missing linked resource (the other Person, the Patient, the new Patient); a target and a linked resource that exist only in another tenant, with a token whose `access/` scopes cover one tenant. Nothing is written.
+- [ ] **404s.** A missing target; a missing looked-up linked resource (the Patient of a created Person); a target and a linked resource that exist only in another tenant, with a token whose `access/` scopes cover one tenant. Nothing is written.
 - [ ] **403 and format.** The admin-scope failure is a `forbidden` OperationOutcome; a 500 is "Internal Server Error".
 - [ ] **Result checks.** A Person link to another tenant's Person is refused for a caller without access to that tenant and allowed for `access/*.*`; a created Person (`createPersonToPatientLink`, no Person) copies the Patient's `meta.source` and `meta.security`, needs create access, and the Patient is checked.
-- [ ] **`updatePatientReference`.** It changes the patient reference of an Encounter, clears the old reference's `_uuid`, `_sourceId` and `_sourceAssigningAuthority`, and the same change through PUT, PATCH and `$merge` is still refused.
+- [ ] **`updatePatientReference`.** It changes the patient reference of an Encounter to the Patient id as sent, without looking the Patient up, and the same change through PUT, PATCH and `$merge` is still refused.
 - [ ] **Audit and events.** `create` for a created Person and `update` otherwise, written before the response; the manual-link events carry today's Patient id: the `_uuid` for a created Person, else the id as sent (spy on the producer).
 - [ ] **Concurrency.** Two concurrent adds of the same link leave one link; two concurrent removes leave none, and neither fails.
 

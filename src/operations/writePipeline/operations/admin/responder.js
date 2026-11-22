@@ -138,8 +138,7 @@ class AdminResponder extends WriteResponder {
             target,
             linkTarget,
             linkTargetLookup: operation.linkTargetLookup,
-            createsMissingTarget: operation.createsMissingTarget,
-            linkTargetAccess: operation.linkTargetAccess
+            createsMissingTarget: operation.createsMissingTarget
         };
         const context = new WriteContext({
             requestInfo,

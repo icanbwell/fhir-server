@@ -49,8 +49,8 @@ const SOURCE_ASSIGNING_AUTHORITY_SEPARATOR = '|';
  * read. A document the caller cannot access with that letter is not found. On a single match for
  * the target it sets the item's `stored` and copies its identity (`id`, `_uuid` and
  * `_sourceAssigningAuthority`) onto `incoming`, so a later failure names the stored document. The
- * link target is looked up when the change's `linkTargetLookup` is `always`, or
- * `whenTargetMissing` and no target was found; a single match is added to the item's `linked`. A
+ * link target is looked up when the change's `linkTargetLookup` is `whenTargetMissing` and no
+ * target was found; a single match is added to the item's `linked`. A
  * missing target fails the item at the `LOOKUP` stage, unless the change says
  * `createsMissingTarget`, which leaves `stored` null; a missing link target always fails it. More
  * than one match fails the item too: for a `_uuid` with a plain `Error`, because the data should
@@ -138,17 +138,14 @@ class AdminTargetLoader {
     }
 
     /**
-     * Returns whether the item's link target is looked up: always for `always`, only when no target
-     * was found for `whenTargetMissing`, and never for `never`.
+     * Returns whether the item's link target is looked up: only when no target was found for
+     * `whenTargetMissing`, and never for `never`.
      * @param {WriteItem} item
      * @returns {boolean}
      */
     _looksUpLinkTarget (item) {
         const { linkTargetLookup } = item.adminChange;
-        return (
-            linkTargetLookup === 'always' ||
-            (linkTargetLookup === 'whenTargetMissing' && item.stored === null)
-        );
+        return linkTargetLookup === 'whenTargetMissing' && item.stored === null;
     }
 
     /**
