@@ -210,6 +210,14 @@ describe('AuditLogger', () => {
             expect(detail.find(d => d.type === 'name')).toEqual({ type: 'name', valueString: 'John' });
         });
 
+        test.each(['_id:not', 'id:not'])('should leave the %s id exclusion out of the detail', (key) => {
+            const args = { [key]: 'hidden-1,hidden-2', name: 'John' };
+            const detail = auditLogger._buildEntityDetail({}, args);
+            expect(detail.find(d => d.type === key)).toBeUndefined();
+            expect(detail.some(d => String(d.valueString).includes('hidden-1'))).toBe(false);
+            expect(detail.find(d => d.type === 'name')).toBeDefined();
+        });
+
         test('should blank out id value', () => {
             const requestInfo = {};
             const args = { id: 'patient-123' };

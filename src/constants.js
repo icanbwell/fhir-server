@@ -2,7 +2,14 @@
  * @name exports
  * @summary Some constants used throughout the app
  */
+/**
+ * Query parameter a service token sends on Person/{id}/$everything to have that Person's
+ * dataConnectionViewControl block applied (a service reading on a user's behalf).
+ */
+const APPLY_DATA_VIEW_CONTROL_PARAM = '_applyDataViewControl';
+
 module.exports = {
+    APPLY_DATA_VIEW_CONTROL_PARAM,
     CLIENT: 'client',
     CLIENT_DB: 'client_db',
     AUDIT_EVENT_CLIENT: 'auditEventClient',
@@ -169,8 +176,17 @@ module.exports = {
     HTTP_CONTEXT_KEYS: {
         LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-',
         PERSON_OWNER_PREFIX: 'personOwnerFor-',
+        // A marker, not an owner: recorded under PERSON_OWNER_PREFIX (which otherwise holds an owner
+        // string or null) when the Person walk ran and found no Person the caller can see. Compare by
+        // identity. A key that is still undefined after the walk means no outcome was recorded.
+        PERSON_NOT_FOUND_MARKER: Object.freeze({ personFound: false }),
+        PATIENT_VIEW_CONTROL_EXCLUDE_PREFIX: 'patientViewControlExcludeFor-',
         CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed'
     },
+    // Keys under which ParsedArgs.getRawArgs() reports an `_id:not` / `id:not` exclusion. A data view
+    // control exclusion can hold thousands of hidden ids and reveals what the user chose to hide, so
+    // logs and audit events leave these keys out.
+    ID_EXCLUSION_ARG_KEYS: Object.freeze(['_id:not', 'id:not']),
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
     NON_SEARCH_QUERY_PARAMS: [
@@ -189,7 +205,8 @@ module.exports = {
         'streamResponse', 'team', '_text', '_content', '_list', '_has', '_type', '_include', '_revinclude',
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',
         'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer', '_rewritePatientReference', '_keepOldUI',
-        '_includeNonClinicalResources', '_nonClinicalResourcesDepth', '_includePatientLinkedOnly', '_includeUuidOnly'
+        '_includeNonClinicalResources', '_nonClinicalResourcesDepth', '_includePatientLinkedOnly', '_includeUuidOnly',
+        APPLY_DATA_VIEW_CONTROL_PARAM
     ],
     /**
      * Resource types fhir-notes-vector-store extracts and Atlas-Search-indexes attachment/note
@@ -278,6 +295,7 @@ module.exports = {
     EXTERNAL_REQUEST_RETRY_COUNT: 3,
     DEFAULT_CACHE_MAX_COUNT: 25,
     DEFAULT_CACHE_EXPIRY_TIME: 24 * 60 * 60 * 1000,
+    DEFAULT_EVERYTHING_BATCH_SIZE: 10,
     USER_INFO_CACHE_EXPIRY_TIME: 5 * 60 * 1000, // 5 mins
     JWKS_REQUESTS_PER_MINUTE: 60,
     JWT_EXPIRY_CLOCK_TOLERANCE: 30,

@@ -54,8 +54,8 @@ describe('PatientEverythingCacheKeyGenerator', () => {
         expect(generator.operation).toBe('Everything');
     });
 
-    test('invalidParamsForCache has 12 items', () => {
-        expect(generator.invalidParamsForCache).toHaveLength(12);
+    test('invalidParamsForCache has 13 items', () => {
+        expect(generator.invalidParamsForCache).toHaveLength(13);
     });
 
     test('invalidParamsForCache includes _since', () => {
@@ -71,7 +71,7 @@ describe('PatientEverythingCacheKeyGenerator', () => {
             '_since', '_includePatientLinkedOnly', '_rewritePatientReference',
             '_includeNonClinicalResources', '_debug', '_explain', '_includeHidden',
             '_includeProxyPatientLinkedOnly', '_excludeProxyPatientLinked',
-            '_includePatientLinkedUuidOnly', '_includeUuidOnly', 'contained'
+            '_includePatientLinkedUuidOnly', '_includeUuidOnly', '_applyDataViewControl', 'contained'
         ];
         expect(generator.invalidParamsForCache).toEqual(expectedParams);
     });

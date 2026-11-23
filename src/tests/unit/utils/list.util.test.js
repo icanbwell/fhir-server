@@ -15,6 +15,7 @@ const {
     getFirstBundleEntryOrNull,
     removeEmptyEntriesAsync,
     removeDuplicatesWithLambda,
+    removeDuplicatesByKey,
     sliceIntoChunks,
     addElementsToSet,
     sliceIntoChunksGenerator
@@ -302,6 +303,37 @@ describe('list.util', () => {
         test('returns empty array for empty input', async () => {
             const result = await removeEmptyEntriesAsync([]);
             expect(result).toEqual([]);
+        });
+    });
+
+    describe('removeDuplicatesByKey', () => {
+        test.each([
+            ['strings', ['a', 'b', 'a', 'c', 'b'], ['a', 'b', 'c']],
+            ['objects equal by value', [{ x: 1 }, { x: 2 }, { x: 1 }], [{ x: 1 }, { x: 2 }]],
+            ['an empty array', [], []],
+            ['no duplicates', ['a', 'b'], ['a', 'b']]
+        ])('keeps the first of each key, in order: %s', (_name, array, expected) => {
+            expect(removeDuplicatesByKey(array, JSON.stringify)).toEqual(expected);
+        });
+
+        test('keeps the first occurrence object itself', () => {
+            const first = { id: '1', name: 'first' };
+            const result = removeDuplicatesByKey([first, { id: '1', name: 'second' }], (v) => v.id);
+            expect(result).toEqual([first]);
+            expect(result[0]).toBe(first);
+        });
+
+        test('computes each key once', () => {
+            const fnKey = jestObj.fn((v) => v);
+            removeDuplicatesByKey(['a', 'b', 'a', 'c'], fnKey);
+            expect(fnKey).toHaveBeenCalledTimes(4);
+        });
+
+        test('matches removeDuplicatesWithLambda for the same equality', () => {
+            const array = [{ a: 1 }, 'x', { a: 1 }, ['y'], 'x', ['y'], { a: 2 }];
+            expect(removeDuplicatesByKey(array, JSON.stringify)).toEqual(
+                removeDuplicatesWithLambda(array, (a, b) => JSON.stringify(a) === JSON.stringify(b))
+            );
         });
     });
 

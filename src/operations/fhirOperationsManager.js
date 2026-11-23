@@ -47,6 +47,12 @@ const { ResponseHandlerFactory } = require('../utils/responseHandler/responseHan
 const { CMSManager } = require('../utils/cmsManager');
 const { OperationAccessManager } = require('../utils/operationAccessManager');
 const { CustomTracer } = require('../utils/customTracer');
+const { PatientDataViewControlExclusion } = require('../utils/patientDataViewControlExclusion');
+const { APPLY_DATA_VIEW_CONTROL_PARAM } = require('../constants');
+const {
+    getEverythingViewControlSubject,
+    parseApplyDataViewControl
+} = require('./everything/everythingViewControlSubject');
 
 class FhirOperationsManager {
     /**
@@ -72,6 +78,7 @@ class FhirOperationsManager {
      * @param importOperation
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
+     * @param {PatientDataViewControlExclusion} patientDataViewControlExclusion
      * @param {ConfigManager} configManager
      * @param {HistoryReadRouter} historyReadRouter
      * @param {OperationAccessManager} accessManager
@@ -102,6 +109,7 @@ class FhirOperationsManager {
             importOperation,
             r4ArgsParser,
             queryRewriterManager,
+            patientDataViewControlExclusion,
             configManager,
             historyReadRouter,
             accessManager,
@@ -220,6 +228,12 @@ class FhirOperationsManager {
         assertTypeEquals(queryRewriterManager, QueryRewriterManager);
 
         /**
+         * @type {PatientDataViewControlExclusion}
+         */
+        this.patientDataViewControlExclusion = patientDataViewControlExclusion;
+        assertTypeEquals(patientDataViewControlExclusion, PatientDataViewControlExclusion);
+
+        /**
          * @type {ConfigManager}
          */
         this.configManager = configManager;
@@ -316,10 +330,28 @@ class FhirOperationsManager {
      * @param {string} operation
      * @param {boolean} [allowMultipleIds=true]
      * @param {FhirRequestInfo} [requestInfo]
+     * @param {boolean} [applyDataViewControl=false] hide resources the patient's dataConnectionViewControl
+     *   Consent blocks (user tokens of enrolled clients only). Set by REST search/streaming/read-by-id.
+     * @param {boolean} [acceptsApplyDataViewControlParam=false] only Person $everything reads the
+     *   `_applyDataViewControl` opt-in. Anywhere else a service token that sends it gets a 400, rather
+     *   than an unfiltered record it believes is filtered.
      * @return {Promise<ParsedArgs>}
+     * @throws {BadRequestError} for the opt-in on an operation that doesn't support it
      */
-    async getParsedArgsAsync({ args, resourceType, headers, operation, allowMultipleIds = true, requestInfo }) {
+    async getParsedArgsAsync({
+        args, resourceType, headers, operation, allowMultipleIds = true, requestInfo, applyDataViewControl = false,
+        acceptsApplyDataViewControlParam = false
+    }) {
         const { base_version } = args;
+
+        // user tokens are always filtered, so the opt-in changes nothing for them (as in $everything)
+        // a malformed value is a 400 for every token; only a service token's valid opt-in can be unsupported here
+        const optIn = parseApplyDataViewControl(args[APPLY_DATA_VIEW_CONTROL_PARAM]);
+        if (optIn && !acceptsApplyDataViewControlParam && !requestInfo?.isUser) {
+            throw new BadRequestError(new Error(
+                `${APPLY_DATA_VIEW_CONTROL_PARAM} is only supported on Person $everything`
+            ));
+        }
 
         this.limitReqForExternalServices({ args, headers, requestInfo });
 
@@ -331,6 +363,13 @@ class FhirOperationsManager {
 
         if (!allowMultipleIds && parsedArgs.id?.includes(',')) {
             throw new BadRequestError(new Error('Multiple IDs are not allowed'));
+        }
+
+        if (applyDataViewControl) {
+            // before the rewriters so id|sourceAssigningAuthority forms get normalized like any other _id
+            await this.patientDataViewControlExclusion.applyAsync({
+                parsedArgs, resourceType, base_version, requestInfo
+            });
         }
 
         // see if any query rewriters want to rewrite the args
@@ -372,7 +411,8 @@ class FhirOperationsManager {
                 },
                 resourceType,
                 operation: READ,
-                requestInfo
+                requestInfo,
+                applyDataViewControl: true
             });
             const bundle = await this.searchBundleOperation.searchBundleAsync({
                 requestInfo,
@@ -427,7 +467,8 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo,
+            applyDataViewControl: true
         }
         );
         return await this.searchBundleOperation.searchBundleAsync(
@@ -461,7 +502,8 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo,
+            applyDataViewControl: true
         });
 
         if (this.configManager.enableVulcanIgQuery) {
@@ -488,6 +530,8 @@ class FhirOperationsManager {
                                 parsedArg.queryParameterValue.value;
                         }
 
+                        // the lookup decides which parent resources match, so a resource the user's
+                        // Consent hides must not match either, or the parent search would reveal it
                         const bundle = await this.searchBundleOperation.searchBundleAsync({
                             requestInfo,
                             resourceType: vulcanIgFilter.resourceType,
@@ -495,7 +539,8 @@ class FhirOperationsManager {
                                 args: vulcanIgFilterArgs,
                                 resourceType: vulcanIgFilter.resourceType,
                                 operation: READ,
-                                requestInfo
+                                requestInfo,
+                                applyDataViewControl: true
                             }),
                             useAggregationPipeline: false
                         });
@@ -560,7 +605,15 @@ class FhirOperationsManager {
                         requestInfo
                     });
 
-                    parsedArgs.add(parentResourceParsedArg.parsedArgItems[1]);
+                    const parentResourceParsedArgItem = parentResourceParsedArg.parsedArgItems[1];
+                    // The `:missing` form excludes the parent resources that have a match. Adding it
+                    // would replace the view-control `_id:not` item, so the Consent's hidden ids would
+                    // be streamed back; merge the two exclusions instead.
+                    if (parentResourceParsedArgItem.isNotOnly) {
+                        parsedArgs.addMergingExclusion(parentResourceParsedArgItem);
+                    } else {
+                        parsedArgs.add(parentResourceParsedArgItem);
+                    }
                 }
             }
         }
@@ -616,7 +669,8 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo,
+            applyDataViewControl: true
         }
         );
         return await this.searchByIdOperation.searchByIdAsync(
@@ -833,9 +887,24 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo,
+            acceptsApplyDataViewControlParam: true
         }
         );
+
+        // whose view-control block filters this request: the user, or for a service token that opts
+        // in, the Person in the URL
+        const viewControlSubject = getEverythingViewControlSubject({
+            parsedArgs, requestInfo, isPersonEverything, personIds: idsList, method: req.method
+        });
+        if (viewControlSubject?.isUrlPerson) {
+            // load it before the response starts streaming, so a Person the token can't see (404) or a
+            // failed lookup is an HTTP error rather than an error entry in a 200 stream; $everything
+            // then reuses this lookup
+            await this.everythingOperation.preloadViewControlAsync({
+                requestInfo, parsedArgs, resourceType, viewControlSubject
+            });
+        }
 
         if (shouldStreamResponse(req)) {
             /**
@@ -872,7 +941,8 @@ class FhirOperationsManager {
                         resourceType,
                         responseStreamer,
                         scopedPersonIds,
-                        isPersonEverything
+                        isPersonEverything,
+                        viewControlSubject
                     });
                 await responseStreamer.endAsync();
                 return undefined;
@@ -900,7 +970,8 @@ class FhirOperationsManager {
                     parsedArgs,
                     resourceType,
                     scopedPersonIds,
-                    isPersonEverything
+                    isPersonEverything,
+                    viewControlSubject
                 });
             return result;
         }
