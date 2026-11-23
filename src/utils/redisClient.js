@@ -2,6 +2,7 @@ const {isTrue, isTrueWithFallback} = require('./isTrue')
 const { createClient, ReconnectStrategyError } = require('redis');
 const { logError, logInfo } = require('../operations/common/logging');
 const { captureException } = require('../operations/common/sentry');
+const { getValkeyConfig, valkeyCredentialsProvider } = require('./valkeyIam');
 
 /**
  * This class implements a client to Redis
@@ -23,6 +24,20 @@ class RedisClient {
         if (env.REDIS_USERNAME !== undefined) {
             redisConfig.username = env.REDIS_USERNAME;
             redisConfig.password = env.REDIS_PASSWORD || '';
+        }
+        // AWS ElastiCache Serverless (Valkey) with IAM auth. When VALKEY_HOST is set it is used instead of
+        // Redis Cloud: single endpoint over TLS, with a fresh IAM token signed on every connect.
+        const valkeyConfig = getValkeyConfig(env);
+        if (valkeyConfig) {
+            redisConfig = {
+                socket: {
+                    host: valkeyConfig.host,
+                    port: valkeyConfig.port,
+                    tls: true,
+                    reconnectStrategy: false
+                },
+                credentialsProvider: valkeyCredentialsProvider(valkeyConfig)
+            };
         }
         this.client = createClient(redisConfig);
         this.defaultTtlSeconds = parseInt(env.REDIS_KEY_DEFAULT_TTL_SECONDS) || 600;
