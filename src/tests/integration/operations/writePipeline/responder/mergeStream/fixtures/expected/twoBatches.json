@@ -1,0 +1,810 @@
+[
+  {
+    "created": true,
+    "id": "stream-0",
+    "uuid": "ef834a43-8392-5de4-b17c-5d7a8d98709f",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-1",
+    "uuid": "b2dab1ad-aa03-5255-8047-29f1172cdf68",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-2",
+    "uuid": "f0d34519-0eed-5340-a04c-8a26ca9c6399",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-3",
+    "uuid": "897634f8-fa7e-5917-a51c-967801e55967",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-4",
+    "uuid": "10ad3529-f288-5baf-8d6e-848335922054",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-5",
+    "uuid": "aa888962-5ff7-589c-969b-cc44e53a016f",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-6",
+    "uuid": "e8673b65-a8e5-56ab-9aef-ee752d298c34",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-7",
+    "uuid": "656d1af5-7707-562f-b260-4e0778c4ce4b",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-8",
+    "uuid": "0dc03113-ed52-5a8b-94ef-90483c5fea99",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-9",
+    "uuid": "a8c6cfa1-dd90-5233-8820-be0c29ba7864",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-10",
+    "uuid": "18893e4e-fd3e-55e9-8867-c22ee3c98175",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-11",
+    "uuid": "2b63ceae-d909-51f9-b50b-269d7fbf3399",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-12",
+    "uuid": "92b5ea2a-0f9e-51c3-ac93-17c8e673f354",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-13",
+    "uuid": "750b3921-f0ac-5b47-b873-21800c77b87a",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-14",
+    "uuid": "e1afde9a-e30f-5a89-bfd6-677a590bd918",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-15",
+    "uuid": "5c457fee-fe09-5432-bc61-5281d0e1c197",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-16",
+    "uuid": "c604e255-0041-59c9-91e7-fce47d96c6a5",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-17",
+    "uuid": "69ff1d97-73ae-51db-8734-d0a844a6bc97",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-18",
+    "uuid": "eddb6866-084c-5e4a-858e-8e3cc2a66d16",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-19",
+    "uuid": "5ad65187-84ef-5a0c-9624-b1f4b78408fc",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-20",
+    "uuid": "b10e74c7-9a2d-5c40-932e-20c4e8d21573",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-21",
+    "uuid": "a8ebe2ce-e0d3-5574-ab87-aa88be650aa0",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-22",
+    "uuid": "e1990b7d-9686-5751-be04-1e28ca3f2bb6",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-23",
+    "uuid": "89ccb6aa-7478-5fc5-8e61-ff48dcd488d3",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-24",
+    "uuid": "9c909cc3-66f1-55b4-a0d7-0b39209d89ac",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-25",
+    "uuid": "cdf92038-d426-52c9-a696-148498402193",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-26",
+    "uuid": "42ebaaae-2ee1-524e-a6e4-cd1dc2003ee2",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-27",
+    "uuid": "51491d30-11a7-5f09-b281-2102cced79e2",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-28",
+    "uuid": "129940ff-4bd3-57b0-967c-dbaaeb313378",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-29",
+    "uuid": "1207eeb0-a15a-5257-a18a-42e8e44bb2cb",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-30",
+    "uuid": "1e541ebd-1e3f-5d89-9421-040fb917dfa2",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-31",
+    "uuid": "c185e6d8-00ec-5ce4-92bb-7aed2ec81c5e",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-32",
+    "uuid": "448f79db-cdc4-5173-9d6d-c14b928ea28d",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-33",
+    "uuid": "e2e1274b-4c75-5a2f-bda3-c5fe94c18024",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-34",
+    "uuid": "0955db43-c932-5cd5-b294-54dd41223b2f",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-35",
+    "uuid": "25d56fd0-dcfe-5afe-b314-f645281b4bfe",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-36",
+    "uuid": "bb8e7b6d-7391-5c8c-a2d0-d7188860fd79",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-37",
+    "uuid": "a9599f99-5c15-5ee7-b00c-e99299fda5e0",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-38",
+    "uuid": "a7c0e463-110e-5394-b5a9-950c8a2d12c7",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-39",
+    "uuid": "947cfc26-28e6-5843-b957-906be66188e1",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-40",
+    "uuid": "27d18138-d8a1-5c7a-bb82-1f3480eb800c",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-41",
+    "uuid": "c659a6ab-13db-5c6f-b6f4-82809a8d9e22",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-42",
+    "uuid": "cce8c4a0-7f45-5d2f-9d0d-3f4e76fe9e1b",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-43",
+    "uuid": "a7d7f244-2cf3-5d2a-ba3c-914a16d9e62c",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-44",
+    "uuid": "481997cb-2957-5624-9193-3ed17871bff9",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-45",
+    "uuid": "16c70eea-785d-54d0-963b-e44a3aab57b1",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-46",
+    "uuid": "606f9450-8136-5ab7-9165-ca84ff236fb5",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-47",
+    "uuid": "7db01bb4-12be-56f2-bbc0-f6c12e982fce",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-48",
+    "uuid": "13d444cc-5ce9-5626-96e0-6120492e4aa3",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-49",
+    "uuid": "3602ccb9-30aa-5861-9591-b182371da452",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-50",
+    "uuid": "600127fe-ad51-5f19-b869-a39236c3f5ee",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-51",
+    "uuid": "90fe7af0-0963-5a96-be13-386aa85e52f4",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-52",
+    "uuid": "747f07dd-f396-5dc0-8d90-d4da400eba0c",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-53",
+    "uuid": "22c0eaae-d72e-55bd-b678-ca32c65f0f23",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-54",
+    "uuid": "0c0ba903-1a8c-542c-9e7c-76564bd3a643",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-55",
+    "uuid": "a667c734-2872-50a1-9586-f56b1ca5bf34",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-56",
+    "uuid": "0122477b-13d8-561d-97f7-f480c7b5191a",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-57",
+    "uuid": "9d7042e2-8e2e-5beb-a40f-88e17293b779",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-58",
+    "uuid": "5a47aa52-0df7-5734-a422-29a2c4c5148c",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-59",
+    "uuid": "7c0872cf-339e-5f2e-8d52-cdb8c8465f69",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-60",
+    "uuid": "cc089119-0b66-5867-81b4-219592b0a408",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-61",
+    "uuid": "ad846a34-4f28-5379-962d-59a82628cd83",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-62",
+    "uuid": "68003ffa-3879-5f50-b91d-3242b814e097",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-63",
+    "uuid": "7490b1bd-e6db-5d43-9b77-3427ce26a92a",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-64",
+    "uuid": "b5772bae-d9d7-5b76-90a6-bf25d3c67199",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-65",
+    "uuid": "4ece636d-5118-542d-9d4f-955fa2fa961b",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-66",
+    "uuid": "c726ef9a-331c-58fd-a048-59cc0c561f73",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-67",
+    "uuid": "ccf04fbc-7e88-5337-88fd-03d5f1024d25",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-68",
+    "uuid": "8cd702f2-79f1-5c86-88d5-5e26e5bb5895",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-69",
+    "uuid": "3b9dc076-8c4c-59f8-8785-93da0eff9094",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-70",
+    "uuid": "3ccd1674-d056-5f3a-9b3c-5bee3a1fb2bb",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-71",
+    "uuid": "3ad291a2-68fb-5427-8681-2dd272b46c1b",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-72",
+    "uuid": "f21a2542-a229-50b9-aa22-8e0f66f1239c",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-73",
+    "uuid": "fe3ef2d3-d1a8-5e35-a9ce-6b63f02e7d29",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-74",
+    "uuid": "f37797bd-f0aa-544c-8097-624cb5c2ae65",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-75",
+    "uuid": "0eac6faa-e738-5db3-9aba-56db7235af6a",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-76",
+    "uuid": "c9b0764b-24c3-5435-b426-cfa900d8b45a",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-77",
+    "uuid": "e8c709fb-c2fc-52cb-a206-d75af8ab30a5",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-78",
+    "uuid": "01d8f3c5-1a03-517e-8041-8ef865ee0c77",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-79",
+    "uuid": "fee8209d-0685-53d0-8690-e6f40c631d0b",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-80",
+    "uuid": "c81fd0ef-d6d3-537a-b0e9-b5ca8e9c5bd6",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-81",
+    "uuid": "d0ad5b07-528d-5225-bcb8-1577f7366d43",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-82",
+    "uuid": "174a1e79-d03d-5598-821c-c1c55449dadb",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-83",
+    "uuid": "b87ef677-9cb1-56e0-8578-a47454249b54",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-84",
+    "uuid": "7f749015-f5d4-5fd4-ab97-5ece527ad99f",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-85",
+    "uuid": "e96ef312-892c-5921-9845-98c5ed7577bd",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-86",
+    "uuid": "efbd4f01-9787-5622-ba8e-8a8aa2a5e9d4",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-87",
+    "uuid": "8f12d1ea-750e-502e-b40f-9e0042dfa3c1",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-88",
+    "uuid": "1325f34d-58b2-55d0-afc8-8cd655985e51",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-89",
+    "uuid": "30b0fac1-6b9b-55e1-9e22-b9f61fcb4584",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-90",
+    "uuid": "7094dab2-2085-5459-ab3e-5e24fe7b139e",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-91",
+    "uuid": "f398fa5a-55d4-55c9-b819-0e14722bdd3f",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-92",
+    "uuid": "8e91bc30-1424-572d-852a-a13824181e3a",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-93",
+    "uuid": "cbd950cf-0e55-56d3-8ef3-4ef9b9ca1017",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-94",
+    "uuid": "1ca8b515-2f71-5b71-b213-1871b972e9e9",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-95",
+    "uuid": "cb4cf2ce-f52a-5b98-87e8-129778106a53",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-96",
+    "uuid": "2351e54e-1a36-5606-b893-9c27f4618e81",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-97",
+    "uuid": "420d5331-3434-5e39-8a1b-8dbd2d130619",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-98",
+    "uuid": "caf0e7cd-01be-5e68-bdc0-15eb8fd5c7fe",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-99",
+    "uuid": "43574165-6859-58ef-9d4c-e6dd2384719e",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  },
+  {
+    "created": true,
+    "id": "stream-100",
+    "uuid": "82fec5b9-326d-5169-aa1f-e3edd2d68ea7",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  }
+]

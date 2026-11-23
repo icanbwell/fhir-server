@@ -1,0 +1,69 @@
+[
+  {
+    "operationOutcome": {
+      "resourceType": "OperationOutcome",
+      "issue": [
+        {
+          "severity": "error",
+          "code": "forbidden",
+          "details": {
+            "text": "None of the provided scopes matched an allowed scope.: user imran does not have access to [Observation]"
+          },
+          "diagnostics": "None of the provided scopes matched an allowed scope.: user imran does not have access to [Observation]"
+        }
+      ]
+    },
+    "issue": {
+      "severity": "error",
+      "code": "forbidden",
+      "details": {
+        "text": "None of the provided scopes matched an allowed scope.: user imran does not have access to [Observation]"
+      },
+      "diagnostics": "None of the provided scopes matched an allowed scope.: user imran does not have access to [Observation]"
+    },
+    "created": false,
+    "id": "parity-obs-1",
+    "resourceType": "Observation",
+    "updated": false
+  },
+  {
+    "operationOutcome": {
+      "resourceType": "OperationOutcome",
+      "issue": [
+        {
+          "severity": "error",
+          "code": "exception",
+          "details": {
+            "text": "Error merging: {\"resourceType\":\"Patient\",\"meta\":{\"source\":\"http://example.com/source\",\"security\":[{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"client\"},{\"system\":\"https://www.icanbwell.com/owner\",\"code\":\"client\"}]},\"name\":[{\"family\":\"Parity\",\"given\":[\"Alpha\"]}]}"
+          },
+          "diagnostics": "resource is missing id",
+          "expression": [
+            "Patient"
+          ]
+        }
+      ]
+    },
+    "issue": {
+      "severity": "error",
+      "code": "exception",
+      "details": {
+        "text": "Error merging: {\"resourceType\":\"Patient\",\"meta\":{\"source\":\"http://example.com/source\",\"security\":[{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"client\"},{\"system\":\"https://www.icanbwell.com/owner\",\"code\":\"client\"}]},\"name\":[{\"family\":\"Parity\",\"given\":[\"Alpha\"]}]}"
+      },
+      "diagnostics": "resource is missing id",
+      "expression": [
+        "Patient"
+      ]
+    },
+    "created": false,
+    "resourceType": "Patient",
+    "updated": false
+  },
+  {
+    "created": true,
+    "id": "parity-1",
+    "uuid": "75bd8b65-de8a-55c6-b4e9-67776a776cd2",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+  }
+]

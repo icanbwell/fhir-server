@@ -1,7 +1,11 @@
+const { collectCoverageFrom, coveragePathIgnorePatterns } = require('./jest/coverageConfig');
+
 module.exports = {
     watchman: false,
     verbose: true,
     testEnvironment: 'node',
+    collectCoverageFrom,
+    coveragePathIgnorePatterns,
     testMatch: ['<rootDir>/src/tests/unit/**/*.test.js'],
     // These suites assert correct behavior for known, tracked bugs and fail by design until each
     // is fixed (security findings also need adversarial review against review.md); excluded here

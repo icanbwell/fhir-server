@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "not-found",
+      "details": {
+        "text": "Resource not found: Patient/5c1f0c1e-9f54-4a53-8a3c-1d6a3a0a7e11"
+      }
+    }
+  ]
+}

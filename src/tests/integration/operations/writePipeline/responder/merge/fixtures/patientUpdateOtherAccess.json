@@ -1,0 +1,22 @@
+{
+  "resourceType": "Patient",
+  "id": "parity-1",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "other"
+      }
+    ]
+  },
+  "birthDate": "2000-01-01"
+}
