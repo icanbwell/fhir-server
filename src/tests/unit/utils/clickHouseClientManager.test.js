@@ -29,10 +29,13 @@ jest.mock('../../../utils/rethrownError', () => ({
     }
 }));
 
+const mockSpanStarts = [];
+
 jest.mock('@opentelemetry/api', () => ({
     trace: {
         getTracer: () => ({
             startActiveSpan: (name, options, fn) => {
+                mockSpanStarts.push({ name, attributes: options.attributes });
                 const mockSpan = {
                     setAttributes: jest.fn(),
                     setStatus: jest.fn(),
@@ -53,6 +56,7 @@ describe('ClickHouseClientManager', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockSpanStarts.length = 0;
 
         mockConfigManager = {
             clickHouseHost: 'http://localhost',
@@ -269,6 +273,48 @@ describe('ClickHouseClientManager', () => {
             await expect(
                 manager.insertAsync({ table: 'test_table', values: [{ id: 1 }] })
             ).rejects.toThrow('Error inserting into ClickHouse');
+        });
+    });
+
+    describe('span attributes follow stable OTel DB semantic conventions', () => {
+        beforeEach(() => {
+            manager.client = { query: mockQuery, insert: mockInsert, close: mockClose };
+            manager.isConnected = true;
+        });
+
+        test('clickhouse.query span uses db.system.name, db.operation.name and db.query.text', async () => {
+            mockQuery.mockResolvedValue({
+                json: jest.fn().mockResolvedValue([]),
+                close: jest.fn()
+            });
+
+            await manager.queryAsync({ query: 'select 1' });
+
+            const span = mockSpanStarts.find((s) => s.name === 'clickhouse.query');
+            expect(span.attributes).toMatchObject({
+                'db.system.name': 'clickhouse',
+                'db.operation.name': 'SELECT',
+                'db.query.text': 'select 1'
+            });
+            expect(span.attributes).not.toHaveProperty('db.system');
+            expect(span.attributes).not.toHaveProperty('db.operation');
+            expect(span.attributes).not.toHaveProperty('db.statement');
+        });
+
+        test('clickhouse.insert span uses db.system.name, db.operation.name and db.collection.name', async () => {
+            mockInsert.mockResolvedValue({});
+
+            await manager.insertAsync({ table: 'test_table', values: [{ id: 1 }] });
+
+            const span = mockSpanStarts.find((s) => s.name === 'clickhouse.insert');
+            expect(span.attributes).toMatchObject({
+                'db.system.name': 'clickhouse',
+                'db.operation.name': 'INSERT',
+                'db.collection.name': 'test_table'
+            });
+            expect(span.attributes).not.toHaveProperty('db.system');
+            expect(span.attributes).not.toHaveProperty('db.operation');
+            expect(span.attributes).not.toHaveProperty('db.clickhouse.table');
         });
     });
 
