@@ -64,7 +64,7 @@ describe('BulkImportHandler - $merge pre-merge checks in the worker', () => {
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
         process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
-        fakeSpan = { setAttributes: jest.fn() };
+        fakeSpan = { setAttributes: jest.fn(), setAttribute: jest.fn() };
         activeSpanSpy = jest.spyOn(trace, 'getActiveSpan').mockReturnValue(fakeSpan);
         await commonBeforeEach();
     });

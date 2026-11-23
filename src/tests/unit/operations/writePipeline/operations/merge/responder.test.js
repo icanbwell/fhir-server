@@ -6,6 +6,7 @@ const { ParametersResourceValidator } = require('../../../../../../operations/me
 const { MergeManager } = require('../../../../../../operations/merge/mergeManager');
 const { ScopesManager } = require('../../../../../../operations/security/scopesManager');
 const { BundleManager } = require('../../../../../../operations/common/bundleManager');
+const { ResourceStructureChecker } = require('../../../../../../operations/writePipeline/resourceStructureChecker');
 const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../../../../../operations/writePipeline/writeFailure');
 const { WriteItem } = require('../../../../../../operations/writePipeline/writeItem');
 
@@ -99,7 +100,10 @@ const responder = new MergeResponder({
     bundleResourceValidator: Object.create(BundleResourceValidator.prototype),
     parametersResourceValidator: Object.create(ParametersResourceValidator.prototype),
     mergeManager: Object.create(MergeManager.prototype),
-    scopesManager: Object.create(ScopesManager.prototype),
+    resourceStructureChecker: new ResourceStructureChecker({
+        mergeManager: Object.create(MergeManager.prototype),
+        scopesManager: Object.create(ScopesManager.prototype)
+    }),
     bundleManager: Object.create(BundleManager.prototype)
 });
 

@@ -347,4 +347,40 @@ describe('MergeResultEntry', () => {
             expect(entry.sourceByteOffset).toBe(42);
         });
     });
+
+    describe('createFromMergeException', () => {
+        test('holds the resource as JSON in the details text and the error in the diagnostics', () => {
+            const resource = {
+                resourceType: 'Patient',
+                id: 'patient-1',
+                _uuid: 'uuid-123',
+                _sourceAssigningAuthority: 'client-a'
+            };
+
+            const entry = MergeResultEntry.createFromMergeException({
+                error: new Error('boom'),
+                resource,
+                resourceType: 'Patient'
+            });
+
+            expect(entry.toJSON()).toStrictEqual({
+                operationOutcome: expect.objectContaining({ resourceType: 'OperationOutcome' }),
+                issue: {
+                    severity: 'error',
+                    code: 'exception',
+                    details: { text: `Error merging: ${JSON.stringify(resource)}` },
+                    diagnostics: 'Error: boom',
+                    expression: ['Patient/patient-1']
+                },
+                created: false,
+                id: 'patient-1',
+                uuid: 'uuid-123',
+                resourceType: 'Patient',
+                updated: false,
+                sourceAssigningAuthority: 'client-a'
+            });
+            expect(entry.operationOutcome.issue[0]).toBe(entry.issue);
+            expect(entry.sourceByteOffset).toBeUndefined();
+        });
+    });
 });

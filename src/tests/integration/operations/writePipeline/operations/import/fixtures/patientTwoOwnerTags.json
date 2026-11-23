@@ -1,0 +1,30 @@
+{
+  "resourceType": "Patient",
+  "id": "import-two-owners",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-b"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "TwoOwners"
+    }
+  ]
+}

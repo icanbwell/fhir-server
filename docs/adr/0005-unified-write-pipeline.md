@@ -75,6 +75,17 @@ differences are plain data next to each other.
   `accessOnResult.admin` (the full check with `c` for a created Person).
   `adminPatientReference` adds `validateResult.adminPatientReference`, which turns the validator's
   patient-reference check off for that one operation.
+  `$import` has the profile `import`: scope letter `u` with action `merge`, `validateAgainstStored`
+  and `accessOnResult` off, and no variants, so it runs the same default steps as `$merge` (the
+  bulk preload, the stored and incoming access check, the smart merge and the versioned write).
+  The worker keeps reading its files: the reader, the `ifNoneExist` wrapper and its claim, the
+  default tags, the batching, the retries and the output files stay in `BulkImportHandler`. At
+  each flush it hands the buffered lines to `ImportBatchWriter`
+  (`writePipeline/operations/import/importBatchWriter.js`), which backfills the owner tag as the
+  old worker does, then calls `processAsync` and `executeAsync` once for the batch, as
+  `MergeStream` does. `ImportResponder` turns the items into today's per-line result entries. The
+  audit stays the worker's, once per range from those entries, so the import path does not use
+  `WriteAuditor`.
 - Step 10 is `accessOnResult`. It checks that the caller may make the access-tag changes between
   the stored and the built document, and runs after `validateResult`. Its default checker is on for
   PATCH, whose access tags are known only after the build, and off for POST, PUT and `$merge`,

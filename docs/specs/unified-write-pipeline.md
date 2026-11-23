@@ -98,8 +98,9 @@ Any of these is a failure even if the code works:
        merge failures.
   6. `$import` checks the schema of each line's resource before the merge, as `$merge` does (user
      decision). Today the worker only checks the meta of a new resource there, and checks the
-     schema of the merged or new document. It also gets the AuditEvent size limit, which it doesn't
-     check today.
+     schema of the merged or new document. Only the schema check is new: the worker already runs
+     the AuditEvent size limit and the pipe-in-id check today, in
+     `MergeManager.preMergeChecksMultipleAsync`.
   7. PATCH returns 400 instead of 500 when the write returns no result (user decision). Today it
      reads the issue of a result that isn't there and fails with a TypeError.
   8. `$merge` runs the AuditEvent size limit and the pipe-in-id check after identification, on the
@@ -148,7 +149,7 @@ error.
 | `update` | `UpdateOperation.updateAsync` (`src/operations/update/update.js`) | PUT, including create-via-PUT |
 | `patch` | `PatchOperation.patchAsync` (`src/operations/patch/patch.js`) | PATCH (JSON Patch), including the Group member strategy |
 | `merge` | `MergeOperation.mergeAsync` and `mergeAsyncStream` (`src/operations/merge/merge.js`) | `$merge`, plus the GraphQL mutations in `patient.js` and `careTeam.js` that call `mergeAsync`. Streaming (NDJSON) `$merge` goes to `MergeStream` (`src/operations/writePipeline/operations/merge/mergeStream.js`), which reads each line with the `MergeResponder` it holds and runs the shared steps on it. Both paths keep the stream in `mergeAsyncStream`, which takes the path's handler for each line, flush and audit; it stays out of the pipeline core because no other operation streams (user decision) |
-| `import` | the bulk-import handler's per-resource merge (`mergeBufferedResourceAsync` in `src/operations/asyncJobs/bulkImport/handler.js`) and its batch flush | `$import` worker |
+| `import` | the bulk-import handler's batch flush (`flushBatchAsync` in `src/operations/asyncJobs/bulkImport/handler.js`), once per flush. With the switch on, the flush hands its buffered lines to `ImportBatchWriter` (`src/operations/writePipeline/operations/import/importBatchWriter.js`) instead of the per-resource merge (`mergeBufferedResourceAsync`) and the bulk inserter flush | `$import` worker |
 | `admin` | the five admin write operations in `AdminPersonPatientLinkManager` (`src/admin/adminPersonPatientLinkManager.js`) and their route handlers in `src/routeHandlers/admin.js` | see "Admin" |
 
 The switch check is the only change to these files. If the switch is on, the call goes to the
@@ -351,18 +352,18 @@ the code disagree, the code wins.
 |---|---|---|---|---|---|---|
 | Scope letter | `c` | `u`, also for create-via-PUT | `u` | `u`, also when the resource is new | `u` | none in the pipeline (the admin route checks admin scope, as today) |
 | `_` fields | strip | strip | reject with 400 any op whose path starts with `/_` (this also rejects primitive-extension paths such as `/_birthDate`); the reader also rejects a content type other than `application/json-patch+json` with 400, and both checks run before the scope check | strip for validation, then restore `_uuid` and `_sourceAssigningAuthority` | strip | none (no client body) |
-| Validate incoming | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); the pipe-in-id check never fires, because POST replaces the id with a new UUID | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); Person.link moves to validate result; the size and pipe-in-id checks never fire: AuditEvent update gets 405 from `ResourceOperationAccessProvider` before the pipeline, and `IdParser` puts only the part before the first `\|` into the body id | – (the body is a JSON Patch) | on the stripped body: AuditEvent size limit and pipe-in-id check, then schema with relaxed required fields | owner tag backfilled first; pipe-in-id check, as today; new: the AuditEvent size limit and the schema check, as in `$merge` (accepted difference 6) | – (no client body) |
+| Validate incoming | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); the pipe-in-id check never fires, because POST replaces the id with a new UUID | new: shared with `$merge`: the AuditEvent size limit, the pipe-in-id check, then the raw body's schema (accepted difference 1); Person.link moves to validate result; the size and pipe-in-id checks never fire: AuditEvent update gets 405 from `ResourceOperationAccessProvider` before the pipeline, and `IdParser` puts only the part before the first `\|` into the body id | – (the body is a JSON Patch) | on the stripped body: AuditEvent size limit and pipe-in-id check, then schema with relaxed required fields | owner tag backfilled first; AuditEvent size limit and pipe-in-id check, as today; new: the schema check with relaxed required fields, as in `$merge` (accepted difference 6) | – (no client body) |
 | Find existing | off (no stored-document lookup) | by `_uuid`, as today; new: a bulk preload of one (`BulkPreloadLoader`, no access filter, as today) | `findExisting: 'search'` (`SearchExistingLoader`): the same search with the access filter as today; 0 hits is 404 `Resource not found: <Type>/<id>`, more than 1 is 400 listing the sorted `id\|authority` options; it copies the stored doc's `id`, `_uuid` and `_sourceAssigningAuthority` onto the item | bulk preload by `_uuid`, after validate incoming, so a resource that fails it is not loaded | bulk preload | new: by the id sent (`_uuid`, `id` or `id\|authority`) with the access filter, 404 (see "Admin") |
-| Validate new resource | meta; new: after the size and schema checks, as in `$merge` (accepted difference 1) | new: meta, for create-via-PUT (today it runs on the body after the build) | – | meta (owner tag) for a new resource | meta for a new resource, as today | – |
+| Validate new resource | meta; new: after the size and schema checks, as in `$merge` (accepted difference 1) | new: meta, for create-via-PUT (today it runs on the body after the build) | – | meta (owner tag) for a new resource | meta for a new resource, as today; new: also for a repeat of a new resource in the same batch, which today skips it | – |
 | Access before build | new: right after validate new resource, full check, then access-tag change, on the body (moved from access on result; user decision) | stored doc (403); new: as `$merge`: the stored doc, then the access-tag change from the stored doc to the body, removals counted; for create-via-PUT, POST's full check and access-tag change. Today the tag check runs on the built doc, after the build and the uploads | stored doc, scope letter `u` (`accessBeforeBuild: 'stored'`, `StoredAccessChecker`) | stored doc and incoming body (`WriteAllowedByScopesValidator`) | stored doc and incoming body | new: the stored doc (`u`) and every looked-up linked resource (`r`, the Patient of a created Person) |
 | Validate against stored | off | on, for an item with a stored doc: `validateResourceAsync` on the body with the stored doc (Group member limit, schema, Person.link, patient reference), as today's PUT does before it merges; temporary, see "Why this order" | off | off | off | off |
-| Build new doc | insert | replace (no smart merge), after the extended Group 400 and the `If-None-Match` / `If-Match` 412s; create-via-PUT builds as POST's insert, after the `If-Match` 412 | `buildDocument: 'patch'` (`PatchBuilder`): apply the JSON Patch to a copy of the stored doc; Group member strategy for Group (see "PATCH" below); a patch that changes nothing builds no doc | smart merge | smart merge | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
+| Build new doc | insert | replace (no smart merge), after the extended Group 400 and the `If-None-Match` / `If-Match` 412s; create-via-PUT builds as POST's insert, after the `If-Match` 412 | `buildDocument: 'patch'` (`PatchBuilder`): apply the JSON Patch to a copy of the stored doc; Group member strategy for Group (see "PATCH" below); a patch that changes nothing builds no doc | smart merge | smart merge; new: the lines of a batch are built in parallel chunks (`mergeParallelChunkSize`), as in `$merge`; today one after another | insert a new Person; smart merge to add a link; replace to remove a link or rewrite the patient reference |
 | Validate result | new: on, `validateResourceAsync` on the built document (Group member limit, schema of the write-serialized document, Person.link), as for a new `$merge` doc | for an update, meta on the built doc, because "validate against stored" has already run `validateResourceAsync` on the body; for create-via-PUT, `validateResourceAsync` on the built doc. Today: `validateResourceAsync` on the body before the build, then the schema of the write-serialized body, then meta on the built doc | meta, schema, Person.link | merged doc: meta, then `validateResourceAsync` with the stored doc (Group member limit, schema, Person.link, patient reference); new doc: `validateResourceAsync` | merged or inserted doc | new: meta, schema, Person.link; patient-reference check off for `updatePatientReference` only |
 | Access on result | off (new: done before build) | off; new: the access-tag change is checked before the build. Today it runs here | on: the access-tag change from the stored doc to the built doc, removals counted (`AccessTagChangeChecker`); a no-op has no built doc and is skipped | off (the merged doc is not re-checked today) | off | new: full check and access-tag change for a created Person, access-tag change for an update |
-| No-op | – | no write, 200 | no write; new: `updated: false`, the response carries the stored doc, an access-log entry is stored and the result checks are skipped (see "No-op fixes") | `created: false, updated: false` | new: counted as skipped (see "No-op fixes") | no write, silent |
+| No-op | – | no write, 200 | no write; new: `updated: false`, the response carries the stored doc, an access-log entry is stored and the result checks are skipped (see "No-op fixes") | `created: false, updated: false` | new: counted as skipped, no update audit (see "No-op fixes") | no write, silent |
 | Write | insert (`If-None-Match: *` rejects existing) | `If-Match` / `If-None-Match`; new: updates are versioned (`_uuid` and the stored `versionId`), and a lost race goes through today's replay, which re-checks `If-Match`, until the resolver (see "Concurrency") | `write: 'patch'` (`PatchWriter`): `_uuid` filter only, as today, with no version filter, no retry and no 409; the version filter comes with the resolver (see "Concurrency") | version filter, concurrent write resolver | version filter, concurrent write resolver | version filter |
-| Audit | create | create or update | update | batched | the worker's own batching | new: create or update |
-| Respond | thrown errors | thrown errors (412 possible) | thrown errors | per-resource issue, HTTP 200 | per-line result entry | new: thrown errors in the standard format |
+| Audit | create | create or update | update | batched | the worker's own, once per range from the result entries, as today | new: create or update |
+| Respond | thrown errors | thrown errors (412 possible) | thrown errors | per-resource issue, HTTP 200 | per-line result entry; new: a per-resource flush failure is the line's failed entry (see "Changes to announce") | new: thrown errors in the standard format |
 
 Group details that must be kept: Group member writes happen before the Group write, as today, and
 the ClickHouse member post-save stays synchronous inside the write.
@@ -526,10 +527,13 @@ operation reports a no-op the way `$merge` does today: `created: false, updated:
 no history row, no change event and no update audit.
 
 - **`$import`:** today it counts an unchanged line as updated (`updated++`, `updated: true`) because
-  it only knows the resource existed. In the new path the line counts as `skipped`, with
-  `created: false, updated: false`. That is the counter and entry shape an `If-None-Exist` match
-  already uses. Counts come from the pipeline's per-item results, including the flush results, so a
-  rebase that finds no change also counts as skipped.
+  it only knows the resource existed, and writes an update audit for it, although nothing is
+  written. In the new path the line counts as `skipped`, with `created: false, updated: false`, and
+  gets no update audit. That is the counter and entry shape an `If-None-Exist` match already uses.
+  The import outcome metric (`fhir_import_resources_processed_total`) no longer counts the line as
+  `updated`, and counts it under no outcome. Counts come from the pipeline's per-item results,
+  including the flush results, after the flush returns, so a rebase that finds no change also
+  counts as skipped.
 - **PATCH:** it already skips the write, but it answers `updated: true`. The new path answers
   `updated: false`, with the stored doc, and stores an access-log entry for the unchanged resource.
   It also skips the shared result checks, because there is no built doc (see "A no-op PATCH" in
@@ -720,7 +724,7 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
 - **New path by default in tests (user decision).** `jest/setEnvVars.js` sets
   `WRITE_PIPELINE_OPERATIONS` to every switch that has shipped, so the full suite in the existing
   16-shard `test` job, and every local run, uses the new path. Each operation's PR adds its name
-  there; it is now `merge,create,update,patch,admin`. `configManager` reads the environment on each
+  there; it is now `merge,create,update,patch,admin,import`. `configManager` reads the environment on each
   call, so a test file can set the variable for itself.
 - **Retry-dependent case.** The parity case for a new resource sent by id and by `_uuid` in one
   request runs on the new path only. The new path queues one write for it (accepted difference 5);
@@ -748,7 +752,11 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
   `createPersonToPatientLink`,
   `removePersonToPatientLink`, `removePersonToPersonLink` and `updatePatientReference` under
   `src/tests/integration/admin/`, `seperateHistoryCluster` and `admin_v2_cruds_scopes`. Each copy
-  turns only `admin` off.
+  turns only `admin` off. For `$import` there are none: the existing worker suites under
+  `src/tests/integration/asyncJobs/bulkImport/` pass on the new path with their expectations
+  unchanged. The only edit to them is a `setAttribute` on the fake span that three of them use,
+  because the pipeline sets attributes on the active span. The old path keeps its coverage from
+  the `$import` parity, flush, audit and attachments tests, which run every case on both paths.
 - **Old path coverage (my call).** With the new path on by default, the old path is run by the
   `oldWrite` copies and the parity tests only. The coverage report the CI merges across its jobs
   shows how much of it they keep; more test files get `oldWrite` copies until the old path's
@@ -823,6 +831,12 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
     `steps/write/httpPreconditionWriter.test.js` (the queued filter, `If-Match` and `smartMerge`,
     also with conflict handling off) and `httpPreconditions.test.js`; and
     `src/tests/unit/dataLayer/fastDatabaseBulkInserter.test.js` for the two opt-in parameters.
+  - `$import`, in `src/tests/integration/operations/writePipeline/operations/import/`:
+    `import.test.js` runs 37 cases through the worker on both paths against goldens recorded from
+    the old path, with a golden per path for each case of "Changes to announce" under `$import`
+    that it covers; `import.flush.test.js`, `import.audit.test.js` and `import.attachments.test.js`
+    cover flushes that throw or reject a resource, AuditEvents, change events, the import metrics,
+    and GridFS attachments, on both paths.
 - The existing access and tenant-isolation suites for these operations run on the new path in the
   main CI job.
 
@@ -896,10 +910,47 @@ today.
   with required-field errors relaxed, before the merge, as in `$merge`. A line that fails gets an
   error line from that check. Today only the merged or new document's schema is checked, so a line
   can import when the merged document is valid, and a failing line's error comes from that later
-  check.
+  check. The AuditEvent size limit and the pipe-in-id check are not new: the worker runs both today.
 - **Schema failure metric.** As for `$merge`.
-- **AuditEvent size limit** (accepted difference 6). An AuditEvent line over the size limit is now
-  rejected with a per-resource error. Today it is written.
+- **Unchanged line skipped** (see "No-op fixes"). A line whose merged document equals the stored
+  one counts as `skipped`, with `created: false, updated: false`, gets no update audit, and is no
+  longer counted as `updated` in `fhir_import_resources_processed_total`. Today it counts as
+  updated, with `updated: true` and an update audit, although nothing is written.
+- **Flush failures are reported as failed.** A line the database rejects at the flush gets a failed
+  entry from the flush result, in the result file, the error file and an error audit. On a
+  document-size error the bulk write executor fails the whole bulk write of that resource type, so
+  every line of that type in the flush is reported failed; none of them is stored on either path.
+  Today the worker discards the flush result and reports those lines created or updated, with
+  create or update audits, although they were not stored. A failed line's claimed `ifNoneExist` key
+  is released, so a later line in the range with the same criteria is tried instead of skipped. One
+  edge is not tested: for a flush large enough that the driver splits the bulk write, an earlier
+  part may already be committed, so a stored line could be reported failed and its key released.
+- **Nothing counted before the flush returns.** Counters, span attributes, metrics and audits of a
+  batch come from its entries after the flush. When the flush throws, nothing of the batch is
+  counted or audited, including the error audit of a line that had already failed a check, and the
+  range fails as today. Today the batch is counted and audited before the flush, so a batch whose
+  flush threw gets create audits although nothing was stored.
+- **An unexpected check error fails the batch.** The checks run for the whole batch, with no
+  per-line catch, so an unexpected (non-validation) error thrown by the scope, meta, access or
+  schema check of one line fails the whole batch and the range, which is read three times and then
+  fails. Today only that line fails.
+- **A repeat of a new resource in one batch gets the meta check.** When a batch has two lines for
+  one new resource, the second gets the new-resource meta check, because nothing is stored yet; a
+  repeat whose meta is invalid for a new resource (for example a second owner tag) fails with the
+  meta error. Today the repeat skips that check and is merged as an update of the first line.
+- **Parallel build.** The lines of a batch are built and have their attachments processed in
+  parallel chunks (`mergeParallelChunkSize`), as in `$merge`, so the side effects of different lines
+  interleave. Today they are merged one after another.
+- **Failure logs.** A failed line logs the pipeline's `Write step failed for resource` or
+  `Write check failed for resource`, and the worker's `Failed to merge bulk import resource` with
+  `taskId`, `filepath`, `resourceType`, `byteOffset` and `issueCode`, for every failed line. Today
+  the worker logs `Failed to merge bulk import resource` only for a thrown merge error, with the
+  error message instead of `issueCode`. So the worker now logs one error-level line per failed
+  line, including lines that fail a check on client data, for which today's worker logs none.
+- **Key order in a thrown merge error's text.** The `Error merging: <resource>` details text of a
+  thrown merge error lists `_uuid` before `_sourceAssigningAuthority` for a non-UUID id; today it
+  lists `_sourceAssigningAuthority` first. The text still carries the whole resource, a known
+  problem not fixed here.
 
 **POST**
 - **No attachment writes on 403.** Today attachments and base64 data are stored before the access

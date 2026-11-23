@@ -1,0 +1,199 @@
+{
+  "result": [
+    {
+      "operationOutcome": {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "forbidden",
+            "details": {
+              "text": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Patient]"
+            },
+            "diagnostics": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Patient]",
+            "extension": [
+              {
+                "url": "https://www.icanbwell.com/source-byte-offset",
+                "valueInteger": 0
+              }
+            ]
+          }
+        ]
+      },
+      "issue": {
+        "severity": "error",
+        "code": "forbidden",
+        "details": {
+          "text": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Patient]"
+        },
+        "diagnostics": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Patient]",
+        "extension": [
+          {
+            "url": "https://www.icanbwell.com/source-byte-offset",
+            "valueInteger": 0
+          }
+        ]
+      },
+      "created": false,
+      "id": "import-patient-1",
+      "uuid": "bc87f85d-3ee5-5e63-bae8-e30c6cd3abf1",
+      "resourceType": "Patient",
+      "updated": false,
+      "sourceAssigningAuthority": "client-a"
+    }
+  ],
+  "errors": [
+    {
+      "operationOutcome": {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "forbidden",
+            "details": {
+              "text": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Patient]"
+            },
+            "diagnostics": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Patient]",
+            "extension": [
+              {
+                "url": "https://www.icanbwell.com/source-byte-offset",
+                "valueInteger": 0
+              }
+            ]
+          }
+        ]
+      },
+      "issue": {
+        "severity": "error",
+        "code": "forbidden",
+        "details": {
+          "text": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Patient]"
+        },
+        "diagnostics": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Patient]",
+        "extension": [
+          {
+            "url": "https://www.icanbwell.com/source-byte-offset",
+            "valueInteger": 0
+          }
+        ]
+      },
+      "created": false,
+      "id": "import-patient-1",
+      "uuid": "bc87f85d-3ee5-5e63-bae8-e30c6cd3abf1",
+      "resourceType": "Patient",
+      "updated": false,
+      "sourceAssigningAuthority": "client-a"
+    }
+  ],
+  "task": {
+    "status": "completed",
+    "output": [
+      {
+        "id": "bulk-import-range:s3://allowed-bucket/Patient.ndjson#0-result",
+        "type": {
+          "text": "result"
+        },
+        "valueUri": "s3://allowed-bucket/output/Patient-001.ndjson"
+      },
+      {
+        "id": "bulk-import-range:s3://allowed-bucket/Patient.ndjson#0-error",
+        "type": {
+          "text": "error"
+        },
+        "valueUri": "s3://allowed-bucket/output/errors/Patient-001-errors.ndjson"
+      }
+    ]
+  },
+  "spanAttributes": [
+    {
+      "fhir_import.resources_created": 0,
+      "fhir_import.resources_updated": 0,
+      "fhir_import.resources_failed": 1
+    }
+  ],
+  "readAttempts": 1,
+  "stored": {},
+  "history": {},
+  "auditEvents": [
+    {
+      "resourceType": "AuditEvent",
+      "id": "<uuid>",
+      "meta": {
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "bwell",
+            "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "bwell",
+            "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "bwell",
+            "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c"
+          }
+        ]
+      },
+      "recorded": "<lastUpdated>",
+      "agent": [
+        {
+          "who": {
+            "reference": "Patient/person.import-parity-user",
+            "_uuid": "Patient/06fe4d3b-dc7f-5ad1-9a80-8f056ba865cf",
+            "_sourceId": "Patient/person.import-parity-user",
+            "_sourceAssigningAuthority": "bwell"
+          },
+          "altId": "import-parity-alt-id",
+          "requestor": true,
+          "network": {
+            "address": "10.0.0.1",
+            "type": "2"
+          }
+        }
+      ],
+      "source": {
+        "observer": {
+          "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_sourceAssigningAuthority": "bwell"
+        }
+      },
+      "type": {
+        "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+        "code": "rest",
+        "display": "RESTful Operation",
+        "id": "79ed374f-3461-54db-bba1-a6aaa1f06ca0"
+      },
+      "action": "E",
+      "outcome": "4",
+      "outcomeDesc": "Patient/import-patient-1: bulk import failure",
+      "entity": [
+        {
+          "detail": [
+            {
+              "type": "requestUrl",
+              "valueString": "$import"
+            },
+            {
+              "type": "requestId",
+              "valueString": "<uuid>"
+            }
+          ]
+        }
+      ],
+      "_sourceId": "<uuid>",
+      "_access": {
+        "bwell": 1
+      },
+      "_sourceAssigningAuthority": "bwell",
+      "_uuid": "<uuid>"
+    }
+  ],
+  "gridFsFiles": []
+}

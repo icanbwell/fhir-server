@@ -41,6 +41,8 @@ const { AuditLogger } = require('../../../utils/auditLogger');
 const { groupByLambda } = require('../../../utils/list.util');
 const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
+const { WritePipelineSwitch } = require('../../writePipeline/writePipelineSwitch');
+const { ImportBatchWriter } = require('../../writePipeline/operations/import/importBatchWriter');
 
 const importTracer = trace.getTracer('fhir-server');
 
@@ -107,6 +109,8 @@ class BulkImportHandler {
      * @property {WriteAllowedByScopesValidator} writeAllowedByScopesValidator
      * @property {ResourceValidator} resourceValidator
      * @property {OwnerColumnHandler} ownerColumnHandler
+     * @property {WritePipelineSwitch} [writePipelineSwitch] chooses the write path of a flush
+     * @property {ImportBatchWriter} [importBatchWriter] writes a flush on the shared write pipeline
      *
      * @param {ConstructorParams}
      */
@@ -129,7 +133,9 @@ class BulkImportHandler {
         uuidColumnHandler,
         writeAllowedByScopesValidator,
         resourceValidator,
-        ownerColumnHandler
+        ownerColumnHandler,
+        writePipelineSwitch,
+        importBatchWriter
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -187,6 +193,16 @@ class BulkImportHandler {
 
         this.ownerColumnHandler = ownerColumnHandler;
         assertTypeEquals(ownerColumnHandler, OwnerColumnHandler);
+
+        this.writePipelineSwitch = writePipelineSwitch;
+        if (writePipelineSwitch) {
+            assertTypeEquals(writePipelineSwitch, WritePipelineSwitch);
+        }
+
+        this.importBatchWriter = importBatchWriter;
+        if (importBatchWriter) {
+            assertTypeEquals(importBatchWriter, ImportBatchWriter);
+        }
     }
 
     /**
@@ -927,6 +943,10 @@ class BulkImportHandler {
         let claimedIfNoneExistKeys = new Set();
 
         const flushBatchAsync = async () => {
+            if (this.importBatchWriter && this.writePipelineSwitch?.useNewPathFor('import')) {
+                await writeBatchOnPipelineAsync();
+                return;
+            }
             if (pendingMergeResources.length > 0) {
                 // Pre-load once for the whole batch (grouped by resourceType internally) so
                 // mergeBufferedResourceAsync's getResourceFromExistingList() calls below are
@@ -1084,6 +1104,58 @@ class BulkImportHandler {
                     error: mergeError.message
                 });
             }
+        };
+
+        /**
+         * Writes the buffered lines of one flush through the import batch writer on the shared
+         * write pipeline, which preloads, checks, merges and flushes them itself. Marks a line as
+         * repeating when an earlier line of the flush had its `_uuid`, as the old flush does. Once
+         * the writer returns, folds its entries, one per buffered line in line order, into this
+         * range's counters and entries: an entry with an issue or an OperationOutcome is failed,
+         * as the old flush counts every check failure failed, and an entry neither created nor
+         * updated (an unchanged line) is skipped. Unclaims the ifNoneExist key of each
+         * failed line, matched to its entry by position, and logs each failed line. If the writer
+         * throws, nothing of the batch is counted and the error propagates as a flush error.
+         * @returns {Promise<void>}
+         */
+        const writeBatchOnPipelineAsync = async () => {
+            const bufferedLines = pendingMergeResources;
+            pendingMergeResources = [];
+            const uuidsSeenThisFlush = new Set();
+            const resources = bufferedLines.map(({ fhirResource, byteOffset }) => {
+                const forceUpdated = uuidsSeenThisFlush.has(fhirResource._uuid);
+                uuidsSeenThisFlush.add(fhirResource._uuid);
+                return { fhirResource, byteOffset, forceUpdated };
+            });
+            const entries = await this.importBatchWriter.writeBatchAsync({
+                requestInfo,
+                resources
+            });
+            entries.forEach((entry, index) => {
+                if (entry.issue || entry.operationOutcome) {
+                    failed++;
+                    const { fhirResource, byteOffset, ifNoneExistKey } = bufferedLines[index];
+                    if (ifNoneExistKey) {
+                        claimedIfNoneExistKeys.delete(ifNoneExistKey);
+                    }
+                    logError('Failed to merge bulk import resource', {
+                        taskId,
+                        filepath,
+                        resourceType: fhirResource.resourceType,
+                        byteOffset,
+                        issueCode: entry.issue?.code
+                    });
+                } else if (entry.created) {
+                    created++;
+                } else if (entry.updated) {
+                    updated++;
+                } else {
+                    skipped++;
+                }
+            });
+            mergeResultEntries.push(...entries);
+            hasFlushedThisAttempt = true;
+            sinceLastFlush = 0;
         };
 
         const readAndProcessRangeAsync = async () => {

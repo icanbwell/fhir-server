@@ -1,0 +1,68 @@
+{
+  "result": [
+    {
+      "resourceType": "Patient",
+      "id": "import-duplicate",
+      "created": true,
+      "updated": false,
+      "failed": false
+    },
+    {
+      "resourceType": "Patient",
+      "id": "import-duplicate",
+      "created": false,
+      "updated": true,
+      "failed": false
+    }
+  ],
+  "changeEvents": [
+    {
+      "eventType": "C",
+      "resourceType": "Patient",
+      "id": "import-duplicate",
+      "uuid": "71a5e9d6-5f54-58fd-9568-d04508f75e3c",
+      "contextData": null
+    }
+  ],
+  "kafkaMessages": [
+    {
+      "key": "import-duplicate",
+      "action": "C",
+      "eventName": "Patient Create",
+      "who": "Patient/import-duplicate"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "recordImportRanges",
+      "outcome": "started",
+      "count": null
+    },
+    {
+      "name": "recordImportRanges",
+      "outcome": "completed",
+      "count": null
+    },
+    {
+      "name": "recordImportResourceOutcomes",
+      "outcomes": [
+        {
+          "resourceType": "Patient",
+          "created": true,
+          "updated": false,
+          "failed": false
+        },
+        {
+          "resourceType": "Patient",
+          "created": false,
+          "updated": true,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "recordImportRangeDuration",
+      "isNonNegativeNumber": true
+    }
+  ]
+}

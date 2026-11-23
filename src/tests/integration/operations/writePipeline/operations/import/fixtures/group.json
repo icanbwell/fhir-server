@@ -1,0 +1,35 @@
+{
+  "resourceType": "Group",
+  "id": "import-group-1",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client-a"
+      }
+    ]
+  },
+  "type": "person",
+  "actual": true,
+  "member": [
+    {
+      "entity": {
+        "reference": "Patient/import-member-1"
+      }
+    },
+    {
+      "entity": {
+        "reference": "Patient/import-member-2"
+      }
+    }
+  ]
+}

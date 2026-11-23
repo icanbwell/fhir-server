@@ -28,6 +28,15 @@ const WRITE_ITEM_STATUS = Object.freeze({
  */
 
 /**
+ * What an import line adds to its item: the absolute byte offset of the line in the source file,
+ * which the result entry carries, and whether an earlier line of the same flush already had the
+ * resource's `_uuid`, which makes this line an update.
+ * @typedef {Object} ImportLine
+ * @property {number} byteOffset
+ * @property {boolean} forceUpdated
+ */
+
+/**
  * One resource in a write batch, with the state the steps fill in: the stored document, the built
  * document (`candidate`), the write mode, the hybrid-storage context data, the identity saved
  * before `_` fields are stripped, and its status and failure. `index` is its position in the batch,
@@ -35,14 +44,16 @@ const WRITE_ITEM_STATUS = Object.freeze({
  * (`patch`), the writes it makes to Group members (`memberWrites`) and the operations it applied
  * (`appliedPatch`); the steps that fill them are PATCH's own. An admin write keeps the description
  * of its change (`adminChange`) and the resources the change links to (`linked`); the steps that
- * fill them are the admin operations' own.
+ * fill them are the admin operations' own. An import line keeps its byte offset and whether it is
+ * a repeat of an earlier line's resource (`importLine`), which only the import responder reads.
  */
 class WriteItem {
     /**
      * @param {number} index
      * @param {Object} incoming
+     * @param {ImportLine|null} [importLine]
      */
-    constructor ({ index, incoming }) {
+    constructor ({ index, incoming, importLine = null }) {
         /**
          * @type {number}
          */
@@ -94,6 +105,12 @@ class WriteItem {
          * @type {Array<{resourceType: string, resource: Object}>}
          */
         this.linked = [];
+        /**
+         * The import line's byte offset and repeat flag. Null for an operation that is not an
+         * import.
+         * @type {ImportLine|null}
+         */
+        this.importLine = importLine;
         /**
          * @type {WriteFailure|null}
          */

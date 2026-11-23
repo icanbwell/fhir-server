@@ -67,7 +67,7 @@ describe('BulkImportHandler - per-resource scope enforcement in the worker', () 
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
         process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
         originalFlag = process.env.ENABLE_SMART_V2_CRUDS_SCOPES;
-        fakeSpan = { setAttributes: jest.fn() };
+        fakeSpan = { setAttributes: jest.fn(), setAttribute: jest.fn() };
         activeSpanSpy = jest.spyOn(trace, 'getActiveSpan').mockReturnValue(fakeSpan);
         await commonBeforeEach();
     });

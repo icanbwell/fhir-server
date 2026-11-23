@@ -204,12 +204,16 @@ const {
     ADMIN_LINK_WRITE_PROFILE,
     ADMIN_PATIENT_REFERENCE_WRITE_PROFILE
 } = require('./operations/writePipeline/operations/admin/profile');
+const { IMPORT_WRITE_PROFILE } = require('./operations/writePipeline/operations/import/profile');
 const { MergeResponder } = require('./operations/writePipeline/operations/merge/responder');
 const { MergeStream } = require('./operations/writePipeline/operations/merge/mergeStream');
 const { CreateResponder } = require('./operations/writePipeline/operations/create/responder');
 const { UpdateResponder } = require('./operations/writePipeline/operations/update/responder');
 const { PatchResponder } = require('./operations/writePipeline/operations/patch/responder');
 const { AdminResponder } = require('./operations/writePipeline/operations/admin/responder');
+const { ImportResponder } = require('./operations/writePipeline/operations/import/responder');
+const { ImportBatchWriter } = require('./operations/writePipeline/operations/import/importBatchWriter');
+const { ResourceStructureChecker } = require('./operations/writePipeline/resourceStructureChecker');
 const { GroupMemberPatchStrategy } = require('./operations/patch/strategies/groupMemberPatchStrategy');
 const { WriteAuditor } = require('./operations/writePipeline/writeAuditor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
@@ -969,7 +973,8 @@ const createContainer = function () {
             UPDATE_WRITE_PROFILE,
             PATCH_WRITE_PROFILE,
             ADMIN_LINK_WRITE_PROFILE,
-            ADMIN_PATIENT_REFERENCE_WRITE_PROFILE
+            ADMIN_PATIENT_REFERENCE_WRITE_PROFILE,
+            IMPORT_WRITE_PROFILE
         ],
         databaseBulkInserter: c.fastDatabaseBulkInserter,
         writeAuditor: c.writeAuditor,
@@ -981,11 +986,16 @@ const createContainer = function () {
 
     container.register('parametersResourceValidator', () => new ParametersResourceValidator());
 
+    container.register('resourceStructureChecker', (c) => new ResourceStructureChecker({
+        mergeManager: c.mergeManager,
+        scopesManager: c.scopesManager
+    }));
+
     container.register('mergeResponder', (c) => new MergeResponder({
         bundleResourceValidator: c.bundleResourceValidator,
         parametersResourceValidator: c.parametersResourceValidator,
         mergeManager: c.mergeManager,
-        scopesManager: c.scopesManager,
+        resourceStructureChecker: c.resourceStructureChecker,
         bundleManager: c.bundleManager
     }));
 
@@ -1009,6 +1019,16 @@ const createContainer = function () {
     }));
 
     container.register('adminResponder', () => new AdminResponder());
+
+    container.register('importResponder', () => new ImportResponder());
+
+    container.register('importBatchWriter', (c) => new ImportBatchWriter({
+        writePipeline: c.writePipeline,
+        ownerColumnHandler: c.ownerColumnHandler,
+        importResponder: c.importResponder,
+        resourceStructureChecker: c.resourceStructureChecker,
+        customTracer: c.customTracer
+    }));
 
     container.register('mergeStream', (c) => new MergeStream({
         mergeResponder: c.mergeResponder,
@@ -1720,7 +1740,9 @@ const createContainer = function () {
         uuidColumnHandler: c.uuidColumnHandler,
         writeAllowedByScopesValidator: c.writeAllowedByScopesValidator,
         resourceValidator: c.resourceValidator,
-        ownerColumnHandler: c.ownerColumnHandler
+        ownerColumnHandler: c.ownerColumnHandler,
+        writePipelineSwitch: c.writePipelineSwitch,
+        importBatchWriter: c.importBatchWriter
     }));
 
     // Routes messages on kafkaBulkImportTaskCreatedTopic and kafkaBulkImportRangeProgressTopic

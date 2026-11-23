@@ -117,6 +117,8 @@ const { AdminTargetsAccessChecker } = require('../../operations/writePipeline/st
 const { AdminResultAccessChecker } = require('../../operations/writePipeline/steps/access/adminResultAccessChecker');
 const { AdminBuilder } = require('../../operations/writePipeline/steps/build/adminBuilder');
 const { AdminWriteRunner } = require('../../admin/adminWriteRunner');
+const { ImportResponder } = require('../../operations/writePipeline/operations/import/responder');
+const { ImportBatchWriter } = require('../../operations/writePipeline/operations/import/importBatchWriter');
 
 // Registrations that require infrastructure-specific config this test file does not (and should
 // not) provide; excluded only from the "every name resolves" sweep. Each has its own dedicated,
@@ -416,6 +418,19 @@ describe('createContainer', () => {
         const manager = container.adminPersonPatientLinkManager;
         expect(manager.writePipelineSwitch).toBe(container.writePipelineSwitch);
         expect(manager.adminWriteRunner).toBe(container.adminWriteRunner);
+    });
+
+    test('importBatchWriter is wired to the write pipeline, the owner column handler, the import responder, the structure checker and the tracer', () => {
+        const container = createContainer();
+        const writer = container.importBatchWriter;
+        expect(writer).toBeInstanceOf(ImportBatchWriter);
+        expect(writer.writePipeline).toBe(container.writePipeline);
+        expect(writer.ownerColumnHandler).toBe(container.ownerColumnHandler);
+        expect(writer.importResponder).toBeInstanceOf(ImportResponder);
+        expect(writer.importResponder).toBe(container.importResponder);
+        expect(writer.resourceStructureChecker).toBe(container.resourceStructureChecker);
+        expect(container.mergeResponder.resourceStructureChecker).toBe(container.resourceStructureChecker);
+        expect(writer.customTracer).toBe(container.customTracer);
     });
 
     test('preSaveManager orders SourceAssigningAuthorityColumnHandler before UuidColumnHandler before ReferenceGlobalIdHandler', () => {
