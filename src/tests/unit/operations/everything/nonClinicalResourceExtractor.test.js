@@ -6,8 +6,7 @@ const { describe, test, expect, beforeEach, jest: jestGlobal } = require('@jest/
 jestGlobal.mock('../../../../operations/everything/generated.non_clinical_resources_fields.json', () => ({
     DocumentReference: [
         'subject._uuid',
-        'author._uuid',
-        'content.attachment.url'
+        'author._uuid'
     ],
     Encounter: [
         'participant.individual._uuid',
@@ -23,32 +22,16 @@ jestGlobal.mock('../../../../operations/everything/generated.resource_types.json
         'Organization',
         'Practitioner',
         'Location',
-        'Binary',
         'HealthcareService'
     ],
     clinicalResources: [
         'Patient',
         'Encounter',
         'Observation',
-        'DocumentReference'
+        'DocumentReference',
+        'Binary'
     ]
 }), { virtual: true });
-
-// Mock uid.util - generateUUIDv5 produces deterministic UUIDs based on input
-jestGlobal.mock('../../../../utils/uid.util', () => {
-    const crypto = require('crypto');
-    return {
-        isUuid: (text) => {
-            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-            return text && uuidRegex.test(text);
-        },
-        generateUUIDv5: (name) => {
-            // Produce a deterministic UUID-like string from the input name
-            const hash = crypto.createHash('md5').update(name).digest('hex');
-            return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-${hash.slice(12, 16)}-${hash.slice(16, 20)}-${hash.slice(20, 32)}`;
-        }
-    };
-});
 
 const { NonClinicalReferencesExtractor } = require('../../../../operations/everything/nonClinicalResourceExtractor');
 
@@ -267,125 +250,20 @@ describe('NonClinicalReferencesExtractor', () => {
         });
     });
 
-    describe('CRITICAL: DocumentReference Binary URL extraction with _sourceAssigningAuthority', () => {
-        test('should extract Binary references from content.attachment.url', async () => {
+    describe('DocumentReference attachment url', () => {
+        test('does not follow content.attachment.url to a Binary', async () => {
+            // A Binary reaches $everything through its own securityContext, not through the
+            // DocumentReference that points at it.
             const resource = {
                 resourceType: 'DocumentReference',
                 subject: { _uuid: 'Patient/pat-1' },
-                author: [{ _uuid: 'Organization/org-1' }],
-                content: [
-                    {
-                        attachment: {
-                            url: 'Binary/some-binary-id'
-                        }
-                    }
-                ],
+                content: [{ attachment: { url: 'Binary/some-binary-id' } }],
                 _sourceAssigningAuthority: 'tenant-a'
             };
 
             await extractor.processResource(resource);
 
-            expect(extractor.nestedResourceReferences).toHaveProperty('Binary');
-        });
-
-        test('should generate UUID using _sourceAssigningAuthority for non-uuid Binary ids', async () => {
-            const resource = {
-                resourceType: 'DocumentReference',
-                content: [
-                    {
-                        attachment: {
-                            url: 'Binary/non-uuid-id'
-                        }
-                    }
-                ],
-                _sourceAssigningAuthority: 'tenant-a'
-            };
-
-            await extractor.processResource(resource);
-
-            // The generated UUID should incorporate _sourceAssigningAuthority
-            expect(extractor.nestedResourceReferences).toHaveProperty('Binary');
-            const binaryIds = Array.from(extractor.nestedResourceReferences['Binary']);
-            // The id stored is the generated UUID (which is deterministic based on 'non-uuid-id|tenant-a')
-            // It should be a UUID-format string (since generateUUIDv5 produces one)
-            expect(binaryIds[0]).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
-        });
-
-        test('SECURITY: different _sourceAssigningAuthority produces different Binary UUIDs', async () => {
-            // The UUID is generated from `${id}|${_sourceAssigningAuthority}`.
-            // Different tenants MUST produce different UUIDs for the same Binary source id.
-            const resourceCorrectTenant = {
-                resourceType: 'DocumentReference',
-                content: [{ attachment: { url: 'Binary/doc-binary-1' } }],
-                _sourceAssigningAuthority: 'correct-tenant'
-            };
-
-            const resourceWrongTenant = {
-                resourceType: 'DocumentReference',
-                content: [{ attachment: { url: 'Binary/doc-binary-1' } }],
-                _sourceAssigningAuthority: 'wrong-tenant'
-            };
-
-            const extractor1 = new NonClinicalReferencesExtractor({
-                resourcesTypeToExclude: [],
-                resourcePool: null
-            });
-            const extractor2 = new NonClinicalReferencesExtractor({
-                resourcesTypeToExclude: [],
-                resourcePool: null
-            });
-
-            await extractor1.processResource(resourceCorrectTenant);
-            await extractor2.processResource(resourceWrongTenant);
-
-            const ids1 = Array.from(extractor1.nestedResourceReferences['Binary']);
-            const ids2 = Array.from(extractor2.nestedResourceReferences['Binary']);
-
-            // Different _sourceAssigningAuthority MUST produce different Binary UUIDs
-            // If they were the same, one tenant could access another's Binary
-            expect(ids1[0]).not.toBe(ids2[0]);
-        });
-
-        test('should keep existing UUID Binary references unchanged', async () => {
-            const existingUuid = '12345678-1234-1234-1234-123456789abc';
-            const resource = {
-                resourceType: 'DocumentReference',
-                content: [
-                    {
-                        attachment: {
-                            url: `Binary/${existingUuid}`
-                        }
-                    }
-                ],
-                _sourceAssigningAuthority: 'tenant-a'
-            };
-
-            await extractor.processResource(resource);
-
-            expect(extractor.nestedResourceReferences).toHaveProperty('Binary');
-            const binaryIds = Array.from(extractor.nestedResourceReferences['Binary']);
-            expect(binaryIds[0]).toBe(existingUuid);
-        });
-
-        test('should only extract Binary references from DocumentReference content.attachment.url, not other types', async () => {
-            const resource = {
-                resourceType: 'DocumentReference',
-                content: [
-                    {
-                        attachment: {
-                            // This is Organization, not Binary -- should be filtered out
-                            url: 'Organization/org-in-url'
-                        }
-                    }
-                ],
-                _sourceAssigningAuthority: 'tenant-a'
-            };
-
-            await extractor.processResource(resource);
-
-            // Organization should NOT be extracted from this path because the
-            // DocumentReference special handling only keeps Binary references
-            expect(extractor.nestedResourceReferences['Organization']).toBeUndefined();
+            expect(extractor.nestedResourceReferences).not.toHaveProperty('Binary');
         });
     });
 
