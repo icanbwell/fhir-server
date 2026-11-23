@@ -11,7 +11,7 @@ const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { ConfigManager } = require('./configManager');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 const { buildBulkWriteRequestContext } = require('../dataLayer/bulkWriteRequestContext');
-const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES, PURPOSE_OF_USE_SYSTEM } = require('../constants');
+const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES, PURPOSE_OF_USE_SYSTEM, ID_EXCLUSION_ARG_KEYS } = require('../constants');
 const { STATUS_CODES } = require('http');
 
 const mutex = new Mutex();
@@ -184,7 +184,7 @@ class AuditLogger {
         const detail = this._buildRequestDetail(requestInfo);
         if (args) {
             for (const [key, value] of Object.entries(args)) {
-                if (key === '_id' || key === '_source') continue;
+                if (key === '_id' || key === '_source' || ID_EXCLUSION_ARG_KEYS.includes(key)) continue;
                 // Match prior semantics: id is blanked out; non-string args dropped.
                 let v = value;
                 if (key === 'id' && v) v = '';

@@ -50,6 +50,20 @@ const patientLinkedResources = [
         indexHintName: "actorUuid_uuid"
     },
     {
+        // Binary is owned by a patient through securityContext (a Patient or the proxy patient),
+        // so it is found directly, like any other patient-linked type.
+        type: "Binary",
+        customQuery: {
+            query: `{"securityContext._uuid":"{resourceType}/{_uuid}"}`,
+            requiredValues: ["resourceType", "_uuid"],
+            fieldForParentLookup: "securityContext",
+            includeProxyPatient: true,
+            proxyPatientQuery: `{"securityContext.{idType}":"{resourceType}/{id}"}`,
+            proxyPatientRequiredValues: ["resourceType", "id", "idType"]
+        },
+        indexHintName: "securityContext_uuid_uuid"
+    },
+    {
         type: "BiologicallyDerivedProduct",
         customQuery: {
             query: `{"collection.source._uuid":"{resourceType}/{_uuid}"}`,

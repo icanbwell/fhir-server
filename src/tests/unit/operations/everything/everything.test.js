@@ -618,4 +618,53 @@ describe('EverythingOperation', () => {
             expect(parsedArgs.resourceFilterList).toEqual(['Observation', 'Condition']);
         });
     });
+
+    describe('preloadViewControlAsync', () => {
+        const viewControlSubject = { isUrlPerson: true, personId: 'p1' };
+
+        test('checks the caller\'s read scope before the Consent lookup', async () => {
+            const order = [];
+            mockScopesValidator.verifyHasValidScopesAsync.mockImplementation(async () => { order.push('scope'); });
+            mockEverythingHelper.preloadViewControlLookupAsync = jestObj.fn(async () => { order.push('lookup'); });
+            const requestInfo = buildRequestInfo();
+            const parsedArgs = buildParsedArgs();
+
+            await operation.preloadViewControlAsync({
+                requestInfo, parsedArgs, resourceType: 'Patient', viewControlSubject
+            });
+
+            expect(order).toEqual(['scope', 'lookup']);
+            expect(mockScopesValidator.verifyHasValidScopesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ requestInfo, resourceType: 'Patient', action: 'everything', accessRequested: 'r' })
+            );
+            expect(mockEverythingHelper.preloadViewControlLookupAsync).toHaveBeenCalledWith(
+                { requestInfo, base_version: '4_0_0', viewControlSubject }
+            );
+        });
+
+        test('a scope failure stops before the lookup, so the caller learns nothing about the Person', async () => {
+            const forbidden = Object.assign(new Error('forbidden'), { statusCode: 403 });
+            mockScopesValidator.verifyHasValidScopesAsync.mockRejectedValue(forbidden);
+            mockEverythingHelper.preloadViewControlLookupAsync = jestObj.fn();
+
+            await expect(operation.preloadViewControlAsync({
+                requestInfo: buildRequestInfo(), parsedArgs: buildParsedArgs(), resourceType: 'Patient', viewControlSubject
+            })).rejects.toBe(forbidden);
+
+            expect(mockEverythingHelper.preloadViewControlLookupAsync).not.toHaveBeenCalled();
+        });
+
+        test.each([[404], [403], [500]])('a lookup failure (%i) is logged and rethrown', async (statusCode) => {
+            const error = Object.assign(new Error('lookup failed'), { statusCode });
+            mockEverythingHelper.preloadViewControlLookupAsync = jestObj.fn().mockRejectedValue(error);
+
+            await expect(operation.preloadViewControlAsync({
+                requestInfo: buildRequestInfo(), parsedArgs: buildParsedArgs(), resourceType: 'Patient', viewControlSubject
+            })).rejects.toBe(error);
+
+            expect(mockFhirLoggingManager.logOperationFailureAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ action: 'everything', resourceType: 'Patient', error })
+            );
+        });
+    });
 });
