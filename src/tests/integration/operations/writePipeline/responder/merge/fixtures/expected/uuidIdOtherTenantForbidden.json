@@ -1,0 +1,28 @@
+{
+  "operationOutcome": {
+    "resourceType": "OperationOutcome",
+    "issue": [
+      {
+        "severity": "error",
+        "code": "forbidden",
+        "details": {
+          "text": "user imran has no access to resource Patient with id 3f6e9c3a-7b1d-4a52-9e0c-5d8f2a1b6c47"
+        },
+        "diagnostics": "user imran has no access to resource Patient with id 3f6e9c3a-7b1d-4a52-9e0c-5d8f2a1b6c47"
+      }
+    ]
+  },
+  "issue": {
+    "severity": "error",
+    "code": "forbidden",
+    "details": {
+      "text": "user imran has no access to resource Patient with id 3f6e9c3a-7b1d-4a52-9e0c-5d8f2a1b6c47"
+    },
+    "diagnostics": "user imran has no access to resource Patient with id 3f6e9c3a-7b1d-4a52-9e0c-5d8f2a1b6c47"
+  },
+  "created": false,
+  "id": "3f6e9c3a-7b1d-4a52-9e0c-5d8f2a1b6c47",
+  "uuid": "3f6e9c3a-7b1d-4a52-9e0c-5d8f2a1b6c47",
+  "resourceType": "Patient",
+  "updated": false
+}

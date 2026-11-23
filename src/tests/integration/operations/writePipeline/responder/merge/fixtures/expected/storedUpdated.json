@@ -1,0 +1,52 @@
+{
+  "id": "parity-1",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client",
+        "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client",
+        "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client",
+        "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+      }
+    ],
+    "versionId": "2"
+  },
+  "name": [
+    {
+      "family": "Parity",
+      "given": [
+        "Alpha"
+      ]
+    },
+    {
+      "family": "Parity",
+      "given": [
+        "Beta"
+      ]
+    }
+  ],
+  "resourceType": "Patient",
+  "gender": "female",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "parity-1"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "75bd8b65-de8a-55c6-b4e9-67776a776cd2"
+    }
+  ]
+}

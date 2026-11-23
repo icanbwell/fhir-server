@@ -1,0 +1,29 @@
+{
+  "resourceType": "Patient",
+  "id": "parity-dup-forbidden",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "other"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "Parity",
+      "given": [
+        "Alpha"
+      ]
+    }
+  ]
+}

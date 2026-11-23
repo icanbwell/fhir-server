@@ -1,0 +1,27 @@
+{
+  "operationOutcome": {
+    "resourceType": "OperationOutcome",
+    "issue": [
+      {
+        "severity": "error",
+        "code": "forbidden",
+        "details": {
+          "text": "None of the provided scopes matched an allowed scope.: user imran does not have access to [Patient]"
+        },
+        "diagnostics": "None of the provided scopes matched an allowed scope.: user imran does not have access to [Patient]"
+      }
+    ]
+  },
+  "issue": {
+    "severity": "error",
+    "code": "forbidden",
+    "details": {
+      "text": "None of the provided scopes matched an allowed scope.: user imran does not have access to [Patient]"
+    },
+    "diagnostics": "None of the provided scopes matched an allowed scope.: user imran does not have access to [Patient]"
+  },
+  "created": false,
+  "id": "parity-1",
+  "resourceType": "Patient",
+  "updated": false
+}
