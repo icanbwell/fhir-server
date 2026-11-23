@@ -8,9 +8,9 @@
             "severity": "error",
             "code": "exception",
             "details": {
-              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
             },
-            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
             "extension": [
               {
                 "url": "https://www.icanbwell.com/source-byte-offset",
@@ -24,9 +24,9 @@
         "severity": "error",
         "code": "exception",
         "details": {
-          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
         },
-        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
         "extension": [
           {
             "url": "https://www.icanbwell.com/source-byte-offset",
@@ -49,9 +49,9 @@
             "severity": "error",
             "code": "exception",
             "details": {
-              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
             },
-            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
             "extension": [
               {
                 "url": "https://www.icanbwell.com/source-byte-offset",
@@ -65,9 +65,9 @@
         "severity": "error",
         "code": "exception",
         "details": {
-          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
         },
-        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
         "extension": [
           {
             "url": "https://www.icanbwell.com/source-byte-offset",
@@ -98,9 +98,9 @@
             "severity": "error",
             "code": "exception",
             "details": {
-              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
             },
-            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
             "extension": [
               {
                 "url": "https://www.icanbwell.com/source-byte-offset",
@@ -114,9 +114,9 @@
         "severity": "error",
         "code": "exception",
         "details": {
-          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
         },
-        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
         "extension": [
           {
             "url": "https://www.icanbwell.com/source-byte-offset",
@@ -149,9 +149,9 @@
             "severity": "error",
             "code": "exception",
             "details": {
-              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
             },
-            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
             "extension": [
               {
                 "url": "https://www.icanbwell.com/source-byte-offset",
@@ -165,9 +165,9 @@
         "severity": "error",
         "code": "exception",
         "details": {
-          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
         },
-        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
         "extension": [
           {
             "url": "https://www.icanbwell.com/source-byte-offset",
@@ -190,9 +190,9 @@
             "severity": "error",
             "code": "exception",
             "details": {
-              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
             },
-            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
             "extension": [
               {
                 "url": "https://www.icanbwell.com/source-byte-offset",
@@ -206,9 +206,9 @@
         "severity": "error",
         "code": "exception",
         "details": {
-          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
         },
-        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
         "extension": [
           {
             "url": "https://www.icanbwell.com/source-byte-offset",
@@ -231,9 +231,9 @@
             "severity": "error",
             "code": "exception",
             "details": {
-              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+              "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
             },
-            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+            "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
             "extension": [
               {
                 "url": "https://www.icanbwell.com/source-byte-offset",
@@ -247,9 +247,9 @@
         "severity": "error",
         "code": "exception",
         "details": {
-          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794"
+          "text": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795"
         },
-        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825794",
+        "diagnostics": "Error in one of the resources of Patient: RangeError [ERR_OUT_OF_RANGE]: The value of \"offset\" is out of range. It must be >= 0 && <= 17825792. Received 17825795",
         "extension": [
           {
             "url": "https://www.icanbwell.com/source-byte-offset",
@@ -293,50 +293,6 @@
   ],
   "readAttempts": 1,
   "stored": {
-    "Observation_4_0_0": [
-      {
-        "_uuid": "9d1147ad-0f6e-5765-8ed7-18386e814b53",
-        "_access": {
-          "client-a": 1
-        },
-        "_sourceAssigningAuthority": "client-a",
-        "_sourceId": "import-observation-1",
-        "code": {
-          "coding": [
-            {
-              "system": "http://loinc.org",
-              "code": "29463-7",
-              "id": "8b57b73f-e27f-504a-9004-e289f4347c24"
-            }
-          ]
-        },
-        "id": "import-observation-1",
-        "meta": {
-          "source": "http://example.com/source",
-          "security": [
-            {
-              "system": "https://www.icanbwell.com/owner",
-              "code": "client-a",
-              "id": "780f3570-15d5-5dcc-ab06-b088da3c1651"
-            },
-            {
-              "system": "https://www.icanbwell.com/access",
-              "code": "client-a",
-              "id": "bea9f852-cb0f-5a1e-9990-4be9900c9623"
-            },
-            {
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "code": "client-a",
-              "id": "f7279584-e65f-5598-bbc1-5e769f302e3c"
-            }
-          ],
-          "versionId": "1",
-          "lastUpdated": "<lastUpdated>"
-        },
-        "resourceType": "Observation",
-        "status": "final"
-      }
-    ],
     "Patient_4_0_0": [
       {
         "_uuid": "50c78f9c-8d9a-5255-ba87-d202f55fb8d4",
@@ -380,6 +336,50 @@
           }
         ],
         "resourceType": "Patient"
+      }
+    ],
+    "Observation_4_0_0": [
+      {
+        "_uuid": "9d1147ad-0f6e-5765-8ed7-18386e814b53",
+        "_access": {
+          "client-a": 1
+        },
+        "_sourceAssigningAuthority": "client-a",
+        "_sourceId": "import-observation-1",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "29463-7",
+              "id": "8b57b73f-e27f-504a-9004-e289f4347c24"
+            }
+          ]
+        },
+        "id": "import-observation-1",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client-a",
+              "id": "780f3570-15d5-5dcc-ab06-b088da3c1651"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client-a",
+              "id": "bea9f852-cb0f-5a1e-9990-4be9900c9623"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client-a",
+              "id": "f7279584-e65f-5598-bbc1-5e769f302e3c"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "resourceType": "Observation",
+        "status": "final"
       }
     ]
   },

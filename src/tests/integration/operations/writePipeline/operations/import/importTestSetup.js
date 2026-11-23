@@ -22,6 +22,21 @@ const SCOPE_V2_PATIENT = 'user/Patient.u access/client-a.u';
 const UUID_PLACEHOLDER = '<uuid>';
 const LAST_UPDATED_PLACEHOLDER = '<lastUpdated>';
 const OVER_DOCUMENT_LIMIT_BYTES = 17 * 1024 * 1024;
+const OVERSIZED_NAME_LENGTH = 1000;
+
+/**
+ * Adds name entries to the Patient until its document is over the database's document size
+ * limit. The entries are many short strings, not one long one: a regular expression run on a
+ * single string of this size can overflow the stack once the engine has compiled it, which would
+ * fail the line before the database sees it.
+ */
+const withOversizedNames = (resource) => {
+    const entryCount = Math.ceil(OVER_DOCUMENT_LIMIT_BYTES / OVERSIZED_NAME_LENGTH);
+    resource.name = [
+        ...resource.name,
+        ...Array.from({ length: entryCount }, () => ({ family: 'A'.repeat(OVERSIZED_NAME_LENGTH) }))
+    ];
+};
 
 /**
  * The environment variables a case or a path switch may change, restored after every test.
@@ -428,7 +443,7 @@ module.exports = {
     FILEPATH,
     SCOPE_ALL,
     SCOPE_V2_PATIENT,
-    OVER_DOCUMENT_LIMIT_BYTES,
+    withOversizedNames,
     registerImportTestHooks,
     fixture,
     fixtureWithId,

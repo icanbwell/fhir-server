@@ -5,7 +5,7 @@ const {
     FILEPATH,
     SCOPE_ALL,
     SCOPE_V2_PATIENT,
-    OVER_DOCUMENT_LIMIT_BYTES,
+    withOversizedNames,
     registerImportTestHooks,
     fixture,
     fixtureWithId,
@@ -294,7 +294,7 @@ describe('$import parity between the old and the new write path', () => {
             previous: [],
             lines: [
                 fixtureChanged('ifNoneExistPatient', ({ resource }) => {
-                    resource.name[0].family = 'A'.repeat(OVER_DOCUMENT_LIMIT_BYTES);
+                    withOversizedNames(resource);
                 }),
                 fixture('ifNoneExistPatientSecond')
             ]
@@ -307,7 +307,7 @@ describe('$import parity between the old and the new write path', () => {
             lines: [
                 fixture('patientPartOne'),
                 fixtureChanged('patientPartTwo', (resource) => {
-                    resource.name[0].family = 'A'.repeat(OVER_DOCUMENT_LIMIT_BYTES);
+                    withOversizedNames(resource);
                 })
             ]
         },

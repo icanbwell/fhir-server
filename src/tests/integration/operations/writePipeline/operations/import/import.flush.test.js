@@ -4,7 +4,7 @@ const { createTestRequest } = require('../../../../common');
 const {
     EXPECTED_DIRECTORY,
     SCOPE_ALL,
-    OVER_DOCUMENT_LIMIT_BYTES,
+    withOversizedNames,
     registerImportTestHooks,
     fixture,
     fixtureWithId,
@@ -119,7 +119,7 @@ describe('$import flush failures on the old and the new write path', () => {
                 fixture('ifNoneExistPatient'),
                 fixtureChanged('patient', (resource) => {
                     resource.id = 'import-oversized';
-                    resource.name[0].family = 'A'.repeat(OVER_DOCUMENT_LIMIT_BYTES);
+                    withOversizedNames(resource);
                 }),
                 fixture('observation'),
                 fixtureWithId('patient', 'import-healthy-second'),
