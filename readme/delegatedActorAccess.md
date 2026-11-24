@@ -41,48 +41,46 @@ When a delegated actor is detected, `userType` is set to `delegatedUser` regardl
 
 When `ENABLE_DELEGATED_ACCESS_DETECTION` is disabled, the `act` claim is completely ignored.
 
-## Delegated Actor Consent Fetching
+## Delegated Actor Consent Read
 
-When a delegated actor is detected, the server looks up a single active `Consent` that ties:
+A `RelatedPerson` token names its Consent in the JWT `entitlements` claim, next to its purpose-of-use code:
+`"entitlements": ["Consent/<consent uuid>", "FAMRQT"]`. Authentication keeps the claim on `actor.entitlements`
+and does not read the Consent. On each request, `ScopesValidator` calls
+`DelegatedAccessRulesManager.getFilteringRulesAsync` (through `hasValidConsentAsync`) before any query runs. It:
 
-- grantor person (as a proxy `Patient/person.<personIdFromJwtToken>`)
-- grantee delegated actor (from the JWT `act.reference` reference)
-
-
-## Consent Query
-
-The delegated actor Consent lookup is a MongoDB query against `Consent_<base_version>` with these constraints:
-
-- `status` must be `active`
-- `provision.type` must be `permit`
-- `patient` must match the proxy patient for the requesting person:
-  - `patient.reference = Patient/person.<personIdFromJwtToken>`
-- `provision.actor.reference` must match the delegated actor reference (`act.reference`):
-  - `provision.actor.reference._uuid = <delegatedActor>`
-- `category.coding` must contain the data sharing access consent category:
-  - `system = http://www.icanbwell.com/consent-category` and `code` in configured `DATA_SHARING_ACCESS_CONSENT_CODES`
-- the Consent must be currently effective (open-ended allowed):
-  - `provision.period.start <= now` OR `provision.period.start` is missing
-  - `provision.period.end >= now` OR `provision.period.end` is missing
-
-### What Happens Next
-
-After the query returns:
-
-- If **no Consent** is found: delegated access is treated as **not permitted** (request fails authorization).
-- If **exactly one Consent** is found: it is used to build delegated-access filtering rules.
-- If **multiple Consents** are found: access is rejected as ambiguous.
+1. takes the single `Consent/<id>` entry from `actor.entitlements`;
+2. reads that Consent from `Consent_<base_version>` by `_uuid`. The id must be a uuid; a sourceId or an id with an
+   authority (`<id>|<authority>`) is refused without a read;
+3. checks it in memory against the token (`consentGrantsAccess`):
+   - `status` is `active`
+   - `provision.type` is `permit`
+   - `category.coding` has `system = http://www.icanbwell.com/consent-category` and a `code` in
+     `DATA_SHARING_ACCESS_CONSENT_CODES`
+   - `provision.period` has a `start` or an `end`; `start <= now` when present and `end >= now` when present.
+     An empty or unparseable date fails.
+   - `patient` is the proxy patient of the grantor: `Patient/person.<personIdFromJwtToken>`
+   - `provision.actor[].reference` includes `act.reference`
+4. builds the filtering rules from the Consent and caches them on the request's `actor`, so the Consent is
+   read once per request and never across requests.
 
 ### Error Cases
-- No active Consent found: Forbidden 403 — `"actor {actor} doesn't have enough permissions to perform this action"`
-- Multiple Consents found: Forbidden 403 — `"ambiguous permissions found for the actor {actor}"`
-- Invalid `act` claim format (when detection enabled): 401 Unauthorized — the `act` must be an object with `reference` and `sub` field.
+
+Every refusal is Forbidden 403 `"User does not have valid permission for delegated access"`, never 401:
+
+- `entitlements` has no `Consent/<id>` entry (for example a token with only a purpose code), or more than one
+- the `Consent/<id>` is not a uuid, or carries an authority
+- the Consent is not found
+- any check in step 3 fails
+
+Each refusal logs `Delegated Consent refused` with only the Consent reference. A transient database error on
+the read is a 503 with a generic message. An invalid `act` claim format (when detection is enabled) is 401
+Unauthorized: the `act` must be an object with `reference` and `sub` fields.
 
 ## Organization Actors
 
-The Consent Query above ties a grantor **person** to a delegated actor via a `patient`-scoped Consent. That model doesn't apply when the delegated actor is an `Organization`: the authorizing Consent for that flow is an **org-level grant, established once at client onboarding, with no `patient` field at all** — it authorizes the Organization generally, not a specific person.
+The Consent read above ties a grantor **person** to a delegated actor via a `patient`-scoped Consent. That model doesn't apply when the delegated actor is an `Organization`: the authorizing Consent for that flow is an **org-level grant, established once at client onboarding, with no `patient` field at all** — it authorizes the Organization generally, not a specific person.
 
-Because that Consent can never satisfy the `patient.reference` match above, `DelegatedAccessRulesManager.getFilteringRulesAsync` **skips the per-person Consent lookup entirely** when the actor reference is `Organization/<id>`, rather than trying to adapt the query. This is a deliberate trust boundary, not an oversight: the upstream token-minting service already verifies Person ownership and an active org-level Consent (`dataSharing` category, Treatment scope, matching `provision.actor`) before it ever mints the token — fhir-server trusts that mint-time verification for this actor type, the same way it trusts every other signed JWT claim, rather than re-deriving a per-person consent that was never meant to exist.
+Because that Consent can never satisfy the `patient` check above, `DelegatedAccessRulesManager.getFilteringRulesAsync` **skips the per-person Consent read entirely** when the actor reference is `Organization/<id>`. This is a deliberate trust boundary, not an oversight: the upstream token-minting service already verifies Person ownership and an active org-level Consent (`dataSharing` category, Treatment scope, matching `provision.actor`) before it ever mints the token — fhir-server trusts that mint-time verification for this actor type, the same way it trusts every other signed JWT claim, rather than re-deriving a per-person consent that was never meant to exist.
 
 Consequences of the skip:
 - `hasValidConsentAsync` returns `true` unconditionally for an `Organization` actor — no database query, no ambiguous/no-consent rejection path.
@@ -92,7 +90,7 @@ Consequences of the skip:
 
 ## Building Filtering Rules
 
-When a single matching `Consent` is found, the server extracts filtering rules used to **exclude sensitive categories** from delegated access.
+When the Consent passes the checks, the server extracts filtering rules used to **exclude sensitive categories** from delegated access.
 
 In particular, it walks **nested provisions** under `Consent.provision.provision` and looks for `deny` provisions that contain `securityLabel` entries.
 
@@ -238,14 +236,15 @@ The `source.observer` references the delegated actor.
 
 ### Purpose of Event (Entitlements)
 
-If the delegated user's JWT carries an `entitlements` array, those values are copied into `context.purposeOfUse` during authentication and then surface as `purposeOfEvent.coding` on the two-agent AuditEvent. `entitlements` supports two shapes:
+If the delegated user's JWT carries an `entitlements` array, its purpose-of-use codes are set on `context.purposeOfUse` during authentication and then surface as `purposeOfEvent.coding` on the two-agent AuditEvent. `entitlements` supports three shapes:
 
-1. **Legacy: bare v3-ActReason code(s)** — e.g. `"entitlements": ["FAMRQT"]`. Each code is copied through **as-is**, with no validation or mapping, and becomes one `purposeOfEvent[].coding[]` entry.
-2. **Consent reference** — e.g. `"entitlements": ["Consent/<id>"]`. This is the shape minted by an upstream token-exchange grant for client-initiated access: the token has no live end-user session to carry a bare ActReason code, so it instead points at the org-level `Consent` created during client onboarding. During authentication, `AuthService.processUserInfo` detects the `Consent/<id>` shape and calls `DelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync` to dereference the `Consent`, substituting its `provision.purpose[].code` values in place of the raw reference before it is ever stored on `context.purposeOfUse`. A bare-code `entitlements` array skips this resolution entirely and stays synchronous.
+1. **Legacy: bare v3-ActReason code(s)** — e.g. `"entitlements": ["FAMRQT"]`. Each code is copied through **as-is**, with no validation or mapping, and becomes one `purposeOfEvent[].coding[]` entry. A `RelatedPerson` token of this shape authenticates but every request is refused with 403, because it names no Consent.
+2. **`RelatedPerson` actor: Consent reference plus code(s)** — e.g. `"entitlements": ["Consent/<uuid>", "FAMRQT"]`. The codes are copied as-is and the `Consent/` entry is dropped, so `purposeOfEvent` carries only `FAMRQT`. The Consent is not read at authentication, and its `provision.purpose` is not used; the Consent entry only names the Consent the per-request check reads (see "Delegated Actor Consent Read" above).
+3. **`Organization` actor: Consent reference** — e.g. `"entitlements": ["Consent/<id>"]`. This is the shape minted by an upstream token-exchange grant for client-initiated access: the token has no live end-user session to carry a bare ActReason code, so it instead points at the org-level `Consent` created during client onboarding. During authentication, `AuthService.processUserInfo` detects the `Consent/<id>` shape and calls `DelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync` to dereference the `Consent`, substituting its `provision.purpose[].code` values in place of the raw reference before it is ever stored on `context.purposeOfUse`. A bare-code `entitlements` array skips this resolution entirely and stays synchronous.
 
-**If the Consent named in `entitlements` cannot be resolved** (deleted, wrong id, transient DB error), authentication fails closed: `processUserInfo` rejects with `done(null, false, { reason: 'delegated_actor_consent_not_found' })` (401), the same way any other malformed/unverifiable claim is rejected. This is a fail-closed change from an earlier iteration that silently proceeded with an empty `purposeOfEvent` — a `Consent/<id>` entitlement is supposed to be verifiable proof of a purpose, so failing to verify it now denies the request rather than degrading quietly. This is distinct from "the Consent was found but has no `provision.purpose` codes," which still just produces an empty `purposeOfEvent` on an otherwise-successful request (a data-quality issue, not an authorization failure).
+**If the Consent named in an `Organization` actor's `entitlements` cannot be resolved** (deleted or wrong id; a transient DB error is a 503 instead), authentication fails closed: `processUserInfo` rejects with `done(null, false, { reason: 'delegated_actor_consent_not_found' })` (401), the same way any other malformed/unverifiable claim is rejected. This is a fail-closed change from an earlier iteration that silently proceeded with an empty `purposeOfEvent` — a `Consent/<id>` entitlement is supposed to be verifiable proof of a purpose, so failing to verify it now denies the request rather than degrading quietly. This is distinct from "the Consent was found but has no `provision.purpose` codes," which still just produces an empty `purposeOfEvent` on an otherwise-successful request (a data-quality issue, not an authorization failure).
 
-In both cases the resulting codes are rendered into `purposeOfEvent[].coding[]` with `system` always `http://terminology.hl7.org/CodeSystem/v3-ActReason`. If the JWT has no `entitlements` array (or it is empty), or a resolved Consent has no purpose codes, `purposeOfEvent` is omitted from the audit event.
+In every case the resulting codes are rendered into `purposeOfEvent[].coding[]` with `system` always `http://terminology.hl7.org/CodeSystem/v3-ActReason`. If the JWT has no `entitlements` array (or it is empty), or a resolved Consent has no purpose codes, `purposeOfEvent` is omitted from the audit event.
 
 ### Consent Policy (agent.policy)
 
@@ -306,9 +305,13 @@ The generated token will contain:
     "reference": "RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425",
     "sub": "46265db4-0da2-4436-b4e8-85bf7e52a426"
   },
-  "entitlements": ["FAMRQT"]
+  "entitlements": ["Consent/5c3e8a71-2f4d-4b9a-8e6c-1d7f0a9b3c25", "FAMRQT"]
 }
 ```
+
+A `Consent` with that exact `id` must exist before the token is used, or every request is refused with 403. It must pass
+the checks in "Delegated Actor Consent Read" above: `patient.reference` = `Patient/person.<clientFhirPersonId>` and
+`provision.actor.reference` = the `act.reference` above.
 
 ### Generate a delegated access token (Organization actor)
 

@@ -446,6 +446,26 @@ describe('DelegatedAccessRulesManager', () => {
         });
 
         it.each([
+            ['a sourceId', 'Consent/consent-source-id'],
+            ['a sourceId with an authority', 'Consent/consent-source-id|bwell'],
+            ['a uuid with an authority', `Consent/${CONSENT_UUID}|bwell`]
+        ])('refuses without reading Consent when the Consent id is %s', async (_label, consentReference) => {
+            const actor = { reference: ACTOR_REFERENCE, entitlements: [consentReference, 'FAMRQT'] };
+
+            const result = await manager.getFilteringRulesAsync({
+                actor,
+                personIdFromJwtToken: GRANTOR_PERSON_UUID
+            });
+
+            expect(result.filteringRules).toBeNull();
+            expect(actor._filteringRules).toBeNull();
+            expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+            expect(logWarn).toHaveBeenCalledWith('Delegated Consent refused', expect.objectContaining({
+                args: { consentReference }
+            }));
+        });
+
+        it.each([
             ['is not found', []],
             ['matches more than one Consent', [buildValidConsent(), buildValidConsent()]],
             ['fails a check', [{ ...buildValidConsent(), status: 'inactive' }]]
@@ -489,15 +509,21 @@ describe('DelegatedAccessRulesManager', () => {
             ['a plain error', () => new Error('connection reset')],
             // DatabaseCursor/DatabaseQueryManager wrap driver errors in RethrownError, which sets 500.
             ['a RethrownError from the data layer', () => new RethrownError({ error: new Error('server selection timed out') })]
-        ])('propagates %s from the lookup as transient (503) instead of refusing with 403', async (_label, buildError) => {
+        ])('surfaces %s from the lookup as a generic transient 503, not the driver text or a 403', async (_label, buildError) => {
             const actor = { reference: ACTOR_REFERENCE, entitlements: [CONSENT_REFERENCE] };
+            const lookupError = buildError();
             mockDatabaseQueryFactory.createQuery.mockReturnValue({
-                findAsync: jest.fn().mockRejectedValue(buildError())
+                findAsync: jest.fn().mockRejectedValue(lookupError)
             });
 
             await expect(
                 manager.getFilteringRulesAsync({ actor, personIdFromJwtToken: GRANTOR_PERSON_UUID })
-            ).rejects.toMatchObject({ isTransient: true, statusCode: 503 });
+            ).rejects.toMatchObject({
+                message: 'Consent lookup temporarily unavailable',
+                isTransient: true,
+                statusCode: 503,
+                cause: lookupError
+            });
             expect(actor._filteringRules).toBeUndefined();
         });
     });
@@ -751,9 +777,10 @@ describe('DelegatedAccessRulesManager', () => {
             await expect(
                 manager.resolvePurposeOfEventCodesAsync({ entitlements: ['Consent/consent-id'] })
             ).rejects.toMatchObject({
-                message: 'mongo timeout',
+                message: 'Consent lookup temporarily unavailable',
                 isTransient: true,
-                statusCode: 503
+                statusCode: 503,
+                cause: expect.objectContaining({ message: 'mongo timeout' })
             });
             expect(logWarn).toHaveBeenCalled();
         });

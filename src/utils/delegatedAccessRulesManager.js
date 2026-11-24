@@ -132,6 +132,12 @@ class DelegatedAccessRulesManager {
                 }
 
                 const [consentReference] = consentReferences;
+                // Only a uuid id is read; a sourceId or an id with an authority is refused.
+                const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(consentReference);
+                if (!isUuid(id) || sourceAssigningAuthority) {
+                    return refuse({ consentReference });
+                }
+
                 const { consents, queryItem } = await this.findConsentByReferenceAsync({
                     consentReference,
                     base_version,
@@ -512,13 +518,15 @@ class DelegatedAccessRulesManager {
                 source: 'DelegatedAccessRulesManager.findConsentByReferenceAsync',
                 error
             });
-            error.isTransient = true;
-            // The data layer wraps driver errors in RethrownError, which defaults to 500; a
-            // lookup failure is retriable, so surface 503. A specific status (e.g. 429) stays.
-            if (!error.statusCode || error.statusCode === 500) {
-                error.statusCode = 503;
-            }
-            throw error;
+            // A new error with a generic message: the REST error handler sends a non-500 message
+            // to the caller, and the driver's text must not reach it. The data layer wraps driver
+            // errors in RethrownError, which defaults to 500; a lookup failure is retriable, so
+            // surface 503. A specific status (e.g. 429) stays.
+            const transientError = new Error('Consent lookup temporarily unavailable', { cause: error });
+            transientError.isTransient = true;
+            transientError.statusCode =
+                !error.statusCode || error.statusCode === 500 ? 503 : error.statusCode;
+            throw transientError;
         }
     }
 }

@@ -125,7 +125,7 @@
         "act.reference": "${DELEGATED_ACT_REFERENCE}",
         "act.sub": "${DELEGATED_ACT_SUB}",
         "managingOrganization": "${DELEGATED_MANAGING_ORGANIZATION}",
-        "entitlements": "${DELEGATED_ACCESS_USER_ENTITLEMENT}"
+        "entitlements": ["${DELEGATED_ACCESS_USER_CONSENT}", "${DELEGATED_ACCESS_USER_ENTITLEMENT}"]
       }
     },
     {
