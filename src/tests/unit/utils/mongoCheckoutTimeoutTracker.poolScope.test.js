@@ -7,7 +7,8 @@ jest.mock('@opentelemetry/api', () => ({
     metrics: {
         getMeter: () => ({
             createCounter: () => ({ add: () => {} }),
-            createHistogram: () => ({ record: () => {} })
+            createHistogram: () => ({ record: () => {} }),
+            createUpDownCounter: () => ({ add: () => {} })
         })
     }
 }));

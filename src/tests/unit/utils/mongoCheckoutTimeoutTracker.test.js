@@ -18,7 +18,8 @@ jest.mock('@opentelemetry/api', () => {
                 createHistogram: (name) => {
                     histograms[name] = histograms[name] || { record: jest.fn() };
                     return histograms[name];
-                }
+                },
+                createUpDownCounter: () => ({ add: jest.fn() })
             })
         },
         __counters: counters
