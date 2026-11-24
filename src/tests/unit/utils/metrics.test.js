@@ -29,6 +29,8 @@ const {
     recordInboundBundleSize,
     recordOutboundEverything,
     recordKafkaRetryExhausted,
+    recordHistoryMongoFallbackFailed,
+    historyMongoFallbackFailedCounter,
     recordImportOperationTriggered,
     recordImportResourceOutcomes,
     recordImportRangeDuration,
@@ -661,6 +663,21 @@ describe('metrics.js', () => {
 
         test('GROUP_MEMBER_MERGE_OUTCOME is frozen', () => {
             expect(Object.isFrozen(GROUP_MEMBER_MERGE_OUTCOME)).toBe(true);
+        });
+    });
+
+    describe('recordHistoryMongoFallbackFailed', () => {
+        beforeEach(() => jest.clearAllMocks());
+
+        test.each([
+            ['Observation', 3, 'mongo_write_failed', 'Observation', 'mongo_write_failed'],
+            [undefined, 1, undefined, 'unknown', 'unknown']
+        ])('adds %s/%s/%s with resource_type and reason labels', (type, count, reason, expType, expReason) => {
+            recordHistoryMongoFallbackFailed(type, count, reason);
+            expect(historyMongoFallbackFailedCounter.add).toHaveBeenCalledWith(count, {
+                [LABEL.RESOURCE_TYPE]: expType,
+                [LABEL.REASON]: expReason
+            });
         });
     });
 });
