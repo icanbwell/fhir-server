@@ -31,7 +31,8 @@ const {
     readCheckoutTimeoutExitSettings,
     createGracefulWorkerExit,
     DEFAULT_THRESHOLD,
-    DEFAULT_WINDOW_MS
+    DEFAULT_WINDOW_MS,
+    DEFAULT_MIN_SPAN_MS
 } = require('../../../utils/mongoCheckoutTimeoutTracker');
 const { registerMongoPoolMonitoring } = require('../../../utils/mongoPoolMonitor');
 
@@ -94,6 +95,80 @@ describe('MongoCheckoutTimeoutTracker', () => {
         }
     });
 
+    // Each step is [type, atMs, address].
+    test.each([
+        [
+            'a burst of waiters timing out together does not trigger',
+            [['T', 30000], ['T', 30001], ['T', 30002], ['T', 30003], ['T', 30004]],
+            false
+        ],
+        [
+            'timeouts that stay below the minimum span do not trigger',
+            [['T', 0], ['T', 10000], ['T', 20000], ['T', 30000], ['T', 40000]],
+            false
+        ],
+        [
+            'a burst that is still timing out once the span is reached triggers',
+            [['T', 0], ['T', 1], ['T', 2], ['T', 3], ['T', 4], ['T', 60000]],
+            true
+        ],
+        [
+            'a success on another server does not hide a wedged one',
+            [['T', 0, 'primary:27017'], ['T', 20000, 'primary:27017'], ['S', 25000, 'secondary:27017'],
+                ['T', 40000, 'primary:27017'], ['S', 45000, 'secondary:27017'], ['T', 60000, 'primary:27017'],
+                ['T', 80000, 'primary:27017']],
+            true
+        ],
+        [
+            'timeouts spread across servers do not add up',
+            [['T', 0, 'a:27017'], ['T', 20000, 'b:27017'], ['T', 40000, 'a:27017'], ['T', 60000, 'b:27017'],
+                ['T', 80000, 'a:27017']],
+            false
+        ],
+        [
+            'a success on the same server resets its run',
+            [['T', 0, 'primary:27017'], ['T', 20000, 'primary:27017'], ['T', 40000, 'primary:27017'],
+                ['S', 45000, 'primary:27017'], ['T', 60000, 'primary:27017'], ['T', 80000, 'primary:27017']],
+            false
+        ]
+    ])('with a minimum span: %s', (_name, steps, shouldTrigger) => {
+        const clock = createFakeClock();
+        const onThresholdReached = jest.fn();
+        const tracker = new MongoCheckoutTimeoutTracker({
+            poolName: 'fhir', threshold: 5, windowMs: WINDOW_MS, minSpanMs: 60000, now: clock.now, onThresholdReached
+        });
+
+        for (const [type, atMs, address] of steps) {
+            clock.set(atMs);
+            if (type === 'T') {
+                tracker.recordCheckoutTimeout(address);
+            } else {
+                tracker.recordCheckoutSuccess(address);
+            }
+        }
+
+        expect(onThresholdReached).toHaveBeenCalledTimes(shouldTrigger ? 1 : 0);
+    });
+
+    test('stays bounded and still triggers on span when far more timeouts than the cap land in the window', () => {
+        const clock = createFakeClock();
+        const onThresholdReached = jest.fn();
+        const tracker = new MongoCheckoutTimeoutTracker({
+            poolName: 'fhir', threshold: 5, windowMs: WINDOW_MS, minSpanMs: 60000, now: clock.now, onThresholdReached
+        });
+
+        clock.set(0);
+        for (let i = 0; i < 5000; i++) {
+            tracker.recordCheckoutTimeout('primary:27017');
+        }
+        expect(onThresholdReached).not.toHaveBeenCalled();
+        expect(tracker.timeoutTimestampsByAddress.get('primary:27017').length).toBeLessThanOrEqual(1000);
+
+        clock.set(60000);
+        tracker.recordCheckoutTimeout('primary:27017');
+        expect(onThresholdReached).toHaveBeenCalledTimes(1);
+    });
+
     test('triggers only once however many timeouts follow', () => {
         const onThresholdReached = jest.fn();
         const tracker = new MongoCheckoutTimeoutTracker({
@@ -110,10 +185,12 @@ describe('MongoCheckoutTimeoutTracker', () => {
 
 describe('readCheckoutTimeoutExitSettings', () => {
     test.each([
-        ['defaults when unset', {}, { threshold: DEFAULT_THRESHOLD, windowMs: DEFAULT_WINDOW_MS }],
-        ['defaults when empty', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '', MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS: '' }, { threshold: 5, windowMs: 120000 }],
-        ['reads overrides', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '10', MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS: '60000' }, { threshold: 10, windowMs: 60000 }],
-        ['0 disables', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '0' }, { threshold: 0, windowMs: 120000 }]
+        ['defaults when unset', {}, { threshold: DEFAULT_THRESHOLD, windowMs: DEFAULT_WINDOW_MS, minSpanMs: DEFAULT_MIN_SPAN_MS }],
+        ['defaults when empty', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '', MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS: '' }, { threshold: 5, windowMs: 120000, minSpanMs: 60000 }],
+        ['reads overrides', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '10', MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS: '90000', MONGO_CHECKOUT_TIMEOUT_EXIT_MIN_SPAN_MS: '45000' }, { threshold: 10, windowMs: 90000, minSpanMs: 45000 }],
+        ['0 disables', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '0' }, { threshold: 0, windowMs: 120000, minSpanMs: 60000 }],
+        ['a shorter window alone derives a span that fits', { MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS: '60000' }, { threshold: 5, windowMs: 60000, minSpanMs: 30000 }],
+        ['a window of 0 is fine while disabled', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '0', MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS: '0' }, { threshold: 0, windowMs: 0, minSpanMs: 0 }]
     ])('%s', (_name, env, expected) => {
         expect(readCheckoutTimeoutExitSettings(env)).toEqual(expected);
     });
@@ -122,7 +199,10 @@ describe('readCheckoutTimeoutExitSettings', () => {
         ['MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD', 'five'],
         ['MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD', '-1'],
         ['MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD', '2.5'],
-        ['MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS', '2m']
+        ['MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS', '2m'],
+        ['MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS', '0'],
+        ['MONGO_CHECKOUT_TIMEOUT_EXIT_MIN_SPAN_MS', '120000'],
+        ['MONGO_CHECKOUT_TIMEOUT_EXIT_MIN_SPAN_MS', '1m']
     ])('rejects %s=%s at startup', (name, value) => {
         expect(() => readCheckoutTimeoutExitSettings({ [name]: value })).toThrow(name);
     });
@@ -198,7 +278,7 @@ describe('a worker wired through registerMongoPoolMonitoring', () => {
     test('exits when the pool is wedged and every checkout times out', () => {
         for (let i = 0; i < 5; i++) {
             clock.set(i * 30000);
-            client.emit('connectionCheckOutFailed', { reason: 'timeout', durationMS: 30000 });
+            client.emit('connectionCheckOutFailed', { reason: 'timeout', durationMS: 30000, address: 'primary:27017' });
         }
 
         expect(processRef.kill).toHaveBeenCalledWith(4242, 'SIGTERM');
@@ -220,6 +300,25 @@ describe('a worker wired through registerMongoPoolMonitoring', () => {
         expect(processRef.kill).not.toHaveBeenCalled();
         expect(processRef.exitCode).toBeUndefined();
         expect(__counters[SELF_EXIT_COUNTER].add).not.toHaveBeenCalled();
+    });
+
+    test('exits for a wedged primary while a healthy secondary keeps checking out', () => {
+        for (let i = 0; i < 5; i++) {
+            clock.set(i * 30000);
+            client.emit('connectionCheckOutFailed', { reason: 'timeout', durationMS: 30000, address: 'primary:27017' });
+            client.emit('connectionCheckedOut', { durationMS: 1, address: 'secondary:27017' });
+        }
+
+        expect(processRef.kill).toHaveBeenCalledWith(4242, 'SIGTERM');
+    });
+
+    test('does not exit when waiters queued behind busy connections all time out together', () => {
+        clock.set(30000);
+        for (let i = 0; i < 5; i++) {
+            client.emit('connectionCheckOutFailed', { reason: 'timeout', durationMS: 30000, address: 'primary:27017' });
+        }
+
+        expect(processRef.kill).not.toHaveBeenCalled();
     });
 
     test('does not count non-timeout failures toward the exit', () => {

@@ -178,7 +178,7 @@ function registerMongoPoolMonitoring ({ client, poolName, checkoutTimeoutTracker
     client.on('connectionCheckedOut', (event) => {
         recordMongoPoolCheckoutDuration(poolName, event?.durationMS);
         emitOccupancyChange(occupancy.checkedOut(event?.address, event?.connectionId));
-        checkoutTimeoutTracker?.recordCheckoutSuccess();
+        checkoutTimeoutTracker?.recordCheckoutSuccess(event?.address);
     });
 
     client.on('connectionCheckOutFailed', (event) => {
@@ -188,7 +188,7 @@ function registerMongoPoolMonitoring ({ client, poolName, checkoutTimeoutTracker
         recordMongoPoolCheckoutDuration(poolName, event?.durationMS);
         emitOccupancyChange(occupancy.checkOutFailed(event?.address));
         if (event?.reason === 'timeout') {
-            checkoutTimeoutTracker?.recordCheckoutTimeout();
+            checkoutTimeoutTracker?.recordCheckoutTimeout(event?.address);
         }
     });
 
