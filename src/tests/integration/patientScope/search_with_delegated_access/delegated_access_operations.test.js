@@ -42,6 +42,7 @@ const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.jso
 
 const { ConfigManager } = require('../../../../utils/configManager');
 const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
+const { MongoNetworkTimeoutError } = require('mongodb');
 
 
 class MockConfigManager extends ConfigManager {
@@ -427,6 +428,47 @@ describe('Delegated Access Operations Tests', () => {
         const resp = await request.get('/4_0_0/Observation/').set(getHeadersWithCustomPayload(payload));
 
         expect(resp).toHaveStatusCode(403);
+    });
+
+    // ─── CONSENT READ FAILURE ────────────────────────────────────────
+
+    test('delegated search returns a generic 503, without the database error text, when the Consent read fails', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+
+        // Fail only the Mongo driver call that reads the token's Consent by uuid, so the data
+        // layer wraps the driver error exactly as it does in production.
+        const driverErrorText = 'connection 7 to 10.20.30.40:27017 timed out';
+        let consentReadFailed = false;
+        const originalToArrayAsync = DatabaseCursor.prototype.toArrayAsync;
+        const toArraySpy = jest
+            .spyOn(DatabaseCursor.prototype, 'toArrayAsync')
+            .mockImplementation(async function () {
+                if (this.resourceType === 'Consent' && this.query?._uuid === activeConsent.id) {
+                    consentReadFailed = true;
+                    this.cursor.toArray = () => Promise.reject(new MongoNetworkTimeoutError(driverErrorText));
+                }
+                return originalToArrayAsync.call(this);
+            });
+
+        try {
+            const resp = await request
+                .get('/4_0_0/Observation/')
+                .set(getHeadersWithCustomPayload(delegatedPayload));
+
+            expect(consentReadFailed).toBe(true);
+            expect(resp).toHaveStatusCode(503);
+            expect(resp.body.resourceType).toBe('OperationOutcome');
+            expect(resp.body.issue[0].details.text).toBe(
+                'Unexpected Error: Consent lookup temporarily unavailable'
+            );
+            expect(JSON.stringify(resp.body)).not.toContain(driverErrorText);
+        } finally {
+            toArraySpy.mockRestore();
+        }
     });
 
     // ─── NON-PATIENT-SCOPED RESOURCE FILTERING PROOF ─────────────────
