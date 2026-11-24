@@ -1156,8 +1156,8 @@ class BulkImportHandler {
          * so it marks the attempt as flushed and the range is not read again; its failure path
          * audits the recorded entries. A flush of one resource type is treated as the old flush
          * is, so the range may be read again if no earlier batch of it was flushed; it may in fact
-         * have committed part of its writes, and a retry may then report those lines as updated
-         * instead of created. Any other error thrown by the writer propagates with nothing of the
+         * have committed part of its writes, and a retry may then report those lines as skipped
+         * (unchanged) instead of created, where the old flush reports them updated. Any other error thrown by the writer propagates with nothing of the
          * batch counted.
          * @returns {Promise<void>}
          */

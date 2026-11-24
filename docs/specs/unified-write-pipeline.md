@@ -943,7 +943,7 @@ today.
   A batch of one resource type is read again, up to three attempts as today, with the counters of
   the failed attempt reset, but only if no earlier batch of the range was flushed. Such a flush may
   also have committed part of its writes, as on the old path, so a retry can report those lines as
-  updated instead of created.
+  skipped (they are then unchanged) instead of created, where the old path reports them updated.
   The old worker also reads a multi-type batch again (see "A flush of several resource types that
   throws is not read again").
 - **One check error fails only its line.** An unexpected (non-validation) error thrown by the
