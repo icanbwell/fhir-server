@@ -322,6 +322,10 @@ const historyMongoFallbackCounter = meter.createCounter('fhir_history_mongo_fall
     description: 'History documents written to MongoDB because the Kafka produce failed while the MongoDB history write is disabled, by resource_type and reason.'
 });
 
+const historyMongoFallbackFailedCounter = meter.createCounter('fhir_history_mongo_fallback_failed_total', {
+    description: 'History documents that could not be written to Kafka or to the MongoDB fallback, so history is lost, by resource_type and reason.'
+});
+
 const importOperationsTriggeredCounter = meter.createCounter('fhir_import_operations_triggered_total', {
     description: 'Bulk $import operations triggered — one per TaskCreated event the orchestrator begins processing (Task found, before S3 validation).'
 });
@@ -565,6 +569,19 @@ function recordKafkaRetryExhausted (topic, errorCode) {
  */
 function recordHistoryMongoFallback (resourceType, count, reason) {
     historyMongoFallbackCounter.add(count, {
+        [LABEL.RESOURCE_TYPE]: resourceType || UNKNOWN,
+        [LABEL.REASON]: reason || UNKNOWN
+    });
+}
+
+/**
+ * Count history documents lost because the Kafka produce failed and the MongoDB fallback write failed too.
+ * @param {string} resourceType
+ * @param {number} count documents that were not written to MongoDB
+ * @param {string} reason why the fallback write failed
+ */
+function recordHistoryMongoFallbackFailed (resourceType, count, reason) {
+    historyMongoFallbackFailedCounter.add(count, {
         [LABEL.RESOURCE_TYPE]: resourceType || UNKNOWN,
         [LABEL.REASON]: reason || UNKNOWN
     });
@@ -832,6 +849,7 @@ module.exports = {
     historyKafkaFailedCounter,
     historyKafkaProduceDurationHistogram,
     historyMongoFallbackCounter,
+    historyMongoFallbackFailedCounter,
     importOperationsTriggeredCounter,
     importResourcesProcessedCounter,
     importResourcesFailedCounter,
@@ -861,6 +879,7 @@ module.exports = {
     recordHistoryKafkaProduce,
     recordHistoryClickHouseRead,
     recordHistoryMongoFallback,
+    recordHistoryMongoFallbackFailed,
     recordImportOperationTriggered,
     recordImportResourceOutcomes,
     recordImportRangeDuration,
