@@ -92,16 +92,19 @@ flowchart TD
     CmsCheck -- no --> RunQuery
     CmsFilter --> RunQuery[("Run MongoDB query")]
 
-    RunQuery --> PdvcCheck{"§6d: $everything/GraphQLv2 with a data-view-control Consent?"}
-    PdvcCheck -- yes --> PdvcExcl["Exclude the patient-hidden resource reference(s)"]
+    RunQuery --> PdvcCheck{"§6d: user of an enrolled client, or a service token opting in on Person $everything, with an active data-view-control Consent?"}
+    PdvcCheck -- yes --> PdvcExcl["Exclude the hidden resources (an _id:not added to the query on every user read path)"]
     PdvcCheck -- no --> PersonCheck
     PdvcExcl --> PersonCheck{"§5: Person $everything?"}
     PersonCheck -- yes --> PersonNarrow["Narrow result set to only the requested Person id(s)"]
     PersonCheck -- no --> CompCheck
     PersonNarrow --> CompCheck{"§10: delegated actor and resource is a Composition?"}
     CompCheck -- yes --> SectionStrip["Strip Consent-denied-category sections, plus the hardcoded unclassified code (enrichment-time, not exclusion)"]
-    CompCheck -- no --> Returned(["Resource returned"])
-    SectionStrip --> Returned
+    CompCheck -- no --> PdvcCompCheck
+    SectionStrip --> PdvcCompCheck{"§6d: view control applies and resource is a Composition?"}
+    PdvcCompCheck -- yes --> PdvcSectionStrip["Remove sections whose entries reference a hidden resource (enrichment-time)"]
+    PdvcCompCheck -- no --> Returned(["Resource returned"])
+    PdvcSectionStrip --> Returned
 ```
 
 ---
@@ -288,12 +291,21 @@ is found.
 Person's Consent to the grantee actor and drives a sensitivity-based (§9) denylist layered on top
 of the §5 patient-scope query. Full model, including the read-only operation restriction: §10.
 
-**d. Patient Data View Control consent** — lets a patient exclude specific resources from their
-own `$everything`/GraphQLv2 result via a `dataConnectionViewControl`-category Consent referencing
-the resource(s) to hide. `src/utils/patientDataViewController.js`
-(`PatientDataViewControlManager.getConsentAsync`), gated by
-`configManager.clientsWithDataConnectionViewControl`. Full detail:
-`readme/patientDataViewControl.md`.
+**d. Patient Data View Control consent** — lets a user hide specific resources with an active
+`dataConnectionViewControl`-category Consent whose `provision.data` references them. It applies to
+user tokens whose Person's owner is in `configManager.clientsWithDataConnectionViewControl`
+(env `CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL`). The read paths it covers, and the history/version
+exceptions, are listed in `readme/patientDataViewControl.md`.
+- *Where:* `PatientDataViewControlExclusion` (`src/utils/patientDataViewControlExclusion.js`) loads
+  the Consent once per request per subject Person and adds an `_id:not` of the hidden ids to the
+  query. `$everything` uses the same lookup in `everythingHelper.js`.
+- *Subject Person:* the user in the token. Service and admin tokens are not filtered, except a service
+  token sending `_applyDataViewControl=true` on Person `$everything`, which is filtered by the Person
+  in the URL (see
+  `docs/adr/0006-service-token-opt-in-for-data-view-control-on-person-everything.md`).
+- *Fails closed:* a failed Consent lookup fails the request instead of returning unfiltered data.
+
+Full detail: `readme/patientDataViewControl.md`.
 
 ## 7. Admin scope and the wildcard bypass
 
@@ -474,9 +486,9 @@ For a given caller and resource, the resource is returned only if **all** of the
    Consent's connection types; none listed means no data. `RelatedPerson` actors are not
    connection-type filtered (§10). An `Organization` actor can only call the REST operations in
    `DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS` (default `Person/$everything`) (§10).
-6. If the requesting client relies on consent-based data-sharing expansion (§6a) or the patient
-   has an active data-view-control exclusion (§6d), those results are included/excluded
-   accordingly.
+6. If the requesting client relies on consent-based data-sharing expansion (§6a) or the user
+   has an active data-view-control Consent (§6d), those results are included/excluded
+   accordingly, and Composition sections referencing a hidden resource are removed.
 
 Any code path that reaches the database without going through `SearchManager.constructQueryAsync`
 — or that fetches by raw id/uuid and defers the access check to after the fetch — is a

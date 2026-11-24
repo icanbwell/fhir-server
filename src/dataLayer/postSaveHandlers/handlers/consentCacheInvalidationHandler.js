@@ -1,3 +1,4 @@
+const async = require('async');
 const { BasePostSaveHandler } = require('../../../utils/basePostSaveHandler');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { RedisManager } = require('../../../utils/redisManager');
@@ -5,8 +6,52 @@ const { ConfigManager } = require('../../../utils/configManager');
 const { BwellPersonFinder } = require('../../../utils/bwellPersonFinder');
 const { ReferenceParser } = require('../../../utils/referenceParser');
 const { isUuid } = require('../../../utils/uid.util');
-const { PERSON_PROXY_PREFIX } = require('../../../constants');
+const { PersonToPatientIdsExpander } = require('../../../utils/personToPatientIdsExpander');
+const { PERSON_PROXY_PREFIX, CONSENT_CATEGORY } = require('../../../constants');
 const { logDebug, logError } = require('../../../operations/common/logging');
+const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
+const { VERSIONS } = require('../../../middleware/fhir/utils/constants');
+const { recordEverythingCacheInvalidationFailed, CACHE_INVALIDATION_FAILURE } = require('../../../utils/metrics');
+
+// A failed bump leaves a cached $everything that can still hold what the Consent now hides, until
+// its TTL. So a bump is retried a few times, with exponential backoff and jitter, before it is
+// given up on and counted. The handler runs after the response is sent, so the wait costs no request.
+const BUMP_MAX_RETRIES = 3;
+const BUMP_INITIAL_DELAY_MS = 100;
+// Most generation keys bumped at once for the Patients linked to one Person, so a Person linked to a
+// very large number of Patients neither takes one retry-wait per key in turn nor floods Redis.
+const LINKED_PATIENT_BUMP_CONCURRENCY = 10;
+
+/**
+ * Whose cache a generation counter belongs to: the part of the key before the uuid.
+ * @readonly
+ * @enum {string}
+ */
+const CACHE_OWNER = Object.freeze({
+    PATIENT: 'Patient',
+    CLIENT_PERSON: 'ClientPerson'
+});
+
+/**
+ * Which cache a generation counter belongs to: the part of the key after the uuid.
+ * @readonly
+ * @enum {string}
+ */
+const CACHE_KIND = Object.freeze({
+    EVERYTHING: 'Everything',
+    SUMMARY: 'Summary'
+});
+
+/**
+ * The Redis key of a cache generation counter, e.g. `ClientPerson:<uuid>:Everything:Generation`.
+ * @param {CACHE_OWNER} owner
+ * @param {string} uuid
+ * @param {CACHE_KIND} cache
+ * @return {string}
+ */
+function generationKey(owner, uuid, cache) {
+    return `${owner}:${uuid}:${cache}:Generation`;
+}
 
 /**
  * Post-save handler that invalidates the Patient/$everything Redis cache whenever a
@@ -37,6 +82,20 @@ const { logDebug, logError } = require('../../../operations/common/logging');
  * could realistically be keyed under (the JWT person the caller authenticated as) is bumped,
  * not only the immediate client Person or the top-of-graph master Person.
  *
+ * Data view control: a dataConnectionViewControl Consent has `patient: Patient/person.<id>`, and its
+ * effect reaches the cached `Patient/<uuid>/$everything` of every Patient linked to that Person
+ * (the replay hides what the Consent lists, and the resources reachable only through a hidden one).
+ * So for that category, the Patient generation of every linked Patient is bumped as well.
+ *
+ * The Person's `$summary` cache (`ClientPerson:<uuid>:Summary:Generation`) is bumped for the same Consent
+ * when `writeToCacheForSummaryOperation` is on, whether or not the `$everything` cache is: a user's cached
+ * `$summary` leaves out what their Consent hides. A failed `$summary` bump is counted in the same metric.
+ *
+ * A bump or lookup that fails is retried (BUMP_MAX_RETRIES, with backoff and jitter). If it still
+ * fails it is logged and counted in fhir_everything_cache_invalidation_failed_total; the Consent
+ * write is never failed. Until the cache TTL a cached $everything for that Person may still hold
+ * what the Consent now hides, so a rising count there is the signal to act on.
+ *
  * The traversal adds a bounded per-Consent-write DB cost (the up-graph walk), which is
  * acceptable on this low-frequency write path.
  */
@@ -46,8 +105,9 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
      * @param {RedisManager} params.redisManager
      * @param {BwellPersonFinder} params.bwellPersonFinder
      * @param {ConfigManager} params.configManager
+     * @param {PersonToPatientIdsExpander} params.personToPatientIdsExpander
      */
-    constructor({ redisManager, bwellPersonFinder, configManager }) {
+    constructor({ redisManager, bwellPersonFinder, configManager, personToPatientIdsExpander }) {
         super();
 
         /**
@@ -67,6 +127,12 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PersonToPatientIdsExpander}
+         */
+        this.personToPatientIdsExpander = personToPatientIdsExpander;
+        assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
     }
 
     /**
@@ -82,7 +148,9 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
             return;
         }
 
-        if (!this.configManager.writeToCacheForEverythingOperation) {
+        const everythingCacheOn = this.configManager.writeToCacheForEverythingOperation;
+        const summaryCacheOn = this.configManager.writeToCacheForSummaryOperation;
+        if (!everythingCacheOn && !summaryCacheOn) {
             return;
         }
 
@@ -104,16 +172,19 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
             // Proxy-patient reference (Patient/person.<personUuid>) -> this Consent is about
             // a Person directly, so bump that Person's Everything-cache generation.
             if (rawId.startsWith(PERSON_PROXY_PREFIX)) {
-                const personUuid = rawId.replace(PERSON_PROXY_PREFIX, '');
-                if (isUuid(personUuid)) {
-                    await this.incrementGenerationAsync(`ClientPerson:${personUuid}:Everything:Generation`, {
-                        requestId, consentId: doc.id
-                    });
-                } else {
-                    logDebug('ConsentCacheInvalidationHandler: proxy-patient reference did not contain a valid person uuid, skipping', {
-                        requestId, consentId: doc.id, referenceValue
-                    });
-                }
+                await this.invalidateForProxyPersonAsync({
+                    doc,
+                    personUuid: rawId.replace(PERSON_PROXY_PREFIX, ''),
+                    everythingCacheOn,
+                    summaryCacheOn,
+                    requestId,
+                    referenceValue
+                });
+                return;
+            }
+
+            // The rest only concerns the $everything cache.
+            if (!everythingCacheOn) {
                 return;
             }
 
@@ -136,7 +207,7 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
                 return;
             }
 
-            await this.incrementGenerationAsync(`Patient:${patientUuid}:Everything:Generation`, {
+            await this.incrementGenerationAsync(generationKey(CACHE_OWNER.PATIENT, patientUuid, CACHE_KIND.EVERYTHING), {
                 requestId, consentId: doc.id
             });
 
@@ -176,7 +247,7 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
                 }
 
                 for (const personUuid of personUuidsToBump) {
-                    await this.incrementGenerationAsync(`ClientPerson:${personUuid}:Everything:Generation`, {
+                    await this.incrementGenerationAsync(generationKey(CACHE_OWNER.CLIENT_PERSON, personUuid, CACHE_KIND.EVERYTHING), {
                         requestId, consentId: doc.id, patientUuid
                     });
                 }
@@ -199,6 +270,91 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
     }
 
     /**
+     * A Consent about a Person (`patient: Patient/person.<uuid>`): bumps that Person's `$everything`
+     * generation and, for a data view control Consent, the linked Patients' and the Person's `$summary`.
+     * @param {Object} params
+     * @param {Object} params.doc the Consent
+     * @param {string} params.personUuid
+     * @param {boolean} params.everythingCacheOn
+     * @param {boolean} params.summaryCacheOn
+     * @param {string} params.requestId
+     * @param {string} params.referenceValue
+     * @return {Promise<void>}
+     */
+    async invalidateForProxyPersonAsync({
+        doc, personUuid, everythingCacheOn, summaryCacheOn, requestId, referenceValue
+    }) {
+        if (!isUuid(personUuid)) {
+            logDebug('ConsentCacheInvalidationHandler: proxy-patient reference did not contain a valid person uuid, skipping', {
+                requestId, consentId: doc.id, referenceValue
+            });
+            return;
+        }
+        const logContext = { requestId, consentId: doc.id };
+        const isViewControl = this.isDataViewControlConsent(doc);
+        if (everythingCacheOn) {
+            await this.incrementGenerationAsync(generationKey(CACHE_OWNER.CLIENT_PERSON, personUuid, CACHE_KIND.EVERYTHING), logContext);
+            if (isViewControl) {
+                await this.bumpLinkedPatientGenerationsAsync({ personUuid, requestId, consentId: doc.id });
+            }
+        }
+        // a user's cached $summary leaves out what their view control Consent hides
+        if (summaryCacheOn && isViewControl) {
+            await this.incrementGenerationAsync(generationKey(CACHE_OWNER.CLIENT_PERSON, personUuid, CACHE_KIND.SUMMARY), logContext);
+        }
+    }
+
+    /**
+     * @param {Object} doc a Consent
+     * @return {boolean} whether the Consent is a dataConnectionViewControl Consent
+     */
+    isDataViewControlConsent(doc) {
+        const { SYSTEM, CODE } = CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL;
+        return Boolean(doc.category?.some(
+            (category) => category?.coding?.some((coding) => coding?.system === SYSTEM && coding?.code === CODE)
+        ));
+    }
+
+    /**
+     * Bumps Patient:<uuid>:Everything:Generation for every Patient linked to the Person, so cached
+     * Patient $everything entries are rebuilt under the user's new view control. Best-effort, like
+     * the rest of this handler: a failure is logged and the Consent write is not affected.
+     * @param {string} personUuid
+     * @param {string} requestId
+     * @param {string} consentId
+     * @return {Promise<void>}
+     */
+    async bumpLinkedPatientGenerationsAsync({ personUuid, requestId, consentId }) {
+        try {
+            const relatedIds = await retryWithBackoff({
+                fn: () => this.personToPatientIdsExpander.getAllRelatedPatients({
+                    base_version: VERSIONS['4_0_0'],
+                    idsSet: new Set([personUuid])
+                }),
+                maxRetries: BUMP_MAX_RETRIES,
+                initialDelayMs: BUMP_INITIAL_DELAY_MS,
+                jitter: true
+            });
+            // the result also holds the `person.<uuid>` proxy ids of the Persons walked; only Patients matter here
+            const patientUuids = new Set(
+                relatedIds.filter((id) => !id.startsWith(PERSON_PROXY_PREFIX) && isUuid(id))
+            );
+            // incrementGenerationAsync retries and never throws, so one failed key doesn't stop the rest
+            await async.eachLimit(patientUuids, LINKED_PATIENT_BUMP_CONCURRENCY, async (patientUuid) => {
+                await this.incrementGenerationAsync(generationKey(CACHE_OWNER.PATIENT, patientUuid, CACHE_KIND.EVERYTHING), {
+                    requestId, consentId, personUuid
+                });
+            });
+        } catch (error) {
+            recordEverythingCacheInvalidationFailed(CACHE_INVALIDATION_FAILURE.LINKED_PATIENT_LOOKUP);
+            logError('ConsentCacheInvalidationHandler: failed to look up linked Patients for view control cache invalidation; ' +
+                'cached $everything for those Patients can hold hidden data until the cache TTL', {
+                error, requestId, consentId, personUuid
+            });
+        }
+    }
+
+    /**
      * Increments the generation counter for the given key, logging (not throwing) on error.
      * @param {string} generationKey
      * @param {Object} logContext
@@ -206,9 +362,16 @@ class ConsentCacheInvalidationHandler extends BasePostSaveHandler {
      */
     async incrementGenerationAsync(generationKey, logContext) {
         try {
-            await this.redisManager.incrementGenerationAsync(generationKey);
+            await retryWithBackoff({
+                fn: () => this.redisManager.incrementGenerationAsync(generationKey),
+                maxRetries: BUMP_MAX_RETRIES,
+                initialDelayMs: BUMP_INITIAL_DELAY_MS,
+                jitter: true
+            });
         } catch (error) {
-            logError('ConsentCacheInvalidationHandler: failed to increment Everything cache generation', {
+            recordEverythingCacheInvalidationFailed(CACHE_INVALIDATION_FAILURE.INCREMENT);
+            logError('ConsentCacheInvalidationHandler: failed to increment Everything cache generation; ' +
+                'a cached $everything under this key can be stale until the cache TTL', {
                 error, generationKey, ...logContext
             });
         }

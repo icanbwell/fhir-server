@@ -1,0 +1,27 @@
+{
+  "operationOutcome": {
+    "resourceType": "OperationOutcome",
+    "issue": [
+      {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+          "text": "/4_0_0/Patient/$merge should match pattern \"^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?)?$\" :{\"pattern\":\"^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?)?$\"}: at position .birthDate"
+        }
+      }
+    ]
+  },
+  "issue": {
+    "severity": "error",
+    "code": "invalid",
+    "details": {
+      "text": "/4_0_0/Patient/$merge should match pattern \"^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?)?$\" :{\"pattern\":\"^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?)?$\"}: at position .birthDate"
+    }
+  },
+  "created": false,
+  "id": "parity-bad-date",
+  "uuid": "d4b94fe2-0dfb-5478-ab2e-8d0de0f1d4a6",
+  "resourceType": "Patient",
+  "updated": false,
+  "sourceAssigningAuthority": "client"
+}

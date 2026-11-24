@@ -1,0 +1,35 @@
+[
+    {
+        "action": "C",
+        "type": {
+            "system": "http://dicom.nema.org/resources/ontology/DCM",
+            "code": "110112"
+        },
+        "subtype": [],
+        "agent": [
+            {
+                "altId": "imran",
+                "requestor": true,
+                "networkType": "2"
+            }
+        ],
+        "entity": [
+            {
+                "what": "Patient/75bd8b65-de8a-55c6-b4e9-67776a776cd2",
+                "detail": [
+                    {
+                        "type": "requestUrl",
+                        "valueString": "/4_0_0/Patient/$merge"
+                    },
+                    {
+                        "type": "requestId"
+                    },
+                    {
+                        "type": "base_version",
+                        "valueString": "4_0_0"
+                    }
+                ]
+            }
+        ]
+    }
+]

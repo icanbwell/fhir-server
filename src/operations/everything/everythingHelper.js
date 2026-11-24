@@ -15,7 +15,7 @@ const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { logError } = require('../common/logging');
-const { sliceIntoChunksGenerator } = require('../../utils/list.util');
+const { sliceIntoChunksGenerator, sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../dataLayer/base64DataManager');
@@ -52,7 +52,8 @@ const { isFalseWithFallback } = require('../../utils/isFalse');
 const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const { CustomTracer } = require('../../utils/customTracer');
-const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
+const { PatientDataViewControlExclusion } = require('../../utils/patientDataViewControlExclusion');
+const { ViewControlSubject } = require('../../utils/viewControlSubject');
 const { MongoGroupMemberRepository } = require('../../dataLayer/repositories/mongoGroupMemberRepository');
 const { MONGO_GROUP_EXTENDED_FIELD } = require('../../utils/mongoGroupExtendedTag');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
@@ -115,6 +116,40 @@ function pushAll(target, source) {
 }
 
 /**
+ * Splits the ids of a $everything request into batches of `chunkSize`, without starting a batch
+ * with the proxy-patient id (`person.<id>`) of a Person whose Patients are in the previous batch.
+ *
+ * The ids are the linked Patient ids of each Person followed by that Person's proxy id. Consent is
+ * resolved per batch: a proxy-patient id is only admitted into the consented branch when its batch
+ * also holds a real Patient of that Person. A proxy id that starts a batch right after a real
+ * Patient id has lost its own Person's Patients to the previous batch (and may sit next to another
+ * Person's Patients), so the proxy-referenced resources of a consenting client would be dropped.
+ * That one proxy id is therefore moved to the end of the previous batch, which makes the previous
+ * batch one id larger than `chunkSize`. A proxy id that follows another proxy id belongs to a
+ * Person with no linked Patients, so there is nothing to consent to and nothing is moved: a run of
+ * such ids keeps batches of `chunkSize`.
+ * @param {string[]} ids
+ * @param {number} chunkSize
+ * @returns {string[][]} batches of at most `chunkSize + 1` ids
+ */
+function getEverythingIdChunks(ids, chunkSize) {
+    const chunks = sliceIntoChunks(ids, chunkSize);
+    // go backwards so that removing a batch does not shift the batches still to be checked
+    for (let index = chunks.length - 1; index > 0; index--) {
+        const previousChunk = chunks[index - 1];
+        const previousEndsWithPatient =
+            !previousChunk[previousChunk.length - 1].startsWith(PERSON_PROXY_PREFIX);
+        if (previousEndsWithPatient && chunks[index][0].startsWith(PERSON_PROXY_PREFIX)) {
+            previousChunk.push(chunks[index].shift());
+            if (chunks[index].length === 0) {
+                chunks.splice(index, 1);
+            }
+        }
+    }
+    return chunks;
+}
+
+/**
  * This class is for $everything operation
  */
 class EverythingHelper {
@@ -131,7 +166,7 @@ class EverythingHelper {
      * @property {Base64DataManager} base64DataManager
      * @property {SearchParametersManager} searchParametersManager
      * @property {CustomTracer} customTracer
-     * @property {PatientDataViewControlManager} patientDataViewControlManager
+     * @property {PatientDataViewControlExclusion} patientDataViewControlExclusion
      * @property {MongoGroupMemberRepository} mongoGroupMemberRepository
      * @property {AuditLogger} auditLogger
      * @property {PostRequestProcessor} postRequestProcessor
@@ -153,7 +188,7 @@ class EverythingHelper {
         searchParametersManager,
         everythingRelatedResourceMapper,
         customTracer,
-        patientDataViewControlManager,
+        patientDataViewControlExclusion,
         mongoGroupMemberRepository,
         auditLogger,
         postRequestProcessor,
@@ -227,10 +262,10 @@ class EverythingHelper {
         assertTypeEquals(everythingRelatedResourceMapper, EverythingRelatedResourcesMapper);
 
         /**
-         * @type {PatientDataViewControlManager}
+         * @type {PatientDataViewControlExclusion}
          * */
-        this.patientDataViewControlManager = patientDataViewControlManager;
-        assertTypeEquals(patientDataViewControlManager, PatientDataViewControlManager);
+        this.patientDataViewControlExclusion = patientDataViewControlExclusion;
+        assertTypeEquals(patientDataViewControlExclusion, PatientDataViewControlExclusion);
 
         /**
          * @type {MongoGroupMemberRepository}
@@ -303,6 +338,23 @@ class EverythingHelper {
         }
         const id = idParam.queryParameterValue.value;
         return id.split(',');
+    }
+
+    /**
+     * Loads a subject's view-control Consent lookup, which is then reused by the $everything that follows
+     * in the same request.
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} base_version
+     * @param {ViewControlSubject} viewControlSubject
+     * @returns {Promise<void>}
+     */
+    async preloadViewControlLookupAsync({ requestInfo, base_version, viewControlSubject }) {
+        await this.customTracer.trace({
+            name: 'EverythingHelper.preloadViewControlLookupAsync.patientDataViewControlExclusion.getConsentLookupAsync',
+            func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                requestInfo, base_version, subject: viewControlSubject
+            })
+        });
     }
 
     /**
@@ -393,7 +445,10 @@ class EverythingHelper {
                 isPersonId: isProxyPatient,
                 parsedArgs: parsedArgs,
                 scope: requestInfo.scope,
-                isPersonEverything
+                isPersonEverything,
+                // a Patient can be linked to more than one user, and each user's view-control
+                // Consent hides different resources; a proxy-patient key is already the user's own
+                personId: isProxyPatient ? undefined : requestInfo.personIdFromJwtToken
             })
             : undefined;
     }
@@ -491,6 +546,8 @@ class EverythingHelper {
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {ViewControlSubject|null} [viewControlSubject] - whose view-control block filters the
+     *  result; defaults to the user in the token
      *
      * @param {retriveEverythingAsyncParams}
      * @return {Promise<Bundle>}
@@ -503,7 +560,8 @@ class EverythingHelper {
         parsedArgs,
         includeNonClinicalResources = true,
         scopedPersonIds,
-        isPersonEverything
+        isPersonEverything,
+        viewControlSubject = ViewControlSubject.fromToken(requestInfo)
     }) {
         if (!this.supportedResources.includes(resourceType)) {
             throw new Error('$everything is not supported for resource: ' + resourceType);
@@ -538,9 +596,11 @@ class EverythingHelper {
              */
             const ids = idParsedArg.queryParameterValue.values;
             /**
-             * @type {Generator<string[], void, unknown>}
+             * @type {string[][]}
              */
-            const idChunks = ids ? sliceIntoChunksGenerator(ids, this.configManager.everythingBatchSize) : [];
+            const idChunks = ids
+                ? getEverythingIdChunks(ids, this.configManager.everythingBatchSize)
+                : [];
 
             if (parsedArgs._since) {
                 parsedArgs._since = new Date(parsedArgs._since);
@@ -594,7 +654,25 @@ class EverythingHelper {
             let fallbackToMongo = false;
             if (readFromCache) {
                 try {
-                    await cachedStreamer.streamFromCacheAsync({ streamedResources });
+                    // Entries are cached before enrichment, so the subject's view-control lookup
+                    // (memoized per request) is loaded here to filter Composition sections on replay.
+                    // A failed lookup throws before anything is written and falls back to MongoDB.
+                    const viewControlExcludeMap = viewControlSubject
+                        ? (await this.customTracer.trace({
+                            name: 'EverythingHelper.cachedReplay.patientDataViewControlExclusion.getConsentLookupAsync',
+                            func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
+                                requestInfo, base_version, subject: viewControlSubject
+                            })
+                        })).viewControlResourceToExcludeMap
+                        : undefined;
+                    await cachedStreamer.streamFromCacheAsync({
+                        streamedResources,
+                        enrichmentContext: {
+                            userType: requestInfo.userType,
+                            actor: requestInfo.actor,
+                            viewControlExcludeMap
+                        }
+                    });
                 } catch (err) {
                     fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
                     logError('Error reading everything response from cache', { error: err, cacheKey });
@@ -652,7 +730,8 @@ class EverythingHelper {
                             everythingChunkIndex: everythingChunkIndex++,
                             scopedPersonIds,
                             isPersonEverything,
-                            streamedResources
+                            streamedResources,
+                            viewControlSubject
                         }
                     );
 
@@ -776,6 +855,8 @@ class EverythingHelper {
      * @property {{_uuid: string, resourceType: string}[]} [streamedResources] - accumulator for
      *  audit logging, pushed into directly at write time so it survives a throw from any level
      *  of this call chain
+     * @property {ViewControlSubject|null} [viewControlSubject] - whose view-control block filters the
+     *  result; defaults to the user in the token
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -795,7 +876,8 @@ class EverythingHelper {
         everythingChunkIndex,
         scopedPersonIds,
         isPersonEverything,
-        streamedResources = []
+        streamedResources = [],
+        viewControlSubject = ViewControlSubject.fromToken(requestInfo)
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -940,22 +1022,21 @@ class EverythingHelper {
 
             let resourceToExcludeIdsMap = {};
 
-            let patientReference = baseResourceIdentifiers.map(patientIdentifier => {
-                return `${PATIENT_REFERENCE_PREFIX}${patientIdentifier._uuid}`;
-            });
-
-            // get Consent resource containing resources marked as deleted to exclude
-            if (requestInfo.isUser) {
+            // Resources blocked by the subject's dataConnectionViewControl Consent (the user, or for a
+            // service token that opted in, the Person in the URL; enrolled clients only). This is the
+            // lookup every read path shares, loaded once per request; it covers all of the Person's
+            // view-control Consents, not only those whose actor is one of the requested patients.
+            if (viewControlSubject) {
                 let {
                     viewControlResourceToExcludeMap,
                     viewControlConsentQueries,
                     viewControlConsentQueryOptions
                 } = await this.customTracer.trace({
-                    name: 'EverythingHelper.patientDataViewControlManager.getConsentAsync',
-                    func: async () => await this.patientDataViewControlManager.getConsentAsync({
+                    name: 'EverythingHelper.patientDataViewControlExclusion.getConsentLookupAsync',
+                    func: async () => await this.patientDataViewControlExclusion.getConsentLookupAsync({
                         requestInfo,
                         base_version,
-                        patientFilterReferences: patientReference
+                        subject: viewControlSubject
                     })
                 });
 
@@ -1159,7 +1240,8 @@ class EverythingHelper {
                                 everythingChunkIndex,
                                 scopedPersonIds,
                                 isPersonEverything,
-                                streamedResources
+                                streamedResources,
+                                viewControlExcludeMap: resourceToExcludeIdsMap
                             });
 
                             depthParallelProcess.push(result);
@@ -1210,7 +1292,8 @@ class EverythingHelper {
                     parsedArgs,
                     enrichmentContext: {
                         userType: requestInfo.userType,
-                        actor: requestInfo.actor
+                        actor: requestInfo.actor,
+                        viewControlExcludeMap: resourceToExcludeIdsMap
                     }
                 });
             }
@@ -1266,6 +1349,8 @@ class EverythingHelper {
      * @property {{_uuid: string, resourceType: string}[]} [streamedResources] - accumulator for
      *  audit logging, pushed into directly at write time so it survives a throw from any level
      *  of this call chain
+     * @property {{[resourceType: string]: string[]}} [viewControlExcludeMap] - ids the
+     *  dataConnectionViewControl Consent hides, used to remove Composition sections that reference them
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -1289,7 +1374,8 @@ class EverythingHelper {
         everythingChunkIndex,
         scopedPersonIds,
         isPersonEverything,
-        streamedResources = []
+        streamedResources = [],
+        viewControlExcludeMap = {}
     }) {
 
         /**
@@ -1413,7 +1499,8 @@ class EverythingHelper {
                 useUuidProjection,
                 resourceMapper,
                 cachedStreamer,
-                streamedResources
+                streamedResources,
+                viewControlExcludeMap
             });
 
             pushAll(entries, bundleEntries);
@@ -1811,7 +1898,8 @@ class EverythingHelper {
                 cachedStreamer,
                 personResourceIdentifierMap,
                 personResourceIdentifiers,
-                streamedResources
+                streamedResources,
+                viewControlExcludeMap: resourceToExcludeIdsMap
             })
 
             parallelProcess.push(promiseResult)
@@ -1896,6 +1984,7 @@ class EverythingHelper {
      *  personResourceIdentifierMap?: Map<string, ResourceIdentifier>|null,
      *  personResourceIdentifiers?: ResourceIdentifier[],
      *  streamedResources?: {_uuid: string, resourceType: string}[],
+     *  viewControlExcludeMap?: {[resourceType: string]: string[]},
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
@@ -1917,7 +2006,8 @@ class EverythingHelper {
         cachedStreamer = null,
         personResourceIdentifierMap = null,
         personResourceIdentifiers = [],
-        streamedResources = []
+        streamedResources = [],
+        viewControlExcludeMap = {}
     }) {
         /**
          * @type {BundleEntry[]}
@@ -2112,7 +2202,8 @@ class EverythingHelper {
                                     parsedArgs: parentParsedArgs,
                                     enrichmentContext: {
                                         userType: requestInfo.userType,
-                                        actor: requestInfo.actor
+                                        actor: requestInfo.actor,
+                                        viewControlExcludeMap
                                     }
                                 });
 
@@ -2218,5 +2309,6 @@ class EverythingHelper {
 module.exports = {
     EverythingHelper,
     escapeForJsonTemplate,
+    getEverythingIdChunks,
     pushAll
 };

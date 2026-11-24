@@ -1,0 +1,30 @@
+[
+  {
+    "operationOutcome": {
+      "resourceType": "OperationOutcome",
+      "issue": [
+        {
+          "severity": "error",
+          "code": "forbidden",
+          "details": {
+            "text": "user imran has no access to resource Patient with id parity-other"
+          },
+          "diagnostics": "user imran has no access to resource Patient with id parity-other"
+        }
+      ]
+    },
+    "issue": {
+      "severity": "error",
+      "code": "forbidden",
+      "details": {
+        "text": "user imran has no access to resource Patient with id parity-other"
+      },
+      "diagnostics": "user imran has no access to resource Patient with id parity-other"
+    },
+    "created": false,
+    "id": "parity-other",
+    "uuid": "902c632f-2279-52d2-8f48-0dacb6c8aebf",
+    "resourceType": "Patient",
+    "updated": false
+  }
+]

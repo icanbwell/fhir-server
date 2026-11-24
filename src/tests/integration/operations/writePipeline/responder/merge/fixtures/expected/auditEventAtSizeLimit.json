@@ -1,0 +1,8 @@
+{
+  "created": true,
+  "id": "parity-audit-size",
+  "uuid": "2afdbfa7-e9d0-5472-8ebb-7d7eca1b365e",
+  "resourceType": "AuditEvent",
+  "updated": false,
+  "sourceAssigningAuthority": "client"
+}

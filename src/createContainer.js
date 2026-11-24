@@ -138,6 +138,7 @@ const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichm
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
 const {GroupExtendedTagEnrichmentProvider} = require('./enrich/providers/groupExtendedTagEnrichmentProvider');
 const {CompositionSectionFilterEnrichmentProvider} = require('./enrich/providers/compositionSectionFilterEnrichmentProvider');
+const {DataViewControlCompositionEnrichmentProvider} = require('./enrich/providers/dataViewControlCompositionEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
@@ -147,6 +148,7 @@ const {READ, DELETE} = require('./constants').OPERATIONS;
 const {AuthService} = require("./strategies/authService");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
+const { PatientDataViewControlExclusion } = require('./utils/patientDataViewControlExclusion');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
 const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageEventProducer');
 const { PatientPersonManualLinkingEventProducer } = require('./utils/patientPersonManualLinkingEventProducer');
@@ -160,6 +162,27 @@ const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheK
 const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
 const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
+const { WritePipelineSwitch } = require('./operations/writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('./operations/writePipeline/writePipeline');
+const { ScopeCheckStep } = require('./operations/writePipeline/steps/scopeCheckStep');
+const { IdentifyStep } = require('./operations/writePipeline/steps/identifyStep');
+const { FindExistingStep } = require('./operations/writePipeline/steps/findExistingStep');
+const { ValidateNewResourceStep } = require('./operations/writePipeline/steps/validateNewResourceStep');
+const { SourceIdentityResolver } = require('./operations/writePipeline/steps/identify/sourceIdentityResolver');
+const { BulkPreloadLoader } = require('./operations/writePipeline/steps/load/bulkPreloadLoader');
+const { PrepareBodyStep } = require('./operations/writePipeline/steps/prepareBodyStep');
+const { ValidateIncomingStep } = require('./operations/writePipeline/steps/validateIncomingStep');
+const { AccessCheckStep } = require('./operations/writePipeline/steps/accessCheckStep');
+const { IncomingAndStoredAccessChecker } = require('./operations/writePipeline/steps/access/incomingAndStoredAccessChecker');
+const { BuildDocumentStep } = require('./operations/writePipeline/steps/buildDocumentStep');
+const { SmartMergeBuilder } = require('./operations/writePipeline/steps/build/smartMergeBuilder');
+const { ValidateResultStep } = require('./operations/writePipeline/steps/validateResultStep');
+const { AttachmentsStep } = require('./operations/writePipeline/steps/attachmentsStep');
+const { NoOpStep } = require('./operations/writePipeline/steps/noOpStep');
+const { WriteStep } = require('./operations/writePipeline/steps/writeStep');
+const { MergeResponder } = require('./operations/writePipeline/responder/merge');
+const { MergeStream } = require('./operations/writePipeline/responder/mergeStream');
+const { WriteAuditor } = require('./operations/writePipeline/writeAuditor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
 const { HistoryKafkaProducer } = require('./dataLayer/historyKafkaProducer');
@@ -226,6 +249,7 @@ const createContainer = function () {
             new HashReferencesEnrichmentProvider(),
             new MetaUuidEnrichmentProvider(),
             c.compositionSectionFilterEnrichmentProvider,
+            c.dataViewControlCompositionEnrichmentProvider,
             new GroupMemberEnrichmentProvider({
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
@@ -240,6 +264,7 @@ const createContainer = function () {
     container.register('compositionSectionFilterEnrichmentProvider', (c) => new CompositionSectionFilterEnrichmentProvider({
         configManager: c.configManager
     }));
+    container.register('dataViewControlCompositionEnrichmentProvider', () => new DataViewControlCompositionEnrichmentProvider());
     container.register('clinicalNoteTextRetriever', (c) => new ClinicalNoteTextRetriever({
         mongoDatabaseManager: c.mongoDatabaseManager,
         configManager: c.configManager
@@ -252,7 +277,8 @@ const createContainer = function () {
             resourceManager: c.resourceManager,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider,
-            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
+            groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
+            dataViewControlCompositionEnrichmentProvider: c.dataViewControlCompositionEnrichmentProvider
         }
     ));
     container.register('preSaveManager', (c) => new PreSaveManager({
@@ -688,6 +714,94 @@ const createContainer = function () {
         kafkaClientV2: c.kafkaClientV2
     }));
 
+    container.register('writePipelineSwitch', (c) => new WritePipelineSwitch({
+        configManager: c.configManager
+    }));
+
+    container.register('writeAuditor', (c) => new WriteAuditor({
+        auditLogger: c.auditLogger,
+        postRequestProcessor: c.postRequestProcessor
+    }));
+
+    container.register('writePipeline', (c) => new WritePipeline({
+        scopeCheckStep: new ScopeCheckStep({ scopesValidator: c.scopesValidator }),
+        identifyStep: new IdentifyStep({
+            identityResolver: new SourceIdentityResolver({
+                sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+                uuidColumnHandler: c.uuidColumnHandler
+            })
+        }),
+        prepareBodyStep: new PrepareBodyStep(),
+        validateIncomingStep: new ValidateIncomingStep({ resourceValidator: c.resourceValidator }),
+        findExistingStep: new FindExistingStep({
+            existingResourceLoader: new BulkPreloadLoader({
+                databaseBulkLoader: c.databaseBulkLoader,
+                databaseQueryFactory: c.databaseQueryFactory
+            })
+        }),
+        validateNewResourceStep: new ValidateNewResourceStep({
+            resourceValidator: c.resourceValidator
+        }),
+        accessCheckStep: new AccessCheckStep({
+            accessChecker: new IncomingAndStoredAccessChecker({
+                writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
+            })
+        }),
+        buildDocumentStep: new BuildDocumentStep({
+            builder: new SmartMergeBuilder({
+                preSaveManager: c.preSaveManager,
+                resourceMerger: c.resourceMerger,
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                base64DataManager: c.base64DataManager,
+                groupMemberMerger: c.groupMemberMerger
+            }),
+            configManager: c.configManager
+        }),
+        validateResultStep: new ValidateResultStep({
+            resourceValidator: c.resourceValidator,
+            configManager: c.configManager
+        }),
+        attachmentsStep: new AttachmentsStep({
+            preSaveManager: c.preSaveManager,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
+            configManager: c.configManager
+        }),
+        noOpStep: new NoOpStep(),
+        writeStep: new WriteStep({
+            databaseBulkInserter: c.fastDatabaseBulkInserter,
+            configManager: c.configManager
+        }),
+        databaseBulkInserter: c.fastDatabaseBulkInserter,
+        writeAuditor: c.writeAuditor,
+        fhirLoggingManager: c.fhirLoggingManager,
+        customTracer: c.customTracer
+    }));
+
+    container.register('bundleResourceValidator', () => new BundleResourceValidator());
+
+    container.register('parametersResourceValidator', () => new ParametersResourceValidator());
+
+    container.register('mergeResponder', (c) => new MergeResponder({
+        bundleResourceValidator: c.bundleResourceValidator,
+        parametersResourceValidator: c.parametersResourceValidator,
+        mergeManager: c.mergeManager,
+        scopesManager: c.scopesManager,
+        bundleManager: c.bundleManager
+    }));
+
+    container.register('mergeStream', (c) => new MergeStream({
+        bundleResourceValidator: c.bundleResourceValidator,
+        parametersResourceValidator: c.parametersResourceValidator,
+        mergeManager: c.mergeManager,
+        scopesManager: c.scopesManager,
+        bundleManager: c.bundleManager,
+        writePipeline: c.writePipeline,
+        writeAuditor: c.writeAuditor,
+        customTracer: c.customTracer
+    }));
+
     container.register('fastMongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
         resourceLocatorFactory: c.resourceLocatorFactory,
         configManager: c.configManager,
@@ -766,7 +880,8 @@ const createContainer = function () {
                 removeHelper: c.removeHelper,
                 auditLogger: c.auditLogger,
                 postRequestProcessor: c.postRequestProcessor,
-                mongoGroupMemberRepository: c.mongoGroupMemberRepository
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+                patientDataViewControlExclusion: c.patientDataViewControlExclusion
             }
         )
     );
@@ -784,7 +899,7 @@ const createContainer = function () {
         searchParametersManager: c.searchParametersManager,
         everythingRelatedResourceMapper: c.everythingRelatedResourceMapper,
         customTracer: c.customTracer,
-        patientDataViewControlManager: c.patientDataViewControlManager,
+        patientDataViewControlExclusion: c.patientDataViewControlExclusion,
         mongoGroupMemberRepository: c.mongoGroupMemberRepository,
         auditLogger: c.auditLogger,
         postRequestProcessor: c.postRequestProcessor,
@@ -887,7 +1002,11 @@ const createContainer = function () {
             bundleManager: c.bundleManager,
             configManager: c.configManager,
             mergeValidator: c.mergeValidator,
-            customTracer: c.customTracer
+            customTracer: c.customTracer,
+            writePipelineSwitch: c.writePipelineSwitch,
+            writePipeline: c.writePipeline,
+            mergeResponder: c.mergeResponder,
+            mergeStream: c.mergeStream
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({
@@ -1067,7 +1186,8 @@ const createContainer = function () {
             redisManager: c.redisManager,
             enrichmentManager: c.enrichmentManager,
             postRequestProcessor: c.postRequestProcessor,
-            summaryCacheKeyGenerator: c.summaryCacheKeyGenerator
+            summaryCacheKeyGenerator: c.summaryCacheKeyGenerator,
+            patientDataViewControlExclusion: c.patientDataViewControlExclusion
         }
     ));
 
@@ -1116,6 +1236,7 @@ const createContainer = function () {
                 importOperation: c.importOperation,
                 r4ArgsParser: c.r4ArgsParser,
                 queryRewriterManager: c.queryRewriterManager,
+                patientDataViewControlExclusion: c.patientDataViewControlExclusion,
                 configManager: c.configManager,
                 historyReadRouter: c.historyReadRouter,
                 summaryOperation: c.summaryOperation,
@@ -1250,8 +1371,7 @@ const createContainer = function () {
     container.register('mcpToolHandler', (c) => new McpToolHandler({
         searchBundleOperation: c.searchBundleOperation,
         r4ArgsParser: c.r4ArgsParser,
-        patientDataViewControlManager: c.patientDataViewControlManager,
-        patientScopeManager: c.patientScopeManager,
+        patientDataViewControlExclusion: c.patientDataViewControlExclusion,
         queryRewriterManager: c.queryRewriterManager
     }));
 
@@ -1273,7 +1393,8 @@ const createContainer = function () {
             new ConsentCacheInvalidationHandler({
                 redisManager: c.redisManager,
                 bwellPersonFinder: c.bwellPersonFinder,
-                configManager: c.configManager
+                configManager: c.configManager,
+                personToPatientIdsExpander: c.personToPatientIdsExpander
             })
         ];
 
@@ -1481,6 +1602,15 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             r4ArgsParser: c.r4ArgsParser
+        });
+    });
+
+    container.register('patientDataViewControlExclusion', (c) => {
+        return new PatientDataViewControlExclusion({
+            configManager: c.configManager,
+            patientDataViewControlManager: c.patientDataViewControlManager,
+            patientScopeManager: c.patientScopeManager,
+            scopesManager: c.scopesManager
         });
     });
 

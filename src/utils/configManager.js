@@ -1,5 +1,9 @@
 const {isTrue, isTrueWithFallback} = require('./isTrue');
-const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
+const {
+    DEFAULT_CACHE_EXPIRY_TIME,
+    DEFAULT_EVERYTHING_BATCH_SIZE,
+    CONSENT_CATEGORY
+} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 const { DEFAULT_ASSURANCE_MINIMUM_LEVEL } = require('./personLinkAssuranceLevel');
 
@@ -368,6 +372,18 @@ class ConfigManager {
     }
 
     /**
+     * operations listed to use the shared write pipeline, read from the comma-separated
+     * WRITE_PIPELINE_OPERATIONS; empty by default
+     * @returns {string[]}
+     */
+    get writePipelineOperations() {
+        return (env.WRITE_PIPELINE_OPERATIONS || '')
+            .split(',')
+            .map((operation) => operation.trim())
+            .filter((operation) => operation.length > 0);
+    }
+
+    /**
      * whether to return data as bundle
      * @return {boolean}
      */
@@ -427,7 +443,11 @@ class ConfigManager {
      * @return {number}
      */
     get everythingBatchSize() {
-        return parseInt(env.EVERYTHING_BATCH_SZIE, 10) || 10;
+        // EVERYTHING_BATCH_SZIE is a historical misspelling, kept as a fallback
+        const configuredSize =
+            parseInt(env.EVERYTHING_BATCH_SIZE, 10) || parseInt(env.EVERYTHING_BATCH_SZIE, 10);
+        // zero, negative and non-numeric values cannot be used to split ids into batches
+        return configuredSize > 0 ? configuredSize : DEFAULT_EVERYTHING_BATCH_SIZE;
     }
 
     /**
