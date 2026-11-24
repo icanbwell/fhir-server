@@ -428,6 +428,27 @@ describe('ImportBatchWriter', () => {
                 { resourceType: 'Patient', uuid: UUID_A, outcome: 'created', sourceByteOffset: 70 }
             ],
             expectedResourceTypeCount: 1
+        },
+        {
+            name: 'an unchanged line of another resource type is not counted, as it queued no write',
+            resources: [
+                ownedLine({ uuid: UUID_B, byteOffset: 0, resourceType: 'Observation' }),
+                ownedLine({ uuid: UUID_A, byteOffset: 70 })
+            ],
+            process: (items) => {
+                items[0].markUnchanged();
+                queueAll()([items[1]]);
+            },
+            expectedEntries: [
+                {
+                    resourceType: 'Observation',
+                    uuid: UUID_B,
+                    outcome: 'other',
+                    sourceByteOffset: 0
+                },
+                { resourceType: 'Patient', uuid: UUID_A, outcome: 'created', sourceByteOffset: 70 }
+            ],
+            expectedResourceTypeCount: 1
         }
     ])(
         'a throw from the flush rejects with an ImportBatchFlushError: $name',

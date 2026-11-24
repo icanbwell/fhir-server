@@ -937,8 +937,8 @@ today.
   batch's entries as it did before (the lines that failed a check as failed, the queued lines as
   created or updated, each with its audit), then fails or retries the range as today. The flush may
   have stored some resource types before it threw, so those entries can name a line of a type that
-  was not stored, as the old worker's did. A batch whose lines that no check failed (unchanged
-  lines included) have more than one resource type is never read again, because some of its types
+  was not stored, as the old worker's did. A batch whose queued lines (a line that failed
+  a check or is unchanged queues no write) have more than one resource type is never read again, because some of its types
   may already be stored: the range fails at once and its failure path audits the recorded entries.
   A batch of one resource type is read again, up to three attempts as today, with the counters of
   the failed attempt reset, but only if no earlier batch of the range was flushed. Such a flush may

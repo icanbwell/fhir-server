@@ -2,8 +2,8 @@
  * Thrown by the `$import` batch writer when the flush of a batch throws. It carries the flush's
  * error as `cause` and its message, the batch's entries as the worker would have recorded them had
  * the flush returned (a line that failed a check failed, a queued line created or updated), and
- * the number of distinct resource types of the items that reached the flush, that is the items
- * that did not fail a check (queued or unchanged). The bulk inserter writes the resource types of
+ * the number of distinct resource types of the queued items, the only items that write anything
+ * (a line that failed a check or is unchanged queues no write). The bulk inserter writes the resource types of
  * a flush in parallel, so when more than one type reached it, some of them may be committed
  * although the flush threw; a flush of one type may also have committed part of its writes.
  */

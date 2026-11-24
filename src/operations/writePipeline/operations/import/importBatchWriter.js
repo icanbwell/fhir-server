@@ -117,8 +117,8 @@ class ImportBatchWriter {
      * Flushes the queued writes of the batch and returns the flush results. When the flush throws,
      * throws an `ImportBatchFlushError` with that error as its cause, the entries the responder
      * builds from no flush results (a line that failed a check failed, a queued line created or
-     * updated), and the number of distinct resource types of the items that did not fail a check
-     * (queued or unchanged), because those are the items that reached the flush.
+     * updated), and the number of distinct resource types of the queued items, because only a queued
+     * item writes anything: a line that failed a check or is unchanged queues no write.
      * @param {WriteContext} context
      * @param {WriteItem[]} items
      * @returns {Promise<import('../../../common/mergeResultEntry').MergeResultEntry[]>}
@@ -132,7 +132,7 @@ class ImportBatchWriter {
         } catch (error) {
             const resourceTypesReachingFlush = new Set(
                 items
-                    .filter((item) => item.status !== WRITE_ITEM_STATUS.FAILED)
+                    .filter((item) => item.status === WRITE_ITEM_STATUS.QUEUED)
                     .map((item) => item.incoming.resourceType)
             );
             throw new ImportBatchFlushError({
