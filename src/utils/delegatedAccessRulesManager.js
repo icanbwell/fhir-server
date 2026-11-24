@@ -14,12 +14,14 @@ const {
     CONSENT_OF_LINKED_PERSON_INDEX,
     PERSON_PROXY_PREFIX,
     SENSITIVE_CATEGORY,
-    CONSENT_CATEGORY
+    CONSENT_CATEGORY,
+    DELEGATED_ACCESS
 } = require('../constants');
 const { dateQueryBuilder } = require('./querybuilder.util');
 const { isUuid, generateUUIDv5 } = require('./uid.util');
 const { logWarn } = require('../operations/common/logging');
 const { SecurityTagSystem } = require('./securityTagSystem');
+const { CRUDS_LETTERS } = require('../operations/security/smartScopeParser');
 
 /**
  * @typedef DelegatedAccessFilteringRules
@@ -28,7 +30,67 @@ const { SecurityTagSystem } = require('./securityTagSystem');
  * @property {string | null} provisionPeriodStart - Start date of the provision period
  * @property {string | null} provisionPeriodEnd - End date of the provision period
  * @property {string[]} deniedSensitiveCategories - List of sensitive categories denied
+ * @property {string[]} [permittedSensitiveCategories] - List of sensitive categories permitted.
+ *  Only set when enableDelegatedConsentResourcePermissions is on.
+ * @property {Map<string, string[]>} [resourcePermissions] - CRUDS letters the Consent permits,
+ *  by resource type. A resource type without an entry is not permitted. Only set when
+ *  enableDelegatedConsentResourcePermissions is on.
  */
+
+/**
+ * Wraps a single value in an array and turns a missing value into an empty array.
+ * @param {*} value
+ * @return {Array}
+ */
+function asArray(value) {
+    if (Array.isArray(value)) {
+        return value;
+    }
+    return value ? [value] : [];
+}
+
+/**
+ * Returns the codes of the codings that belong to a code system. The system is matched
+ * case-insensitively and codings without a code are skipped.
+ * @param {Object} params
+ * @param {Object[]} params.codings
+ * @param {string} params.system
+ * @return {string[]}
+ */
+function codesOfSystem({ codings, system }) {
+    const lowerSystem = system.toLowerCase();
+    return codings
+        .filter((coding) => coding?.code && coding.system?.toLowerCase() === lowerSystem)
+        .map((coding) => coding.code);
+}
+
+/**
+ * Returns the sensitive category codes of the nested provisions of one type (permit or deny).
+ * @param {Object} params
+ * @param {Object[]} params.nestedProvisions
+ * @param {'permit' | 'deny'} params.type
+ * @return {string[]}
+ */
+function sensitiveCategoryCodes({ nestedProvisions, type }) {
+    return nestedProvisions
+        .filter((nestedProvision) => nestedProvision?.type === type)
+        .flatMap((nestedProvision) =>
+            codesOfSystem({
+                codings: asArray(nestedProvision.securityLabel),
+                system: SENSITIVE_CATEGORY.SYSTEM
+            })
+        );
+}
+
+/**
+ * Defines a property that is left out of enumeration, so the rules do not show up in logs.
+ * @param {Object} target
+ * @param {string} name
+ * @param {*} value
+ */
+function defineHiddenProperty(target, name, value) {
+    Object.defineProperty(target, name, { value, enumerable: false });
+}
 
 /**
  * Manager for handling filtering rules for delegated actors
@@ -171,29 +233,9 @@ class DelegatedAccessRulesManager {
      * @returns {DelegatedAccessFilteringRules}
      */
     parseConsentFilteringRules({ consent }) {
-        /**
-         * @type {string[]}
-         */
-        const deniedSensitiveCategories = [];
-
-        // Extract denied sensitive categories from nested provisions
-        if (consent.provision?.provision && Array.isArray(consent.provision.provision)) {
-            const lowerSensitiveCategoryId = SENSITIVE_CATEGORY.SYSTEM.toLowerCase();
-            for (const nestedProvision of consent.provision.provision) {
-                if (nestedProvision.type === 'deny' && nestedProvision.securityLabel) {
-                    const labels = Array.isArray(nestedProvision.securityLabel)
-                        ? nestedProvision.securityLabel
-                        : [nestedProvision.securityLabel];
-                    for (const securityLabel of labels) {
-                        if (securityLabel.code && securityLabel.system &&
-                            // match with case insensitive
-                            securityLabel.system.toLowerCase() === lowerSensitiveCategoryId) {
-                            deniedSensitiveCategories.push(securityLabel.code);
-                        }
-                    }
-                }
-            }
-        }
+        const nestedProvisions = Array.isArray(consent.provision?.provision)
+            ? consent.provision.provision
+            : [];
 
         const rules = {
             consentId: consent._uuid,
@@ -201,12 +243,66 @@ class DelegatedAccessRulesManager {
             provisionPeriodStart: consent.provision?.period?.start,
             provisionPeriodEnd: consent.provision?.period?.end
         };
-        // Store it as non-enumerable to avoid logging
-        Object.defineProperty(rules, 'deniedSensitiveCategories', {
-            value: deniedSensitiveCategories,
-            enumerable: false
-        });
+        defineHiddenProperty(
+            rules,
+            'deniedSensitiveCategories',
+            sensitiveCategoryCodes({ nestedProvisions, type: 'deny' })
+        );
+        if (this.configManager.enableDelegatedConsentResourcePermissions) {
+            defineHiddenProperty(
+                rules,
+                'permittedSensitiveCategories',
+                sensitiveCategoryCodes({ nestedProvisions, type: 'permit' })
+            );
+            defineHiddenProperty(
+                rules,
+                'resourcePermissions',
+                this.parseResourcePermissions({ nestedProvisions })
+            );
+        }
         return rules;
+    }
+
+    /**
+     * Reads the per-resource entries of a Consent: permit provisions whose `class` names a
+     * resource type and whose `action` lists CRUDS permission letters. Entries that name the
+     * same resource type are combined. Anything that is not a permit entry, a resource type of
+     * the FHIR resource-types system or a letter of the permission system is ignored.
+     * @param {Object} params
+     * @param {Object[]} params.nestedProvisions - the `provision.provision` entries
+     * @returns {Map<string, string[]>} CRUDS letters in c, r, u, d, s order by resource type
+     */
+    parseResourcePermissions({ nestedProvisions }) {
+        /**
+         * @type {Map<string, Set<string>>}
+         */
+        const lettersByResourceType = new Map();
+        for (const nestedProvision of nestedProvisions) {
+            if (nestedProvision?.type !== 'permit') {
+                continue;
+            }
+            const letters = codesOfSystem({
+                codings: asArray(nestedProvision.action).flatMap((action) => asArray(action?.coding)),
+                system: DELEGATED_ACCESS.CONSENT_RESOURCE_ACCESS.PERMISSION_SYSTEM
+            });
+            const resourceTypes = codesOfSystem({
+                codings: asArray(nestedProvision.class),
+                system: DELEGATED_ACCESS.CONSENT_RESOURCE_ACCESS.RESOURCE_TYPE_SYSTEM
+            });
+            for (const resourceType of resourceTypes) {
+                const permitted = lettersByResourceType.get(resourceType) ?? new Set();
+                letters.forEach((letter) => permitted.add(letter));
+                lettersByResourceType.set(resourceType, permitted);
+            }
+        }
+        return new Map(
+            [...lettersByResourceType]
+                .map(([resourceType, permitted]) => [
+                    resourceType,
+                    CRUDS_LETTERS.filter((letter) => permitted.has(letter))
+                ])
+                .filter(([, letters]) => letters.length > 0)
+        );
     }
 
     /**

@@ -373,6 +373,122 @@ describe('DelegatedAccessRulesManager Tests', () => {
         });
     });
 
+    describe('getFilteringRulesAsync with per-resource permission entries', () => {
+        const PERMISSION_SYSTEM =
+            'https://fhir.icanbwell.com/4_0_0/CodeSystem/resource-access-permission';
+        const RESOURCE_TYPE_SYSTEM = 'http://hl7.org/fhir/resource-types';
+        const buildActorArgs = () => ({
+            actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
+            personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+            base_version: '4_0_0',
+            _debug: false
+        });
+        const expectedEnumerableRules = {
+            consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
+            consentVersion: '1',
+            provisionPeriodStart: '2025-12-23T20:00:00.000Z',
+            provisionPeriodEnd: '2026-01-01T00:00:00.000Z'
+        };
+        let originalFlag;
+
+        beforeEach(() => {
+            originalFlag = process.env.ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS;
+        });
+
+        afterEach(() => {
+            if (originalFlag !== undefined) {
+                process.env.ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS = originalFlag;
+            } else {
+                delete process.env.ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS;
+            }
+        });
+
+        const permissionEntry = ({ resourceType, letters }) => ({
+            id: `class-${resourceType.toLowerCase()}`,
+            type: 'permit',
+            action: letters.map((code) => ({ coding: [{ system: PERMISSION_SYSTEM, code }] })),
+            class: [{ system: RESOURCE_TYPE_SYSTEM, code: resourceType, display: resourceType }]
+        });
+
+        const buildNewFormatConsent = () => {
+            const consent = deepcopy(activeConsent);
+            delete consent.provision.class;
+            consent.provision.action = [
+                {
+                    coding: [
+                        { system: 'http://terminology.hl7.org/CodeSystem/consentaction', code: 'use' }
+                    ]
+                }
+            ];
+            consent.provision.provision.push(
+                permissionEntry({ resourceType: 'Condition', letters: ['r', 's'] }),
+                permissionEntry({
+                    resourceType: 'QuestionnaireResponse',
+                    letters: ['c', 'r', 'u', 'd', 's']
+                }),
+                {
+                    type: 'permit',
+                    securityLabel: [
+                        {
+                            system: 'https://www.icanbwell.com/sensitivity-category',
+                            code: 'SUBSTANCE_USE'
+                        }
+                    ]
+                }
+            );
+            return consent;
+        };
+
+        test('should read the permissions of a Consent in the new format when the flag is on', async () => {
+            process.env.ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS = 'true';
+            const request = await createTestRequest();
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
+            const resp = await request
+                .post('/4_0_0/Consent/$merge/?validate=true')
+                .send(buildNewFormatConsent())
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const { filteringRules } =
+                await delegatedAccessRulesManager.getFilteringRulesAsync(buildActorArgs());
+
+            expect(filteringRules).toStrictEqual(expectedEnumerableRules);
+            expect(filteringRules.resourcePermissions).toEqual(
+                new Map([
+                    ['Condition', ['r', 's']],
+                    ['QuestionnaireResponse', ['c', 'r', 'u', 'd', 's']]
+                ])
+            );
+            expect(filteringRules.permittedSensitiveCategories).toStrictEqual(['SUBSTANCE_USE']);
+            expect(filteringRules.deniedSensitiveCategories).toStrictEqual([
+                'MENTAL_HEALTH',
+                'HIV_AIDS'
+            ]);
+        });
+
+        test('should not read the new entries when the flag is off', async () => {
+            delete process.env.ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS;
+            const request = await createTestRequest();
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
+            const resp = await request
+                .post('/4_0_0/Consent/$merge/?validate=true')
+                .send(buildNewFormatConsent())
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const { filteringRules } =
+                await delegatedAccessRulesManager.getFilteringRulesAsync(buildActorArgs());
+
+            expect(filteringRules).toStrictEqual(expectedEnumerableRules);
+            expect(filteringRules.resourcePermissions).toBeUndefined();
+            expect(filteringRules.permittedSensitiveCategories).toBeUndefined();
+            expect(filteringRules.deniedSensitiveCategories).toStrictEqual([
+                'MENTAL_HEALTH',
+                'HIV_AIDS'
+            ]);
+        });
+    });
+
     describe('parseConsentFilteringRules', () => {
         test('should extract denied categories', async () => {
             await createTestRequest();

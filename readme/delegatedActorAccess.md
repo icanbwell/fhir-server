@@ -99,6 +99,31 @@ In particular, it walks **nested provisions** under `Consent.provision.provision
 - Each `securityLabel` whose `system` matches the configured `SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER` contributes a sensitive category code to an **excluded list**.
 - That excluded list becomes the delegated-access filtering rules (used downstream to filter out data tagged with those sensitive categories).
 
+### Per-resource permissions
+
+When `ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS` is on, the same walk reads two more values into the filtering rules. Like `deniedSensitiveCategories`, both are non-enumerable, so they stay out of logs. Nothing in the request path acts on them yet. When the flag is off the rules are exactly what they were before.
+
+- `permittedSensitiveCategories`: the sensitive category codes of `permit` provisions that carry `securityLabel` entries (the counterpart of the denied list).
+- `resourcePermissions`: a `Map` from resource type to the CRUDS letters the Consent permits for it, in `c`, `r`, `u`, `d`, `s` order.
+
+Each resource type is its own `permit` provision under `Consent.provision.provision`:
+
+```json
+{
+  "id": "class-questionnaireresponse",
+  "type": "permit",
+  "action": [
+    { "coding": [{ "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/resource-access-permission", "code": "r" }] },
+    { "coding": [{ "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/resource-access-permission", "code": "s" }] }
+  ],
+  "class": [{ "system": "http://hl7.org/fhir/resource-types", "code": "QuestionnaireResponse" }]
+}
+```
+
+- Only `permit` provisions count. A `class` coding must be of the `http://hl7.org/fhir/resource-types` system and an `action` coding of the permission system above; the systems are matched case-insensitively. Other codings, and letters other than `c`, `r`, `u`, `d` and `s`, are ignored.
+- Provisions that name the same resource type are combined. A resource type without a provision is not permitted.
+- `Organization` actors skip the Consent lookup (see "Organization actors"), so their rules carry neither value.
+
 ## Filtering of Unclassified Resources
 
 Resources tagged with `unclassified` in `meta.security` are **always filtered out** for delegated users, regardless of what the Consent's denied categories contain. If a resource has an `unclassified` tag under the sensitivity category system (`https://www.icanbwell.com/sensitivity-category`), it will not be returned to the delegated user.
@@ -363,5 +388,6 @@ Filtering happens at the **enrichment level** via `EnrichmentManager`, across al
 
 ## Config
 
+- `ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS`: true/false, default `false`. When `true`, the delegated filtering rules also carry `permittedSensitiveCategories` and `resourcePermissions`, read from the Consent (see "Per-resource permissions"). Only applies while `ENABLE_DELEGATED_ACCESS_DETECTION` is on.
 - `DELEGATED_ORGANIZATION_ACTOR_ALLOWED_OPERATIONS`: `<ResourceType>:<operation>` pairs an `Organization` actor may call (default `Person:everything`). See "Organization actors" above.
 - `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**, including Composition section filtering. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules (including Composition section filtering), copies any JWT `entitlements` into `context.purposeOfUse` (recorded as `purposeOfEvent` on the audit event), and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.

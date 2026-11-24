@@ -416,6 +416,17 @@ module.exports = {
          * Caller type forbidForUserTypes matches for a delegated user whose actor is an
          * Organization. Not a JWT user_type.
          */
-        ORGANIZATION_ACTOR_USER_TYPE: 'delegatedOrganizationActor'
+        ORGANIZATION_ACTOR_USER_TYPE: 'delegatedOrganizationActor',
+        /**
+         * Code systems read from the per-resource `permit` entries nested in a delegated
+         * access Consent.
+         * - PERMISSION_SYSTEM: the c/r/u/d/s letters on the entry's `action`.
+         * - RESOURCE_TYPE_SYSTEM: the resource type on the entry's `class`.
+         */
+        CONSENT_RESOURCE_ACCESS: {
+            PERMISSION_SYSTEM:
+                'https://fhir.icanbwell.com/4_0_0/CodeSystem/resource-access-permission',
+            RESOURCE_TYPE_SYSTEM: 'http://hl7.org/fhir/resource-types'
+        }
     }
 };

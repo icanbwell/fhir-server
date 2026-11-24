@@ -1642,6 +1642,16 @@ class ConfigManager {
     }
 
     /**
+     * Reads the per-resource permission entries and the permitted sensitive categories of a
+     * delegated actor's data-sharing Consent into its filtering rules. Default off: the rules
+     * carry only what they carry today.
+     * @return {boolean}
+     */
+    get enableDelegatedConsentResourcePermissions() {
+        return isTrue(env.ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS);
+    }
+
+    /**
      * Kill switch for SMART v2 fine-grained (`.cruds`) scope suffix grammar. Default off: a
      * scope token with a v2 suffix (e.g. `user/Patient.rs`, `access/tenantA.c`) parses as
      * invalid until this is enabled, exactly matching this server's original behavior of

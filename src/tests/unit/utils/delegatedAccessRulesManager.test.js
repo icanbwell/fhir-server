@@ -300,6 +300,280 @@ describe('DelegatedAccessRulesManager', () => {
         });
     });
 
+    describe('parseConsentFilteringRules with enableDelegatedConsentResourcePermissions', () => {
+        const PERMISSION_SYSTEM =
+            'https://fhir.icanbwell.com/4_0_0/CodeSystem/resource-access-permission';
+        const RESOURCE_TYPE_SYSTEM = 'http://hl7.org/fhir/resource-types';
+        const SENSITIVITY_SYSTEM = 'https://www.icanbwell.com/sensitivity-category';
+        const CONSENT_ACTION_SYSTEM = 'http://terminology.hl7.org/CodeSystem/consentaction';
+
+        /**
+         * @param {boolean} value
+         */
+        const setFlag = (value) => {
+            Object.defineProperty(mockConfigManager, 'enableDelegatedConsentResourcePermissions', {
+                get: () => value,
+                configurable: true
+            });
+        };
+
+        const permissionCodings = (letters, system = PERMISSION_SYSTEM) =>
+            letters.map((code) => ({ coding: [{ system, code }] }));
+
+        const resourceEntry = ({
+            type = 'permit',
+            letters,
+            classCodes,
+            permissionSystem = PERMISSION_SYSTEM,
+            classSystem = RESOURCE_TYPE_SYSTEM
+        }) => ({
+            type,
+            action: permissionCodings(letters, permissionSystem),
+            class: classCodes.map((code) => ({ system: classSystem, code }))
+        });
+
+        const consentWith = (nestedProvisions) => ({
+            _uuid: 'consent-uuid-permissions',
+            meta: { versionId: '1' },
+            provision: {
+                period: { start: '2024-01-01' },
+                provision: nestedProvisions
+            }
+        });
+
+        const sensitivityEntry = ({ type, codes, system = SENSITIVITY_SYSTEM }) => ({
+            type,
+            securityLabel: codes.map((code) => ({ system, code }))
+        });
+
+        beforeEach(() => {
+            setFlag(true);
+        });
+
+        it.each([
+            ['read only', ['r', 's'], ['Condition'], [['Condition', ['r', 's']]]],
+            [
+                'read and write',
+                ['c', 'r', 'u', 'd', 's'],
+                ['QuestionnaireResponse'],
+                [['QuestionnaireResponse', ['c', 'r', 'u', 'd', 's']]]
+            ],
+            ['letters out of order and repeated', ['s', 'r', 's', 'c'], ['Task'], [['Task', ['c', 'r', 's']]]],
+            [
+                'several classes in one entry',
+                ['r', 's'],
+                ['Condition', 'Observation'],
+                [
+                    ['Condition', ['r', 's']],
+                    ['Observation', ['r', 's']]
+                ]
+            ]
+        ])('should read the permissions of a permit entry: %s', (_name, letters, classCodes, expected) => {
+            const consent = consentWith([resourceEntry({ letters, classCodes })]);
+
+            const result = manager.parseConsentFilteringRules({ consent });
+
+            expect(result.resourcePermissions).toEqual(new Map(expected));
+        });
+
+        it.each([
+            [
+                'a deny entry',
+                resourceEntry({ type: 'deny', letters: ['r', 's'], classCodes: ['Condition'] })
+            ],
+            [
+                'letters from another code system',
+                resourceEntry({
+                    letters: ['r', 's'],
+                    classCodes: ['Condition'],
+                    permissionSystem: CONSENT_ACTION_SYSTEM
+                })
+            ],
+            [
+                'a class from another code system',
+                resourceEntry({
+                    letters: ['r', 's'],
+                    classCodes: ['Condition'],
+                    classSystem: 'http://example.org/other'
+                })
+            ],
+            [
+                'letters other than c, r, u, d and s',
+                resourceEntry({ letters: ['read', 'x'], classCodes: ['Condition'] })
+            ],
+            ['an entry without class', { type: 'permit', action: permissionCodings(['r', 's']) }],
+            [
+                'an entry without action',
+                { type: 'permit', class: [{ system: RESOURCE_TYPE_SYSTEM, code: 'Condition' }] }
+            ],
+            [
+                'an action coding without a code',
+                {
+                    type: 'permit',
+                    action: [{ coding: [{ system: PERMISSION_SYSTEM }] }],
+                    class: [{ system: RESOURCE_TYPE_SYSTEM, code: 'Condition' }]
+                }
+            ]
+        ])('should ignore %s', (_name, entry) => {
+            const consent = consentWith([entry]);
+
+            const result = manager.parseConsentFilteringRules({ consent });
+
+            expect(result.resourcePermissions).toEqual(new Map());
+        });
+
+        it('should match the code systems case-insensitively', () => {
+            const consent = consentWith([
+                resourceEntry({
+                    letters: ['r', 's'],
+                    classCodes: ['Condition'],
+                    permissionSystem: PERMISSION_SYSTEM.toUpperCase(),
+                    classSystem: RESOURCE_TYPE_SYSTEM.toUpperCase()
+                })
+            ]);
+
+            const result = manager.parseConsentFilteringRules({ consent });
+
+            expect(result.resourcePermissions).toEqual(new Map([['Condition', ['r', 's']]]));
+        });
+
+        it('should combine the letters of several entries for the same resource type', () => {
+            const consent = consentWith([
+                resourceEntry({ letters: ['r'], classCodes: ['Condition'] }),
+                resourceEntry({ letters: ['s', 'u'], classCodes: ['Condition'] })
+            ]);
+
+            const result = manager.parseConsentFilteringRules({ consent });
+
+            expect(result.resourcePermissions).toEqual(new Map([['Condition', ['r', 'u', 's']]]));
+        });
+
+        it('should accept a single action and class that are not wrapped in an array', () => {
+            const consent = consentWith([
+                {
+                    type: 'permit',
+                    action: { coding: [{ system: PERMISSION_SYSTEM, code: 'r' }] },
+                    class: { system: RESOURCE_TYPE_SYSTEM, code: 'Condition' }
+                }
+            ]);
+
+            const result = manager.parseConsentFilteringRules({ consent });
+
+            expect(result.resourcePermissions).toEqual(new Map([['Condition', ['r']]]));
+        });
+
+        it('should return no permissions for a consent without nested provisions', () => {
+            const consent = consentWith(undefined);
+
+            const result = manager.parseConsentFilteringRules({ consent });
+
+            expect(result.resourcePermissions).toEqual(new Map());
+            expect(result.permittedSensitiveCategories).toEqual([]);
+        });
+
+        it('should keep the denied sensitive categories next to the resource entries', () => {
+            const consent = consentWith([
+                sensitivityEntry({ type: 'deny', codes: ['HIV_AIDS'] }),
+                resourceEntry({ letters: ['r', 's'], classCodes: ['Condition'] })
+            ]);
+
+            const result = manager.parseConsentFilteringRules({ consent });
+
+            expect(result.deniedSensitiveCategories).toEqual(['HIV_AIDS']);
+            expect(result.resourcePermissions).toEqual(new Map([['Condition', ['r', 's']]]));
+        });
+
+        it.each([
+            [
+                'only permit entries',
+                [
+                    sensitivityEntry({ type: 'permit', codes: ['MENTAL_HEALTH', 'SUBSTANCE_USE'] }),
+                    sensitivityEntry({ type: 'deny', codes: ['HIV_AIDS'] })
+                ],
+                ['MENTAL_HEALTH', 'SUBSTANCE_USE']
+            ],
+            [
+                'only labels of the sensitivity system',
+                [sensitivityEntry({ type: 'permit', codes: ['MENTAL_HEALTH'], system: 'http://example.org/other' })],
+                []
+            ],
+            [
+                'the sensitivity system in any letter case',
+                [
+                    sensitivityEntry({
+                        type: 'permit',
+                        codes: ['MENTAL_HEALTH'],
+                        system: SENSITIVITY_SYSTEM.toUpperCase()
+                    })
+                ],
+                ['MENTAL_HEALTH']
+            ],
+            [
+                'a label that is not wrapped in an array',
+                [
+                    {
+                        type: 'permit',
+                        securityLabel: { system: SENSITIVITY_SYSTEM, code: 'MENTAL_HEALTH' }
+                    }
+                ],
+                ['MENTAL_HEALTH']
+            ],
+            [
+                'skipping a label without a code',
+                [{ type: 'permit', securityLabel: [{ system: SENSITIVITY_SYSTEM }] }],
+                []
+            ]
+        ])('should collect permitted sensitive categories: %s', (_name, nested, expected) => {
+            const consent = consentWith(nested);
+
+            const result = manager.parseConsentFilteringRules({ consent });
+
+            expect(result.permittedSensitiveCategories).toEqual(expected);
+        });
+
+        it('should store the new rules as non-enumerable', () => {
+            const consent = consentWith([
+                sensitivityEntry({ type: 'permit', codes: ['MENTAL_HEALTH'] }),
+                resourceEntry({ letters: ['r', 's'], classCodes: ['Condition'] })
+            ]);
+
+            const result = manager.parseConsentFilteringRules({ consent });
+
+            expect(Object.keys(result)).toEqual([
+                'consentId',
+                'consentVersion',
+                'provisionPeriodStart',
+                'provisionPeriodEnd'
+            ]);
+            const serialized = JSON.stringify(result);
+            expect(serialized).not.toContain('resourcePermissions');
+            expect(serialized).not.toContain('permittedSensitiveCategories');
+            expect(result.permittedSensitiveCategories).toEqual(['MENTAL_HEALTH']);
+        });
+
+        it('should leave the rules as they are today when the flag is off', () => {
+            setFlag(false);
+            const consent = consentWith([
+                sensitivityEntry({ type: 'permit', codes: ['MENTAL_HEALTH'] }),
+                resourceEntry({ letters: ['r', 's'], classCodes: ['Condition'] })
+            ]);
+
+            const result = manager.parseConsentFilteringRules({ consent });
+
+            expect(Object.getOwnPropertyNames(result).sort()).toEqual(
+                [
+                    'consentId',
+                    'consentVersion',
+                    'provisionPeriodStart',
+                    'provisionPeriodEnd',
+                    'deniedSensitiveCategories'
+                ].sort()
+            );
+            expect(result.resourcePermissions).toBeUndefined();
+            expect(result.permittedSensitiveCategories).toBeUndefined();
+        });
+    });
+
     describe('getFilteringRulesAsync', () => {
         it('should return cached filtering rules when available', async () => {
             const actor = {
