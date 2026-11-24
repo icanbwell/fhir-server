@@ -48,7 +48,14 @@ const WRITE_STEP_NAMES = Object.freeze([
 /**
  * The settings a profile may have.
  */
-const PROFILE_SETTINGS = Object.freeze(['name', 'accessRequested', 'action', 'off', 'variants']);
+const PROFILE_SETTINGS = Object.freeze([
+    'name',
+    'accessRequested',
+    'action',
+    'off',
+    'variants',
+    'itemErrorsFailItem'
+]);
 /**
  * The profile settings that must be non-empty strings.
  */
@@ -64,6 +71,10 @@ const REQUIRED_STRING_SETTINGS = Object.freeze(['name', 'accessRequested', 'acti
  * @property {string[]} [off]
  * @property {Object<string, string>} [variants] Maps a step name to the name of the variant that
  * runs in place of that step's default.
+ * @property {boolean} [itemErrorsFailItem] When true, an error the `scopeCheck`, schema check
+ * (`validateIncoming`), meta check (`validateNewResource`), access check or `buildDocument` step
+ * throws for an item fails that item instead of the whole run. Unset for every operation but
+ * `$import`, whose old worker failed only the line an error came from.
  */
 
 /**
@@ -486,13 +497,14 @@ class WritePipeline {
      */
     _registerProfile (profile) {
         this._assertValidProfile(profile);
-        const { name, accessRequested, action, off, variants } = profile;
+        const { name, accessRequested, action, off, variants, itemErrorsFailItem } = profile;
         const frozenProfile = Object.freeze({
             name,
             accessRequested,
             action,
             off: Object.freeze([...(off || [])]),
-            variants: Object.freeze({ ...(variants || {}) })
+            variants: Object.freeze({ ...(variants || {}) }),
+            ...(itemErrorsFailItem === undefined ? {} : { itemErrorsFailItem })
         });
         return Object.freeze({ profile: frozenProfile, stepsOff: new Set(frozenProfile.off) });
     }
@@ -530,12 +542,27 @@ class WritePipeline {
     }
 
     /**
+     * Returns only the name, message, status code and stack of `error`, so that the arguments an
+     * error carries, such as the resource a serializer failed on, are never logged.
+     * @param {Error} error
+     * @returns {{name: string|undefined, message: string|undefined, statusCode: number|undefined, stack: string|undefined}}
+     */
+    _safeErrorFields (error) {
+        return {
+            name: error?.name,
+            message: error?.message,
+            statusCode: error?.statusCode,
+            stack: error?.stack
+        };
+    }
+
+    /**
      * Logs one failure with the operation, step, stage, the resource's identity and the origin
-     * service. An error failure is logged with its error, as info when the error's `logLevel` is
-     * `info` (a client error such as a `BadRequestError` or a `NotFoundError`) or its status code
-     * is 412 (a `PreconditionFailedError`, which update logs as info) and as an error otherwise; a
-     * check failure is logged as info with only each issue's severity, code and expression, never
-     * details text or diagnostics.
+     * service. An error failure is logged with only its name, message, status code and stack, as
+     * info when the error's `logLevel` is `info` (a client error such as a `BadRequestError` or a
+     * `NotFoundError`) or its status code is 412 (a `PreconditionFailedError`, which update logs as
+     * info) and as an error otherwise; a check failure is logged as info with only each issue's
+     * severity, code and expression, never details text or diagnostics.
      * @param {WriteProfile} profile
      * @param {string} stepName
      * @param {string} originService
@@ -557,7 +584,7 @@ class WritePipeline {
         if (failure.error !== null) {
             const isClientError = failure.error?.logLevel === 'info' || failure.error?.statusCode === 412;
             const log = isClientError ? logInfo : logError;
-            log('Write step failed for resource', { ...fields, error: failure.error });
+            log('Write step failed for resource', { ...fields, error: this._safeErrorFields(failure.error) });
         } else {
             const issues = (failure.operationOutcome.issue ?? []).map(
                 ({ severity, code, expression }) => ({ severity, code, expression })
@@ -598,9 +625,10 @@ class WritePipeline {
 
     /**
      * Throws if the profile has an unknown setting, a required setting that is not a non-empty
-     * string, an `off` setting that is not an array, an unknown step name in `off`, a `variants`
-     * setting that is not an object, a variant for a step that has no variants registered, or a
-     * variant that is not registered for its step.
+     * string, an `itemErrorsFailItem` setting that is not a boolean, an `off` setting that is not
+     * an array, an unknown step name in `off`, a `variants` setting that is not an object, a
+     * variant for a step that has no variants registered, or a variant that is not registered for
+     * its step.
      * @param {WriteProfile} profile
      * @returns {void}
      */
@@ -614,6 +642,12 @@ class WritePipeline {
         );
         if (missingSettings.length > 0) {
             throw new Error(`Write profile "${profile.name}" needs string setting(s): ${missingSettings.join(', ')}`);
+        }
+        const { itemErrorsFailItem } = profile;
+        if (itemErrorsFailItem !== undefined && typeof itemErrorsFailItem !== 'boolean') {
+            throw new Error(
+                `Write profile "${profile.name}" setting "itemErrorsFailItem" must be a boolean`
+            );
         }
         if (profile.off !== undefined && !Array.isArray(profile.off)) {
             throw new Error(`Write profile "${profile.name}" setting "off" must be an array of step names`);

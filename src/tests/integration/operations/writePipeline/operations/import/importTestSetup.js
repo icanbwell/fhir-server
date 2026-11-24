@@ -55,7 +55,8 @@ const ENVIRONMENT_KEYS = [
     'RESOURCE_BUCKET_NAME',
     'HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT',
     'HISTORY_RESOURCE_BUCKET_NAME',
-    'BASE64_FIELD_DATA_THRESHOLD_KB'
+    'BASE64_FIELD_DATA_THRESHOLD_KB',
+    'MERGE_PARALLEL_CHUNK_SIZE'
 ];
 
 /**
@@ -366,10 +367,35 @@ const startImportAsync = async (request) => {
 };
 
 /**
- * Creates the worker's container with the real `AuditLogger` and a reader that yields its own copy
- * of the lines, because the worker changes the lines it reads.
+ * Returns the byte offset of each line in a file that holds every line as its JSON and a newline:
+ * the UTF-8 byte length of the lines before it.
  */
-const createImportContainer = (lines) => {
+const byteOffsetsOf = (lines) => {
+    let offset = 0;
+    return lines.map((line) => {
+        const lineOffset = offset;
+        offset += Buffer.byteLength(`${JSON.stringify(line)}\n`, 'utf8');
+        return lineOffset;
+    });
+};
+
+/**
+ * Yields what `read` yields with each line's `byteOffset` replaced by its offset in `byteOffsets`,
+ * by line number, as the real reader counts the bytes of the file.
+ */
+async function* withByteOffsets(read, byteOffsets) {
+    for await (const line of read) {
+        yield { ...line, byteOffset: byteOffsets[line.lineNumber - 1] };
+    }
+}
+
+/**
+ * Creates the worker's container with the real `AuditLogger` and a reader that yields a new copy of
+ * the lines on every read, because the worker changes the lines it reads and the real reader parses
+ * the file again each time the range is read. With `realByteOffsets` the reader gives each line the
+ * byte offset `byteOffsetsOf` computes, in place of the mock reader's made-up one.
+ */
+const createImportContainer = (lines, { realByteOffsets = false } = {}) => {
     const container = createTestContainer((c) => {
         c.register('auditLogger', (cc) => new AuditLogger({
             postRequestProcessor: cc.postRequestProcessor,
@@ -379,7 +405,15 @@ const createImportContainer = (lines) => {
         }));
         return c;
     });
-    container.s3NdjsonReader.setLinesToYield(JSON.parse(JSON.stringify(lines)));
+    const reader = container.s3NdjsonReader;
+    const serializedLines = JSON.stringify(lines);
+    const readNdjsonAsync = reader.readNdjsonAsync.bind(reader);
+    const byteOffsets = realByteOffsets ? byteOffsetsOf(lines) : null;
+    reader.readNdjsonAsync = (args) => {
+        reader.setLinesToYield(JSON.parse(serializedLines));
+        const read = readNdjsonAsync(args);
+        return byteOffsets ? withByteOffsets(read, byteOffsets) : read;
+    };
     return container;
 };
 
@@ -428,11 +462,11 @@ const recordRangeAsync = async ({ request, container, scope }) => {
 
 /**
  * Starts the Task and runs one range of the lines through a new worker container, returning what
- * `recordRangeAsync` records.
+ * `recordRangeAsync` records. `realByteOffsets` is passed to `createImportContainer`.
  */
-const runImportAsync = async ({ request, lines, scope }) => {
+const runImportAsync = async ({ request, lines, scope, realByteOffsets = false }) => {
     await startImportAsync(request);
-    const container = createImportContainer(lines);
+    const container = createImportContainer(lines, { realByteOffsets });
     return await recordRangeAsync({ request, container, scope });
 };
 

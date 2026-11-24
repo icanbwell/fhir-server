@@ -12,16 +12,16 @@ const UUID_B = '00000000-0000-4000-8000-00000000000b';
 /**
  * Builds the item for one synthetic Patient import line at `index`, read at `byteOffset`.
  */
-const buildItem = ({ index, uuid = UUID_A, byteOffset = index * 100, forceUpdated = false, writeMode = 'insert' }) => {
+const buildItem = ({ index, uuid = UUID_A, byteOffset = index * 100, resourceType = 'Patient', writeMode = 'insert' }) => {
     const item = new WriteItem({
         index,
         incoming: {
-            resourceType: 'Patient',
+            resourceType,
             id: `patient-${uuid.slice(-1)}`,
             _uuid: uuid,
             _sourceAssigningAuthority: 'client-a'
         },
-        importLine: { byteOffset, forceUpdated }
+        importLine: { byteOffset }
     });
     item.writeMode = writeMode;
     return item;
@@ -103,8 +103,8 @@ const failedAtStage = ({ item, stage, operationOutcome = null, error = null }) =
 /**
  * Builds the result of a write as the bulk inserter returns it.
  */
-const flushResult = ({ uuid = UUID_A, created = false, updated = false, issue }) =>
-    new MergeResultEntry({ id: 'patient-x', uuid, resourceType: 'Patient', created, updated, issue });
+const flushResult = ({ uuid = UUID_A, resourceType = 'Patient', created = false, updated = false, issue }) =>
+    new MergeResultEntry({ id: 'patient-x', uuid, resourceType, created, updated, issue });
 
 /**
  * Builds the failure subject of a Patient with the given uuid and source assigning authority.
@@ -136,22 +136,12 @@ const offsetExtension = (valueInteger) => [{ url: BYTE_OFFSET_URL, valueInteger 
 describe('ImportResponder', () => {
     const responder = new ImportResponder();
 
-    test('is a WriteResponder', () => {
-        expect(responder).toBeInstanceOf(WriteResponder);
-    });
-
-    test('readAsync throws, because the import reader builds the items', async () => {
-        await expect(responder.readAsync({})).rejects.toThrow('does not read a request');
-    });
-
-    test('recordMetrics does nothing', () => {
-        expect(responder.recordMetrics({ results: [], requestInfo: {}, parsedArgs: {} })).toBeUndefined();
-    });
-
-    test('toResponse returns the results it is given', () => {
-        const results = [flushResult({ created: true })];
-
-        expect(responder.toResponse({ results })).toBe(results);
+    test('is a plain class: not a WriteResponder, and without the methods of a request-driven write', () => {
+        expect(responder).not.toBeInstanceOf(WriteResponder);
+        expect(Object.getPrototypeOf(ImportResponder.prototype)).toBe(Object.prototype);
+        for (const name of ['readAsync', 'failureResults', 'toResponse', 'recordMetrics']) {
+            expect(responder[name]).toBeUndefined();
+        }
     });
 
     test.each([
@@ -178,7 +168,7 @@ describe('ImportResponder', () => {
             build: () => ({
                 items: [
                     queued(buildItem({ index: 0, byteOffset: 0 })),
-                    queued(buildItem({ index: 1, byteOffset: 90, forceUpdated: true }))
+                    queued(buildItem({ index: 1, byteOffset: 90 }))
                 ],
                 executedResults: [flushResult({ created: true }), flushResult({ updated: true })]
             }),
@@ -193,7 +183,7 @@ describe('ImportResponder', () => {
             build: () => ({
                 items: [
                     queued(buildItem({ index: 0, byteOffset: 0 })),
-                    queued(buildItem({ index: 1, byteOffset: 90, forceUpdated: true }))
+                    queued(buildItem({ index: 1, byteOffset: 90 }))
                 ],
                 executedResults: [flushResult({ created: true })]
             }),
@@ -208,7 +198,7 @@ describe('ImportResponder', () => {
             build: () => ({
                 items: [
                     queued(buildItem({ index: 0, byteOffset: 0 })),
-                    queued(buildItem({ index: 1, byteOffset: 90, forceUpdated: true }))
+                    queued(buildItem({ index: 1, byteOffset: 90 }))
                 ],
                 executedResults: [
                     flushResult({
@@ -505,7 +495,7 @@ describe('ImportResponder', () => {
             build: () => ({
                 items: [
                     queued(buildItem({ index: 0, byteOffset: 0 })),
-                    queued(buildItem({ index: 1, byteOffset: 90, forceUpdated: true }))
+                    queued(buildItem({ index: 1, byteOffset: 90 }))
                 ],
                 executedResults: [
                     flushResult({ created: true }),
@@ -626,6 +616,92 @@ describe('ImportResponder', () => {
         }
     );
 
+    test.each([
+        { name: 'neither flag and no issue', flags: {}, writeMode: 'insert', created: false, updated: false },
+        { name: 'created', flags: { created: true }, writeMode: 'insert', created: true, updated: false },
+        { name: 'updated', flags: { updated: true }, writeMode: 'update', created: false, updated: true }
+    ])('a queued line whose flush result has $name is created $created and updated $updated', ({ flags, writeMode, created, updated }) => {
+        const items = [queued(buildItem({ index: 0, byteOffset: 6, writeMode }))];
+
+        const results = responder.results({ items, executedResults: [flushResult(flags)] });
+
+        expect(results.map((entry) => entry.toJSON())).toStrictEqual([patientShape({ created, updated })]);
+        expect(results[0].issue).toBeNull();
+    });
+
+    test('a later line folded onto a flush result with neither flag is neither created nor updated', () => {
+        const items = [queued(buildItem({ index: 0 })), queued(buildItem({ index: 1 }))];
+
+        const results = responder.results({ items, executedResults: [flushResult({})] });
+
+        expect(results.map((entry) => [entry.created, entry.updated, entry.issue])).toStrictEqual([
+            [false, false, null],
+            [false, false, null]
+        ]);
+    });
+
+    test.each([
+        {
+            firstLine: 'failed',
+            first: (item) => failedByCheck({ item, subject: subjectOf(UUID_A), code: 'invalid', text: 'bad' }),
+            executedResults: [flushResult({ created: true })],
+            expected: [
+                { failed: true, created: false, updated: false },
+                { failed: false, created: true, updated: false }
+            ]
+        },
+        {
+            firstLine: 'queued',
+            first: queued,
+            executedResults: [flushResult({ created: true })],
+            expected: [
+                { failed: false, created: true, updated: false },
+                { failed: false, created: false, updated: true }
+            ]
+        },
+        {
+            firstLine: 'unchanged',
+            first: unchanged,
+            executedResults: [flushResult({ created: true })],
+            expected: [
+                { failed: false, created: false, updated: false },
+                { failed: false, created: false, updated: true }
+            ]
+        }
+    ])('two lines of one resource, the first one $firstLine, give the expected entries', ({ first, executedResults, expected }) => {
+        const items = [first(buildItem({ index: 0 })), queued(buildItem({ index: 1 }))];
+
+        const results = responder.results({ items, executedResults });
+
+        expect(
+            results.map((entry) => ({
+                failed: Boolean(entry.issue),
+                created: entry.created,
+                updated: entry.updated
+            }))
+        ).toStrictEqual(expected);
+    });
+
+    test('two resources of different types with one _uuid are not repeats of each other', () => {
+        const items = [
+            queued(buildItem({ index: 0, resourceType: 'Patient' })),
+            queued(buildItem({ index: 1, resourceType: 'Observation' }))
+        ];
+
+        const results = responder.results({
+            items,
+            executedResults: [
+                flushResult({ resourceType: 'Patient', created: true }),
+                flushResult({ resourceType: 'Observation', created: true })
+            ]
+        });
+
+        expect(results.map((entry) => [entry.resourceType, entry.created, entry.updated])).toStrictEqual([
+            ['Patient', true, false],
+            ['Observation', true, false]
+        ]);
+    });
+
     test('results gives one entry per item in item order, whatever order the items are given in', () => {
         const items = [
             queued(buildItem({ index: 2, uuid: UUID_B })),
@@ -652,45 +728,71 @@ describe('ImportResponder', () => {
         ]);
     });
 
-    test('failureResults gives the entries of the failed items only, in item order', () => {
-        const items = [
-            queued(buildItem({ index: 0 })),
-            failedByCheck({
-                item: buildItem({ index: 2, uuid: UUID_B, byteOffset: 9 }),
-                subject: subjectOf(UUID_B),
-                code: 'invalid',
-                text: 'second'
-            }),
-            failedByCheck({
-                item: buildItem({ index: 1, uuid: UUID_A, byteOffset: 5 }),
-                subject: subjectOf(UUID_A),
-                code: 'invalid',
-                text: 'first'
+    const SIZE_ERROR_TEXT = 'Error in one of the resources of Patient: RangeError: offset is out of range';
+    test.each([
+        {
+            name: 'one write error code',
+            text: JSON.stringify([{ code: 11000, op: { name: [{ family: 'Marker' }] } }]),
+            expectedText: 'Bulk write failed for Patient: error code 11000'
+        },
+        {
+            name: 'two distinct write error codes, joined',
+            text: JSON.stringify([
+                { code: 11000, op: { name: [{ family: 'Marker' }] } },
+                { code: 121, op: { name: [{ family: 'Marker' }] } }
+            ]),
+            expectedText: 'Bulk write failed for Patient: error code 11000, 121'
+        },
+        {
+            name: 'a repeated write error code, listed once',
+            text: JSON.stringify([
+                { code: 11000, op: { name: [{ family: 'Marker' }] } },
+                { code: 11000, op: { name: [{ family: 'Marker' }] } }
+            ]),
+            expectedText: 'Bulk write failed for Patient: error code 11000'
+        },
+        {
+            name: 'a write error array without a code',
+            text: JSON.stringify([{ op: { name: [{ family: 'Marker' }] } }]),
+            expectedText: 'Bulk write failed for Patient'
+        },
+        {
+            name: 'the size error text, kept',
+            text: SIZE_ERROR_TEXT,
+            expectedText: SIZE_ERROR_TEXT
+        },
+        {
+            name: 'text that is not an array, kept',
+            text: '{"code":11000}',
+            expectedText: '{"code":11000}'
+        }
+    ])('a flush failure with $name has no resource content in its entry', ({ text, expectedText }) => {
+        const items = [queued(buildItem({ index: 0, byteOffset: 12 }))];
+        const executedResults = [
+            flushResult({
+                issue: {
+                    severity: 'error',
+                    code: 'exception',
+                    details: { text },
+                    diagnostics: text,
+                    expression: ['Patient/' + UUID_A]
+                }
             })
         ];
 
-        const results = responder.failureResults({ items, requestErrors: [] });
+        const [entry] = responder.results({ items, executedResults });
 
-        expect(results.map((entry) => [entry._uuid, entry.sourceByteOffset])).toStrictEqual([
-            [UUID_A, 5],
-            [UUID_B, 9]
-        ]);
-    });
-
-    test('a failed item has the same entry whether it is built before or after the flush', () => {
-        const items = [
-            failedByCheck({
-                item: buildItem({ index: 0, byteOffset: 21 }),
-                subject: subjectOf(UUID_A),
-                code: 'invalid',
-                text: 'bad'
-            })
-        ];
-
-        const before = responder.failureResults({ items, requestErrors: [] });
-        const after = responder.results({ items, requestErrors: [], executedResults: [] });
-
-        expect(after.map((entry) => entry.toJSON())).toStrictEqual(before.map((entry) => entry.toJSON()));
-        expect(after[0].issue.extension).toStrictEqual(offsetExtension(21));
+        const expectedIssue = {
+            severity: 'error',
+            code: 'exception',
+            details: { text: expectedText },
+            diagnostics: expectedText,
+            expression: ['Patient/' + UUID_A],
+            extension: offsetExtension(12)
+        };
+        expect(entry.issue).toStrictEqual(expectedIssue);
+        expect(entry.operationOutcome.issue).toStrictEqual([expectedIssue]);
+        expect(JSON.stringify(entry.toJSON())).not.toContain('Marker');
+        expect(executedResults[0].issue.details.text).toBe(text);
     });
 });

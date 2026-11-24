@@ -141,7 +141,10 @@ Any of these is a failure even if the code works:
 `WRITE_PIPELINE_OPERATIONS` is a comma-separated list of the operations that use the new path. It is
 read through a `configManager` getter, in the same style as `KAFKA_ENABLED_RESOURCES`. The default
 is empty, meaning every operation uses the old path. An unknown name fails at startup with a clear
-error.
+error. The app checks it at startup, and so does the bulk import worker: its entry point,
+`src/operations/asyncJobs/worker.js`, calls `writePipelineSwitch.assertValidConfiguration()` right
+after it builds the container and exits with code 1 on an unknown name. The worker is its own
+process and does not start through `src/app.js`.
 
 | Name | Switch checked in | Covers |
 |---|---|---|
@@ -250,7 +253,9 @@ only after the build. It is off for POST, PUT and `$merge`, which check the chan
 `WritePipeline.runAsync`:
 - `profile.js` holds its profile.
 - `responder.js` holds one class. It extends `WriteResponder` (`writePipeline/writeResponder.js`),
-  whose constructor fails at startup if a method is missing. The class
+  whose constructor fails at startup if a method is missing. (`$import` is the exception:
+  `ImportResponder` is a plain class with `results` and the entry builders only, because the worker
+  reads the file and records the metrics, and the writer never calls `runAsync`.) The class
   holds everything that depends on the operation's request and response format: reading the request
   into items (step 0), building the results and the response (step 15), and the operation's metrics.
   The metrics stay per operation because they differ: `$merge` records `fhir_merge_outcome_total` and
@@ -832,11 +837,12 @@ updated to the new behavior and get `oldWrite` copies (see "Testing").
     also with conflict handling off) and `httpPreconditions.test.js`; and
     `src/tests/unit/dataLayer/fastDatabaseBulkInserter.test.js` for the two opt-in parameters.
   - `$import`, in `src/tests/integration/operations/writePipeline/operations/import/`:
-    `import.test.js` runs 37 cases through the worker on both paths against goldens recorded from
-    the old path, with a golden per path for each case of "Changes to announce" under `$import`
-    that it covers; `import.flush.test.js`, `import.audit.test.js` and `import.attachments.test.js`
-    cover flushes that throw or reject a resource, AuditEvents, change events, the import metrics,
-    and GridFS attachments, on both paths.
+    `import.test.js` runs 48 cases through the worker on both paths (96 tests, plus two writer
+    checks) against goldens recorded from the old path, with a golden per path for each case of
+    "Changes to announce" under `$import` that it covers; `import.flush.test.js` (8 cases on both paths, plus the failure-log test on the
+    new path), `import.audit.test.js` and `import.attachments.test.js` cover flushes that throw or
+    reject a resource, AuditEvents, change events, the import metrics, and GridFS attachments, on
+    both paths.
 - The existing access and tenant-isolation suites for these operations run on the new path in the
   main CI job.
 
@@ -919,21 +925,56 @@ today.
 - **Flush failures are reported as failed.** A line the database rejects at the flush gets a failed
   entry from the flush result, in the result file, the error file and an error audit. On a
   document-size error the bulk write executor fails the whole bulk write of that resource type, so
-  every line of that type in the flush is reported failed; none of them is stored on either path.
-  Today the worker discards the flush result and reports those lines created or updated, with
-  create or update audits, although they were not stored. A failed line's claimed `ifNoneExist` key
-  is released, so a later line in the range with the same criteria is tried instead of skipped. One
-  edge is not tested: for a flush large enough that the driver splits the bulk write, an earlier
+  every line of that type in the flush is reported failed, whichever owner each line has: an
+  oversized Patient of one client fails the healthy Patient of another client in the same flush too
+  (two error audits, none stored on either path). Today the worker discards the flush result and
+  reports those lines created or updated, with create or update audits, although they were not
+  stored. A failed line's claimed `ifNoneExist` key is released, so a later line in the range with
+  the same criteria is tried instead of skipped. One edge is not tested: for a flush large enough that the driver splits the bulk write, an earlier
   part may already be committed, so a stored line could be reported failed and its key released.
-- **Nothing counted before the flush returns.** Counters, span attributes, metrics and audits of a
-  batch come from its entries after the flush. When the flush throws, nothing of the batch is
-  counted or audited, including the error audit of a line that had already failed a check, and the
-  range fails as today. Today the batch is counted and audited before the flush, so a batch whose
-  flush threw gets create audits although nothing was stored.
-- **An unexpected check error fails the batch.** The checks run for the whole batch, with no
-  per-line catch, so an unexpected (non-validation) error thrown by the scope, meta, access or
-  schema check of one line fails the whole batch and the range, which is read three times and then
-  fails. Today only that line fails.
+- **Counted from the entries, after the flush.** Counters, span attributes, metrics and audits of a
+  batch come from its entries after the flush. When the flush throws, the worker records the
+  batch's entries as it did before (the lines that failed a check as failed, the queued lines as
+  created or updated, each with its audit), then fails or retries the range as today. The flush may
+  have stored some resource types before it threw, so those entries can name a line of a type that
+  was not stored, as the old worker's did. A batch whose lines that no check failed (unchanged
+  lines included) have more than one resource type is never read again, because some of its types
+  may already be stored: the range fails at once and its failure path audits the recorded entries.
+  A batch of one resource type is read again, up to three attempts as today, with the counters of
+  the failed attempt reset, but only if no earlier batch of the range was flushed. Such a flush may
+  also have committed part of its writes, as on the old path, so a retry can report those lines as
+  updated instead of created.
+  The old worker also reads a multi-type batch again (see "A flush of several resource types that
+  throws is not read again").
+- **One check error fails only its line.** An unexpected (non-validation) error thrown by the
+  scope check, the schema check, the meta check, the access check, the build, the write
+  serialization or the owner backfill of one line fails that line only, as the old worker's
+  per-line `catch` did. The `import` profile sets `itemErrorsFailItem` for this, and no other
+  operation does. A scope, meta or access check error gets a message-only entry with the byte offset, the
+  shape of the old worker's entry (the old text for a scope check error is the fixed
+  `Error in MergeManager.preMergeChecksMultipleAsync()`), and a build or serialize error the merge code's entry. A schema check error
+  comes from the incoming schema check (see "Incoming schema check"), so it gets that check's
+  message-only entry with the byte offset, where the old worker, which checks the schema only in
+  the merge code, gives the merge code's entry. The only error that fails a whole batch is a flush
+  that throws.
+- **A flush of several resource types that throws is not read again.** The worker reads the range
+  once. A flush that throws after committing a Patient but before an Observation write leaves the
+  Patient counted and audited as created (2 created, 0 updated), where the old worker reads the
+  range three times, finds the Patient stored on the second read, and counts and audits it as
+  updated.
+- **A repeat after an invalid first line is created.** A line is a repeat only when an earlier line
+  of the batch with the same `resourceType` and `_uuid` was queued or unchanged. For the lines
+  `[invalid x, valid x]` the second is created (counters 1 created, 0 updated, 1 failed; a create
+  audit). Today the worker marks it updated although the first line stored nothing (0 created, 1
+  updated, 1 failed; an update audit).
+- **A flush result with no outcome is skipped.** A flush result with no issue that is neither
+  created nor updated (the document equals the stored one, the "same as database" race) is reported
+  as neither created nor updated, with no audit and no outcome metric, as an unchanged line is.
+  Today the line is reported by its write mode, created or updated.
+- **Flush failure text without the resource.** The failed entry of a line the database rejects says
+  `Bulk write failed for <ResourceType>: error code <codes>` in its details and diagnostics, where
+  the old path returns the write-error array as text, which includes the rejected resource. The
+  document-size error text is kept as it is.
 - **A repeat of a new resource in one batch gets the meta check.** When a batch has two lines for
   one new resource, the second gets the new-resource meta check, because nothing is stored yet; a
   repeat whose meta is invalid for a new resource (for example a second owner tag) fails with the

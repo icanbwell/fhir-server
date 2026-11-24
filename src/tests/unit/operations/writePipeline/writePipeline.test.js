@@ -14,6 +14,7 @@ const {
     NotFoundError,
     PreconditionFailedError
 } = require('../../../../utils/httpErrors');
+const { RethrownError } = require('../../../../utils/rethrownError');
 const { FastDatabaseBulkInserter } = require('../../../../dataLayer/fastDatabaseBulkInserter');
 const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
@@ -347,6 +348,28 @@ describe('WritePipeline', () => {
         }
     });
 
+    test.each([
+        { itemErrorsFailItem: true, expected: { hasSetting: true, value: true } },
+        { itemErrorsFailItem: false, expected: { hasSetting: true, value: false } },
+        { itemErrorsFailItem: undefined, expected: { hasSetting: false, value: undefined } }
+    ])('passes every step the itemErrorsFailItem setting $itemErrorsFailItem of the profile', async ({
+        itemErrorsFailItem,
+        expected
+    }) => {
+        const profile = buildProfile(itemErrorsFailItem === undefined ? {} : { itemErrorsFailItem });
+        const { pipeline, stepsByName } = buildPipeline({ profiles: [profile] });
+
+        await pipeline.processAsync({ profile, context: buildContext(), items: buildItems(1) });
+
+        for (const name of WRITE_STEP_NAMES) {
+            const seen = stepsByName[name].runAsync.mock.calls[0][0].profile;
+            expect({
+                hasSetting: Object.hasOwn(seen, 'itemErrorsFailItem'),
+                value: seen.itemErrorsFailItem
+            }).toStrictEqual(expected);
+        }
+    });
+
     test('passes every step a frozen copy of the profile, so a later change to the profile is not seen', async () => {
         const profile = buildProfile({ off: [] });
         const { pipeline, stepsByName } = buildPipeline({
@@ -673,6 +696,11 @@ describe('WritePipeline', () => {
             name: 'an off setting that is not an array',
             profile: buildProfile({ off: 'validateIncoming' }),
             message: 'Write profile "fake" setting "off" must be an array of step names'
+        },
+        {
+            name: 'an itemErrorsFailItem setting that is not a boolean',
+            profile: buildProfile({ itemErrorsFailItem: 'yes' }),
+            message: 'Write profile "fake" setting "itemErrorsFailItem" must be a boolean'
         }
     ];
 
@@ -830,7 +858,10 @@ describe('WritePipeline', () => {
         );
         if (failsWithError) {
             expect(logError).toHaveBeenCalledTimes(1);
-            expect(logError).toHaveBeenCalledWith('Write step failed for resource', { ...expectedFields, error });
+            expect(logError).toHaveBeenCalledWith('Write step failed for resource', {
+                ...expectedFields,
+                error: { name: 'Error', message: 'synthetic failure', statusCode: undefined, stack: error.stack }
+            });
             expect(logInfo).not.toHaveBeenCalled();
         } else {
             expect(logInfo).toHaveBeenCalledTimes(1);
@@ -893,9 +924,44 @@ describe('WritePipeline', () => {
         expect(expectedLogger).toHaveBeenCalledTimes(1);
         expect(expectedLogger).toHaveBeenCalledWith(
             'Write step failed for resource',
-            expect.objectContaining({ operation: 'fake', step: 'write', stage: WRITE_FAILURE_STAGE.WRITE, error })
+            expect.objectContaining({
+                operation: 'fake',
+                step: 'write',
+                stage: WRITE_FAILURE_STAGE.WRITE,
+                error: expect.objectContaining({ name: error.name, message: error.message, stack: error.stack })
+            })
         );
         expect(otherLogger).not.toHaveBeenCalled();
+    });
+
+    test('logs only the name, message, status code and stack of a rethrown error, never its arguments', async () => {
+        const marker = 'SYNTHETICMARKERFAMILY';
+        const error = new RethrownError({
+            message: 'synthetic serialize failure',
+            error: new Error('synthetic cause'),
+            args: { resource: { resourceType: 'Patient', name: [{ family: marker }] } }
+        });
+        const items = buildItems(1);
+        const failure = new WriteFailure({
+            stage: WRITE_FAILURE_STAGE.BUILD,
+            subject: WriteFailure.subjectOf(items[0].incoming),
+            error
+        });
+        const { pipeline } = buildPipeline({
+            behaviors: { buildDocument: (stepItems) => stepItems[0].fail({ failure }) }
+        });
+
+        await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items });
+
+        expect(logError).toHaveBeenCalledTimes(1);
+        const payload = logError.mock.calls[0][1];
+        expect(JSON.stringify(payload)).not.toContain(marker);
+        expect(payload.error).toStrictEqual({
+            name: 'RethrownError',
+            message: 'synthetic serialize failure',
+            statusCode: 500,
+            stack: error.stack
+        });
     });
 
     test.each([

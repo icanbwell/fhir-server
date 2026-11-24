@@ -32,10 +32,14 @@ const {
 } = require('../../../../../operations/writePipeline/writePipelineSwitch');
 const { FhirRequestInfo } = require('../../../../../utils/fhirRequestInfo');
 const { MergeResultEntry } = require('../../../../../operations/common/mergeResultEntry');
+const {
+    ImportBatchFlushError
+} = require('../../../../../operations/writePipeline/operations/import/importBatchFlushError');
 const { SecurityTagSystem } = require('../../../../../utils/securityTagSystem');
 const { logInfo, logError } = require('../../../../../operations/common/logging');
 const metrics = require('../../../../../utils/metrics');
 const BaseSerializer = require('../../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { trace } = require('@opentelemetry/api');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
@@ -351,18 +355,18 @@ describe('BulkImportHandler, write pipeline path', () => {
         expect(calls[1][0].requestInfo).toBe(calls[0][0].requestInfo);
         expect(
             calls.map(([{ resources }]) =>
-                resources.map(({ fhirResource, byteOffset, forceUpdated }) => ({
-                    uuid: fhirResource._uuid,
-                    byteOffset,
-                    forceUpdated
+                resources.map((resource) => ({
+                    keys: Object.keys(resource),
+                    uuid: resource.fhirResource._uuid,
+                    byteOffset: resource.byteOffset
                 }))
             )
         ).toEqual([
             [
-                { uuid: 'uuid-of-dup', byteOffset: 0, forceUpdated: false },
-                { uuid: 'uuid-of-dup', byteOffset: 10, forceUpdated: true }
+                { keys: ['fhirResource', 'byteOffset'], uuid: 'uuid-of-dup', byteOffset: 0 },
+                { keys: ['fhirResource', 'byteOffset'], uuid: 'uuid-of-dup', byteOffset: 10 }
             ],
-            [{ uuid: 'uuid-of-other', byteOffset: 20, forceUpdated: false }]
+            [{ keys: ['fhirResource', 'byteOffset'], uuid: 'uuid-of-other', byteOffset: 20 }]
         ]);
         expect(deps.mergeManager.mergeResourceAsync).not.toHaveBeenCalled();
         expect(deps.mergeManager.preMergeChecksMultipleAsync).not.toHaveBeenCalled();
@@ -374,6 +378,34 @@ describe('BulkImportHandler, write pipeline path', () => {
         expect(deps.postRequestProcessor.executeAsync).toHaveBeenCalledTimes(1);
         expect(deps.auditLogger.flushAsync).toHaveBeenCalledTimes(1);
         expect(deps.requestSpecificCache.clearAsync).toHaveBeenCalledTimes(1);
+    });
+
+    test('an invalid first line and a valid repeat of its resource count one failed and one created', async () => {
+        deps.importBatchWriter.writeBatchAsync.mockImplementation(async ({ resources }) =>
+            resources.map((resource, index) =>
+                entryFor(resource, index === 0 ? 'failed' : 'created')
+            )
+        );
+        deps.s3NdjsonReader.readNdjsonAsync.mockImplementation(
+            ndjsonLines([
+                makeLine({ lineNumber: 1, byteOffset: 0, resource: makePatient('dup') }),
+                makeLine({ lineNumber: 2, byteOffset: 10, resource: makePatient('dup') })
+            ])
+        );
+
+        await runRangeAsync();
+
+        expect(loggedCounters()).toEqual({ created: 1, updated: 0, failed: 1, skipped: 0 });
+        expect(
+            writtenResultEntries().map(({ created, updated, issue }) => ({
+                created,
+                updated,
+                failed: Boolean(issue)
+            }))
+        ).toEqual([
+            { created: false, updated: false, failed: true },
+            { created: true, updated: false, failed: false }
+        ]);
     });
 
     test.each([
@@ -620,7 +652,7 @@ describe('BulkImportHandler, write pipeline path', () => {
         expect(publishedTypes()).toEqual(['ImportRangeStarted', 'ImportRangeCompleted']);
     });
 
-    test('a read error after a flush of no buffered line fails the range unretried', async () => {
+    test('a read error after a flush of no buffered line reads the range again, as nothing was written', async () => {
         deps.s3NdjsonReader.readNdjsonAsync.mockImplementation(
             ndjsonLines(
                 [
@@ -641,8 +673,138 @@ describe('BulkImportHandler, write pipeline path', () => {
 
         await runRangeAsync();
 
-        expect(deps.s3NdjsonReader.readNdjsonAsync).toHaveBeenCalledTimes(1);
-        expect(writerCallIds()).toEqual([[]]);
+        expect(deps.s3NdjsonReader.readNdjsonAsync).toHaveBeenCalledTimes(3);
+        expect(writerCallIds()).toEqual([[], [], []]);
         expect(publishedTypes()).toEqual(['ImportRangeStarted', 'ImportRangeFailed']);
     });
+
+    test.each([
+        {
+            name: 'two resource types, as the first batch',
+            resourceTypeCount: 2,
+            earlierBatch: false,
+            readAttempts: 1,
+            published: ['ImportRangeStarted', 'ImportRangeFailed'],
+            markedPartiallyFlushed: true,
+            recordedIds: ['x1', 'x2'],
+            spanCounts: { created: 1, updated: 0, failed: 1 },
+            auditedCreates: [['uuid-of-x2']],
+            failedLineLogs: 1
+        },
+        {
+            name: 'two resource types, after an earlier batch was written',
+            resourceTypeCount: 2,
+            earlierBatch: true,
+            readAttempts: 1,
+            published: ['ImportRangeStarted', 'ImportRangeFailed'],
+            markedPartiallyFlushed: true,
+            recordedIds: ['p1', 'p2', 'x1', 'x2'],
+            spanCounts: { created: 3, updated: 0, failed: 1 },
+            auditedCreates: [['uuid-of-p1', 'uuid-of-p2', 'uuid-of-x2']],
+            failedLineLogs: 1
+        },
+        {
+            name: 'one resource type, after an earlier batch was written',
+            resourceTypeCount: 1,
+            earlierBatch: true,
+            readAttempts: 1,
+            published: ['ImportRangeStarted', 'ImportRangeFailed'],
+            markedPartiallyFlushed: true,
+            recordedIds: ['p1', 'p2', 'x1', 'x2'],
+            spanCounts: { created: 3, updated: 0, failed: 1 },
+            auditedCreates: [['uuid-of-p1', 'uuid-of-p2', 'uuid-of-x2']],
+            failedLineLogs: 1
+        },
+        {
+            name: 'one resource type, as the first batch',
+            resourceTypeCount: 1,
+            earlierBatch: false,
+            readAttempts: 2,
+            published: ['ImportRangeStarted', 'ImportRangeCompleted'],
+            markedPartiallyFlushed: false,
+            recordedIds: ['x1', 'x2'],
+            spanCounts: { created: 1, updated: 0, failed: 1 },
+            auditedCreates: [['uuid-of-x2']],
+            failedLineLogs: 2
+        }
+    ])(
+        'when the flush of a batch throws once with $name, its entries are recorded and the original error decides the retry',
+        async ({
+            resourceTypeCount,
+            earlierBatch,
+            readAttempts,
+            published,
+            markedPartiallyFlushed,
+            recordedIds,
+            spanCounts,
+            auditedCreates,
+            failedLineLogs
+        }) => {
+            const answer = writerAnswering({ x1: 'failed' });
+            const cause = new Error('bulk write failed');
+            let flushError = null;
+            deps.importBatchWriter.writeBatchAsync.mockImplementation(async (args) => {
+                const entries = await answer(args);
+                const isFailingBatch = args.resources.some(
+                    ({ fhirResource }) => fhirResource.id === 'x1'
+                );
+                if (isFailingBatch && flushError === null) {
+                    flushError = new ImportBatchFlushError({
+                        error: cause,
+                        entries,
+                        resourceTypeCount
+                    });
+                    throw flushError;
+                }
+                return entries;
+            });
+            const earlierLines = earlierBatch
+                ? [
+                      makeLine({ lineNumber: 1, byteOffset: 0, resource: makePatient('p1') }),
+                      makeLine({ lineNumber: 2, byteOffset: 10, resource: makePatient('p2') })
+                  ]
+                : [];
+            deps.s3NdjsonReader.readNdjsonAsync.mockImplementation(
+                ndjsonLines([
+                    ...earlierLines,
+                    makeLine({ lineNumber: 3, byteOffset: 20, resource: makePatient('x1') }),
+                    makeLine({ lineNumber: 4, byteOffset: 30, resource: makePatient('x2') })
+                ])
+            );
+
+            const setAttributes = jestGlobal.fn();
+            const activeSpanSpy = jestGlobal
+                .spyOn(trace, 'getActiveSpan')
+                .mockReturnValue({ setAttributes, setAttribute: () => {} });
+
+            try {
+                await runRangeAsync();
+            } finally {
+                activeSpanSpy.mockRestore();
+            }
+
+            expect(deps.s3NdjsonReader.readNdjsonAsync).toHaveBeenCalledTimes(readAttempts);
+            expect(publishedTypes()).toEqual(published);
+            expect({
+                causeMarked: Boolean(cause.bulkImportRangePartiallyFlushed),
+                wrapperMarked: flushError.bulkImportRangePartiallyFlushed
+            }).toEqual({ causeMarked: markedPartiallyFlushed, wrapperMarked: undefined });
+            const [recordedEntries] = metrics.recordImportResourceOutcomes.mock.calls[0];
+            expect(recordedEntries.map(({ id }) => id)).toEqual(recordedIds);
+            expect(setAttributes).toHaveBeenCalledWith({
+                'fhir_import.resources_created': spanCounts.created,
+                'fhir_import.resources_updated': spanCounts.updated,
+                'fhir_import.resources_failed': spanCounts.failed
+            });
+            expect(deps.auditLogger.logAuditEntryAsync.mock.calls.map(([{ ids }]) => ids)).toEqual(
+                auditedCreates
+            );
+            expect(deps.auditLogger.logErrorAuditEntryAsync).toHaveBeenCalledTimes(1);
+            expect(
+                logError.mock.calls.filter(
+                    ([message]) => message === 'Failed to merge bulk import resource'
+                )
+            ).toHaveLength(failedLineLogs);
+        }
+    );
 });

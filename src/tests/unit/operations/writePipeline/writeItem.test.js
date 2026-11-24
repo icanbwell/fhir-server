@@ -22,10 +22,10 @@ describe('WriteItem', () => {
     });
 
     test('an item keeps the import line it is given', () => {
-        const importLine = { byteOffset: 42, forceUpdated: true };
+        const importLine = { byteOffset: 42 };
 
         const item = new WriteItem({ index: 0, incoming: { resourceType: 'Patient', id: 'patient-1' }, importLine });
 
-        expect(item.importLine).toStrictEqual({ byteOffset: 42, forceUpdated: true });
+        expect(item.importLine).toStrictEqual({ byteOffset: 42 });
     });
 });

@@ -2,12 +2,13 @@ const { MergeResultEntry } = require('../../../common/mergeResultEntry');
 const { buildOperationOutcomeFromIssues } = require('../../../../utils/operationOutcomeBuilder');
 const { WRITE_FAILURE_STAGE } = require('../../writeFailure');
 const { WRITE_ITEM_STATUS } = require('../../writeItem');
-const { WriteResponder } = require('../../writeResponder');
 
 /**
- * The stages of the checks the old worker ran before it called the merge code. An error thrown
- * there was reported with `MergeResultEntry.createFromError`, with the line's byte offset; an error
- * thrown at a later stage, inside the merge code, with the merge code's own entry.
+ * The stages of the checks that run before the merge step. An error thrown there is reported with
+ * `MergeResultEntry.createFromError`, with the line's byte offset, as the old worker reported an
+ * error of its pre-merge checks; an error thrown at a later stage, as the old worker's merge code
+ * did, gets the merge code's own entry. The incoming schema check is the one stage the old worker
+ * ran inside its merge code.
  */
 const STAGES_BEFORE_MERGE = Object.freeze([
     WRITE_FAILURE_STAGE.STRUCTURE,
@@ -46,34 +47,48 @@ const resultKey = (result) => keyOf({ resourceType: result?.resourceType, uuid: 
 const itemKey = (item) => keyOf({ resourceType: item.incoming.resourceType, uuid: item.incoming._uuid });
 
 /**
- * Holds everything that depends on the `$import` worker's result format. The worker's reader
- * builds the items, so this responder reads nothing and builds no response: it builds one result
- * entry per line, in line order, in the shapes the old worker wrote (created, updated, failed, and
- * not-created, not-updated for an unchanged line), each carrying its line's byte offset, and does
- * not record metrics, which the worker records from the entries. The batch writer asks it for the
- * entries after the flush; the pipeline does not audit them.
+ * Returns the text a flush failure entry carries for the text the bulk write executor reported.
+ * The executor reports a write error as the JSON array of its write errors, whose elements hold
+ * the written resource, so a text that parses to an array is replaced by a fixed message with the
+ * distinct error codes and nothing else. Any other text, such as the document size error text, is
+ * returned unchanged.
+ * @param {string|undefined} text
+ * @param {string} resourceType
+ * @returns {string|undefined}
  */
-class ImportResponder extends WriteResponder {
-    /**
-     * Always throws: the worker's reader builds the items, so no import run reads a request.
-     * @returns {Promise<never>}
-     */
-    async readAsync () {
-        throw new Error('ImportResponder does not read a request: the import reader builds the items');
+const flushFailureText = (text, resourceType) => {
+    if (typeof text !== 'string') {
+        return text;
     }
-
-    /**
-     * Returns one entry per failed item in line order, so the batch has them if the flush throws.
-     * @param {import('../../writeItem').WriteItem[]} items
-     * @returns {MergeResultEntry[]}
-     */
-    failureResults ({ items }) {
-        return [...items]
-            .sort(byIndex)
-            .filter((item) => item.status === WRITE_ITEM_STATUS.FAILED)
-            .map((item) => this.toFailureEntry(item));
+    let parsed;
+    try {
+        parsed = JSON.parse(text);
+    } catch {
+        return text;
     }
+    if (!Array.isArray(parsed)) {
+        return text;
+    }
+    const codes = [
+        ...new Set(
+            parsed
+                .map((writeError) => writeError?.code)
+                .filter((code) => typeof code === 'number' || typeof code === 'string')
+        )
+    ];
+    const message = `Bulk write failed for ${resourceType}`;
+    return codes.length > 0 ? `${message}: error code ${codes.join(', ')}` : message;
+};
 
+/**
+ * Holds everything that depends on the `$import` worker's result format. The worker's reader
+ * builds the items and the worker records the metrics, so this is a plain class and not a
+ * `WriteResponder`: it only builds one result entry per line, in line order, in the shapes the old
+ * worker wrote (created, updated, failed, and not-created, not-updated for an unchanged line),
+ * each carrying its line's byte offset. The batch writer asks it for the entries after the flush;
+ * the pipeline does not audit them.
+ */
+class ImportResponder {
     /**
      * Returns one entry per item in line order, matched by the item's position and not by its
      * `resourceType` and `_uuid`, so two lines of one resource give two entries. A failed item
@@ -81,8 +96,12 @@ class ImportResponder extends WriteResponder {
      * Any other item gets the next flush result for its `resourceType` and `_uuid`, or, when none
      * is left, the last one an earlier line of that resource got, because the bulk inserter folds
      * the writes of one resource in a flush into one document and returns one result for it: a
-     * failed entry when that result carries an issue, otherwise a created entry, or an updated
-     * entry when the item updates a stored resource or repeats an earlier line's resource.
+     * failed entry when that result carries an issue, an entry that is neither created nor updated
+     * when it carries no issue and neither flag (the stored resource already equals the write),
+     * otherwise a created entry, or an updated entry when the item updates a stored resource or
+     * repeats an earlier line's resource. A line repeats a resource when an earlier line of the
+     * batch with the same `resourceType` and `_uuid` was queued or found unchanged; an earlier
+     * line that failed a check wrote nothing, so it does not make a repeat.
      * @param {import('../../writeItem').WriteItem[]} items
      * @param {MergeResultEntry[]} executedResults
      * @returns {MergeResultEntry[]}
@@ -100,14 +119,23 @@ class ImportResponder extends WriteResponder {
          * @type {Map<string, MergeResultEntry>}
          */
         const lastFlushResultByKey = new Map();
+        /**
+         * The keys of the resources an earlier line queued or found unchanged.
+         * @type {Set<string>}
+         */
+        const keysOfEarlierWrites = new Set();
         return [...items].sort(byIndex).map((item) => {
             if (item.status === WRITE_ITEM_STATUS.FAILED) {
                 return this.toFailureEntry(item);
             }
+            const key = itemKey(item);
+            const repeats = keysOfEarlierWrites.has(key);
+            if (item.status !== WRITE_ITEM_STATUS.ACTIVE) {
+                keysOfEarlierWrites.add(key);
+            }
             if (item.status === WRITE_ITEM_STATUS.UNCHANGED) {
                 return this.toSuccessEntry({ item, created: false, updated: false });
             }
-            const key = itemKey(item);
             const flushResult =
                 flushResultsByKey.get(key)?.shift() ?? lastFlushResultByKey.get(key);
             if (flushResult) {
@@ -116,7 +144,10 @@ class ImportResponder extends WriteResponder {
             if (flushResult?.issue) {
                 return this.toFlushFailureEntry({ item, flushResult });
             }
-            const updated = item.importLine?.forceUpdated === true || item.writeMode === 'update';
+            if (flushResult && !flushResult.created && !flushResult.updated) {
+                return this.toSuccessEntry({ item, created: false, updated: false });
+            }
+            const updated = repeats || item.writeMode === 'update';
             return this.toSuccessEntry({ item, created: !updated, updated });
         });
     }
@@ -187,12 +218,24 @@ class ImportResponder extends WriteResponder {
      * reports only the issue, so the entry's OperationOutcome is built from it, which is what puts
      * the entry in the range's error output. The entry gets its own copy of the issue, because
      * several lines of one resource share one flush result and each carries its own byte offset.
+     * The copy has no resource content: the executor's write error text, a JSON array that holds
+     * the written resource, is replaced by a message with the error codes.
      * @param {import('../../writeItem').WriteItem} item
      * @param {MergeResultEntry} flushResult
      * @returns {MergeResultEntry}
      */
     toFlushFailureEntry ({ item, flushResult }) {
+        const { resourceType } = item.incoming;
         const issue = { ...flushResult.issue };
+        if (issue.details) {
+            issue.details = {
+                ...issue.details,
+                text: flushFailureText(issue.details.text, resourceType)
+            };
+        }
+        if (issue.diagnostics !== undefined) {
+            issue.diagnostics = flushFailureText(issue.diagnostics, resourceType);
+        }
         return new MergeResultEntry({
             id: item.incoming.id,
             uuid: item.incoming._uuid,
@@ -224,21 +267,6 @@ class ImportResponder extends WriteResponder {
             operationOutcome: null
         }).withSourceByteOffset(item.importLine?.byteOffset);
     }
-
-    /**
-     * Returns the results unchanged: an import run has no response.
-     * @param {MergeResultEntry[]} results
-     * @returns {MergeResultEntry[]}
-     */
-    toResponse ({ results }) {
-        return results;
-    }
-
-    /**
-     * Does nothing: the worker records the import metrics from the entries.
-     * @returns {void}
-     */
-    recordMetrics () {}
 }
 
 module.exports = {

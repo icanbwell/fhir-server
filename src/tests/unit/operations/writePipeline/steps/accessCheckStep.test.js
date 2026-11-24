@@ -77,4 +77,73 @@ describe('AccessCheckStep', () => {
         ]);
         expect(items[1].failure).toBe(failure);
     });
+
+    test.each([
+        { itemErrorsFailItem: true, expected: 'checks each item alone and fails only the item that throws' },
+        { itemErrorsFailItem: undefined, expected: 'rejects' }
+    ])(
+        'with itemErrorsFailItem $itemErrorsFailItem, a checker that throws for the batch $expected',
+        async ({ itemErrorsFailItem }) => {
+            const error = new Error('synthetic access check failure');
+            const forbidden = new WriteFailure({
+                stage: WRITE_FAILURE_STAGE.ACCESS,
+                subject: { id: 'patient-2', resourceType: 'Patient' },
+                operationOutcome: { resourceType: 'OperationOutcome', issue: [] }
+            });
+            const items = [buildItem({ index: 0 }), buildItem({ index: 1 }), buildItem({ index: 2 })];
+            const calls = [];
+            const accessChecker = {
+                checkAsync: async (args) => {
+                    calls.push(args);
+                    if (args.items.includes(items[1])) {
+                        throw error;
+                    }
+                    return args.items.map((item) => (item === items[2] ? forbidden : null));
+                }
+            };
+            const step = new AccessCheckStep({ accessChecker });
+            const context = buildContext();
+
+            const run = step.runAsync({
+                items,
+                context,
+                profile: { name: 'fake', accessRequested: 'u', itemErrorsFailItem }
+            });
+
+            if (!itemErrorsFailItem) {
+                await expect(run).rejects.toBe(error);
+                expect(calls).toHaveLength(1);
+                expect(items.every((item) => item.isActive)).toBe(true);
+                return;
+            }
+            await run;
+            expect(calls.map((call) => ({
+                items: call.items.map((item) => item.index),
+                sameContext: call.context === context,
+                accessRequested: call.accessRequested
+            }))).toStrictEqual([
+                { items: [0, 1, 2], sameContext: true, accessRequested: 'u' },
+                { items: [0], sameContext: true, accessRequested: 'u' },
+                { items: [1], sameContext: true, accessRequested: 'u' },
+                { items: [2], sameContext: true, accessRequested: 'u' }
+            ]);
+            expect(items.map((item) => item.status)).toStrictEqual([
+                WRITE_ITEM_STATUS.ACTIVE,
+                WRITE_ITEM_STATUS.FAILED,
+                WRITE_ITEM_STATUS.FAILED
+            ]);
+            expect({
+                stage: items[1].failure.stage,
+                subject: items[1].failure.subject,
+                error: items[1].failure.error,
+                operationOutcome: items[1].failure.operationOutcome
+            }).toStrictEqual({
+                stage: WRITE_FAILURE_STAGE.ACCESS,
+                subject: { id: 'patient-1', uuid: undefined, sourceAssigningAuthority: undefined, resourceType: 'Patient' },
+                error,
+                operationOutcome: null
+            });
+            expect(items[2].failure).toBe(forbidden);
+        }
+    );
 });

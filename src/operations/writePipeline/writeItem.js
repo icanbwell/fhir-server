@@ -29,11 +29,9 @@ const WRITE_ITEM_STATUS = Object.freeze({
 
 /**
  * What an import line adds to its item: the absolute byte offset of the line in the source file,
- * which the result entry carries, and whether an earlier line of the same flush already had the
- * resource's `_uuid`, which makes this line an update.
+ * which the result entry carries.
  * @typedef {Object} ImportLine
  * @property {number} byteOffset
- * @property {boolean} forceUpdated
  */
 
 /**
@@ -44,8 +42,8 @@ const WRITE_ITEM_STATUS = Object.freeze({
  * (`patch`), the writes it makes to Group members (`memberWrites`) and the operations it applied
  * (`appliedPatch`); the steps that fill them are PATCH's own. An admin write keeps the description
  * of its change (`adminChange`) and the resources the change links to (`linked`); the steps that
- * fill them are the admin operations' own. An import line keeps its byte offset and whether it is
- * a repeat of an earlier line's resource (`importLine`), which only the import responder reads.
+ * fill them are the admin operations' own. An import line keeps its byte offset (`importLine`),
+ * which only the import responder reads.
  */
 class WriteItem {
     /**
@@ -106,7 +104,7 @@ class WriteItem {
          */
         this.linked = [];
         /**
-         * The import line's byte offset and repeat flag. Null for an operation that is not an
+         * The import line's byte offset. Null for an operation that is not an
          * import.
          * @type {ImportLine|null}
          */

@@ -83,9 +83,17 @@ differences are plain data next to each other.
   each flush it hands the buffered lines to `ImportBatchWriter`
   (`writePipeline/operations/import/importBatchWriter.js`), which backfills the owner tag as the
   old worker does, then calls `processAsync` and `executeAsync` once for the batch, as
-  `MergeStream` does. `ImportResponder` turns the items into today's per-line result entries. The
-  audit stays the worker's, once per range from those entries, so the import path does not use
-  `WriteAuditor`.
+  `MergeStream` does. `ImportResponder`, a plain class with no `WriteResponder` base, turns the
+  items into today's per-line result entries. The profile sets `itemErrorsFailItem`, so an
+  unexpected error from the scope check, the schema check, the meta check, the access check, the
+  build or the owner backfill fails only its line, as the old per-line `catch` did; only a flush
+  that throws fails the batch. The audit stays the worker's, once per range from
+  those entries, so the import path does not use `WriteAuditor`. Counts and audits come from the
+  entries after the flush. A flush that throws may have stored some resource types, so the worker
+  records the batch's entries as before and does not read a batch of several resource types again
+  (the types counted are those of the lines no check failed, unchanged lines included); a batch of
+  one type is read again as before, but only if no earlier batch of the range was flushed. The bulk import worker checks
+  `WRITE_PIPELINE_OPERATIONS` at startup in `src/operations/asyncJobs/worker.js`, as the app does.
 - Step 10 is `accessOnResult`. It checks that the caller may make the access-tag changes between
   the stored and the built document, and runs after `validateResult`. Its default checker is on for
   PATCH, whose access tags are known only after the build, and off for POST, PUT and `$merge`,

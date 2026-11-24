@@ -3,6 +3,7 @@ const { MergeResultEntry } = require('../../../../../../operations/common/mergeR
 const { MergeManager } = require('../../../../../../operations/merge/mergeManager');
 const { ScopesManager } = require('../../../../../../operations/security/scopesManager');
 const { ParsedArgs } = require('../../../../../../operations/query/parsedArgs');
+const { ImportBatchFlushError } = require('../../../../../../operations/writePipeline/operations/import/importBatchFlushError');
 const { ImportBatchWriter } = require('../../../../../../operations/writePipeline/operations/import/importBatchWriter');
 const { IMPORT_WRITE_PROFILE } = require('../../../../../../operations/writePipeline/operations/import/profile');
 const { ImportResponder } = require('../../../../../../operations/writePipeline/operations/import/responder');
@@ -19,20 +20,21 @@ const { SecurityTagSystem } = require('../../../../../../utils/securityTagSystem
 const BYTE_OFFSET_URL = 'https://www.icanbwell.com/source-byte-offset';
 const UUID_A = '00000000-0000-4000-8000-00000000000a';
 const UUID_B = '00000000-0000-4000-8000-00000000000b';
+const UUID_C = '00000000-0000-4000-8000-00000000000c';
 const REQUEST_INFO = Object.freeze({ requestId: 'synthetic-import-request', headers: {} });
 
 /**
- * Builds a buffered line for a synthetic Patient with the given uuid id and security tags.
+ * Builds a buffered line for a synthetic resource, a Patient unless `resourceType` is given, with
+ * the given uuid id and security tags.
  */
-const line = ({ uuid, security, byteOffset, forceUpdated = false }) => ({
+const line = ({ uuid, security, byteOffset, resourceType = 'Patient' }) => ({
     fhirResource: {
-        resourceType: 'Patient',
+        resourceType,
         id: uuid,
         _uuid: uuid,
         meta: { security: security.map(([system, code]) => ({ system, code })) }
     },
-    byteOffset,
-    forceUpdated
+    byteOffset
 });
 
 /**
@@ -123,7 +125,7 @@ const forbiddenIssue = (byteOffset) => ({
 });
 
 /**
- * Fails the item with the access check failure of a Patient of `client-a`.
+ * Fails the item with the access check failure of a resource of `client-a`.
  */
 const failForbidden = (item) =>
     item.fail({
@@ -133,7 +135,7 @@ const failForbidden = (item) =>
                 id: item.incoming.id,
                 uuid: item.incoming._uuid,
                 sourceAssigningAuthority: 'client-a',
-                resourceType: 'Patient'
+                resourceType: item.incoming.resourceType
             },
             operationOutcome: forbiddenOutcome()
         })
@@ -167,9 +169,10 @@ const ownerCodesOf = (resource) =>
  * Builds the writer with a fake pipeline that records each call in `calls` and each context it
  * gets in `contexts`, runs `process` on the active items in `processAsync`, as the pipeline's steps
  * get only active items, and returns or throws from
- * `execute` in `executeAsync`. The owner backfill is the real handler, also recorded in `calls`.
+ * `execute` in `executeAsync`. The owner backfill is the real handler, also recorded in `calls`,
+ * except that it throws `backfillError` for the resource whose id is `backfillErrorFor`.
  */
-const buildWriter = ({ process, execute }) => {
+const buildWriter = ({ process, execute, backfillErrorFor = null, backfillError = null }) => {
     const calls = [];
     const contexts = [];
     const writePipeline = Object.create(WritePipeline.prototype);
@@ -199,6 +202,9 @@ const buildWriter = ({ process, execute }) => {
     const backfill = ownerColumnHandler.preSaveAsync.bind(ownerColumnHandler);
     jest.spyOn(ownerColumnHandler, 'preSaveAsync').mockImplementation(async (args) => {
         calls.push({ call: 'ownerBackfill', id: args.resource.id, args: Object.keys(args) });
+        if (args.resource.id === backfillErrorFor) {
+            throw backfillError;
+        }
         return await backfill(args);
     });
     const writer = new ImportBatchWriter({
@@ -238,12 +244,12 @@ const BATCH_CONTEXT = Object.freeze({
 /**
  * Shows an item as the fake `processAsync` records it.
  */
-const processedItem = (index, uuid, ownerCode, byteOffset, forceUpdated = false) => ({
+const processedItem = (index, uuid, ownerCode, byteOffset) => ({
     isWriteItem: true,
     index,
     id: uuid,
     ownerCodes: [ownerCode],
-    importLine: { byteOffset, forceUpdated }
+    importLine: { byteOffset }
 });
 
 describe('ImportBatchWriter', () => {
@@ -272,14 +278,14 @@ describe('ImportBatchWriter', () => {
             name: 'a repeat of an earlier line and a stored resource are returned updated',
             resources: [
                 ownedLine({ uuid: UUID_A, byteOffset: 0 }),
-                ownedLine({ uuid: UUID_A, byteOffset: 250, forceUpdated: true }),
+                ownedLine({ uuid: UUID_A, byteOffset: 250 }),
                 accessOnlyLine({ uuid: UUID_B, byteOffset: 500 })
             ],
             process: queueAll((item) => (item.incoming._uuid === UUID_B ? 'update' : 'insert')),
             execute: () => [flushResult(UUID_A), flushResult(UUID_A), flushResult(UUID_B)],
             expectedCalls: pipelineCalls([
                 processedItem(0, UUID_A, 'client-b', 0),
-                processedItem(1, UUID_A, 'client-b', 250, true),
+                processedItem(1, UUID_A, 'client-b', 250),
                 processedItem(2, UUID_B, 'client-a', 500)
             ]),
             expectedContexts: [BATCH_CONTEXT, BATCH_CONTEXT],
@@ -328,7 +334,7 @@ describe('ImportBatchWriter', () => {
             }
         },
         {
-            name: 'a throw from the flush propagates and no entries are returned',
+            name: 'a throw from the flush rejects with its message and returns no entries',
             resources: [
                 ownedLine({ uuid: UUID_A, byteOffset: 0 }),
                 accessOnlyLine({ uuid: UUID_B, byteOffset: 75 })
@@ -366,6 +372,99 @@ describe('ImportBatchWriter', () => {
         expect(contexts.map(describeContext)).toStrictEqual(expected.expectedContexts);
         expect(new Set(contexts).size).toBe(Math.min(contexts.length, 1));
     });
+
+    test.each([
+        {
+            name: 'a line failing a check and a queued line give a failed and a created entry',
+            resources: [
+                accessOnlyLine({ uuid: UUID_B, byteOffset: 0 }),
+                ownedLine({ uuid: UUID_A, byteOffset: 90 })
+            ],
+            process: (items) => {
+                failForbidden(items[0]);
+                queueAll()([items[1]]);
+            },
+            expectedEntries: [
+                { resourceType: 'Patient', uuid: UUID_B, outcome: 'failed', sourceByteOffset: 0 },
+                { resourceType: 'Patient', uuid: UUID_A, outcome: 'created', sourceByteOffset: 90 }
+            ],
+            expectedResourceTypeCount: 1
+        },
+        {
+            name: 'queued lines of two resource types count two types',
+            resources: [
+                ownedLine({ uuid: UUID_A, byteOffset: 0 }),
+                ownedLine({ uuid: UUID_B, byteOffset: 50, resourceType: 'Observation' })
+            ],
+            process: queueAll(),
+            expectedEntries: [
+                { resourceType: 'Patient', uuid: UUID_A, outcome: 'created', sourceByteOffset: 0 },
+                {
+                    resourceType: 'Observation',
+                    uuid: UUID_B,
+                    outcome: 'created',
+                    sourceByteOffset: 50
+                }
+            ],
+            expectedResourceTypeCount: 2
+        },
+        {
+            name: 'a failed line of another resource type is not counted, as it queued no write',
+            resources: [
+                ownedLine({ uuid: UUID_B, byteOffset: 0, resourceType: 'Observation' }),
+                ownedLine({ uuid: UUID_A, byteOffset: 70 })
+            ],
+            process: (items) => {
+                failForbidden(items[0]);
+                queueAll()([items[1]]);
+            },
+            expectedEntries: [
+                {
+                    resourceType: 'Observation',
+                    uuid: UUID_B,
+                    outcome: 'failed',
+                    sourceByteOffset: 0
+                },
+                { resourceType: 'Patient', uuid: UUID_A, outcome: 'created', sourceByteOffset: 70 }
+            ],
+            expectedResourceTypeCount: 1
+        }
+    ])(
+        'a throw from the flush rejects with an ImportBatchFlushError: $name',
+        async ({ resources, process, expectedEntries, expectedResourceTypeCount }) => {
+            const flushError = new Error('synthetic flush failure');
+            const { writer } = buildWriter({
+                process,
+                execute: () => {
+                    throw flushError;
+                }
+            });
+
+            const error = await writer
+                .writeBatchAsync({ requestInfo: REQUEST_INFO, resources })
+                .catch((rejection) => rejection);
+
+            expect(error).toBeInstanceOf(ImportBatchFlushError);
+            expect({
+                name: error.name,
+                message: error.message,
+                causeIsTheFlushError: error.cause === flushError,
+                resourceTypeCount: error.resourceTypeCount,
+                entries: error.entries.map((entry) => ({
+                    resourceType: entry.resourceType,
+                    uuid: entry._uuid,
+                    outcome: entry.issue ? 'failed' : entry.created ? 'created' : 'other',
+                    sourceByteOffset: entry.sourceByteOffset
+                }))
+            }).toStrictEqual({
+                name: 'ImportBatchFlushError',
+                message: 'synthetic flush failure',
+                causeIsTheFlushError: true,
+                resourceTypeCount: expectedResourceTypeCount,
+                entries: expectedEntries
+            });
+        }
+    );
 
     test.each([
         { name: 'an invalid versionId', versionId: 'not a valid id!' },
@@ -458,5 +557,74 @@ describe('ImportBatchWriter', () => {
         expect(entries[1].operationOutcome.issue[0].details.text).toBe(
             'Error merging: ' + JSON.stringify(missingId.fhirResource)
         );
+    });
+
+    test('a line whose owner backfill throws fails alone at the identity stage and the other lines are written', async () => {
+        const backfillError = new Error('synthetic owner backfill failure');
+        const { writer, calls } = buildWriter({
+            process: queueAll(),
+            execute: () => [flushResult(UUID_A), flushResult(UUID_C)],
+            backfillErrorFor: UUID_B,
+            backfillError
+        });
+        jest.spyOn(writer.importResponder, 'toFailureEntry');
+
+        const entries = await writer.writeBatchAsync({
+            requestInfo: REQUEST_INFO,
+            resources: [
+                ownedLine({ uuid: UUID_A, byteOffset: 0 }),
+                accessOnlyLine({ uuid: UUID_B, byteOffset: 60 }),
+                accessOnlyLine({ uuid: UUID_C, byteOffset: 130 })
+            ]
+        });
+
+        expect(calls).toStrictEqual([
+            { call: 'ownerBackfill', id: UUID_A, args: ['resource'] },
+            { call: 'ownerBackfill', id: UUID_B, args: ['resource'] },
+            { call: 'ownerBackfill', id: UUID_C, args: ['resource'] },
+            {
+                call: 'processAsync',
+                isImportProfile: true,
+                items: [
+                    processedItem(0, UUID_A, 'client-b', 0),
+                    processedItem(2, UUID_C, 'client-a', 130)
+                ]
+            },
+            { call: 'executeAsync' }
+        ]);
+        const failedItem = writer.importResponder.toFailureEntry.mock.calls[0][0];
+        expect({
+            index: failedItem.index,
+            stage: failedItem.failure.stage,
+            subject: failedItem.failure.subject,
+            error: failedItem.failure.error
+        }).toStrictEqual({
+            index: 1,
+            stage: WRITE_FAILURE_STAGE.IDENTITY,
+            subject: { id: UUID_B, uuid: UUID_B, sourceAssigningAuthority: undefined, resourceType: 'Patient' },
+            error: backfillError
+        });
+        const failureIssue = {
+            extension: byteOffsetExtension(60),
+            severity: 'error',
+            code: 'exception',
+            details: { text: 'synthetic owner backfill failure' },
+            diagnostics: 'synthetic owner backfill failure',
+            expression: ['Patient']
+        };
+        expect(entries.map(describeEntry)).toStrictEqual([
+            createdEntry(UUID_A, 0),
+            {
+                operationOutcome: { resourceType: 'OperationOutcome', issue: [failureIssue] },
+                issue: failureIssue,
+                created: false,
+                id: UUID_B,
+                uuid: UUID_B,
+                resourceType: 'Patient',
+                updated: false,
+                sourceByteOffset: 60
+            },
+            createdEntry(UUID_C, 130)
+        ]);
     });
 });

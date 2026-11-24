@@ -43,6 +43,7 @@ const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
 const { WritePipelineSwitch } = require('../../writePipeline/writePipelineSwitch');
 const { ImportBatchWriter } = require('../../writePipeline/operations/import/importBatchWriter');
+const { ImportBatchFlushError } = require('../../writePipeline/operations/import/importBatchFlushError');
 
 const importTracer = trace.getTracer('fhir-server');
 
@@ -1107,30 +1108,17 @@ class BulkImportHandler {
         };
 
         /**
-         * Writes the buffered lines of one flush through the import batch writer on the shared
-         * write pipeline, which preloads, checks, merges and flushes them itself. Marks a line as
-         * repeating when an earlier line of the flush had its `_uuid`, as the old flush does. Once
-         * the writer returns, folds its entries, one per buffered line in line order, into this
-         * range's counters and entries: an entry with an issue or an OperationOutcome is failed,
-         * as the old flush counts every check failure failed, and an entry neither created nor
-         * updated (an unchanged line) is skipped. Unclaims the ifNoneExist key of each
-         * failed line, matched to its entry by position, and logs each failed line. If the writer
-         * throws, nothing of the batch is counted and the error propagates as a flush error.
-         * @returns {Promise<void>}
+         * Folds the entries of one flush, one per buffered line in line order, into this range's
+         * counters and entries: an entry with an issue or an OperationOutcome is failed, as the old
+         * flush counts every check failure failed, and an entry neither created nor updated (an
+         * unchanged line, or a write that found the stored resource already equal) is skipped.
+         * Unclaims the ifNoneExist key of each failed line, matched to its entry by position, and
+         * logs each failed line.
+         * @param {{fhirResource: Object, byteOffset: number, ifNoneExistKey: string|null}[]} bufferedLines
+         * @param {MergeResultEntry[]} entries
+         * @returns {void}
          */
-        const writeBatchOnPipelineAsync = async () => {
-            const bufferedLines = pendingMergeResources;
-            pendingMergeResources = [];
-            const uuidsSeenThisFlush = new Set();
-            const resources = bufferedLines.map(({ fhirResource, byteOffset }) => {
-                const forceUpdated = uuidsSeenThisFlush.has(fhirResource._uuid);
-                uuidsSeenThisFlush.add(fhirResource._uuid);
-                return { fhirResource, byteOffset, forceUpdated };
-            });
-            const entries = await this.importBatchWriter.writeBatchAsync({
-                requestInfo,
-                resources
-            });
+        const foldBatchEntries = ({ bufferedLines, entries }) => {
             entries.forEach((entry, index) => {
                 if (entry.issue || entry.operationOutcome) {
                     failed++;
@@ -1152,9 +1140,54 @@ class BulkImportHandler {
                 } else {
                     skipped++;
                 }
+                mergeResultEntries.push(entry);
             });
-            mergeResultEntries.push(...entries);
-            hasFlushedThisAttempt = true;
+        };
+
+        /**
+         * Writes the buffered lines of one flush through the import batch writer on the shared
+         * write pipeline, which preloads, checks, merges and flushes them itself, and decides which
+         * lines repeat an earlier line's resource, then folds its entries into this range's
+         * counters and entries. Marks the attempt as flushed only when the batch had a buffered
+         * line, since a batch of none writes nothing. When the flush throws, the writer's
+         * `ImportBatchFlushError` carries the batch's entries as the old flush recorded them before
+         * it flushed: they are folded in, and the flush's own error is rethrown. A flush of more
+         * than one resource type writes the types in parallel and may have committed some of them,
+         * so it marks the attempt as flushed and the range is not read again; its failure path
+         * audits the recorded entries. A flush of one resource type is treated as the old flush
+         * is, so the range may be read again if no earlier batch of it was flushed; it may in fact
+         * have committed part of its writes, and a retry may then report those lines as updated
+         * instead of created. Any other error thrown by the writer propagates with nothing of the
+         * batch counted.
+         * @returns {Promise<void>}
+         */
+        const writeBatchOnPipelineAsync = async () => {
+            const bufferedLines = pendingMergeResources;
+            pendingMergeResources = [];
+            const resources = bufferedLines.map(({ fhirResource, byteOffset }) => ({
+                fhirResource,
+                byteOffset
+            }));
+            let entries;
+            try {
+                entries = await this.importBatchWriter.writeBatchAsync({
+                    requestInfo,
+                    resources
+                });
+            } catch (error) {
+                if (!(error instanceof ImportBatchFlushError)) {
+                    throw error;
+                }
+                foldBatchEntries({ bufferedLines, entries: error.entries });
+                if (error.resourceTypeCount > 1) {
+                    hasFlushedThisAttempt = true;
+                }
+                throw error.cause;
+            }
+            foldBatchEntries({ bufferedLines, entries });
+            if (bufferedLines.length > 0) {
+                hasFlushedThisAttempt = true;
+            }
             sinceLastFlush = 0;
         };
 

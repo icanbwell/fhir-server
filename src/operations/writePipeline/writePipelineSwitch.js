@@ -25,7 +25,7 @@ class WritePipelineSwitch {
 
     /**
      * Throws if `WRITE_PIPELINE_OPERATIONS` lists an operation that is not in `OPERATIONS`. The app
-     * calls it at startup.
+     * and the async job worker call it at startup.
      * @returns {void}
      */
     assertValidConfiguration () {

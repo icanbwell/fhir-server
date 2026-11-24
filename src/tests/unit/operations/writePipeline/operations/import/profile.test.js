@@ -7,17 +7,37 @@ jestObj.mock('@icanbwell/fhirpatientsummary', () => ({
 
 const { createContainer } = require('../../../../../../createContainer');
 const { IMPORT_WRITE_PROFILE } = require('../../../../../../operations/writePipeline/operations/import/profile');
+const {
+    ADMIN_LINK_WRITE_PROFILE,
+    ADMIN_PATIENT_REFERENCE_WRITE_PROFILE
+} = require('../../../../../../operations/writePipeline/operations/admin/profile');
+const { CREATE_WRITE_PROFILE } = require('../../../../../../operations/writePipeline/operations/create/profile');
+const { MERGE_WRITE_PROFILE } = require('../../../../../../operations/writePipeline/operations/merge/profile');
+const { PATCH_WRITE_PROFILE } = require('../../../../../../operations/writePipeline/operations/patch/profile');
+const { UPDATE_WRITE_PROFILE } = require('../../../../../../operations/writePipeline/operations/update/profile');
 const { ImportResponder } = require('../../../../../../operations/writePipeline/operations/import/responder');
 const { WritePipelineSwitch } = require('../../../../../../operations/writePipeline/writePipelineSwitch');
 
 describe('IMPORT_WRITE_PROFILE', () => {
-    test('asks for the u letter with the merge action and turns off the stored validation and result access checks', () => {
+    test('asks for the u letter with the merge action, turns off the stored validation and result access checks and fails the item a check error came from', () => {
         expect(IMPORT_WRITE_PROFILE).toStrictEqual({
             name: 'import',
             accessRequested: 'u',
             action: 'merge',
-            off: ['validateAgainstStored', 'accessOnResult']
+            off: ['validateAgainstStored', 'accessOnResult'],
+            itemErrorsFailItem: true
         });
+    });
+
+    test.each([
+        { profile: MERGE_WRITE_PROFILE },
+        { profile: CREATE_WRITE_PROFILE },
+        { profile: UPDATE_WRITE_PROFILE },
+        { profile: PATCH_WRITE_PROFILE },
+        { profile: ADMIN_LINK_WRITE_PROFILE },
+        { profile: ADMIN_PATIENT_REFERENCE_WRITE_PROFILE }
+    ])('the $profile.name profile does not set itemErrorsFailItem', ({ profile }) => {
+        expect(Object.hasOwn(profile, 'itemErrorsFailItem')).toBe(false);
     });
 
     test('names no variants, so it runs the $merge defaults', () => {

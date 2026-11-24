@@ -45,6 +45,25 @@ const RANDOM_UUID = /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9
 const withRandomUuidsReplaced = (recorded) =>
     JSON.parse(JSON.stringify(recorded).replace(RANDOM_UUID, '<randomUuid>'));
 
+const SOURCE_BYTE_OFFSET_URL = 'https://www.icanbwell.com/source-byte-offset';
+
+/**
+ * A Patient whose name has letters that take more than one byte in UTF-8, so its byte length is
+ * more than its length in characters.
+ */
+const MULTI_BYTE_NAME_PATIENT = fixtureChanged('patient', (resource) => {
+    resource.name = [{ family: 'Ångström-Øre', given: ['Zoë', 'Søren'] }];
+});
+
+/**
+ * Returns the `source-byte-offset` of each error entry, in order.
+ */
+const errorByteOffsetsOf = (recorded) =>
+    recorded.errors.map(
+        (entry) =>
+            entry.issue.extension.find(({ url }) => url === SOURCE_BYTE_OFFSET_URL).valueInteger
+    );
+
 describe('$import parity between the old and the new write path', () => {
     registerImportTestHooks();
 
@@ -54,7 +73,10 @@ describe('$import parity between the old and the new write path', () => {
      * `env` it needs. A case whose line has no id sets `randomUuid`, so the `_uuid` the reader
      * generates for it is replaced in the output. A case that differs on the new path sets `expectedNew` to the row of the
      * plan's differences from the old path that it shows, and reads
-     * `expected/newPath/<key>.json` on that path.
+     * `expected/newPath/<key>.json` on that path. A case that must give the output of another case
+     * sets `sameAs` to that case's key: it reads that case's expected file and never writes it. A
+     * case that sets `realByteOffsets` gives each line its byte offset in the file, and
+     * `errorByteOffsets` are then the `source-byte-offset`s its error entries must have.
      */
     const cases = [
         {
@@ -192,6 +214,36 @@ describe('$import parity between the old and the new write path', () => {
             lines: [fixture('patientPartOne'), fixture('patientPartTwo')]
         },
         {
+            key: 'repeatAcrossChunks',
+            sameAs: 'sameBatchDuplicate',
+            name: 'writes two lines of one resource built in different chunks as a create and an update',
+            env: { MERGE_PARALLEL_CHUNK_SIZE: '1' },
+            previous: [],
+            lines: [fixture('patientPartOne'), fixture('patientPartTwo')]
+        },
+        {
+            key: 'forbiddenTypeInFlush',
+            name: 'rejects a line whose type the scope forbids and creates the lines of the allowed type around it',
+            scope: SCOPE_V2_PATIENT,
+            env: { ENABLE_SMART_V2_CRUDS_SCOPES: '1' },
+            previous: [],
+            lines: [
+                fixture('patient'),
+                fixture('observation'),
+                fixtureWithId('patient', 'import-forbidden-type-second')
+            ]
+        },
+        {
+            key: 'multiByteOffsets',
+            name: 'reports the byte offset in the file of a line after a line with multi-byte letters',
+            realByteOffsets: true,
+            errorByteOffsets: [
+                Buffer.byteLength(`${JSON.stringify(MULTI_BYTE_NAME_PATIENT)}\n`, 'utf8')
+            ],
+            previous: [],
+            lines: [MULTI_BYTE_NAME_PATIENT, fixture('patientPipeInId')]
+        },
+        {
             key: 'nullLineFailsRange',
             name: 'fails the whole range after three reads for a line that is JSON null, importing nothing',
             previous: [],
@@ -232,6 +284,12 @@ describe('$import parity between the old and the new write path', () => {
             name: 'creates a Group',
             previous: [],
             lines: [fixture('group')]
+        },
+        {
+            key: 'groupInvariantLine',
+            name: 'rejects only a Group line with members that is not actual and imports the lines around it',
+            previous: [],
+            lines: [fixture('patient'), fixture('groupNotActual'), fixture('observation')]
         },
         {
             key: 'largeAttachment',
@@ -320,6 +378,18 @@ describe('$import parity between the old and the new write path', () => {
                 fixtureChanged('patientUpdated', (resource) => {
                     resource.active = 'not-a-boolean';
                 })
+            ]
+        },
+        {
+            key: 'repeatAfterInvalidFirstLine',
+            name: 'reports a valid repeat of a new resource after an invalid first line as created',
+            expectedNew: 'a valid repeat of a new resource after an invalid first line is created, not updated',
+            previous: [],
+            lines: [
+                fixtureChanged('patient', (resource) => {
+                    resource.active = 'not-a-boolean';
+                }),
+                fixture('patient')
             ]
         },
         {
@@ -426,27 +496,33 @@ describe('$import parity between the old and the new write path', () => {
 
     test.each(withEachPath(cases))('$name on the $writePath path', async ({
         key,
+        sameAs,
         writePath,
         expectedNew,
         previous,
         lines,
         scope = SCOPE_ALL,
         env = {},
-        randomUuid = false
+        randomUuid = false,
+        realByteOffsets = false,
+        errorByteOffsets
     }) => {
         const request = await createTestRequest();
         await seedAsync(request, previous);
         Object.assign(process.env, env);
         useWritePath(writePath);
 
-        const recordedRun = await runImportAsync({ request, lines, scope });
+        const recordedRun = await runImportAsync({ request, lines, scope, realByteOffsets });
         const recorded = randomUuid ? withRandomUuidsReplaced(recordedRun) : recordedRun;
 
         expectMatchesExpectedFile({
             recorded,
-            file: expectedFileOf({ key, expectedNew, writePath }),
-            write: writesExpectedFile({ expectedNew, writePath })
+            file: expectedFileOf({ key: sameAs ?? key, expectedNew, writePath }),
+            write: !sameAs && writesExpectedFile({ expectedNew, writePath })
         });
+        if (errorByteOffsets) {
+            expect(errorByteOffsetsOf(recorded)).toStrictEqual(errorByteOffsets);
+        }
         const failedEntries = [...recorded.result, ...recorded.errors].filter(
             (entry) => entry.operationOutcome || entry.issue
         );
