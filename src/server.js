@@ -7,9 +7,11 @@ const { logSystemEventAsync } = require('./operations/common/systemEventLogging'
 const { getImageVersion } = require('./utils/getImageVersion');
 const { handleReadinessCheck } = require('./routeHandlers/probeChecker');
 const {
-    MongoCheckoutTimeoutTracker,
     readCheckoutTimeoutExitSettings,
-    createGracefulWorkerExit
+    readShutdownTimings,
+    createCheckoutTimeoutTrackerFactory,
+    createGracefulWorkerExit,
+    exitWithRecordedCode
 } = require('./utils/mongoCheckoutTimeoutTracker');
 /**
  * To use uncaught error handlers, we need to import the file
@@ -56,8 +58,7 @@ const flushBuffer = async (fnGetContainer) => {
  */
 async function createServer (fnGetContainer) {
     const container = fnGetContainer();
-    const gracefulTimeoutMs = process.env.GRACEFUL_TIMEOUT_MS ? parseInt(process.env.GRACEFUL_TIMEOUT_MS) : 29000;
-    const shutdownDelayMs = process.env.SHUTDOWN_DELAY_MS ? parseInt(process.env.SHUTDOWN_DELAY_MS) : 15100;
+    const { gracefulTimeoutMs, shutdownDelayMs, forceExitAfterMs } = readShutdownTimings(process.env);
 
     // A primary pool that keeps timing out on checkout is wedged; recycle this worker (see
     // utils/mongoCheckoutTimeoutTracker.js). The force-exit backstop allows the full graceful
@@ -66,15 +67,14 @@ async function createServer (fnGetContainer) {
     const exitWorker = createGracefulWorkerExit({
         processRef: process,
         logError,
-        forceExitAfterMs: shutdownDelayMs + gracefulTimeoutMs + 30000,
+        forceExitAfterMs,
         setTimer: setTimeout
     });
     await container.mongoDatabaseManager.connectAsync({
-        createCheckoutTimeoutTracker: (poolName) => new MongoCheckoutTimeoutTracker({
-            poolName,
-            ...checkoutTimeoutExitSettings,
-            now: Date.now,
-            onThresholdReached: exitWorker
+        createCheckoutTimeoutTracker: createCheckoutTimeoutTrackerFactory({
+            settings: checkoutTimeoutExitSettings,
+            exitWorker,
+            now: Date.now
         })
     });
     // Resolve eagerly so an invalid ClickPipe config (e.g. KAFKA_PRODUCER_COMPRESSION
@@ -152,11 +152,7 @@ async function createServer (fnGetContainer) {
         },
         onShutdown: () => {
             logInfo('Successfully shut down server', {});
-            // A self-initiated exit (repeated Mongo checkout timeouts) sets a non-zero exitCode;
-            // honour it instead of terminus's exit(0) so the restart is visible.
-            if (process.exitCode) {
-                process.exit(process.exitCode);
-            }
+            exitWithRecordedCode(process);
         }, // called right before exiting
         useExit0: true, // instead of sending the received signal again without being catched, the process will exit(0)
         logError // logger function to be called with errors. Example logger call: ('error happened during shutdown', error). See terminus.js for more details.

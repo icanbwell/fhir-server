@@ -53,6 +53,10 @@ const DEFAULT_THRESHOLD = 5;
 const DEFAULT_WINDOW_MS = 2 * 60 * 1000;
 const DEFAULT_MIN_SPAN_MS = 60 * 1000;
 const SELF_EXIT_CODE = 1;
+const DEFAULT_GRACEFUL_TIMEOUT_MS = 29000;
+const DEFAULT_SHUTDOWN_DELAY_MS = 15100;
+// Headroom after the shutdown delay and drain for the buffer flush in terminus's onSignal.
+const FORCE_EXIT_SLACK_MS = 30000;
 // Bounds memory when timeouts pile up; far above any sensible threshold.
 const MAX_RUN_LENGTH = 1000;
 
@@ -191,6 +195,53 @@ function readCheckoutTimeoutExitSettings (env) {
 }
 
 /**
+ * Reads the terminus drain timings. Malformed values fail at startup: a NaN delay would make
+ * the force-exit backstop fire after about 1 ms and skip the drain.
+ *
+ * @param {Object<string, (string|undefined)>} env
+ * @returns {{gracefulTimeoutMs: number, shutdownDelayMs: number, forceExitAfterMs: number}}
+ */
+function readShutdownTimings (env) {
+    const gracefulTimeoutMs = readNonNegativeInteger(env, 'GRACEFUL_TIMEOUT_MS', DEFAULT_GRACEFUL_TIMEOUT_MS);
+    const shutdownDelayMs = readNonNegativeInteger(env, 'SHUTDOWN_DELAY_MS', DEFAULT_SHUTDOWN_DELAY_MS);
+    return {
+        gracefulTimeoutMs,
+        shutdownDelayMs,
+        forceExitAfterMs: shutdownDelayMs + gracefulTimeoutMs + FORCE_EXIT_SLACK_MS
+    };
+}
+
+/**
+ * Builds the per-pool tracker factory that MongoDatabaseManager.connectAsync takes.
+ *
+ * @param {Object} params
+ * @param {{threshold: number, windowMs: number, minSpanMs: number}} params.settings
+ * @param {(details: CheckoutTimeoutThresholdDetails) => void} params.exitWorker
+ * @param {() => number} params.now
+ * @returns {(poolName: string) => MongoCheckoutTimeoutTracker}
+ */
+function createCheckoutTimeoutTrackerFactory ({ settings, exitWorker, now }) {
+    return (poolName) => new MongoCheckoutTimeoutTracker({
+        poolName,
+        ...settings,
+        now,
+        onThresholdReached: exitWorker
+    });
+}
+
+/**
+ * Called from terminus's onShutdown. A self-initiated exit leaves a non-zero `exitCode`;
+ * exit with it instead of terminus's exit(0) so the restart is visible.
+ *
+ * @param {{exitCode: (number|undefined), exit: Function}} processRef
+ */
+function exitWithRecordedCode (processRef) {
+    if (processRef.exitCode) {
+        processRef.exit(processRef.exitCode);
+    }
+}
+
+/**
  * Builds the exit action for a tracker: log, count, then start the same graceful shutdown a
  * SIGTERM starts (terminus in src/server.js, as src/middleware/errorHandler.js does for an
  * uncaught exception). `process.exitCode` carries the non-zero code to terminus's onShutdown.
@@ -232,9 +283,11 @@ function createGracefulWorkerExit ({ processRef, logError, forceExitAfterMs, set
 module.exports = {
     MongoCheckoutTimeoutTracker,
     readCheckoutTimeoutExitSettings,
+    readShutdownTimings,
+    createCheckoutTimeoutTrackerFactory,
     createGracefulWorkerExit,
+    exitWithRecordedCode,
     DEFAULT_THRESHOLD,
     DEFAULT_WINDOW_MS,
-    DEFAULT_MIN_SPAN_MS,
-    SELF_EXIT_CODE
+    DEFAULT_MIN_SPAN_MS
 };

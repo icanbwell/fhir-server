@@ -873,7 +873,6 @@ module.exports = {
     importTaskDurationHistogram,
     kafkaConsumerGroupJoinsCounter,
     groupMemberMergeEntriesCounter,
-    mongoCheckoutTimeoutSelfExitCounter,
     mongoPoolCheckoutDurationHistogram,
     mongoPoolCheckoutFailedCounter,
     mongoPoolClearedCounter,

@@ -30,7 +30,10 @@ const { __counters } = require('@opentelemetry/api');
 const {
     MongoCheckoutTimeoutTracker,
     readCheckoutTimeoutExitSettings,
+    readShutdownTimings,
+    createCheckoutTimeoutTrackerFactory,
     createGracefulWorkerExit,
+    exitWithRecordedCode,
     DEFAULT_THRESHOLD,
     DEFAULT_WINDOW_MS,
     DEFAULT_MIN_SPAN_MS
@@ -206,6 +209,62 @@ describe('readCheckoutTimeoutExitSettings', () => {
         ['MONGO_CHECKOUT_TIMEOUT_EXIT_MIN_SPAN_MS', '1m']
     ])('rejects %s=%s at startup', (name, value) => {
         expect(() => readCheckoutTimeoutExitSettings({ [name]: value })).toThrow(name);
+    });
+});
+
+describe('readShutdownTimings', () => {
+    test.each([
+        ['defaults when unset', {}, { gracefulTimeoutMs: 29000, shutdownDelayMs: 15100, forceExitAfterMs: 74100 }],
+        ['defaults when empty', { GRACEFUL_TIMEOUT_MS: '', SHUTDOWN_DELAY_MS: '' }, { gracefulTimeoutMs: 29000, shutdownDelayMs: 15100, forceExitAfterMs: 74100 }],
+        ['reads overrides and adds slack to the force-exit backstop', { GRACEFUL_TIMEOUT_MS: '1000', SHUTDOWN_DELAY_MS: '500' }, { gracefulTimeoutMs: 1000, shutdownDelayMs: 500, forceExitAfterMs: 31500 }]
+    ])('%s', (_name, env, expected) => {
+        expect(readShutdownTimings(env)).toEqual(expected);
+    });
+
+    test.each([
+        ['GRACEFUL_TIMEOUT_MS', 'abc'],
+        ['GRACEFUL_TIMEOUT_MS', '29s'],
+        ['SHUTDOWN_DELAY_MS', 'abc'],
+        ['SHUTDOWN_DELAY_MS', '-5']
+    ])('rejects %s=%s at startup', (name, value) => {
+        expect(() => readShutdownTimings({ [name]: value })).toThrow(name);
+    });
+});
+
+describe('createCheckoutTimeoutTrackerFactory', () => {
+    test('builds a tracker per pool that fires the shared exit action with its pool name', () => {
+        const clock = createFakeClock();
+        const exitWorker = jest.fn();
+        const factory = createCheckoutTimeoutTrackerFactory({
+            settings: { threshold: 2, windowMs: WINDOW_MS, minSpanMs: 0 },
+            exitWorker,
+            now: clock.now
+        });
+
+        const tracker = factory('fhir');
+        tracker.recordCheckoutTimeout('host-a:27017');
+        tracker.recordCheckoutTimeout('host-a:27017');
+
+        expect(exitWorker).toHaveBeenCalledTimes(1);
+        expect(exitWorker).toHaveBeenCalledWith(expect.objectContaining({ poolName: 'fhir' }));
+    });
+});
+
+describe('exitWithRecordedCode', () => {
+    test.each([
+        ['exits with the recorded non-zero code', 1, [1]],
+        ['leaves terminus to exit(0) when no code was recorded', undefined, []],
+        ['leaves terminus to exit(0) when the code is 0', 0, []]
+    ])('%s', (_name, exitCode, expectedExitArgs) => {
+        const processRef = { exitCode, exit: jest.fn() };
+
+        exitWithRecordedCode(processRef);
+
+        if (expectedExitArgs.length) {
+            expect(processRef.exit).toHaveBeenCalledWith(...expectedExitArgs);
+        } else {
+            expect(processRef.exit).not.toHaveBeenCalled();
+        }
     });
 });
 
