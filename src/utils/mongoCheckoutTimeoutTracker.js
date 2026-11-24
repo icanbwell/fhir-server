@@ -119,10 +119,15 @@ class MongoCheckoutTimeoutTracker {
         // malformed event from throwing in an event handler.
         const key = address ?? UNKNOWN_ADDRESS;
         const now = this.now();
-        const run = (this.timeoutTimestampsByAddress.get(key) ?? [])
+        const inWindow = (this.timeoutTimestampsByAddress.get(key) ?? [])
             .concat(now)
-            .filter((timestamp) => now - timestamp <= this.windowMs)
-            .slice(-MAX_RUN_LENGTH);
+            .filter((timestamp) => now - timestamp <= this.windowMs);
+        // Over the cap, drop from the middle and keep the oldest entry: the span check measures
+        // from the true start of the run, so a steady rate above MAX_RUN_LENGTH per minSpanMs
+        // can still reach the span.
+        const run = inWindow.length > MAX_RUN_LENGTH
+            ? [inWindow[0], ...inWindow.slice(-(MAX_RUN_LENGTH - 1))]
+            : inWindow;
         this.timeoutTimestampsByAddress.set(key, run);
         if (run.length >= this.threshold && now - run[0] >= this.minSpanMs) {
             this.triggered = true;
@@ -152,15 +157,15 @@ class MongoCheckoutTimeoutTracker {
  * @returns {number}
  */
 function readNonNegativeInteger (env, name, defaultValue) {
-    const raw = env[name];
+    const raw = env[name]?.trim();
     if (raw === undefined || raw === '') {
         return defaultValue;
     }
-    const value = Number(raw);
-    if (!Number.isInteger(value) || value < 0) {
-        throw new Error(`${name} must be a non-negative integer, got "${raw}"`);
+    // Digits only: Number() would also accept "0x10" and "1e5".
+    if (!/^\d+$/.test(raw)) {
+        throw new Error(`${name} must be a non-negative integer, got "${env[name]}"`);
     }
-    return value;
+    return Number(raw);
 }
 
 /**

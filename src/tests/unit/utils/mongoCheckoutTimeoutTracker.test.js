@@ -173,6 +173,25 @@ describe('MongoCheckoutTimeoutTracker', () => {
         expect(onThresholdReached).toHaveBeenCalledTimes(1);
     });
 
+    test('triggers on span when a steady rate above the cap per span keeps the run capped', () => {
+        const clock = createFakeClock();
+        const onThresholdReached = jest.fn();
+        const tracker = new MongoCheckoutTimeoutTracker({
+            poolName: 'fhir', threshold: 5, windowMs: WINDOW_MS, minSpanMs: 60000, now: clock.now, onThresholdReached
+        });
+
+        // 20 timeouts per second: the 1000-entry cap holds only the last 50 seconds.
+        for (let ms = 0; ms < 59000; ms += 50) {
+            clock.set(ms);
+            tracker.recordCheckoutTimeout('primary:27017');
+        }
+        expect(onThresholdReached).not.toHaveBeenCalled();
+
+        clock.set(60000);
+        tracker.recordCheckoutTimeout('primary:27017');
+        expect(onThresholdReached).toHaveBeenCalledTimes(1);
+    });
+
     test('triggers only once however many timeouts follow', () => {
         const onThresholdReached = jest.fn();
         const tracker = new MongoCheckoutTimeoutTracker({
@@ -190,7 +209,7 @@ describe('MongoCheckoutTimeoutTracker', () => {
 describe('readCheckoutTimeoutExitSettings', () => {
     test.each([
         ['defaults when unset', {}, { threshold: DEFAULT_THRESHOLD, windowMs: DEFAULT_WINDOW_MS, minSpanMs: DEFAULT_MIN_SPAN_MS }],
-        ['defaults when empty', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '', MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS: '' }, { threshold: 5, windowMs: 120000, minSpanMs: 60000 }],
+        ['defaults when blank', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '  ', MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS: '' }, { threshold: 5, windowMs: 120000, minSpanMs: 60000 }],
         ['reads overrides', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '10', MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS: '90000', MONGO_CHECKOUT_TIMEOUT_EXIT_MIN_SPAN_MS: '45000' }, { threshold: 10, windowMs: 90000, minSpanMs: 45000 }],
         ['0 disables', { MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD: '0' }, { threshold: 0, windowMs: 120000, minSpanMs: 60000 }],
         ['a shorter window alone derives a span that fits', { MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS: '60000' }, { threshold: 5, windowMs: 60000, minSpanMs: 30000 }],
@@ -203,6 +222,8 @@ describe('readCheckoutTimeoutExitSettings', () => {
         ['MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD', 'five'],
         ['MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD', '-1'],
         ['MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD', '2.5'],
+        ['MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD', '0x10'],
+        ['MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD', '1e5'],
         ['MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS', '2m'],
         ['MONGO_CHECKOUT_TIMEOUT_EXIT_WINDOW_MS', '0'],
         ['MONGO_CHECKOUT_TIMEOUT_EXIT_MIN_SPAN_MS', '120000'],
@@ -225,7 +246,8 @@ describe('readShutdownTimings', () => {
         ['GRACEFUL_TIMEOUT_MS', 'abc'],
         ['GRACEFUL_TIMEOUT_MS', '29s'],
         ['SHUTDOWN_DELAY_MS', 'abc'],
-        ['SHUTDOWN_DELAY_MS', '-5']
+        ['SHUTDOWN_DELAY_MS', '-5'],
+        ['SHUTDOWN_DELAY_MS', '0x10']
     ])('rejects %s=%s at startup', (name, value) => {
         expect(() => readShutdownTimings({ [name]: value })).toThrow(name);
     });
