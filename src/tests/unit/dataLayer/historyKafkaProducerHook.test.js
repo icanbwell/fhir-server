@@ -113,6 +113,8 @@ describe('FastDatabaseBulkInserter history Kafka hook', () => {
         const ops = [{ uuid: 'u1' }, { uuid: 'u2' }, { uuid: 'u3' }];
         const sizeError = new Error('size');
         const driverError = Object.assign(new Error('bulk'), { result: { insertedCount: 1 } });
+        const wrappedError = Object.assign(new Error('wrapped'), { error: { result: { insertedCount: 2 } } });
+        const overCountError = Object.assign(new Error('over'), { result: { insertedCount: 3 } });
         let spy;
         beforeEach(() => {
             spy = jest.spyOn(metrics, 'recordHistoryMongoFallbackFailed').mockImplementation(() => {});
@@ -122,6 +124,8 @@ describe('FastDatabaseBulkInserter history Kafka hook', () => {
         test.each([
             ['write throws', { disabled: true, kafkaLeft: ops, throws: new Error('down') }, 3, true],
             ['write throws after partial insert', { disabled: true, kafkaLeft: ops, throws: driverError }, 2, true],
+            ['write throws a wrapped partial insert', { disabled: true, kafkaLeft: ops, throws: wrappedError }, 1, true],
+            ['write throws with insertedCount equal to the batch', { disabled: true, kafkaLeft: ops, throws: overCountError }, 3, true],
             ['write returns an error', { disabled: true, kafkaLeft: ops, returns: sizeError }, 3, false],
             ['write succeeds', { disabled: true, kafkaLeft: ops }, null, false],
             ['Kafka healthy', { disabled: true, kafkaLeft: [] }, null, false],
