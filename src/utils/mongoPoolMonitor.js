@@ -49,10 +49,17 @@
  *   whatever it still held, so a closed pool reports 0 rather than a leftover level. Late
  *   checkedIn events after the close find no entry and do nothing.
  *
- * Known gap: the driver does not emit checkOutFailed when a checkout is cancelled through
- * an AbortSignal, so such a checkout would stay counted as waiting until its pool closes.
- * fhir-server does not pass a signal to driver operations today (the AbortControllers in
- * merge and search stop our response streams, not the driver), so this cannot happen yet.
+ * - A checkout cancelled through an AbortSignal emits no checkOutFailed: the driver marks
+ *   the wait-queue member cancelled and drops it silently the next time it processes the
+ *   queue (on a checkIn). The counter alone would therefore drift upward by one per
+ *   cancelled checkout until its pool closes. To correct it, after a checkedIn,
+ *   checkedOut or checkOutFailed with waiters still counted, the monitor reads the pool's
+ *   real queue length (client.topology.s.servers.get(address).pool.waitQueueSize, a driver
+ *   internal) on the next macrotask, once the driver has dropped cancelled members, and
+ *   lowers the count to it. It only ever lowers the count, and if the internals are not
+ *   there (a driver upgrade) it does nothing and the counter behaves as before. While a
+ *   cancelled checkout sits behind a connection that stays busy, the gauge overstates the
+ *   wait by one until that connection is checked in.
  */
 
 const {
@@ -76,7 +83,9 @@ const UNKNOWN_ADDRESS = 'unknown';
  *   checkOutFailed: (address: string|undefined) => {inUse: number, waiting: number},
  *   checkedIn: (address: string|undefined, connectionId: number|undefined) => {inUse: number, waiting: number},
  *   connectionClosed: (address: string|undefined, connectionId: number|undefined) => {inUse: number, waiting: number},
- *   poolClosed: (address: string|undefined) => {inUse: number, waiting: number}
+ *   poolClosed: (address: string|undefined) => {inUse: number, waiting: number},
+ *   hasWaiters: (address: string|undefined) => boolean,
+ *   reconcileWaiting: (address: string|undefined, actualWaiting: number) => {inUse: number, waiting: number}
  * }}
  */
 function createPoolOccupancy () {
@@ -134,6 +143,20 @@ function createPoolOccupancy () {
         connectionClosed (address, connectionId) {
             return { inUse: release(servers.get(keyOf(address)), connectionId), waiting: 0 };
         },
+        hasWaiters (address) {
+            return (servers.get(keyOf(address))?.waiting ?? 0) > 0;
+        },
+        // Lowers the count to the pool's real queue length. Never raises it: a larger real
+        // length means a started event is still ahead of us, not a missing one.
+        reconcileWaiting (address, actualWaiting) {
+            const server = servers.get(keyOf(address));
+            if (!server || !(actualWaiting >= 0) || server.waiting <= actualWaiting) {
+                return { inUse: 0, waiting: 0 };
+            }
+            const waiting = actualWaiting - server.waiting;
+            server.waiting = actualWaiting;
+            return { inUse: 0, waiting };
+        },
         poolClosed (address) {
             const key = keyOf(address);
             const server = servers.get(key);
@@ -169,6 +192,30 @@ function registerMongoPoolMonitoring ({ client, poolName }) {
         recordMongoPoolWaitQueueSizeChange(poolName, waiting);
     };
 
+    // Reads the pool's real queue length from the driver's topology; undefined when the
+    // internals are not there.
+    const poolWaitQueueSize = (address) => {
+        return client.topology?.s?.servers?.get(address)?.pool?.waitQueueSize;
+    };
+
+    // Runs on the next macrotask, after the driver has dropped cancelled queue members
+    // (see the AbortSignal note in the header), and only when there is something that could be overstated.
+    const reconcileWaitQueueSoon = (address) => {
+        if (!address || !occupancy.hasWaiters(address)) {
+            return;
+        }
+        setImmediate(() => {
+            try {
+                const actual = poolWaitQueueSize(address);
+                if (typeof actual === 'number') {
+                    emitOccupancyChange(occupancy.reconcileWaiting(address, actual));
+                }
+            } catch {
+                // Reconciliation is best effort and must never surface into the driver.
+            }
+        }).unref();
+    };
+
     client.on('connectionCheckOutStarted', (event) => {
         emitOccupancyChange(occupancy.checkOutStarted(event?.address));
     });
@@ -176,6 +223,7 @@ function registerMongoPoolMonitoring ({ client, poolName }) {
     client.on('connectionCheckedOut', (event) => {
         recordMongoPoolCheckoutDuration(poolName, event?.durationMS);
         emitOccupancyChange(occupancy.checkedOut(event?.address, event?.connectionId));
+        reconcileWaitQueueSoon(event?.address);
     });
 
     client.on('connectionCheckOutFailed', (event) => {
@@ -184,10 +232,12 @@ function registerMongoPoolMonitoring ({ client, poolName }) {
         // the histogram -- excluding it would hide the worst cases.
         recordMongoPoolCheckoutDuration(poolName, event?.durationMS);
         emitOccupancyChange(occupancy.checkOutFailed(event?.address));
+        reconcileWaitQueueSoon(event?.address);
     });
 
     client.on('connectionCheckedIn', (event) => {
         emitOccupancyChange(occupancy.checkedIn(event?.address, event?.connectionId));
+        reconcileWaitQueueSoon(event?.address);
     });
 
     client.on('connectionClosed', (event) => {
