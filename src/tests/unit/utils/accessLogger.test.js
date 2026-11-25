@@ -156,6 +156,31 @@ describe('AccessLogger', () => {
             expect(accessLogger.queue).toHaveLength(1);
         });
 
+        test.each([
+            ['v2 endpoint', '/4_0_0/$graphqlv2', '$graphqlv2'],
+            ['v2 endpoint with query string', '/4_0_0/$graphqlv2?x=1', '$graphqlv2'],
+            ['v1 endpoint', '/$graphql', '$graphql']
+        ])('should log a GraphQL request on the %s that resolved no resource type', async (_, originalUrl, expected) => {
+            // inside the mounted GraphQL routers req.url is stripped to '/'
+            const req = { method: 'POST', url: '/', originalUrl, isGraphQLRoute: true, headers: {} };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue).toHaveLength(1);
+            expect(accessLogger.queue[0].doc.request.resourceType).toBe(expected);
+        });
+
+        test('should prefer req.resourceType over the endpoint name on a GraphQL route', async () => {
+            const req = {
+                resourceType: 'Patient', method: 'POST', url: '/', originalUrl: '/4_0_0/$graphqlv2',
+                isGraphQLRoute: true, headers: {}
+            };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue[0].doc.request.resourceType).toBe('Patient');
+        });
+
         test('should set operation to READ for GET requests', async () => {
             const req = { resourceType: 'Patient', method: 'GET', url: '/Patient', headers: {} };
             await accessLogger.logAccessLogAsync({

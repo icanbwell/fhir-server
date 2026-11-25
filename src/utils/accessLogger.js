@@ -80,6 +80,18 @@ class AccessLogger {
     }
 
     /**
+     * Name of the GraphQL endpoint a request came in on ('$graphql' or '$graphqlv2').
+     * Used when a GraphQL request resolved no single resource type (federation _entities calls,
+     * validation errors, mutations), so req.resourceType was never set. Inside the mounted
+     * GraphQL routers req.url is stripped to '/', so the path is taken from req.originalUrl.
+     * @param {Request} req
+     * @return {string|undefined}
+     */
+    static graphQLEndpointName(req) {
+        return (req.originalUrl || '').split('?')[0].split('/').filter(Boolean).pop();
+    }
+
+    /**
      * Logs a FHIR operation
      * @typedef {Object} logAccessLogAsyncParams
      * @property {Request} req
@@ -110,7 +122,11 @@ class AccessLogger {
         /**
          * @type {string}
          */
-        const resourceType = req.resourceType ? req.resourceType : req.url.split('/')[2]?.split('?')[0];
+        const resourceType = req.resourceType
+            ? req.resourceType
+            : req.isGraphQLRoute
+              ? AccessLogger.graphQLEndpointName(req)
+              : req.url.split('/')[2]?.split('?')[0];
         if (!resourceType && statusCode !== 401) {
             return;
         }
