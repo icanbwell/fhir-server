@@ -853,7 +853,8 @@ describe('AuthService', () => {
             test.each([
                 ['no v2 letter scope remains', 'patient/Patient.read access/client.read'],
                 ['only an invalid letter suffix is present', 'patient/Patient.sr'],
-                ['only a mixed-case patient token with a v1 suffix is present', 'openid Patient/Patient.read']
+                ['only a mixed-case patient token with a v1 suffix is present', 'openid Patient/Patient.read'],
+                ['a tab joins two scopes into one malformed token', 'patient/Patient.rs\tuser/*.rs']
             ])('rejects a RelatedPerson delegate when %s', async (_name, scope) => {
                 const done = await runProcessUserInfoAsync({ flagOn: true, act: relatedPersonAct, scope });
 

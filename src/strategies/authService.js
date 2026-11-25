@@ -353,10 +353,7 @@ class AuthService {
 
                     if (this.configManager.enableDelegatedV2ScopesOnly && !context.actor.isOrganizationActor) {
                         scope = filterToV2LetterScopes(scope);
-                        const hasPatientScope = scope
-                            .split(/\s+/)
-                            .some((token) => token.toLowerCase().startsWith('patient/'));
-                        if (!hasPatientScope) {
+                        if (!this.hasPatientScope(scope)) {
                             logWarn('Auth rejected', {
                                 reason: 'delegated_actor_no_v2_scope',
                                 username,
@@ -572,6 +569,16 @@ class AuthService {
             }
         }
         return jwt_payload;
+    }
+
+    /**
+     * Whether a space-separated scope string holds a patient/ scope. The match is case-insensitive
+     * and the string is split on a single space, the same rule getFieldsFromToken uses for isUser.
+     * @param {string} scope
+     * @returns {boolean}
+     */
+    hasPatientScope(scope) {
+        return scope.split(' ').some((token) => token.toLowerCase().startsWith('patient/'));
     }
 
     /**

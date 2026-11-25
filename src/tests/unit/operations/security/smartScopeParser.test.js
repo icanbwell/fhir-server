@@ -275,7 +275,9 @@ describe('smartScopeParser', () => {
             ['patient/Patient.RS', ''],
             ['patient/Patient.', ''],
             ['PATIENT/Patient.read', ''],
-            ['openid\tpatient/Patient.rs\npatient/Patient.read', 'openid patient/Patient.rs']
+            ['patient/Patient.rs\tuser/*.rs', ''],
+            ['patient/Patient.rs\npatient/Patient.read', ''],
+            ['openid\tpatient/Patient.rs', 'openid\tpatient/Patient.rs']
         ])('filters %j to %j', (input, expected) => {
             expect(filterToV2LetterScopes(input)).toBe(expected);
         });

@@ -192,13 +192,15 @@ const V2_FILTERED_PREFIXES = [...SCOPE_PREFIXES, 'admin'];
  * not start with one of the five resource prefixes (patient, user, access, system, admin), and
  * every token that does and has a valid in-order v2 CRUDS letter suffix. A prefixed token with a v1
  * suffix (read, write, *), an out-of-order or unknown letter suffix, or no suffix is dropped.
- * The prefix match is case-insensitive.
+ * The prefix match is case-insensitive. The string is split on a single space, as every other
+ * scope consumer does, so a token holding any other whitespace stays one token (and is dropped when
+ * it carries a resource prefix): the filter can only remove scopes, never create new ones.
  * @param {string} scope space-separated scope string
  * @return {string} the kept tokens joined by a single space, or '' when none are kept
  */
 function filterToV2LetterScopes (scope) {
     const kept = [];
-    for (const token of String(scope || '').split(/\s+/)) {
+    for (const token of String(scope || '').split(' ')) {
         if (!token) {
             continue;
         }
