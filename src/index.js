@@ -17,8 +17,7 @@ const {
 } = require('./utils/cluster/clusterSchedulingConfig');
 const { WorkerLoadTable } = require('./utils/cluster/workerLoadTable');
 const { ConnectionDispatcher } = require('./utils/cluster/connectionDispatcher');
-const { WorkerLoadReporter } = require('./utils/cluster/workerLoadReporter');
-const { IPC_CHANNEL_CLOSED_ERROR_CODE } = require('./utils/cluster/clusterDispatchConstants');
+const { WorkerLoadReporter, createIpcSender } = require('./utils/cluster/workerLoadReporter');
 const { logError } = require('./operations/common/logging');
 const {
     recordClusterConnectionDispatched,
@@ -42,25 +41,8 @@ const primaryDispatchesConnections =
 const createWorkerLoadReporter = () =>
     new WorkerLoadReporter({
         channel: process,
-        // With a callback, a send error goes to the callback instead of being emitted as an
-        // 'error' event on process. A closed channel only means the primary is gone or this
-        // worker is exiting; anything else would stop the load reports, so it is logged.
-        send: (message) => {
-            if (!process.connected) {
-                return;
-            }
-            process.send(message, (error) => {
-                if (error && error.code !== IPC_CHANNEL_CLOSED_ERROR_CODE) {
-                    logError('Failed to send a message to the cluster primary', {
-                        messageType: message.type,
-                        error: error.message,
-                        code: error.code
-                    });
-                }
-            });
-        },
-        intervalMs: clusterScheduling.reportIntervalMs,
-        logError
+        send: createIpcSender({ channel: process, logError }),
+        intervalMs: clusterScheduling.reportIntervalMs
     });
 
 const main = async function () {
@@ -132,6 +114,9 @@ if (cluster.isPrimary && isClustered) {
     let shuttingDown = false;
     const forwardSignal = (signal) => {
         shuttingDown = true;
+        if (dispatcher) {
+            dispatcher.closeAfterLastWorkerExits();
+        }
         for (const id in cluster.workers) {
             cluster.workers[id].process.kill(signal);
         }
@@ -144,13 +129,6 @@ if (cluster.isPrimary && isClustered) {
     cluster.on('exit', (worker, code, signal) => {
         console.log(JSON.stringify({message: `Worker ${worker.process.pid} died (code=${code}, signal=${signal})`}));
         if (shuttingDown) {
-            // The dispatcher's listening socket would keep the primary alive; close it once the
-            // last worker is gone so the primary exits as it does without the dispatcher.
-            // (cluster.workers can still list an exited worker until its IPC channel closes, so
-            // use the dispatcher's own count, which drops the worker on 'exit'.)
-            if (dispatcher && dispatcher.trackedWorkerCount() === 0) {
-                dispatcher.closeAsync();
-            }
             return;
         }
         cluster.fork();

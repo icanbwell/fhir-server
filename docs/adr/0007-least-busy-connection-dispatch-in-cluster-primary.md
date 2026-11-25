@@ -65,13 +65,15 @@ How it works:
     ```text
     score = in-flight requests (last report)
           + connections sent to the worker that it had not received at its last report
-          + max(0, time since last report - report interval) / CLUSTER_BLOCKED_MS_PER_REQUEST
+          + max(0, time since last report - 2 × report interval) / CLUSTER_BLOCKED_MS_PER_REQUEST
     ```
 
     - The second term changes on every dispatch, so a burst of connections between two reports
       spreads out instead of all going to the worker that looked idle last time.
     - The third term catches a worker that is blocked right now: it cannot send its report, so the
-      report goes overdue and the score rises for as long as the block lasts.
+      report goes overdue and the score rises for as long as the block lasts. Lateness counts
+      only after one interval of grace, so ordinary timer jitter on an idle worker is not read as
+      a block.
 
 - A worker gets connections only after its first report, which it sends once its server is up,
   and none after it reports draining.
@@ -92,8 +94,8 @@ How it works:
   p99 from about 100 ms to 6 to 9 ms. No errors, under either policy.
 - Good: the primary no longer sends work to a worker that is starting, draining or has lost its
   IPC channel. Round-robin hands work to any worker the cluster module lists.
-- Good: no new dependency or component. About 300 lines in four small modules, each with unit
-  tests.
+- Good: no new dependency or component. About 700 lines, most of them JSDoc, in five small
+  modules under `src/utils/cluster/`, each with unit tests.
 - Bad: the primary does more per connection than Node's round-robin (a score over N workers,
   O(6)), and it handles about 40 load reports a second per worker. Both are small next to the
   socket hand-off, which round-robin also does. The primary must not take on other per-connection

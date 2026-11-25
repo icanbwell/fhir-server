@@ -2,7 +2,10 @@
 
 const { EventEmitter } = require('events');
 const { describe, test, expect, jest: jestObj, beforeEach } = require('@jest/globals');
-const { WorkerLoadReporter } = require('../../../../utils/cluster/workerLoadReporter');
+const {
+    WorkerLoadReporter,
+    createIpcSender
+} = require('../../../../utils/cluster/workerLoadReporter');
 const { CLUSTER_MESSAGE_TYPES } = require('../../../../utils/cluster/clusterDispatchConstants');
 
 describe('WorkerLoadReporter', () => {
@@ -11,7 +14,6 @@ describe('WorkerLoadReporter', () => {
     let server;
     let tick;
     let reporter;
-    let logError;
 
     const lastReport = () => sent.filter((m) => m.type === CLUSTER_MESSAGE_TYPES.LOAD_REPORT).at(-1);
 
@@ -20,12 +22,10 @@ describe('WorkerLoadReporter', () => {
         sent = [];
         server = new EventEmitter();
         tick = null;
-        logError = jestObj.fn();
         reporter = new WorkerLoadReporter({
             channel,
             send: (message) => sent.push(message),
             intervalMs: 25,
-            logError,
             setIntervalFn: (fn) => {
                 tick = fn;
                 return { unref: () => {} };
@@ -63,7 +63,7 @@ describe('WorkerLoadReporter', () => {
     });
 
     test('takes a socket from the primary into the HTTP server and resumes it', () => {
-        const socket = { resume: jestObj.fn() };
+        const socket = Object.assign(new EventEmitter(), { resume: jestObj.fn() });
         const connections = [];
         server.on('connection', (s) => connections.push(s));
 
@@ -73,6 +73,32 @@ describe('WorkerLoadReporter', () => {
         expect(connections).toEqual([socket]);
         expect(socket.resume).toHaveBeenCalled();
         expect(lastReport().connectionsReceived).toBe(1);
+    });
+
+    test('counts a received connection as in flight until its first request starts and ends', () => {
+        const socket = Object.assign(new EventEmitter(), { resume: jestObj.fn() });
+        channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket);
+        tick();
+        expect(lastReport().inFlight).toBe(1);
+
+        const res = new EventEmitter();
+        server.emit('request', { socket }, res);
+        tick();
+        expect(lastReport().inFlight).toBe(1);
+
+        res.emit('close');
+        tick();
+        expect(lastReport().inFlight).toBe(0);
+    });
+
+    test('stops counting a received connection that closes without a request', () => {
+        const socket = Object.assign(new EventEmitter(), { resume: jestObj.fn() });
+        channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket);
+
+        socket.emit('close');
+        tick();
+
+        expect(lastReport().inFlight).toBe(0);
     });
 
     test.each([
@@ -95,23 +121,44 @@ describe('WorkerLoadReporter', () => {
         expect(sent.filter((m) => m.type === CLUSTER_MESSAGE_TYPES.DRAINING)).toHaveLength(1);
     });
 
-    test.each([
-        ['a closed IPC channel is expected at exit and not logged', 'ERR_IPC_CHANNEL_CLOSED', 0],
-        ['any other send error is logged', 'ERR_SOMETHING_ELSE', 2]
-    ])('%s', (_name, code, expectedLogs) => {
-        const failingLog = jestObj.fn();
-        const failing = new WorkerLoadReporter({
-            channel: new EventEmitter(),
-            send: () => {
-                throw Object.assign(new Error('send failed'), { code });
-            },
-            intervalMs: 25,
-            logError: failingLog,
-            setIntervalFn: () => ({ unref: () => {} })
-        });
+});
 
-        expect(() => failing.attach(new EventEmitter())).not.toThrow();
-        expect(() => failing.markDraining()).not.toThrow();
-        expect(failingLog).toHaveBeenCalledTimes(expectedLogs);
+describe('createIpcSender', () => {
+    /**
+     * Stands in for the worker's process: the IPC channel is the external boundary. Node reports
+     * a failed send to the callback, never by throwing.
+     */
+    const fakeChannel = ({ connected = true, error = null } = {}) => ({
+        connected,
+        send: jestObj.fn((message, callback) => callback(error))
+    });
+
+    test.each([
+        ['a successful send', null, 0],
+        ['a closed channel, expected while the worker exits', { code: 'ERR_IPC_CHANNEL_CLOSED' }, 0],
+        ['any other error, which would stop the load reports', { code: 'EPIPE', message: 'broken pipe' }, 1]
+    ])('logs %s only when needed', (_name, error, expectedLogs) => {
+        const channel = fakeChannel({ error });
+        const logError = jestObj.fn();
+
+        createIpcSender({ channel, logError })({ type: CLUSTER_MESSAGE_TYPES.LOAD_REPORT });
+
+        expect(channel.send).toHaveBeenCalledTimes(1);
+        expect(logError).toHaveBeenCalledTimes(expectedLogs);
+        if (expectedLogs) {
+            expect(logError).toHaveBeenCalledWith('Failed to send a message to the cluster primary', {
+                messageType: CLUSTER_MESSAGE_TYPES.LOAD_REPORT,
+                error: 'broken pipe',
+                code: 'EPIPE'
+            });
+        }
+    });
+
+    test('sends nothing once the channel is disconnected', () => {
+        const channel = fakeChannel({ connected: false });
+
+        createIpcSender({ channel, logError: jestObj.fn() })({ type: CLUSTER_MESSAGE_TYPES.DRAINING });
+
+        expect(channel.send).not.toHaveBeenCalled();
     });
 });

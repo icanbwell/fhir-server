@@ -1,6 +1,7 @@
 'use strict';
 
 const { EventEmitter } = require('events');
+const net = require('net');
 const { describe, test, expect, jest: jestObj, beforeEach } = require('@jest/globals');
 const { ConnectionDispatcher } = require('../../../../utils/cluster/connectionDispatcher');
 const { WorkerLoadTable } = require('../../../../utils/cluster/workerLoadTable');
@@ -64,7 +65,7 @@ describe('ConnectionDispatcher', () => {
         now = 0;
         dispatcher = new ConnectionDispatcher({
             cluster,
-            net: {},
+            net,
             loadTable: new WorkerLoadTable({
                 reportIntervalMs: 25,
                 blockedMsPerRequest: 10,
@@ -182,7 +183,8 @@ describe('ConnectionDispatcher', () => {
         const worker = fork(1);
 
         cluster.emit('message', worker, 'plain string');
-        cluster.emit('message', worker, { type: 'someone-else', inFlight: 0 });
+        // a valid report shape under another type must not make the worker ready
+        cluster.emit('message', worker, { type: 'someone-else', inFlight: 0, connectionsReceived: 0 });
 
         const socket = fakeSocket();
         dispatcher.dispatch(socket);
@@ -216,12 +218,57 @@ describe('ConnectionDispatcher', () => {
         });
     });
 
-    test('tracks forked and exited workers', () => {
+    test.each([
+        ['a client reset is expected and not logged', 'ECONNRESET', 0],
+        ['any other socket error is logged', 'ENOTCONN', 1]
+    ])('error on the primary copy of a socket: %s', (_name, code, expectedLogs) => {
         const worker = fork(1);
-        fork(2);
-        cluster.emit('exit', worker);
+        cluster.emit('message', worker, loadReport(0));
+        const socket = fakeSocket();
+        dispatcher.dispatch(socket);
 
-        expect(dispatcher.trackedWorkerCount()).toBe(1);
+        expect(() => socket.emit('error', Object.assign(new Error(code), { code }))).not.toThrow();
+        expect(log).toHaveBeenCalledTimes(expectedLogs);
+    });
+
+    test('at shutdown, closes the listener only after the last worker exits', async () => {
+        await dispatcher.listenAsync();
+        const first = fork(1);
+        const second = fork(2);
+
+        dispatcher.closeAfterLastWorkerExits();
+        cluster.emit('exit', first);
+        expect(dispatcher.server).not.toBeNull();
+        cluster.emit('exit', second);
+
+        expect(dispatcher.server).toBeNull();
+    });
+
+    test('at shutdown with no worker left, closes the listener at once', async () => {
+        await dispatcher.listenAsync();
+
+        dispatcher.closeAfterLastWorkerExits();
+
+        expect(dispatcher.server).toBeNull();
+    });
+
+    test('listenAsync rejects when the port is already in use', async () => {
+        const occupier = net.createServer();
+        await new Promise((resolve) => occupier.listen(0, resolve));
+        try {
+            const busy = new ConnectionDispatcher({
+                cluster,
+                net,
+                loadTable: new WorkerLoadTable({ reportIntervalMs: 25, blockedMsPerRequest: 10 }),
+                port: occupier.address().port,
+                log,
+                metrics
+            });
+
+            await expect(busy.listenAsync()).rejects.toMatchObject({ code: 'EADDRINUSE' });
+        } finally {
+            await new Promise((resolve) => occupier.close(resolve));
+        }
     });
 
     test('keeps a client reset on the primary copy of the socket from throwing', () => {

@@ -1,4 +1,10 @@
 /**
+ * A report counts as overdue only once it is a full interval late, so ordinary timer jitter on
+ * an idle worker does not read as a blocked event loop.
+ */
+const OVERDUE_GRACE_INTERVALS = 2;
+
+/**
  * @typedef {Object} WorkerLoadReport
  * @property {number} inFlight requests the worker is currently handling
  * @property {number} connectionsReceived connections the worker has taken over since it started
@@ -11,7 +17,7 @@
  * A worker's score is:
  *   inFlight (last report)
  *   + connections sent to it that it had not yet received at its last report
- *   + (time its next report is overdue) / blockedMsPerRequest
+ *   + (time its next report is overdue, beyond one interval of grace) / blockedMsPerRequest
  *
  * The second term is updated synchronously on every dispatch, so a burst of connections arriving
  * between two reports spreads across workers instead of all going to the one that looked least
@@ -137,7 +143,10 @@ class WorkerLoadTable {
             return undefined;
         }
         const notYetReceived = Math.max(0, state.connectionsDispatched - state.connectionsReceived);
-        const overdueMs = Math.max(0, this.now() - state.reportedAt - this.reportIntervalMs);
+        const overdueMs = Math.max(
+            0,
+            this.now() - state.reportedAt - OVERDUE_GRACE_INTERVALS * this.reportIntervalMs
+        );
         return state.inFlight + notYetReceived + overdueMs / this.blockedMsPerRequest;
     }
 

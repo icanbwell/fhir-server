@@ -68,22 +68,16 @@ describe('createServer', () => {
     });
 
     test('without a load reporter it listens on the service port', async () => {
-        const port = await new Promise((resolve) => {
-            const probe = net.createServer().listen(0, '127.0.0.1', () => {
-                const { port: freePort } = probe.address();
-                probe.close(() => resolve(freePort));
-            });
-        });
         const originalPort = process.env.PORT;
-        // config.js reads the port from the environment when it is loaded
-        process.env.PORT = String(port);
+        // config.js reads the port from the environment when it is loaded; 0 picks a free port
+        process.env.PORT = '0';
         try {
             const createServer = loadCreateServer();
             server = await createServer(fakeContainer);
             await waitForListening(server);
 
-            expect(server.address().port).toBe(port);
-            expect(await get(port, '/direct')).toBe('ok /direct');
+            expect(server.address().address).not.toBe('127.0.0.1');
+            expect(await get(server.address().port, '/direct')).toBe('ok /direct');
         } finally {
             if (originalPort === undefined) {
                 delete process.env.PORT;

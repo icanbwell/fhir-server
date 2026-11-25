@@ -2,6 +2,9 @@ const { CLUSTER_MESSAGE_TYPES, CLUSTER_CONNECTION_DROP_REASON } = require('./clu
 
 const THROTTLED_LOG_INTERVAL_MS = 5000;
 
+/** Errors a client causes by going away; expected on the primary's copy of a socket */
+const CLIENT_DISCONNECT_ERROR_CODES = Object.freeze(['ECONNRESET', 'EPIPE']);
+
 /**
  * @typedef {Object} DispatchMetrics
  * @property {(workerScore: number) => void} connectionDispatched
@@ -44,6 +47,8 @@ class ConnectionDispatcher {
          * @type {Map<string, {count: number, lastLoggedAt: number}>}
          */
         this.throttledLogs = new Map();
+        /** set at shutdown: close the listener once no worker is left */
+        this.closeWhenNoWorkers = false;
     }
 
     /**
@@ -51,16 +56,27 @@ class ConnectionDispatcher {
      */
     trackWorkers() {
         this.cluster.on('fork', (worker) => this.loadTable.addWorker(worker.id));
-        this.cluster.on('exit', (worker) => this.loadTable.removeWorker(worker.id));
+        this.cluster.on('exit', (worker) => {
+            this.loadTable.removeWorker(worker.id);
+            this.closeIfShutDown();
+        });
         this.cluster.on('message', (worker, message) => this.handleWorkerMessage(worker, message));
     }
 
     /**
-     * Workers forked and not yet exited.
-     * @returns {number}
+     * Call when the primary starts shutting down. Workers keep serving through their shutdown
+     * delay, so the listener stays open until the last one exits; then it closes, so the
+     * listening socket does not keep the primary alive.
      */
-    trackedWorkerCount() {
-        return this.loadTable.size();
+    closeAfterLastWorkerExits() {
+        this.closeWhenNoWorkers = true;
+        this.closeIfShutDown();
+    }
+
+    closeIfShutDown() {
+        if (this.closeWhenNoWorkers && this.loadTable.size() === 0) {
+            this.closeAsync();
+        }
     }
 
     /**
@@ -97,7 +113,17 @@ class ConnectionDispatcher {
         }
         const server = this.server;
         this.server = null;
-        return new Promise((resolve) => server.close(() => resolve()));
+        return new Promise((resolve) =>
+            server.close((error) => {
+                if (error) {
+                    this.log('Connection dispatcher failed to close its listener', {
+                        error: error.message,
+                        code: error.code
+                    });
+                }
+                resolve();
+            })
+        );
     }
 
     /**
@@ -131,9 +157,16 @@ class ConnectionDispatcher {
      * @param {import('net').Socket} socket
      */
     dispatch(socket) {
-        // The primary's copy of the socket is closed once it is sent; until then, a reset from
-        // the client must not crash the primary.
-        socket.on('error', () => {});
+        // The primary's copy of the socket is closed once it is sent; until then an error on it
+        // must not crash the primary. A client going away is expected; anything else is logged.
+        socket.on('error', (error) => {
+            if (!CLIENT_DISCONNECT_ERROR_CODES.includes(error.code)) {
+                this.logThrottled('socketError', 'Error on a connection before hand-off', {
+                    error: error.message,
+                    code: error.code
+                });
+            }
+        });
 
         const attempts = this.loadTable.size();
         for (let attempt = 0; attempt < attempts; attempt++) {

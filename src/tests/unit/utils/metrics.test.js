@@ -676,7 +676,7 @@ describe('metrics.js', () => {
 
     describe('recordClusterConnectionDropped', () => {
         test.each([
-                        ...Object.values(CLUSTER_CONNECTION_DROP_REASON).map((reason) => [reason, reason]),
+            ...Object.values(CLUSTER_CONNECTION_DROP_REASON).map((reason) => [reason, reason]),
             ['an unexpected reason', UNKNOWN]
         ])('reason %s emits %s', (reason, expected) => {
             recordClusterConnectionDropped(reason);

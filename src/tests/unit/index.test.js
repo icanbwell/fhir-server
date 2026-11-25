@@ -66,7 +66,7 @@ describe('index.js (process entry point)', () => {
      * Loads src/index.js fresh with all its dependencies mocked.
      * @param {{isPrimary?: boolean, workerCount?: number, createServerImpl?: Function, cronImpl?: Function}} opts
      */
-    function loadIndex ({ isPrimary = false, workerCount, createServerImpl, cronImpl, clusterScheduling } = {}) {
+    function loadIndex ({ isPrimary = false, workerCount, createServerImpl, cronImpl, clusterScheduling, listenError } = {}) {
         if (workerCount === undefined) {
             delete process.env.WORKER_COUNT;
         } else {
@@ -91,13 +91,22 @@ describe('index.js (process entry point)', () => {
             workers: {}
         };
         // The OS listening socket is an infrastructure boundary, like cluster's forking
+        const errorHandlers = [];
         const netServer = {
             listen: jestGlobal.fn((port, callback) => {
                 order.push('listen');
-                callback();
+                if (listenError) {
+                    errorHandlers.forEach((handler) => handler(listenError));
+                } else {
+                    callback();
+                }
             }),
             close: jestGlobal.fn((callback) => callback()),
-            once: jestGlobal.fn(),
+            once: jestGlobal.fn((event, handler) => {
+                if (event === 'error') {
+                    errorHandlers.push(handler);
+                }
+            }),
             on: jestGlobal.fn(),
             removeListener: jestGlobal.fn(),
             address: jestGlobal.fn(() => ({ port: 3000 }))
@@ -329,6 +338,14 @@ describe('index.js (process entry point)', () => {
             expect(netServer.close).not.toHaveBeenCalled();
             exitWorker(2);
             expect(netServer.close).toHaveBeenCalledTimes(1);
+        });
+
+        test('primary exits with code 1 when it cannot listen on the service port', async () => {
+            const listenError = Object.assign(new Error('address in use'), { code: 'EADDRINUSE' });
+            loadIndex({ isPrimary: true, workerCount: 2, clusterScheduling: 'least_busy', listenError });
+            await flush();
+
+            expect(exitSpy).toHaveBeenCalledWith(1);
         });
 
         test('worker passes a load reporter to createServer', async () => {

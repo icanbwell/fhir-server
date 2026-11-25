@@ -69,8 +69,8 @@ describe('WorkerLoadTable', () => {
 
     test.each([
         // [name, ms since worker 1's last report, expected worker]
-        ['a report that is not yet due does not count', REPORT_INTERVAL_MS, 1],
-        ['an overdue report counts as blocked time', REPORT_INTERVAL_MS + 30, 2]
+        ['a report late by less than one interval (timer jitter) does not count', 2 * REPORT_INTERVAL_MS, 1],
+        ['a report more than one interval late counts as blocked time', 2 * REPORT_INTERVAL_MS + 30, 2]
     ])('%s', (_name, elapsedMs, expected) => {
         const clock = { now: 1000 };
         // worker 1 was idle at its last report; worker 2 has 2 in-flight requests and keeps reporting

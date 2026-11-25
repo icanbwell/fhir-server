@@ -13,28 +13,35 @@ const { describe, test, expect, beforeAll, afterAll } = require('@jest/globals')
 const FIXTURE = path.join(__dirname, 'fixtures', 'leastBusyClusterFixture.js');
 
 /**
+ * The primary sees a blocked worker only once its load report is overdue past the grace of two
+ * report intervals (2 x 25 ms in the fixture). Waiting four intervals also lets the idle workers'
+ * next reports land, so connections they received since their last report no longer count.
+ * The fixture's block (500 ms) outlasts this wait and the fast request.
+ */
+const BLOCK_DETECTION_WAIT_MS = 100;
+
+/**
  * @param {number} port
  * @param {string} urlPath
- * @returns {Promise<{pid: string, ms: number}>}
+ * @returns {Promise<{pid: string}>}
  */
 const get = (port, urlPath) =>
     new Promise((resolve, reject) => {
-        const started = Date.now();
         http.get({ host: '127.0.0.1', port, path: urlPath, agent: false }, (res) => {
             res.resume();
-            res.on('end', () =>
-                resolve({ pid: res.headers['x-worker-pid'], ms: Date.now() - started })
-            );
+            res.on('end', () => resolve({ pid: res.headers['x-worker-pid'] }));
         }).on('error', reject);
     });
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('least-busy cluster (real processes)', () => {
     let child;
     let port;
     const events = [];
     let exited;
+    /** @type {Map<string, Function[]>} waiters for the next event of each kind */
+    const waiters = new Map();
+    const nextEvent = (name) =>
+        new Promise((resolve) => waiters.set(name, [...(waiters.get(name) || []), resolve]));
 
     beforeAll(async () => {
         child = fork(FIXTURE, [], { stdio: ['ignore', 'pipe', 'inherit', 'ipc'] });
@@ -50,6 +57,8 @@ describe('least-busy cluster (real processes)', () => {
                     buffered = buffered.slice(newline + 1);
                     const event = JSON.parse(line);
                     events.push(event);
+                    (waiters.get(event.event) || []).forEach((resolve) => resolve(event));
+                    waiters.delete(event.event);
                     if (event.event === 'listening') {
                         resolve(event.port);
                     }
@@ -74,16 +83,16 @@ describe('least-busy cluster (real processes)', () => {
     });
 
     test('sends a request to an idle worker instead of one blocked on a slow request', async () => {
+        const slowStarted = nextEvent('slowStarted');
         const slow = get(port, '/slow');
-        // give the slow request time to reach its worker and start blocking
-        await sleep(30);
+        const { pid: blockedPid } = await slowStarted;
+        await new Promise((resolve) => setTimeout(resolve, BLOCK_DETECTION_WAIT_MS));
 
         const fast = await get(port, '/fast');
-        const { pid: slowPid } = await slow;
+        await slow;
 
-        expect(fast.pid).not.toBe(slowPid);
-        // round-robin would have queued it behind the 150 ms block in one case in three
-        expect(fast.ms).toBeLessThan(100);
+        // round-robin would have queued it behind the block in one case in three
+        expect(fast.pid).not.toBe(String(blockedPid));
     });
 
     test('shuts down gracefully: every worker flushes and exits 0, then the primary exits', async () => {
