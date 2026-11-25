@@ -266,7 +266,26 @@ describe('ConnectionDispatcher', () => {
             });
 
             await expect(busy.listenAsync()).rejects.toMatchObject({ code: 'EADDRINUSE' });
-            // the listener never started, so closing it fails; that is logged, not thrown
+        } finally {
+            await new Promise((resolve) => occupier.close(resolve));
+        }
+    });
+
+    test('closeAsync logs a failure to close the listener and still resolves', async () => {
+        const occupier = net.createServer();
+        await new Promise((resolve) => occupier.listen(0, resolve));
+        try {
+            const busy = new ConnectionDispatcher({
+                cluster,
+                net,
+                loadTable: new WorkerLoadTable({ reportIntervalMs: 25, blockedMsPerRequest: 10 }),
+                port: occupier.address().port,
+                log,
+                metrics
+            });
+            // the listener never starts, so closing it fails with ERR_SERVER_NOT_RUNNING
+            await expect(busy.listenAsync()).rejects.toMatchObject({ code: 'EADDRINUSE' });
+
             await busy.closeAsync();
 
             expect(log).toHaveBeenCalledWith(

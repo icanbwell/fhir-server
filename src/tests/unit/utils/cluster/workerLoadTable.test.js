@@ -67,10 +67,13 @@ describe('WorkerLoadTable', () => {
         }
     );
 
+    const GRACE_MS = OVERDUE_GRACE_INTERVALS * REPORT_INTERVAL_MS;
+
     test.each([
         // [name, ms since worker 1's last report, expected worker]
-        ['a report late by no more than the grace (timer jitter) does not count', OVERDUE_GRACE_INTERVALS * REPORT_INTERVAL_MS, 1],
-        ['a report late past the grace counts as blocked time', OVERDUE_GRACE_INTERVALS * REPORT_INTERVAL_MS + 30, 2]
+        ['a report late by no more than the grace (timer jitter) does not count', GRACE_MS, 1],
+        // 30 ms past the grace is 3 in-flight requests' worth, more than worker 2's 2
+        ['a report late past the grace counts as blocked time', GRACE_MS + 30, 2]
     ])('%s', (_name, elapsedMs, expected) => {
         const clock = { now: 1000 };
         // worker 1 was idle at its last report; worker 2 has 2 in-flight requests and keeps reporting

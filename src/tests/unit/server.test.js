@@ -67,7 +67,7 @@ describe('createServer', () => {
         jestGlobal.resetModules();
     });
 
-    test('without a load reporter it listens on the configured service port on all interfaces', async () => {
+    test('without a load reporter it listens on the PORT from config, not on loopback only', async () => {
         const originalPort = process.env.PORT;
         // config.js reads the port from the environment when it is loaded; 0 picks a free port
         process.env.PORT = '0';

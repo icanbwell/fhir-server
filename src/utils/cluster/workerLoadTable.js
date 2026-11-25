@@ -17,7 +17,8 @@ const OVERDUE_GRACE_INTERVALS = 2;
  * A worker's score is:
  *   inFlight (last report)
  *   + connections sent to it that it had not yet received at its last report
- *   + (time its next report is overdue, beyond the grace of OVERDUE_GRACE_INTERVALS intervals) / blockedMsPerRequest
+ *   + (time its next report is overdue, beyond the grace of OVERDUE_GRACE_INTERVALS intervals)
+ *     / blockedMsPerRequest
  *
  * The second term is updated synchronously on every dispatch, so a burst of connections arriving
  * between two reports spreads across workers instead of all going to the one that looked least
@@ -183,12 +184,13 @@ class WorkerLoadTable {
  * @returns {boolean}
  */
 function isValidReport(report) {
-    return (
-        report !== null &&
-        typeof report === 'object' &&
-        isNonNegativeNumber(report.inFlight) &&
-        isNonNegativeNumber(report.connectionsReceived)
-    );
+    if (report === null || typeof report !== 'object') {
+        return false;
+    }
+    if (!isNonNegativeNumber(report.inFlight)) {
+        return false;
+    }
+    return isNonNegativeNumber(report.connectionsReceived);
 }
 
 /**
