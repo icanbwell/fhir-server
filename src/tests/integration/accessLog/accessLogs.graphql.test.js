@@ -32,7 +32,7 @@ describe('AccessLogs GraphQL Tests', () => {
     });
 
     test.each([
-        ['v2 search', '/4_0_0/$graphqlv2', { query: searchQuery, variables: {} }, 'AllergyIntolerance'],
+        ['v2 search', '/4_0_0/$graphqlv2', { query: searchQuery, variables: {} }, 'AllergyIntolerance', 'READ'],
         [
             'v2 _entities',
             '/4_0_0/$graphqlv2',
@@ -40,10 +40,28 @@ describe('AccessLogs GraphQL Tests', () => {
                 query: entitiesQuery,
                 variables: { representations: [{ __typename: 'AllergyIntolerance', id: allergyId }] }
             },
-            '$graphqlv2'
+            '$graphqlv2',
+            'READ'
         ],
-        ['v2 validation error', '/4_0_0/$graphqlv2', { query: '{ nope }', variables: {} }, '$graphqlv2']
-    ])('%s is written to the access log', async (name, url, body, expectedResourceType) => {
+        ['v2 validation error', '/4_0_0/$graphqlv2', { query: '{ nope }', variables: {} }, '$graphqlv2', 'READ'],
+        [
+            'v2 mutation',
+            '/4_0_0/$graphqlv2',
+            { query: 'mutation { nope }', variables: {} },
+            '$graphqlv2',
+            'WRITE'
+        ],
+        [
+            'v2 _entities on a sub-path',
+            '/4_0_0/$graphqlv2/Patient',
+            {
+                query: entitiesQuery,
+                variables: { representations: [{ __typename: 'AllergyIntolerance', id: allergyId }] }
+            },
+            '$graphqlv2',
+            'READ'
+        ]
+    ])('%s is written to the access log', async (name, url, body, expectedResourceType, expectedOperation) => {
         const request = await createTestRequest((container) => {
             container.register(
                 'accessLogger',
@@ -73,6 +91,7 @@ describe('AccessLogs GraphQL Tests', () => {
         expect(logs.statusCode).toBe(200);
         expect(logs.body).toHaveLength(1);
         expect(logs.body[0].request.resourceType).toBe(expectedResourceType);
+        expect(logs.body[0].request.operation).toBe(expectedOperation);
         expect(logs.body[0].details.body).toBeDefined();
     });
 });

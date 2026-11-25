@@ -1,4 +1,5 @@
 const httpContext = require('express-http-context');
+const { parse, Kind, OperationTypeNode } = require('graphql');
 const { Mutex } = require('async-mutex');
 const os = require('os');
 
@@ -83,16 +84,38 @@ class AccessLogger {
     /**
      * Name of the GraphQL endpoint a request came in on ('$graphql' or '$graphqlv2').
      * Used when a GraphQL request resolved no single resource type (federation _entities calls,
-     * validation errors, mutations), so req.resourceType was never set. Inside the mounted
-     * GraphQL routers req.url is stripped to '/', so the path is taken from req.originalUrl.
-     * Only the two known endpoint names are returned; any other trailing path segment
-     * (e.g. /4_0_0/$graphqlv2/anything) yields undefined so it is never stored as a resource type.
+     * validation errors, mutations), so req.resourceType was never set. Taken from the mount path
+     * (req.baseUrl), not the request path, so a sub-path such as /4_0_0/$graphqlv2/Patient is still
+     * recorded as the endpoint and a client can never choose the stored value. Anything other than
+     * the two known endpoint names yields undefined.
      * @param {Request} req
      * @return {string|undefined}
      */
     static graphQLEndpointName(req) {
-        const lastSegment = (req.originalUrl || '').split('?')[0].split('/').filter(Boolean).pop();
-        return GRAPHQL_ENDPOINT_NAMES.has(lastSegment) ? lastSegment : undefined;
+        const mountName = (req.baseUrl || '').split('/').filter(Boolean).pop();
+        return GRAPHQL_ENDPOINT_NAMES.has(mountName) ? mountName : undefined;
+    }
+
+    /**
+     * Whether a GraphQL request may write. A document that contains a mutation is a write. A
+     * request without query text (an Apollo automatic-persisted-query hash, whose text the logger
+     * never sees) is conservatively counted as a write, so an audit never undercounts writes.
+     * A document that does not parse never executes, so it is a read.
+     * @param {Request} req
+     * @return {boolean}
+     */
+    static isGraphQLWrite(req) {
+        const query = req.body?.query;
+        if (typeof query !== 'string') {
+            return true;
+        }
+        try {
+            return parse(query).definitions.some(
+                (d) => d.kind === Kind.OPERATION_DEFINITION && d.operation === OperationTypeNode.MUTATION
+            );
+        } catch {
+            return false;
+        }
     }
 
     /**
@@ -140,8 +163,17 @@ class AccessLogger {
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const isError = !(statusCode >= 200 && statusCode < 300);
 
-        const operation =
-            req.method === 'GET' ? READ : req.method === 'POST' && req.url.includes('$graph') ? READ : WRITE;
+        // Inside the mounted GraphQL routers req.url is stripped to '/', so GraphQL requests are
+        // classified by route: a write if the document contains a mutation or its text is unknown.
+        const operation = req.isGraphQLRoute
+            ? AccessLogger.isGraphQLWrite(req)
+                ? WRITE
+                : READ
+            : req.method === 'GET'
+              ? READ
+              : req.method === 'POST' && req.url.includes('$graph')
+                ? READ
+                : WRITE;
 
         // Fetching detail
         const details = {
