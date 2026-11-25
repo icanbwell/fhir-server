@@ -76,6 +76,34 @@ describe('registerMongoPoolMonitoring against a real MongoClient', () => {
         }
     });
 
+    test('a queued checkout cancelled through an AbortSignal returns the wait queue to 0', async () => {
+        const pool = client.topology.s.servers.values().next().value.pool;
+        inUse = jest.spyOn(mongoPoolConnectionsInUseUpDownCounter, 'add');
+        waiting = jest.spyOn(mongoPoolWaitQueueSizeUpDownCounter, 'add');
+
+        const held = collection.find({ $where: `sleep(${HOLD_MS}) || true` }).toArray();
+        await waitUntilAsync(() => pool.currentCheckedOutCount === 1);
+        // The monitor reads these two driver properties; fail loudly if an upgrade drops them.
+        expect(typeof pool.waitQueueSize).toBe('number');
+        expect(typeof pool.pendingConnectionCount).toBe('number');
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        const waitingBefore = levelOf(waiting);
+
+        // The driver emits no checkOutFailed for a cancelled checkout.
+        const controller = new AbortController();
+        const cancelled = collection.find({}, { signal: controller.signal }).toArray();
+        const cancelledOutcome = expect(cancelled).rejects.toBeDefined();
+        await waitUntilAsync(() => pool.waitQueueSize === 1);
+        expect(levelOf(waiting) - waitingBefore).toBe(1);
+        controller.abort();
+        await cancelledOutcome;
+
+        await held;
+        await waitUntilAsync(() => levelOf(inUse) === 0 && levelOf(waiting) === 0);
+        expect(levelOf(inUse)).toBe(0);
+        expect(levelOf(waiting)).toBe(0);
+    });
+
     test('closing the client leaves both levels at 0', async () => {
         const closing = new MongoClient(await getMongoUrlAsync(), { maxPoolSize: 1 });
         registerMongoPoolMonitoring({ client: closing, poolName: POOL });
