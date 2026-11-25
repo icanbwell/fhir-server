@@ -49,6 +49,13 @@ class ConnectionDispatcher {
         this.throttledLogs = new Map();
         /** set at shutdown: close the listener once no worker is left */
         this.closeWhenNoWorkers = false;
+        /**
+         * Sockets sent to each worker whose send callback has not run yet. Node lets only one
+         * hand-off per worker wait for the worker's acknowledgement and queues the rest; if the
+         * worker dies, it drops the queued ones without calling their callbacks.
+         * @type {Map<number, Set<import('net').Socket>>}
+         */
+        this.pendingHandOffs = new Map();
     }
 
     /**
@@ -58,6 +65,7 @@ class ConnectionDispatcher {
         this.cluster.on('fork', (worker) => this.loadTable.addWorker(worker.id));
         this.cluster.on('exit', (worker) => {
             this.loadTable.removeWorker(worker.id);
+            this.dropPendingHandOffs(worker.id);
             this.closeIfShutDown();
         });
         this.cluster.on('message', (worker, message) => this.handleWorkerMessage(worker, message));
@@ -200,10 +208,17 @@ class ConnectionDispatcher {
     sendToWorker(worker, socket) {
         this.metrics.connectionDispatched(this.loadTable.score(worker.id));
         this.loadTable.recordDispatch(worker.id);
+        const pending = this.pendingHandOffs.get(worker.id) || new Set();
+        pending.add(socket);
+        this.pendingHandOffs.set(worker.id, pending);
         // Without `keepOpen`, Node closes the primary's copy of the socket once the handle is sent,
         // so the primary holds no descriptor for a handed-off connection and nothing is left to
         // release on success.
         worker.send({ type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket, (error) => {
+            if (!pending.delete(socket)) {
+                // already closed and counted when the worker exited
+                return;
+            }
             if (!error) {
                 return;
             }
@@ -216,6 +231,30 @@ class ConnectionDispatcher {
                 error: error.message,
                 code: error.code
             });
+        });
+    }
+
+    /**
+     * Closes the sockets still waiting to be handed to a worker that has exited. Node never
+     * calls back for them, so without this the client would wait until it times out.
+     * @param {number} workerId
+     */
+    dropPendingHandOffs(workerId) {
+        const pending = this.pendingHandOffs.get(workerId);
+        this.pendingHandOffs.delete(workerId);
+        if (!pending || pending.size === 0) {
+            return;
+        }
+        const sockets = [...pending];
+        // emptied so a send callback that still runs for one of them sees it as already handled
+        pending.clear();
+        for (const socket of sockets) {
+            socket.destroy();
+            this.metrics.connectionDropped(CLUSTER_CONNECTION_DROP_REASON.SEND_FAILED);
+        }
+        this.logThrottled('workerExitedWithPendingHandOffs', 'A worker exited before taking connections sent to it; closed them', {
+            workerId,
+            connections: sockets.length
         });
     }
 

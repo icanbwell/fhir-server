@@ -84,6 +84,14 @@ How it works:
 - In this mode each worker's HTTP server listens on a private loopback port (`127.0.0.1:0`,
   `exclusive`) that nothing connects to. Terminus' shutdown calls `server.close()`, which fails on
   a server that is not listening and would skip the buffer flush.
+- `server.close()` does not count sockets given to the server with `emit('connection')`, so it
+  does not wait for requests on connections from the primary. The worker tracks those connections
+  and, at shutdown, waits for them to close (bounded by `GRACEFUL_TIMEOUT_MS`) before it flushes
+  buffers and exits.
+- Node lets one socket hand-off per worker wait for the worker's acknowledgement and queues the
+  rest. If the worker dies, Node drops the queued ones without calling back. The primary tracks
+  hand-offs it has not had a callback for and, when that worker exits, closes them and counts them
+  as `send_failed`, so those clients do not hang.
 - The primary closes its listener after the last worker exits during shutdown, so it exits as it
   does today.
 
@@ -112,8 +120,8 @@ How it works:
   in `src/tests/unit/index.test.js` and `src/tests/unit/server.test.js`.
 - `src/tests/unit/utils/cluster/leastBusyCluster.test.js` runs a real primary and three workers
   in a child process: requests spread across workers over real IPC hand-offs, a request avoids a
-  worker blocked on a CPU-heavy request, and on SIGTERM every worker flushes and exits 0 before
-  the primary exits.
+  worker blocked on a CPU-heavy request, and on SIGTERM a request already in flight completes,
+  then every worker flushes and exits 0 before the primary exits.
 - Before rolling out, turn it on for one deployment (fhir-server-internal has the widest spread)
   and compare per-worker request time in Groundcover with round-robin:
   `sum by (process_pid) (rate(http_server_request_duration_seconds_sum[5m]))` against the pod

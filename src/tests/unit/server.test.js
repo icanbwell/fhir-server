@@ -123,6 +123,42 @@ describe('createServer', () => {
         }
     });
 
+    test('waits for connections from the primary to close before flushing buffers', async () => {
+        const createServer = loadCreateServer();
+        const steps = [];
+        const done = (name) => jestGlobal.fn(() => {
+            steps.push(name);
+            return Promise.resolve();
+        });
+        const container = {
+            ...fakeContainer(),
+            postRequestProcessor: { waitTillAllRequestsDoneAsync: done('flush') },
+            postSaveProcessor: { flushAsync: done('flush') },
+            auditLogger: { flushAsync: done('flush') },
+            accessLogger: { flushAsync: done('flush') },
+            kafkaClient: { disconnect: done('kafka') },
+            kafkaClientV2: { disconnect: done('kafka') }
+        };
+        const workerLoadReporter = {
+            attach: () => {},
+            markDraining: () => {},
+            waitForConnectionsToCloseAsync: jestGlobal.fn(() => {
+                steps.push('connectionsClosed');
+                return Promise.resolve(true);
+            })
+        };
+        server = await createServer(() => container, { workerLoadReporter });
+        const { onSignal } = createTerminusMock.mock.calls[0][1];
+
+        await onSignal();
+
+        expect(steps[0]).toBe('connectionsClosed');
+        expect(steps).toContain('flush');
+        expect(workerLoadReporter.waitForConnectionsToCloseAsync).toHaveBeenCalledWith({
+            timeoutMs: expect.any(Number)
+        });
+    });
+
     test('marks the worker draining when the shutdown delay ends, not before', async () => {
         jestGlobal.useFakeTimers({ doNotFake: ['setImmediate', 'nextTick'] });
         try {

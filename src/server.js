@@ -155,6 +155,16 @@ async function createServer (fnGetContainer, { workerLoadReporter } = {}) {
             });
         }, // called before the HTTP server starts its shutdown
         onSignal: async () => {
+            if (workerLoadReporter) {
+                // Connections from the cluster primary are not counted by server.close(), so
+                // wait for their requests here, before flushing (see WorkerLoadReporter).
+                const allClosed = await workerLoadReporter.waitForConnectionsToCloseAsync({
+                    timeoutMs: gracefulTimeoutMs
+                });
+                if (!allClosed) {
+                    logError('Connections from the cluster primary were still open at shutdown', {});
+                }
+            }
             // for flushing dd-trace and sentry
             logInfo('Emitting beforeExit event');
             process.emit('beforeExit');

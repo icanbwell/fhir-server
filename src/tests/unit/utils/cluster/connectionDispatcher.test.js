@@ -19,6 +19,8 @@ class FakeWorker {
         this.connected = true;
         this.sent = [];
         this.sendError = null;
+        /** when set, send callbacks wait here instead of running, like a queued hand-off */
+        this.heldCallbacks = null;
     }
 
     isConnected() {
@@ -27,6 +29,10 @@ class FakeWorker {
 
     send(message, handle, callback) {
         this.sent.push({ message, handle });
+        if (this.heldCallbacks) {
+            this.heldCallbacks.push(callback);
+            return;
+        }
         callback(this.sendError);
     }
 }
@@ -295,6 +301,45 @@ describe('ConnectionDispatcher', () => {
         } finally {
             await new Promise((resolve) => occupier.close(resolve));
         }
+    });
+
+    test('closes connections still queued for a worker that exits, and counts them as failed sends', () => {
+        const worker = fork(1);
+        cluster.emit('message', worker, loadReport(0));
+        worker.heldCallbacks = [];
+        const acknowledged = fakeSocket();
+        const queued = [fakeSocket(), fakeSocket()];
+        dispatcher.dispatch(acknowledged);
+        queued.forEach((socket) => dispatcher.dispatch(socket));
+        // the first hand-off was acknowledged; Node drops the queued ones without a callback
+        worker.heldCallbacks[0](null);
+
+        cluster.emit('exit', worker);
+
+        expect(acknowledged.destroy).not.toHaveBeenCalled();
+        queued.forEach((socket) => expect(socket.destroy).toHaveBeenCalledTimes(1));
+        expect(metrics.connectionDropped.mock.calls).toEqual([
+            [CLUSTER_CONNECTION_DROP_REASON.SEND_FAILED],
+            [CLUSTER_CONNECTION_DROP_REASON.SEND_FAILED]
+        ]);
+        expect(log).toHaveBeenCalledWith(
+            'A worker exited before taking connections sent to it; closed them',
+            expect.objectContaining({ workerId: 1, connections: 2 })
+        );
+    });
+
+    test('does not count a queued connection twice when its callback runs after the worker exits', () => {
+        const worker = fork(1);
+        cluster.emit('message', worker, loadReport(0));
+        worker.heldCallbacks = [];
+        const socket = fakeSocket();
+        dispatcher.dispatch(socket);
+
+        cluster.emit('exit', worker);
+        worker.heldCallbacks[0](Object.assign(new Error('channel closed'), { code: 'ERR_IPC_CHANNEL_CLOSED' }));
+
+        expect(socket.destroy).toHaveBeenCalledTimes(1);
+        expect(metrics.connectionDropped).toHaveBeenCalledTimes(1);
     });
 
     test('keeps a client reset on the primary copy of the socket from throwing', () => {

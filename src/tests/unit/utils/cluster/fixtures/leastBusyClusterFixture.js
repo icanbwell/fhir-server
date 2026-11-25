@@ -8,11 +8,13 @@
  * Prints one JSON line per event on stdout for the test to read:
  *   {event: 'listening', port}       the primary accepts connections
  *   {event: 'slowStarted', pid}      a worker is about to block on GET /slow
+ *   {event: 'waitStarted', pid}      a worker started GET /wait
  *   {event: 'flushed', pid}          a worker's Terminus onSignal ran
  *   {event: 'workerExit', code}      a worker exited
  *
- * GET /slow announces slowStarted, then holds the worker's event loop for 1 s; any other path
- * answers at once. Every response carries the serving worker's pid in x-worker-pid.
+ * GET /slow announces slowStarted, then holds the worker's event loop for 1 s. GET /wait announces
+ * waitStarted and answers after 1 s without blocking, like a request waiting on a database. Any
+ * other path answers at once. Every response carries the serving worker's pid in x-worker-pid.
  */
 const cluster = require('cluster');
 const http = require('http');
@@ -30,6 +32,7 @@ const WORKERS = 3;
 const REPORT_INTERVAL_MS = 25;
 const SHUTDOWN_DELAY_MS = 300;
 const SLOW_REQUEST_MS = 1000;
+const WAIT_REQUEST_MS = 1000;
 
 const emit = (event) => console.log(JSON.stringify(event));
 
@@ -82,6 +85,11 @@ if (cluster.isPrimary) {
         res.end('ok');
     };
     const server = http.createServer((req, res) => {
+        if (req.url === '/wait') {
+            emit({ event: 'waitStarted', pid: process.pid });
+            setTimeout(() => respond(res), WAIT_REQUEST_MS);
+            return;
+        }
         if (req.url !== '/slow') {
             respond(res);
             return;
@@ -108,7 +116,11 @@ if (cluster.isPrimary) {
                     resolve();
                 }, SHUTDOWN_DELAY_MS)
             ),
-        onSignal: async () => emit({ event: 'flushed', pid: process.pid })
+        onSignal: async () => {
+            // as src/server.js does: server.close() does not wait for connections from the primary
+            await reporter.waitForConnectionsToCloseAsync({ timeoutMs: 5000 });
+            emit({ event: 'flushed', pid: process.pid });
+        }
     });
     reporter.attach(server);
 }

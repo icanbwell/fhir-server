@@ -18,17 +18,23 @@ class WorkerLoadReporter {
      *  sends a message to the primary and never throws (see createIpcSender)
      * @param {number} params.intervalMs
      * @param {typeof setInterval} [params.setIntervalFn]
+     * @param {typeof setTimeout} [params.setTimeoutFn]
+     * @param {typeof clearTimeout} [params.clearTimeoutFn]
      */
     constructor({
         channel,
         send,
         intervalMs,
-        setIntervalFn = setInterval
+        setIntervalFn = setInterval,
+        setTimeoutFn = setTimeout,
+        clearTimeoutFn = clearTimeout
     }) {
         this.channel = channel;
         this.send = send;
         this.intervalMs = intervalMs;
         this.setIntervalFn = setIntervalFn;
+        this.setTimeoutFn = setTimeoutFn;
+        this.clearTimeoutFn = clearTimeoutFn;
         /** requests being handled */
         this.inFlight = 0;
         /**
@@ -39,6 +45,15 @@ class WorkerLoadReporter {
          */
         this.awaitingFirstRequest = new Set();
         this.connectionsReceived = 0;
+        /**
+         * Connections taken from the primary that are still open. net.Server does not count
+         * sockets given to it with emit('connection'), so server.close() does not wait for them;
+         * shutdown waits on this set instead (see waitForConnectionsToCloseAsync).
+         * @type {Set<import('net').Socket>}
+         */
+        this.openConnections = new Set();
+        /** @type {(() => void)|null} */
+        this.onAllConnectionsClosed = null;
         this.draining = false;
         this.timer = null;
     }
@@ -69,7 +84,14 @@ class WorkerLoadReporter {
             }
             this.connectionsReceived += 1;
             this.awaitingFirstRequest.add(socket);
-            socket.once('close', () => this.awaitingFirstRequest.delete(socket));
+            this.openConnections.add(socket);
+            socket.once('close', () => {
+                this.awaitingFirstRequest.delete(socket);
+                this.openConnections.delete(socket);
+                if (this.openConnections.size === 0 && this.onAllConnectionsClosed) {
+                    this.onAllConnectionsClosed();
+                }
+            });
             server.emit('connection', socket);
             socket.resume();
         };
@@ -93,6 +115,31 @@ class WorkerLoadReporter {
         }
         this.draining = true;
         this.send({ type: CLUSTER_MESSAGE_TYPES.DRAINING });
+    }
+
+    /**
+     * Resolves once every connection taken from the primary has closed, or when `timeoutMs`
+     * passes. Call after the HTTP server has stopped (Terminus ends idle connections and each busy
+     * one after its response), so in-flight requests finish before the worker exits.
+     * @param {Object} params
+     * @param {number} params.timeoutMs
+     * @returns {Promise<boolean>} true when all closed, false on timeout
+     */
+    waitForConnectionsToCloseAsync({ timeoutMs }) {
+        if (this.openConnections.size === 0) {
+            return Promise.resolve(true);
+        }
+        return new Promise((resolve) => {
+            const timer = this.setTimeoutFn(() => {
+                this.onAllConnectionsClosed = null;
+                resolve(false);
+            }, timeoutMs);
+            this.onAllConnectionsClosed = () => {
+                this.onAllConnectionsClosed = null;
+                this.clearTimeoutFn(timer);
+                resolve(true);
+            };
+        });
     }
 
     /**

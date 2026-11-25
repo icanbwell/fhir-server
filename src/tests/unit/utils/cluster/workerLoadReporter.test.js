@@ -114,6 +114,63 @@ describe('WorkerLoadReporter', () => {
         expect(connections).toHaveLength(0);
     });
 
+    describe('waitForConnectionsToCloseAsync', () => {
+        const receive = () => {
+            const socket = Object.assign(new EventEmitter(), { resume: jestObj.fn() });
+            channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket);
+            return socket;
+        };
+
+        test('resolves at once when no connection from the primary is open', async () => {
+            await expect(reporter.waitForConnectionsToCloseAsync({ timeoutMs: 1000 })).resolves.toBe(true);
+        });
+
+        test('resolves once the last open connection closes', async () => {
+            const first = receive();
+            const second = receive();
+            let settled = false;
+            const waiting = reporter
+                .waitForConnectionsToCloseAsync({ timeoutMs: 60000 })
+                .then((allClosed) => {
+                    settled = true;
+                    return allClosed;
+                });
+
+            first.emit('close');
+            await Promise.resolve();
+            expect(settled).toBe(false);
+            second.emit('close');
+
+            await expect(waiting).resolves.toBe(true);
+        });
+
+        test('gives up after the timeout while a connection is still open', async () => {
+            let expire;
+            const timed = new WorkerLoadReporter({
+                channel: new EventEmitter(),
+                send: () => {},
+                intervalMs: 25,
+                setIntervalFn: () => ({ unref: () => {} }),
+                setTimeoutFn: (fn) => {
+                    expire = fn;
+                    return 1;
+                },
+                clearTimeoutFn: () => {}
+            });
+            timed.attach(new EventEmitter());
+            timed.channel.emit(
+                'message',
+                { type: CLUSTER_MESSAGE_TYPES.CONNECTION },
+                Object.assign(new EventEmitter(), { resume: jestObj.fn() })
+            );
+
+            const waiting = timed.waitForConnectionsToCloseAsync({ timeoutMs: 5000 });
+            expire();
+
+            await expect(waiting).resolves.toBe(false);
+        });
+    });
+
     test('sends draining once, however often it is called', () => {
         reporter.markDraining();
         reporter.markDraining();

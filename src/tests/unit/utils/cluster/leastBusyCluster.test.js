@@ -96,9 +96,15 @@ describe('least-busy cluster (real processes)', () => {
         expect(fast.pid).not.toBe(String(blockedPid));
     });
 
-    test('shuts down gracefully: every worker flushes and exits 0, then the primary exits', async () => {
+    test('shuts down gracefully: in-flight requests finish, every worker flushes and exits 0, then the primary exits', async () => {
+        const waitStarted = nextEvent('waitStarted');
+        const inFlight = get(port, '/wait');
+        await waitStarted;
+
         child.kill('SIGTERM');
 
+        // the request outlasts the fixture's 300 ms shutdown delay; the worker must not exit under it
+        await expect(inFlight).resolves.toEqual({ pid: expect.any(String) });
         const code = await exited;
 
         expect(code).toBe(0);
