@@ -74,7 +74,10 @@ def _load_blob_meta_targets() -> Dict[str, List[Dict[str, Any]]]:
             segments = [s for s in blob_meta_path.split("/") if s and s != "[]"]
             if segments == ["_blobMeta"]:
                 target_entity = resource_type
-            elif segments[-2:] == ["attachment", "_blobMeta"]:
+            elif segments[-2:] in (
+                ["attachment", "_blobMeta"],
+                ["valueAttachment", "_blobMeta"],
+            ):
                 target_entity = "Attachment"
             else:
                 target_entity = resource_type
