@@ -3,16 +3,52 @@
  */
 // Load the rest of the modules
 const cluster = require('cluster');
+const net = require('net');
 const { initSentry } = require('./utils/initSentry');
 const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
 const { fhirSchemaValidator } = require('./utils/fhirSchemaValidator');
+const { fhirServerConfig } = require('./config');
+const {
+    CLUSTER_SCHEDULING_POLICIES,
+    readClusterSchedulingConfig
+} = require('./utils/cluster/clusterSchedulingConfig');
+const { WorkerLoadTable } = require('./utils/cluster/workerLoadTable');
+const { ConnectionDispatcher } = require('./utils/cluster/connectionDispatcher');
+const { WorkerLoadReporter } = require('./utils/cluster/workerLoadReporter');
+const {
+    recordClusterConnectionDispatched,
+    recordClusterConnectionDropped
+} = require('./utils/metrics');
 
 // Validates OpenTelemetry setup, which only this entrypoint (loaded via
 // --require=./src/otel_instrumentation.js) actually attempts.
 initSentry({ validateOpenTelemetry: true });
+
+const numCPUs = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT, 10) : 1;
+const isClustered = numCPUs > 1;
+// Validated at startup in both primary and workers so a bad value fails the pod immediately
+const clusterScheduling = readClusterSchedulingConfig(process.env);
+const primaryDispatchesConnections =
+    isClustered && clusterScheduling.policy === CLUSTER_SCHEDULING_POLICIES.LEAST_BUSY;
+
+/**
+ * @returns {WorkerLoadReporter}
+ */
+const createWorkerLoadReporter = () =>
+    new WorkerLoadReporter({
+        channel: process,
+        // With a callback, a closed IPC channel is reported to the callback instead of being
+        // emitted as an 'error' event on process.
+        send: (message) => {
+            if (process.connected) {
+                process.send(message, () => {});
+            }
+        },
+        intervalMs: clusterScheduling.reportIntervalMs
+    });
 
 const main = async function () {
     try {
@@ -21,7 +57,9 @@ const main = async function () {
         // Pre-compile FHIR schema validators for every resourceType off the request path
         fhirSchemaValidator.preWarm();
 
-        await createServer(() => container);
+        await createServer(() => container, {
+            workerLoadReporter: primaryDispatchesConnections ? createWorkerLoadReporter() : undefined
+        });
 
         // Connect the V2 Kafka producer now (a no-op when V2 Kafka is disabled, and never throws),
         // so the first AuditEvent flush doesn't pay for the connect inside its produce timeout.
@@ -39,9 +77,36 @@ const main = async function () {
     }
 };
 
-const numCPUs = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT, 10) : 1;
-if (cluster.isPrimary && numCPUs > 1) {
-    console.log(JSON.stringify({message: `Master ${process.pid} is running with ${numCPUs} workers`}));
+if (cluster.isPrimary && isClustered) {
+    console.log(JSON.stringify({
+        message: `Master ${process.pid} is running with ${numCPUs} workers`,
+        clusterScheduling: clusterScheduling.policy
+    }));
+
+    /** @type {ConnectionDispatcher|null} */
+    let dispatcher = null;
+    if (primaryDispatchesConnections) {
+        dispatcher = new ConnectionDispatcher({
+            cluster,
+            net,
+            loadTable: new WorkerLoadTable({
+                reportIntervalMs: clusterScheduling.reportIntervalMs,
+                blockedMsPerRequest: clusterScheduling.blockedMsPerRequest
+            }),
+            port: fhirServerConfig.server.port,
+            log: (message, args) => console.log(JSON.stringify({ message, ...args })),
+            metrics: {
+                connectionDispatched: recordClusterConnectionDispatched,
+                connectionDropped: recordClusterConnectionDropped
+            }
+        });
+        // Before forking, so every worker's 'fork' event is seen
+        dispatcher.trackWorkers();
+        dispatcher.listenAsync().catch((error) => {
+            console.error(JSON.stringify({ message: 'Connection dispatcher failed to listen', error: error.message }));
+            process.exit(1);
+        });
+    }
 
     // Fork workers
     for (let i = 0; i < numCPUs; i++) {
@@ -66,6 +131,13 @@ if (cluster.isPrimary && numCPUs > 1) {
     cluster.on('exit', (worker, code, signal) => {
         console.log(JSON.stringify({message: `Worker ${worker.process.pid} died (code=${code}, signal=${signal})`}));
         if (shuttingDown) {
+            // The dispatcher's listening socket would keep the primary alive; close it once the
+            // last worker is gone so the primary exits as it does without the dispatcher.
+            // (cluster.workers can still list an exited worker until its IPC channel closes, so
+            // use the dispatcher's own count, which drops the worker on 'exit'.)
+            if (dispatcher && dispatcher.trackedWorkerCount() === 0) {
+                dispatcher.closeAsync();
+            }
             return;
         }
         cluster.fork();

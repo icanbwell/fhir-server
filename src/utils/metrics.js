@@ -186,6 +186,13 @@ const CACHE_INVALIDATION_FAILURE = Object.freeze({
     LINKED_PATIENT_LOOKUP: 'linked_patient_lookup'
 });
 
+// Why the cluster primary closed a connection instead of handing it to a worker
+// (CLUSTER_SCHEDULING=least_busy only).
+const CLUSTER_CONNECTION_DROP_REASON = Object.freeze({
+    NO_WORKER: 'no_worker',
+    SEND_FAILED: 'send_failed'
+});
+
 const UNKNOWN = 'unknown';
 
 const SEVERITY_RANK = { error: 3, warning: 2, information: 1 };
@@ -430,6 +437,25 @@ const mongoPoolWaitQueueSizeUpDownCounter = meter.createUpDownCounter('fhir_mong
 
 const viewControlOutcomeCounter = meter.createCounter('fhir_view_control_outcome_total', {
     description: 'Data view control lookups, once per subject per request, by outcome (hidden|no_consent|not_enrolled|no_person|fail_closed), subject (user|opt_in) and, for fail_closed, reason. hidden / (hidden + no_consent) is how often the block changes a response; fail_closed is a read refused because the Consent could not be checked; opt_in is service-token use of _applyDataViewControl.'
+});
+
+// The three cluster instruments below are recorded by the cluster primary only, when it hands
+// connections to workers itself (CLUSTER_SCHEDULING=least_busy). They carry no worker label:
+// worker ids grow with every re-fork, so they would be an unbounded label.
+const clusterConnectionsDispatchedCounter = meter.createCounter('fhir_cluster_connections_dispatched_total', {
+    description: 'Connections the cluster primary handed to a worker. With traefik-internal opening one connection per request this tracks the pod request rate; callers that reuse connections (cluster-local service calls) make it lower than http_server_request_duration_seconds_count.'
+});
+
+const clusterConnectionsDroppedCounter = meter.createCounter('fhir_cluster_connections_dropped_total', {
+    description: 'Connections the cluster primary closed without serving, by reason (no_worker: every worker is starting, draining or gone; send_failed: the hand-off to the chosen worker failed). Expected briefly at pod start and at the end of shutdown; anything else means the pod is refusing traffic.'
+});
+
+const clusterDispatchWorkerScoreHistogram = meter.createHistogram('fhir_cluster_dispatch_worker_score', {
+    description: 'Load score of the worker the cluster primary picked for each connection: in-flight requests, plus connections sent but not yet taken, plus blocked time (overdue load report / CLUSTER_BLOCKED_MS_PER_REQUEST). This is the least loaded worker, so a rising value means every worker in the pod is busy.',
+    unit: '1',
+    advice: {
+        explicitBucketBoundaries: [0, 1, 2, 4, 8, 16, 32, 64]
+    }
 });
 
 const everythingCacheInvalidationFailedCounter = meter.createCounter('fhir_everything_cache_invalidation_failed_total', {
@@ -838,6 +864,26 @@ function recordEverythingCacheInvalidationFailed (reason) {
     });
 }
 
+/**
+ * Emit fhir_cluster_connections_dispatched_total and fhir_cluster_dispatch_worker_score for one
+ * connection the cluster primary handed to a worker.
+ * @param {number} workerScore load score of the chosen worker
+ */
+function recordClusterConnectionDispatched (workerScore) {
+    clusterConnectionsDispatchedCounter.add(1);
+    clusterDispatchWorkerScoreHistogram.record(workerScore);
+}
+
+/**
+ * Emit fhir_cluster_connections_dropped_total.
+ * @param {string} reason one of CLUSTER_CONNECTION_DROP_REASON
+ */
+function recordClusterConnectionDropped (reason) {
+    clusterConnectionsDroppedCounter.add(1, {
+        [LABEL.REASON]: Object.values(CLUSTER_CONNECTION_DROP_REASON).includes(reason) ? reason : UNKNOWN
+    });
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -869,6 +915,9 @@ module.exports = {
     mongoPoolWaitQueueSizeUpDownCounter,
     viewControlOutcomeCounter,
     everythingCacheInvalidationFailedCounter,
+    clusterConnectionsDispatchedCounter,
+    clusterConnectionsDroppedCounter,
+    clusterDispatchWorkerScoreHistogram,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -897,6 +946,8 @@ module.exports = {
     recordMongoPoolWaitQueueSizeChange,
     recordViewControlOutcome,
     recordEverythingCacheInvalidationFailed,
+    recordClusterConnectionDispatched,
+    recordClusterConnectionDropped,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
@@ -915,6 +966,7 @@ module.exports = {
     VIEW_CONTROL_SUBJECT,
     VIEW_CONTROL_FAIL_REASON,
     CACHE_INVALIDATION_FAILURE,
+    CLUSTER_CONNECTION_DROP_REASON,
     IMPORT_RANGE_OUTCOME,
     IMPORT_TASK_STATUS,
     GROUP_MEMBER_MERGE_OUTCOME,
