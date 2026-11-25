@@ -15,6 +15,7 @@ const { FastDatabaseBulkInserter } = require('../dataLayer/fastDatabaseBulkInser
 const { AccessLogClickHouseWriter } = require('./accessLogClickHouseWriter');
 const { buildBulkWriteRequestContext } = require('../dataLayer/bulkWriteRequestContext');
 const mutex = new Mutex();
+const GRAPHQL_ENDPOINT_NAMES = new Set(['$graphql', '$graphqlv2']);
 
 class AccessLogger {
     /**
@@ -84,11 +85,14 @@ class AccessLogger {
      * Used when a GraphQL request resolved no single resource type (federation _entities calls,
      * validation errors, mutations), so req.resourceType was never set. Inside the mounted
      * GraphQL routers req.url is stripped to '/', so the path is taken from req.originalUrl.
+     * Only the two known endpoint names are returned; any other trailing path segment
+     * (e.g. /4_0_0/$graphqlv2/anything) yields undefined so it is never stored as a resource type.
      * @param {Request} req
      * @return {string|undefined}
      */
     static graphQLEndpointName(req) {
-        return (req.originalUrl || '').split('?')[0].split('/').filter(Boolean).pop();
+        const lastSegment = (req.originalUrl || '').split('?')[0].split('/').filter(Boolean).pop();
+        return GRAPHQL_ENDPOINT_NAMES.has(lastSegment) ? lastSegment : undefined;
     }
 
     /**

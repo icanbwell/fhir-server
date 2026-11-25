@@ -170,6 +170,18 @@ describe('AccessLogger', () => {
             expect(accessLogger.queue[0].doc.request.resourceType).toBe(expected);
         });
 
+        test.each([
+            ['an unknown segment after the v2 endpoint', '/4_0_0/$graphqlv2/anything'],
+            ['an unknown last segment', '/4_0_0/$graphqlv2/Patient'],
+            ['a missing original url', undefined]
+        ])('should not log a GraphQL route request with %s as a resource type', async (_, originalUrl) => {
+            const req = { method: 'POST', url: '/', originalUrl, isGraphQLRoute: true, headers: {} };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue).toHaveLength(0);
+        });
+
         test('should prefer req.resourceType over the endpoint name on a GraphQL route', async () => {
             const req = {
                 resourceType: 'Patient', method: 'POST', url: '/', originalUrl: '/4_0_0/$graphqlv2',
