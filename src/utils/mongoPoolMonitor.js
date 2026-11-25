@@ -156,9 +156,11 @@ function createPoolOccupancy () {
  * @param {import('mongodb').MongoClient} params.client
  * @param {string} params.poolName Logical pool label. Bounded by deployment (one per
  *   configured database), never derived from resource ids or user input.
+ * @param {import('./mongoCheckoutTimeoutTracker').MongoCheckoutTimeoutTracker} [params.checkoutTimeoutTracker]
+ *   Optional. Fed checkout timeouts and successes so a wedged pool can recycle the worker.
  * @returns {void}
  */
-function registerMongoPoolMonitoring ({ client, poolName }) {
+function registerMongoPoolMonitoring ({ client, poolName, checkoutTimeoutTracker }) {
     if (!client || typeof client.on !== 'function') {
         return;
     }
@@ -176,6 +178,7 @@ function registerMongoPoolMonitoring ({ client, poolName }) {
     client.on('connectionCheckedOut', (event) => {
         recordMongoPoolCheckoutDuration(poolName, event?.durationMS);
         emitOccupancyChange(occupancy.checkedOut(event?.address, event?.connectionId));
+        checkoutTimeoutTracker?.recordCheckoutSuccess(event?.address);
     });
 
     client.on('connectionCheckOutFailed', (event) => {
@@ -184,6 +187,9 @@ function registerMongoPoolMonitoring ({ client, poolName }) {
         // the histogram -- excluding it would hide the worst cases.
         recordMongoPoolCheckoutDuration(poolName, event?.durationMS);
         emitOccupancyChange(occupancy.checkOutFailed(event?.address));
+        if (event?.reason === 'timeout') {
+            checkoutTimeoutTracker?.recordCheckoutTimeout(event?.address);
+        }
     });
 
     client.on('connectionCheckedIn', (event) => {

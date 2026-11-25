@@ -390,6 +390,10 @@ const groupMemberMergeEntriesCounter = meter.createCounter('fhir_group_member_me
     description: 'Group member entries a write did not store as sent, by outcome: merged_away (merged into the first entry of the same member), left_as_is (not merged, entity.reference is not a relative Type/id reference; counted only when the same write merged other entries), no_change (an extended Group add equal to the stored member, so nothing was written) and rejected (sent for a member over the per-member entry limit, so the write was rejected).'
 });
 
+const mongoCheckoutTimeoutSelfExitCounter = meter.createCounter('fhir_mongo_checkout_timeout_self_exit_total', {
+    description: 'Workers that shut themselves down after repeated MongoDB checkout timeouts on one pool, by pool. Each is a wedged pool that the cluster primary (or Kubernetes, in single-process mode) replaced with a fresh process.'
+});
+
 const mongoPoolCheckoutDurationHistogram = meter.createHistogram('fhir_mongo_pool_checkout_duration_seconds', {
     description: 'Time a request waited to check a connection out of a MongoDB pool, by pool. Recorded for successful and failed checkouts alike. This wait is invisible to the OTel mongodb instrumentation, which spans only the wire command -- a starved pool shows up there as a fast query preceded by nothing.',
     unit: 's',
@@ -759,6 +763,14 @@ function recordGroupMemberMergeEntries (outcome, count = 1) {
 }
 
 /**
+ * Emit fhir_mongo_checkout_timeout_self_exit_total.
+ * @param {string} pool
+ */
+function recordMongoCheckoutTimeoutSelfExit (pool) {
+    mongoCheckoutTimeoutSelfExitCounter.add(1, { [LABEL.POOL]: pool || UNKNOWN });
+}
+
+/**
  * Emit fhir_mongo_pool_checkout_duration_seconds. The driver reports the wait in
  * milliseconds; the instrument is in seconds to match the other duration histograms here.
  * @param {string} pool
@@ -932,6 +944,7 @@ module.exports = {
     recordImportTaskFinished,
     recordKafkaConsumerGroupJoin,
     recordGroupMemberMergeEntries,
+    recordMongoCheckoutTimeoutSelfExit,
     recordMongoPoolCheckoutDuration,
     recordMongoPoolCheckoutFailed,
     recordMongoPoolCleared,

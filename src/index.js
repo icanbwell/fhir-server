@@ -103,6 +103,12 @@ if (cluster.isPrimary && isClustered) {
         });
     }
 
+    // Workers read these in createServer. Validate here too so a malformed value ends the
+    // container (Kubernetes backs off) instead of crash-looping re-forked workers.
+    const { readCheckoutTimeoutExitSettings, readShutdownTimings } = require('./utils/mongoCheckoutTimeoutTracker');
+    readCheckoutTimeoutExitSettings(process.env);
+    readShutdownTimings(process.env);
+
     // Fork workers
     for (let i = 0; i < numCPUs; i++) {
         cluster.fork();
