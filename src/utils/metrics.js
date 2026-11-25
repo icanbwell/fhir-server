@@ -58,6 +58,7 @@
 
 const { metrics: otelMetrics } = require('@opentelemetry/api');
 const { fhirSchemaValidator } = require('./fhirSchemaValidator');
+const { CLUSTER_CONNECTION_DROP_REASON } = require('./cluster/clusterDispatchConstants');
 
 const LABEL = Object.freeze({
     OUTCOME: 'outcome',
@@ -184,13 +185,6 @@ const VIEW_CONTROL_FAIL_REASON = Object.freeze({
 const CACHE_INVALIDATION_FAILURE = Object.freeze({
     INCREMENT: 'increment',
     LINKED_PATIENT_LOOKUP: 'linked_patient_lookup'
-});
-
-// Why the cluster primary closed a connection instead of handing it to a worker
-// (CLUSTER_SCHEDULING=least_busy only).
-const CLUSTER_CONNECTION_DROP_REASON = Object.freeze({
-    NO_WORKER: 'no_worker',
-    SEND_FAILED: 'send_failed'
 });
 
 const UNKNOWN = 'unknown';
@@ -876,7 +870,7 @@ function recordClusterConnectionDispatched (workerScore) {
 
 /**
  * Emit fhir_cluster_connections_dropped_total.
- * @param {string} reason one of CLUSTER_CONNECTION_DROP_REASON
+ * @param {string} reason one of CLUSTER_CONNECTION_DROP_REASON (cluster/clusterDispatchConstants.js)
  */
 function recordClusterConnectionDropped (reason) {
     clusterConnectionsDroppedCounter.add(1, {
@@ -966,7 +960,6 @@ module.exports = {
     VIEW_CONTROL_SUBJECT,
     VIEW_CONTROL_FAIL_REASON,
     CACHE_INVALIDATION_FAILURE,
-    CLUSTER_CONNECTION_DROP_REASON,
     IMPORT_RANGE_OUTCOME,
     IMPORT_TASK_STATUS,
     GROUP_MEMBER_MERGE_OUTCOME,

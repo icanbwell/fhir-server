@@ -106,7 +106,12 @@ How it works:
 ### Confirmation
 
 - Unit tests: `src/tests/unit/utils/cluster/` (selection, overdue reports, draining, invalid
-  reports, IPC failures, config validation) and `src/tests/unit/utils/metrics.test.js`.
+  reports, IPC failures, config validation), `src/tests/unit/utils/metrics.test.js`, the wiring
+  in `src/tests/unit/index.test.js` and `src/tests/unit/server.test.js`.
+- `src/tests/unit/utils/cluster/leastBusyCluster.test.js` runs a real primary and three workers
+  in a child process: requests spread across workers over real IPC hand-offs, a request avoids a
+  worker blocked on a CPU-heavy request, and on SIGTERM every worker flushes and exits 0 before
+  the primary exits.
 - Before rolling out, turn it on for one deployment (fhir-server-internal has the widest spread)
   and compare per-worker request time in Groundcover with round-robin:
   `sum by (process_pid) (rate(http_server_request_duration_seconds_sum[5m]))` against the pod
@@ -162,5 +167,10 @@ How it works:
   `CLUSTER_SCHEDULING=least_busy`.
 - Settings: `CLUSTER_SCHEDULING` (`round_robin` | `least_busy`), `CLUSTER_LOAD_REPORT_INTERVAL_MS`
   (default 25), `CLUSTER_BLOCKED_MS_PER_REQUEST` (default 10). An invalid value stops start-up.
+- Wiring: the primary has no IoC container (`createContainer()` runs per worker, after the
+  cluster decision), so `src/index.js` is the composition root for the dispatcher, the load
+  table and the worker's load reporter, and passes them in through constructors. The primary
+  logs with `console.log` JSON like the rest of the primary code in `src/index.js`, because
+  Winston is initialised only in workers.
 - Related: the shutdown timing in `src/server.js` (`SHUTDOWN_DELAY_MS`, `GRACEFUL_TIMEOUT_MS`)
   and the Helm `preStop` hook in bwell-fhir-server.

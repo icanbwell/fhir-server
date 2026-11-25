@@ -18,6 +18,8 @@ const {
 const { WorkerLoadTable } = require('./utils/cluster/workerLoadTable');
 const { ConnectionDispatcher } = require('./utils/cluster/connectionDispatcher');
 const { WorkerLoadReporter } = require('./utils/cluster/workerLoadReporter');
+const { IPC_CHANNEL_CLOSED_ERROR_CODE } = require('./utils/cluster/clusterDispatchConstants');
+const { logError } = require('./operations/common/logging');
 const {
     recordClusterConnectionDispatched,
     recordClusterConnectionDropped
@@ -40,14 +42,25 @@ const primaryDispatchesConnections =
 const createWorkerLoadReporter = () =>
     new WorkerLoadReporter({
         channel: process,
-        // With a callback, a closed IPC channel is reported to the callback instead of being
-        // emitted as an 'error' event on process.
+        // With a callback, a send error goes to the callback instead of being emitted as an
+        // 'error' event on process. A closed channel only means the primary is gone or this
+        // worker is exiting; anything else would stop the load reports, so it is logged.
         send: (message) => {
-            if (process.connected) {
-                process.send(message, () => {});
+            if (!process.connected) {
+                return;
             }
+            process.send(message, (error) => {
+                if (error && error.code !== IPC_CHANNEL_CLOSED_ERROR_CODE) {
+                    logError('Failed to send a message to the cluster primary', {
+                        messageType: message.type,
+                        error: error.message,
+                        code: error.code
+                    });
+                }
+            });
         },
-        intervalMs: clusterScheduling.reportIntervalMs
+        intervalMs: clusterScheduling.reportIntervalMs,
+        logError
     });
 
 const main = async function () {
@@ -93,7 +106,7 @@ if (cluster.isPrimary && isClustered) {
                 reportIntervalMs: clusterScheduling.reportIntervalMs,
                 blockedMsPerRequest: clusterScheduling.blockedMsPerRequest
             }),
-            port: fhirServerConfig.server.port,
+            port: Number(fhirServerConfig.server.port),
             log: (message, args) => console.log(JSON.stringify({ message, ...args })),
             metrics: {
                 connectionDispatched: recordClusterConnectionDispatched,

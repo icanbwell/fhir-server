@@ -2,12 +2,12 @@
 
 const { EventEmitter } = require('events');
 const { describe, test, expect, jest: jestObj, beforeEach } = require('@jest/globals');
-const {
-    ConnectionDispatcher,
-    CONNECTION_DROP_REASONS
-} = require('../../../../utils/cluster/connectionDispatcher');
+const { ConnectionDispatcher } = require('../../../../utils/cluster/connectionDispatcher');
 const { WorkerLoadTable } = require('../../../../utils/cluster/workerLoadTable');
-const { CLUSTER_MESSAGE_TYPES } = require('../../../../utils/cluster/clusterMessageTypes');
+const {
+    CLUSTER_MESSAGE_TYPES,
+    CLUSTER_CONNECTION_DROP_REASON
+} = require('../../../../utils/cluster/clusterDispatchConstants');
 
 /**
  * Stands in for cluster.Worker: the IPC channel to a worker process is the external boundary.
@@ -138,19 +138,25 @@ describe('ConnectionDispatcher', () => {
         dispatcher.dispatch(socket);
 
         expect(socket.destroy).toHaveBeenCalledTimes(1);
-        expect(metrics.connectionDropped).toHaveBeenCalledWith(CONNECTION_DROP_REASONS.NO_WORKER);
+        expect(metrics.connectionDropped).toHaveBeenCalledWith(CLUSTER_CONNECTION_DROP_REASON.NO_WORKER);
     });
 
     test('closes the socket when the hand-off to the worker fails', () => {
         const worker = fork(1);
         cluster.emit('message', worker, loadReport(0));
-        worker.sendError = new Error('channel closed');
+        worker.sendError = Object.assign(new Error('channel closed'), { code: 'EPIPE' });
         const socket = fakeSocket();
 
         dispatcher.dispatch(socket);
 
         expect(socket.destroy).toHaveBeenCalledTimes(1);
-        expect(metrics.connectionDropped).toHaveBeenCalledWith(CONNECTION_DROP_REASONS.SEND_FAILED);
+        expect(metrics.connectionDropped).toHaveBeenCalledWith(CLUSTER_CONNECTION_DROP_REASON.SEND_FAILED);
+        expect(log).toHaveBeenCalledWith('Failed to hand a connection to a worker; closed it', {
+            workerId: 1,
+            error: 'channel closed',
+            code: 'EPIPE',
+            occurrences: 1
+        });
     });
 
     test('logs dropped connections at most once per interval, with the count', () => {
@@ -163,11 +169,11 @@ describe('ConnectionDispatcher', () => {
         expect(log.mock.calls).toEqual([
             [
                 'No worker available; closed incoming connections',
-                { droppedConnections: 1, workers: 0 }
+                { workers: 0, occurrences: 1 }
             ],
             [
                 'No worker available; closed incoming connections',
-                { droppedConnections: 3, workers: 0 }
+                { workers: 0, occurrences: 3 }
             ]
         ]);
     });
@@ -181,6 +187,33 @@ describe('ConnectionDispatcher', () => {
         const socket = fakeSocket();
         dispatcher.dispatch(socket);
         expect(socket.destroy).toHaveBeenCalled();
+    });
+
+    test('does not charge a worker for a connection whose hand-off failed', () => {
+        const failing = fork(1);
+        const other = fork(2);
+        cluster.emit('message', failing, loadReport(0));
+        cluster.emit('message', other, loadReport(1));
+        failing.sendError = new Error('EPIPE');
+        dispatcher.dispatch(fakeSocket());
+        failing.sendError = null;
+
+        dispatcher.dispatch(fakeSocket());
+
+        // without the rollback, worker 1 would score 1 (tied with worker 2) instead of 0
+        expect(failing.sent).toHaveLength(2);
+        expect(other.sent).toHaveLength(0);
+    });
+
+    test('logs a rejected load report, because that worker would otherwise never get traffic', () => {
+        const worker = fork(1);
+
+        cluster.emit('message', worker, { type: CLUSTER_MESSAGE_TYPES.LOAD_REPORT, inFlight: -1 });
+
+        expect(log).toHaveBeenCalledWith('Ignored an invalid worker load report', {
+            workerId: 1,
+            occurrences: 1
+        });
     });
 
     test('tracks forked and exited workers', () => {

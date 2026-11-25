@@ -3,7 +3,7 @@
 const { EventEmitter } = require('events');
 const { describe, test, expect, jest: jestObj, beforeEach } = require('@jest/globals');
 const { WorkerLoadReporter } = require('../../../../utils/cluster/workerLoadReporter');
-const { CLUSTER_MESSAGE_TYPES } = require('../../../../utils/cluster/clusterMessageTypes');
+const { CLUSTER_MESSAGE_TYPES } = require('../../../../utils/cluster/clusterDispatchConstants');
 
 describe('WorkerLoadReporter', () => {
     let channel;
@@ -11,6 +11,7 @@ describe('WorkerLoadReporter', () => {
     let server;
     let tick;
     let reporter;
+    let logError;
 
     const lastReport = () => sent.filter((m) => m.type === CLUSTER_MESSAGE_TYPES.LOAD_REPORT).at(-1);
 
@@ -19,16 +20,15 @@ describe('WorkerLoadReporter', () => {
         sent = [];
         server = new EventEmitter();
         tick = null;
+        logError = jestObj.fn();
         reporter = new WorkerLoadReporter({
             channel,
             send: (message) => sent.push(message),
             intervalMs: 25,
+            logError,
             setIntervalFn: (fn) => {
                 tick = fn;
                 return { unref: () => {} };
-            },
-            clearIntervalFn: () => {
-                tick = null;
             }
         });
         reporter.attach(server);
@@ -95,28 +95,23 @@ describe('WorkerLoadReporter', () => {
         expect(sent.filter((m) => m.type === CLUSTER_MESSAGE_TYPES.DRAINING)).toHaveLength(1);
     });
 
-    test('keeps working when the IPC channel is closed', () => {
-        const closed = new WorkerLoadReporter({
+    test.each([
+        ['a closed IPC channel is expected at exit and not logged', 'ERR_IPC_CHANNEL_CLOSED', 0],
+        ['any other send error is logged', 'ERR_SOMETHING_ELSE', 2]
+    ])('%s', (_name, code, expectedLogs) => {
+        const failingLog = jestObj.fn();
+        const failing = new WorkerLoadReporter({
             channel: new EventEmitter(),
             send: () => {
-                throw new Error('channel closed');
+                throw Object.assign(new Error('send failed'), { code });
             },
             intervalMs: 25,
-            setIntervalFn: () => ({ unref: () => {} }),
-            clearIntervalFn: () => {}
+            logError: failingLog,
+            setIntervalFn: () => ({ unref: () => {} })
         });
 
-        expect(() => closed.attach(new EventEmitter())).not.toThrow();
-        expect(() => closed.markDraining()).not.toThrow();
-    });
-
-    test('stop() ends reporting and stops taking sockets', () => {
-        reporter.stop();
-        const socket = { resume: jestObj.fn() };
-
-        channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket);
-
-        expect(tick).toBeNull();
-        expect(socket.resume).not.toHaveBeenCalled();
+        expect(() => failing.attach(new EventEmitter())).not.toThrow();
+        expect(() => failing.markDraining()).not.toThrow();
+        expect(failingLog).toHaveBeenCalledTimes(expectedLogs);
     });
 });

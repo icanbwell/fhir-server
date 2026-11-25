@@ -85,7 +85,7 @@ const {
     clusterConnectionsDroppedCounter,
     clusterDispatchWorkerScoreHistogram
 } = require('../../../utils/metrics');
-const { CONNECTION_DROP_REASONS } = require('../../../utils/cluster/connectionDispatcher');
+const { CLUSTER_CONNECTION_DROP_REASON } = require('../../../utils/cluster/clusterDispatchConstants');
 
 describe('metrics.js', () => {
     beforeEach(() => {
@@ -676,8 +676,7 @@ describe('metrics.js', () => {
 
     describe('recordClusterConnectionDropped', () => {
         test.each([
-            // every reason the dispatcher emits must be in the label vocabulary, or it collapses to unknown
-            ...Object.values(CONNECTION_DROP_REASONS).map((reason) => [reason, reason]),
+                        ...Object.values(CLUSTER_CONNECTION_DROP_REASON).map((reason) => [reason, reason]),
             ['an unexpected reason', UNKNOWN]
         ])('reason %s emits %s', (reason, expected) => {
             recordClusterConnectionDropped(reason);

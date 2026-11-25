@@ -53,6 +53,7 @@ describe('index.js (process entry point)', () => {
     });
 
     afterEach(() => {
+        delete process.env.CLUSTER_SCHEDULING;
         if (originalWorkerCount === undefined) {
             delete process.env.WORKER_COUNT;
         } else {
@@ -65,11 +66,16 @@ describe('index.js (process entry point)', () => {
      * Loads src/index.js fresh with all its dependencies mocked.
      * @param {{isPrimary?: boolean, workerCount?: number, createServerImpl?: Function, cronImpl?: Function}} opts
      */
-    function loadIndex ({ isPrimary = false, workerCount, createServerImpl, cronImpl } = {}) {
+    function loadIndex ({ isPrimary = false, workerCount, createServerImpl, cronImpl, clusterScheduling } = {}) {
         if (workerCount === undefined) {
             delete process.env.WORKER_COUNT;
         } else {
             process.env.WORKER_COUNT = String(workerCount);
+        }
+        if (clusterScheduling === undefined) {
+            delete process.env.CLUSTER_SCHEDULING;
+        } else {
+            process.env.CLUSTER_SCHEDULING = clusterScheduling;
         }
 
         const order = [];
@@ -84,6 +90,25 @@ describe('index.js (process entry point)', () => {
             on: jestGlobal.fn(),
             workers: {}
         };
+        // The OS listening socket is an infrastructure boundary, like cluster's forking
+        const netServer = {
+            listen: jestGlobal.fn((port, callback) => {
+                order.push('listen');
+                callback();
+            }),
+            close: jestGlobal.fn((callback) => callback()),
+            once: jestGlobal.fn(),
+            on: jestGlobal.fn(),
+            removeListener: jestGlobal.fn(),
+            address: jestGlobal.fn(() => ({ port: 3000 }))
+        };
+        const netMock = { createServer: jestGlobal.fn(() => netServer) };
+        clusterMock.fork.mockImplementation(() => {
+            order.push('fork');
+            const worker = { process: { kill: jestGlobal.fn() } };
+            forkedWorkers.push(worker);
+            return worker;
+        });
 
         const initSentryMock = jestGlobal.fn();
         const initializeMock = jestGlobal.fn(() => order.push('initialize'));
@@ -102,11 +127,15 @@ describe('index.js (process entry point)', () => {
         const getCircularReplacerMock = jestGlobal.fn(() => undefined);
 
         jestGlobal.doMock('cluster', () => clusterMock);
+        jestGlobal.doMock('net', () => netMock);
         jestGlobal.doMock('../../utils/initSentry', () => ({ initSentry: initSentryMock }));
         jestGlobal.doMock('../../server', () => ({ createServer: createServerMock }));
         jestGlobal.doMock('../../createContainer', () => ({ createContainer: createContainerMock }));
         jestGlobal.doMock('../../utils/getCircularReplacer', () => ({ getCircularReplacer: getCircularReplacerMock }));
-        jestGlobal.doMock('../../winstonInit', () => ({ initialize: initializeMock }));
+        jestGlobal.doMock('../../winstonInit', () => ({
+            initialize: initializeMock,
+            getLogger: () => ({ info: jestGlobal.fn(), error: jestGlobal.fn(), warn: jestGlobal.fn(), debug: jestGlobal.fn() })
+        }));
         jestGlobal.doMock('../../utils/fhirSchemaValidator', () => ({ fhirSchemaValidator: { preWarm: preWarmMock } }));
 
         jestGlobal.isolateModules(() => {
@@ -115,6 +144,8 @@ describe('index.js (process entry point)', () => {
 
         return {
             clusterMock,
+            netMock,
+            netServer,
             forkedWorkers,
             initSentryMock,
             createServerMock,
@@ -261,5 +292,69 @@ describe('index.js (process entry point)', () => {
 
         expect(clusterMock.fork).not.toHaveBeenCalled();
         expect(initializeMock).toHaveBeenCalledTimes(1);
+    });
+
+    describe('CLUSTER_SCHEDULING=least_busy', () => {
+        const exitHandlers = (clusterMock) =>
+            clusterMock.on.mock.calls.filter(([event]) => event === 'exit').map(([, handler]) => handler);
+
+        test('primary listens on the service port itself, before forking any worker', async () => {
+            const { netMock, netServer, order } = loadIndex({
+                isPrimary: true,
+                workerCount: 2,
+                clusterScheduling: 'least_busy'
+            });
+            await flush();
+
+            expect(netMock.createServer).toHaveBeenCalledWith({ pauseOnConnect: true }, expect.any(Function));
+            expect(netServer.listen).toHaveBeenCalledWith(3000, expect.any(Function));
+            expect(order).toEqual(['listen', 'fork', 'fork']);
+        });
+
+        test('primary closes its listener only after the last worker exits during shutdown', async () => {
+            const processOnSpy = jestGlobal.spyOn(process, 'on').mockImplementation(() => process);
+            const { clusterMock, netServer } = loadIndex({
+                isPrimary: true,
+                workerCount: 2,
+                clusterScheduling: 'least_busy'
+            });
+            await flush();
+            const forkHandler = clusterMock.on.mock.calls.find(([event]) => event === 'fork')[1];
+            forkHandler({ id: 1 });
+            forkHandler({ id: 2 });
+            processOnSpy.mock.calls.find(([event]) => event === 'SIGTERM')[1]();
+
+            const exitWorker = (id) => exitHandlers(clusterMock).forEach((handler) => handler({ id, process: { pid: id } }, 0, null));
+            exitWorker(1);
+            expect(netServer.close).not.toHaveBeenCalled();
+            exitWorker(2);
+            expect(netServer.close).toHaveBeenCalledTimes(1);
+        });
+
+        test('worker passes a load reporter to createServer', async () => {
+            const { createServerMock } = loadIndex({ workerCount: 2, clusterScheduling: 'least_busy' });
+            await flush();
+
+            const { workerLoadReporter } = createServerMock.mock.calls[0][1];
+            expect(typeof workerLoadReporter.attach).toBe('function');
+            expect(typeof workerLoadReporter.markDraining).toBe('function');
+        });
+
+        test.each([
+            ['the default policy', { workerCount: 2 }],
+            ['a single worker, which has nothing to balance', { workerCount: 1, clusterScheduling: 'least_busy' }]
+        ])('worker keeps listening itself under %s', async (_name, options) => {
+            const { createServerMock } = loadIndex(options);
+            await flush();
+
+            expect(createServerMock.mock.calls[0][1]).toEqual({ workerLoadReporter: undefined });
+        });
+
+        test('primary keeps Node round-robin under the default policy', async () => {
+            const { netMock } = loadIndex({ isPrimary: true, workerCount: 2 });
+            await flush();
+
+            expect(netMock.createServer).not.toHaveBeenCalled();
+        });
     });
 });

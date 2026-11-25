@@ -105,6 +105,18 @@ describe('WorkerLoadTable', () => {
         expect(table.pickWorkerId(() => 0)).toBe(1);
     });
 
+    test('cancelDispatch undoes a dispatch and never goes below zero', () => {
+        const table = tableWith([
+            [1, report(0)],
+            [2, report(0)]
+        ]);
+        table.recordDispatch(1);
+        table.cancelDispatch(1);
+        table.cancelDispatch(1);
+
+        expect(table.score(1)).toBe(0);
+    });
+
     test('spreads a burst of connections that arrives between two reports', () => {
         const table = tableWith([
             [1, report(0)],

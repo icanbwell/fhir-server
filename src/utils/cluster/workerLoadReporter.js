@@ -1,4 +1,4 @@
-const { CLUSTER_MESSAGE_TYPES } = require('./clusterMessageTypes');
+const { CLUSTER_MESSAGE_TYPES, IPC_CHANNEL_CLOSED_ERROR_CODE } = require('./clusterDispatchConstants');
 
 /**
  * Runs in a cluster worker when the primary dispatches connections (CLUSTER_SCHEDULING=least_busy).
@@ -13,22 +13,28 @@ class WorkerLoadReporter {
      * @param {Object} params
      * @param {import('events').EventEmitter} params.channel emits 'message' (message, handle); the
      *  worker's `process`
-     * @param {(message: Object) => void} params.send sends a message to the primary
+     * @param {(message: import('./clusterDispatchConstants').ClusterMessage) => void} params.send
+     *  sends a message to the primary
      * @param {number} params.intervalMs
+     * @param {(message: string, args?: Object) => void} params.logError
      * @param {typeof setInterval} [params.setIntervalFn]
-     * @param {typeof clearInterval} [params.clearIntervalFn]
      */
-    constructor({ channel, send, intervalMs, setIntervalFn = setInterval, clearIntervalFn = clearInterval }) {
+    constructor({
+        channel,
+        send,
+        intervalMs,
+        logError,
+        setIntervalFn = setInterval
+    }) {
+        this.logError = logError;
         this.channel = channel;
         this.send = send;
         this.intervalMs = intervalMs;
         this.setIntervalFn = setIntervalFn;
-        this.clearIntervalFn = clearIntervalFn;
         this.inFlight = 0;
         this.connectionsReceived = 0;
         this.draining = false;
         this.timer = null;
-        this.onChannelMessage = null;
     }
 
     /**
@@ -46,7 +52,11 @@ class WorkerLoadReporter {
             });
         });
 
-        this.onChannelMessage = (message, socket) => {
+        /**
+         * @param {unknown} message
+         * @param {import('net').Socket|undefined} socket
+         */
+        const onChannelMessage = (message, socket) => {
             if (!message || message.type !== CLUSTER_MESSAGE_TYPES.CONNECTION || !socket) {
                 return;
             }
@@ -54,7 +64,7 @@ class WorkerLoadReporter {
             server.emit('connection', socket);
             socket.resume();
         };
-        this.channel.on('message', this.onChannelMessage);
+        this.channel.on('message', onChannelMessage);
 
         this.report();
         this.timer = this.setIntervalFn(() => this.report(), this.intervalMs);
@@ -77,19 +87,8 @@ class WorkerLoadReporter {
     }
 
     /**
-     * Stops reporting and taking connections.
+     * Sends the current load snapshot to the primary.
      */
-    stop() {
-        if (this.timer) {
-            this.clearIntervalFn(this.timer);
-            this.timer = null;
-        }
-        if (this.onChannelMessage) {
-            this.channel.removeListener('message', this.onChannelMessage);
-            this.onChannelMessage = null;
-        }
-    }
-
     report() {
         this.safeSend({
             type: CLUSTER_MESSAGE_TYPES.LOAD_REPORT,
@@ -99,14 +98,23 @@ class WorkerLoadReporter {
     }
 
     /**
-     * @param {Object} message
+     * @param {import('./clusterDispatchConstants').ClusterMessage} message
      */
     safeSend(message) {
         try {
             this.send(message);
-        } catch {
-            // The IPC channel is closed (the primary is gone or the worker is exiting); there is
-            // no one left to report to.
+        } catch (error) {
+            // A closed channel means the primary is gone or this worker is exiting: there is no
+            // one left to report to. Anything else would silently stop the reports, and the
+            // primary would then treat this worker as blocked, so it is logged.
+            if (error && error.code === IPC_CHANNEL_CLOSED_ERROR_CODE) {
+                return;
+            }
+            this.logError('Failed to send a load report to the cluster primary', {
+                messageType: message.type,
+                error: error && error.message,
+                code: error && error.code
+            });
         }
     }
 }

@@ -116,6 +116,18 @@ class WorkerLoadTable {
     }
 
     /**
+     * Undoes recordDispatch for a hand-off that failed, so the worker is not charged for a
+     * connection it never received.
+     * @param {number} workerId
+     */
+    cancelDispatch(workerId) {
+        const state = this.workers.get(workerId);
+        if (state && state.connectionsDispatched > 0) {
+            state.connectionsDispatched -= 1;
+        }
+    }
+
+    /**
      * @param {number} workerId
      * @returns {number|undefined}
      */

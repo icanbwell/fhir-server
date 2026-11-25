@@ -1,17 +1,12 @@
-const { CLUSTER_MESSAGE_TYPES } = require('./clusterMessageTypes');
+const { CLUSTER_MESSAGE_TYPES, CLUSTER_CONNECTION_DROP_REASON } = require('./clusterDispatchConstants');
 
-const DROPPED_CONNECTION_LOG_INTERVAL_MS = 5000;
-
-/** Why the primary closed a connection instead of handing it to a worker */
-const CONNECTION_DROP_REASONS = Object.freeze({
-    NO_WORKER: 'no_worker',
-    SEND_FAILED: 'send_failed'
-});
+const THROTTLED_LOG_INTERVAL_MS = 5000;
 
 /**
  * @typedef {Object} DispatchMetrics
  * @property {(workerScore: number) => void} connectionDispatched
- * @property {(reason: string) => void} connectionDropped reason is one of CONNECTION_DROP_REASONS
+ * @property {(reason: string) => void} connectionDropped reason is one of
+ *  CLUSTER_CONNECTION_DROP_REASON
  */
 
 /**
@@ -35,17 +30,20 @@ class ConnectionDispatcher {
      */
     constructor({ cluster, net, loadTable, port, log, metrics, random = Math.random, now = Date.now }) {
         this.cluster = cluster;
-        this.metrics = metrics;
         this.net = net;
         this.loadTable = loadTable;
         this.port = port;
         this.log = log;
+        this.metrics = metrics;
         this.random = random;
         this.now = now;
         /** @type {import('net').Server|null} */
         this.server = null;
-        this.droppedSinceLastLog = 0;
-        this.lastDropLogAt = -Infinity;
+        /**
+         * Per-event state for logs that could otherwise fire on every connection
+         * @type {Map<string, {count: number, lastLoggedAt: number}>}
+         */
+        this.throttledLogs = new Map();
     }
 
     /**
@@ -67,20 +65,24 @@ class ConnectionDispatcher {
 
     /**
      * Starts accepting connections on the service port.
-     * @returns {Promise<void>}
+     * @returns {Promise<import('net').AddressInfo>} the address it listens on
      */
     listenAsync() {
         this.server = this.net.createServer({ pauseOnConnect: true }, (socket) =>
             this.dispatch(socket)
         );
+        const server = this.server;
         return new Promise((resolve, reject) => {
-            this.server.once('error', reject);
-            this.server.listen(this.port, () => {
-                this.server.removeListener('error', reject);
-                this.server.on('error', (error) =>
-                    this.log('Connection dispatcher server error', { error: error.message })
+            server.once('error', reject);
+            server.listen(this.port, () => {
+                server.removeListener('error', reject);
+                server.on('error', (error) =>
+                    this.log('Connection dispatcher server error', {
+                        error: error.message,
+                        code: error.code
+                    })
                 );
-                resolve();
+                resolve(server.address());
             });
         });
     }
@@ -108,7 +110,12 @@ class ConnectionDispatcher {
         }
         switch (message.type) {
             case CLUSTER_MESSAGE_TYPES.LOAD_REPORT:
-                this.loadTable.recordReport(worker.id, message);
+                if (!this.loadTable.recordReport(worker.id, message)) {
+                    // A worker whose reports are all rejected never gets traffic, so say why.
+                    this.logThrottled('invalidLoadReport', 'Ignored an invalid worker load report', {
+                        workerId: worker.id
+                    });
+                }
                 break;
             case CLUSTER_MESSAGE_TYPES.DRAINING:
                 this.loadTable.markDraining(worker.id);
@@ -139,39 +146,59 @@ class ConnectionDispatcher {
                 this.loadTable.markDraining(workerId);
                 continue;
             }
-            this.metrics.connectionDispatched(this.loadTable.score(workerId));
-            this.loadTable.recordDispatch(workerId);
-            worker.send({ type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket, (error) => {
-                if (error) {
-                    socket.destroy();
-                    this.metrics.connectionDropped(CONNECTION_DROP_REASONS.SEND_FAILED);
-                }
-            });
+            this.sendToWorker(worker, socket);
             return;
         }
-        this.drop(socket);
+
+        socket.destroy();
+        this.metrics.connectionDropped(CLUSTER_CONNECTION_DROP_REASON.NO_WORKER);
+        this.logThrottled('noWorker', 'No worker available; closed incoming connections', {
+            workers: this.loadTable.size()
+        });
     }
 
     /**
+     * @param {import('cluster').Worker} worker
      * @param {import('net').Socket} socket
      */
-    drop(socket) {
-        socket.destroy();
-        this.metrics.connectionDropped(CONNECTION_DROP_REASONS.NO_WORKER);
-        this.droppedSinceLastLog += 1;
-        const now = this.now();
-        if (now - this.lastDropLogAt >= DROPPED_CONNECTION_LOG_INTERVAL_MS) {
-            this.log('No worker available; closed incoming connections', {
-                droppedConnections: this.droppedSinceLastLog,
-                workers: this.loadTable.size()
+    sendToWorker(worker, socket) {
+        this.metrics.connectionDispatched(this.loadTable.score(worker.id));
+        this.loadTable.recordDispatch(worker.id);
+        worker.send({ type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket, (error) => {
+            if (!error) {
+                return;
+            }
+            // The worker never received it, so it must not count against the worker's score.
+            this.loadTable.cancelDispatch(worker.id);
+            socket.destroy();
+            this.metrics.connectionDropped(CLUSTER_CONNECTION_DROP_REASON.SEND_FAILED);
+            this.logThrottled('sendFailed', 'Failed to hand a connection to a worker; closed it', {
+                workerId: worker.id,
+                error: error.message,
+                code: error.code
             });
-            this.droppedSinceLastLog = 0;
-            this.lastDropLogAt = now;
+        });
+    }
+
+    /**
+     * Logs at most once per interval per key, with the number of occurrences since the last log.
+     * @param {string} key
+     * @param {string} message
+     * @param {Object} args details of the latest occurrence
+     */
+    logThrottled(key, message, args) {
+        const state = this.throttledLogs.get(key) || { count: 0, lastLoggedAt: -Infinity };
+        state.count += 1;
+        const now = this.now();
+        if (now - state.lastLoggedAt >= THROTTLED_LOG_INTERVAL_MS) {
+            this.log(message, { ...args, occurrences: state.count });
+            state.count = 0;
+            state.lastLoggedAt = now;
         }
+        this.throttledLogs.set(key, state);
     }
 }
 
 module.exports = {
-    CONNECTION_DROP_REASONS,
     ConnectionDispatcher
 };
