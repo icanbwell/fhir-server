@@ -83,6 +83,9 @@ describe('registerMongoPoolMonitoring against a real MongoClient', () => {
 
         const held = collection.find({ $where: `sleep(${HOLD_MS}) || true` }).toArray();
         await waitUntilAsync(() => pool.currentCheckedOutCount === 1);
+        // The monitor reads these two driver properties; fail loudly if an upgrade drops them.
+        expect(typeof pool.waitQueueSize).toBe('number');
+        expect(typeof pool.pendingConnectionCount).toBe('number');
         await new Promise((resolve) => setTimeout(resolve, 100));
         const waitingBefore = levelOf(waiting);
 

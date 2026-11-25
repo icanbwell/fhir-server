@@ -32,7 +32,10 @@ jest.mock('@opentelemetry/api', () => {
     };
 });
 
+jest.mock('../../../operations/common/logging', () => ({ logWarn: jest.fn() }));
+
 const { __counters, __histograms } = require('@opentelemetry/api');
+const { logWarn } = require('../../../operations/common/logging');
 const { registerMongoPoolMonitoring } = require('../../../utils/mongoPoolMonitor');
 
 const CHECKOUT_DURATION = 'fhir_mongo_pool_checkout_duration_seconds';
@@ -239,8 +242,10 @@ describe('registerMongoPoolMonitoring', () => {
             const levelOf = (name) =>
                 __counters[name].add.mock.calls.reduce((sum, [delta]) => sum + delta, 0);
             const settleAsync = () => new Promise((resolve) => setImmediate(resolve));
-            const withPoolQueue = (waitQueueSize) => {
-                client.topology = { s: { servers: new Map([[PRIMARY, { pool: { waitQueueSize } }]]) } };
+            const withPoolQueue = (waitQueueSize, pendingConnectionCount) => {
+                client.topology = {
+                    s: { servers: new Map([[PRIMARY, { pool: { waitQueueSize, pendingConnectionCount } }]]) }
+                };
             };
 
             test('drops a cancelled checkout the driver never reported once the pool queue is shorter', async () => {
@@ -253,6 +258,19 @@ describe('registerMongoPoolMonitoring', () => {
                 await settleAsync();
 
                 expect(levelOf(WAIT_QUEUE_SIZE)).toBe(0);
+            });
+
+            test('counts waiters the driver already shifted out to open a new connection', async () => {
+                client.emit(...started());
+                client.emit(...started());
+                client.emit(...started());
+                // One waiter is queued, two are waiting on connections still being opened.
+                withPoolQueue(1, 2);
+
+                client.emit(...checkedIn(1));
+                await settleAsync();
+
+                expect(levelOf(WAIT_QUEUE_SIZE)).toBe(3);
             });
 
             test.each([
@@ -283,6 +301,19 @@ describe('registerMongoPoolMonitoring', () => {
                 await settleAsync();
 
                 expect(levelOf(WAIT_QUEUE_SIZE)).toBe(1);
+            });
+
+            test('warns once, without failing, when the driver internals cannot be read', async () => {
+                logWarn.mockClear();
+                client.topology = undefined;
+                client.emit(...started());
+                client.emit(...started());
+
+                client.emit(...checkedOut(1));
+                client.emit(...checkedIn(1));
+                await settleAsync();
+
+                expect(logWarn.mock.calls.length).toBeLessThanOrEqual(1);
             });
 
             test('does not read the pool when no checkout is counted as waiting', async () => {
