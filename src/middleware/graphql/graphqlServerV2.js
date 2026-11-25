@@ -24,7 +24,7 @@ const { getApolloServerLoggingPlugin } = require('./plugins/graphqlLoggingPlugin
 const { getAddRequestIdToResponseHeadersPlugin } = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const { getBundleMetaApolloServerPlugin } = require('./plugins/graphqlBundleMetaPlugin');
 const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
-const { removeNullFromArray } = require('../../utils/nullRemover');
+const { removeNullFromGraphQLResult } = require('../../utils/nullRemover');
 const { getSafeErrorMessage } = require('./graphqlErrorFormatter');
 const resolvers = require('../../graphqlv2/resolvers');
 
@@ -145,7 +145,7 @@ const graphqlV2 = async (fnGetContainer) => {
                 return formattedError;
             },
             stringifyResult: (value) => {
-                return JSON.stringify(removeNullFromArray(value), null, 2);
+                return JSON.stringify(removeNullFromGraphQLResult(value), null, 2);
             },
             // to process requests during server graceful shutdown
             // https://www.apollographql.com/docs/apollo-server/api/apollo-server#stoponterminationsignals
