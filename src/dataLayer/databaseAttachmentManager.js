@@ -170,6 +170,14 @@ class DatabaseAttachmentManager {
             if (!patchContent || this.isUpdated(`${path}/data`, patchContent)) {
                 switch (operation) {
                     case INSERT:
+                        // DocumentReference attachments are written by Base64DataManager when
+                        // this flag is on, so GridFS must leave `data` in place.
+                        if (
+                            resourceType === 'DocumentReference' &&
+                            this.configManager.enableBase64FieldCloudStorageForDocumentReference
+                        ) {
+                            return resource;
+                        }
                         return await this.convertDataToFileId(
                             resource, `${resourceId}_${index}`, gridFSBucket, metadata
                         );

@@ -346,3 +346,66 @@ describe('DatabaseAttachmentManager', () => {
         });
     });
 });
+
+describe('DatabaseAttachmentManager - DocumentReference Base64DataManager flag', () => {
+    const makeManager = (documentReferenceFlag) => {
+        const configManager = createMockConfigManager({ enabledGridFsResources: ['DocumentReference'] });
+        Object.defineProperty(configManager, 'enableBase64FieldCloudStorageForDocumentReference', {
+            get: () => documentReferenceFlag,
+            configurable: true
+        });
+        const bucket = { openUploadStream: jest.fn() };
+        const mongoDatabaseManager = createMockMongoDatabaseManager();
+        mongoDatabaseManager.getGridFsBucket.mockResolvedValue(bucket);
+        return {
+            bucket,
+            manager: new DatabaseAttachmentManager({ mongoDatabaseManager, configManager })
+        };
+    };
+    const makeResource = () => ({
+        resourceType: 'DocumentReference',
+        id: '1',
+        _id: 'mongo-id',
+        content: [{ attachment: { data: 'QQ==' } }]
+    });
+
+    test('flag on: INSERT leaves data in place and does not touch GridFS', async () => {
+        const { manager, bucket } = makeManager(true);
+
+        const result = await manager.transformAttachments(makeResource(), 'INSERT');
+
+        expect(result.content[0].attachment).toEqual({ data: 'QQ==' });
+        expect(bucket.openUploadStream).not.toHaveBeenCalled();
+        // _id is still removed for every operation
+        expect(result._id).toBeUndefined();
+    });
+
+    test('flag off: INSERT still sends data to GridFS', async () => {
+        const { manager, bucket } = makeManager(false);
+        bucket.openUploadStream.mockImplementation(() => {
+            throw new Error('GridFS reached');
+        });
+
+        await expect(manager.transformAttachments(makeResource(), 'INSERT')).rejects.toThrow(
+            'GridFS reached'
+        );
+    });
+
+    test('flag on: RETRIEVE still restores data for an attachment stored in GridFS', async () => {
+        const { manager } = makeManager(true);
+        manager.convertFileIdToData = jest.fn().mockImplementation(async (r) => {
+            delete r._file_id;
+            r.data = 'QQ==';
+            return r;
+        });
+        const resource = {
+            resourceType: 'DocumentReference',
+            id: '1',
+            content: [{ attachment: { _file_id: '507f1f77bcf86cd799439011' } }]
+        };
+
+        const result = await manager.transformAttachments(resource, 'RETRIEVE');
+
+        expect(result.content[0].attachment).toEqual({ data: 'QQ==' });
+    });
+});

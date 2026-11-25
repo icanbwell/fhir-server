@@ -88,7 +88,13 @@ class Base64DataManager {
         this.historyResourceCloudStorageClient = historyResourceCloudStorageClient;
         this.requestSpecificCache = requestSpecificCache;
         this.preSaveManager = preSaveManager;
-        this.resourcePaths = base64DataResources;
+        // DocumentReference paths apply only when its own flag is on; otherwise it stays on GridFS.
+        // searchManager reads this property too, so one filter covers write, read and search.
+        this.resourcePaths = configManager.enableBase64FieldCloudStorageForDocumentReference
+            ? base64DataResources
+            : Object.fromEntries(
+                Object.entries(base64DataResources).filter(([type]) => type !== 'DocumentReference')
+            );
 
     }
 

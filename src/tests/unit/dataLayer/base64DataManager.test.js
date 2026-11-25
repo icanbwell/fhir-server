@@ -639,3 +639,50 @@ describe('Base64DataManager', () => {
         });
     });
 });
+
+describe('Base64DataManager DocumentReference resourcePaths gate', () => {
+    const makeConfig = (documentReferenceFlag) => {
+        const configManager = createMockConfigManager();
+        Object.defineProperty(configManager, 'enableBase64FieldCloudStorageForDocumentReference', {
+            get: () => documentReferenceFlag,
+            configurable: true
+        });
+        return configManager;
+    };
+
+    test('flag off: only Binary is configured', () => {
+        const manager = createBase64DataManager({ configManager: makeConfig(false) });
+
+        expect(Object.keys(manager.resourcePaths)).toEqual(['Binary']);
+    });
+
+    test('flag on: DocumentReference has the three attachment paths', () => {
+        const manager = createBase64DataManager({ configManager: makeConfig(true) });
+
+        expect(manager.resourcePaths.Binary).toBeDefined();
+        expect(manager.resourcePaths.DocumentReference.map((e) => e.dataPath)).toEqual([
+            '/content/[]/attachment/data',
+            '/extension/[]/valueAttachment/data',
+            '/modifierExtension/[]/valueAttachment/data'
+        ]);
+    });
+
+    test('flag off: DocumentReference is returned untouched, data and sidecar alike', async () => {
+        const manager = createBase64DataManager({ configManager: makeConfig(false) });
+        const resource = {
+            resourceType: 'DocumentReference',
+            id: 'd1',
+            content: [{ attachment: { _blobMeta: { hash: 'h', rawSize: 1 } } }]
+        };
+
+        const insert = await manager.transformAsync(
+            JSON.parse(JSON.stringify(resource)), BLOB_OP.INSERT, { requestId: 'r1' }
+        );
+        const retrieve = await manager.transformAsync(
+            JSON.parse(JSON.stringify(resource)), BLOB_OP.RETRIEVE, { requestId: 'r1' }
+        );
+
+        expect(insert).toEqual(resource);
+        expect(retrieve).toEqual(resource);
+    });
+});

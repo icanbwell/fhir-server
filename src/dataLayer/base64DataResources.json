@@ -4,5 +4,19 @@
       "dataPath": "/data",
       "blobMetaPath": "/_blobMeta"
     }
+  ],
+  "DocumentReference": [
+    {
+      "dataPath": "/content/[]/attachment/data",
+      "blobMetaPath": "/content/[]/attachment/_blobMeta"
+    },
+    {
+      "dataPath": "/extension/[]/valueAttachment/data",
+      "blobMetaPath": "/extension/[]/valueAttachment/_blobMeta"
+    },
+    {
+      "dataPath": "/modifierExtension/[]/valueAttachment/data",
+      "blobMetaPath": "/modifierExtension/[]/valueAttachment/_blobMeta"
+    }
   ]
 }
