@@ -445,7 +445,7 @@ const clusterConnectionsDispatchedCounter = meter.createCounter('fhir_cluster_co
 });
 
 const clusterConnectionsDroppedCounter = meter.createCounter('fhir_cluster_connections_dropped_total', {
-    description: 'Connections the cluster primary closed without serving, by reason (no_worker: every worker is starting, draining or gone; send_failed: the hand-off to the chosen worker failed). Expected briefly at pod start and at the end of shutdown; anything else means the pod is refusing traffic.'
+    description: 'Connections the cluster primary closed without serving, by reason (no_worker: every worker is starting, draining or gone; send_failed: the hand-off to the chosen worker failed; worker_exited: the worker exited before taking a connection sent to it). Expected briefly at pod start and at the end of shutdown; anything else means the pod is refusing traffic.'
 });
 
 const clusterDispatchWorkerScoreHistogram = meter.createHistogram('fhir_cluster_dispatch_worker_score', {

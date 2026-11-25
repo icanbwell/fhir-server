@@ -52,8 +52,12 @@ class WorkerLoadReporter {
          * @type {Set<import('net').Socket>}
          */
         this.openConnections = new Set();
-        /** @type {(() => void)|null} */
-        this.onAllConnectionsClosed = null;
+        /**
+         * Pending waitForConnectionsToCloseAsync calls, each resolved when the last connection
+         * closes
+         * @type {Set<() => void>}
+         */
+        this.closeWaiters = new Set();
         this.draining = false;
         this.timer = null;
     }
@@ -88,8 +92,8 @@ class WorkerLoadReporter {
             socket.once('close', () => {
                 this.awaitingFirstRequest.delete(socket);
                 this.openConnections.delete(socket);
-                if (this.openConnections.size === 0 && this.onAllConnectionsClosed) {
-                    this.onAllConnectionsClosed();
+                if (this.openConnections.size === 0) {
+                    [...this.closeWaiters].forEach((onAllClosed) => onAllClosed());
                 }
             });
             server.emit('connection', socket);
@@ -130,16 +134,24 @@ class WorkerLoadReporter {
             return Promise.resolve(true);
         }
         return new Promise((resolve) => {
-            const timer = this.setTimeoutFn(() => {
-                this.onAllConnectionsClosed = null;
-                resolve(false);
-            }, timeoutMs);
-            this.onAllConnectionsClosed = () => {
-                this.onAllConnectionsClosed = null;
+            const onAllClosed = () => {
+                this.closeWaiters.delete(onAllClosed);
                 this.clearTimeoutFn(timer);
                 resolve(true);
             };
+            const timer = this.setTimeoutFn(() => {
+                this.closeWaiters.delete(onAllClosed);
+                resolve(false);
+            }, timeoutMs);
+            this.closeWaiters.add(onAllClosed);
         });
+    }
+
+    /**
+     * @returns {number} connections taken from the primary that are still open
+     */
+    openConnectionCount() {
+        return this.openConnections.size;
     }
 
     /**

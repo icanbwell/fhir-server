@@ -23,7 +23,9 @@ const CLUSTER_CONNECTION_DROP_REASON = Object.freeze({
     /** every worker is starting, draining or gone */
     NO_WORKER: 'no_worker',
     /** the IPC hand-off to the chosen worker failed */
-    SEND_FAILED: 'send_failed'
+    SEND_FAILED: 'send_failed',
+    /** the worker exited before taking a connection already sent to it */
+    WORKER_EXITED: 'worker_exited'
 });
 
 /** Node's error code when sending on an IPC channel that has already closed */

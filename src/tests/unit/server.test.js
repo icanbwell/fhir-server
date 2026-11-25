@@ -10,6 +10,8 @@
 
 const http = require('http');
 const net = require('net');
+const { EventEmitter } = require('events');
+const { CLUSTER_MESSAGE_TYPES } = require('../../utils/cluster/clusterDispatchConstants');
 const { describe, test, expect, beforeEach, afterEach, jest: jestGlobal } = require('@jest/globals');
 
 describe('createServer', () => {
@@ -123,40 +125,102 @@ describe('createServer', () => {
         }
     });
 
-    test('waits for connections from the primary to close before flushing buffers', async () => {
-        const createServer = loadCreateServer();
-        const steps = [];
-        const done = (name) => jestGlobal.fn(() => {
+    /**
+     * A container whose flush and disconnect steps record that they ran
+     * @param {string[]} steps
+     */
+    const shutdownContainer = (steps) => {
+        const step = (name) => jestGlobal.fn(() => {
             steps.push(name);
             return Promise.resolve();
         });
-        const container = {
+        return {
             ...fakeContainer(),
-            postRequestProcessor: { waitTillAllRequestsDoneAsync: done('flush') },
-            postSaveProcessor: { flushAsync: done('flush') },
-            auditLogger: { flushAsync: done('flush') },
-            accessLogger: { flushAsync: done('flush') },
-            kafkaClient: { disconnect: done('kafka') },
-            kafkaClientV2: { disconnect: done('kafka') }
+            postRequestProcessor: { waitTillAllRequestsDoneAsync: step('flush') },
+            postSaveProcessor: { flushAsync: step('flush') },
+            auditLogger: { flushAsync: step('flush') },
+            accessLogger: { flushAsync: step('flush') },
+            kafkaClient: { disconnect: step('kafka') },
+            kafkaClientV2: { disconnect: step('kafka') }
         };
-        const workerLoadReporter = {
-            attach: () => {},
-            markDraining: () => {},
-            waitForConnectionsToCloseAsync: jestGlobal.fn(() => {
-                steps.push('connectionsClosed');
-                return Promise.resolve(true);
-            })
-        };
-        server = await createServer(() => container, { workerLoadReporter });
-        const { onSignal } = createTerminusMock.mock.calls[0][1];
+    };
 
-        await onSignal();
-
-        expect(steps[0]).toBe('connectionsClosed');
-        expect(steps).toContain('flush');
-        expect(workerLoadReporter.waitForConnectionsToCloseAsync).toHaveBeenCalledWith({
-            timeoutMs: expect.any(Number)
+    /**
+     * A real WorkerLoadReporter; the IPC channel to the primary is the boundary that is faked.
+     * @param {Object} [timers] setTimeoutFn/clearTimeoutFn overrides
+     */
+    const realReporter = (timers = {}) => {
+        const { WorkerLoadReporter } = require('../../utils/cluster/workerLoadReporter');
+        const channel = new EventEmitter();
+        const reporter = new WorkerLoadReporter({
+            channel,
+            send: () => {},
+            intervalMs: 25,
+            setIntervalFn: () => ({ unref: () => {} }),
+            ...timers
         });
+        return { reporter, channel };
+    };
+
+    /**
+     * Opens a real TCP connection and hands its server side to the worker the way the primary
+     * does: a CONNECTION message on the IPC channel carrying the paused socket.
+     */
+    const handOverConnectionAsync = async (channel) => {
+        const primary = net.createServer({ pauseOnConnect: true }, (socket) =>
+            channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket)
+        );
+        await new Promise((resolve) => primary.listen(0, '127.0.0.1', resolve));
+        const received = new Promise((resolve) => primary.once('connection', resolve));
+        const client = net.connect(primary.address().port, '127.0.0.1');
+        await received;
+        return { client, primary };
+    };
+
+    test('at shutdown, does not flush until connections from the primary have closed', async () => {
+        const createServer = loadCreateServer();
+        const steps = [];
+        const { reporter, channel } = realReporter();
+        server = await createServer(() => shutdownContainer(steps), { workerLoadReporter: reporter });
+        await waitForListening(server);
+        const { client, primary } = await handOverConnectionAsync(channel);
+        const { onSignal } = createTerminusMock.mock.calls[0][1];
+        try {
+            const shutdown = onSignal();
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            expect(steps).toEqual([]);
+
+            client.end();
+            await shutdown;
+
+            expect(steps).toContain('flush');
+            expect(steps).toContain('kafka');
+        } finally {
+            client.destroy();
+            await new Promise((resolve) => primary.close(resolve));
+        }
+    });
+
+    test('at shutdown, flushes anyway once the wait for connections from the primary times out', async () => {
+        const createServer = loadCreateServer();
+        const steps = [];
+        const { reporter, channel } = realReporter({
+            setTimeoutFn: (fn) => setImmediate(fn),
+            clearTimeoutFn: (handle) => clearImmediate(handle)
+        });
+        server = await createServer(() => shutdownContainer(steps), { workerLoadReporter: reporter });
+        await waitForListening(server);
+        const { client, primary } = await handOverConnectionAsync(channel);
+        const { onSignal } = createTerminusMock.mock.calls[0][1];
+        try {
+            await onSignal();
+
+            expect(reporter.openConnectionCount()).toBe(1);
+            expect(steps).toContain('flush');
+        } finally {
+            client.destroy();
+            await new Promise((resolve) => primary.close(resolve));
+        }
     });
 
     test('marks the worker draining when the shutdown delay ends, not before', async () => {

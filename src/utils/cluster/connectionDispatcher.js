@@ -194,8 +194,7 @@ class ConnectionDispatcher {
             return;
         }
 
-        socket.destroy();
-        this.metrics.connectionDropped(CLUSTER_CONNECTION_DROP_REASON.NO_WORKER);
+        this.dropConnection(socket, CLUSTER_CONNECTION_DROP_REASON.NO_WORKER);
         this.logThrottled('noWorker', 'No worker available; closed incoming connections', {
             workers: this.loadTable.size()
         });
@@ -224,8 +223,7 @@ class ConnectionDispatcher {
             }
             // The worker never received it, so it must not count against the worker's score.
             this.loadTable.cancelDispatch(worker.id);
-            socket.destroy();
-            this.metrics.connectionDropped(CLUSTER_CONNECTION_DROP_REASON.SEND_FAILED);
+            this.dropConnection(socket, CLUSTER_CONNECTION_DROP_REASON.SEND_FAILED);
             this.logThrottled('sendFailed', 'Failed to hand a connection to a worker; closed it', {
                 workerId: worker.id,
                 error: error.message,
@@ -249,13 +247,22 @@ class ConnectionDispatcher {
         // emptied so a send callback that still runs for one of them sees it as already handled
         pending.clear();
         for (const socket of sockets) {
-            socket.destroy();
-            this.metrics.connectionDropped(CLUSTER_CONNECTION_DROP_REASON.SEND_FAILED);
+            this.dropConnection(socket, CLUSTER_CONNECTION_DROP_REASON.WORKER_EXITED);
         }
         this.logThrottled('workerExitedWithPendingHandOffs', 'A worker exited before taking connections sent to it; closed them', {
             workerId,
             connections: sockets.length
         });
+    }
+
+    /**
+     * Closes a connection the primary could not get served, and counts it.
+     * @param {import('net').Socket} socket
+     * @param {string} reason one of CLUSTER_CONNECTION_DROP_REASON
+     */
+    dropConnection(socket, reason) {
+        socket.destroy();
+        this.metrics.connectionDropped(reason);
     }
 
     /**

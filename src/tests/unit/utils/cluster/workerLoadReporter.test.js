@@ -144,6 +144,34 @@ describe('WorkerLoadReporter', () => {
             await expect(waiting).resolves.toBe(true);
         });
 
+        test('resolves every concurrent waiter once the last connection closes, and clears their timers', async () => {
+            const timers = new Map();
+            let nextTimer = 0;
+            const waited = new WorkerLoadReporter({
+                channel: new EventEmitter(),
+                send: () => {},
+                intervalMs: 25,
+                setIntervalFn: () => ({ unref: () => {} }),
+                setTimeoutFn: (fn) => {
+                    nextTimer += 1;
+                    timers.set(nextTimer, fn);
+                    return nextTimer;
+                },
+                clearTimeoutFn: (id) => timers.delete(id)
+            });
+            waited.attach(new EventEmitter());
+            const socket = Object.assign(new EventEmitter(), { resume: jestObj.fn() });
+            waited.channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket);
+            const first = waited.waitForConnectionsToCloseAsync({ timeoutMs: 60000 });
+            const second = waited.waitForConnectionsToCloseAsync({ timeoutMs: 3000 });
+
+            socket.emit('close');
+
+            await expect(Promise.all([first, second])).resolves.toEqual([true, true]);
+            expect(timers.size).toBe(0);
+            expect(waited.openConnectionCount()).toBe(0);
+        });
+
         test('gives up after the timeout while a connection is still open', async () => {
             let expire;
             const timed = new WorkerLoadReporter({

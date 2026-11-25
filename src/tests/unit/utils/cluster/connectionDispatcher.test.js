@@ -303,7 +303,7 @@ describe('ConnectionDispatcher', () => {
         }
     });
 
-    test('closes connections still queued for a worker that exits, and counts them as failed sends', () => {
+    test('closes connections still queued for a worker that exits, and counts them as worker_exited', () => {
         const worker = fork(1);
         cluster.emit('message', worker, loadReport(0));
         worker.heldCallbacks = [];
@@ -319,8 +319,8 @@ describe('ConnectionDispatcher', () => {
         expect(acknowledged.destroy).not.toHaveBeenCalled();
         queued.forEach((socket) => expect(socket.destroy).toHaveBeenCalledTimes(1));
         expect(metrics.connectionDropped.mock.calls).toEqual([
-            [CLUSTER_CONNECTION_DROP_REASON.SEND_FAILED],
-            [CLUSTER_CONNECTION_DROP_REASON.SEND_FAILED]
+            [CLUSTER_CONNECTION_DROP_REASON.WORKER_EXITED],
+            [CLUSTER_CONNECTION_DROP_REASON.WORKER_EXITED]
         ]);
         expect(log).toHaveBeenCalledWith(
             'A worker exited before taking connections sent to it; closed them',

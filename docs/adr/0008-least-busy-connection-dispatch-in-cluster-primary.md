@@ -91,7 +91,7 @@ How it works:
 - Node lets one socket hand-off per worker wait for the worker's acknowledgement and queues the
   rest. If the worker dies, Node drops the queued ones without calling back. The primary tracks
   hand-offs it has not had a callback for and, when that worker exits, closes them and counts them
-  as `send_failed`, so those clients do not hang.
+  as `worker_exited`, so those clients do not hang.
 - The primary closes its listener after the last worker exits during shutdown, so it exits as it
   does today.
 
@@ -128,7 +128,7 @@ How it works:
   mean, along with p95/p99 latency. The primary's own metrics:
     - `fhir_cluster_connections_dispatched_total`
     - `fhir_cluster_connections_dropped_total{reason}`: `no_worker` is expected only around start
-      and the end of shutdown.
+      and the end of shutdown; `worker_exited` follows a worker crash.
     - `fhir_cluster_dispatch_worker_score`: the score of the worker picked. A rising value means
       every worker in the pod is busy.
 

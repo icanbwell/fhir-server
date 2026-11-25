@@ -162,7 +162,10 @@ async function createServer (fnGetContainer, { workerLoadReporter } = {}) {
                     timeoutMs: gracefulTimeoutMs
                 });
                 if (!allClosed) {
-                    logError('Connections from the cluster primary were still open at shutdown', {});
+                    logError('Connections from the cluster primary were still open at shutdown', {
+                        openConnections: workerLoadReporter.openConnectionCount(),
+                        timeoutMs: gracefulTimeoutMs
+                    });
                 }
             }
             // for flushing dd-trace and sentry
