@@ -877,7 +877,16 @@ class SearchManager {
                             .replace(/^\//, '')
                             .replace(/\/\[\]/g, '')
                             .replace(/\//g, '.');
-                        projection[blobMetaProjectionPath] = 1;
+                        // MongoDB rejects a projection that holds both a path and one of its
+                        // descendants (Path collision). When an ancestor such as `content` is
+                        // already projected whole, it returns the nested `_blobMeta` too.
+                        const segments = blobMetaProjectionPath.split('.');
+                        const ancestorProjected = segments
+                            .slice(0, -1)
+                            .some((_, i) => projection[segments.slice(0, i + 1).join('.')]);
+                        if (!ancestorProjected) {
+                            projection[blobMetaProjectionPath] = 1;
+                        }
                     }
                 }
             }

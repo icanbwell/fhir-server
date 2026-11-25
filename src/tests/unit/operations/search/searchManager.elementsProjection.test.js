@@ -31,3 +31,55 @@ describe('SearchManager.handleElementsQuery view control projection', () => {
         expect(projection.section === 1).toBe(reads);
     });
 });
+
+describe('SearchManager.handleElementsQuery base64 sidecar projection', () => {
+    const searchManager = Object.create(SearchManager.prototype);
+    searchManager.base64DataManager = {
+        resourcePaths: {
+            Binary: [{ dataPath: '/data', blobMetaPath: '/_blobMeta' }],
+            DocumentReference: [
+                {
+                    dataPath: '/content/[]/attachment/data',
+                    blobMetaPath: '/content/[]/attachment/_blobMeta'
+                }
+            ]
+        }
+    };
+
+    const project = (resourceType, elements) => {
+        const parsedArgs = {
+            get: () => ({ queryParameterValue: { values: elements } })
+        };
+        const { options } = searchManager.handleElementsQuery({
+            parsedArgs, columns: new Set(), resourceType, options: {}, useAccessIndex: false
+        });
+        return options.projection;
+    };
+
+    test('DocumentReference _elements=content projects content whole, without a nested _blobMeta path', () => {
+        const projection = project('DocumentReference', ['content']);
+
+        expect(projection.content).toBe(1);
+        expect(projection['content.attachment._blobMeta']).toBeUndefined();
+    });
+
+    test('DocumentReference without content does not project _blobMeta', () => {
+        const projection = project('DocumentReference', ['status']);
+
+        expect(projection.status).toBe(1);
+        expect(projection['content.attachment._blobMeta']).toBeUndefined();
+    });
+
+    test('Binary _elements=data still projects _blobMeta', () => {
+        const projection = project('Binary', ['data']);
+
+        expect(projection.data).toBe(1);
+        expect(projection._blobMeta).toBe(1);
+    });
+
+    test('Binary without data does not project _blobMeta', () => {
+        const projection = project('Binary', ['contentType']);
+
+        expect(projection._blobMeta).toBeUndefined();
+    });
+});
