@@ -107,7 +107,8 @@ describe('checkout-timeout self-exit pool scope', () => {
         expect(processRef.exitCode).toBeUndefined();
     });
 
-    // Runs last: the exit action latches once it fires.
+    // Order-dependent: keep this test last. The exit action latches once it fires, so any
+    // test placed after it would see the worker as already exiting.
     test('timeouts on the primary request pool exit the worker', () => {
         for (let i = 0; i < 5; i++) {
             mockClientsByHost.primary.emit('connectionCheckOutFailed', { reason: 'timeout', durationMS: 30000 });

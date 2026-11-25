@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
@@ -40,13 +40,21 @@ SIGTERM. A backstop timer forces `exit(1)` if the drain hangs.
   connections from recycling a merely saturated worker.
 - Background pools (audit-event, online-archive, access-logs, resource-history) are not tracked: a
   saturated background pool is not a wedged request path.
-- Setting the threshold to `0` disables the feature without a code deploy.
+- Setting the threshold to `0` disables the feature without a code deploy. The kill switch is an
+  environment variable, so it takes effect through a pod rollout, not a hot toggle.
 
 ## Consequences
 
 - A wedged worker is replaced within roughly the window plus the graceful drain.
 - If Mongo saturates every worker at once, several can recycle together. The consecutive-run and
-  minimum-span requirements limit this, and the self-exit counter makes it visible.
+  minimum-span requirements limit this, and the self-exit counter makes it visible. Each recycling
+  worker drains for the shutdown delay plus the graceful timeout (about 44s with the defaults)
+  before it exits, and its replacement starts with cold connection pools.
+- A worker needs at least `MONGO_CHECKOUT_TIMEOUT_EXIT_THRESHOLD` timeouts inside the window, so a
+  wedged worker that receives very little traffic will not recycle. This is accepted: a worker
+  that is not failing requests is not hurting clients.
+- `GRACEFUL_TIMEOUT_MS` and `SHUTDOWN_DELAY_MS` are parsed as digits only and an invalid value
+  fails startup, instead of the earlier `parseInt` behavior that accepted values like `29s`.
 - In single-process mode the exit restarts the container, and the pod's restart count rises.
 - The feature does nothing unless `waitQueueTimeoutMS` is set, because the driver emits no
   `timeout` failure without it.
