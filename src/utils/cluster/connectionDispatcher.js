@@ -200,6 +200,9 @@ class ConnectionDispatcher {
     sendToWorker(worker, socket) {
         this.metrics.connectionDispatched(this.loadTable.score(worker.id));
         this.loadTable.recordDispatch(worker.id);
+        // Without `keepOpen`, Node closes the primary's copy of the socket once the handle is sent,
+        // so the primary holds no descriptor for a handed-off connection and nothing is left to
+        // release on success.
         worker.send({ type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket, (error) => {
             if (!error) {
                 return;
