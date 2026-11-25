@@ -14,6 +14,7 @@ const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
 const {DelegatedAccessRulesManager} = require('../utils/delegatedAccessRulesManager');
 const {ReferenceParser} = require('../utils/referenceParser');
+const {filterToV2LetterScopes} = require('../operations/security/smartScopeParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -349,6 +350,22 @@ class AuthService {
                 } else if (result.actor) {
                     context.actor = result.actor;
                     context.userType = AUTH_USER_TYPES.delegatedUser;
+
+                    if (this.configManager.enableDelegatedV2ScopesOnly && !context.actor.isOrganizationActor) {
+                        scope = filterToV2LetterScopes(scope);
+                        const hasPatientScope = scope
+                            .split(/\s+/)
+                            .some((token) => token.toLowerCase().startsWith('patient/'));
+                        if (!hasPatientScope) {
+                            logWarn('Auth rejected', {
+                                reason: 'delegated_actor_no_v2_scope',
+                                username,
+                                subject
+                            });
+                            done(null, false, { reason: 'delegated_actor_no_v2_scope' });
+                            return;
+                        }
+                    }
 
                     if (Array.isArray(jwt_payload.entitlements)) {
                         context.purposeOfUse = jwt_payload.entitlements;

@@ -792,6 +792,134 @@ describe('AuthService', () => {
             );
         });
 
+        describe('with enableDelegatedV2ScopesOnly', () => {
+            const baseJwtPayload = {
+                clientFhirPersonId: 'person-1',
+                clientFhirPatientId: 'patient-1',
+                bwellFhirPersonId: 'bwell-person-1',
+                bwellFhirPatientId: 'bwell-patient-1',
+                sub: 'subject-1'
+            };
+            const relatedPersonAct = { reference: 'RelatedPerson/rp-1', sub: 'delegate-sub' };
+            const organizationAct = { reference: 'Organization/org-1', sub: 'client-sub' };
+
+            const runProcessUserInfoAsync = async ({ flagOn, act, isUser = true, scope, entitlements }) => {
+                logWarn.mockClear();
+                mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync.mockClear();
+                Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
+                Object.defineProperty(mockConfigManager, 'enableDelegatedV2ScopesOnly', { get: () => flagOn, configurable: true });
+                AuthService.jwksCache = undefined;
+                AuthService.userInfoCache = undefined;
+                authService = new AuthService({
+                    configManager: mockConfigManager,
+                    wellKnownConfigurationManager: mockWellKnownConfigManager,
+                    delegatedAccessRulesManager: mockDelegatedAccessRulesManager
+                });
+                const done = jest.fn();
+                await authService.processUserInfo({
+                    username: 'testuser',
+                    subject: 'sub1',
+                    isUser,
+                    jwt_payload: {
+                        ...baseJwtPayload,
+                        ...(act ? { act } : {}),
+                        ...(entitlements ? { entitlements } : {})
+                    },
+                    done,
+                    client_id: 'client1',
+                    scope
+                });
+                return done;
+            };
+
+            test('keeps only v2 letter scopes for a RelatedPerson delegate', async () => {
+                const done = await runProcessUserInfoAsync({
+                    flagOn: true,
+                    act: relatedPersonAct,
+                    scope: 'openid patient/Patient.read patient/Observation.rs'
+                });
+
+                expect(done).toHaveBeenCalledTimes(1);
+                expect(done).toHaveBeenCalledWith(
+                    null,
+                    expect.any(Object),
+                    expect.objectContaining({
+                        scope: 'openid patient/Observation.rs',
+                        context: expect.objectContaining({ userType: 'delegatedUser' })
+                    })
+                );
+            });
+
+            test.each([
+                ['no v2 letter scope remains', 'patient/Patient.read access/client.read'],
+                ['only an invalid letter suffix is present', 'patient/Patient.sr'],
+                ['only a mixed-case patient token with a v1 suffix is present', 'openid Patient/Patient.read']
+            ])('rejects a RelatedPerson delegate when %s', async (_name, scope) => {
+                const done = await runProcessUserInfoAsync({ flagOn: true, act: relatedPersonAct, scope });
+
+                expect(done).toHaveBeenCalledTimes(1);
+                expect(done).toHaveBeenCalledWith(null, false, { reason: 'delegated_actor_no_v2_scope' });
+                expect(logWarn).toHaveBeenCalledWith('Auth rejected', {
+                    reason: 'delegated_actor_no_v2_scope',
+                    username: 'testuser',
+                    subject: 'sub1'
+                });
+            });
+
+            test('refuses before the Consent lookup', async () => {
+                await runProcessUserInfoAsync({
+                    flagOn: true,
+                    act: relatedPersonAct,
+                    scope: 'patient/Patient.read',
+                    entitlements: ['Consent/c1']
+                });
+
+                expect(mockDelegatedAccessRulesManager.resolvePurposeOfEventCodesAsync).not.toHaveBeenCalled();
+            });
+
+            test('keeps a valid mixed-case v2 patient scope for a RelatedPerson delegate', async () => {
+                const done = await runProcessUserInfoAsync({
+                    flagOn: true,
+                    act: relatedPersonAct,
+                    scope: 'Patient/Patient.rs'
+                });
+
+                expect(done).toHaveBeenCalledTimes(1);
+                expect(done).toHaveBeenCalledWith(
+                    null,
+                    expect.any(Object),
+                    expect.objectContaining({ scope: 'Patient/Patient.rs' })
+                );
+            });
+
+            test('does not log the scope string when rejecting', async () => {
+                await runProcessUserInfoAsync({
+                    flagOn: true,
+                    act: relatedPersonAct,
+                    scope: 'patient/Patient.read'
+                });
+
+                expect(logWarn).toHaveBeenCalledTimes(1);
+                expect(JSON.stringify(logWarn.mock.calls)).not.toContain('patient/Patient.read');
+            });
+
+            test.each([
+                ['the flag is off', { flagOn: false, act: relatedPersonAct, isUser: true, scope: 'patient/Patient.read' }],
+                ['the actor is an Organization', { flagOn: true, act: organizationAct, isUser: true, scope: 'patient/Patient.read' }],
+                ['the token has no act claim', { flagOn: true, act: undefined, isUser: true, scope: 'patient/Patient.read' }],
+                ['the token is not a patient token', { flagOn: true, act: relatedPersonAct, isUser: false, scope: 'user/*.read' }]
+            ])('leaves the scope unchanged when %s', async (_name, options) => {
+                const done = await runProcessUserInfoAsync(options);
+
+                expect(done).toHaveBeenCalledTimes(1);
+                expect(done).toHaveBeenCalledWith(
+                    null,
+                    expect.any(Object),
+                    expect.objectContaining({ scope: options.scope })
+                );
+            });
+        });
+
         test('resolves a Consent/<id> entitlement to the Consent purpose codes', async () => {
             Object.defineProperty(mockConfigManager, 'enableDelegatedAccessDetection', { get: () => true, configurable: true });
             AuthService.jwksCache = undefined;

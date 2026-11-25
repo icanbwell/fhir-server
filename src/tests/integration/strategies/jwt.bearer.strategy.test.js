@@ -467,6 +467,112 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
+    describe('enableDelegatedV2ScopesOnly', () => {
+        const delegatedActorReference = 'RelatedPerson/8c655e20-e9fc-45f7-8803-b0fade71ff69';
+
+        /**
+         * Signs a RelatedPerson delegated token with the given scope and runs it through the
+         * JWT bearer strategy with enableDelegatedV2ScopesOnly on.
+         * @param {string} scope
+         * @returns {Promise<{error: *, user: *, info: *}>}
+         */
+        async function authenticateDelegatedTokenAsync(scope) {
+            const delegatedToken = jwt.sign(
+                {
+                    iss: 'https://example.com',
+                    sub: 'john',
+                    client_id: 'testClientId',
+                    username: 'testUser',
+                    scope,
+                    clientFhirPersonId: 'clientFhirPerson',
+                    clientFhirPatientId: 'clientFhirPatient',
+                    bwellFhirPersonId: 'bwellFhirPerson',
+                    bwellFhirPatientId: 'bwellFhirPatient',
+                    managingOrganization: 'org1',
+                    token_use: 'access',
+                    act: {
+                        reference: delegatedActorReference,
+                        sub: 'delegated-sub-123'
+                    }
+                },
+                privateKey,
+                {algorithm: 'RS256', expiresIn: '1h', keyid: '123'}
+            );
+
+            nock('https://example.com')
+                .get('/jwks')
+                .reply(200, {keys: [await createJwksKeyAsync({pub: publicKey, kid: '123'})]});
+
+            class MockConfigManager extends ConfigManager {
+                get authJwksUrl() {
+                    return 'https://example.com/jwks';
+                }
+
+                get externalAuthJwksUrls() {
+                    return ['https://example.com/jwks'];
+                }
+
+                get externalAuthWellKnownUrls() {
+                    return [];
+                }
+
+                get enableDelegatedAccessDetection() {
+                    return true;
+                }
+
+                get enableSmartV2CrudsScopes() {
+                    return true;
+                }
+
+                get enableDelegatedV2ScopesOnly() {
+                    return true;
+                }
+            }
+
+            const configManager = new MockConfigManager();
+            passport.use(
+                new MyJwtStrategy({
+                    authService: new AuthService({
+                        configManager: configManager,
+                        wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                            configManager: configManager
+                        }),
+                        delegatedAccessRulesManager: Object.create(DelegatedAccessRulesManager.prototype)
+                    }),
+                    configManager: configManager
+                })
+            );
+
+            const req = {headers: {authorization: `Bearer ${delegatedToken}`}};
+            return new Promise((resolve) => {
+                passport.authenticate('jwt', {}, (error, user, info) => {
+                    resolve({error, user, info});
+                })(req);
+            });
+        }
+
+        test('rejects a RelatedPerson delegated token carrying only v1 scopes when enableDelegatedV2ScopesOnly is on', async () => {
+            const {error, user, info} = await authenticateDelegatedTokenAsync(
+                'patient/*.read access/*.read'
+            );
+
+            expect(error).toBeFalsy();
+            expect(user).toBeFalsy();
+            expect(info).toEqual({reason: 'delegated_actor_no_v2_scope'});
+        });
+
+        test('accepts a RelatedPerson delegated token carrying v2 scopes when enableDelegatedV2ScopesOnly is on', async () => {
+            const {error, user, info} = await authenticateDelegatedTokenAsync(
+                'openid patient/*.rs patient/*.read access/*.rs access/*.read'
+            );
+
+            expect(error).toBeNull();
+            expect(user).toBeTruthy();
+            expect(info.scope).toBe('openid patient/*.rs access/*.rs');
+            expect(info.context.actor.reference).toBe(delegatedActorReference);
+        });
+    });
+
     test('should reject non-RelatedPerson act.reference when detection is enabled', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
