@@ -38,11 +38,15 @@ describe('createServer', () => {
         }));
         // registers process-wide uncaughtException handlers, not part of this test
         jestGlobal.doMock('../../middleware/errorHandler', () => ({}));
-        // the log sink is the boundary; the real helpers run, logError is observed
-        jestGlobal.doMock('../../operations/common/logging', () => ({
-            ...jestGlobal.requireActual('../../operations/common/logging'),
-            logError: logErrorSpy
-        }));
+        // Winston is the log sink: the real logging helpers run, and its error() is observed
+        jestGlobal.doMock('../../winstonInit', () => {
+            const actual = jestGlobal.requireActual('../../winstonInit');
+            return {
+                ...actual,
+                getLogger: (...args) =>
+                    Object.assign(Object.create(actual.getLogger(...args)), { error: logErrorSpy })
+            };
+        });
         let createServer;
         jestGlobal.isolateModules(() => {
             ({ createServer } = require('../../server'));
@@ -195,9 +199,12 @@ describe('createServer', () => {
         try {
             expect(reporter.openConnectionCount()).toBe(1);
             const shutdown = onSignal();
-            // let any already-settled step run; nothing may run while the connection is open
+            // onSignal's first step is the wait, which settles only when the connection closes or
+            // its timer (gracefulTimeoutMs, many seconds) fires. One event-loop turn lets anything
+            // not gated on that wait run, so an empty list here means the flush is gated on it.
             await new Promise((resolve) => setImmediate(resolve));
             expect(steps).toEqual([]);
+            expect(reporter.openConnectionCount()).toBe(1);
 
             client.end();
             await shutdown;
@@ -227,7 +234,7 @@ describe('createServer', () => {
             expect(steps).toContain('flush');
             expect(logErrorSpy).toHaveBeenCalledWith(
                 'Connections from the cluster primary were still open at shutdown',
-                { openConnections: 1, timeoutMs: expect.any(Number) }
+                expect.objectContaining({ openConnections: 1, timeoutMs: expect.any(Number) })
             );
         } finally {
             client.destroy();

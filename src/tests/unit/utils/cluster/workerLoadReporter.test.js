@@ -121,6 +121,31 @@ describe('WorkerLoadReporter', () => {
             return socket;
         };
 
+        /**
+         * A reporter with one open connection from the primary, whose shutdown-wait timers are
+         * recorded in `timers` (id -> callback) and removed when cleared
+         */
+        const timedReporterWithOpenConnection = () => {
+            const timers = new Map();
+            let nextTimer = 0;
+            const waited = new WorkerLoadReporter({
+                channel: new EventEmitter(),
+                send: () => {},
+                intervalMs: 25,
+                setIntervalFn: () => ({ unref: () => {} }),
+                setTimeoutFn: (fn) => {
+                    nextTimer += 1;
+                    timers.set(nextTimer, fn);
+                    return nextTimer;
+                },
+                clearTimeoutFn: (id) => timers.delete(id)
+            });
+            waited.attach(new EventEmitter());
+            const socket = Object.assign(new EventEmitter(), { resume: jestObj.fn() });
+            waited.channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket);
+            return { waited, timers, socket };
+        };
+
         test('resolves at once when no connection from the primary is open', async () => {
             await expect(reporter.waitForConnectionsToCloseAsync({ timeoutMs: 1000 })).resolves.toBe(true);
         });
@@ -145,23 +170,7 @@ describe('WorkerLoadReporter', () => {
         });
 
         test('resolves every concurrent waiter once the last connection closes, and clears their timers', async () => {
-            const timers = new Map();
-            let nextTimer = 0;
-            const waited = new WorkerLoadReporter({
-                channel: new EventEmitter(),
-                send: () => {},
-                intervalMs: 25,
-                setIntervalFn: () => ({ unref: () => {} }),
-                setTimeoutFn: (fn) => {
-                    nextTimer += 1;
-                    timers.set(nextTimer, fn);
-                    return nextTimer;
-                },
-                clearTimeoutFn: (id) => timers.delete(id)
-            });
-            waited.attach(new EventEmitter());
-            const socket = Object.assign(new EventEmitter(), { resume: jestObj.fn() });
-            waited.channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket);
+            const { waited, timers, socket } = timedReporterWithOpenConnection();
             const first = waited.waitForConnectionsToCloseAsync({ timeoutMs: 60000 });
             const second = waited.waitForConnectionsToCloseAsync({ timeoutMs: 3000 });
 
@@ -173,23 +182,7 @@ describe('WorkerLoadReporter', () => {
         });
 
         test('times out one waiter without affecting another that is still waiting', async () => {
-            const timers = new Map();
-            let nextTimer = 0;
-            const waited = new WorkerLoadReporter({
-                channel: new EventEmitter(),
-                send: () => {},
-                intervalMs: 25,
-                setIntervalFn: () => ({ unref: () => {} }),
-                setTimeoutFn: (fn) => {
-                    nextTimer += 1;
-                    timers.set(nextTimer, fn);
-                    return nextTimer;
-                },
-                clearTimeoutFn: (id) => timers.delete(id)
-            });
-            waited.attach(new EventEmitter());
-            const socket = Object.assign(new EventEmitter(), { resume: jestObj.fn() });
-            waited.channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket);
+            const { waited, timers, socket } = timedReporterWithOpenConnection();
             const short = waited.waitForConnectionsToCloseAsync({ timeoutMs: 1000 });
             const long = waited.waitForConnectionsToCloseAsync({ timeoutMs: 60000 });
 
