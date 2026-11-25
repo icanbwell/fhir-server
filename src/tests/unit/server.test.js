@@ -67,7 +67,7 @@ describe('createServer', () => {
         jestGlobal.resetModules();
     });
 
-    test('without a load reporter it listens on the service port', async () => {
+    test('without a load reporter it listens on the configured service port on all interfaces', async () => {
         const originalPort = process.env.PORT;
         // config.js reads the port from the environment when it is loaded; 0 picks a free port
         process.env.PORT = '0';
@@ -76,6 +76,7 @@ describe('createServer', () => {
             server = await createServer(fakeContainer);
             await waitForListening(server);
 
+            // all interfaces, not the loopback-only private port used in least_busy mode
             expect(server.address().address).not.toBe('127.0.0.1');
             expect(await get(server.address().port, '/direct')).toBe('ok /direct');
         } finally {

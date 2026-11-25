@@ -266,6 +266,13 @@ describe('ConnectionDispatcher', () => {
             });
 
             await expect(busy.listenAsync()).rejects.toMatchObject({ code: 'EADDRINUSE' });
+            // the listener never started, so closing it fails; that is logged, not thrown
+            await busy.closeAsync();
+
+            expect(log).toHaveBeenCalledWith(
+                'Connection dispatcher failed to close its listener',
+                expect.objectContaining({ code: 'ERR_SERVER_NOT_RUNNING' })
+            );
         } finally {
             await new Promise((resolve) => occupier.close(resolve));
         }

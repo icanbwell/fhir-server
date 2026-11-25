@@ -72,7 +72,7 @@ How it works:
       spreads out instead of all going to the worker that looked idle last time.
     - The third term catches a worker that is blocked right now: it cannot send its report, so the
       report goes overdue and the score rises for as long as the block lasts. Lateness counts
-      only after one interval of grace, so ordinary timer jitter on an idle worker is not read as
+      only after a grace of two report intervals, so ordinary timer jitter on an idle worker is not read as
       a block.
 
 - A worker gets connections only after its first report, which it sends once its server is up,

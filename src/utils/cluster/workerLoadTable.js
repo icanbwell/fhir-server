@@ -1,6 +1,6 @@
 /**
- * A report counts as overdue only once it is a full interval late, so ordinary timer jitter on
- * an idle worker does not read as a blocked event loop.
+ * A report counts as overdue only once it is more than this many intervals old, so ordinary timer
+ * jitter on an idle worker does not read as a blocked event loop.
  */
 const OVERDUE_GRACE_INTERVALS = 2;
 
@@ -17,7 +17,7 @@ const OVERDUE_GRACE_INTERVALS = 2;
  * A worker's score is:
  *   inFlight (last report)
  *   + connections sent to it that it had not yet received at its last report
- *   + (time its next report is overdue, beyond one interval of grace) / blockedMsPerRequest
+ *   + (time its next report is overdue, beyond the grace of OVERDUE_GRACE_INTERVALS intervals) / blockedMsPerRequest
  *
  * The second term is updated synchronously on every dispatch, so a burst of connections arriving
  * between two reports spreads across workers instead of all going to the one that looked least
@@ -200,5 +200,6 @@ function isNonNegativeNumber(value) {
 }
 
 module.exports = {
+    OVERDUE_GRACE_INTERVALS,
     WorkerLoadTable
 };

@@ -120,7 +120,6 @@ describe('WorkerLoadReporter', () => {
 
         expect(sent.filter((m) => m.type === CLUSTER_MESSAGE_TYPES.DRAINING)).toHaveLength(1);
     });
-
 });
 
 describe('createIpcSender', () => {

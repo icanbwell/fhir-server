@@ -11,7 +11,7 @@
  *   {event: 'flushed', pid}          a worker's Terminus onSignal ran
  *   {event: 'workerExit', code}      a worker exited
  *
- * GET /slow announces slowStarted, then holds the worker's event loop for 500 ms; any other path
+ * GET /slow announces slowStarted, then holds the worker's event loop for 1 s; any other path
  * answers at once. Every response carries the serving worker's pid in x-worker-pid.
  */
 const cluster = require('cluster');
@@ -29,7 +29,7 @@ const { CLUSTER_MESSAGE_TYPES } = require('../../../../../utils/cluster/clusterD
 const WORKERS = 3;
 const REPORT_INTERVAL_MS = 25;
 const SHUTDOWN_DELAY_MS = 300;
-const SLOW_REQUEST_MS = 500;
+const SLOW_REQUEST_MS = 1000;
 
 const emit = (event) => console.log(JSON.stringify(event));
 

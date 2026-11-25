@@ -73,6 +73,9 @@ class ConnectionDispatcher {
         this.closeIfShutDown();
     }
 
+    /**
+     * Closes the listener when shutdown has started and no worker is left.
+     */
     closeIfShutDown() {
         if (this.closeWhenNoWorkers && this.loadTable.size() === 0) {
             this.closeAsync();

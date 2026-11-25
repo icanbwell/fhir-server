@@ -14,11 +14,12 @@ const FIXTURE = path.join(__dirname, 'fixtures', 'leastBusyClusterFixture.js');
 
 /**
  * The primary sees a blocked worker only once its load report is overdue past the grace of two
- * report intervals (2 x 25 ms in the fixture). Waiting four intervals also lets the idle workers'
- * next reports land, so connections they received since their last report no longer count.
- * The fixture's block (500 ms) outlasts this wait and the fast request.
+ * report intervals (2 x 25 ms in the fixture). Waiting eight intervals leaves room for timer lag
+ * on a loaded CI machine, and lets the idle workers' next reports land, so connections they
+ * received since their last report no longer count. The fixture's block (1 s) outlasts this
+ * wait and the fast request.
  */
-const BLOCK_DETECTION_WAIT_MS = 100;
+const BLOCK_DETECTION_WAIT_MS = 200;
 
 /**
  * @param {number} port
