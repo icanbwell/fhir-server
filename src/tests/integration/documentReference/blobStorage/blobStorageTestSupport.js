@@ -42,13 +42,15 @@ const applyEnv = (env) => {
 };
 const restoreEnv = (saved) => applyEnv(saved);
 
-const registerMockClients = (container) => {
+const registerMockClients = (container, carriedLiveObjects) => {
     container.register('base64FieldCloudStorageClient', (c) => {
         if (c.configManager.base64FieldCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT) {
-            return new MockS3Client({
+            const client = new MockS3Client({
                 bucketName: c.configManager.resourceBucketName,
                 region: c.configManager.awsRegion
             });
+            Object.assign(client.uploadedData, carriedLiveObjects);
+            return client;
         }
         return null;
     });
@@ -67,10 +69,15 @@ const registerMockClients = (container) => {
 /**
  * Applies the env, then builds a fresh app and container (a new Base64DataManager reads the flags
  * in its constructor), so a test can switch the flag between steps. Mongo is shared between them.
+ * A new container starts with an empty mock S3. With `carryOverS3`, the live-bucket objects of the
+ * previous container are copied into it, so a test can tell a switched flag from a lost object.
  */
-const createRequestAsync = async (env) => {
+const createRequestAsync = async (env, { carryOverS3 = false } = {}) => {
+    const carried = carryOverS3
+        ? { ...getTestContainer()?.base64FieldCloudStorageClient?.uploadedData }
+        : undefined;
     applyEnv(env);
-    return supertest(await createTestApp(registerMockClients));
+    return supertest(await createTestApp((container) => registerMockClients(container, carried)));
 };
 
 const PATHS = [

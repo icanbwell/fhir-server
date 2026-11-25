@@ -142,7 +142,14 @@ describe('DocumentReference attachments across a flag change', () => {
         expect(searchOn.body[0].content[0].attachment.data).toBe(LARGE_DATA);
         expect(searchOn.body[0].content[0].attachment._blobMeta).toBeUndefined();
 
-        request = await createRequestAsync(ENV_FLAG_OFF);
+        // control: a new container with the same storage and the flag still on returns the data
+        const flagOn = await createRequestAsync(ENV_ON, { carryOverS3: true });
+        const readOn = await getById(flagOn, id);
+        expect(readOn.body.content[0].attachment.data).toBe(LARGE_DATA);
+
+        // the flag off, the same storage: the object is still there, but it is not read back
+        request = await createRequestAsync(ENV_FLAG_OFF, { carryOverS3: true });
+        expect(getLiveObjects((await getMongoDocument(id))._uuid)).toHaveLength(1);
         const read = await getById(request, id);
         const searchOff = await request.get(`/4_0_0/DocumentReference?_id=${id}`).set(getHeaders()).expect(200);
 
