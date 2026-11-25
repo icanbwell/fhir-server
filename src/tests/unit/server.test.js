@@ -234,7 +234,7 @@ describe('createServer', () => {
             expect(steps).toContain('flush');
             expect(logErrorSpy).toHaveBeenCalledWith(
                 'Connections from the cluster primary were still open at shutdown',
-                expect.objectContaining({ openConnections: 1, timeoutMs: expect.any(Number) })
+                { openConnections: 1, timeoutMs: expect.any(Number) }
             );
         } finally {
             client.destroy();

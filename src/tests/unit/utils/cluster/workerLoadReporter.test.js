@@ -128,7 +128,7 @@ describe('WorkerLoadReporter', () => {
         const timedReporterWithOpenConnection = () => {
             const timers = new Map();
             let nextTimer = 0;
-            const waited = new WorkerLoadReporter({
+            const timedReporter = new WorkerLoadReporter({
                 channel: new EventEmitter(),
                 send: () => {},
                 intervalMs: 25,
@@ -140,10 +140,10 @@ describe('WorkerLoadReporter', () => {
                 },
                 clearTimeoutFn: (id) => timers.delete(id)
             });
-            waited.attach(new EventEmitter());
+            timedReporter.attach(new EventEmitter());
             const socket = Object.assign(new EventEmitter(), { resume: jestObj.fn() });
-            waited.channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket);
-            return { waited, timers, socket };
+            timedReporter.channel.emit('message', { type: CLUSTER_MESSAGE_TYPES.CONNECTION }, socket);
+            return { timedReporter, timers, socket };
         };
 
         test('resolves at once when no connection from the primary is open', async () => {
@@ -170,28 +170,28 @@ describe('WorkerLoadReporter', () => {
         });
 
         test('resolves every concurrent waiter once the last connection closes, and clears their timers', async () => {
-            const { waited, timers, socket } = timedReporterWithOpenConnection();
-            const first = waited.waitForConnectionsToCloseAsync({ timeoutMs: 60000 });
-            const second = waited.waitForConnectionsToCloseAsync({ timeoutMs: 3000 });
+            const { timedReporter, timers, socket } = timedReporterWithOpenConnection();
+            const first = timedReporter.waitForConnectionsToCloseAsync({ timeoutMs: 60000 });
+            const second = timedReporter.waitForConnectionsToCloseAsync({ timeoutMs: 3000 });
 
             socket.emit('close');
 
             await expect(Promise.all([first, second])).resolves.toEqual([true, true]);
             expect(timers.size).toBe(0);
-            expect(waited.openConnectionCount()).toBe(0);
+            expect(timedReporter.openConnectionCount()).toBe(0);
         });
 
         test('times out one waiter without affecting another that is still waiting', async () => {
-            const { waited, timers, socket } = timedReporterWithOpenConnection();
-            const short = waited.waitForConnectionsToCloseAsync({ timeoutMs: 1000 });
-            const long = waited.waitForConnectionsToCloseAsync({ timeoutMs: 60000 });
+            const { timedReporter, timers, socket } = timedReporterWithOpenConnection();
+            const short = timedReporter.waitForConnectionsToCloseAsync({ timeoutMs: 1000 });
+            const long = timedReporter.waitForConnectionsToCloseAsync({ timeoutMs: 60000 });
 
             timers.get(1)();
             await expect(short).resolves.toBe(false);
             socket.emit('close');
 
             await expect(long).resolves.toBe(true);
-            expect(waited.closeWaiters.size).toBe(0);
+            expect(timedReporter.closeWaiters.size).toBe(0);
             expect(timers.size).toBe(1); // only the fired one, which needs no clearing
         });
 
