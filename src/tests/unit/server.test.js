@@ -18,6 +18,7 @@ describe('createServer', () => {
     let order;
     let createTerminusMock;
     let server;
+    let logErrorSpy;
 
     const fakeContainer = () => ({
         mongoDatabaseManager: { connectAsync: jestGlobal.fn(() => Promise.resolve()) },
@@ -37,6 +38,11 @@ describe('createServer', () => {
         }));
         // registers process-wide uncaughtException handlers, not part of this test
         jestGlobal.doMock('../../middleware/errorHandler', () => ({}));
+        // the log sink is the boundary; the real helpers run, logError is observed
+        jestGlobal.doMock('../../operations/common/logging', () => ({
+            ...jestGlobal.requireActual('../../operations/common/logging'),
+            logError: logErrorSpy
+        }));
         let createServer;
         jestGlobal.isolateModules(() => {
             ({ createServer } = require('../../server'));
@@ -59,6 +65,7 @@ describe('createServer', () => {
     beforeEach(() => {
         order = [];
         createTerminusMock = jestGlobal.fn(() => order.push('createTerminus'));
+        logErrorSpy = jestGlobal.fn();
     });
 
     afterEach(async () => {
@@ -186,8 +193,10 @@ describe('createServer', () => {
         const { client, primary } = await handOverConnectionAsync(channel);
         const { onSignal } = createTerminusMock.mock.calls[0][1];
         try {
+            expect(reporter.openConnectionCount()).toBe(1);
             const shutdown = onSignal();
-            await new Promise((resolve) => setTimeout(resolve, 50));
+            // let any already-settled step run; nothing may run while the connection is open
+            await new Promise((resolve) => setImmediate(resolve));
             expect(steps).toEqual([]);
 
             client.end();
@@ -215,8 +224,11 @@ describe('createServer', () => {
         try {
             await onSignal();
 
-            expect(reporter.openConnectionCount()).toBe(1);
             expect(steps).toContain('flush');
+            expect(logErrorSpy).toHaveBeenCalledWith(
+                'Connections from the cluster primary were still open at shutdown',
+                { openConnections: 1, timeoutMs: expect.any(Number) }
+            );
         } finally {
             client.destroy();
             await new Promise((resolve) => primary.close(resolve));
