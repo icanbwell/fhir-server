@@ -66,7 +66,28 @@ const removeNullFromArray = (obj) => {
     return obj;
 };
 
+/**
+ * Removes nulls from a GraphQL result like removeNullFromArray, but keeps `data._entities`
+ * intact. A federation router matches `_entities` results to its representations by position,
+ * so the list must have one item per representation, with null for any that did not resolve.
+ * @param {Object} result
+ * @return {Object}
+ */
+const removeNullFromGraphQLResult = (result) => {
+    const entities = result?.data?._entities;
+    if (!Array.isArray(entities)) {
+        return removeNullFromArray(result);
+    }
+    result.data._entities = [];
+    removeNullFromArray(result);
+    // clean each entity on its own so the list itself keeps its length and order
+    entities.forEach((entity) => removeNullFromArray(entity));
+    result.data._entities = entities;
+    return result;
+};
+
 module.exports = {
     removeNull,
-    removeNullFromArray
+    removeNullFromArray,
+    removeNullFromGraphQLResult
 };
