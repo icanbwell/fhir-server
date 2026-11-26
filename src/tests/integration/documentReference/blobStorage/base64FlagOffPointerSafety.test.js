@@ -112,6 +112,69 @@ describe.each(WRITE_MODES)('DocumentReference pointer safety with the flag off [
         expect((await getById(request, id)).body.content[0].attachment.data).toBe(OTHER_LARGE_DATA);
     });
 
+    // A different attachment without data at the same index is not the stored one: it must not
+    // inherit the pointer, or the stored bytes would come back under its metadata once the flag is on
+    test.each([
+        ['a different url', { url: 'http://example.com/other' }],
+        ['a title', { title: 'another attachment' }],
+        ['a different content type', { contentType: 'application/pdf' }]
+    ])('PUT of another attachment without data (%s) drops the pointer and the old bytes do not come back', async (_name, fields) => {
+        const { request, id, uuid } = await createExternalizedWithFlagOff();
+        const body = buildDocumentReference({
+            id, content: [{ attachment: { contentType: 'text/plain', ...fields } }]
+        });
+
+        const written = await send.put(request, id, body);
+        await settle(requestId);
+
+        expect(written.status).toBeLessThan(300);
+        const stored = (await getMongoDocument(id)).content[0].attachment;
+        expect(stored._blobMeta).toBeUndefined();
+        expect(stored._file_id).toBeUndefined();
+        expect(getLiveObjects(uuid)).toHaveLength(1);
+        const flagOn = await createRequestAsync(ENV_ON, { carryOverS3: true });
+        const read = (await getById(flagOn, id)).body;
+        expect(read.content[0].attachment.data).toBeUndefined();
+        expect((await getMongoDocument(id)).content[0].attachment._blobMeta).toBeUndefined();
+    });
+
+    // known limitation: identity by index. A PUT that swaps two stored attachments (without data)
+    // finds a different element at each index, so both pointers are dropped. The bytes are not
+    // returned under the wrong metadata, and both objects stay in storage with no pointer.
+    test('PUT that swaps two externalized attachments drops both pointers and leaves both objects', async () => {
+        const on = await createRequestAsync(ENV_ON);
+        const created = await WRITES.post(on, buildDocumentReference({
+            content: [
+                { attachment: { ...attachmentOf(LARGE_DATA), title: 'first' } },
+                { attachment: { ...attachmentOf(OTHER_LARGE_DATA), title: 'second' } }
+            ]
+        }));
+        await settle(requestId);
+        const id = created.body.id;
+        const stored = await getMongoDocument(id);
+        expect(stored.content.map((item) => !!item.attachment._blobMeta)).toEqual([true, true]);
+        const request = await createRequestAsync(ENV_FLAG_OFF, { carryOverS3: true });
+        const body = buildDocumentReference({
+            id,
+            content: [
+                { attachment: { contentType: 'text/plain', title: 'second' } },
+                { attachment: { contentType: 'text/plain', title: 'first' } }
+            ]
+        });
+
+        const written = await send.put(request, id, body);
+        await settle(requestId);
+
+        expect(written.status).toBeLessThan(300);
+        const after = (await getMongoDocument(id)).content;
+        expect(after.map((item) => item.attachment.title)).toEqual(['second', 'first']);
+        expect(after.map((item) => item.attachment._blobMeta)).toEqual([undefined, undefined]);
+        expect(getLiveObjects(stored._uuid)).toHaveLength(2);
+        const flagOn = await createRequestAsync(ENV_ON, { carryOverS3: true });
+        const read = (await getById(flagOn, id)).body;
+        expect(read.content.map((item) => item.attachment.data)).toEqual([undefined, undefined]);
+    });
+
     test('$merge of other data adds the attachment and keeps the stored pointer element', async () => {
         const { request, id, uuid, pointer } = await createExternalizedWithFlagOff();
         const body = buildDocumentReference({ id, content: [{ attachment: attachmentOf(OTHER_LARGE_DATA) }] });

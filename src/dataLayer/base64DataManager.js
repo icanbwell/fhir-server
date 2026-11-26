@@ -373,8 +373,64 @@ class Base64DataManager {
     ) {
         const storedArray = this._parentAt(currentResource, [...arraySegments, '[]'], arrayIndices);
         const storedElement = Array.isArray(storedArray) ? storedArray[elementIndex] : undefined;
-        if (storedElement === null || typeof storedElement !== 'object') {
-            return -1;
+        for (let position = 0; position < incomingArray.length; position++) {
+            const usedKey = `${entryIndex}|${arrayIndices.join(',')}|${position}`;
+            if (
+                !usedElements.has(usedKey) &&
+                this._equalsApartFromLeaf(
+                    storedElement, incomingArray[position], leafSegments, blobMetaLeaf
+                )
+            ) {
+                usedElements.add(usedKey);
+                return position;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Whether the incoming body still holds, at the index of a stored externalized leaf, the same
+     * element: one with no value at the leaf that equals the stored element apart from the leaf and
+     * its pointer. A leaf that is not in an array has no other element to be taken for, so it is
+     * the same.
+     * @private
+     */
+    _holdsStoredElementAt (
+        { currentResource, resourceToMerge, dataSegments, indices, blobMetaLeaf }
+    ) {
+        const lastArraySegment = dataSegments.lastIndexOf('[]');
+        const leafSegments = dataSegments.slice(lastArraySegment + 1);
+        if (lastArraySegment === -1 || leafSegments.includes('[]')) {
+            return true;
+        }
+        const arrayPath = [...dataSegments.slice(0, lastArraySegment), '[]'];
+        const arrayDepth = arrayPath.filter((segment) => segment === '[]').length;
+        const arrayIndices = indices.slice(0, arrayDepth - 1);
+        const elementIndex = indices[arrayDepth - 1];
+        const storedArray = this._parentAt(currentResource, arrayPath, arrayIndices);
+        const incomingArray = this._parentAt(resourceToMerge, arrayPath, arrayIndices);
+        return Array.isArray(storedArray) && Array.isArray(incomingArray) &&
+            this._equalsApartFromLeaf(
+                storedArray[elementIndex], incomingArray[elementIndex], leafSegments, blobMetaLeaf
+            );
+    }
+
+    /**
+     * True if `incomingElement` has no value at the leaf and equals `storedElement` apart from the
+     * leaf and its pointer. The one rule behind "the same element" for an externalized leaf.
+     * @private
+     */
+    _equalsApartFromLeaf (storedElement, incomingElement, leafSegments, blobMetaLeaf) {
+        const isObject = (element) => element !== null && typeof element === 'object';
+        if (!isObject(storedElement) || !isObject(incomingElement)) {
+            return false;
+        }
+        let value = incomingElement;
+        for (const segment of leafSegments) {
+            value = value === null || value === undefined ? undefined : value[segment];
+        }
+        if (value !== undefined && value !== null) {
+            return false;
         }
         const leafKey = leafSegments[leafSegments.length - 1];
         const withoutLeaf = (element, dropPointer) => {
@@ -391,29 +447,7 @@ class Base64DataManager {
             }
             return copy;
         };
-        const stored = withoutLeaf(storedElement, true);
-        for (let position = 0; position < incomingArray.length; position++) {
-            const usedKey = `${entryIndex}|${arrayIndices.join(',')}|${position}`;
-            const incomingElement = incomingArray[position];
-            if (
-                usedElements.has(usedKey) || incomingElement === null ||
-                typeof incomingElement !== 'object'
-            ) {
-                continue;
-            }
-            let value = incomingElement;
-            for (const segment of leafSegments) {
-                value = value === null || value === undefined ? undefined : value[segment];
-            }
-            if (value !== undefined && value !== null) {
-                continue;
-            }
-            if (deepEqual(withoutLeaf(incomingElement, false), stored)) {
-                usedElements.add(usedKey);
-                return position;
-            }
-        }
-        return -1;
+        return deepEqual(withoutLeaf(incomingElement, false), withoutLeaf(storedElement, true));
     }
 
     /**
@@ -545,6 +579,18 @@ class Base64DataManager {
                 if (!smartMerge && externalizes) {
                     this.clearExternalizedLeaf(finalResource, entry, requestInfo);
                     patches.push({ op: 'remove', path: resolvedPath });
+                    return;
+                }
+                // Flag off, PUT: the pointer stays only on the element the body still holds, equal
+                // to the stored one apart from data and pointer. Another element must not inherit
+                // it. The object is not recorded for cleanup and stays in storage.
+                if (!smartMerge && !this._holdsStoredElementAt({
+                    currentResource, resourceToMerge, dataSegments, indices, blobMetaLeaf
+                })) {
+                    const finalParent = this._parentAt(finalResource, dataSegments, indices);
+                    if (finalParent) {
+                        this._clearField(finalParent, blobMetaLeaf);
+                    }
                     return;
                 }
                 // smartMerge: true — deepmerge keeps the old value. Leave the leaf untouched, but

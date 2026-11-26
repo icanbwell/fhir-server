@@ -164,6 +164,22 @@ describe('Base64DataManager protects an existing pointer with the DocumentRefere
             expect(final.content[0].attachment._blobMeta).toEqual(await pointerOf(LARGE));
         });
 
+        test('PUT of another element without data drops the pointer and does not record the object for cleanup', async () => {
+            const { manager, live } = makeManager();
+            const stored = await storedWithPointer();
+            live.uploadedData[liveKeyOf(manager)] = LARGE;
+            const final = copyOf(stored);
+            const incoming = documentReference([attachmentItem({ url: 'http://example.com/other' })]);
+            const requestInfo = { requestId: `flag-off-reconcile-other-${Math.random()}` };
+
+            const patches = await manager.reconcileLeavesAsync(final, stored, incoming, false, requestInfo);
+            await manager.cleanupPreviousLiveObjectAsync(final, requestInfo);
+
+            expect(patches).toEqual([]);
+            expect(final.content[0].attachment._blobMeta).toBeUndefined();
+            expect(Object.keys(live.uploadedData)).toEqual([liveKeyOf(manager)]);
+        });
+
         test('other data goes onto the document and the object is not recorded for cleanup', async () => {
             const { manager, live, final, patches, requestInfo } = await reconcile({
                 incomingData: OTHER_LARGE, smartMerge: false
