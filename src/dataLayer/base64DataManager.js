@@ -224,6 +224,103 @@ class Base64DataManager {
     }
 
     /**
+     * Virtually hydrates `view` (a copy of the stored resource) for the array merge: for each
+     * configured leaf inside an array that is externalized on `currentResource`, finds an element
+     * of the same incoming array whose `data` hashes to the stored `_blobMeta.hash`, copies that
+     * incoming `data` into the copy and drops the copy's `_blobMeta`. Nothing is downloaded. The
+     * array merge then sees the stored element and the resent one as equal (as it does for an
+     * inline or GridFS attachment) instead of appending a duplicate.
+     *
+     * Matching is by hash, not by position, and one incoming element can match several stored
+     * ones. A stored leaf with no matching incoming element is left as it is. Scalar leaves (a
+     * path with no "[]", e.g. `Binary.data`) are not touched.
+     * @param {Object} view - a copy of `currentResource`; mutated in place.
+     * @param {Object} currentResource - the stored resource; never mutated.
+     * @param {Object} resourceToMerge - the incoming resource.
+     * @returns {Promise<number>} how many stored leaves were hydrated.
+     */
+    async hydrateExternalizedLeavesFromIncomingAsync (view, currentResource, resourceToMerge) {
+        if (!view || !currentResource || !resourceToMerge || !this.enableBase64FieldCloudStorage) {
+            return 0;
+        }
+        const entries = this.resourcePaths[currentResource.resourceType];
+        if (!entries) {
+            return 0;
+        }
+        // hash of each incoming leaf, computed once however many stored leaves look at it
+        const incomingHashes = new Map();
+        let hydrated = 0;
+        for (const [entryIndex, entry] of entries.entries()) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const lastArraySegment = dataSegments.lastIndexOf('[]');
+            if (lastArraySegment === -1) {
+                continue;
+            }
+            const arraySegments = dataSegments.slice(0, lastArraySegment);
+            const arrayDepth = arraySegments.filter((segment) => segment === '[]').length;
+            const leafSegments = dataSegments.slice(lastArraySegment + 1);
+            if (leafSegments.includes('[]')) {
+                continue;
+            }
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            const leafKey = dataSegments[dataSegments.length - 1];
+            const storedLeaves = [];
+            this._processPathsSync(currentResource, dataSegments, [], ({ parent, indices }) => {
+                const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
+                if (blobMeta && blobMeta.hash) {
+                    storedLeaves.push({ hash: blobMeta.hash, indices });
+                }
+            });
+            for (const { hash, indices } of storedLeaves) {
+                const arrayIndices = indices.slice(0, arrayDepth);
+                const incomingArray = this._parentAt(resourceToMerge, [...arraySegments, '[]'], arrayIndices);
+                if (!Array.isArray(incomingArray)) {
+                    continue;
+                }
+                const incomingValue = await this._findIncomingValueByHashAsync({
+                    incomingArray, leafSegments, hash, hashCacheKey: `${entryIndex}|${arrayIndices.join(',')}`, incomingHashes
+                });
+                if (incomingValue === undefined) {
+                    continue;
+                }
+                const viewParent = this._parentAt(view, dataSegments, indices);
+                if (viewParent && viewParent[blobMetaLeaf]) {
+                    viewParent[leafKey] = incomingValue;
+                    this._clearField(viewParent, blobMetaLeaf);
+                    hydrated += 1;
+                }
+            }
+        }
+        return hydrated;
+    }
+
+    /**
+     * First element of `incomingArray` whose leaf string hashes to `hash`; returns that string, or
+     * undefined. Each incoming leaf is hashed once and the hash kept in `incomingHashes`.
+     * @private
+     */
+    async _findIncomingValueByHashAsync ({ incomingArray, leafSegments, hash, hashCacheKey, incomingHashes }) {
+        for (let position = 0; position < incomingArray.length; position++) {
+            let value = incomingArray[position];
+            for (const segment of leafSegments) {
+                value = value === null || value === undefined ? undefined : value[segment];
+            }
+            if (typeof value !== 'string') {
+                continue;
+            }
+            const cacheKey = `${hashCacheKey}|${position}`;
+            if (!incomingHashes.has(cacheKey)) {
+                incomingHashes.set(cacheKey, await computeContentHashAsync(value));
+            }
+            if (incomingHashes.get(cacheKey) === hash) {
+                return value;
+            }
+        }
+        return undefined;
+    }
+
+    /**
      * Explicitly clears one configured leaf's sidecar on `finalResource` — the same stash-and-clear
      * `_processEntry`'s "below threshold, clear the stale sidecar" branch already performs, invoked
      * directly for a write that's known for certain to remove this leaf (never inferred from mere

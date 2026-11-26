@@ -422,6 +422,15 @@ class ResourceMerger {
          */
         let mergedObject;
         if (smartMerge) {
+            // An externalized attachment kept in an array has no `data` here, so a resent copy of
+            // it would not equal the stored element and mergeObject would append it again. Give
+            // the copy the incoming `data` of the elements that hash to the stored sidecar (no
+            // download), so they merge as equal like inline and GridFS attachments do.
+            if (base64DataManager) {
+                await base64DataManager.hydrateExternalizedLeavesFromIncomingAsync(
+                    currentResourceWithAttachmentData, currentResource, resourceToMerge
+                );
+            }
             const currentResourceWithAttachmentDataObject = this.removeOwnerTagIfDisplayFieldMissing({
                 currentResource: deepcopy(currentResourceWithAttachmentData),
                 resourceToMerge
