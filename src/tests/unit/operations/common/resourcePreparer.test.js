@@ -9,6 +9,9 @@ jestObj.mock('../../../../utils/assertType', () => ({
 }));
 
 const { ResourcePreparer } = require('../../../../operations/common/resourcePreparer');
+const {
+    DataViewControlCompositionEnrichmentProvider
+} = require('../../../../enrich/providers/dataViewControlCompositionEnrichmentProvider');
 
 function createMockDeps() {
     return {
@@ -32,7 +35,8 @@ function createMockDeps() {
         },
         groupExtendedTagEnrichmentProvider: {
             enrichAsync: jestObj.fn(async ({ resources }) => resources)
-        }
+        },
+        dataViewControlCompositionEnrichmentProvider: new DataViewControlCompositionEnrichmentProvider()
     };
 }
 
@@ -299,6 +303,63 @@ describe('ResourcePreparer', () => {
             expect(mockDeps.compositionSectionFilterEnrichmentProvider.enrichAsync).toHaveBeenCalled();
             expect(mockDeps.enrichmentManager.enrichAsync).not.toHaveBeenCalled();
             expect(result).toEqual([filteredElement]);
+        });
+
+        test.each([
+            ['text only', ['text']],
+            ['text and section', ['text', 'section']]
+        ])('removes the narrative of a hidden section when _elements is %s', async (_name, values) => {
+            const parsedArgs = {
+                get: jestObj.fn((key) => (
+                    key === '_elements' ? { queryParameterValue: { values: [...values] } } : null
+                ))
+            };
+            mockDeps.compositionSectionFilterEnrichmentProvider.enrichAsync.mockImplementation(
+                async ({ resources }) => resources
+            );
+            const element = {
+                resourceType: 'Composition',
+                _uuid: 'comp-1',
+                text: { status: 'generated', div: '<div>describes the hidden care plan</div>' },
+                section: [{ id: 'hidden', entry: [{ reference: 'CarePlan/care-plan-1' }] }]
+            };
+
+            const [result] = await resourcePreparer.prepareResourceAsync({
+                parsedArgs,
+                element,
+                resourceType: 'Composition',
+                enrichmentContext: { viewControlExcludeMap: { CarePlan: ['care-plan-1'] } }
+            });
+
+            expect(result.text).toBeUndefined();
+            expect(result.section).toBeUndefined();
+        });
+
+        test('keeps a section the caller asked for only when nothing in it is hidden', async () => {
+            const parsedArgs = {
+                get: jestObj.fn((key) => (
+                    key === '_elements' ? { queryParameterValue: { values: ['section'] } } : null
+                ))
+            };
+            mockDeps.compositionSectionFilterEnrichmentProvider.enrichAsync.mockImplementation(
+                async ({ resources }) => resources
+            );
+            const element = {
+                resourceType: 'Composition',
+                section: [
+                    { id: 'hidden', entry: [{ reference: 'CarePlan/care-plan-1' }] },
+                    { id: 'visible', entry: [{ reference: 'CarePlan/care-plan-2' }] }
+                ]
+            };
+
+            const [result] = await resourcePreparer.prepareResourceAsync({
+                parsedArgs,
+                element,
+                resourceType: 'Composition',
+                enrichmentContext: { viewControlExcludeMap: { CarePlan: ['care-plan-1'] } }
+            });
+
+            expect(result.section.map((section) => section.id)).toEqual(['visible']);
         });
 
         test('uses enrichmentManager when _elements is not set', async () => {

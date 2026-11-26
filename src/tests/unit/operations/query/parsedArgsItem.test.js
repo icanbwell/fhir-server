@@ -518,4 +518,33 @@ describe('ParsedArgsItem', () => {
             expect(item.queryParameterValue.value).toBe('123');
         });
     });
+
+    describe('isNotOnly, isIdItem and isIdExclusion', () => {
+        test.each([
+            ['_id', ['not'], true, true, true],
+            ['id', ['not'], true, true, true],
+            ['_id', [], false, true, false],
+            ['_id', ['missing'], false, true, false],
+            ['_id', ['not', 'exact'], false, true, false],
+            ['_id', ['exact', 'not'], false, true, false],
+            ['gender', ['not'], true, false, false],
+            ['gender', [], false, false, false],
+            ['patient', ['not'], true, false, false]
+        ])('%s with modifiers %j: isNotOnly %s, isIdItem %s, isIdExclusion %s',
+            (queryParameter, modifiers, isNotOnly, isIdItem, isIdExclusion) => {
+                const item = createParsedArgsItem({ queryParameter, modifiers, value: 'a' });
+
+                expect(item.isNotOnly).toBe(isNotOnly);
+                expect(item.isIdItem).toBe(isIdItem);
+                expect(item.isIdExclusion).toBe(isIdExclusion);
+            }
+        );
+
+        test('the helpers are not copied by clone() or written by toJSON()', () => {
+            const item = createParsedArgsItem({ queryParameter: '_id', modifiers: ['not'], value: 'a' });
+
+            expect(item.clone().isIdExclusion).toBe(true);
+            expect(Object.keys(item.toJSON())).not.toContain('isIdExclusion');
+        });
+    });
 });

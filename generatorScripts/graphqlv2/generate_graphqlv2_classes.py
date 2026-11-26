@@ -420,6 +420,7 @@ def main() -> int:
     clinical_resources, patient_resources_search_param_dict = list(get_clinical_resources_and_filters())
     clinical_resources.remove("Patient")
     clinical_resources.remove("BiologicallyDerivedProduct")
+    clinical_resources.remove("Binary")
 
     patient_entities = [fhir_entity for fhir_entity in fhir_entities if fhir_entity.is_resource and fhir_entity.fhir_name in clinical_resources]
     with open(data_dir.joinpath("schema/template.patient_custom.jinja2"), "r") as file:

@@ -16,6 +16,7 @@ const { QueryRewriterManager } = require('../../../queryRewriters/queryRewriterM
 const { ConfigManager } = require('../../../utils/configManager');
 const { SearchBundleOperation } = require('../../../operations/search/searchBundle');
 const { OperationAccessManager } = require('../../../utils/operationAccessManager');
+const { PatientDataViewControlExclusion } = require('../../../utils/patientDataViewControlExclusion');
 
 function createDataSource(overrides = {}) {
     const requestInfo = overrides.requestInfo || { requestId: 'req-1', headers: {} };
@@ -35,8 +36,12 @@ function createDataSource(overrides = {}) {
     accessManager.verifyAccess = jestGlobal.fn();
     accessManager.verifyGraphQLReadAccess = jestGlobal.fn();
 
+    const patientDataViewControlExclusion = createPrototypedMock(PatientDataViewControlExclusion);
+    patientDataViewControlExclusion.applyAsync = jestGlobal.fn().mockImplementation(async ({ parsedArgs }) => parsedArgs);
+
     return new FhirDataSource({
         requestInfo,
+        patientDataViewControlExclusion,
         searchBundleOperation,
         r4ArgsParser,
         queryRewriterManager,
@@ -283,6 +288,28 @@ describe('FhirDataSource (graphql)', () => {
             await dataSource.getParsedArgsAsync({ args: { base_version: '4_0_0' }, resourceType: 'Patient', headers: {} });
             expect(dataSource.r4ArgsParser.parseArgs).toHaveBeenCalled();
             expect(dataSource.queryRewriterManager.rewriteArgsAsync).toHaveBeenCalled();
+        });
+    });
+
+    describe('Binary lookup through a CodeSystem', () => {
+        test('looks up the Consent for the caller\'s token while searching as a non-user token', async () => {
+            const callerRequestInfo = {
+                requestId: 'req-1', headers: {}, scope: 'user/*.read patient/*.read', isUser: true,
+                personIdFromJwtToken: 'person-1'
+            };
+            const ds = createDataSource({ requestInfo: callerRequestInfo });
+            defineGetter(ds.configManager, 'enablePatientScopedBinary', true);
+            ds.searchBundleOperation.searchBundleAsync.mockResolvedValue({ entry: [] });
+
+            await ds.findBinaryForCodeSystemAsync({
+                codeSystem: { id: 'cs-1' }, binaryReference: 'Binary/binary-1', args: {}, context: {}, info: {}
+            });
+
+            const { requestInfo } = ds.searchBundleOperation.searchBundleAsync.mock.calls[0][0];
+            expect(requestInfo.isUser).toBe(false);
+            expect(ds.patientDataViewControlExclusion.applyAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Binary', requestInfo: callerRequestInfo })
+            );
         });
     });
 

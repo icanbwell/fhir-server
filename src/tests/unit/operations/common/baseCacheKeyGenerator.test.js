@@ -312,6 +312,25 @@ describe('BaseCacheKeyGenerator', () => {
             expect(result).not.toContain('Patient:person-1');
         });
 
+        test.each([
+            ['includes the caller\'s Person when given', 'person-1', ':Person:person-1'],
+            ['leaves the Person out when not given', undefined, null]
+        ])('%s', async (_name, personId, expectedComponent) => {
+            const result = await generator.generateCacheKey({
+                id: 'patient-1',
+                isPersonId: false,
+                parsedArgs: makeParsedArgs({}),
+                scope: 'scope1',
+                personId
+            });
+
+            if (expectedComponent) {
+                expect(result).toContain(expectedComponent);
+            } else {
+                expect(result).not.toContain(':Person:');
+            }
+        });
+
         test('handles empty scope in cache key', async () => {
             const parsedArgs = makeParsedArgs({});
 

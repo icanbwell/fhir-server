@@ -1,7 +1,8 @@
 'use strict';
 
-const { describe, test, expect, jest } = require('@jest/globals');
+const { describe, test, expect, jest, beforeEach, afterEach } = require('@jest/globals');
 const { FastDatabaseBulkInserter } = require('../../../dataLayer/fastDatabaseBulkInserter');
+const metrics = require('../../../utils/metrics');
 const { retryWithBackoff } = require('../../../utils/retryWithBackoff');
 
 describe('FastDatabaseBulkInserter history Kafka hook', () => {
@@ -105,6 +106,50 @@ describe('FastDatabaseBulkInserter history Kafka hook', () => {
             await call(inserter, flag);
             expect(historyKafkaProducer.produceWithMongoFallbackAsync).not.toHaveBeenCalled();
             expect(executor.executeBulkAsync).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('MongoDB fallback write failure metric', () => {
+        const ops = [{ uuid: 'u1' }, { uuid: 'u2' }, { uuid: 'u3' }];
+        const sizeError = new Error('size');
+        const driverError = Object.assign(new Error('bulk'), { result: { insertedCount: 1 } });
+        const wrappedError = Object.assign(new Error('wrapped'), { error: { result: { insertedCount: 2 } } });
+        const overCountError = Object.assign(new Error('over'), { result: { insertedCount: 3 } });
+        let spy;
+        beforeEach(() => {
+            spy = jest.spyOn(metrics, 'recordHistoryMongoFallbackFailed').mockImplementation(() => {});
+        });
+        afterEach(() => spy.mockRestore());
+
+        test.each([
+            ['write throws', { disabled: true, kafkaLeft: ops, throws: new Error('down') }, 3, true],
+            ['write throws after partial insert', { disabled: true, kafkaLeft: ops, throws: driverError }, 2, true],
+            ['write throws a wrapped partial insert', { disabled: true, kafkaLeft: ops, throws: wrappedError }, 1, true],
+            ['write throws with insertedCount equal to the batch', { disabled: true, kafkaLeft: ops, throws: overCountError }, 3, true],
+            ['write returns an error', { disabled: true, kafkaLeft: ops, returns: sizeError }, 3, false],
+            ['write succeeds', { disabled: true, kafkaLeft: ops }, null, false],
+            ['Kafka healthy', { disabled: true, kafkaLeft: [] }, null, false],
+            ['parallel mode write throws', { disabled: false, throws: new Error('down') }, null, true]
+        ])('%s', async (_name, setup, expectedCount, rethrows) => {
+            const { inserter, executor, historyKafkaProducer } = build();
+            historyKafkaProducer.isMongoWriteDisabledFor.mockReturnValue(setup.disabled);
+            historyKafkaProducer.produceWithMongoFallbackAsync.mockResolvedValue(setup.kafkaLeft);
+            if (setup.throws) executor.executeBulkAsync.mockRejectedValue(setup.throws);
+            if (setup.returns) executor.executeBulkAsync.mockResolvedValue({ mergeResultEntries: [], error: setup.returns });
+            const run = inserter.performBulkForResourceTypeAsync({
+                resourceType: 'Observation', base_version: '4_0_0', useHistoryCollection: true,
+                operations: ops, requestInfo: { requestId: 'r1' }
+            });
+            if (rethrows) {
+                await expect(run).rejects.toBe(setup.throws);
+            } else {
+                await run;
+            }
+            if (expectedCount === null) {
+                expect(spy).not.toHaveBeenCalled();
+            } else {
+                expect(spy).toHaveBeenCalledWith('Observation', expectedCount, 'mongo_write_failed');
+            }
         });
     });
 
