@@ -142,6 +142,24 @@ describe('singleResourceDocument', () => {
                 .toStrictEqual(itemBefore);
         });
 
+        test('builds the response from the document the flush saved, not from the candidate', async () => {
+            const item = buildItem({ unchanged: false });
+            const savedResource = patientAt('3');
+
+            const { document, resource } = await buildResponseDocumentAsync({
+                item,
+                savedResource,
+                requestInfo: { headers: {} },
+                ...buildCollaborators()
+            });
+
+            expect(document).not.toBe(savedResource);
+            expect(document.meta.versionId).toBe('3');
+            expect(resource.meta.versionId).toBe('3');
+            expect(savedResource.meta.versionId).toBe('3');
+            expect(item.candidate.meta.versionId).toBe('2');
+        });
+
         test('puts the attachments and base64 data back, then enriches the identifiers and the extended-Group tag, in that order', async () => {
             const calls = [];
             const requestInfo = { headers: {} };

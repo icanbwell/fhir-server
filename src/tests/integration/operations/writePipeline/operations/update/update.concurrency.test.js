@@ -220,6 +220,8 @@ describe('PUT on the write pipeline when its write loses a race', () => {
         expect(response).toHaveStatusCode(200);
         expect(response.body.name).toStrictEqual([{ family: 'Caller', given: ['Gamma'] }]);
         const stored = await readStored(PATIENT_UUID);
+        expect(response.body.meta.versionId).toStrictEqual(stored.meta.versionId);
+        expect(response.headers.etag).toStrictEqual('W/"3"');
         expect(stored.meta.versionId).toStrictEqual('3');
         expect(stored.name).toStrictEqual([{ family: 'Caller', given: ['Gamma'] }]);
         expect(stored.gender).toBeUndefined();

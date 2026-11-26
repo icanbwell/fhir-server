@@ -196,8 +196,7 @@ Every operation runs these steps in this order:
   check against the stored links. PUT runs them in the "validate against stored" step (7a), after
   the access check and before the build, because the build's merge soft-deletes the stored GridFS
   attachments the body drops or changes, and a body that fails them must leave those attachments
-  active. Once GridFS attachments are removed, that step and the `off` entries that skip it can be
-  deleted, and "validate result" validates an update's built doc in full again.
+  active.
 - **"Read items" and the scope check come before the `_uuid` is derived.** `$merge` results include
   `uuid` and `sourceAssigningAuthority`. Today a scope-forbidden entry has neither, because the scope
   check runs before identification. Deriving `_uuid` first would add them to every forbidden entry,
