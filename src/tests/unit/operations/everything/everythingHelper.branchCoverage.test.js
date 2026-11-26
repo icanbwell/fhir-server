@@ -52,6 +52,7 @@ function createCursor (docs = []) {
         getCollection: () => 'test_collection',
         explainAsync: async () => [],
         hasNext: async () => index < docs.length,
+        close: async () => undefined,
         next: async () => docs[index++]
     };
     return cursor;
@@ -733,6 +734,7 @@ describe('EverythingHelper - branch coverage & security (Category A)', () => {
                 ],
                 {
                     responseStreamer: {
+                        isClientGone: () => false,
                         writeBundleEntryAsync: jest.fn().mockImplementation(async ({ bundleEntry }) => {
                             written.push(bundleEntry);
                         })

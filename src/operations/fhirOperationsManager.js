@@ -49,6 +49,7 @@ const { OperationAccessManager } = require('../utils/operationAccessManager');
 const { CustomTracer } = require('../utils/customTracer');
 const { PatientDataViewControlExclusion } = require('../utils/patientDataViewControlExclusion');
 const { APPLY_DATA_VIEW_CONTROL_PARAM } = require('../constants');
+const { ClientDisconnectedError } = require('../utils/clientDisconnectedError');
 const {
     getEverythingViewControlSubject,
     parseApplyDataViewControl
@@ -947,6 +948,10 @@ class FhirOperationsManager {
                 await responseStreamer.endAsync();
                 return undefined;
             } catch (err) {
+                if (err instanceof ClientDisconnectedError) {
+                    // the client is gone: nothing to write, work has been stopped and cursors closed
+                    return undefined;
+                }
                 const status = err.statusCode || 500;
                 /**
                  * @type {OperationOutcome}

@@ -15,6 +15,7 @@ const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { logError } = require('../common/logging');
+const { ClientDisconnectedError } = require('../../utils/clientDisconnectedError');
 const { sliceIntoChunksGenerator, sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
@@ -684,6 +685,7 @@ class EverythingHelper {
             if (!readFromCache || fallbackToMongo) {
                 let everythingChunkIndex = 0;
                 for (const idChunk of idChunks) {
+                    this.assertClientConnected({ responseStreamer });
                     const parsedArgsForChunk = parsedArgs.clone();
                     parsedArgsForChunk.id = idChunk;
                     parsedArgsForChunk.resourceFilterList = parsedArgs.resourceFilterList;
@@ -1077,6 +1079,7 @@ class EverythingHelper {
              * @type {import('mongodb').Document[]}
              */
             for (const relatedResourceMapChunk of relatedResourceMapChunks) {
+                this.assertClientConnected({ responseStreamer });
                 let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions, additionalRewriteQueries: relatedRewriteQueries } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
                     base_version,
@@ -1217,6 +1220,7 @@ class EverythingHelper {
                         const idChunks = this.getNonClinicalIdChunks({ ids, explain });
 
                         for (const idChunk of idChunks) {
+                            this.assertClientConnected({ responseStreamer });
                             const childParseArgs = this.r4ArgsParser.parseArgs({
                                 resourceType,
                                 args: { ...baseArgs, id: idChunk.join(',') }
@@ -1620,6 +1624,7 @@ class EverythingHelper {
         }
 
         for (const relatedResource of relatedResourcesMap) {
+            this.assertClientConnected({ responseStreamer });
             const relatedResourceType = relatedResource.type;
             const filterTemplateParam = relatedResource.params;
             const filterTemplateCustomQuery = relatedResource.customQuery;
@@ -1988,7 +1993,37 @@ class EverythingHelper {
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
-    async processCursorAsync({
+    async processCursorAsync(options) {
+        try {
+            return await this.iterateCursorAsync(options);
+        } finally {
+            // Release the server-side cursor (and its pooled connection) even when iteration stops
+            // early, e.g. the client disconnected. close() is a no-op on an exhausted cursor.
+            try {
+                await options.cursor.close();
+            } catch (e) {
+                logError('Error closing $everything cursor', { error: e.message });
+            }
+        }
+    }
+
+    /**
+     * Throws when the client has gone, so in-flight $everything work stops instead of running to completion
+     * @param {{responseStreamer?: BaseResponseStreamer|null}} options
+     * @throws {ClientDisconnectedError}
+     */
+    assertClientConnected({ responseStreamer }) {
+        if (responseStreamer?.isClientGone()) {
+            throw new ClientDisconnectedError();
+        }
+    }
+
+    /**
+     * Iterates the cursor and streams its resources; see processCursorAsync
+     * @param {Parameters<EverythingHelper['processCursorAsync']>[0]} options
+     * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
+     */
+    async iterateCursorAsync({
         cursor,
         requestInfo,
         responseStreamer,
@@ -2019,6 +2054,7 @@ class EverythingHelper {
          */
         const memberOfParentsByGroupUuid = new Map();
         while (await cursor.hasNext()) {
+            this.assertClientConnected({ responseStreamer });
             /**
              * element
              * @type {Resource|null}

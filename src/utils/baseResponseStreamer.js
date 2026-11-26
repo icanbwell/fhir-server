@@ -28,6 +28,15 @@ class BaseResponseStreamer {
     }
 
     /**
+     * Whether the client dropped the connection before the response finished.
+     * Used by long-running operations to stop work nobody is waiting for.
+     * @return {boolean}
+     */
+    isClientGone () {
+        return Boolean(this.response.destroyed && !this.response.writableFinished);
+    }
+
+    /**
      * Starts response
      * @return {Promise<void>}
      */
