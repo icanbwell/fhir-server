@@ -73,7 +73,7 @@ jestObj.mock('../../../../middleware/graphql/plugins/graphqlValidateMissingVaria
 }));
 
 jestObj.mock('../../../../utils/nullRemover', () => ({
-    removeNullFromArray: jestObj.fn().mockImplementation(v => v)
+    removeNullFromGraphQLResult: jestObj.fn().mockImplementation(v => v)
 }));
 
 jestObj.mock('../../../../graphql/resolvers', () => ({}));
