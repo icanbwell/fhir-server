@@ -7,8 +7,7 @@ const { WriteContext } = require('../writeContext');
  * document in the `validateAgainstStored` step, as PUT does before the build, so that a body that
  * fails never reaches the soft-deletion of the stored GridFS attachments the merge does. It
  * validates an update's built document with the meta check only. A new document is validated in
- * full, as `ValidateResultStep` does. Like `validateAgainstStored`, it can be removed once GridFS
- * attachments are removed, and then `ValidateResultStep` validates an update in full again.
+ * full, as `ValidateResultStep` does.
  */
 class ValidateUpdateResultStep extends ValidateResultStep {
     /**
