@@ -638,6 +638,35 @@ describe('MongoBulkWriteExecutor', () => {
             expect(result.mergeResultEntries[0].created).toBe(true);
         });
 
+        test.each([
+            { name: 'a replayed write', savedResource: makeResource({ id: 'patient-1' }), expectsSaved: true },
+            { name: 'a replay that found nothing to write', savedResource: null, expectsSaved: false }
+        ])('the result entry carries the document saved by $name', async ({ savedResource, expectsSaved }) => {
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 0 }));
+            updateManager.replaceOneAsync.mockResolvedValue({ savedResource });
+
+            const result = await run({
+                operations: [
+                    makeEntry({ operationType: 'merge', isCreateOperation: false, isUpdateOperation: true })
+                ]
+            });
+
+            expect(result.mergeResultEntries[0].savedResource).toBe(expectsSaved ? savedResource : undefined);
+        });
+
+        test('a bulk write that landed leaves the result entry without a saved document', async () => {
+            collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ modifiedCount: 1 }));
+
+            const result = await run({
+                operations: [
+                    makeEntry({ operationType: 'merge', isCreateOperation: false, isUpdateOperation: true })
+                ]
+            });
+
+            expect(result.mergeResultEntries[0].savedResource).toBeUndefined();
+            expect('savedResource' in result.mergeResultEntries[0]).toBe(false);
+        });
+
         test('a one-by-one replace that resolves to no change marks the entry skipped', async () => {
             collection.bulkWrite.mockResolvedValue(makeBulkWriteResult({ upsertedCount: 0 }));
             updateManager.replaceOneAsync.mockResolvedValue({ savedResource: null });

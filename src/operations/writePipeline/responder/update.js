@@ -232,9 +232,10 @@ class UpdateResponder extends WriteResponder {
 
     /**
      * Returns what `fhirResponseWriter.update` sends: the URL id as requested, whether the resource
-     * was created, its version and the resource. The resource is a copy of the candidate (the
-     * written document, or the one a replay found already stored), or of the stored document when
-     * the item was unchanged, with its GridFS attachments and externalized
+     * was created, its version and the resource. The resource is a copy of the document the flush
+     * saved when the bulk inserter replayed a write that lost a race (so the version and body are
+     * the stored ones), otherwise of the candidate (the written document, or the one a replay found
+     * already stored), or of the stored document when the item was unchanged, with its GridFS attachments and externalized
      * base64 data put back inline, its identifiers and extended-Group tag enriched, serialized as a
      * FHIR resource.
      * @param {WriteContext} context
@@ -245,7 +246,7 @@ class UpdateResponder extends WriteResponder {
     async toResponse ({ context, items, results }) {
         const [item] = items;
         const unchanged = item.status === WRITE_ITEM_STATUS.UNCHANGED;
-        let document = deepcopy(unchanged ? item.stored : item.candidate);
+        let document = deepcopy(unchanged ? item.stored : (results[0].savedResource ?? item.candidate));
         document = await this.databaseAttachmentManager.transformAttachments(document, GRIDFS.RETRIEVE);
         document = await this.base64DataManager.transformAsync(
             document,
