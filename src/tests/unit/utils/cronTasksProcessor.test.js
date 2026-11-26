@@ -36,6 +36,7 @@ jestObj.mock('cron', () => ({
 }));
 
 const { CronTasksProcessor } = require('../../../utils/cronTasksProcessor');
+const { logInfo, logError } = require('../../../operations/common/logging');
 
 describe('CronTasksProcessor', () => {
     let processor;
@@ -102,6 +103,47 @@ describe('CronTasksProcessor', () => {
         expect(mockPostSaveProcessor.flushAsync).toHaveBeenCalled();
         expect(mockAuditLogger.flushAsync).toHaveBeenCalled();
         expect(mockAccessLogger.flushAsync).toHaveBeenCalled();
+    });
+
+    test('onTick logs start and finish with duration for each task', async () => {
+        mockValidateCronExpression.mockReturnValue({ valid: true });
+        let capturedOnTick;
+        mockCronJobFrom.mockImplementation((opts) => {
+            capturedOnTick = opts.onTick;
+            return { name: 'CronTasksProcessor' };
+        });
+        logInfo.mockClear();
+
+        await processor.initiateTasks();
+        await capturedOnTick();
+
+        for (const task of ['postSaveProcessorFlush', 'auditLoggerFlush', 'accessLoggerFlush']) {
+            expect(logInfo).toHaveBeenCalledWith(`Background task started: ${task}`, { task });
+            expect(logInfo).toHaveBeenCalledWith(
+                `Background task finished: ${task}`,
+                expect.objectContaining({ task, durationMs: expect.any(Number) })
+            );
+        }
+    });
+
+    test('onTick logs failure, rethrows and skips later tasks', async () => {
+        mockValidateCronExpression.mockReturnValue({ valid: true });
+        let capturedOnTick;
+        mockCronJobFrom.mockImplementation((opts) => {
+            capturedOnTick = opts.onTick;
+            return { name: 'CronTasksProcessor' };
+        });
+        mockAuditLogger.flushAsync.mockRejectedValue(new Error('flush failed'));
+        logError.mockClear();
+
+        await processor.initiateTasks();
+        await expect(capturedOnTick()).rejects.toThrow('flush failed');
+
+        expect(logError).toHaveBeenCalledWith(
+            'Background task failed: auditLoggerFlush',
+            expect.objectContaining({ task: 'auditLoggerFlush', durationMs: expect.any(Number) })
+        );
+        expect(mockAccessLogger.flushAsync).not.toHaveBeenCalled();
     });
 
     test('errorHandler throws the error', async () => {
