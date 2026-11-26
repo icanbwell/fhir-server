@@ -24,7 +24,10 @@ const getCodeForOriginalError = (originalError) => {
         return DOWNSTREAM_TIMEOUT;
     }
     const statusCode = originalError && originalError.statusCode;
-    return STATUS_CODE_TO_GRAPHQL_CODE[statusCode] || INTERNAL_SERVER_ERROR;
+    if (typeof statusCode === 'number' && Object.hasOwn(STATUS_CODE_TO_GRAPHQL_CODE, statusCode)) {
+        return STATUS_CODE_TO_GRAPHQL_CODE[statusCode];
+    }
+    return INTERNAL_SERVER_ERROR;
 };
 
 /**
@@ -42,4 +45,4 @@ const getGraphQlErrorCode = (error) => {
     return (error && error.extensions && error.extensions.code) || INTERNAL_SERVER_ERROR;
 };
 
-module.exports = { getGraphQlErrorCode, STATUS_CODE_TO_GRAPHQL_CODE };
+module.exports = { getGraphQlErrorCode };

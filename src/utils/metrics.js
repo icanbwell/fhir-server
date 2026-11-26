@@ -859,8 +859,8 @@ function recordEverythingCacheInvalidationFailed (reason) {
 }
 
 /**
- * Emit fhir_graphql_errors_total. root_field is the first path segment, a schema field name,
- * never an argument or id.
+ * Emit fhir_graphql_errors_total. root_field is the schema name of the root field (never the
+ * client's alias), or unknown.
  * @param {{endpoint: string, operationType: string, code: string, rootField: string}} labels
  */
 function recordGraphQlError ({ endpoint, operationType, code, rootField }) {

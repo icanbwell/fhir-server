@@ -26,6 +26,12 @@ describe('getGraphQlErrorCode', () => {
         expect(getGraphQlErrorCode(asResolverError(originalError))).toBe(expected);
     });
 
+    test.each(['constructor', '403', null, undefined])('ignores a non-numeric statusCode %p', (statusCode) => {
+        const error = new Error('x');
+        error.statusCode = statusCode;
+        expect(getGraphQlErrorCode(asResolverError(error))).toBe('INTERNAL_SERVER_ERROR');
+    });
+
     test('Mongo wait queue timeout maps to DOWNSTREAM_TIMEOUT', () => {
         const timeout = new Error('Timed out while checking out a connection from connection pool');
         timeout.name = 'MongoWaitQueueTimeoutError';

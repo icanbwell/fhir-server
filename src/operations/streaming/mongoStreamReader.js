@@ -255,6 +255,14 @@ class MongoReadableStream extends Readable {
                     return;
                 }
             } catch (e) {
+                // A reader built without params and response (GraphQL resolvers) cannot retry or
+                // write an OperationOutcome, so the code below would throw a TypeError and hide
+                // the driver error. Close the cursor and rethrow the original error so callers
+                // can still tell what failed (for example a pool wait timeout).
+                if (!this.params && !this.response) {
+                    await this.closeCursorAsync('error');
+                    throw e;
+                }
                 // Handles operation timeout error in mongodb. Retry only when this.params is
                 // either a rebuildCursorAsync-supplying caller or a full FHIR-search-shaped
                 // object (resourceType, parsedArgs, columns, etc.) -- getCursorForQueryAsync's

@@ -231,6 +231,12 @@ describe('graphqlServerV2 - Security Tests', () => {
         });
     });
 
+    test('registers the error recording plugin', async () => {
+        const config = await getApolloConfig(mockContainer);
+
+        expect(config.plugins.some((plugin) => plugin.constructor.name === 'MyApolloServerErrorRecordingPlugin')).toBe(true);
+    });
+
     describe('formatError - extensions.code', () => {
         test.each([
             [new ForbiddenError('no access'), 'FORBIDDEN'],

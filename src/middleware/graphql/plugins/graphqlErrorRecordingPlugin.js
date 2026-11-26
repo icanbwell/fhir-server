@@ -1,9 +1,32 @@
 const { trace, SpanStatusCode } = require('@opentelemetry/api');
+const { Kind } = require('graphql');
 const { logError } = require('../../../operations/common/logging');
 const { recordGraphQlError, recordGraphQlPartialResponse } = require('../../../utils/metrics');
 const { getGraphQlErrorCode } = require('../graphqlErrorCode');
 
 const UNKNOWN = 'unknown';
+
+/**
+ * Returns the schema field name for the first segment of an error path. That segment is the
+ * response key, which is the client's alias when the query uses one, so it must never be used
+ * as a metric label. Only the field name in the operation's root selection set is used; an
+ * operation that has been validated can only select schema fields. Root fields reached through
+ * a fragment are not resolved and give unknown.
+ * @param {import('graphql').OperationDefinitionNode|undefined} operation
+ * @param {import('graphql').GraphQLError} error
+ * @return {string}
+ */
+const getRootFieldName = (operation, error) => {
+    if (!error.path || error.path.length === 0) {
+        return UNKNOWN;
+    }
+    const responseKey = String(error.path[0]);
+    const selections = operation?.selectionSet?.selections || [];
+    const field = selections.find(
+        (s) => s.kind === Kind.FIELD && (s.alias ? s.alias.value : s.name.value) === responseKey
+    );
+    return field ? field.name.value : UNKNOWN;
+};
 
 /**
  * Records GraphQL errors in logs, the active span and metrics.
@@ -37,7 +60,7 @@ class MyApolloServerErrorRecordingPlugin /* extends ApolloServerPlugin */ {
                 const span = trace.getActiveSpan();
                 for (const error of ctx.errors || []) {
                     const code = getGraphQlErrorCode(error);
-                    const rootField = error.path && error.path.length > 0 ? String(error.path[0]) : UNKNOWN;
+                    const rootField = getRootFieldName(requestContext.operation, error);
                     logError('GraphQL Resolver Error', {
                         source: 'GraphQL',
                         args: {

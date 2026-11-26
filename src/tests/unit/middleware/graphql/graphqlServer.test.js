@@ -200,6 +200,13 @@ describe('graphqlServer', () => {
             expect(formattedError.extensions.code).toBe('INTERNAL_SERVER_ERROR');
         });
 
+        test('registers the error recording plugin', async () => {
+            await graphql(fnGetContainer);
+
+            const serverConfig = ApolloServer.mock.calls[0][0];
+            expect(serverConfig.plugins.some((plugin) => plugin.constructor.name === 'MyApolloServerErrorRecordingPlugin')).toBe(true);
+        });
+
         test('formatError maps a resolver error statusCode to extensions.code', async () => {
             const { GraphQLError } = require('graphql');
             const { ForbiddenError } = require('../../../../utils/httpErrors');
