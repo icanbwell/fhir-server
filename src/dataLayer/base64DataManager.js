@@ -274,12 +274,18 @@ class Base64DataManager {
             });
             for (const { hash, indices } of storedLeaves) {
                 const arrayIndices = indices.slice(0, arrayDepth);
-                const incomingArray = this._parentAt(resourceToMerge, [...arraySegments, '[]'], arrayIndices);
+                const incomingArray = this._parentAt(
+                    resourceToMerge, [...arraySegments, '[]'], arrayIndices
+                );
                 if (!Array.isArray(incomingArray)) {
                     continue;
                 }
                 const incomingValue = await this._findIncomingValueByHashAsync({
-                    incomingArray, leafSegments, hash, hashCacheKey: `${entryIndex}|${arrayIndices.join(',')}`, incomingHashes
+                    incomingArray,
+                    leafSegments,
+                    hash,
+                    hashCacheKey: `${entryIndex}|${arrayIndices.join(',')}`,
+                    incomingHashes
                 });
                 if (incomingValue === undefined) {
                     continue;
@@ -300,7 +306,9 @@ class Base64DataManager {
      * undefined. Each incoming leaf is hashed once and the hash kept in `incomingHashes`.
      * @private
      */
-    async _findIncomingValueByHashAsync ({ incomingArray, leafSegments, hash, hashCacheKey, incomingHashes }) {
+    async _findIncomingValueByHashAsync (
+        { incomingArray, leafSegments, hash, hashCacheKey, incomingHashes }
+    ) {
         for (let position = 0; position < incomingArray.length; position++) {
             let value = incomingArray[position];
             for (const segment of leafSegments) {
@@ -362,13 +370,17 @@ class Base64DataManager {
      * @param {boolean} smartMerge - true: deepmerge semantics (omission keeps the old value); false:
      *        literal-replace semantics (omission means removal).
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @param {Map<string, string|undefined>|null} [mergedLeafValues] - what `captureMergedLeafValues`
-     *        returned. A leaf with an entry here takes its value from the merged result, not from
-     *        `resourceToMerge` at the same index; a leaf with none (a scalar leaf, or an array the
-     *        merge did not keep in place) takes it from `resourceToMerge`, as it always has.
+     * @param {Map<string, string|undefined>|null} [mergedLeafValues] - what
+     *        `captureMergedLeafValues` returned. A leaf with an entry here takes its value from
+     *        the merged result, not from `resourceToMerge` at the same index; a leaf with none (a
+     *        scalar leaf, or an array the merge did not keep in place) takes it from
+     *        `resourceToMerge`, as it always has.
      * @returns {Promise<Array<{op: string, path: string, value?: *}>>}
      */
-    async reconcileLeavesAsync (finalResource, currentResource, resourceToMerge, smartMerge, requestInfo, mergedLeafValues = null) {
+    async reconcileLeavesAsync (
+        finalResource, currentResource, resourceToMerge, smartMerge, requestInfo,
+        mergedLeafValues = null
+    ) {
         if (!finalResource || !this.enableBase64FieldCloudStorage) {
             return [];
         }
@@ -427,19 +439,20 @@ class Base64DataManager {
     }
 
     /**
-     * Captures, for each externalized leaf that sits in an array of `currentResource`, the value the
-     * merged result holds at the same position, before `excludeExternalizedLeaves` removes it from
-     * the merged result. The values are the strings themselves, nothing is copied. A stored element
-     * the merge kept in place and did not hydrate has no `data` there, so its value is `undefined`
-     * (omitted: keep it); one that was hydrated, or merged by id, holds the incoming `data`.
+     * Captures, for each externalized leaf that sits in an array of `currentResource`, the value
+     * the merged result holds at the same position, before `excludeExternalizedLeaves` removes it
+     * from the merged result. The values are the strings themselves, nothing is copied. A stored
+     * element the merge kept in place and did not hydrate has no `data` there, so its value is
+     * `undefined` (omitted: keep it); one that was hydrated, or merged by id, holds the incoming
+     * `data`.
      *
      * `smartMerge` keeps the stored elements of an array in place and appends the new ones, so a
-     * position in the merged result is the same element as in `currentResource`. That does not hold
-     * when the incoming array has an element with a `sequence` (it is inserted among the stored
-     * ones) or an `id` that ends with `-delete` (it removes a stored one), or when the merged array
-     * is shorter than the stored one. For such an array no entry is captured, so `reconcileLeavesAsync`
-     * reads `resourceToMerge` by index, as it did before. Scalar leaves (a path with no "[]") are
-     * not captured either.
+     * position in the merged result is the same element as in `currentResource`. That does not
+     * hold when the incoming array has an element with a `sequence` (it is inserted among the
+     * stored ones) or an `id` that ends with `-delete` (it removes a stored one), or when the
+     * merged array is shorter than the stored one. For such an array no entry is captured, so
+     * `reconcileLeavesAsync` reads `resourceToMerge` by index, as it did before. Scalar leaves (a
+     * path with no "[]") are not captured either.
      * @param {Object} mergedObject - the merged result; only read.
      * @param {Object} currentResource - the stored resource.
      * @param {Object} resourceToMerge - the incoming resource.
@@ -447,7 +460,10 @@ class Base64DataManager {
      */
     captureMergedLeafValues (mergedObject, currentResource, resourceToMerge) {
         const values = new Map();
-        if (!mergedObject || !currentResource || !resourceToMerge || !this.enableBase64FieldCloudStorage) {
+        if (
+            !mergedObject || !currentResource || !resourceToMerge ||
+            !this.enableBase64FieldCloudStorage
+        ) {
             return values;
         }
         const entries = this.resourcePaths[currentResource.resourceType];
@@ -482,7 +498,10 @@ class Base64DataManager {
                     return;
                 }
                 const mergedParent = this._parentAt(mergedObject, dataSegments, indices);
-                values.set(this._mergedLeafKey(entryIndex, indices), mergedParent ? mergedParent[leafKey] : undefined);
+                values.set(
+                    this._mergedLeafKey(entryIndex, indices),
+                    mergedParent ? mergedParent[leafKey] : undefined
+                );
             });
         }
         return values;
@@ -495,11 +514,16 @@ class Base64DataManager {
      * removes a stored one with an `id` ending in `-delete`.
      * @private
      */
-    _isArrayMergedInPlace ({ arraySegments, arrayIndices, mergedObject, currentResource, resourceToMerge }) {
+    _isArrayMergedInPlace (
+        { arraySegments, arrayIndices, mergedObject, currentResource, resourceToMerge }
+    ) {
         const arrayPath = [...arraySegments, '[]'];
         const storedArray = this._parentAt(currentResource, arrayPath, arrayIndices);
         const mergedArray = this._parentAt(mergedObject, arrayPath, arrayIndices);
-        if (!Array.isArray(storedArray) || !Array.isArray(mergedArray) || mergedArray.length < storedArray.length) {
+        if (
+            !Array.isArray(storedArray) || !Array.isArray(mergedArray) ||
+            mergedArray.length < storedArray.length
+        ) {
             return false;
         }
         const incomingArray = this._parentAt(resourceToMerge, arrayPath, arrayIndices);
@@ -507,7 +531,8 @@ class Base64DataManager {
             return true;
         }
         return !incomingArray.some((element) => element !== null && typeof element === 'object' &&
-            ('sequence' in element || (typeof element.id === 'string' && element.id.endsWith('-delete'))));
+            ('sequence' in element ||
+                (typeof element.id === 'string' && element.id.endsWith('-delete'))));
     }
 
     /**

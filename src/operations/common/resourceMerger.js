@@ -457,7 +457,9 @@ class ResourceMerger {
         // body changed its data. Take that now: excludeExternalizedLeaves below removes the data
         // from the merged result. Without smartMerge the incoming body is the result, as before.
         const mergedLeafValues = smartMerge && base64DataManager && hasExternalizedLeaf
-            ? base64DataManager.captureMergedLeafValues(mergedObject, currentResource, resourceToMerge)
+            ? base64DataManager.captureMergedLeafValues(
+                mergedObject, currentResource, resourceToMerge
+            )
             : null;
 
         // now create a patch between the document in db and the incoming document
@@ -502,7 +504,8 @@ class ResourceMerger {
         let base64Patches = [];
         if (base64DataManager) {
             base64Patches = await base64DataManager.reconcileLeavesAsync(
-                patched_resource_incoming, currentResource, resourceToMerge, smartMerge, requestInfo, mergedLeafValues
+                patched_resource_incoming, currentResource, resourceToMerge, smartMerge,
+                requestInfo, mergedLeafValues
             );
         }
 
