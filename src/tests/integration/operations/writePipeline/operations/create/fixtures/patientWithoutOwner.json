@@ -1,0 +1,20 @@
+{
+  "resourceType": "Patient",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "Parity",
+      "given": [
+        "Alpha"
+      ]
+    }
+  ]
+}

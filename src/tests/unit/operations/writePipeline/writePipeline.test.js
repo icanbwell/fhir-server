@@ -14,7 +14,7 @@ const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggin
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { CustomTracer } = require('../../../../utils/customTracer');
 const { WritePipeline, WRITE_STEP_NAMES } = require('../../../../operations/writePipeline/writePipeline');
-const { MERGE_WRITE_PROFILE } = require('../../../../operations/writePipeline/profiles/merge');
+const { MERGE_WRITE_PROFILE } = require('../../../../operations/writePipeline/operations/merge/profile');
 const { WriteItem, WRITE_ITEM_STATUS } = require('../../../../operations/writePipeline/writeItem');
 const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../../../operations/writePipeline/writeFailure');
 const { WriteContext } = require('../../../../operations/writePipeline/writeContext');
@@ -25,6 +25,7 @@ const { ValidateIncomingStep } = require('../../../../operations/writePipeline/s
 const { FindExistingStep } = require('../../../../operations/writePipeline/steps/findExistingStep');
 const { ValidateNewResourceStep } = require('../../../../operations/writePipeline/steps/validateNewResourceStep');
 const { AccessCheckStep } = require('../../../../operations/writePipeline/steps/accessCheckStep');
+const { ValidateAgainstStoredStep } = require('../../../../operations/writePipeline/steps/validateAgainstStoredStep');
 const { BuildDocumentStep } = require('../../../../operations/writePipeline/steps/buildDocumentStep');
 const { ValidateResultStep } = require('../../../../operations/writePipeline/steps/validateResultStep');
 const { AttachmentsStep } = require('../../../../operations/writePipeline/steps/attachmentsStep');
@@ -34,7 +35,7 @@ const { WriteAuditor } = require('../../../../operations/writePipeline/writeAudi
 const {
     WriteResponder,
     WRITE_RESPONDER_METHOD_NAMES
-} = require('../../../../operations/writePipeline/responder/writeResponder');
+} = require('../../../../operations/writePipeline/writeResponder');
 
 /**
  * Each step's name, its `WritePipeline` constructor key and its class, in run order.
@@ -47,6 +48,7 @@ const STEP_DEFINITIONS = Object.freeze([
     { name: 'findExisting', key: 'findExistingStep', type: FindExistingStep },
     { name: 'validateNewResource', key: 'validateNewResourceStep', type: ValidateNewResourceStep },
     { name: 'accessBeforeBuild', key: 'accessCheckStep', type: AccessCheckStep },
+    { name: 'validateAgainstStored', key: 'validateAgainstStoredStep', type: ValidateAgainstStoredStep },
     { name: 'buildDocument', key: 'buildDocumentStep', type: BuildDocumentStep },
     { name: 'validateResult', key: 'validateResultStep', type: ValidateResultStep },
     { name: 'attachments', key: 'attachmentsStep', type: AttachmentsStep },
@@ -78,8 +80,7 @@ const buildContext = (requestInfo = { requestId: 'request-1' }) => new WriteCont
     requestInfo,
     base_version: '4_0_0',
     parsedArgs: {},
-    smartMerge: false,
-    operationName: 'merge'
+    smartMerge: false
 });
 
 /**
@@ -88,11 +89,40 @@ const buildContext = (requestInfo = { requestId: 'request-1' }) => new WriteCont
 const buildProfile = (settings = {}) => ({ name: 'fake', accessRequested: 'u', action: 'fake', ...settings });
 
 /**
+ * The fake profile every `buildPipeline` pipeline can run unless the test gives its own profiles.
+ */
+const FAKE_PROFILE = Object.freeze(buildProfile());
+
+/**
+ * Builds a variant registry from a map of step names to variant names. Each variant is a fake step
+ * that records `<step>.<variant>` in `calls` when it runs.
+ */
+const buildStepVariants = (registered, calls = []) => Object.fromEntries(
+    Object.entries(registered).map(([stepName, variantNames]) => [
+        stepName,
+        Object.fromEntries(variantNames.map((variantName) => [
+            variantName,
+            {
+                runAsync: jest.fn(async () => {
+                    calls.push(`${stepName}.${variantName}`);
+                })
+            }
+        ]))
+    ])
+);
+
+/**
  * Builds a `WritePipeline` with fake steps, bulk inserter, auditor and logging manager that record
  * each call in `calls`. Each step runs its function in `behaviors`, if any, and `received` keeps
- * the items each step got.
+ * the items each step got. `stepVariants` is the pipeline's variant registry, none by default, and
+ * `profiles` are the profiles it can run, `FAKE_PROFILE` and the merge profile by default.
  */
-const buildPipeline = ({ behaviors = {}, calls = [] } = {}) => {
+const buildPipeline = ({
+    behaviors = {},
+    calls = [],
+    stepVariants = {},
+    profiles = [FAKE_PROFILE, MERGE_WRITE_PROFILE]
+} = {}) => {
     const received = {};
     const steps = {};
     const stepsByName = {};
@@ -126,6 +156,8 @@ const buildPipeline = ({ behaviors = {}, calls = [] } = {}) => {
     });
     const pipeline = new WritePipeline({
         ...steps,
+        stepVariants,
+        profiles,
         databaseBulkInserter,
         writeAuditor,
         fhirLoggingManager,
@@ -223,10 +255,11 @@ describe('WritePipeline', () => {
     });
 
     test.each([
-        { name: 'a fake profile', profile: buildProfile() },
-        { name: 'the merge profile', profile: MERGE_WRITE_PROFILE }
-    ])('processAsync runs the twelve steps in WRITE_STEP_NAMES order for $name', async ({
-        profile
+        { name: 'a fake profile', profile: FAKE_PROFILE, stepsOff: [] },
+        { name: 'the merge profile', profile: MERGE_WRITE_PROFILE, stepsOff: ['validateAgainstStored'] }
+    ])('processAsync runs the thirteen steps in WRITE_STEP_NAMES order, less the steps off, for $name', async ({
+        profile,
+        stepsOff
     }) => {
         const { pipeline, calls } = buildPipeline();
 
@@ -240,6 +273,7 @@ describe('WritePipeline', () => {
             'findExisting',
             'validateNewResource',
             'accessBeforeBuild',
+            'validateAgainstStored',
             'buildDocument',
             'validateResult',
             'attachments',
@@ -247,12 +281,12 @@ describe('WritePipeline', () => {
             'write'
         ]);
         expect(Object.isFrozen(WRITE_STEP_NAMES)).toBe(true);
-        expect(calls).toStrictEqual(WRITE_STEP_NAMES);
+        expect(calls).toStrictEqual(WRITE_STEP_NAMES.filter((name) => !stepsOff.includes(name)));
     });
 
     test('passes the items, the context and the profile to every step', async () => {
         const { pipeline, stepsByName } = buildPipeline();
-        const profile = buildProfile();
+        const profile = FAKE_PROFILE;
         const context = buildContext();
         const items = buildItems(2);
 
@@ -260,13 +294,18 @@ describe('WritePipeline', () => {
 
         for (const name of WRITE_STEP_NAMES) {
             expect(stepsByName[name].runAsync).toHaveBeenCalledTimes(1);
-            expect(stepsByName[name].runAsync.mock.calls[0][0]).toEqual({ items, context, profile: { ...profile, off: [] } });
+            expect(stepsByName[name].runAsync.mock.calls[0][0]).toEqual({
+                items,
+                context,
+                profile: { ...profile, off: [], variants: {} }
+            });
         }
     });
 
     test('passes every step a frozen copy of the profile, so a later change to the profile is not seen', async () => {
         const profile = buildProfile({ off: [] });
         const { pipeline, stepsByName } = buildPipeline({
+            profiles: [profile],
             behaviors: {
                 scopeCheck: () => {
                     profile.accessRequested = 'r';
@@ -285,13 +324,176 @@ describe('WritePipeline', () => {
         expect(Object.isFrozen(seenByValidate.off)).toBe(true);
     });
 
+    test.each([
+        {
+            name: 'a variants setting that is a string',
+            variants: 'insert',
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" setting "variants" must be an object of step names to variant names'
+        },
+        {
+            name: 'a variants setting that is an array',
+            variants: ['insert'],
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" setting "variants" must be an object of step names to variant names'
+        },
+        {
+            name: 'a variant for a step with no variants registered',
+            variants: { noOpCheck: 'x' },
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" names a variant for step(s) without variants: noOpCheck'
+        },
+        {
+            name: 'a variant for a step name that does not exist',
+            variants: { notAStep: 'x' },
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" names a variant for step(s) without variants: notAStep'
+        },
+        {
+            name: 'a variant that is not registered for its step',
+            variants: { buildDocument: 'copy' },
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" names unknown variant(s): buildDocument.copy'
+        },
+        {
+            name: 'a variant name that is an inherited property',
+            variants: { buildDocument: 'constructor' },
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" names unknown variant(s): buildDocument.constructor'
+        }
+    ])('throws when constructed with a profile that has $name', ({ variants, registered, message }) => {
+        expect(() => buildPipeline({
+            stepVariants: buildStepVariants(registered),
+            profiles: [buildProfile({ variants })]
+        })).toThrow(message);
+    });
+
+    test('runs the named variant instead of the default step', async () => {
+        const calls = [];
+        const stepVariants = buildStepVariants({ buildDocument: ['copy', 'insert'] }, calls);
+        const profile = buildProfile({ variants: { buildDocument: 'copy' } });
+        const { pipeline, stepsByName } = buildPipeline({ calls, stepVariants, profiles: [profile] });
+        const context = buildContext();
+        const items = buildItems(2);
+
+        await pipeline.processAsync({ profile, context, items });
+
+        expect(calls).toStrictEqual(
+            WRITE_STEP_NAMES.map((name) => (name === 'buildDocument' ? 'buildDocument.copy' : name))
+        );
+        expect(stepsByName.buildDocument.runAsync).not.toHaveBeenCalled();
+        expect(stepVariants.buildDocument.insert.runAsync).not.toHaveBeenCalled();
+        expect(stepVariants.buildDocument.copy.runAsync).toHaveBeenCalledTimes(1);
+        expect(stepVariants.buildDocument.copy.runAsync.mock.calls[0][0]).toEqual({
+            items,
+            context,
+            profile: { ...profile, off: [], variants: { buildDocument: 'copy' } }
+        });
+    });
+
+    test('runs the default step when the profile names no variant, even if variants are registered', async () => {
+        const calls = [];
+        const { pipeline } = buildPipeline({
+            calls,
+            stepVariants: buildStepVariants({ buildDocument: ['copy'] }, calls)
+        });
+
+        await pipeline.processAsync({
+            profile: FAKE_PROFILE,
+            context: buildContext(),
+            items: buildItems(2)
+        });
+
+        expect(calls).toStrictEqual(WRITE_STEP_NAMES);
+    });
+
+    test('does not run a named variant when the profile turns its step off', async () => {
+        const calls = [];
+        const profile = buildProfile({ off: ['buildDocument'], variants: { buildDocument: 'copy' } });
+        const { pipeline } = buildPipeline({
+            calls,
+            stepVariants: buildStepVariants({ buildDocument: ['copy'] }, calls),
+            profiles: [profile]
+        });
+
+        await pipeline.processAsync({
+            profile,
+            context: buildContext(),
+            items: buildItems(2)
+        });
+
+        expect(calls).toStrictEqual(WRITE_STEP_NAMES.filter((name) => name !== 'buildDocument'));
+    });
+
+    test("passes the profile's variants in the frozen profile copy", async () => {
+        const profile = buildProfile({ variants: { buildDocument: 'copy' } });
+        const calls = [];
+        const { pipeline, stepsByName } = buildPipeline({
+            calls,
+            stepVariants: buildStepVariants({ buildDocument: ['copy'] }, calls),
+            profiles: [profile],
+            behaviors: {
+                scopeCheck: () => {
+                    profile.variants.buildDocument = 'insert';
+                }
+            }
+        });
+
+        await pipeline.processAsync({ profile, context: buildContext(), items: buildItems(1) });
+
+        const seenByNextStep = stepsByName.findExisting.runAsync.mock.calls[0][0].profile;
+        expect(seenByNextStep.variants).toStrictEqual({ buildDocument: 'copy' });
+        expect(seenByNextStep.variants).not.toBe(profile.variants);
+        expect(Object.isFrozen(seenByNextStep.variants)).toBe(true);
+        expect(calls).toContain('buildDocument.copy');
+    });
+
+    test.each([
+        {
+            name: 'a stepVariants that is not an object',
+            stepVariants: null,
+            message: 'WritePipeline stepVariants must be an object of step names to variant objects'
+        },
+        {
+            name: 'a step whose variants are not an object',
+            stepVariants: { buildDocument: null },
+            message: 'WritePipeline stepVariants must be an object of step names to variant objects'
+        },
+        {
+            name: 'a step that is not in WRITE_STEP_NAMES',
+            stepVariants: { notAStep: { copy: { runAsync: jest.fn() } } },
+            message: 'WritePipeline stepVariants names unknown step(s): notAStep'
+        },
+        {
+            name: 'a variant without a runAsync function',
+            stepVariants: { buildDocument: { copy: { runAsync: 'not a function' } } },
+            message: 'WritePipeline step variant "buildDocument.copy" needs a runAsync function'
+        }
+    ])('throws when constructed with $name', ({ stepVariants, message }) => {
+        expect(() => buildPipeline({ stepVariants })).toThrow(message);
+    });
+
+    test('freezes a copy of stepVariants, so a later change to the argument is not seen', () => {
+        const stepVariants = buildStepVariants({ buildDocument: ['copy'] });
+
+        const { pipeline } = buildPipeline({ stepVariants });
+        stepVariants.buildDocument.insert = { runAsync: jest.fn() };
+        stepVariants.write = { copy: { runAsync: jest.fn() } };
+
+        expect(Object.isFrozen(pipeline.stepVariants)).toBe(true);
+        expect(Object.isFrozen(pipeline.stepVariants.buildDocument)).toBe(true);
+        expect(Object.keys(pipeline.stepVariants)).toStrictEqual(['buildDocument']);
+        expect(Object.keys(pipeline.stepVariants.buildDocument)).toStrictEqual(['copy']);
+    });
+
     test.each(WRITE_STEP_NAMES.map((name) => ({ name })))(
         'does not run $name when the profile turns it off',
         async ({ name }) => {
-            const { pipeline, calls, stepsByName } = buildPipeline();
+            const profile = buildProfile({ off: [name] });
+            const { pipeline, calls, stepsByName } = buildPipeline({ profiles: [profile] });
 
             await pipeline.processAsync({
-                profile: buildProfile({ off: [name] }),
+                profile,
                 context: buildContext(),
                 items: buildItems(2)
             });
@@ -309,7 +511,7 @@ describe('WritePipeline', () => {
         });
         const items = buildItems(2);
 
-        await pipeline.processAsync({ profile: buildProfile(), context: buildContext(), items });
+        await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items });
 
         expect(received.scopeCheck).toStrictEqual(items);
         expect(received.identify).toStrictEqual([items[1]]);
@@ -321,7 +523,7 @@ describe('WritePipeline', () => {
         const items = buildItems(2);
         items[0].fail({ failure: buildFailure(items[0]) });
 
-        await pipeline.processAsync({ profile: buildProfile(), context: buildContext(), items });
+        await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items });
 
         expect(received.scopeCheck).toStrictEqual([items[1]]);
         expect(received.write).toStrictEqual([items[1]]);
@@ -338,7 +540,7 @@ describe('WritePipeline', () => {
         });
         const items = buildItems(3);
 
-        await pipeline.processAsync({ profile: buildProfile(), context: buildContext(), items });
+        await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items });
 
         expect(received.buildDocument).toStrictEqual(items);
         expect(received.validateResult).toStrictEqual([items[2]]);
@@ -354,7 +556,7 @@ describe('WritePipeline', () => {
             }
         });
 
-        const result = await pipeline.processAsync({ profile: buildProfile(), context: buildContext(), items });
+        const result = await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items });
 
         expect(result).toStrictEqual({ items });
         expect(result.items[1].failure).toBe(failure);
@@ -363,17 +565,26 @@ describe('WritePipeline', () => {
         expect(result.items[0].status).toBe(WRITE_ITEM_STATUS.ACTIVE);
     });
 
-    test('still runs every step when no item is active', async () => {
+    test('runs no further step once no item is active', async () => {
         const { pipeline, calls, received } = buildPipeline({
             behaviors: {
                 scopeCheck: (stepItems) => stepItems.forEach((item) => item.fail({ failure: buildFailure(item) }))
             }
         });
 
-        await pipeline.processAsync({ profile: buildProfile(), context: buildContext(), items: buildItems(2) });
+        await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items: buildItems(2) });
 
-        expect(calls).toStrictEqual(WRITE_STEP_NAMES);
-        expect(received.write).toStrictEqual([]);
+        expect(calls).toStrictEqual(['scopeCheck']);
+        expect(received.write).toBeUndefined();
+    });
+
+    test('runs no step for an empty batch', async () => {
+        const { pipeline, calls } = buildPipeline();
+
+        const result = await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items: [] });
+
+        expect(calls).toStrictEqual([]);
+        expect(result).toStrictEqual({ items: [] });
     });
 
     const invalidProfiles = [
@@ -399,10 +610,22 @@ describe('WritePipeline', () => {
         }
     ];
 
-    test.each(
-        invalidProfiles.flatMap((invalidProfile) => ['processAsync', 'runAsync'].map((entry) => ({ ...invalidProfile, entry })))
-    )('$entry rejects a profile with $name before running any step', async ({ entry, profile, message }) => {
+    test.each(invalidProfiles)('throws when constructed with a profile that has $name', ({ profile, message }) => {
+        expect(() => buildPipeline({ profiles: [profile] })).toThrow(new Error(message));
+    });
+
+    test('throws when constructed with profiles that are not an array', () => {
+        expect(() => buildPipeline({ profiles: { fake: FAKE_PROFILE } })).toThrow(
+            new Error('WritePipeline profiles must be an array of write profiles')
+        );
+    });
+
+    test.each([
+        { entry: 'processAsync' },
+        { entry: 'runAsync' }
+    ])('$entry rejects a profile the pipeline was not constructed with before running any step', async ({ entry }) => {
         const { pipeline, calls, fhirLoggingManager } = buildPipeline();
+        const profile = buildProfile();
         const items = buildItems(1);
         items[0].fail({ failure: buildFailure(items[0]) });
         const context = buildContext();
@@ -418,7 +641,9 @@ describe('WritePipeline', () => {
                 resourceType: 'Patient'
             });
 
-        await expect(run).rejects.toThrow(new Error(message));
+        await expect(run).rejects.toThrow(
+            new Error('Write profile "fake" is not registered with the WritePipeline')
+        );
         expect(calls).toStrictEqual([]);
         expect(logInfo).not.toHaveBeenCalled();
         expect(logError).not.toHaveBeenCalled();
@@ -428,7 +653,7 @@ describe('WritePipeline', () => {
     test('does not log when no item fails', async () => {
         const { pipeline } = buildPipeline();
 
-        await pipeline.processAsync({ profile: buildProfile(), context: buildContext(), items: buildItems(2) });
+        await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items: buildItems(2) });
 
         expect(logInfo).not.toHaveBeenCalled();
         expect(logError).not.toHaveBeenCalled();
@@ -519,7 +744,7 @@ describe('WritePipeline', () => {
         logError.mockImplementation(() => calls.push('logError'));
         const context = buildContext({ requestId: 'request-1', headers });
 
-        await pipeline.processAsync({ profile: buildProfile(), context, items });
+        await pipeline.processAsync({ profile: FAKE_PROFILE, context, items });
 
         const expectedFields = {
             operation: 'fake',
@@ -567,18 +792,20 @@ describe('WritePipeline', () => {
             })
         }
     ])('keeps running and returns the items when $name throws', async ({ logger, failure }) => {
-        const items = buildItems(3);
+        const items = buildItems(4);
         items[0].fail({ failure: failure(items[0]) });
         const { pipeline, calls } = buildPipeline({
             behaviors: {
-                scopeCheck: (stepItems) => stepItems.forEach((item) => item.fail({ failure: failure(item) }))
+                scopeCheck: (stepItems) => stepItems
+                    .slice(0, 2)
+                    .forEach((item) => item.fail({ failure: failure(item) }))
             }
         });
         logger.mockImplementation(() => {
             throw new Error('synthetic logger failure');
         });
 
-        const result = await pipeline.processAsync({ profile: buildProfile(), context: buildContext(), items });
+        const result = await pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items });
 
         expect(logger).toHaveBeenCalledTimes(3);
         expect(calls).toStrictEqual(WRITE_STEP_NAMES);
@@ -586,7 +813,8 @@ describe('WritePipeline', () => {
         expect(result.items.map((item) => item.status)).toStrictEqual([
             WRITE_ITEM_STATUS.FAILED,
             WRITE_ITEM_STATUS.FAILED,
-            WRITE_ITEM_STATUS.FAILED
+            WRITE_ITEM_STATUS.FAILED,
+            WRITE_ITEM_STATUS.ACTIVE
         ]);
     });
 
@@ -600,7 +828,7 @@ describe('WritePipeline', () => {
         });
 
         await expect(
-            pipeline.processAsync({ profile: buildProfile(), context: buildContext(), items: buildItems(2) })
+            pipeline.processAsync({ profile: FAKE_PROFILE, context: buildContext(), items: buildItems(2) })
         ).rejects.toThrow('step failed');
         expect(calls).toStrictEqual(WRITE_STEP_NAMES.slice(0, WRITE_STEP_NAMES.indexOf('buildDocument') + 1));
     });
@@ -631,7 +859,7 @@ describe('WritePipeline', () => {
         });
 
         const returned = await pipeline.runAsync({
-            profile: buildProfile(),
+            profile: FAKE_PROFILE,
             responder,
             requestInfo,
             parsedArgs,
@@ -671,6 +899,7 @@ describe('WritePipeline', () => {
         expect(httpContextSetSpy.mock.calls[0][1].operationResult).toBe(results);
         expect(responder.toResponse).toHaveBeenCalledWith({
             context,
+            items,
             results,
             wasIncomingAList: true,
             resourceType: 'Patient',
@@ -696,7 +925,7 @@ describe('WritePipeline', () => {
         const responder = buildResponder({ calls, context, items: buildItems(1), outputs: { failureResults } });
 
         await expect(pipeline.runAsync({
-            profile: buildProfile(),
+            profile: FAKE_PROFILE,
             responder,
             requestInfo,
             parsedArgs,
@@ -737,7 +966,7 @@ describe('WritePipeline', () => {
         });
 
         await expect(pipeline.runAsync({
-            profile: buildProfile(),
+            profile: FAKE_PROFILE,
             responder,
             requestInfo,
             parsedArgs,
@@ -769,7 +998,7 @@ describe('WritePipeline', () => {
         );
 
         await expect(pipeline.runAsync({
-            profile: buildProfile(),
+            profile: FAKE_PROFILE,
             responder,
             requestInfo: context.requestInfo,
             parsedArgs: new ParsedArgs({ base_version: '4_0_0' }),
@@ -853,8 +1082,7 @@ describe('WriteContext', () => {
             requestInfo: { requestId: 'request-1' },
             base_version: '4_0_0',
             parsedArgs: {},
-            smartMerge: false,
-            operationName: 'merge'
+            smartMerge: false
         });
         expect(Object.isFrozen(context)).toBe(true);
     });

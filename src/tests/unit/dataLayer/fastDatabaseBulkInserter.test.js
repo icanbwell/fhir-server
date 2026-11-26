@@ -103,6 +103,23 @@ describe('FastDatabaseBulkInserter', () => {
             expect(doc.meta.versionId).toBe('1');
         });
 
+        test('insertOneAsync queues smartMerge false when asked', async () => {
+            const doc = { resourceType: 'Patient', id: 'psm', _uuid: 'usm', _sourceAssigningAuthority: 'a', meta: { versionId: '1' } };
+            const requestInfo = createMockFhirRequestInfo();
+            await inserter.insertOneAsync({ requestInfo, resourceType: 'Patient', doc, smartMerge: false });
+            const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
+            expect(ops[0].operationType).toBe('insertUniqueId');
+            expect(ops[0].smartMerge).toBe(false);
+        });
+
+        test('insertOneAsync defaults smartMerge to true', async () => {
+            const doc = { resourceType: 'Patient', id: 'psd', _uuid: 'usd', _sourceAssigningAuthority: 'a', meta: { versionId: '1' } };
+            const requestInfo = createMockFhirRequestInfo();
+            await inserter.insertOneAsync({ requestInfo, resourceType: 'Patient', doc });
+            const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
+            expect(ops[0].smartMerge).toBe(true);
+        });
+
         test('duplicate uuid triggers merge path', async () => {
             const requestInfo = createMockFhirRequestInfo();
             const doc1 = { resourceType: 'Patient', id: 'pd', _uuid: 'u-dup', _sourceAssigningAuthority: 'a', meta: { versionId: '1' } };
@@ -162,6 +179,33 @@ describe('FastDatabaseBulkInserter', () => {
             await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Patient', previousVersionId: '1', doc, smartMerge });
             const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
             expect(ops[0].smartMerge).toBe(expectedSmartMerge);
+        });
+
+        test('mergeOneAsync queues the writePrecondition it is given', async () => {
+            const requestInfo = createMockFhirRequestInfo();
+            const doc = { resourceType: 'Patient', id: 'pwp', _uuid: 'uwp', _sourceAssigningAuthority: 'a', meta: { versionId: '3' } };
+            await inserter.mergeOneAsync({
+                requestInfo,
+                resourceType: 'Patient',
+                previousVersionId: '2',
+                doc,
+                smartMerge: false,
+                writePrecondition: { ifMatchVersionIds: ['2'] }
+            });
+            const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
+            expect(ops[0].writePrecondition).toEqual({ ifMatchVersionIds: ['2'] });
+            expect(ops[0].smartMerge).toBe(false);
+            expect(ops[0].operation.replaceOne.filter).toEqual({
+                $and: [{ _uuid: 'uwp' }, { 'meta.versionId': '2' }]
+            });
+        });
+
+        test('mergeOneAsync without writePrecondition queues null', async () => {
+            const requestInfo = createMockFhirRequestInfo();
+            const doc = { resourceType: 'Patient', id: 'pwn', _uuid: 'uwn', _sourceAssigningAuthority: 'a', meta: { versionId: '2' } };
+            await inserter.mergeOneAsync({ requestInfo, resourceType: 'Patient', previousVersionId: '1', doc });
+            const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Patient');
+            expect(ops[0].writePrecondition).toBeNull();
         });
 
         test('uses simple _uuid filter when previousVersionId is 0', async () => {

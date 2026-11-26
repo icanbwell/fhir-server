@@ -24,22 +24,34 @@ class ScopeCheckStep {
     }
 
     /**
-     * Checks the scopes for each item with the profile's `accessRequested` and `action`, and fails
-     * each forbidden item.
+     * Checks the scopes with the profile's `accessRequested` and `action`, once for each resource
+     * type among the items, because the answer depends only on the request and the type, and fails
+     * each item of a forbidden type.
      * @param {WriteItem[]} items
      * @param {WriteContext} context
      * @param {{accessRequested: string, action: string}} profile
      * @returns {Promise<void>}
      */
     async runAsync ({ items, context, profile }) {
+        /**
+         * @type {Map<string, Object|null>}
+         */
+        const forbiddenErrorByResourceType = new Map();
         for (const item of items) {
-            const forbiddenError = await this.scopesValidator.isScopesValidAsync({
-                requestInfo: context.requestInfo,
-                resourceType: item.incoming.resourceType,
-                accessRequested: profile.accessRequested,
-                action: profile.action,
-                base_version: context.base_version
-            });
+            const resourceType = item.incoming.resourceType;
+            if (!forbiddenErrorByResourceType.has(resourceType)) {
+                forbiddenErrorByResourceType.set(
+                    resourceType,
+                    await this.scopesValidator.isScopesValidAsync({
+                        requestInfo: context.requestInfo,
+                        resourceType,
+                        accessRequested: profile.accessRequested,
+                        action: profile.action,
+                        base_version: context.base_version
+                    })
+                );
+            }
+            const forbiddenError = forbiddenErrorByResourceType.get(resourceType);
             if (forbiddenError) {
                 item.fail({
                     failure: new WriteFailure({

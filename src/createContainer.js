@@ -169,6 +169,7 @@ const { IdentifyStep } = require('./operations/writePipeline/steps/identifyStep'
 const { FindExistingStep } = require('./operations/writePipeline/steps/findExistingStep');
 const { ValidateNewResourceStep } = require('./operations/writePipeline/steps/validateNewResourceStep');
 const { SourceIdentityResolver } = require('./operations/writePipeline/steps/identify/sourceIdentityResolver');
+const { UrlIdentityResolver } = require('./operations/writePipeline/steps/identify/urlIdentityResolver');
 const { BulkPreloadLoader } = require('./operations/writePipeline/steps/load/bulkPreloadLoader');
 const { PrepareBodyStep } = require('./operations/writePipeline/steps/prepareBodyStep');
 const { ValidateIncomingStep } = require('./operations/writePipeline/steps/validateIncomingStep');
@@ -176,12 +177,23 @@ const { AccessCheckStep } = require('./operations/writePipeline/steps/accessChec
 const { IncomingAndStoredAccessChecker } = require('./operations/writePipeline/steps/access/incomingAndStoredAccessChecker');
 const { BuildDocumentStep } = require('./operations/writePipeline/steps/buildDocumentStep');
 const { SmartMergeBuilder } = require('./operations/writePipeline/steps/build/smartMergeBuilder');
+const { InsertBuilder } = require('./operations/writePipeline/steps/build/insertBuilder');
+const { ReplaceBuilder } = require('./operations/writePipeline/steps/build/replaceBuilder');
 const { ValidateResultStep } = require('./operations/writePipeline/steps/validateResultStep');
+const { ValidateAgainstStoredStep } = require('./operations/writePipeline/steps/validateAgainstStoredStep');
+const { ValidateUpdateResultStep } = require('./operations/writePipeline/steps/validateUpdateResultStep');
 const { AttachmentsStep } = require('./operations/writePipeline/steps/attachmentsStep');
 const { NoOpStep } = require('./operations/writePipeline/steps/noOpStep');
 const { WriteStep } = require('./operations/writePipeline/steps/writeStep');
-const { MergeResponder } = require('./operations/writePipeline/responder/merge');
-const { MergeStream } = require('./operations/writePipeline/responder/mergeStream');
+const { VersionedWriter } = require('./operations/writePipeline/steps/write/versionedWriter');
+const { HttpPreconditionWriter } = require('./operations/writePipeline/steps/write/httpPreconditionWriter');
+const { MERGE_WRITE_PROFILE } = require('./operations/writePipeline/operations/merge/profile');
+const { CREATE_WRITE_PROFILE } = require('./operations/writePipeline/operations/create/profile');
+const { UPDATE_WRITE_PROFILE } = require('./operations/writePipeline/operations/update/profile');
+const { MergeResponder } = require('./operations/writePipeline/operations/merge/responder');
+const { MergeStream } = require('./operations/writePipeline/operations/merge/mergeStream');
+const { CreateResponder } = require('./operations/writePipeline/operations/create/responder');
+const { UpdateResponder } = require('./operations/writePipeline/operations/update/responder');
 const { WriteAuditor } = require('./operations/writePipeline/writeAuditor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
@@ -747,6 +759,10 @@ const createContainer = function () {
                 writeAllowedByScopesValidator: c.writeAllowedByScopesValidator
             })
         }),
+        validateAgainstStoredStep: new ValidateAgainstStoredStep({
+            resourceValidator: c.resourceValidator,
+            configManager: c.configManager
+        }),
         buildDocumentStep: new BuildDocumentStep({
             builder: new SmartMergeBuilder({
                 preSaveManager: c.preSaveManager,
@@ -770,9 +786,56 @@ const createContainer = function () {
         }),
         noOpStep: new NoOpStep(),
         writeStep: new WriteStep({
-            databaseBulkInserter: c.fastDatabaseBulkInserter,
+            writer: new VersionedWriter({ databaseBulkInserter: c.fastDatabaseBulkInserter }),
             configManager: c.configManager
         }),
+        stepVariants: {
+            identify: {
+                url: new IdentifyStep({
+                    identityResolver: new UrlIdentityResolver({
+                        resourceValidator: c.resourceValidator,
+                        sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+                        uuidColumnHandler: c.uuidColumnHandler
+                    })
+                })
+            },
+            buildDocument: {
+                insert: new BuildDocumentStep({
+                    builder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger }),
+                    configManager: c.configManager
+                }),
+                replace: new BuildDocumentStep({
+                    builder: new ReplaceBuilder({
+                        resourceMerger: c.resourceMerger,
+                        databaseAttachmentManager: c.databaseAttachmentManager,
+                        base64DataManager: c.base64DataManager,
+                        postSaveHandlerFactory: c.postSaveHandlerFactory,
+                        insertBuilder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger }),
+                        groupMemberMerger: c.groupMemberMerger
+                    }),
+                    configManager: c.configManager
+                })
+            },
+            validateResult: {
+                update: new ValidateUpdateResultStep({
+                    resourceValidator: c.resourceValidator,
+                    configManager: c.configManager
+                })
+            },
+            write: {
+                httpPreconditions: new WriteStep({
+                    writer: new HttpPreconditionWriter({
+                        databaseBulkInserter: c.fastDatabaseBulkInserter,
+                        configManager: c.configManager,
+                        versionedWriter: new VersionedWriter({
+                            databaseBulkInserter: c.fastDatabaseBulkInserter
+                        })
+                    }),
+                    configManager: c.configManager
+                })
+            }
+        },
+        profiles: [MERGE_WRITE_PROFILE, CREATE_WRITE_PROFILE, UPDATE_WRITE_PROFILE],
         databaseBulkInserter: c.fastDatabaseBulkInserter,
         writeAuditor: c.writeAuditor,
         fhirLoggingManager: c.fhirLoggingManager,
@@ -791,12 +854,20 @@ const createContainer = function () {
         bundleManager: c.bundleManager
     }));
 
+    container.register('createResponder', (c) => new CreateResponder({
+        base64DataManager: c.base64DataManager,
+        identifierEnrichmentProvider: c.identifierEnrichmentProvider
+    }));
+
+    container.register('updateResponder', (c) => new UpdateResponder({
+        base64DataManager: c.base64DataManager,
+        databaseAttachmentManager: c.databaseAttachmentManager,
+        identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+        groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider
+    }));
+
     container.register('mergeStream', (c) => new MergeStream({
-        bundleResourceValidator: c.bundleResourceValidator,
-        parametersResourceValidator: c.parametersResourceValidator,
-        mergeManager: c.mergeManager,
-        scopesManager: c.scopesManager,
-        bundleManager: c.bundleManager,
+        mergeResponder: c.mergeResponder,
         writePipeline: c.writePipeline,
         writeAuditor: c.writeAuditor,
         customTracer: c.customTracer
@@ -967,6 +1038,9 @@ const createContainer = function () {
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+                writePipelineSwitch: c.writePipelineSwitch,
+                writePipeline: c.writePipeline,
+                createResponder: c.createResponder,
                 groupMemberMerger: c.groupMemberMerger
             }
         )
@@ -990,6 +1064,9 @@ const createContainer = function () {
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
                 groupExtendedTagEnrichmentProvider: c.groupExtendedTagEnrichmentProvider,
+                writePipelineSwitch: c.writePipelineSwitch,
+                writePipeline: c.writePipeline,
+                updateResponder: c.updateResponder,
                 groupMemberMerger: c.groupMemberMerger
             }
         )

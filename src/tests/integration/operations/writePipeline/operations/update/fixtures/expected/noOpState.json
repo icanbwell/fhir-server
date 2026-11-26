@@ -1,0 +1,101 @@
+{
+  "headers": {
+    "etag": "W/\"1\"",
+    "location": "4_0_0/Patient/put-parity-patient",
+    "contentLocation": "http://localhost:3000/4_0_0/Patient/put-parity-patient/_history/1"
+  },
+  "documents": [
+    {
+      "_uuid": "53423ed3-47c7-5a31-a694-526869b12ae1",
+      "_access": {
+        "client": 1
+      },
+      "_sourceAssigningAuthority": "client",
+      "_sourceId": "put-parity-patient",
+      "id": "put-parity-patient",
+      "meta": {
+        "source": "http://example.com/source",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "client",
+            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+          }
+        ],
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>"
+      },
+      "name": [
+        {
+          "family": "Parity",
+          "given": [
+            "Alpha"
+          ]
+        }
+      ],
+      "resourceType": "Patient"
+    }
+  ],
+  "history": [
+    {
+      "id": "53423ed3-47c7-5a31-a694-526869b12ae1",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "put-parity-patient",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "name": [
+          {
+            "family": "Parity",
+            "given": [
+              "Alpha"
+            ]
+          }
+        ],
+        "_uuid": "53423ed3-47c7-5a31-a694-526869b12ae1",
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "put-parity-patient",
+        "_access": {
+          "client": 1
+        }
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "POST",
+        "url": "/4_0_0/Patient/put-parity-patient"
+      },
+      "_recorded": "<recorded>"
+    }
+  ],
+  "gridFsFileCount": 0
+}

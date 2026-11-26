@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Patient Reference Patient/parity-patient-2 did not match with patient reference Patient/parity-patient-1 reference present in database"
+      }
+    }
+  ]
+}

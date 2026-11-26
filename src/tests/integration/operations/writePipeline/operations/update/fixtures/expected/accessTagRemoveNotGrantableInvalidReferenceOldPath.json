@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "managingOrganization.reference: not-a-reference is an invalid reference"
+      }
+    }
+  ]
+}

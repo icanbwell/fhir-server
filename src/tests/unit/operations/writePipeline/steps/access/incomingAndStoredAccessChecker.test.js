@@ -60,8 +60,7 @@ describe('IncomingAndStoredAccessChecker', () => {
             requestInfo: { requestId: 'synthetic-request' },
             base_version: '4_0_0',
             parsedArgs: {},
-            smartMerge: true,
-            operationName: 'merge'
+            smartMerge: true
         });
 
         const failures = await checker.checkAsync({ items, context });
@@ -85,5 +84,32 @@ describe('IncomingAndStoredAccessChecker', () => {
                 operationOutcome: secondError.operationOutcome
             })
         ]);
+    });
+
+    test.each(['u', 'c'])('forwards accessRequested %s to the validator', async (accessRequested) => {
+        const items = [buildItem({ index: 0, id: 'synthetic-1', uuid: SHARED_UUID })];
+        const writeAllowedByScopesValidator = Object.create(WriteAllowedByScopesValidator.prototype);
+        writeAllowedByScopesValidator.validate = jest.fn(async () => ({
+            validatedObjects: [items[0].incoming],
+            preCheckErrors: [],
+            wasAList: false
+        }));
+        const checker = new IncomingAndStoredAccessChecker({ writeAllowedByScopesValidator });
+        const context = new WriteContext({
+            requestInfo: { requestId: 'synthetic-request' },
+            base_version: '4_0_0',
+            parsedArgs: {},
+            smartMerge: false
+        });
+
+        await checker.checkAsync({ items, context, accessRequested });
+
+        expect(writeAllowedByScopesValidator.validate).toHaveBeenCalledWith({
+            requestInfo: context.requestInfo,
+            incomingResources: [items[0].incoming],
+            base_version: '4_0_0',
+            effectiveSmartMerge: false,
+            accessRequested
+        });
     });
 });

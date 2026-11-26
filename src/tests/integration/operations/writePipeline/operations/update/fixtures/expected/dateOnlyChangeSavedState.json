@@ -1,0 +1,159 @@
+{
+  "headers": {
+    "etag": "W/\"2\"",
+    "location": "4_0_0/Composition/put-parity-composition",
+    "contentLocation": "http://localhost:3000/4_0_0/Composition/put-parity-composition/_history/2"
+  },
+  "documents": [
+    {
+      "_uuid": "4fe0034c-daba-5f36-82ab-123fed217207",
+      "_access": {
+        "client": 1
+      },
+      "_sourceAssigningAuthority": "client",
+      "_sourceId": "put-parity-composition",
+      "author": [
+        {
+          "display": "synthetic author"
+        }
+      ],
+      "date": "2026-02-02T00:00:00.000Z",
+      "id": "put-parity-composition",
+      "meta": {
+        "source": "http://example.com/source",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "client",
+            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+          }
+        ],
+        "versionId": "2",
+        "lastUpdated": "<lastUpdated>"
+      },
+      "resourceType": "Composition",
+      "status": "final",
+      "title": "Summary",
+      "type": {
+        "text": "Summary"
+      }
+    }
+  ],
+  "history": [
+    {
+      "id": "4fe0034c-daba-5f36-82ab-123fed217207",
+      "resource": {
+        "resourceType": "Composition",
+        "id": "put-parity-composition",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "status": "final",
+        "type": {
+          "text": "Summary"
+        },
+        "title": "Summary",
+        "date": "2026-01-01T00:00:00.000Z",
+        "author": [
+          {
+            "display": "synthetic author"
+          }
+        ],
+        "_uuid": "4fe0034c-daba-5f36-82ab-123fed217207",
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "put-parity-composition",
+        "_access": {
+          "client": 1
+        }
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "POST",
+        "url": "/4_0_0/Composition/put-parity-composition"
+      },
+      "_recorded": "<recorded>"
+    },
+    {
+      "id": "4fe0034c-daba-5f36-82ab-123fed217207",
+      "resource": {
+        "_uuid": "4fe0034c-daba-5f36-82ab-123fed217207",
+        "_access": {
+          "client": 1
+        },
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "put-parity-composition",
+        "author": [
+          {
+            "display": "synthetic author"
+          }
+        ],
+        "date": "2026-02-02T00:00:00.000Z",
+        "id": "put-parity-composition",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "versionId": "2",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "resourceType": "Composition",
+        "status": "final",
+        "title": "Summary",
+        "type": {
+          "text": "Summary"
+        }
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "PUT",
+        "url": "/4_0_0/Composition/put-parity-composition"
+      },
+      "_recorded": "<recorded>"
+    }
+  ],
+  "gridFsFileCount": 0
+}

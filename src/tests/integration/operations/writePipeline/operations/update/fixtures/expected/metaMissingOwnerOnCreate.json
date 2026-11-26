@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Resource Patient/11111111-1111-4111-8111-111111111111 is missing a security access tag with system: https://www.icanbwell.com/owner"
+      }
+    }
+  ]
+}
