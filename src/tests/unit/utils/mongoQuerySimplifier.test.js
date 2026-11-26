@@ -1,4 +1,4 @@
-const { describe, test, expect } = require('@jest/globals');
+const { describe, test, expect, jest } = require('@jest/globals');
 const { MongoQuerySimplifier } = require('../../../utils/mongoQuerySimplifier');
 
 describe('MongoQuerySimplifier', () => {
@@ -477,5 +477,58 @@ describe('MongoQuerySimplifier', () => {
                 expect(result).toBeDefined();
             });
         });
+    });
+});
+
+describe('MongoQuerySimplifier with a large _id:not list', () => {
+    // the shape FilterById builds for `_id:not` with a long list (one per hidden resource)
+    const ids = (n) => Array.from({ length: n }, (_, i) => `00000000-0000-5000-8000-${String(i).padStart(12, '0')}`);
+    const idNotQuery = (values) => ({
+        $and: [
+            { $nor: [{ $or: [{ $or: [{ _uuid: { $in: values } }] }] }] },
+            { 'meta.tag': { $not: { $elemMatch: { system: 'https://example.com/behavior', code: 'hidden' } } } }
+        ]
+    });
+
+    test('removes duplicate ids and keeps the first-seen order', () => {
+        const result = MongoQuerySimplifier.simplifyFilter({ filter: idNotQuery(['b', 'a', 'b', 'c', 'a']) });
+        expect(JSON.stringify(result)).toContain('"$in":["b","a","c"]');
+    });
+
+    test.each([
+        ['a string', 'Patient/123'],
+        ['a number', 42],
+        ['a boolean', false],
+        ['a Date', new Date('2026-01-01T00:00:00Z')],
+        ['a RegExp', /^abc/i]
+    ])('returns %s unchanged', (_name, value) => {
+        expect(MongoQuerySimplifier.simplifyFilter({ filter: value })).toBe(value);
+    });
+
+    test('removes duplicates from a long list and keeps the first-seen order', () => {
+        const unique = ids(2000);
+        const result = MongoQuerySimplifier.simplifyFilter({ filter: idNotQuery([...unique, ...unique]) });
+        expect(JSON.stringify(result)).toContain(`"$in":${JSON.stringify(unique)}`);
+    });
+
+    // a timing bound would be flaky, so count the key builds: the dedupe passes cost a handful per
+    // element, where a quadratic dedupe would make millions
+    test('builds a dedupe key a bounded number of times for a long list', () => {
+        const unique = ids(2000);
+        const limit = unique.length * 2 * 10;
+        const query = idNotQuery([...unique, ...unique]);
+        const stringify = JSON.stringify;
+        const spy = jest.spyOn(JSON, 'stringify').mockImplementation((...args) => {
+            // stop at the limit, so a regression fails fast instead of recording millions of calls
+            if (spy.mock.calls.length > limit) {
+                throw new Error(`more than ${limit} key builds`);
+            }
+            return stringify(...args);
+        });
+        try {
+            expect(() => MongoQuerySimplifier.simplifyFilter({ filter: query })).not.toThrow();
+        } finally {
+            spy.mockRestore();
+        }
     });
 });

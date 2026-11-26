@@ -196,9 +196,9 @@ class ClickHouseClientManager {
 
         return tracer.startActiveSpan('clickhouse.query', {
             attributes: {
-                'db.system': 'clickhouse',
-                'db.operation': operation,
-                'db.statement': queryPreview,
+                'db.system.name': 'clickhouse',
+                'db.operation.name': operation,
+                'db.query.text': queryPreview,
                 'db.clickhouse.has_params': Object.keys(query_params).length > 0,
                 'db.clickhouse.format': format
             }
@@ -296,9 +296,9 @@ class ClickHouseClientManager {
 
         return tracer.startActiveSpan('clickhouse.insert', {
             attributes: {
-                'db.system': 'clickhouse',
-                'db.operation': 'INSERT',
-                'db.clickhouse.table': table,
+                'db.system.name': 'clickhouse',
+                'db.operation.name': 'INSERT',
+                'db.collection.name': table,
                 'db.clickhouse.row_count': rowCount,
                 'db.clickhouse.format': format,
                 'db.clickhouse.write_mode': this.configManager.clickHouseWriteMode

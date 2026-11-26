@@ -29,6 +29,8 @@ const {
     recordInboundBundleSize,
     recordOutboundEverything,
     recordKafkaRetryExhausted,
+    recordHistoryMongoFallbackFailed,
+    historyMongoFallbackFailedCounter,
     recordImportOperationTriggered,
     recordImportResourceOutcomes,
     recordImportRangeDuration,
@@ -68,7 +70,15 @@ const {
     OPERATION,
     SUBSYSTEM,
     PATH,
-    UNKNOWN
+    UNKNOWN,
+    recordViewControlOutcome,
+    viewControlOutcomeCounter,
+    VIEW_CONTROL_OUTCOME,
+    VIEW_CONTROL_SUBJECT,
+    VIEW_CONTROL_FAIL_REASON,
+    recordEverythingCacheInvalidationFailed,
+    everythingCacheInvalidationFailedCounter,
+    CACHE_INVALIDATION_FAILURE
 } = require('../../../utils/metrics');
 
 describe('metrics.js', () => {
@@ -616,6 +626,39 @@ describe('metrics.js', () => {
         });
     });
 
+    describe('recordViewControlOutcome', () => {
+        test.each([
+            [VIEW_CONTROL_OUTCOME.HIDDEN, VIEW_CONTROL_SUBJECT.USER, undefined, { outcome: 'hidden', subject: 'user' }],
+            [VIEW_CONTROL_OUTCOME.NO_CONSENT, VIEW_CONTROL_SUBJECT.OPT_IN, undefined, { outcome: 'no_consent', subject: 'opt_in' }],
+            [VIEW_CONTROL_OUTCOME.NOT_ENROLLED, VIEW_CONTROL_SUBJECT.USER, undefined, { outcome: 'not_enrolled', subject: 'user' }],
+            [VIEW_CONTROL_OUTCOME.NO_PERSON, VIEW_CONTROL_SUBJECT.USER, undefined, { outcome: 'no_person', subject: 'user' }],
+            [VIEW_CONTROL_OUTCOME.FAIL_CLOSED, VIEW_CONTROL_SUBJECT.OPT_IN, VIEW_CONTROL_FAIL_REASON.FORBIDDEN,
+                { outcome: 'fail_closed', subject: 'opt_in', reason: 'forbidden' }],
+            ['made-up', 'someone', undefined, { outcome: UNKNOWN, subject: UNKNOWN }],
+            [VIEW_CONTROL_OUTCOME.FAIL_CLOSED, VIEW_CONTROL_SUBJECT.USER, 'free text with an id',
+                { outcome: 'fail_closed', subject: 'user', reason: UNKNOWN }],
+            [VIEW_CONTROL_OUTCOME.HIDDEN, VIEW_CONTROL_SUBJECT.USER, VIEW_CONTROL_FAIL_REASON.ERROR,
+                { outcome: 'hidden', subject: 'user' }]
+        ])('outcome %s, subject %s, reason %s emits %j', (outcome, subject, reason, labels) => {
+            recordViewControlOutcome(outcome, subject, reason);
+
+            expect(viewControlOutcomeCounter.add).toHaveBeenCalledTimes(1);
+            expect(viewControlOutcomeCounter.add).toHaveBeenCalledWith(1, labels);
+        });
+    });
+
+    describe('recordEverythingCacheInvalidationFailed', () => {
+        test.each([
+            [CACHE_INVALIDATION_FAILURE.INCREMENT, 'increment'],
+            [CACHE_INVALIDATION_FAILURE.LINKED_PATIENT_LOOKUP, 'linked_patient_lookup'],
+            ['a reason with a patient id', UNKNOWN]
+        ])('reason %s emits %s', (reason, expected) => {
+            recordEverythingCacheInvalidationFailed(reason);
+
+            expect(everythingCacheInvalidationFailedCounter.add).toHaveBeenCalledWith(1, { reason: expected });
+        });
+    });
+
     describe('label constants are frozen', () => {
         test('LABEL is frozen', () => {
             expect(Object.isFrozen(LABEL)).toBe(true);
@@ -635,6 +678,21 @@ describe('metrics.js', () => {
 
         test('GROUP_MEMBER_MERGE_OUTCOME is frozen', () => {
             expect(Object.isFrozen(GROUP_MEMBER_MERGE_OUTCOME)).toBe(true);
+        });
+    });
+
+    describe('recordHistoryMongoFallbackFailed', () => {
+        beforeEach(() => jest.clearAllMocks());
+
+        test.each([
+            ['Observation', 3, 'mongo_write_failed', 'Observation', 'mongo_write_failed'],
+            [undefined, 1, undefined, 'unknown', 'unknown']
+        ])('adds %s/%s/%s with resource_type and reason labels', (type, count, reason, expType, expReason) => {
+            recordHistoryMongoFallbackFailed(type, count, reason);
+            expect(historyMongoFallbackFailedCounter.add).toHaveBeenCalledWith(count, {
+                [LABEL.RESOURCE_TYPE]: expType,
+                [LABEL.REASON]: expReason
+            });
         });
     });
 });

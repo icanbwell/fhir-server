@@ -446,6 +446,60 @@ describe('SearchManager', () => {
         });
     });
 
+    describe('fetchResourcesByArgsAsync fields and attachments', () => {
+        const run = async ({ extra = {}, resource = { resourceType: 'DocumentReference', id: '1' } } = {}) => {
+            let findOptions;
+            let served = false;
+            searchManager.constructQueryAsync = jest.fn().mockResolvedValue({ query: {} });
+            const cursor = {
+                maxTimeMS: () => cursor,
+                getCollection: () => 'DocumentReference_4_0_0',
+                hasNext: async () => !served,
+                next: async () => {
+                    served = true;
+                    return resource;
+                }
+            };
+            mockDatabaseQueryFactory.createQuery = () => ({
+                findAsync: async ({ options }) => {
+                    findOptions = options;
+                    return cursor;
+                }
+            });
+            mockConfigManager.mongoTimeout = 1000;
+            searchManager.databaseAttachmentManager = { transformAttachments: jest.fn(async (r) => r) };
+            searchManager.base64DataManager = { transformAsync: jest.fn(async (r) => r) };
+            await searchManager.fetchResourcesByArgsAsync({
+                base_version: '4_0_0',
+                requestInfo: { user: 'u', scope: 'access/*.*' },
+                resourceType: 'DocumentReference',
+                parsedArgs: {},
+                explain: false,
+                debug: false,
+                ...extra
+            });
+            return findOptions;
+        };
+
+        it('reads the whole resource and loads attachments by default', async () => {
+            const options = await run();
+
+            expect(options.projection).toEqual({ _id: 0 });
+            expect(searchManager.databaseAttachmentManager.transformAttachments).toHaveBeenCalledTimes(1);
+            expect(searchManager.base64DataManager.transformAsync).toHaveBeenCalledTimes(1);
+        });
+
+        it('projects only the requested fields and skips loading attachments when asked', async () => {
+            const options = await run({ extra: { fields: ['content'], retrieveAttachments: false } });
+
+            expect(options.projection).toEqual({
+                _id: 0, resourceType: 1, id: 1, _sourceId: 1, content: 1
+            });
+            expect(searchManager.databaseAttachmentManager.transformAttachments).not.toHaveBeenCalled();
+            expect(searchManager.base64DataManager.transformAsync).not.toHaveBeenCalled();
+        });
+    });
+
     describe('handleCountOption', () => {
         it('sets limit and skip', () => {
             const result = searchManager.handleCountOption({ parsedArgs: { _count: '10', _getpagesoffset: '2' }, options: {}, isStreaming: false });
