@@ -23,6 +23,10 @@ const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSer
 const deepcopy = require('deepcopy');
 const { validateResource } = require('../../utils/validator.util');
 const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
+const { WritePipelineSwitch } = require('../writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('../writePipeline/writePipeline');
+const { CreateResponder } = require('../writePipeline/responder/create');
+const { CREATE_WRITE_PROFILE } = require('../writePipeline/profiles/create');
 const { GroupMemberMerger } = require('../common/groupMemberMerger');
 
 class CreateOperation {
@@ -37,6 +41,9 @@ class CreateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {WritePipelineSwitch} writePipelineSwitch
+     * @param {WritePipeline} writePipeline
+     * @param {CreateResponder} createResponder
      * @param {GroupMemberMerger} groupMemberMerger
      */
     constructor (
@@ -50,6 +57,9 @@ class CreateOperation {
             databaseAttachmentManager,
             base64DataManager,
             identifierEnrichmentProvider,
+            writePipelineSwitch,
+            writePipeline,
+            createResponder,
             groupMemberMerger
         }
     ) {
@@ -105,6 +115,24 @@ class CreateOperation {
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
 
         /**
+         * @type {WritePipelineSwitch}
+         */
+        this.writePipelineSwitch = writePipelineSwitch;
+        assertTypeEquals(writePipelineSwitch, WritePipelineSwitch);
+
+        /**
+         * @type {WritePipeline}
+         */
+        this.writePipeline = writePipeline;
+        assertTypeEquals(writePipeline, WritePipeline);
+
+        /**
+         * @type {CreateResponder}
+         */
+        this.createResponder = createResponder;
+        assertTypeEquals(createResponder, CreateResponder);
+
+        /**
          * @type {GroupMemberMerger}
          */
         this.groupMemberMerger = groupMemberMerger;
@@ -114,6 +142,8 @@ class CreateOperation {
     // noinspection ExceptionCaughtLocallyJS
     /**
      * does a FHIR Create (POST)
+     * When the write pipeline switch is on for `create`, the request goes to
+     * `WritePipeline.runAsync` with the create profile and responder.
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      * @param {string} path
@@ -125,6 +155,15 @@ class CreateOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
+        if (this.writePipelineSwitch?.useNewPathFor('create')) {
+            return await this.writePipeline.runAsync({
+                profile: CREATE_WRITE_PROFILE,
+                responder: this.createResponder,
+                requestInfo,
+                parsedArgs,
+                resourceType
+            });
+        }
         const currentOperationName = 'create';
         /**
          * @type {number}
