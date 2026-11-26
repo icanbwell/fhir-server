@@ -26,12 +26,15 @@ function unchangedEntry (document) {
 }
 
 /**
- * Builds the document a single-resource write answers with: a copy of the item's candidate, or of
- * its stored document when the item was unchanged, with its GridFS attachments and externalized
+ * Builds the document a single-resource write answers with: a copy of the document the flush saved
+ * when the bulk inserter replayed a write that lost a race, otherwise of the item's candidate, or
+ * of its stored document when the item was unchanged, with its GridFS attachments and externalized
  * base64 data put back inline, its identifiers and extended-Group tag enriched, then serialized
  * as a FHIR resource in place. Returns the document and the resource, which are the same object.
  * The item is not modified.
  * @param {import('../../writeItem').WriteItem} item
+ * @param {Object|null|undefined} [savedResource] - the document the flush saved when it replayed the
+ *   item's write, if it did
  * @param {import('../../../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
  * @param {import('../../../../dataLayer/databaseAttachmentManager').DatabaseAttachmentManager} databaseAttachmentManager
  * @param {import('../../../../dataLayer/base64DataManager').Base64DataManager} base64DataManager
@@ -41,6 +44,7 @@ function unchangedEntry (document) {
  */
 async function buildResponseDocumentAsync ({
     item,
+    savedResource,
     requestInfo,
     databaseAttachmentManager,
     base64DataManager,
@@ -48,7 +52,7 @@ async function buildResponseDocumentAsync ({
     groupExtendedTagEnrichmentProvider
 }) {
     const unchanged = item.status === WRITE_ITEM_STATUS.UNCHANGED;
-    let document = deepcopy(unchanged ? item.stored : item.candidate);
+    let document = deepcopy(unchanged ? item.stored : (savedResource ?? item.candidate));
     document = await databaseAttachmentManager.transformAttachments(document, GRIDFS.RETRIEVE);
     document = await base64DataManager.transformAsync(document, BLOB_OP.RETRIEVE, requestInfo);
     identifierEnrichmentProvider.enrichIdentifierList(document);

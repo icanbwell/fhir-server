@@ -508,6 +508,21 @@ describe('UpdateResponder', () => {
             expected: { created: false, resource_version: '2' }
         },
         {
+            name: 'the document the flush saved when it replayed a write that lost a race',
+            buildRun: () => {
+                const item = buildItem();
+                item.writeMode = 'update';
+                item.stored = storedPatient('1');
+                item.candidate = storedPatient('2');
+                item.markQueued();
+                return {
+                    item,
+                    results: [{ created: false, updated: true, savedResource: storedPatient('3') }]
+                };
+            },
+            expected: { created: false, resource_version: '3' }
+        },
+        {
             name: 'the stored document, not created, for a no-op',
             buildRun: () => {
                 const item = buildItem();

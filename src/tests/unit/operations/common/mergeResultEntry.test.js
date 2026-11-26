@@ -47,6 +47,21 @@ describe('MergeResultEntry', () => {
     });
 
     describe('toJSON', () => {
+        test('leaves out the saved document', () => {
+            const entry = new MergeResultEntry({
+                created: false,
+                id: 'patient-1',
+                uuid: 'uuid-123',
+                resourceType: 'Patient',
+                updated: true,
+                sourceAssigningAuthority: 'client-a',
+                savedResource: { resourceType: 'Patient', id: 'patient-1', name: [{ family: 'Marker' }] }
+            });
+
+            expect(JSON.stringify(entry)).not.toContain('Marker');
+            expect(Object.keys(entry.toJSON())).not.toContain('savedResource');
+        });
+
         test('returns object with all non-null fields', () => {
             const entry = new MergeResultEntry({
                 operationOutcome: null,

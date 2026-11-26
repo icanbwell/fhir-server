@@ -412,7 +412,6 @@ class WritePipeline {
                 await this._runStepAsync({ run, name: 'findExisting', step: this.findExistingStep });
                 await this._runStepAsync({ run, name: 'validateNewResource', step: this.validateNewResourceStep });
                 await this._runStepAsync({ run, name: 'accessBeforeBuild', step: this.accessCheckStep });
-                // PUT only: remove this step once GridFS attachments are removed
                 await this._runStepAsync({ run, name: 'validateAgainstStored', step: this.validateAgainstStoredStep });
                 await this._runStepAsync({ run, name: 'buildDocument', step: this.buildDocumentStep });
                 await this._runStepAsync({ run, name: 'validateResult', step: this.validateResultStep });
