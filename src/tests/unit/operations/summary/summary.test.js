@@ -55,6 +55,7 @@ const { SummaryCacheKeyGenerator } = require('../../../../operations/summary/sum
 const { SearchBundleOperation } = require('../../../../operations/search/searchBundle');
 const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
 const { EnrichmentManager } = require('../../../../enrich/enrich');
+const { PatientDataViewControlExclusion } = require('../../../../utils/patientDataViewControlExclusion');
 const { BaseResponseHandler } = require('../../../../utils/responseHandler/baseResponseHandler');
 
 function createMockInstance(ClassType) {
@@ -78,10 +79,15 @@ describe('SummaryOperation', () => {
             redisManager: createMockInstance(RedisManager),
             enrichmentManager: createMockInstance(EnrichmentManager),
             postRequestProcessor: createMockInstance(PostRequestProcessor),
-            summaryCacheKeyGenerator: createMockInstance(SummaryCacheKeyGenerator)
+            summaryCacheKeyGenerator: createMockInstance(SummaryCacheKeyGenerator),
+            patientDataViewControlExclusion: createMockInstance(PatientDataViewControlExclusion)
         };
 
         mocks.scopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(undefined);
+        mocks.patientDataViewControlExclusion.applyAsync = jest.fn(({ parsedArgs }) => Promise.resolve(parsedArgs));
+        mocks.patientDataViewControlExclusion.getConsentLookupAsync = jest.fn().mockResolvedValue({
+            viewControlResourceToExcludeMap: { CarePlan: ['hidden-1'] }
+        });
         mocks.graphOperation.graph = jest.fn().mockResolvedValue({
             resourceType: 'Bundle',
             entry: [{ resource: { resourceType: 'Patient', id: 'p1' } }],
@@ -196,6 +202,24 @@ describe('SummaryOperation', () => {
     });
 
     // ========== summaryBundleAsync (large method) ==========
+    describe('getCacheKey and the view control Consent', () => {
+        const personId = '5f3ca115-8630-5e55-a97d-4d6ee26c0adc';
+
+        test.each([
+            ['a user token keys the cache by the caller\'s Person', { isUser: true, personIdFromJwtToken: personId }, personId],
+            ['a service token does not', { isUser: false, personIdFromJwtToken: null }, undefined]
+        ])('%s', async (_name, caller, expectedPersonId) => {
+            const args = createMockInstance(ParsedArgs);
+            args.getOriginal = jest.fn().mockReturnValue({ queryParameterValue: { value: `person.${personId}` } });
+
+            await summaryOp.getCacheKey(args, { userType: null, accept: 'application/json', scope: 'user/*.*', ...caller });
+
+            expect(mocks.summaryCacheKeyGenerator.generateCacheKey).toHaveBeenCalledWith(
+                expect.objectContaining({ id: personId, isPersonId: true, personId: expectedPersonId })
+            );
+        });
+    });
+
     describe('summaryBundleAsync', () => {
         test('throws for non-Patient resourceType', async () => {
             await expect(
@@ -237,6 +261,37 @@ describe('SummaryOperation', () => {
                 expect.objectContaining({ entry: [] }),
                 expect.any(String)
             );
+        });
+
+        test('throws not found when compositions are found but the graph is skipped', async () => {
+            mockParsedArgs.id = ['patient-1', 'person.person-1'];
+            mockParsedArgs._includeSummaryCompositionOnly = true;
+            mocks.searchBundleOperation.searchBundleAsync.mockResolvedValue({
+                resourceType: 'Bundle',
+                entry: [{ resource: { resourceType: 'Composition', id: 'c1' } }]
+            });
+            const requestInfo = {
+                requestId: 'r1',
+                userType: null,
+                accept: 'application/json',
+                scope: 'user/*.read',
+                skipCachedData: () => false
+            };
+
+            const error = await summaryOp
+                .summaryBundleAsync({
+                    requestInfo,
+                    res: {},
+                    parsedArgs: mockParsedArgs,
+                    resourceType: 'Patient',
+                    responseHandler: mockResponseHandler
+                })
+                .catch((e) => e);
+
+            expect(error.name).toBe('NotFound');
+            expect(error.statusCode).toBe(404);
+            expect(mocks.graphOperation.graph).not.toHaveBeenCalled();
+            expect(mockResponseHandler.sendResponseAsync).not.toHaveBeenCalled();
         });
 
         test('reads from cache when available', async () => {
@@ -286,6 +341,47 @@ describe('SummaryOperation', () => {
             });
             // _lastUpdated should have been removed
             expect(mockParsedArgs._lastUpdated).toBeNull();
+        });
+    });
+
+    describe('summaryBundleAsync and the view control Consent', () => {
+        const callerRequestInfo = (isUser) => ({
+            requestId: 'r1', userType: null, accept: 'application/json', scope: 'user/*.*',
+            skipCachedData: () => false, isUser
+        });
+        const run = (requestInfo) => summaryOp.summaryBundleAsync({
+            requestInfo, res: {}, parsedArgs: mockParsedArgs, resourceType: 'Patient', responseHandler: mockResponseHandler
+        });
+
+        test.each([
+            ['a user token drops Composition sections that point at a hidden resource', true, { CarePlan: ['hidden-1'] }],
+            ['a service token is not filtered', false, undefined]
+        ])('%s', async (_name, isUser, expectedMap) => {
+            await run(callerRequestInfo(isUser));
+
+            expect(mocks.enrichmentManager.enrichBundleEntriesAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    enrichmentContext: expect.objectContaining({ viewControlExcludeMap: expectedMap })
+                })
+            );
+        });
+
+        test('the Composition search applies the Consent filter to Compositions', async () => {
+            mockParsedArgs.id = ['uuid-1', 'person.uuid-1'];
+            mockParsedArgs._includeSummaryCompositionOnly = true;
+
+            await run(callerRequestInfo(true));
+
+            expect(mocks.patientDataViewControlExclusion.applyAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Composition', base_version: '4_0_0' })
+            );
+        });
+
+        test('a failed Consent lookup fails the request instead of returning an unfiltered summary', async () => {
+            mocks.patientDataViewControlExclusion.getConsentLookupAsync.mockRejectedValue(new Error('consent store unavailable'));
+
+            await expect(run(callerRequestInfo(true))).rejects.toThrow('consent store unavailable');
+            expect(mockResponseHandler.sendResponseAsync).not.toHaveBeenCalled();
         });
     });
 

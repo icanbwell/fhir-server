@@ -2,6 +2,7 @@
  * Unit tests for SearchStreamingOperation — null safety, cache issues, error handling
  */
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
+const { ParsedArgsItem } = require('../../../../operations/query/parsedArgsItem');
 
 // Mock infrastructure
 jest.mock('../../../../config', () => ({}));
@@ -664,7 +665,10 @@ describe('SearchStreamingOperation', () => {
             },
             { label: 'a request with no parameters', items: [], letter: 's' }
         ])('asks $letter at the scope check and the tenant filter for $label', async ({ items, letter }) => {
-            mockParsedArgs.parsedArgItems = items;
+            // items that answer isIdItem / isNotOnly as the real ParsedArgsItem does
+            mockParsedArgs.parsedArgItems = items.map((item) => Object.assign(
+                Object.create(ParsedArgsItem.prototype), { modifiers: [], ...item }
+            ));
 
             await searchStreamingOp.searchStreamingAsync({
                 requestInfo: makeRequestInfo(),

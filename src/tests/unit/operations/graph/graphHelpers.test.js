@@ -107,6 +107,9 @@ describe('GraphHelper', () => {
         graphHelper.removeHelper = mockRemoveHelper;
         graphHelper.auditLogger = mockAuditLogger;
         graphHelper.postRequestProcessor = mockPostRequestProcessor;
+        graphHelper.patientDataViewControlExclusion = {
+            applyAsync: jest.fn().mockImplementation(({ parsedArgs }) => Promise.resolve(parsedArgs))
+        };
     });
 
     describe('getPropertiesForEntity', () => {

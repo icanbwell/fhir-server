@@ -844,6 +844,15 @@ class SearchManager {
                 projection.id = 1;
                 projection.url = 1;
             }
+            // the view control filter judges a Composition by its sections, and removes `text` when it
+            // removes one, so the sections must be read even when only `text` is requested.
+            // ResourcePreparer drops them again unless the caller asked for them.
+            if (
+                resourceType === 'Composition' &&
+                Object.values(parsedArgs.viewControlExcludeMap || {}).some((ids) => ids?.length)
+            ) {
+                projection.section = 1;
+            }
             // always include _uuid for audit logging
             projection._uuid = 1;
             // the extended tag in meta.tag is derived from _extended at read time
@@ -1614,6 +1623,10 @@ class SearchManager {
      * @property {string} resourceType
      * @property {ParsedArgs} parsedArgs
      * @property {boolean} applyPatientFilter
+     * @property {string[]|undefined} [fields] top-level fields to read (plus resourceType and id);
+     *  all fields are read when omitted
+     * @property {boolean} [retrieveAttachments] load attachment data (GridFS, cloud storage) onto the
+     *  resources; pass false when only the resource's own fields are needed
      *
      * @param {FetchResourcesByArgsAsyncParams}
      * @return {Promise<{
@@ -1630,7 +1643,9 @@ class SearchManager {
         explain,
         debug,
         parsedArgs,
-        applyPatientFilter = true
+        applyPatientFilter = true,
+        fields,
+        retrieveAttachments = true
     }) {
         /**
          * @type {BundleEntry[]}
@@ -1662,6 +1677,12 @@ class SearchManager {
         let projection = {};
         // also exclude _id so if there is a covering index the query can be satisfied from the covering index
         projection._id = 0;
+        if (fields && fields.length > 0) {
+            // an inclusion projection: _id stays excluded, the rest of the document is not read
+            for (const field of ['resourceType', 'id', '_sourceId', ...fields]) {
+                projection[field] = 1;
+            }
+        }
         options.projection = projection;
 
         /**
@@ -1708,8 +1729,10 @@ class SearchManager {
                  * @type {BundleEntry}
                  */
 
-                startResource = await this.databaseAttachmentManager.transformAttachments(startResource, RETRIEVE);
-                startResource = await this.base64DataManager.transformAsync(startResource, BLOB_OP.RETRIEVE);
+                if (retrieveAttachments) {
+                    startResource = await this.databaseAttachmentManager.transformAttachments(startResource, RETRIEVE);
+                    startResource = await this.base64DataManager.transformAsync(startResource, BLOB_OP.RETRIEVE);
+                }
                 let current_entity = {
                     id: startResource._sourceId,
                     resource: startResource

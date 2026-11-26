@@ -70,7 +70,9 @@
             "use": "usual",
             "text": "t",
             "family": "PATIENT2",
-            "given": ["OTHER"]
+            "given": [
+              "OTHER"
+            ]
           }
         ],
         "resourceType": "Person"

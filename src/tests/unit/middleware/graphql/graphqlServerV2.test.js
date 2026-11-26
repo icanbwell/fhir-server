@@ -130,9 +130,8 @@ function createMockContainer () {
         searchBundleOperation: { search: jestGlobal.fn() },
         r4ArgsParser: { parse: jestGlobal.fn() },
         queryRewriterManager: { rewrite: jestGlobal.fn() },
-        patientDataViewControlManager: { check: jestGlobal.fn() },
+        patientDataViewControlExclusion: { applyAsync: jestGlobal.fn() },
         customTracer: { trace: jestGlobal.fn() },
-        patientScopeManager: { getScope: jestGlobal.fn() },
         // Admin-level services that should NOT be accessible via GraphQL context
         databaseBulkInserter: { insertAsync: jestGlobal.fn() },
         adminPersonPatientLinkManager: { link: jestGlobal.fn() },
@@ -224,9 +223,8 @@ describe('graphqlServerV2 - Security Tests', () => {
                     r4ArgsParser: mockContainer.r4ArgsParser,
                     queryRewriterManager: mockContainer.queryRewriterManager,
                     configManager: mockContainer.configManager,
-                    patientDataViewControlManager: mockContainer.patientDataViewControlManager,
-                    customTracer: mockContainer.customTracer,
-                    patientScopeManager: mockContainer.patientScopeManager
+                    patientDataViewControlExclusion: mockContainer.patientDataViewControlExclusion,
+                    customTracer: mockContainer.customTracer
                 })
             );
         });

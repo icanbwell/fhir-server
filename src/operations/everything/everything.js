@@ -95,11 +95,13 @@ class EverythingOperation {
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {import('../../utils/viewControlSubject').ViewControlSubject|null} [viewControlSubject] -
+     *  whose view-control block filters the result; defaults to the user in the token
      *
      * @param {everythingAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds, isPersonEverything}) {
+    async everythingAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds, isPersonEverything, viewControlSubject}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -116,7 +118,47 @@ class EverythingOperation {
                 resourceType,
                 responseStreamer, // disable response streaming if we are answering a question
                 scopedPersonIds,
-                isPersonEverything
+                isPersonEverything,
+                viewControlSubject
+            });
+        } catch (err) {
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: 'everything',
+                error: err
+            });
+            throw err;
+        }
+    }
+
+    /**
+     * Loads the view-control Consent lookup of a Person named in the URL, before the response starts
+     * streaming, so a failure is an HTTP error rather than an error entry in a 200 stream. The caller's
+     * read scope is checked first, as everythingBundleAsync does, so a token that may not read the
+     * Person learns nothing about whether it exists. Both failures are logged as operation failures.
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {ParsedArgs} parsedArgs
+     * @param {string} resourceType
+     * @param {import('../../utils/viewControlSubject').ViewControlSubject} viewControlSubject
+     * @return {Promise<void>}
+     */
+    async preloadViewControlAsync({ requestInfo, parsedArgs, resourceType, viewControlSubject }) {
+        const startTime = Date.now();
+        // logs a scope failure itself
+        await this.scopesValidator.verifyHasValidScopesAsync({
+            requestInfo,
+            parsedArgs,
+            resourceType,
+            startTime,
+            action: 'everything',
+            accessRequested: 'r'
+        });
+        try {
+            await this.everythingHelper.preloadViewControlLookupAsync({
+                requestInfo, base_version: parsedArgs.base_version, viewControlSubject
             });
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
@@ -143,11 +185,13 @@ class EverythingOperation {
      *  the requested Person ids, used to restrict returned Person resources to only these ids
      * @property {boolean} [isPersonEverything] - true only for a genuine Person $everything request
      *  (not a Patient-endpoint request using a proxy id); gates PROA consented-data-access expansion
+     * @property {import('../../utils/viewControlSubject').ViewControlSubject|null} [viewControlSubject] -
+     *  whose view-control block filters the result; defaults to the user in the token
      *
      * @param {everythingBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds, isPersonEverything}) {
+    async everythingBundleAsync({requestInfo, parsedArgs, resourceType, responseStreamer, scopedPersonIds, isPersonEverything, viewControlSubject}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -270,7 +314,8 @@ class EverythingOperation {
                     parsedArgs,
                     includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true),
                     scopedPersonIds,
-                    isPersonEverything
+                    isPersonEverything,
+                    viewControlSubject
                 });
             } else {
                 // Grab an instance of our DB and collection

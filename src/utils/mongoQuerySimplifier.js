@@ -1,4 +1,11 @@
-const { removeDuplicatesWithLambda } = require('./list.util');
+const { removeDuplicatesByKey } = require('./list.util');
+
+/**
+ * key used to decide whether two filter clauses are duplicates
+ * @param {*} clause
+ * @return {string}
+ */
+const filterKey = (clause) => JSON.stringify(clause);
 
 class MongoQuerySimplifier {
     /**
@@ -10,11 +17,14 @@ class MongoQuerySimplifier {
         if (filter === null || filter === undefined) {
             return filter;
         }
+        // a value, not a filter (for example each id in an $in): nothing to simplify. Walking a
+        // string's characters made long $in lists cost far more than the rest of the query.
+        if (typeof filter !== 'object' || filter instanceof Date || filter instanceof RegExp) {
+            return filter;
+        }
         // simplify $or
         if (filter.$or && filter.$or.length > 1) {
-            filter.$or = removeDuplicatesWithLambda(filter.$or,
-                (a, b) => JSON.stringify(a) === JSON.stringify(b)
-            );
+            filter.$or = removeDuplicatesByKey(filter.$or, filterKey);
         }
         // remove nested $or if there is a parent $or
         if (filter.$or && filter.$or.length > 0) {
@@ -89,18 +99,14 @@ class MongoQuerySimplifier {
         }
         // simplify $nor
         if (filter.$nor && filter.$nor.length > 1) {
-            filter.$nor = removeDuplicatesWithLambda(filter.$nor,
-                (a, b) => JSON.stringify(a) === JSON.stringify(b)
-            );
+            filter.$nor = removeDuplicatesByKey(filter.$nor, filterKey);
         }
         if (filter.$nor && filter.$nor.length > 0) {
             filter.$nor = filter.$nor.map(f => this.simplifyFilter({ filter: f }));
         }
         // simplify $and
         if (filter.$and && filter.$and.length > 1) {
-            filter.$and = removeDuplicatesWithLambda(filter.$and,
-                (a, b) => JSON.stringify(a) === JSON.stringify(b)
-            );
+            filter.$and = removeDuplicatesByKey(filter.$and, filterKey);
         }
         if (filter.$and && filter.$and.length > 0) {
             filter.$and = filter.$and.map(f => this.simplifyFilter({ filter: f }));
@@ -123,9 +129,7 @@ class MongoQuerySimplifier {
         }
 
         if (filter?.$in && filter?.$in.length > 1) {
-            filter.$in = removeDuplicatesWithLambda(filter.$in,
-                (a, b) => JSON.stringify(a) === JSON.stringify(b)
-            );
+            filter.$in = removeDuplicatesByKey(filter.$in, filterKey);
         }
 
         // simplify $in
