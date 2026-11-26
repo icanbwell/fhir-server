@@ -1,0 +1,118 @@
+{
+  "headers": {
+    "location": null,
+    "contentLocation": null
+  },
+  "documents": [
+    {
+      "_uuid": "f4c6e8f5-c24f-578c-9eeb-214b86b026d4",
+      "_access": {
+        "client": 1
+      },
+      "_sourceAssigningAuthority": "client",
+      "_sourceId": "put-parity-observation",
+      "code": {
+        "coding": [
+          {
+            "system": "http://loinc.org",
+            "code": "8867-4",
+            "display": "Heart rate",
+            "id": "62480a18-c6a9-5def-a5ee-df8ebea7fe21"
+          }
+        ]
+      },
+      "id": "put-parity-observation",
+      "meta": {
+        "source": "http://example.com/source",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "client",
+            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+          }
+        ],
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>"
+      },
+      "resourceType": "Observation",
+      "status": "final",
+      "subject": {
+        "reference": "Patient/parity-patient-2",
+        "_uuid": "Patient/7525587d-767c-5d16-a33c-bf2642c94229",
+        "_sourceId": "Patient/parity-patient-2",
+        "_sourceAssigningAuthority": "client"
+      }
+    }
+  ],
+  "history": [
+    {
+      "id": "f4c6e8f5-c24f-578c-9eeb-214b86b026d4",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "put-parity-observation",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8867-4",
+              "display": "Heart rate",
+              "id": "62480a18-c6a9-5def-a5ee-df8ebea7fe21"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/parity-patient-2",
+          "_uuid": "Patient/7525587d-767c-5d16-a33c-bf2642c94229",
+          "_sourceId": "Patient/parity-patient-2",
+          "_sourceAssigningAuthority": "client"
+        },
+        "_uuid": "f4c6e8f5-c24f-578c-9eeb-214b86b026d4",
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "put-parity-observation",
+        "_access": {
+          "client": 1
+        }
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "POST",
+        "url": "/4_0_0/Observation/put-parity-observation"
+      },
+      "_recorded": "<recorded>"
+    }
+  ],
+  "gridFsFileCount": 0
+}

@@ -547,7 +547,8 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
             sourceAssigningAuthority: bulkInsertUpdateEntry.sourceAssigningAuthority,
             created: bulkInsertUpdateEntry.isCreateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
             updated: bulkInsertUpdateEntry.isUpdateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
-            resourceType
+            resourceType,
+            savedResource: bulkInsertUpdateEntry.replayedResource
         });
         if (hasBulkWriteErrors) {
             const bulkWriteErrors = bulkWriteResult.getWriteErrors();
@@ -664,6 +665,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
             );
             if (savedResource) {
                 bulkInsertUpdateEntry.resource = savedResource;
+                bulkInsertUpdateEntry.replayedResource = savedResource;
             } else { // resource was same as what was in the database
                 bulkInsertUpdateEntry.skipped = true;
             }

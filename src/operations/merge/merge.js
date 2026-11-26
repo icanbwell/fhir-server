@@ -27,9 +27,9 @@ const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../
 const { CustomTracer } = require('../../utils/customTracer');
 const { WritePipelineSwitch } = require('../writePipeline/writePipelineSwitch');
 const { WritePipeline } = require('../writePipeline/writePipeline');
-const { MergeResponder } = require('../writePipeline/responder/merge');
-const { MergeStream } = require('../writePipeline/responder/mergeStream');
-const { MERGE_WRITE_PROFILE } = require('../writePipeline/profiles/merge');
+const { MergeResponder } = require('../writePipeline/operations/merge/responder');
+const { MergeStream } = require('../writePipeline/operations/merge/mergeStream');
+const { MERGE_WRITE_PROFILE } = require('../writePipeline/operations/merge/profile');
 
 
 class MergeOperation {

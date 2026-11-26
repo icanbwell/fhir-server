@@ -1,0 +1,13 @@
+{
+  "resourceType": "Binary",
+  "id": "put-parity-binary",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      { "system": "https://www.icanbwell.com/access", "code": "client" },
+      { "system": "https://www.icanbwell.com/owner", "code": "client" }
+    ]
+  },
+  "contentType": "application/pdf",
+  "data": "QQ=="
+}

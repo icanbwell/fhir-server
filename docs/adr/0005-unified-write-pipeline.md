@@ -41,24 +41,33 @@ differences are plain data next to each other.
 - `WritePipeline` (`src/operations/writePipeline/writePipeline.js`) calls each step explicitly, one
   line per step, in one fixed order. The step classes are in `writePipeline/steps/`. There is no
   step list and no loop.
-- A profile (`writePipeline/profiles/<operation>.js`) is plain data: the operation name, the scope
-  letter, the variant a step uses, and an explicit `off` for a check the operation does not run
-  today. A profile can pick a variant of a step; it can't remove one.
+- A profile (`writePipeline/operations/<operation>/profile.js`) is plain data: the operation name,
+  the scope letter, the variant a step uses, and an explicit `off` for a check the operation does not run
+  today. A profile can pick a variant of a step; it can't remove one. The container gives
+  `WritePipeline` every profile, and the pipeline checks them when it is built, which the app does
+  at startup, so an invalid profile stops the boot instead of failing a request.
 - A step variant is a separate step instance that `WritePipeline` holds by step name and variant
   name (`stepVariants`). A profile picks one by name in its `variants` setting, and `WritePipeline`
   runs it in place of the default step. Adding a variant doesn't change the step it replaces, so a
   profile that names no variants runs as before. POST is the first operation to use a variant,
   `buildDocument.insert`. It turns `findExisting` off, because a new resource has no stored
-  document to load.
-- A responder (`writePipeline/responder/<operation>.js`) turns the item results into the
+  document to load. PUT uses three variants: `identify.url` (the identity from the URL id),
+  `buildDocument.replace` (the `If-Match` / `If-None-Match` checks, then a replace of the stored
+  document, or POST's insert when none is stored) and `write.httpPreconditions` (a versioned write
+  that queues the `If-Match` list, so a replayed write checks it again). Each of these steps takes
+  the piece that varies as a constructor argument: an identity resolver, a builder, or a writer
+  (`VersionedWriter` by default, `HttpPreconditionWriter` for PUT).
+- A responder (`writePipeline/operations/<operation>/responder.js`) turns the item results into the
   operation's response and records its metrics. The shared `WriteAuditor` writes the audit events.
 - Streaming (NDJSON) `$merge` keeps its transport out of `WritePipeline`, because no other
   operation streams: `$import` reads its files and flushes its batches itself. The stream stays in
   `MergeOperation.mergeAsyncStream` and `insertAndLog` for both paths; they take a stream handler
   for the per-line merge, the flush and the audit. The new path's handler comes from
-  `MergeStream` (`writePipeline/responder/mergeStream.js`), a `MergeResponder` subclass that runs
-  the shared steps on each line through `WritePipeline.processAsync` and flushes every 100
-  resources through `executeAsync`.
+  `MergeStream` (`writePipeline/operations/merge/mergeStream.js`), which reads each line with the
+  `MergeResponder` it holds, runs the shared steps on it through `WritePipeline.processAsync` and
+  flushes every 100 resources through `executeAsync`. `runAsync` is the entry for a whole request;
+  `processAsync` with `executeAsync` is the entry for a caller that writes many batches in one
+  longer job.
 - `WRITE_PIPELINE_OPERATIONS` turns the new path on per operation (`create`, `update`, `patch`,
   `merge`, `import`, `admin`). With an operation's name absent, its old code runs exactly as
   before. `$merge` is the first operation; the others follow one PR each.
@@ -86,9 +95,10 @@ differences are plain data next to each other.
 
 ### Confirmation
 
-- Parity tests run each `$merge` case and each POST case on both paths and compare the responses
-  (`src/tests/integration/operations/writePipeline/responder/merge/` and
-  `src/tests/integration/operations/writePipeline/responder/create/`).
+- Parity tests run each `$merge`, POST and PUT case on both paths and compare the responses
+  (`src/tests/integration/operations/writePipeline/operations/merge/`,
+  `src/tests/integration/operations/writePipeline/operations/create/` and
+  `src/tests/integration/operations/writePipeline/operations/update/`).
 - The main CI job runs the whole suite with the shipped switches on (`jest/setEnvVars.js`). Tests
   that fail only on an accepted difference are updated and get an `oldWrite<Name>.test.js` copy
   that turns the switch off. No test is skipped.

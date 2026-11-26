@@ -60,8 +60,7 @@ describe('IncomingAndStoredAccessChecker', () => {
             requestInfo: { requestId: 'synthetic-request' },
             base_version: '4_0_0',
             parsedArgs: {},
-            smartMerge: true,
-            operationName: 'merge'
+            smartMerge: true
         });
 
         const failures = await checker.checkAsync({ items, context });
@@ -100,8 +99,7 @@ describe('IncomingAndStoredAccessChecker', () => {
             requestInfo: { requestId: 'synthetic-request' },
             base_version: '4_0_0',
             parsedArgs: {},
-            smartMerge: false,
-            operationName: 'create'
+            smartMerge: false
         });
 
         await checker.checkAsync({ items, context, accessRequested });

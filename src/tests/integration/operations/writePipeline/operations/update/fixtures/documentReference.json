@@ -1,0 +1,14 @@
+{
+  "resourceType": "DocumentReference",
+  "id": "put-parity-document",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      { "system": "https://www.icanbwell.com/access", "code": "client" },
+      { "system": "https://www.icanbwell.com/owner", "code": "client" }
+    ]
+  },
+  "status": "current",
+  "description": "first",
+  "content": [{ "attachment": { "contentType": "text/plain", "data": "cGFyaXR5" } }]
+}

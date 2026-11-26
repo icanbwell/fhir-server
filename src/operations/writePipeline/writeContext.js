@@ -2,7 +2,7 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 
 /**
  * The frozen, request-wide values passed to every step: the request info, the base version, the
- * parsed args, whether the write is a smart merge, and the operation name.
+ * parsed args, and whether the write is a smart merge.
  */
 class WriteContext {
     /**
@@ -10,9 +10,8 @@ class WriteContext {
      * @param {string} base_version
      * @param {Object} parsedArgs
      * @param {boolean} smartMerge
-     * @param {string} operationName
      */
-    constructor ({ requestInfo, base_version, parsedArgs, smartMerge, operationName }) {
+    constructor ({ requestInfo, base_version, parsedArgs, smartMerge }) {
         /**
          * @type {FhirRequestInfo}
          */
@@ -29,10 +28,6 @@ class WriteContext {
          * @type {boolean}
          */
         this.smartMerge = smartMerge;
-        /**
-         * @type {string}
-         */
-        this.operationName = operationName;
         Object.freeze(this);
     }
 }
