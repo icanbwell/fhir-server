@@ -68,6 +68,7 @@ describe('EverythingHelper client disconnect', () => {
     }
 
     beforeEach(() => {
+        jest.clearAllMocks();
         const { EverythingHelper } = require('../../../../operations/everything/everythingHelper');
         everythingHelper = Object.create(EverythingHelper.prototype);
         everythingHelper.configManager = {};
@@ -130,5 +131,41 @@ describe('EverythingHelper client disconnect', () => {
 
     test('assertClientConnected is a no-op without a streamer', () => {
         expect(() => everythingHelper.assertClientConnected({ responseStreamer: undefined })).not.toThrow();
+    });
+
+    test('markHandled prevents an unhandledRejection but still rejects for the awaiting caller', async () => {
+        const { markHandled } = require('../../../../operations/everything/everythingHelper');
+        const unhandled = jest.fn();
+        process.on('unhandledRejection', unhandled);
+        try {
+            const pending = markHandled(Promise.reject(new ClientDisconnectedError()));
+            await new Promise((resolve) => setImmediate(resolve));
+            expect(unhandled).not.toHaveBeenCalled();
+            await expect(pending).rejects.toBeInstanceOf(ClientDisconnectedError);
+        } finally {
+            process.off('unhandledRejection', unhandled);
+        }
+    });
+
+    test('retriveEverythingAsync rethrows ClientDisconnectedError unwrapped, without a failure audit or error log', async () => {
+        const logging = require('../../../../operations/common/logging');
+        const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+        everythingHelper.supportedResources = ['Patient'];
+        everythingHelper._logAuditForRequestAsync = jest.fn();
+        everythingHelper.redisStreamManager = { deleteStream: jest.fn() };
+        const streamer = createStreamer({ destroyed: true, writableFinished: false });
+
+        await expect(everythingHelper.retriveEverythingAsync({
+            requestInfo: { userType: undefined },
+            base_version: '4_0_0',
+            resourceType: 'Patient',
+            parsedArgs: Object.assign(Object.create(ParsedArgs.prototype), {
+                get: () => { throw new ClientDisconnectedError(); }
+            }),
+            responseStreamer: streamer
+        })).rejects.toBeInstanceOf(ClientDisconnectedError);
+
+        expect(everythingHelper._logAuditForRequestAsync).not.toHaveBeenCalled();
+        expect(logging.logError).not.toHaveBeenCalled();
     });
 });

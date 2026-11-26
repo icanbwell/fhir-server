@@ -22,6 +22,7 @@ const { filterGraphResources } = require('../../utils/filterGraphResources');
 const { CMSManager } = require('../../utils/cmsManager');
 const { trace } = require('@opentelemetry/api');
 const { logInfo } = require('../common/logging');
+const { ClientDisconnectedError } = require('../../utils/clientDisconnectedError');
 
 class EverythingOperation {
     /**
@@ -122,6 +123,10 @@ class EverythingOperation {
                 viewControlSubject
             });
         } catch (err) {
+            if (err instanceof ClientDisconnectedError) {
+                // a client abort is not an operation failure; app.js already logs the aborted request
+                throw err;
+            }
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -397,6 +402,10 @@ class EverythingOperation {
                 return result;
             }
         } catch (err) {
+            if (err instanceof ClientDisconnectedError) {
+                // a client abort is not an operation failure; app.js already logs the aborted request
+                throw err;
+            }
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

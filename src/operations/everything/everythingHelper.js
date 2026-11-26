@@ -14,7 +14,7 @@ const { EnrichmentManager } = require('../../enrich/enrich');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
-const { logError } = require('../common/logging');
+const { logError, logWarn } = require('../common/logging');
 const { ClientDisconnectedError } = require('../../utils/clientDisconnectedError');
 const { sliceIntoChunksGenerator, sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
@@ -88,6 +88,25 @@ const { recordOutboundEverything } = require('../../utils/metrics');
  */
 function escapeForJsonTemplate(value) {
     return JSON.stringify(String(value)).slice(1, -1);
+}
+
+/**
+ * Marks a promise as handled so that, if the caller exits early (e.g. the client disconnected) before
+ * awaiting it, its rejection is not reported as an unhandledRejection (which shuts the process down).
+ * The caller still sees the rejection when it awaits the same promise later.
+ * @template T
+ * @param {Promise<T>} promise
+ * @return {Promise<T>}
+ */
+function markHandled(promise) {
+    promise.catch((e) => {
+        // a disconnect is expected; anything else is surfaced when the caller awaits, but log it in
+        // case the caller exited early and never does
+        if (!(e instanceof ClientDisconnectedError)) {
+            logWarn('Error in abandoned $everything fetch', { error: e?.message });
+        }
+    });
+    return promise;
 }
 
 /**
@@ -804,6 +823,13 @@ class EverythingHelper {
 
             return bundle;
         } catch (error) {
+            if (error instanceof ClientDisconnectedError) {
+                // nobody is waiting: drop a half-written cache entry, skip the failure audit and error log
+                if (cachedStreamer && !cachedStreamer.isFirstEntry) {
+                    await this.redisStreamManager.deleteStream(cacheKey);
+                }
+                throw error;
+            }
             if (responseStreamer) {
                 const statusCode = error.statusCode || 500;
                 this._logAuditForRequestAsync({
@@ -1248,7 +1274,7 @@ class EverythingHelper {
                                 viewControlExcludeMap: resourceToExcludeIdsMap
                             });
 
-                            depthParallelProcess.push(result);
+                            depthParallelProcess.push(markHandled(result));
 
                             if (depthParallelProcess.length >= this.configManager.everythingMaxParallelProcess) {
                                 const depthResults = await settleAllOrThrow(depthParallelProcess);
@@ -1311,6 +1337,9 @@ class EverythingHelper {
                 streamedResources
             })
         } catch (e) {
+            if (e instanceof ClientDisconnectedError) {
+                throw e;
+            }
             logError(`Error in retrieveEverythingMulipleIdsAsync(): ${e.message}`, { error: e });
             throw new RethrownError({
                 message: 'Error in retrieveEverythingMulipleIdsAsync(): ' +
@@ -1907,7 +1936,7 @@ class EverythingHelper {
                 viewControlExcludeMap: resourceToExcludeIdsMap
             })
 
-            parallelProcess.push(promiseResult)
+            parallelProcess.push(markHandled(promiseResult))
 
             queryItems.push(new QueryItem({
                 query,
@@ -2346,5 +2375,6 @@ module.exports = {
     EverythingHelper,
     escapeForJsonTemplate,
     getEverythingIdChunks,
+    markHandled,
     pushAll
 };
