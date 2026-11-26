@@ -4,7 +4,9 @@
             {
                 "id": "0af7ad3f-9f37-1a62-09e4-4ca127531c51",
                 "type": "allergy",
-                "allergyCategory": ["environment"],
+                "allergyCategory": [
+                    "environment"
+                ],
                 "criticality": "low",
                 "code": {
                     "text": "Mold (organism)"
@@ -13,7 +15,9 @@
             {
                 "id": "e039c680-1024-34ff-d9d8-5d87feada4d5",
                 "type": "allergy",
-                "allergyCategory": ["environment"],
+                "allergyCategory": [
+                    "environment"
+                ],
                 "criticality": "low",
                 "code": {
                     "text": "Bee venom (substance)"
@@ -91,13 +95,16 @@
                 "careTeamName": "Favorites",
                 "status": "active"
             },
+            null,
             {
                 "id": "88d5028b-42d5-569b-8b3c-beb24c00c6c4",
                 "__typename": "Patient",
                 "name": [
                     {
                         "family": "PATIENT1",
-                        "given": ["SHYLA"]
+                        "given": [
+                            "SHYLA"
+                        ]
                     }
                 ],
                 "birthDate": "2017-01-01"
