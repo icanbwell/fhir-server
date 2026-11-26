@@ -1,7 +1,11 @@
 'use strict';
 
 const { describe, test, expect } = require('@jest/globals');
-const { removeNull, removeNullFromArray } = require('../../../utils/nullRemover');
+const {
+    removeNull,
+    removeNullFromArray,
+    removeNullFromGraphQLResult
+} = require('../../../utils/nullRemover');
 
 describe('nullRemover', () => {
     describe('removeNull', () => {
@@ -91,6 +95,41 @@ describe('nullRemover', () => {
             const obj = { d: date };
             removeNullFromArray(obj);
             expect(obj.d).toBe(date);
+        });
+    });
+
+    describe('removeNullFromGraphQLResult', () => {
+        test.each([
+            ['all resolved', [{ id: '1' }, { id: '2' }], [{ id: '1' }, { id: '2' }]],
+            ['some unresolved', [null, { id: '2' }, null], [null, { id: '2' }, null]],
+            ['none resolved', [null, null], [null, null]],
+            ['empty entity', [{}, { id: '2' }], [{}, { id: '2' }]]
+        ])('keeps one _entities item per representation: %s', (_name, entities, expected) => {
+            const result = removeNullFromGraphQLResult({ data: { _entities: entities } });
+            expect(result.data._entities).toStrictEqual(expected);
+        });
+
+        test('still removes nulls inside entities and other arrays', () => {
+            const result = removeNullFromGraphQLResult({
+                data: {
+                    _entities: [{ id: '1', tags: ['a', null, 'b'] }, null],
+                    patient: [null, { id: '3' }]
+                }
+            });
+            expect(result.data._entities).toStrictEqual([{ id: '1', tags: ['a', 'b'] }, null]);
+            expect(result.data.patient).toStrictEqual([{ id: '3' }]);
+        });
+
+        test('behaves like removeNullFromArray without _entities', () => {
+            const result = removeNullFromGraphQLResult({ data: { patient: [null, { id: '1' }] } });
+            expect(result).toStrictEqual({ data: { patient: [{ id: '1' }] } });
+        });
+
+        test('returns a result without data unchanged', () => {
+            expect(removeNullFromGraphQLResult({ errors: [{ message: 'x' }] })).toStrictEqual({
+                errors: [{ message: 'x' }]
+            });
+            expect(removeNullFromGraphQLResult(null)).toBeNull();
         });
     });
 });
