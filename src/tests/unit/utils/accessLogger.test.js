@@ -156,6 +156,60 @@ describe('AccessLogger', () => {
             expect(accessLogger.queue).toHaveLength(1);
         });
 
+        test.each([
+            ['v2 endpoint', '/4_0_0/$graphqlv2', '$graphqlv2'],
+            ['v1 endpoint', '/$graphql', '$graphql']
+        ])('should log a GraphQL request on the %s that resolved no resource type', async (_, baseUrl, expected) => {
+            // inside the mounted GraphQL routers req.url is stripped to '/'
+            const req = { method: 'POST', url: '/', baseUrl, isGraphQLRoute: true, headers: {} };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue).toHaveLength(1);
+            expect(accessLogger.queue[0].doc.request.resourceType).toBe(expected);
+        });
+
+        test.each([
+            ['an unknown mount path', '/4_0_0/Patient'],
+            ['a missing mount path', undefined]
+        ])('should not log a GraphQL route request with %s as a resource type', async (_, baseUrl) => {
+            const req = { method: 'POST', url: '/', baseUrl, isGraphQLRoute: true, headers: {} };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue).toHaveLength(0);
+        });
+
+        test.each([
+            ['a query', '{ patient { id } }', 'READ'],
+            ['a federation _entities query', 'query($r: [_Any!]!) { _entities(representations: $r) { __typename } }', 'READ'],
+            ['an unparsable document', '{ nope', 'READ'],
+            ['no query text (persisted-query hash)', undefined, 'WRITE'],
+            ['a mutation', 'mutation { createThing { id } }', 'WRITE'],
+            ['a mutation after a query', 'query A { a } mutation B { b }', 'WRITE']
+        ])('should set the operation of a GraphQL POST with %s to %s', async (_, query, expected) => {
+            // req.url is stripped to '/' inside the mounted GraphQL routers
+            const req = {
+                method: 'POST', url: '/', baseUrl: '/4_0_0/$graphqlv2', isGraphQLRoute: true,
+                body: { query }, headers: {}
+            };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue[0].doc.request.operation).toBe(expected);
+        });
+
+        test('should prefer req.resourceType over the endpoint name on a GraphQL route', async () => {
+            const req = {
+                resourceType: 'Patient', method: 'POST', url: '/', baseUrl: '/4_0_0/$graphqlv2',
+                isGraphQLRoute: true, headers: {}
+            };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue[0].doc.request.resourceType).toBe('Patient');
+        });
+
         test('should set operation to READ for GET requests', async () => {
             const req = { resourceType: 'Patient', method: 'GET', url: '/Patient', headers: {} };
             await accessLogger.logAccessLogAsync({

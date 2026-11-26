@@ -91,7 +91,7 @@ jestGlobal.mock('../../../../middleware/graphql/plugins/graphqlValidateMissingVa
 }));
 
 jestGlobal.mock('../../../../utils/nullRemover', () => ({
-    removeNullFromArray: jestGlobal.fn().mockImplementation((val) => val)
+    removeNullFromGraphQLResult: jestGlobal.fn().mockImplementation((val) => val)
 }));
 
 jestGlobal.mock('../../../../graphqlv2/resolvers', () => ({}));
@@ -546,14 +546,14 @@ describe('graphqlServerV2 - Security Tests', () => {
     });
 
     describe('stringifyResult', () => {
-        test('stringifyResult removes null values from arrays via removeNullFromArray', async () => {
-            const { removeNullFromArray } = require('../../../../utils/nullRemover');
+        test('stringifyResult removes null values from arrays via removeNullFromGraphQLResult', async () => {
+            const { removeNullFromGraphQLResult } = require('../../../../utils/nullRemover');
             const config = await getApolloConfig(mockContainer);
             const testValue = { data: { patient: [null, { id: '1' }] } };
 
             config.stringifyResult(testValue);
 
-            expect(removeNullFromArray).toHaveBeenCalledWith(testValue);
+            expect(removeNullFromGraphQLResult).toHaveBeenCalledWith(testValue);
         });
 
         test('stringifyResult returns pretty-printed JSON', async () => {
