@@ -97,7 +97,7 @@ describe.each(WRITE_MODES)('DocumentReference attachments across a flag change [
             .toEqual([SMALL_DATA, OTHER_SMALL_DATA, LARGE_DATA]);
     });
 
-    // Expected per the ticket (mixed document): attachment 1 is replaced. Its GridFS file is
+    // Expected for a mixed document: attachment 1 is replaced. Its GridFS file is
     // soft-deleted (metadata.active=false) and its new data is written through Base64DataManager
     // (above the threshold: S3 plus _blobMeta). Attachment 2 stays in GridFS and still reads back.
     test('PATCH replacing the data of a GridFS attachment soft-deletes its file and writes the new data through Base64DataManager', async () => {

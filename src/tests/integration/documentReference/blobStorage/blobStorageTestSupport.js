@@ -154,7 +154,7 @@ const getGridFsFiles = async () => (await getDb()).collection('fs.files').find({
 const findGridFsFile = async (fileId) => (await getDb()).collection('fs.files')
     .findOne({ _id: new ObjectId(fileId) });
 
-// Live-bucket objects of one document, found by prefix (the key layout is not part of this ticket)
+// Live-bucket objects of one document, found by prefix (the key layout is an implementation detail)
 const getLiveObjects = (uuid) => Object.entries(getTestContainer().base64FieldCloudStorageClient.uploadedData)
     .filter(([key]) => key.startsWith(`DocumentReference_4_0_0/${uuid}/`));
 
