@@ -17,7 +17,10 @@ jestObj.mock('../../../operations/common/logging', () => ({
 }));
 
 const { logInfo, logError } = require('../../../operations/common/logging');
-const { PostSaveProcessor, SLOW_HANDLER_FLUSH_THRESHOLD_MS } = require('../../../dataLayer/postSaveProcessor');
+const {
+    PostSaveProcessor,
+    SLOW_HANDLER_FLUSH_THRESHOLD_MS
+} = require('../../../dataLayer/postSaveProcessor');
 
 describe('PostSaveProcessor', () => {
     let handler1;

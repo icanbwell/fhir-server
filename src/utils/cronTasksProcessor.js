@@ -44,7 +44,8 @@ class CronTasksProcessor {
      * Runs a background task and logs when it starts, finishes (with duration) or fails.
      * Errors are rethrown so the existing cron error handling is unchanged.
      * @param {string} taskName
-     * @param {() => Promise<number|void>} fnTask (a numeric result is logged as the number of entries dispatched)
+     * @param {() => Promise<number|void>} fnTask a numeric result is logged as the number of
+     *   entries dispatched
      * @return {Promise<void>}
      */
     async runTaskAsync(taskName, fnTask) {
@@ -79,7 +80,9 @@ class CronTasksProcessor {
             name: 'CronTasksProcessor',
             cronTime: this.configManager.postRequestFlushTime,
             onTick: async () => {
-                await this.runTaskAsync('postSaveProcessorFlush', () => this.postSaveProcessor.flushAsync());
+                await this.runTaskAsync('postSaveProcessorFlush', () =>
+                    this.postSaveProcessor.flushAsync()
+                );
                 await this.runTaskAsync('auditLoggerFlush', () => this.auditLogger.flushAsync());
                 await this.runTaskAsync('accessLoggerFlush', () => this.accessLogger.flushAsync());
             },
