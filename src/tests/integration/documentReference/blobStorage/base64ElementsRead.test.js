@@ -5,7 +5,8 @@ const { commonAfterEach, commonBeforeEach, getHeaders, mockHttpContext } = requi
 const {
     ENV_FLAG_OFF, ENV_ON, LARGE_DATA, SMALL_DATA, WRITES,
     attachmentOf, buildDocumentReference, createRequestAsync,
-    getMongoDocument, restoreEnv, saveEnv, settle
+    getMongoDocument, restoreEnv, saveEnv, settle,
+    WRITE_MODES, applyWriteMode
 } = require('./blobStorageTestSupport');
 
 // How each document is stored, checked in Mongo before the read
@@ -24,12 +25,13 @@ const STORED = {
     }
 };
 
-describe('DocumentReference search with _elements=content and the flag on', () => {
+describe.each(WRITE_MODES)('DocumentReference search with _elements=content and the flag on [%s]', (_mode, operations) => {
     let savedEnv;
     let requestId;
 
     beforeEach(async () => {
         savedEnv = saveEnv();
+        applyWriteMode(operations);
         await commonBeforeEach();
         requestId = mockHttpContext();
     });

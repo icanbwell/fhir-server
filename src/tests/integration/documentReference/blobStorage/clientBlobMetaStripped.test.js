@@ -10,6 +10,7 @@ const {
     getTestContainer,
     mockHttpContext
 } = require('../../common');
+const { WRITE_MODES, applyWriteMode } = require('./blobStorageTestSupport');
 
 // GRIDFS_RESOURCES=DocumentReference comes from jest/setEnvVars.js for every test, so with the
 // DocumentReference Base64DataManager flag off, attachment data goes to GridFS.
@@ -87,13 +88,16 @@ const PATCHES = {
     ]
 };
 
-describe('DocumentReference client-supplied _blobMeta with the Base64DataManager flag off', () => {
+describe.each(WRITE_MODES)('DocumentReference client-supplied _blobMeta with the Base64DataManager flag off [%s]', (_mode, operations) => {
     let savedEnv;
     let requestId;
 
     beforeAll(() => {
-        savedEnv = Object.fromEntries(FLAG_ENV_KEYS.map((key) => [key, process.env[key]]));
+        savedEnv = Object.fromEntries(
+            [...FLAG_ENV_KEYS, 'WRITE_PIPELINE_OPERATIONS'].map((key) => [key, process.env[key]])
+        );
         FLAG_ENV_KEYS.forEach((key) => delete process.env[key]);
+        applyWriteMode(operations);
     });
 
     afterAll(() => {

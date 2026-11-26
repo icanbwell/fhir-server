@@ -5,16 +5,18 @@ const { commonAfterEach, commonBeforeEach, mockHttpContext } = require('../../co
 const {
     ENV_ON, LARGE_DATA, PATHS, SMALL_DATA, WRITES,
     attachmentOf, buildDocumentReference, createRequestAsync,
-    expectExternalized, expectInline, restoreEnv, saveEnv, settle
+    expectExternalized, expectInline, restoreEnv, saveEnv, settle,
+    WRITE_MODES, applyWriteMode
 } = require('./blobStorageTestSupport');
 
-describe('DocumentReference attachment writes with the Base64DataManager flag on', () => {
+describe.each(WRITE_MODES)('DocumentReference attachment writes with the Base64DataManager flag on [%s]', (_mode, operations) => {
     let savedEnv;
     let requestId;
     let request;
 
     beforeEach(async () => {
         savedEnv = saveEnv();
+        applyWriteMode(operations);
         await commonBeforeEach();
         requestId = mockHttpContext();
         request = await createRequestAsync(ENV_ON);

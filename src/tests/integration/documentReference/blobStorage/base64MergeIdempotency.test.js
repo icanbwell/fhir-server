@@ -5,7 +5,8 @@ const { commonAfterEach, commonBeforeEach, getTestContainer, mockHttpContext } =
 const {
     ENV_FLAG_OFF, ENV_ON, LARGE_DATA, PATHS, SMALL_DATA, WRITES,
     attachmentOf, buildDocumentReference, createRequestAsync,
-    getGridFsFiles, getMongoDocument, restoreEnv, saveEnv, settle
+    getGridFsFiles, getMongoDocument, restoreEnv, saveEnv, settle,
+    WRITE_MODES, applyWriteMode
 } = require('./blobStorageTestSupport');
 
 // The array that holds the attachment on each path
@@ -13,12 +14,13 @@ const ARRAY_KEYS = ['content', 'extension', 'modifierExtension'];
 
 const s3ObjectKeys = () => Object.keys(getTestContainer().base64FieldCloudStorageClient.uploadedData);
 
-describe('DocumentReference $merge of an unchanged resource (idempotency) with attachments', () => {
+describe.each(WRITE_MODES)('DocumentReference $merge of an unchanged resource (idempotency) with attachments [%s]', (_mode, operations) => {
     let savedEnv;
     let requestId;
 
     beforeEach(async () => {
         savedEnv = saveEnv();
+        applyWriteMode(operations);
         await commonBeforeEach();
         requestId = mockHttpContext();
     });

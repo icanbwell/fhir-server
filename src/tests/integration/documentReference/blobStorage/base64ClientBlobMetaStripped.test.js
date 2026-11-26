@@ -7,7 +7,8 @@ const {
 const {
     ENV_ON, SMALL_DATA, WRITES,
     attachmentOf, buildDocumentReference, createRequestAsync,
-    getGridFsFiles, getMongoDocument, restoreEnv, saveEnv, settle
+    getGridFsFiles, getMongoDocument, restoreEnv, saveEnv, settle,
+    WRITE_MODES, applyWriteMode
 } = require('./blobStorageTestSupport');
 
 const PLANTED_BLOB_META = { hash: 'planted-hash', rawSize: 1, lastUpdated: '2026-01-01T00:00:00.000Z' };
@@ -15,13 +16,14 @@ const POINTER = '/content/0/attachment';
 
 const s3ObjectKeys = () => Object.keys(getTestContainer().base64FieldCloudStorageClient.uploadedData);
 
-describe('DocumentReference client-supplied _blobMeta with the Base64DataManager flag on', () => {
+describe.each(WRITE_MODES)('DocumentReference client-supplied _blobMeta with the Base64DataManager flag on [%s]', (_mode, operations) => {
     let savedEnv;
     let requestId;
     let request;
 
     beforeEach(async () => {
         savedEnv = saveEnv();
+        applyWriteMode(operations);
         await commonBeforeEach();
         requestId = mockHttpContext();
         request = await createRequestAsync(ENV_ON);

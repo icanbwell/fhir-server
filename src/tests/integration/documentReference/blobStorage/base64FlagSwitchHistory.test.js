@@ -5,15 +5,17 @@ const { commonAfterEach, commonBeforeEach, getHeaders, mockHttpContext } = requi
 const {
     ENV_FLAG_OFF, ENV_ON, SMALL_DATA, WRITES,
     attachmentOf, buildDocumentReference, createRequestAsync,
-    getMongoDocument, restoreEnv, saveEnv, settle
+    getMongoDocument, restoreEnv, saveEnv, settle,
+    WRITE_MODES, applyWriteMode
 } = require('./blobStorageTestSupport');
 
-describe('DocumentReference history of a GridFS attachment once the flag is on', () => {
+describe.each(WRITE_MODES)('DocumentReference history of a GridFS attachment once the flag is on [%s]', (_mode, operations) => {
     let savedEnv;
     let requestId;
 
     beforeEach(async () => {
         savedEnv = saveEnv();
+        applyWriteMode(operations);
         await commonBeforeEach();
         requestId = mockHttpContext();
     });

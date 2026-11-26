@@ -7,17 +7,19 @@ const {
 const {
     ENV_FLAG_OFF, ENV_ON, LARGE_DATA, OTHER_SMALL_DATA, SMALL_DATA, WRITES,
     attachmentOf, buildDocumentReference, createRequestAsync,
-    findGridFsFile, getGridFsFiles, getLiveObjects, getMongoDocument, restoreEnv, saveEnv, settle
+    findGridFsFile, getGridFsFiles, getLiveObjects, getMongoDocument, restoreEnv, saveEnv, settle,
+    WRITE_MODES, applyWriteMode
 } = require('./blobStorageTestSupport');
 
 const contentOf = (...datas) => datas.map((data) => ({ attachment: attachmentOf(data) }));
 
-describe('DocumentReference attachments across a flag change', () => {
+describe.each(WRITE_MODES)('DocumentReference attachments across a flag change [%s]', (_mode, operations) => {
     let savedEnv;
     let requestId;
 
     beforeEach(async () => {
         savedEnv = saveEnv();
+        applyWriteMode(operations);
         await commonBeforeEach();
         requestId = mockHttpContext();
     });
