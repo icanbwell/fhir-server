@@ -50,9 +50,6 @@
     "subject._uuid",
     "author._uuid"
   ],
-  "Binary": [
-    "securityContext._uuid"
-  ],
   "BiologicallyDerivedProduct": [
     "collection.collector._uuid",
     "collection.source._uuid",
@@ -363,8 +360,7 @@
     "author._uuid",
     "authenticator._uuid",
     "custodian._uuid",
-    "context.related._uuid",
-    "content.attachment.url"
+    "context.related._uuid"
   ],
   "Encounter": [
     "participant.individual._uuid",
@@ -510,9 +506,6 @@
   "ImplementationGuide": [
     "useContext.valueReference._uuid",
     "definition.resource.reference._uuid",
-    "definition.page.nameReference._uuid",
-    "definition.page.page.nameReference._uuid",
-    "definition.page.page.page.nameReference._uuid",
     "manifest.resource.reference._uuid"
   ],
   "Ingredient": [

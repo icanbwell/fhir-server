@@ -241,9 +241,11 @@ class MongoDatabaseManager {
     /**
      * Creates a new connection
      * @param {Object} clientConfig
+     * @param {Object} [options]
+     * @param {import('./mongoCheckoutTimeoutTracker').MongoCheckoutTimeoutTracker} [options.checkoutTimeoutTracker]
      * @returns {Promise<import('mongodb').MongoClient>}
      */
-    async createClientAsync (clientConfig) {
+    async createClientAsync (clientConfig, { checkoutTimeoutTracker } = {}) {
         const parts = clientConfig.connection.split(':');
         const server = clientConfig.connection.substring(clientConfig.connection.indexOf('@'));
         const maskedConnection = `${parts[0]}:${parts[1]}:***********${server}`;
@@ -267,7 +269,7 @@ class MongoDatabaseManager {
         // minPoolSize are counted too. Always on -- this is a fixed set of
         // instruments, unlike the per-command logging gated behind LOG_ALL_MONGO_CALLS
         // below, which is far too chatty to leave enabled.
-        registerMongoPoolMonitoring({ client, poolName: clientConfig.db_name });
+        registerMongoPoolMonitoring({ client, poolName: clientConfig.db_name, checkoutTimeoutTracker });
 
         try {
             await client.connect();
@@ -341,14 +343,23 @@ class MongoDatabaseManager {
     }
 
     /**
+     * @param {Object} [options]
+     * @param {(poolName: string) => import('./mongoCheckoutTimeoutTracker').MongoCheckoutTimeoutTracker} [options.createCheckoutTimeoutTracker]
+     *   Builds the tracker for the primary request-path pool only. Omitted outside the HTTP server.
      * @return {Promise<void>}
      */
-    async connectAsync () {
+    async connectAsync ({ createCheckoutTimeoutTracker } = {}) {
         if (clientConnection) {
             return;
         }
         const clientConfig = await this.getClientConfigAsync();
-        const client = await this.createClientAsync(clientConfig);
+        // Only the primary request-path pool gets a checkout-timeout tracker. The background
+        // pools below (audit-event, online-archive, access-logs, resource-history) have their
+        // own, longer wait-queue timeout; a saturated one must not restart the worker. Admin
+        // scripts, index management and the lazy fhir-notes pool never get a tracker either.
+        const client = await this.createClientAsync(clientConfig, {
+            checkoutTimeoutTracker: createCheckoutTimeoutTracker?.(clientConfig.db_name)
+        });
 
         for (const warning of this.postRequestWritesOnPrimaryPoolWarnings({
             auditConfig: await this.getAuditConfigAsync(),

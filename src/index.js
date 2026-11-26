@@ -43,6 +43,12 @@ const numCPUs = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT, 10
 if (cluster.isPrimary && numCPUs > 1) {
     console.log(JSON.stringify({message: `Master ${process.pid} is running with ${numCPUs} workers`}));
 
+    // Workers read these in createServer. Validate here too so a malformed value ends the
+    // container (Kubernetes backs off) instead of crash-looping re-forked workers.
+    const { readCheckoutTimeoutExitSettings, readShutdownTimings } = require('./utils/mongoCheckoutTimeoutTracker');
+    readCheckoutTimeoutExitSettings(process.env);
+    readShutdownTimings(process.env);
+
     // Fork workers
     for (let i = 0; i < numCPUs; i++) {
         cluster.fork();

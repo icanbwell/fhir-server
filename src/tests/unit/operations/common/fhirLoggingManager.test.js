@@ -391,6 +391,24 @@ describe('FhirLoggingManager', () => {
         });
     });
 
+    describe('id exclusion args', () => {
+        test.each(['_id:not', 'id:not'])('leaves %s out of the logged detail', async (key) => {
+            await fhirLoggingManager.internalLogOperationAsync({
+                requestInfo: createRequestInfo(),
+                args: { [key]: 'hidden-1,hidden-2', _id: 'wanted-1' },
+                resourceType: 'Patient',
+                startTime: 1000,
+                stopTime: 2000,
+                message: 'test',
+                action: 'read'
+            });
+
+            const detail = mockLogger.info.mock.calls[0][0].entity[0].detail;
+            expect(detail.find(d => d.type === key)).toBeUndefined();
+            expect(detail.find(d => d.type === '_id')).toEqual({ type: '_id', valueString: 'wanted-1' });
+        });
+    });
+
     describe('constructor', () => {
         test('should throw if scopesManager is wrong type', () => {
             expect(() => new FhirLoggingManager({

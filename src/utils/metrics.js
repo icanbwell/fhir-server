@@ -73,7 +73,8 @@ const LABEL = Object.freeze({
     POOL: 'pool',
     REASON: 'reason',
     STATUS: 'status',
-    GROUP_ID: 'group_id'
+    GROUP_ID: 'group_id',
+    SUBJECT: 'subject'
 });
 
 const OUTCOME = Object.freeze({
@@ -149,6 +150,40 @@ const GROUP_MEMBER_MERGE_OUTCOME = Object.freeze({
     NO_CHANGE: 'no_change',
     // sent for a member over the per-member entry limit, so the write was rejected
     REJECTED: 'rejected'
+});
+
+// What the data view control lookup did for one subject in one request. hidden: the Consent hides
+// at least one resource. no_consent: an enrolled owner with nothing hidden. not_enrolled: the
+// owner is not in clientsWithDataConnectionViewControl, so no Consent was searched. no_person:
+// the user is linked to no visible Person. fail_closed: the lookup failed and the request failed
+// with it, rather than returning unfiltered data.
+const VIEW_CONTROL_OUTCOME = Object.freeze({
+    HIDDEN: 'hidden',
+    NO_CONSENT: 'no_consent',
+    NOT_ENROLLED: 'not_enrolled',
+    NO_PERSON: 'no_person',
+    FAIL_CLOSED: 'fail_closed'
+});
+
+// Whose Consent is applied: the user in the token, or the URL Person of a service token's
+// `_applyDataViewControl` opt-in.
+const VIEW_CONTROL_SUBJECT = Object.freeze({
+    USER: 'user',
+    OPT_IN: 'opt_in'
+});
+
+// Why a fail_closed lookup failed; anything else collapses to `error`.
+const VIEW_CONTROL_FAIL_REASON = Object.freeze({
+    NOT_FOUND: 'not_found',
+    FORBIDDEN: 'forbidden',
+    BAD_REQUEST: 'bad_request',
+    ERROR: 'error'
+});
+
+// Where a Consent-save cache invalidation failed after its retries.
+const CACHE_INVALIDATION_FAILURE = Object.freeze({
+    INCREMENT: 'increment',
+    LINKED_PATIENT_LOOKUP: 'linked_patient_lookup'
 });
 
 const UNKNOWN = 'unknown';
@@ -287,6 +322,10 @@ const historyMongoFallbackCounter = meter.createCounter('fhir_history_mongo_fall
     description: 'History documents written to MongoDB because the Kafka produce failed while the MongoDB history write is disabled, by resource_type and reason.'
 });
 
+const historyMongoFallbackFailedCounter = meter.createCounter('fhir_history_mongo_fallback_failed_total', {
+    description: 'History documents that could not be written to Kafka or to the MongoDB fallback, so history is lost, by resource_type and reason.'
+});
+
 const importOperationsTriggeredCounter = meter.createCounter('fhir_import_operations_triggered_total', {
     description: 'Bulk $import operations triggered — one per TaskCreated event the orchestrator begins processing (Task found, before S3 validation).'
 });
@@ -350,6 +389,10 @@ const groupMemberMergeEntriesCounter = meter.createCounter('fhir_group_member_me
     description: 'Group member entries a write did not store as sent, by outcome: merged_away (merged into the first entry of the same member), left_as_is (not merged, entity.reference is not a relative Type/id reference; counted only when the same write merged other entries), no_change (an extended Group add equal to the stored member, so nothing was written) and rejected (sent for a member over the per-member entry limit, so the write was rejected).'
 });
 
+const mongoCheckoutTimeoutSelfExitCounter = meter.createCounter('fhir_mongo_checkout_timeout_self_exit_total', {
+    description: 'Workers that shut themselves down after repeated MongoDB checkout timeouts on one pool, by pool. Each is a wedged pool that the cluster primary (or Kubernetes, in single-process mode) replaced with a fresh process.'
+});
+
 const mongoPoolCheckoutDurationHistogram = meter.createHistogram('fhir_mongo_pool_checkout_duration_seconds', {
     description: 'Time a request waited to check a connection out of a MongoDB pool, by pool. Recorded for successful and failed checkouts alike. This wait is invisible to the OTel mongodb instrumentation, which spans only the wire command -- a starved pool shows up there as a fast query preceded by nothing.',
     unit: 's',
@@ -387,6 +430,14 @@ const mongoPoolConnectionsInUseUpDownCounter = meter.createUpDownCounter('fhir_m
 
 const mongoPoolWaitQueueSizeUpDownCounter = meter.createUpDownCounter('fhir_mongo_pool_wait_queue_size', {
     description: 'Requests currently waiting to check a connection out of a MongoDB pool, by pool. Any sustained non-zero value means requests are queued behind fhir_mongo_pool_connections_in_use before their query starts. Derived from checkout started/finished events, so alert on it staying above 0 for a sustained period, not on a single sample.'
+});
+
+const viewControlOutcomeCounter = meter.createCounter('fhir_view_control_outcome_total', {
+    description: 'Data view control lookups, once per subject per request, by outcome (hidden|no_consent|not_enrolled|no_person|fail_closed), subject (user|opt_in) and, for fail_closed, reason. hidden / (hidden + no_consent) is how often the block changes a response; fail_closed is a read refused because the Consent could not be checked; opt_in is service-token use of _applyDataViewControl.'
+});
+
+const everythingCacheInvalidationFailedCounter = meter.createCounter('fhir_everything_cache_invalidation_failed_total', {
+    description: 'Failed attempts to bump an $everything cache generation after a Consent save, after retries, by reason (increment|linked_patient_lookup). Each one leaves a window, up to the cache TTL, in which a cached $everything can still hold what the Consent now hides.'
 });
 
 /**
@@ -522,6 +573,19 @@ function recordKafkaRetryExhausted (topic, errorCode) {
  */
 function recordHistoryMongoFallback (resourceType, count, reason) {
     historyMongoFallbackCounter.add(count, {
+        [LABEL.RESOURCE_TYPE]: resourceType || UNKNOWN,
+        [LABEL.REASON]: reason || UNKNOWN
+    });
+}
+
+/**
+ * Count history documents lost because the Kafka produce failed and the MongoDB fallback write failed too.
+ * @param {string} resourceType
+ * @param {number} count documents that were not written to MongoDB
+ * @param {string} reason why the fallback write failed
+ */
+function recordHistoryMongoFallbackFailed (resourceType, count, reason) {
+    historyMongoFallbackFailedCounter.add(count, {
         [LABEL.RESOURCE_TYPE]: resourceType || UNKNOWN,
         [LABEL.REASON]: reason || UNKNOWN
     });
@@ -679,6 +743,14 @@ function recordGroupMemberMergeEntries (outcome, count = 1) {
 }
 
 /**
+ * Emit fhir_mongo_checkout_timeout_self_exit_total.
+ * @param {string} pool
+ */
+function recordMongoCheckoutTimeoutSelfExit (pool) {
+    mongoCheckoutTimeoutSelfExitCounter.add(1, { [LABEL.POOL]: pool || UNKNOWN });
+}
+
+/**
  * Emit fhir_mongo_pool_checkout_duration_seconds. The driver reports the wait in
  * milliseconds; the instrument is in seconds to match the other duration histograms here.
  * @param {string} pool
@@ -749,6 +821,35 @@ function recordMongoPoolWaitQueueSizeChange (pool, delta) {
     mongoPoolWaitQueueSizeUpDownCounter.add(delta, { [LABEL.POOL]: pool || UNKNOWN });
 }
 
+/**
+ * Emit fhir_view_control_outcome_total. Every label is bounded: a value outside its vocabulary
+ * collapses to UNKNOWN.
+ * @param {string} outcome one of VIEW_CONTROL_OUTCOME
+ * @param {string} subject one of VIEW_CONTROL_SUBJECT
+ * @param {string} [reason] one of VIEW_CONTROL_FAIL_REASON, for fail_closed only
+ */
+function recordViewControlOutcome (outcome, subject, reason) {
+    const known = (vocabulary, value) => (Object.values(vocabulary).includes(value) ? value : UNKNOWN);
+    const labels = {
+        [LABEL.OUTCOME]: known(VIEW_CONTROL_OUTCOME, outcome),
+        [LABEL.SUBJECT]: known(VIEW_CONTROL_SUBJECT, subject)
+    };
+    if (outcome === VIEW_CONTROL_OUTCOME.FAIL_CLOSED) {
+        labels[LABEL.REASON] = known(VIEW_CONTROL_FAIL_REASON, reason);
+    }
+    viewControlOutcomeCounter.add(1, labels);
+}
+
+/**
+ * Emit fhir_everything_cache_invalidation_failed_total.
+ * @param {string} reason one of CACHE_INVALIDATION_FAILURE
+ */
+function recordEverythingCacheInvalidationFailed (reason) {
+    everythingCacheInvalidationFailedCounter.add(1, {
+        [LABEL.REASON]: Object.values(CACHE_INVALIDATION_FAILURE).includes(reason) ? reason : UNKNOWN
+    });
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -760,6 +861,7 @@ module.exports = {
     historyKafkaFailedCounter,
     historyKafkaProduceDurationHistogram,
     historyMongoFallbackCounter,
+    historyMongoFallbackFailedCounter,
     importOperationsTriggeredCounter,
     importResourcesProcessedCounter,
     importResourcesFailedCounter,
@@ -777,6 +879,8 @@ module.exports = {
     mongoPoolConnectionCreatedCounter,
     mongoPoolConnectionsInUseUpDownCounter,
     mongoPoolWaitQueueSizeUpDownCounter,
+    viewControlOutcomeCounter,
+    everythingCacheInvalidationFailedCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -787,6 +891,7 @@ module.exports = {
     recordHistoryKafkaProduce,
     recordHistoryClickHouseRead,
     recordHistoryMongoFallback,
+    recordHistoryMongoFallbackFailed,
     recordImportOperationTriggered,
     recordImportResourceOutcomes,
     recordImportRangeDuration,
@@ -796,12 +901,15 @@ module.exports = {
     recordImportTaskFinished,
     recordKafkaConsumerGroupJoin,
     recordGroupMemberMergeEntries,
+    recordMongoCheckoutTimeoutSelfExit,
     recordMongoPoolCheckoutDuration,
     recordMongoPoolCheckoutFailed,
     recordMongoPoolCleared,
     recordMongoPoolConnectionCreated,
     recordMongoPoolConnectionsInUseChange,
     recordMongoPoolWaitQueueSizeChange,
+    recordViewControlOutcome,
+    recordEverythingCacheInvalidationFailed,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
@@ -816,6 +924,10 @@ module.exports = {
     SUBSYSTEM,
     PATH,
     POOL_CHECKOUT_FAILURE_REASON,
+    VIEW_CONTROL_OUTCOME,
+    VIEW_CONTROL_SUBJECT,
+    VIEW_CONTROL_FAIL_REASON,
+    CACHE_INVALIDATION_FAILURE,
     IMPORT_RANGE_OUTCOME,
     IMPORT_TASK_STATUS,
     GROUP_MEMBER_MERGE_OUTCOME,

@@ -5,7 +5,7 @@ const { assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('../security/scopesManager');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const httpContext = require('express-http-context');
-const { REQUEST_ID_TYPE } = require('../../constants');
+const { REQUEST_ID_TYPE, ID_EXCLUSION_ARG_KEYS } = require('../../constants');
 
 class FhirLoggingManager {
     /**
@@ -123,7 +123,7 @@ class FhirLoggingManager {
          * resource can have PHI, so we strip it out for insecure logger
          * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
          */
-        const detail = Object.entries(args).filter(([k, _]) => k !== 'resource').map(([k, v]) => {
+        const detail = Object.entries(args).filter(([k, _]) => k !== 'resource' && !ID_EXCLUSION_ARG_KEYS.includes(k)).map(([k, v]) => {
                 return {
                     type: k,
                     valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
