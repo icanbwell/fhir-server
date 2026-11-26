@@ -362,9 +362,13 @@ class Base64DataManager {
      * @param {boolean} smartMerge - true: deepmerge semantics (omission keeps the old value); false:
      *        literal-replace semantics (omission means removal).
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {Map<string, string|undefined>|null} [mergedLeafValues] - what `captureMergedLeafValues`
+     *        returned. A leaf with an entry here takes its value from the merged result, not from
+     *        `resourceToMerge` at the same index; a leaf with none (a scalar leaf, or an array the
+     *        merge did not keep in place) takes it from `resourceToMerge`, as it always has.
      * @returns {Promise<Array<{op: string, path: string, value?: *}>>}
      */
-    async reconcileLeavesAsync (finalResource, currentResource, resourceToMerge, smartMerge, requestInfo) {
+    async reconcileLeavesAsync (finalResource, currentResource, resourceToMerge, smartMerge, requestInfo, mergedLeafValues = null) {
         if (!finalResource || !this.enableBase64FieldCloudStorage) {
             return [];
         }
@@ -373,7 +377,7 @@ class Base64DataManager {
             return [];
         }
         const patches = [];
-        for (const entry of entries) {
+        for (const [entryIndex, entry] of entries.entries()) {
             const dataSegments = this._parseJsonPointer(entry.dataPath);
             const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
             const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
@@ -383,8 +387,14 @@ class Base64DataManager {
                 if (!blobMeta || !blobMeta.hash) {
                     return; // not externalized — nothing to reconcile
                 }
-                const incomingParent = this._parentAt(resourceToMerge, dataSegments, indices);
-                const incomingValue = incomingParent ? incomingParent[leafKey] : undefined;
+                const mergedKey = this._mergedLeafKey(entryIndex, indices);
+                let incomingValue;
+                if (mergedLeafValues && mergedLeafValues.has(mergedKey)) {
+                    incomingValue = mergedLeafValues.get(mergedKey);
+                } else {
+                    const incomingParent = this._parentAt(resourceToMerge, dataSegments, indices);
+                    incomingValue = incomingParent ? incomingParent[leafKey] : undefined;
+                }
                 const resolvedPath = `/${this._substituteIndices(dataSegments, indices)}`;
                 if (typeof incomingValue === 'string') {
                     const finalParent = this._parentAt(finalResource, dataSegments, indices);
@@ -414,6 +424,99 @@ class Base64DataManager {
             });
         }
         return patches;
+    }
+
+    /**
+     * Captures, for each externalized leaf that sits in an array of `currentResource`, the value the
+     * merged result holds at the same position, before `excludeExternalizedLeaves` removes it from
+     * the merged result. The values are the strings themselves, nothing is copied. A stored element
+     * the merge kept in place and did not hydrate has no `data` there, so its value is `undefined`
+     * (omitted: keep it); one that was hydrated, or merged by id, holds the incoming `data`.
+     *
+     * `smartMerge` keeps the stored elements of an array in place and appends the new ones, so a
+     * position in the merged result is the same element as in `currentResource`. That does not hold
+     * when the incoming array has an element with a `sequence` (it is inserted among the stored
+     * ones) or an `id` that ends with `-delete` (it removes a stored one), or when the merged array
+     * is shorter than the stored one. For such an array no entry is captured, so `reconcileLeavesAsync`
+     * reads `resourceToMerge` by index, as it did before. Scalar leaves (a path with no "[]") are
+     * not captured either.
+     * @param {Object} mergedObject - the merged result; only read.
+     * @param {Object} currentResource - the stored resource.
+     * @param {Object} resourceToMerge - the incoming resource.
+     * @returns {Map<string, string|undefined>} the value per leaf, keyed as `_mergedLeafKey` does.
+     */
+    captureMergedLeafValues (mergedObject, currentResource, resourceToMerge) {
+        const values = new Map();
+        if (!mergedObject || !currentResource || !resourceToMerge || !this.enableBase64FieldCloudStorage) {
+            return values;
+        }
+        const entries = this.resourcePaths[currentResource.resourceType];
+        if (!entries) {
+            return values;
+        }
+        for (const [entryIndex, entry] of entries.entries()) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const lastArraySegment = dataSegments.lastIndexOf('[]');
+            if (lastArraySegment === -1) {
+                continue;
+            }
+            const arraySegments = dataSegments.slice(0, lastArraySegment);
+            const arrayDepth = arraySegments.filter((segment) => segment === '[]').length;
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            const leafKey = dataSegments[dataSegments.length - 1];
+            const keptInPlace = new Map();
+            this._processPathsSync(currentResource, dataSegments, [], ({ parent, indices }) => {
+                const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
+                if (!blobMeta || !blobMeta.hash) {
+                    return;
+                }
+                const arrayIndices = indices.slice(0, arrayDepth);
+                const arrayId = arrayIndices.join(',');
+                if (!keptInPlace.has(arrayId)) {
+                    keptInPlace.set(arrayId, this._isArrayMergedInPlace({
+                        arraySegments, arrayIndices, mergedObject, currentResource, resourceToMerge
+                    }));
+                }
+                if (!keptInPlace.get(arrayId)) {
+                    return;
+                }
+                const mergedParent = this._parentAt(mergedObject, dataSegments, indices);
+                values.set(this._mergedLeafKey(entryIndex, indices), mergedParent ? mergedParent[leafKey] : undefined);
+            });
+        }
+        return values;
+    }
+
+    /**
+     * Whether the array at `arraySegments` (with `arrayIndices` for any outer "[]") was merged so
+     * that each stored element is still at its own index: the merged array is not shorter than the
+     * stored one, and the incoming array has no element that is inserted by `sequence` or that
+     * removes a stored one with an `id` ending in `-delete`.
+     * @private
+     */
+    _isArrayMergedInPlace ({ arraySegments, arrayIndices, mergedObject, currentResource, resourceToMerge }) {
+        const arrayPath = [...arraySegments, '[]'];
+        const storedArray = this._parentAt(currentResource, arrayPath, arrayIndices);
+        const mergedArray = this._parentAt(mergedObject, arrayPath, arrayIndices);
+        if (!Array.isArray(storedArray) || !Array.isArray(mergedArray) || mergedArray.length < storedArray.length) {
+            return false;
+        }
+        const incomingArray = this._parentAt(resourceToMerge, arrayPath, arrayIndices);
+        if (!Array.isArray(incomingArray)) {
+            return true;
+        }
+        return !incomingArray.some((element) => element !== null && typeof element === 'object' &&
+            ('sequence' in element || (typeof element.id === 'string' && element.id.endsWith('-delete'))));
+    }
+
+    /**
+     * Key of one leaf in the map `captureMergedLeafValues` returns: the configured path (by its
+     * position in the resource type's entries) and the array indices.
+     * @private
+     */
+    _mergedLeafKey (entryIndex, indices) {
+        return `${entryIndex}|${indices.join(',')}`;
     }
 
     /**
