@@ -106,6 +106,7 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
     beforeEach(() => {
         ctx = makeManager();
         ctx.mgr.resourcePaths = { ...ctx.mgr.resourcePaths, DocRefFake: NESTED_CONFIG };
+        ctx.mgr.externalizationPaths = { ...ctx.mgr.externalizationPaths, DocRefFake: NESTED_CONFIG };
     });
 
     test('getLiveObjectRefsOrResourceLastUpdated falls back to resource.meta.lastUpdated for a leaf with no _blobMeta, but keeps the sidecar timestamp where one exists', () => {

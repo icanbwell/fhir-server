@@ -46,24 +46,26 @@ afterEach(() => {
 });
 
 describe('Base64DataManager DocumentReference resourcePaths gate', () => {
-    test('flag off: only Binary is configured', () => {
+    test('flag off: only Binary is externalized, DocumentReference stays in resourcePaths to protect pointers', () => {
         const manager = makeManager({ documentReferenceFlag: false });
 
-        expect(Object.keys(manager.resourcePaths)).toEqual(['Binary']);
+        expect(Object.keys(manager.externalizationPaths)).toEqual(['Binary']);
+        expect(Object.keys(manager.resourcePaths).sort()).toEqual(['Binary', 'DocumentReference']);
     });
 
-    test('flag on: DocumentReference has the three attachment paths', () => {
+    test('flag on: DocumentReference has the three attachment paths in both sets', () => {
         const manager = makeManager({ documentReferenceFlag: true });
 
-        expect(manager.resourcePaths.Binary).toBeDefined();
-        expect(manager.resourcePaths.DocumentReference.map((e) => e.dataPath)).toEqual([
+        expect(manager.externalizationPaths.Binary).toBeDefined();
+        expect(manager.externalizationPaths.DocumentReference.map((e) => e.dataPath)).toEqual([
             '/content/[]/attachment/data',
             '/extension/[]/valueAttachment/data',
             '/modifierExtension/[]/valueAttachment/data'
         ]);
+        expect(manager.resourcePaths.DocumentReference).toEqual(manager.externalizationPaths.DocumentReference);
     });
 
-    test('flag off: DocumentReference is returned untouched, data and sidecar alike', async () => {
+    test('flag off: INSERT and RETRIEVE return DocumentReference untouched, data and sidecar alike', async () => {
         const manager = makeManager({ documentReferenceFlag: false });
         const resource = {
             resourceType: 'DocumentReference',

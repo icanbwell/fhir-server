@@ -862,7 +862,7 @@ class SearchManager {
             // Only project _blobMeta sidecars when the corresponding `data` field is also
             // projected — otherwise Base64DataManager.transformAsync(RETRIEVE) has nothing
             // to rehydrate, so the sidecar would just be dead weight in the result.
-            const base64Entries = this.base64DataManager.resourcePaths[resourceType];
+            const base64Entries = this.base64DataManager.externalizationPaths[resourceType];
             if (base64Entries) {
                 for (const entry of base64Entries) {
                     const dataProjectionPath = entry.dataPath

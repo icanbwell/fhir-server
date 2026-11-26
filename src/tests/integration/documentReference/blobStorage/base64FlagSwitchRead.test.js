@@ -129,9 +129,10 @@ describe.each(WRITE_MODES)('DocumentReference attachments across a flag change [
             .toEqual([LARGE_DATA, OTHER_SMALL_DATA]);
     });
 
-    // Known limitation: with the flag off, an attachment already in S3 is not read back. The
-    // DocumentReference stays visible and nothing fails, but the attachment has no data.
-    test('an attachment externalized with the flag on is visible without data, and without an error, once it is off', async () => {
+    // By design: with the flag off, an attachment already in S3 is not read back, but its pointer
+    // is kept (see base64FlagOffPointerSafety). The DocumentReference stays visible and nothing
+    // fails, but the attachment has no data until the flag is on again.
+    test('an attachment externalized with the flag on is returned without data and with its pointer kept, once the flag is off', async () => {
         let request = await createRequestAsync(ENV_ON);
         const created = await WRITES.post(request, buildDocumentReference({ content: contentOf(LARGE_DATA) }));
         await settle(requestId);
@@ -163,5 +164,6 @@ describe.each(WRITE_MODES)('DocumentReference attachments across a flag change [
         expect(searchOff.body[0].content[0].attachment.data).toBeUndefined();
         expect(searchOff.body[0].content[0].attachment._blobMeta).toBeUndefined();
         expect((await getMongoDocument(id)).content[0].attachment._blobMeta).toEqual(stored._blobMeta);
+        expect(getLiveObjects((await getMongoDocument(id))._uuid)).toHaveLength(1);
     });
 });

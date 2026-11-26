@@ -192,7 +192,7 @@ describe('Base64DataManager.hydrateExternalizedLeavesFromIncomingAsync', () => {
         expect(view).toEqual(current);
     });
 
-    test('nothing is hydrated while the DocumentReference flag is off', async () => {
+    test('a stored pointer is hydrated by hash while the DocumentReference flag is off', async () => {
         const current = documentReference({ content: [contentItem({ _blobMeta: await blobMetaOf(DATA_A) })] });
         const incoming = documentReference({ content: [contentItem({ data: DATA_A })] });
 
@@ -200,8 +200,9 @@ describe('Base64DataManager.hydrateExternalizedLeavesFromIncomingAsync', () => {
             manager: makeManager({ documentReferenceFlag: false }), current, incoming
         });
 
-        expect(hydrated).toBe(0);
-        expect(view).toEqual(current);
+        expect(hydrated).toBe(1);
+        expect(view.content[0].attachment.data).toBe(DATA_A);
+        expect(view.content[0].attachment._blobMeta).toBeUndefined();
     });
 
     test('each incoming leaf is hashed once, however many stored leaves look at it', async () => {

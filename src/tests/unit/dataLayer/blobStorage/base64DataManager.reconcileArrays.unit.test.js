@@ -223,11 +223,13 @@ describe('Base64DataManager.captureMergedLeafValues', () => {
         expect(values.size).toBe(0);
     });
 
-    test('nothing is captured while the DocumentReference flag is off', async () => {
+    test('the merged value of a stored pointer is captured while the DocumentReference flag is off', async () => {
         const manager = makeManager({ documentReferenceFlag: false });
         const current = documentReference({ content: [contentItem({ _blobMeta: await blobMetaOf(DATA_A) })] });
         const merged = documentReference({ content: [contentItem({ data: DATA_A })] });
 
-        expect(manager.captureMergedLeafValues(merged, current, merged).size).toBe(0);
+        const values = manager.captureMergedLeafValues(merged, current, merged);
+
+        expect(values.get(manager._mergedLeafKey(0, [0]))).toBe(DATA_A);
     });
 });
