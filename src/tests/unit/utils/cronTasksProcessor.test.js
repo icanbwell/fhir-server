@@ -126,6 +126,29 @@ describe('CronTasksProcessor', () => {
         }
     });
 
+    test('onTick logs entry count when a flush returns one', async () => {
+        mockValidateCronExpression.mockReturnValue({ valid: true });
+        let capturedOnTick;
+        mockCronJobFrom.mockImplementation((opts) => {
+            capturedOnTick = opts.onTick;
+            return { name: 'CronTasksProcessor' };
+        });
+        mockAuditLogger.flushAsync.mockResolvedValue(3);
+        logInfo.mockClear();
+
+        await processor.initiateTasks();
+        await capturedOnTick();
+
+        expect(logInfo).toHaveBeenCalledWith(
+            'Background task finished: auditLoggerFlush',
+            expect.objectContaining({ entryCount: 3 })
+        );
+        expect(logInfo).toHaveBeenCalledWith(
+            'Background task finished: postSaveProcessorFlush',
+            expect.not.objectContaining({ entryCount: expect.anything() })
+        );
+    });
+
     test('onTick logs failure, rethrows and skips later tasks', async () => {
         mockValidateCronExpression.mockReturnValue({ valid: true });
         let capturedOnTick;

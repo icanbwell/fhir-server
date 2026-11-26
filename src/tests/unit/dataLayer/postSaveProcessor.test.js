@@ -11,6 +11,12 @@ jestObj.mock('../../../utils/basePostSaveHandler', () => ({
     BasePostSaveHandler: class BasePostSaveHandler {}
 }));
 
+jestObj.mock('../../../operations/common/logging', () => ({
+    logInfo: jestObj.fn(),
+    logError: jestObj.fn()
+}));
+
+const { logInfo, logError } = require('../../../operations/common/logging');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 
 describe('PostSaveProcessor', () => {
@@ -93,6 +99,42 @@ describe('PostSaveProcessor', () => {
             await processor.flushAsync();
             expect(handler1.flushAsync).toHaveBeenCalledTimes(1);
             expect(handler2.flushAsync).toHaveBeenCalledTimes(1);
+        });
+
+        test('logs duration for each handler', async () => {
+            class FirstHandler {
+                flushAsync = jestObj.fn().mockResolvedValue(undefined);
+            }
+            class SecondHandler {
+                flushAsync = jestObj.fn().mockResolvedValue(undefined);
+            }
+            logInfo.mockClear();
+            const processor = new PostSaveProcessor({ handlers: [new FirstHandler(), new SecondHandler()] });
+            await processor.flushAsync();
+            for (const handler of ['FirstHandler', 'SecondHandler']) {
+                expect(logInfo).toHaveBeenCalledWith(
+                    `Post-save handler flush finished: ${handler}`,
+                    expect.objectContaining({ handler, durationMs: expect.any(Number) })
+                );
+            }
+        });
+
+        test('logs and rethrows when a handler flush fails, skipping later handlers', async () => {
+            class FailingHandler {
+                flushAsync = jestObj.fn().mockRejectedValue(new Error('flush failed'));
+            }
+            logError.mockClear();
+            const processor = new PostSaveProcessor({ handlers: [new FailingHandler(), handler2] });
+            await expect(processor.flushAsync()).rejects.toThrow('flush failed');
+            expect(logError).toHaveBeenCalledWith(
+                'Post-save handler flush failed: FailingHandler',
+                expect.objectContaining({
+                    handler: 'FailingHandler',
+                    durationMs: expect.any(Number),
+                    errMessage: 'flush failed'
+                })
+            );
+            expect(handler2.flushAsync).not.toHaveBeenCalled();
         });
     });
 });

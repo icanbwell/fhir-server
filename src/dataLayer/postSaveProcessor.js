@@ -1,6 +1,7 @@
 const { assertTypeEquals } = require('../utils/assertType');
 const { BasePostSaveHandler } = require('../utils/basePostSaveHandler');
 const { RethrownError } = require('../utils/rethrownError');
+const { logInfo, logError } = require('../operations/common/logging');
 
 /**
  * @classdesc This class holds all the tasks to run after we insert/update a resource
@@ -65,7 +66,22 @@ class PostSaveProcessor {
      */
     async flushAsync () {
         for (const handler of this.handlers) {
-            await handler.flushAsync();
+            const handlerName = handler.constructor.name;
+            const startTime = Date.now();
+            try {
+                await handler.flushAsync();
+            } catch (e) {
+                logError(`Post-save handler flush failed: ${handlerName}`, {
+                    handler: handlerName,
+                    durationMs: Date.now() - startTime,
+                    errMessage: e.message
+                });
+                throw e;
+            }
+            logInfo(`Post-save handler flush finished: ${handlerName}`, {
+                handler: handlerName,
+                durationMs: Date.now() - startTime
+            });
         }
     }
 }

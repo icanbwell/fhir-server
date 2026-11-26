@@ -44,23 +44,24 @@ class CronTasksProcessor {
      * Runs a background task and logs when it starts, finishes (with duration) or fails.
      * Errors are rethrown so the existing cron error handling is unchanged.
      * @param {string} taskName
-     * @param {() => Promise<void>} fnTask
+     * @param {() => Promise<number|void>} fnTask (a numeric result is logged as the number of entries dispatched)
      * @return {Promise<void>}
      */
     async runTaskAsync(taskName, fnTask) {
         const startTime = Date.now();
         logInfo(`Background task started: ${taskName}`, { task: taskName });
         try {
-            await fnTask();
+            const result = await fnTask();
             logInfo(`Background task finished: ${taskName}`, {
                 task: taskName,
-                durationMs: Date.now() - startTime
+                durationMs: Date.now() - startTime,
+                ...(typeof result === 'number' ? { entryCount: result } : {})
             });
         } catch (e) {
             logError(`Background task failed: ${taskName}`, {
                 task: taskName,
                 durationMs: Date.now() - startTime,
-                error: e
+                errMessage: e.message
             });
             throw e;
         }
