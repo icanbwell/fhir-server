@@ -4,6 +4,12 @@ const { RethrownError } = require('../utils/rethrownError');
 const { logInfo, logError } = require('../operations/common/logging');
 
 /**
+ * A handler flush at least this long is logged, so a stalled handler can be identified
+ * without logging every fast flush.
+ */
+const SLOW_HANDLER_FLUSH_THRESHOLD_MS = 1000;
+
+/**
  * @classdesc This class holds all the tasks to run after we insert/update a resource
  */
 class PostSaveProcessor {
@@ -78,14 +84,18 @@ class PostSaveProcessor {
                 });
                 throw e;
             }
-            logInfo(`Post-save handler flush finished: ${handlerName}`, {
-                handler: handlerName,
-                durationMs: Date.now() - startTime
-            });
+            const durationMs = Date.now() - startTime;
+            if (durationMs >= SLOW_HANDLER_FLUSH_THRESHOLD_MS) {
+                logInfo(`Slow post-save handler flush finished: ${handlerName}`, {
+                    handler: handlerName,
+                    durationMs
+                });
+            }
         }
     }
 }
 
 module.exports = {
-    PostSaveProcessor
+    PostSaveProcessor,
+    SLOW_HANDLER_FLUSH_THRESHOLD_MS
 };

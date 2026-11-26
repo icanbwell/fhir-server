@@ -1,6 +1,6 @@
 'use strict';
 
-const { describe, test, expect, beforeEach, jest: jestObj } = require('@jest/globals');
+const { describe, test, expect, beforeEach, afterEach, jest: jestObj } = require('@jest/globals');
 
 jestObj.mock('../../../utils/assertType', () => ({
     assertTypeEquals: jestObj.fn(),
@@ -17,11 +17,15 @@ jestObj.mock('../../../operations/common/logging', () => ({
 }));
 
 const { logInfo, logError } = require('../../../operations/common/logging');
-const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
+const { PostSaveProcessor, SLOW_HANDLER_FLUSH_THRESHOLD_MS } = require('../../../dataLayer/postSaveProcessor');
 
 describe('PostSaveProcessor', () => {
     let handler1;
     let handler2;
+
+    afterEach(() => {
+        jestObj.restoreAllMocks();
+    });
 
     beforeEach(() => {
         handler1 = {
@@ -101,21 +105,27 @@ describe('PostSaveProcessor', () => {
             expect(handler2.flushAsync).toHaveBeenCalledTimes(1);
         });
 
-        test('logs duration for each handler', async () => {
-            class FirstHandler {
+        test.each([
+            ['slow', SLOW_HANDLER_FLUSH_THRESHOLD_MS + 500, true],
+            ['at threshold', SLOW_HANDLER_FLUSH_THRESHOLD_MS, true],
+            ['just below threshold', SLOW_HANDLER_FLUSH_THRESHOLD_MS - 1, false],
+            ['fast', 10, false]
+        ])('%s handler flush logging', async (_name, durationMs, shouldLog) => {
+            class TimedHandler {
                 flushAsync = jestObj.fn().mockResolvedValue(undefined);
             }
-            class SecondHandler {
-                flushAsync = jestObj.fn().mockResolvedValue(undefined);
-            }
+            const nowSpy = jestObj.spyOn(Date, 'now');
+            nowSpy.mockReturnValueOnce(0).mockReturnValueOnce(durationMs);
             logInfo.mockClear();
-            const processor = new PostSaveProcessor({ handlers: [new FirstHandler(), new SecondHandler()] });
+            const processor = new PostSaveProcessor({ handlers: [new TimedHandler()] });
             await processor.flushAsync();
-            for (const handler of ['FirstHandler', 'SecondHandler']) {
+            if (shouldLog) {
                 expect(logInfo).toHaveBeenCalledWith(
-                    `Post-save handler flush finished: ${handler}`,
-                    expect.objectContaining({ handler, durationMs: expect.any(Number) })
+                    'Slow post-save handler flush finished: TimedHandler',
+                    { handler: 'TimedHandler', durationMs }
                 );
+            } else {
+                expect(logInfo).not.toHaveBeenCalled();
             }
         });
 
