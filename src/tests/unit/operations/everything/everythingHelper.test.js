@@ -44,7 +44,7 @@ describe('EverythingHelper', () => {
     let mockSearchParametersManager;
     let mockEverythingRelatedResourceMapper;
     let mockCustomTracer;
-    let mockPatientDataViewControlManager;
+    let mockPatientDataViewControlExclusion;
     let mockAuditLogger;
     let mockPostRequestProcessor;
     let mockRedisStreamManager;
@@ -102,8 +102,8 @@ describe('EverythingHelper', () => {
         mockCustomTracer = {
             trace: jest.fn().mockImplementation(({ func }) => func())
         };
-        mockPatientDataViewControlManager = {
-            getConsentAsync: jest.fn().mockResolvedValue({
+        mockPatientDataViewControlExclusion = {
+            getConsentLookupAsync: jest.fn().mockResolvedValue({
                 viewControlResourceToExcludeMap: {},
                 viewControlConsentQueries: [],
                 viewControlConsentQueryOptions: []
@@ -136,7 +136,7 @@ describe('EverythingHelper', () => {
         everythingHelper.searchParametersManager = mockSearchParametersManager;
         everythingHelper.everythingRelatedResourceMapper = mockEverythingRelatedResourceMapper;
         everythingHelper.customTracer = mockCustomTracer;
-        everythingHelper.patientDataViewControlManager = mockPatientDataViewControlManager;
+        everythingHelper.patientDataViewControlExclusion = mockPatientDataViewControlExclusion;
         everythingHelper.auditLogger = mockAuditLogger;
         everythingHelper.postRequestProcessor = mockPostRequestProcessor;
         everythingHelper.redisStreamManager = mockRedisStreamManager;

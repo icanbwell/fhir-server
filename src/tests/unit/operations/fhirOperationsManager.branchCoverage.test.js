@@ -65,6 +65,7 @@ jest.mock('../../../operations/import/import', () => ({ ImportOperation: class I
 jest.mock('../../../operations/summary/summary', () => ({ SummaryOperation: class SummaryOperation {} }));
 jest.mock('../../../operations/query/r4ArgsParser', () => ({ R4ArgsParser: class R4ArgsParser {} }));
 jest.mock('../../../queryRewriters/queryRewriterManager', () => ({ QueryRewriterManager: class QueryRewriterManager {} }));
+jest.mock('../../../utils/patientDataViewControlExclusion', () => ({ PatientDataViewControlExclusion: class PatientDataViewControlExclusion {} }));
 jest.mock('../../../utils/configManager', () => ({ ConfigManager: class ConfigManager {} }));
 jest.mock('../../../utils/operationAccessManager', () => ({ OperationAccessManager: class OperationAccessManager {} }));
 jest.mock('../../../utils/cmsManager', () => ({ CMSManager: class CMSManager {} }));
@@ -201,7 +202,10 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
                 mergeAsync: jest.fn().mockResolvedValue([{ created: true }]),
                 mergeAsyncStream: jest.fn().mockResolvedValue(undefined)
             },
-            everythingOperation: { everythingAsync: jest.fn().mockResolvedValue({ resourceType: 'Bundle', id: 'everything' }) },
+            everythingOperation: {
+                everythingAsync: jest.fn().mockResolvedValue({ resourceType: 'Bundle', id: 'everything' }),
+                preloadViewControlAsync: jest.fn().mockResolvedValue(undefined)
+            },
             summaryOperation: { summaryAsync: jest.fn().mockResolvedValue(undefined) },
             removeOperation: { removeAsync: jest.fn().mockResolvedValue({ deleted: 3 }) },
             searchByVersionIdOperation: { searchByVersionIdAsync: jest.fn().mockResolvedValue({ id: 'v1' }) },
@@ -240,6 +244,7 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
             ...ops,
             r4ArgsParser,
             queryRewriterManager,
+            patientDataViewControlExclusion: { applyAsync: jest.fn().mockImplementation(async ({ parsedArgs }) => parsedArgs) },
             configManager: { enableVulcanIgQuery: false, externalServicesWithRestrictions: {} },
             accessManager: { verifyAccess: jest.fn() },
             cmsManager: { verifyNotProxyPatientId: jest.fn() },
@@ -726,6 +731,54 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
             expect(result).toEqual({ resourceType: 'Bundle', entry: [] });
         });
 
+        describe('_applyDataViewControl outside Person $everything', () => {
+            const send = (method, query) =>
+                manager[method]([], { req: makeReq({ query }), res: { write: jest.fn() } }, 'Patient');
+
+            test.each([
+                ['search', 'search', 'true'],
+                ['search', 'search', '1'],
+                ['search', 'search', true],
+                ['searchStreaming', 'searchStreaming', 'true'],
+                ['searchById', 'searchById', 'TRUE']
+            ])('%s from a service token is a 400 instead of an unfiltered record (value %p)',
+                async (_name, method, value) => {
+                    await expect(send(method, { _applyDataViewControl: value })).rejects.toMatchObject({
+                        statusCode: 400,
+                        message: expect.stringContaining('only supported on Person $everything')
+                    });
+                    expect(ops.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+                    expect(ops.searchStreamingOperation.searchStreamingAsync).not.toHaveBeenCalled();
+                    expect(ops.searchByIdOperation.searchByIdAsync).not.toHaveBeenCalled();
+                });
+
+            test.each([['yes'], ['on'], [''], [['true', 'true']], [{ a: 1 }]])(
+                'a malformed value (%p) is a 400, never read as "no opt-in"', async (value) => {
+                    await expect(send('search', { _applyDataViewControl: value })).rejects.toMatchObject({
+                        statusCode: 400,
+                        message: expect.stringContaining('must be one of true, 1, false or 0')
+                    });
+                    expect(ops.searchBundleOperation.searchBundleAsync).not.toHaveBeenCalled();
+                });
+
+            test('a malformed value is a 400 for a user token too', async () => {
+                requestInfo.isUser = true;
+                await expect(send('search', { _applyDataViewControl: 'yes' })).rejects.toMatchObject({ statusCode: 400 });
+            });
+
+            test.each([['false'], ['0'], [undefined]])(
+                'a service token that does not ask for it (value %p) is unaffected', async (value) => {
+                    await send('search', value === undefined ? {} : { _applyDataViewControl: value });
+                    expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(1);
+                });
+
+            test('a user token is unaffected, since it is always filtered', async () => {
+                requestInfo.isUser = true;
+                await send('search', { _applyDataViewControl: 'true' });
+                expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledTimes(1);
+            });
+        });
+
         test('searchStreaming passes the response object through to the streaming operation when Vulcan IG is disabled', async () => {
             const res = { write: jest.fn() };
             await manager.searchStreaming([], { req: makeReq(), res }, 'Patient');
@@ -735,6 +788,42 @@ describe('FhirOperationsManager — dispatch, access gate and $everything/$summa
                 parsedArgs: expect.objectContaining({ receivedResourceType: 'Patient' }),
                 resourceType: 'Patient'
             });
+        });
+
+        test('SECURITY: a Vulcan IG child lookup applies view control, so a hidden resource cannot decide which parents match', async () => {
+            const { vulcanIgSearchQueries } = require('../../../operations/query/customQueries');
+            vulcanIgSearchQueries.Patient = {
+                condition: {
+                    filters: [{
+                        resourceType: 'Condition', searchParam: 'code', filterField: 'subject._uuid'
+                    }],
+                    resultSearchParam: 'id'
+                }
+            };
+            manager.configManager.enableVulcanIgQuery = true;
+            const parentItem = { isNotOnly: false };
+            manager.r4ArgsParser.parseArgs.mockImplementation(({ resourceType, args }) => ({
+                base_version: args.base_version,
+                parsedArgItems: resourceType === 'Patient' && args.condition
+                    ? [{ queryParameter: 'condition', modifiers: [], queryParameterValue: { value: 'code-1' } }]
+                    : [{}, parentItem],
+                add: jest.fn(),
+                addMergingExclusion: jest.fn()
+            }));
+            try {
+                await manager.searchStreaming(
+                    [], { req: makeReq({ query: { condition: 'code-1' } }), res: {} }, 'Patient'
+                );
+            } finally {
+                delete vulcanIgSearchQueries.Patient;
+            }
+
+            const applied = manager.patientDataViewControlExclusion.applyAsync.mock.calls
+                .map((c) => c[0].resourceType);
+            expect(applied).toEqual(['Patient', 'Condition']);
+            expect(ops.searchBundleOperation.searchBundleAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Condition' })
+            );
         });
 
         test('create forwards req.path so the operation can build the Location header, and returns the created resource', async () => {

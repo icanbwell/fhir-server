@@ -64,6 +64,7 @@ describe('GraphHelper - branch coverage & security (Category A)', () => {
     let ResourceEntityAndContained;
     let mockConfigManager;
     let mockSearchManager;
+    let mockPatientDataViewControlExclusion;
     let mockScopesValidator;
     let mockRemoveHelper;
     let mockPostRequestProcessor;
@@ -145,6 +146,10 @@ describe('GraphHelper - branch coverage & security (Category A)', () => {
                 });
             })
         };
+        mockPatientDataViewControlExclusion = {
+            applyAsync: jest.fn().mockImplementation(({ parsedArgs }) => Promise.resolve(parsedArgs))
+        };
+        graphHelper.patientDataViewControlExclusion = mockPatientDataViewControlExclusion;
         graphHelper.enrichmentManager = {
             enrichBundleEntriesAsync: jest.fn().mockImplementation(({ entries }) => Promise.resolve(entries))
         };
@@ -336,6 +341,92 @@ describe('GraphHelper - branch coverage & security (Category A)', () => {
                     supportLegacyId: false
                 })
             ).rejects.toThrow('Error in getForwardReferencesAsync(): Organization');
+        });
+    });
+
+    // every query the graph runs against a resource type goes through the view control filter, or a hidden
+    // resource linked from a visible one would come back
+    describe('data view control on link queries', () => {
+        const patientResource = { resourceType: 'Patient', id: 'p1', _uuid: 'patient-uuid-1' };
+        const forward = () => graphHelper.getForwardReferencesAsync({
+            requestInfo,
+            base_version: '4_0_0',
+            resourceType: 'Organization',
+            parentEntities: [makeParent({
+                ...patientResource,
+                managingOrganization: { _uuid: 'Organization/org-uuid-1', reference: 'Organization/org1' }
+            })],
+            property: 'managingOrganization',
+            parsedArgs: createParsedArgs(),
+            supportLegacyId: false
+        });
+        const reverse = () => graphHelper.getReverseReferencesAsync({
+            requestInfo,
+            base_version: '4_0_0',
+            parentResourceType: 'Patient',
+            relatedResourceType: 'Condition',
+            parentEntities: [makeParent({ ...patientResource })],
+            filterProperty: null,
+            filterValue: null,
+            reverse_filter: 'patient={ref}',
+            parsedArgs: createParsedArgs(),
+            supportLegacyId: false
+        });
+        const start = () => graphHelper.processMultipleIdsAsync({
+            base_version: '4_0_0',
+            requestInfo,
+            resourceType: 'Patient',
+            graphDefinition: { link: [] },
+            contained: false,
+            parsedArgs: createParsedArgs(),
+            idsAlreadyProcessed: [],
+            supportLegacyId: false
+        });
+
+        test.each([
+            ['a forward link', forward, 'Organization'],
+            ['a reverse link', reverse, 'Condition'],
+            ['the start resources', start, 'Patient']
+        ])('%s applies the Consent filter for its resource type, before the query is built', async (_name, run, resourceType) => {
+            await run();
+
+            expect(mockPatientDataViewControlExclusion.applyAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType, base_version: '4_0_0', requestInfo })
+            );
+            expect(mockPatientDataViewControlExclusion.applyAsync.mock.invocationCallOrder[0])
+                .toBeLessThan(mockSearchManager.constructQueryAsync.mock.invocationCallOrder[0]);
+        });
+
+        test('the start resources are filtered on a copy, so the request args do not carry the exclusion', async () => {
+            const parsedArgs = createParsedArgs();
+            await graphHelper.processMultipleIdsAsync({
+                base_version: '4_0_0',
+                requestInfo,
+                resourceType: 'Patient',
+                graphDefinition: { link: [] },
+                contained: false,
+                parsedArgs,
+                idsAlreadyProcessed: [],
+                supportLegacyId: false
+            });
+
+            expect(parsedArgs.clone).toHaveBeenCalledTimes(1);
+            expect(mockPatientDataViewControlExclusion.applyAsync.mock.calls[0][0].parsedArgs)
+                .not.toBe(parsedArgs);
+        });
+
+        test.each([
+            ['a forward link', forward],
+            ['a reverse link', reverse],
+            ['the start resources', start]
+        ])('a failed Consent lookup fails %s closed instead of returning unfiltered data', async (_name, run) => {
+            mockPatientDataViewControlExclusion.applyAsync.mockRejectedValue(new Error('consent store unavailable'));
+
+            // the helpers wrap the failure; the original error is the Consent lookup's
+            const error = await run().then(() => null, (e) => e);
+            expect(error).not.toBeNull();
+            expect(error.original_error.message).toBe('consent store unavailable');
+            expect(mockSearchManager.constructQueryAsync).not.toHaveBeenCalled();
         });
     });
 

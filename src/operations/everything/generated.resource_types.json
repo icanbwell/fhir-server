@@ -6,6 +6,7 @@
     "Appointment",
     "AppointmentResponse",
     "Basic",
+    "Binary",
     "BiologicallyDerivedProduct",
     "BodyStructure",
     "CarePlan",
@@ -79,7 +80,6 @@
   "nonClinicalResources": [
     "ActivityDefinition",
     "AdministrableProductDefinition",
-    "Binary",
     "Bundle",
     "CapabilityStatement",
     "CatalogEntry",
