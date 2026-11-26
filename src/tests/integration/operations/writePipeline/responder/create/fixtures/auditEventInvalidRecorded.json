@@ -1,0 +1,49 @@
+{
+  "resourceType": "AuditEvent",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "type": {
+    "system": "http://dicom.nema.org/resources/ontology/DCM",
+    "code": "110112",
+    "display": "Query"
+  },
+  "action": "C",
+  "recorded": "not-an-instant",
+  "agent": [
+    {
+      "who": {
+        "reference": "Person/parity-person-1"
+      },
+      "altId": "parity",
+      "requestor": true,
+      "network": {
+        "type": "2"
+      }
+    }
+  ],
+  "source": {
+    "observer": {
+      "reference": "Person/parity-person-1"
+    }
+  },
+  "entity": [
+    {
+      "what": {
+        "reference": "Observation/parity-observation-1"
+      },
+      "detail": [
+        {
+          "type": "base_version",
+          "valueString": "4_0_0"
+        }
+      ]
+    }
+  ]
+}

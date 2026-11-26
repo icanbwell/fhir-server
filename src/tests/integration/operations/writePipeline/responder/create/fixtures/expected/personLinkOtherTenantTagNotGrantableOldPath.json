@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "forbidden",
+      "details": {
+        "text": "Person.link target Patient/parity-other-patient belongs to a tenant the caller does not have access to."
+      }
+    }
+  ]
+}

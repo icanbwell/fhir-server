@@ -11,7 +11,7 @@ const { WriteContext } = require('../writeContext');
  */
 class AccessCheckStep {
     /**
-     * @param {{checkAsync: function({items: WriteItem[], context: WriteContext}): Promise<(WriteFailure|null)[]>}} accessChecker
+     * @param {{checkAsync: function({items: WriteItem[], context: WriteContext, accessRequested: string}): Promise<(WriteFailure|null)[]>}} accessChecker
      */
     constructor ({ accessChecker }) {
         /**
@@ -23,13 +23,19 @@ class AccessCheckStep {
 
     /**
      * Calls the checker once with all the items and fails each item whose entry in the returned
-     * list is a failure. An error the checker throws fails the whole request.
+     * list is a failure. The checker gets the profile's `accessRequested`, the SMART scope letter
+     * the run needs. An error the checker throws fails the whole request.
      * @param {WriteItem[]} items
      * @param {WriteContext} context
+     * @param {{accessRequested: string}} profile
      * @returns {Promise<void>}
      */
-    async runAsync ({ items, context }) {
-        const failures = await this.accessChecker.checkAsync({ items, context });
+    async runAsync ({ items, context, profile }) {
+        const failures = await this.accessChecker.checkAsync({
+            items,
+            context,
+            accessRequested: profile.accessRequested
+        });
         items.forEach((item, index) => {
             if (failures[index]) {
                 item.fail({ failure: failures[index] });

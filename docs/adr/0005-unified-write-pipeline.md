@@ -44,6 +44,12 @@ differences are plain data next to each other.
 - A profile (`writePipeline/profiles/<operation>.js`) is plain data: the operation name, the scope
   letter, the variant a step uses, and an explicit `off` for a check the operation does not run
   today. A profile can pick a variant of a step; it can't remove one.
+- A step variant is a separate step instance that `WritePipeline` holds by step name and variant
+  name (`stepVariants`). A profile picks one by name in its `variants` setting, and `WritePipeline`
+  runs it in place of the default step. Adding a variant doesn't change the step it replaces, so a
+  profile that names no variants runs as before. POST is the first operation to use a variant,
+  `buildDocument.insert`. It turns `findExisting` off, because a new resource has no stored
+  document to load.
 - A responder (`writePipeline/responder/<operation>.js`) turns the item results into the
   operation's response and records its metrics. The shared `WriteAuditor` writes the audit events.
 - Streaming (NDJSON) `$merge` keeps its transport out of `WritePipeline`, because no other
@@ -80,8 +86,9 @@ differences are plain data next to each other.
 
 ### Confirmation
 
-- Parity tests run each `$merge` case on both paths and compare the responses
-  (`src/tests/integration/operations/writePipeline/responder/merge/`).
+- Parity tests run each `$merge` case and each POST case on both paths and compare the responses
+  (`src/tests/integration/operations/writePipeline/responder/merge/` and
+  `src/tests/integration/operations/writePipeline/responder/create/`).
 - The main CI job runs the whole suite with the shipped switches on (`jest/setEnvVars.js`). Tests
   that fail only on an accepted difference are updated and get an `oldWrite<Name>.test.js` copy
   that turns the switch off. No test is skipped.
@@ -95,8 +102,8 @@ differences are plain data next to each other.
 - Good, because the steps and their order are in one function, so a central check can't be
   skipped quietly.
 - Good, because per-operation differences are data that can be read side by side.
-- Bad, because a difference that isn't a variant of an existing step needs a new named variant in
-  the shared step.
+- Bad, because a difference that isn't a variant of an existing step needs a new named variant,
+  registered with `WritePipeline`.
 
 ### A base class with one subclass per operation
 

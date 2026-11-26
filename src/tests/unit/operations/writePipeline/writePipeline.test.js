@@ -88,11 +88,29 @@ const buildContext = (requestInfo = { requestId: 'request-1' }) => new WriteCont
 const buildProfile = (settings = {}) => ({ name: 'fake', accessRequested: 'u', action: 'fake', ...settings });
 
 /**
+ * Builds a variant registry from a map of step names to variant names. Each variant is a fake step
+ * that records `<step>.<variant>` in `calls` when it runs.
+ */
+const buildStepVariants = (registered, calls = []) => Object.fromEntries(
+    Object.entries(registered).map(([stepName, variantNames]) => [
+        stepName,
+        Object.fromEntries(variantNames.map((variantName) => [
+            variantName,
+            {
+                runAsync: jest.fn(async () => {
+                    calls.push(`${stepName}.${variantName}`);
+                })
+            }
+        ]))
+    ])
+);
+
+/**
  * Builds a `WritePipeline` with fake steps, bulk inserter, auditor and logging manager that record
  * each call in `calls`. Each step runs its function in `behaviors`, if any, and `received` keeps
- * the items each step got.
+ * the items each step got. `stepVariants` is the pipeline's variant registry, none by default.
  */
-const buildPipeline = ({ behaviors = {}, calls = [] } = {}) => {
+const buildPipeline = ({ behaviors = {}, calls = [], stepVariants = {} } = {}) => {
     const received = {};
     const steps = {};
     const stepsByName = {};
@@ -126,6 +144,7 @@ const buildPipeline = ({ behaviors = {}, calls = [] } = {}) => {
     });
     const pipeline = new WritePipeline({
         ...steps,
+        stepVariants,
         databaseBulkInserter,
         writeAuditor,
         fhirLoggingManager,
@@ -260,7 +279,11 @@ describe('WritePipeline', () => {
 
         for (const name of WRITE_STEP_NAMES) {
             expect(stepsByName[name].runAsync).toHaveBeenCalledTimes(1);
-            expect(stepsByName[name].runAsync.mock.calls[0][0]).toEqual({ items, context, profile: { ...profile, off: [] } });
+            expect(stepsByName[name].runAsync.mock.calls[0][0]).toEqual({
+                items,
+                context,
+                profile: { ...profile, off: [], variants: {} }
+            });
         }
     });
 
@@ -283,6 +306,172 @@ describe('WritePipeline', () => {
         expect(seenByValidate.off).toStrictEqual([]);
         expect(Object.isFrozen(seenByValidate)).toBe(true);
         expect(Object.isFrozen(seenByValidate.off)).toBe(true);
+    });
+
+    test.each([
+        {
+            name: 'a variants setting that is a string',
+            variants: 'insert',
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" setting "variants" must be an object of step names to variant names'
+        },
+        {
+            name: 'a variants setting that is an array',
+            variants: ['insert'],
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" setting "variants" must be an object of step names to variant names'
+        },
+        {
+            name: 'a variant for a step with no variants registered',
+            variants: { noOpCheck: 'x' },
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" names a variant for step(s) without variants: noOpCheck'
+        },
+        {
+            name: 'a variant for a step name that does not exist',
+            variants: { notAStep: 'x' },
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" names a variant for step(s) without variants: notAStep'
+        },
+        {
+            name: 'a variant that is not registered for its step',
+            variants: { buildDocument: 'copy' },
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" names unknown variant(s): buildDocument.copy'
+        },
+        {
+            name: 'a variant name that is an inherited property',
+            variants: { buildDocument: 'constructor' },
+            registered: { buildDocument: ['insert'] },
+            message: 'Write profile "fake" names unknown variant(s): buildDocument.constructor'
+        }
+    ])('throws before any step runs for $name', async ({ variants, registered, message }) => {
+        const calls = [];
+        const { pipeline } = buildPipeline({ calls, stepVariants: buildStepVariants(registered, calls) });
+
+        await expect(
+            pipeline.processAsync({
+                profile: buildProfile({ variants }),
+                context: buildContext(),
+                items: buildItems(2)
+            })
+        ).rejects.toThrow(message);
+        expect(calls).toStrictEqual([]);
+    });
+
+    test('runs the named variant instead of the default step', async () => {
+        const calls = [];
+        const stepVariants = buildStepVariants({ buildDocument: ['copy', 'insert'] }, calls);
+        const { pipeline, stepsByName } = buildPipeline({ calls, stepVariants });
+        const profile = buildProfile({ variants: { buildDocument: 'copy' } });
+        const context = buildContext();
+        const items = buildItems(2);
+
+        await pipeline.processAsync({ profile, context, items });
+
+        expect(calls).toStrictEqual(
+            WRITE_STEP_NAMES.map((name) => (name === 'buildDocument' ? 'buildDocument.copy' : name))
+        );
+        expect(stepsByName.buildDocument.runAsync).not.toHaveBeenCalled();
+        expect(stepVariants.buildDocument.insert.runAsync).not.toHaveBeenCalled();
+        expect(stepVariants.buildDocument.copy.runAsync).toHaveBeenCalledTimes(1);
+        expect(stepVariants.buildDocument.copy.runAsync.mock.calls[0][0]).toEqual({
+            items,
+            context,
+            profile: { ...profile, off: [], variants: { buildDocument: 'copy' } }
+        });
+    });
+
+    test('runs the default step when the profile names no variant, even if variants are registered', async () => {
+        const calls = [];
+        const { pipeline } = buildPipeline({
+            calls,
+            stepVariants: buildStepVariants({ buildDocument: ['copy'] }, calls)
+        });
+
+        await pipeline.processAsync({
+            profile: buildProfile(),
+            context: buildContext(),
+            items: buildItems(2)
+        });
+
+        expect(calls).toStrictEqual(WRITE_STEP_NAMES);
+    });
+
+    test('does not run a named variant when the profile turns its step off', async () => {
+        const calls = [];
+        const { pipeline } = buildPipeline({
+            calls,
+            stepVariants: buildStepVariants({ buildDocument: ['copy'] }, calls)
+        });
+
+        await pipeline.processAsync({
+            profile: buildProfile({ off: ['buildDocument'], variants: { buildDocument: 'copy' } }),
+            context: buildContext(),
+            items: buildItems(2)
+        });
+
+        expect(calls).toStrictEqual(WRITE_STEP_NAMES.filter((name) => name !== 'buildDocument'));
+    });
+
+    test("passes the profile's variants in the frozen profile copy", async () => {
+        const profile = buildProfile({ variants: { buildDocument: 'copy' } });
+        const calls = [];
+        const { pipeline, stepsByName } = buildPipeline({
+            calls,
+            stepVariants: buildStepVariants({ buildDocument: ['copy'] }, calls),
+            behaviors: {
+                scopeCheck: () => {
+                    profile.variants.buildDocument = 'insert';
+                }
+            }
+        });
+
+        await pipeline.processAsync({ profile, context: buildContext(), items: buildItems(1) });
+
+        const seenByNextStep = stepsByName.findExisting.runAsync.mock.calls[0][0].profile;
+        expect(seenByNextStep.variants).toStrictEqual({ buildDocument: 'copy' });
+        expect(seenByNextStep.variants).not.toBe(profile.variants);
+        expect(Object.isFrozen(seenByNextStep.variants)).toBe(true);
+        expect(calls).toContain('buildDocument.copy');
+    });
+
+    test.each([
+        {
+            name: 'a stepVariants that is not an object',
+            stepVariants: null,
+            message: 'WritePipeline stepVariants must be an object of step names to variant objects'
+        },
+        {
+            name: 'a step whose variants are not an object',
+            stepVariants: { buildDocument: null },
+            message: 'WritePipeline stepVariants must be an object of step names to variant objects'
+        },
+        {
+            name: 'a step that is not in WRITE_STEP_NAMES',
+            stepVariants: { notAStep: { copy: { runAsync: jest.fn() } } },
+            message: 'WritePipeline stepVariants names unknown step(s): notAStep'
+        },
+        {
+            name: 'a variant without a runAsync function',
+            stepVariants: { buildDocument: { copy: { runAsync: 'not a function' } } },
+            message: 'WritePipeline step variant "buildDocument.copy" needs a runAsync function'
+        }
+    ])('throws when constructed with $name', ({ stepVariants, message }) => {
+        expect(() => buildPipeline({ stepVariants })).toThrow(message);
+    });
+
+    test('freezes a copy of stepVariants, so a later change to the argument is not seen', () => {
+        const stepVariants = buildStepVariants({ buildDocument: ['copy'] });
+
+        const { pipeline } = buildPipeline({ stepVariants });
+        stepVariants.buildDocument.insert = { runAsync: jest.fn() };
+        stepVariants.write = { copy: { runAsync: jest.fn() } };
+
+        expect(Object.isFrozen(pipeline.stepVariants)).toBe(true);
+        expect(Object.isFrozen(pipeline.stepVariants.buildDocument)).toBe(true);
+        expect(Object.keys(pipeline.stepVariants)).toStrictEqual(['buildDocument']);
+        expect(Object.keys(pipeline.stepVariants.buildDocument)).toStrictEqual(['copy']);
     });
 
     test.each(WRITE_STEP_NAMES.map((name) => ({ name })))(
@@ -671,6 +860,7 @@ describe('WritePipeline', () => {
         expect(httpContextSetSpy.mock.calls[0][1].operationResult).toBe(results);
         expect(responder.toResponse).toHaveBeenCalledWith({
             context,
+            items,
             results,
             wasIncomingAList: true,
             resourceType: 'Patient',

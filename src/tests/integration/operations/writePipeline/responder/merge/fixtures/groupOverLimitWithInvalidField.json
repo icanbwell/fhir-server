@@ -1,0 +1,42 @@
+{
+  "resourceType": "Group",
+  "id": "parity-group-over-limit",
+  "type": "person",
+  "actual": true,
+  "notAFhirField": "x",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "member": [
+    {
+      "entity": {
+        "reference": "Patient/parity-member-0"
+      }
+    },
+    {
+      "entity": {
+        "reference": "Patient/parity-member-1"
+      }
+    },
+    {
+      "entity": {
+        "reference": "Patient/parity-member-2"
+      }
+    },
+    {
+      "entity": {
+        "reference": "Patient/parity-member-3"
+      }
+    }
+  ]
+}

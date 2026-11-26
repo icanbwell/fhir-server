@@ -1,0 +1,28 @@
+{
+  "resourceType": "DocumentReference",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "other-client"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "other-client"
+      }
+    ]
+  },
+  "status": "current",
+  "subject": {
+    "reference": "Patient/parity-other-patient"
+  },
+  "content": [
+    {
+      "attachment": {
+        "contentType": "text/plain",
+        "data": "cGFyaXR5"
+      }
+    }
+  ]
+}

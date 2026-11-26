@@ -176,12 +176,14 @@ const { AccessCheckStep } = require('./operations/writePipeline/steps/accessChec
 const { IncomingAndStoredAccessChecker } = require('./operations/writePipeline/steps/access/incomingAndStoredAccessChecker');
 const { BuildDocumentStep } = require('./operations/writePipeline/steps/buildDocumentStep');
 const { SmartMergeBuilder } = require('./operations/writePipeline/steps/build/smartMergeBuilder');
+const { InsertBuilder } = require('./operations/writePipeline/steps/build/insertBuilder');
 const { ValidateResultStep } = require('./operations/writePipeline/steps/validateResultStep');
 const { AttachmentsStep } = require('./operations/writePipeline/steps/attachmentsStep');
 const { NoOpStep } = require('./operations/writePipeline/steps/noOpStep');
 const { WriteStep } = require('./operations/writePipeline/steps/writeStep');
 const { MergeResponder } = require('./operations/writePipeline/responder/merge');
 const { MergeStream } = require('./operations/writePipeline/responder/mergeStream');
+const { CreateResponder } = require('./operations/writePipeline/responder/create');
 const { WriteAuditor } = require('./operations/writePipeline/writeAuditor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
@@ -773,6 +775,14 @@ const createContainer = function () {
             databaseBulkInserter: c.fastDatabaseBulkInserter,
             configManager: c.configManager
         }),
+        stepVariants: {
+            buildDocument: {
+                insert: new BuildDocumentStep({
+                    builder: new InsertBuilder({ groupMemberMerger: c.groupMemberMerger }),
+                    configManager: c.configManager
+                })
+            }
+        },
         databaseBulkInserter: c.fastDatabaseBulkInserter,
         writeAuditor: c.writeAuditor,
         fhirLoggingManager: c.fhirLoggingManager,
@@ -789,6 +799,11 @@ const createContainer = function () {
         mergeManager: c.mergeManager,
         scopesManager: c.scopesManager,
         bundleManager: c.bundleManager
+    }));
+
+    container.register('createResponder', (c) => new CreateResponder({
+        base64DataManager: c.base64DataManager,
+        identifierEnrichmentProvider: c.identifierEnrichmentProvider
     }));
 
     container.register('mergeStream', (c) => new MergeStream({
@@ -967,6 +982,9 @@ const createContainer = function () {
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+                writePipelineSwitch: c.writePipelineSwitch,
+                writePipeline: c.writePipeline,
+                createResponder: c.createResponder,
                 groupMemberMerger: c.groupMemberMerger
             }
         )

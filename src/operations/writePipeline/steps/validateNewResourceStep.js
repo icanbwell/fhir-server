@@ -6,8 +6,9 @@ const { WriteItem } = require('../writeItem');
 /**
  * The `validateNewResource` step, per item with no stored document: fails the item at
  * `INCOMING_META` when `ResourceValidator.validateResourceMetaSync` rejects its meta, such as a
- * missing owner tag. It runs after `findExisting`, which sets `stored`, and before the access
- * check: for a new resource that check runs preSave, which throws when the owner tag or source
+ * missing owner tag. It runs after `findExisting`, which sets `stored`. For an operation that turns
+ * `findExisting` off, such as POST, `stored` stays null, so every item gets the meta check. It runs
+ * before the access check: for a new resource that check runs preSave, which throws when the owner tag or source
  * assigning authority is missing, and a non-403 error there fails the whole request instead of only
  * this item.
  */
