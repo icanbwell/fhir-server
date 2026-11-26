@@ -6,6 +6,13 @@ const { logError, logInfo } = require('./operations/common/logging');
 const { logSystemEventAsync } = require('./operations/common/systemEventLogging');
 const { getImageVersion } = require('./utils/getImageVersion');
 const { handleReadinessCheck } = require('./routeHandlers/probeChecker');
+const {
+    readCheckoutTimeoutExitSettings,
+    readShutdownTimings,
+    createCheckoutTimeoutTrackerFactory,
+    createGracefulWorkerExit,
+    exitWithRecordedCode
+} = require('./utils/mongoCheckoutTimeoutTracker');
 /**
  * To use uncaught error handlers, we need to import the file
  */
@@ -51,7 +58,25 @@ const flushBuffer = async (fnGetContainer) => {
  */
 async function createServer (fnGetContainer) {
     const container = fnGetContainer();
-    await container.mongoDatabaseManager.connectAsync();
+    const { gracefulTimeoutMs, shutdownDelayMs, forceExitAfterMs } = readShutdownTimings(process.env);
+
+    // A primary pool that keeps timing out on checkout is wedged; recycle this worker (see
+    // utils/mongoCheckoutTimeoutTracker.js). The force-exit backstop allows the full graceful
+    // path (shutdown delay + drain) plus slack for the buffer flush in onSignal.
+    const checkoutTimeoutExitSettings = readCheckoutTimeoutExitSettings(process.env);
+    const exitWorker = createGracefulWorkerExit({
+        processRef: process,
+        logError,
+        forceExitAfterMs,
+        setTimer: setTimeout
+    });
+    await container.mongoDatabaseManager.connectAsync({
+        createCheckoutTimeoutTracker: createCheckoutTimeoutTrackerFactory({
+            settings: checkoutTimeoutExitSettings,
+            exitWorker,
+            now: Date.now
+        })
+    });
     // Resolve eagerly so an invalid ClickPipe config (e.g. KAFKA_PRODUCER_COMPRESSION
     // typo) fails startup instead of the first write.
     container.kafkaClickPipeBulkWriteExecutor;
@@ -100,13 +125,11 @@ async function createServer (fnGetContainer) {
         statusOkResponse: 'OK',
         statusError: 455,
         statusErrorResponse: 455,
-        timeout: process.env.GRACEFUL_TIMEOUT_MS ? parseInt(process.env.GRACEFUL_TIMEOUT_MS) : 29000, // number of milliseconds before forceful exiting
+        timeout: gracefulTimeoutMs, // number of milliseconds before forceful exiting
         signals: ['SIGTERM', 'SIGINT', 'SIGQUIT'], // array of signals to listen for relative to shutdown
         beforeShutdown: async () => {
             // https://github.com/godaddy/terminus?tab=readme-ov-file#how-to-set-terminus-up-with-kubernetes
-            let serverShutdownDelay = process.env.SHUTDOWN_DELAY_MS
-                ? parseInt(process.env.SHUTDOWN_DELAY_MS)
-                : 15100; // number of milliseconds before shutdown begin
+            const serverShutdownDelay = shutdownDelayMs; // number of milliseconds before shutdown begin
             logInfo(`Server will begin shutdown in ${serverShutdownDelay / 1000} sec`, {});
             return new Promise((resolve) => {
                 setTimeout(() => {
@@ -129,6 +152,7 @@ async function createServer (fnGetContainer) {
         },
         onShutdown: () => {
             logInfo('Successfully shut down server', {});
+            exitWithRecordedCode(process);
         }, // called right before exiting
         useExit0: true, // instead of sending the received signal again without being catched, the process will exit(0)
         logError // logger function to be called with errors. Example logger call: ('error happened during shutdown', error). See terminus.js for more details.

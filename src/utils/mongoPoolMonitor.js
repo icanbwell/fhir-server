@@ -48,11 +48,19 @@
  * - connectionPoolClosed drops that address's state entirely and emits the negative of
  *   whatever it still held, so a closed pool reports 0 rather than a leftover level. Late
  *   checkedIn events after the close find no entry and do nothing.
- *
- * Known gap: the driver does not emit checkOutFailed when a checkout is cancelled through
- * an AbortSignal, so such a checkout would stay counted as waiting until its pool closes.
- * fhir-server does not pass a signal to driver operations today (the AbortControllers in
- * merge and search stop our response streams, not the driver), so this cannot happen yet.
+ * - A checkout cancelled through an AbortSignal emits no checkOutFailed: the driver marks
+ *   the wait-queue member cancelled and drops it silently the next time it processes the
+ *   queue (on a checkIn). The counter alone would therefore drift upward by one per
+ *   cancelled checkout until its pool closes. To correct it, after a checkedIn,
+ *   checkedOut or checkOutFailed with waiters still counted, the monitor reads the pool's
+ *   waiter count on the next macrotask, once the driver has dropped cancelled members, and
+ *   lowers the count to it. The waiter count is the queue length plus connections still
+ *   being opened, because the driver shifts a waiter out of the queue before it opens a
+ *   connection for it and reports it checked out only when that connection is ready. It
+ *   only ever lowers the count, and if the internals are not there (a driver upgrade) it
+ *   logs one warning and does nothing, so the counter behaves as before. While a
+ *   cancelled checkout sits behind a connection that stays busy, the gauge overstates the
+ *   wait by one until that connection is checked in.
  */
 
 const {
@@ -63,6 +71,7 @@ const {
     recordMongoPoolConnectionsInUseChange,
     recordMongoPoolWaitQueueSizeChange
 } = require('./metrics');
+const { logWarn } = require('../operations/common/logging');
 
 const UNKNOWN_ADDRESS = 'unknown';
 
@@ -76,7 +85,9 @@ const UNKNOWN_ADDRESS = 'unknown';
  *   checkOutFailed: (address: string|undefined) => {inUse: number, waiting: number},
  *   checkedIn: (address: string|undefined, connectionId: number|undefined) => {inUse: number, waiting: number},
  *   connectionClosed: (address: string|undefined, connectionId: number|undefined) => {inUse: number, waiting: number},
- *   poolClosed: (address: string|undefined) => {inUse: number, waiting: number}
+ *   poolClosed: (address: string|undefined) => {inUse: number, waiting: number},
+ *   hasWaiters: (address: string|undefined) => boolean,
+ *   reconcileWaiting: (address: string|undefined, actualWaiting: number) => {inUse: number, waiting: number}
  * }}
  */
 function createPoolOccupancy () {
@@ -134,6 +145,20 @@ function createPoolOccupancy () {
         connectionClosed (address, connectionId) {
             return { inUse: release(servers.get(keyOf(address)), connectionId), waiting: 0 };
         },
+        hasWaiters (address) {
+            return (servers.get(keyOf(address))?.waiting ?? 0) > 0;
+        },
+        // Lowers the count to the pool's real queue length. Never raises it: a larger real
+        // length means a started event is still ahead of us, not a missing one.
+        reconcileWaiting (address, actualWaiting) {
+            const server = servers.get(keyOf(address));
+            if (!server || !(actualWaiting >= 0) || server.waiting <= actualWaiting) {
+                return { inUse: 0, waiting: 0 };
+            }
+            const waiting = actualWaiting - server.waiting;
+            server.waiting = actualWaiting;
+            return { inUse: 0, waiting };
+        },
         poolClosed (address) {
             const key = keyOf(address);
             const server = servers.get(key);
@@ -147,6 +172,47 @@ function createPoolOccupancy () {
 }
 
 /**
+ * The only place that reaches into the driver's private topology (the CMAP events do not
+ * expose pool state), so a driver upgrade breaks one function and its integration test.
+ *
+ * Counts a waiter until it has a connection: members still in the wait queue, plus those
+ * the driver has already shifted out to open a new connection (pendingConnectionCount) and
+ * that have not yet been reported as checked out. A cancelled member waiting on a pending
+ * connection is still counted, which errs toward overstating, never understating.
+ *
+ * @param {import('mongodb').MongoClient} client
+ * @param {string} address Server address as carried by the CMAP events.
+ * @returns {number|undefined} undefined when the driver internals are not there.
+ */
+function driverPoolWaiterCount (client, address) {
+    const pool = client.topology?.s?.servers?.get(address)?.pool;
+    if (typeof pool?.waitQueueSize !== 'number') {
+        return undefined;
+    }
+    const pending = typeof pool.pendingConnectionCount === 'number' ? pool.pendingConnectionCount : 0;
+    return pool.waitQueueSize + pending;
+}
+
+let reconcileUnavailableWarned = false;
+
+/**
+ * Logs once per process that the wait queue can no longer be reconciled against the driver
+ * pool, so a driver upgrade that moves its internals does not go unnoticed.
+ * @param {string} poolName
+ * @param {Error} [error]
+ */
+function warnReconcileUnavailableOnce (poolName, error) {
+    if (reconcileUnavailableWarned) {
+        return;
+    }
+    reconcileUnavailableWarned = true;
+    logWarn('Mongo pool wait-queue reconciliation unavailable: driver pool internals not readable', {
+        pool: poolName,
+        error: error?.message
+    });
+}
+
+/**
  * Attach CMAP metric emission to a MongoClient.
  *
  * Safe to call on any client: emission is fire-and-forget and never touches the
@@ -156,9 +222,11 @@ function createPoolOccupancy () {
  * @param {import('mongodb').MongoClient} params.client
  * @param {string} params.poolName Logical pool label. Bounded by deployment (one per
  *   configured database), never derived from resource ids or user input.
+ * @param {import('./mongoCheckoutTimeoutTracker').MongoCheckoutTimeoutTracker} [params.checkoutTimeoutTracker]
+ *   Optional. Fed checkout timeouts and successes so a wedged pool can recycle the worker.
  * @returns {void}
  */
-function registerMongoPoolMonitoring ({ client, poolName }) {
+function registerMongoPoolMonitoring ({ client, poolName, checkoutTimeoutTracker }) {
     if (!client || typeof client.on !== 'function') {
         return;
     }
@@ -169,6 +237,27 @@ function registerMongoPoolMonitoring ({ client, poolName }) {
         recordMongoPoolWaitQueueSizeChange(poolName, waiting);
     };
 
+    // Runs on the next macrotask, after the driver has dropped cancelled queue members
+    // (see the AbortSignal note in the header), and only when there is something that could be overstated.
+    const reconcileWaitQueueSoon = (address) => {
+        if (!address || !occupancy.hasWaiters(address)) {
+            return;
+        }
+        setImmediate(() => {
+            try {
+                const actual = driverPoolWaiterCount(client, address);
+                if (typeof actual === 'number') {
+                    emitOccupancyChange(occupancy.reconcileWaiting(address, actual));
+                } else {
+                    warnReconcileUnavailableOnce(poolName);
+                }
+            } catch (error) {
+                // Best effort: must never surface into the driver, but must not fail silently.
+                warnReconcileUnavailableOnce(poolName, error);
+            }
+        }).unref();
+    };
+
     client.on('connectionCheckOutStarted', (event) => {
         emitOccupancyChange(occupancy.checkOutStarted(event?.address));
     });
@@ -176,6 +265,8 @@ function registerMongoPoolMonitoring ({ client, poolName }) {
     client.on('connectionCheckedOut', (event) => {
         recordMongoPoolCheckoutDuration(poolName, event?.durationMS);
         emitOccupancyChange(occupancy.checkedOut(event?.address, event?.connectionId));
+        checkoutTimeoutTracker?.recordCheckoutSuccess(event?.address);
+        reconcileWaitQueueSoon(event?.address);
     });
 
     client.on('connectionCheckOutFailed', (event) => {
@@ -184,10 +275,15 @@ function registerMongoPoolMonitoring ({ client, poolName }) {
         // the histogram -- excluding it would hide the worst cases.
         recordMongoPoolCheckoutDuration(poolName, event?.durationMS);
         emitOccupancyChange(occupancy.checkOutFailed(event?.address));
+        if (event?.reason === 'timeout') {
+            checkoutTimeoutTracker?.recordCheckoutTimeout(event?.address);
+        }
+        reconcileWaitQueueSoon(event?.address);
     });
 
     client.on('connectionCheckedIn', (event) => {
         emitOccupancyChange(occupancy.checkedIn(event?.address, event?.connectionId));
+        reconcileWaitQueueSoon(event?.address);
     });
 
     client.on('connectionClosed', (event) => {

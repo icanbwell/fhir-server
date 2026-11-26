@@ -45,9 +45,12 @@ rather than this producer. The loader and the `_history` read path are separate 
 
 For a type in `RESOURCE_HISTORY_MONGO_DISABLED_RESOURCES` (and in `RESOURCE_HISTORY_KAFKA_RESOURCES`),
 the history flush produces first and writes to MongoDB only the documents Kafka did not accept
-(after the retries and timeout below), so a Kafka outage loses no history and never fails the FHIR
-write. Each fallback is logged (resource type, count, reason; no ids or payloads) and counted in
-`fhir_history_mongo_fallback_total{resource_type,reason}`. Other types, and a type in only the produce
+(after the retries and timeout below), so a Kafka-only outage loses no history and never fails the FHIR
+write (if the MongoDB fallback also fails, see below). Each fallback is logged (resource type, count, reason; no ids or payloads) and counted in
+`fhir_history_mongo_fallback_total{resource_type,reason}`. If that MongoDB write then fails (it throws, or
+the executor returns a document-size error), the history is lost: the documents not written are counted in
+`fhir_history_mongo_fallback_failed_total{resource_type,reason}` (`reason=mongo_write_failed`) and logged
+(resource type, count, request id, reason; no ids or payloads), and the error is rethrown unchanged. Other types, and a type in only the produce
 list, keep the parallel write above. Enable a type only after its `_history` reads are served from
 ClickHouse. `GroupMember` must stay out of the list for now: Group vread rebuilds the roster from the
 MongoDB `GroupMember_4_0_0_History` collection (`getMemberCursorAtAsync`). No ClickHouse `_history`/vread read path exists in this repo yet (the read path still queries
@@ -96,7 +99,10 @@ remaining chunks of that flush are not sent and fall back to MongoDB straight aw
 
 - Metrics by `resource_type`: `fhir_history_kafka_produced_total`,
   `fhir_history_kafka_produce_failed_total`, `fhir_history_kafka_produce_duration_seconds`; and
-  `fhir_history_mongo_fallback_total` (also by `reason`) for Kafka-only fallback writes.
+  `fhir_history_mongo_fallback_total` (also by `reason`) for Kafka-only fallback writes; and
+  `fhir_history_mongo_fallback_failed_total` (by `resource_type` and `reason`) for history documents
+  lost because the Kafka produce and the MongoDB fallback write both failed (alert on this one). OTel
+  counters appear only after their first increment.
 - Structured logs carry resource type, counts, topic and request id only (no payloads, no PHI).
 
 ## Constraints
