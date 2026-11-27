@@ -54,9 +54,13 @@ const flushBuffer = async (fnGetContainer) => {
 /**
  * Creates the http server
  * @param {function (): SimpleContainer} fnGetContainer
+ * @param {Object} [options]
+ * @param {import('./utils/cluster/workerLoadReporter').WorkerLoadReporter} [options.workerLoadReporter]
+ *  set when the cluster primary dispatches connections (CLUSTER_SCHEDULING=least_busy). The server
+ *  then takes connections from the primary instead of listening on the service port.
  * @return {Promise<import('http').Server>}
  */
-async function createServer (fnGetContainer) {
+async function createServer (fnGetContainer, { workerLoadReporter } = {}) {
     const container = fnGetContainer();
     const { gracefulTimeoutMs, shutdownDelayMs, forceExitAfterMs } = readShutdownTimings(process.env);
 
@@ -83,16 +87,24 @@ async function createServer (fnGetContainer) {
 
     const app = createApp({ fnGetContainer });
 
-    const server = http
-        .createServer(app)
-        .listen(fhirServerConfig.server.port, null, null, async () => {
-            const image = process.env.DOCKER_IMAGE || '';
-            await logSystemEventAsync({
-                event: 'serverStartup',
-                message: 'Server is up and running',
-                args: { image, version: getImageVersion() }
-            });
+    const onListening = async () => {
+        const image = process.env.DOCKER_IMAGE || '';
+        await logSystemEventAsync({
+            event: 'serverStartup',
+            message: 'Server is up and running',
+            args: { image, version: getImageVersion() }
         });
+    };
+
+    const server = http.createServer(app);
+    if (workerLoadReporter) {
+        // The primary owns the service port. Listening on a private loopback port (exclusive, so
+        // it is not shared through the cluster primary) keeps the server in the listening state
+        // that Terminus' graceful shutdown expects; nothing connects to it.
+        server.listen({ port: 0, host: '127.0.0.1', exclusive: true }, onListening);
+    } else {
+        server.listen(fhirServerConfig.server.port, null, null, onListening);
+    }
 
     // https://stackoverflow.com/questions/56606305/difference-between-keepalivetimeout-and-timeout
     // The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has
@@ -135,11 +147,27 @@ async function createServer (fnGetContainer) {
                 setTimeout(() => {
                     logInfo('Beginning shutdown of server', {});
                     // server stops accepting new requests after this point
+                    if (workerLoadReporter) {
+                        workerLoadReporter.markDraining();
+                    }
                     resolve();
                 }, serverShutdownDelay);
             });
         }, // called before the HTTP server starts its shutdown
         onSignal: async () => {
+            if (workerLoadReporter) {
+                // Connections from the cluster primary are not counted by server.close(), so
+                // wait for their requests here, before flushing (see WorkerLoadReporter).
+                const allClosed = await workerLoadReporter.waitForConnectionsToCloseAsync({
+                    timeoutMs: gracefulTimeoutMs
+                });
+                if (!allClosed) {
+                    logError('Connections from the cluster primary were still open at shutdown', {
+                        openConnections: workerLoadReporter.openConnectionCount(),
+                        timeoutMs: gracefulTimeoutMs
+                    });
+                }
+            }
             // for flushing dd-trace and sentry
             logInfo('Emitting beforeExit event');
             process.emit('beforeExit');
@@ -159,6 +187,12 @@ async function createServer (fnGetContainer) {
     };
 
     createTerminus(server, options);
+
+    // Attach after Terminus so its request handling (health checks, shutdown tracking) also sees
+    // the connections the primary sends.
+    if (workerLoadReporter) {
+        workerLoadReporter.attach(server);
+    }
 
     return server;
 }

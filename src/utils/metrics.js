@@ -58,6 +58,7 @@
 
 const { metrics: otelMetrics } = require('@opentelemetry/api');
 const { fhirSchemaValidator } = require('./fhirSchemaValidator');
+const { CLUSTER_CONNECTION_DROP_REASON } = require('./cluster/clusterDispatchConstants');
 
 const LABEL = Object.freeze({
     OUTCOME: 'outcome',
@@ -434,6 +435,25 @@ const mongoPoolWaitQueueSizeUpDownCounter = meter.createUpDownCounter('fhir_mong
 
 const viewControlOutcomeCounter = meter.createCounter('fhir_view_control_outcome_total', {
     description: 'Data view control lookups, once per subject per request, by outcome (hidden|no_consent|not_enrolled|no_person|fail_closed), subject (user|opt_in) and, for fail_closed, reason. hidden / (hidden + no_consent) is how often the block changes a response; fail_closed is a read refused because the Consent could not be checked; opt_in is service-token use of _applyDataViewControl.'
+});
+
+// The three cluster instruments below are recorded by the cluster primary only, when it hands
+// connections to workers itself (CLUSTER_SCHEDULING=least_busy). They carry no worker label:
+// worker ids grow with every re-fork, so they would be an unbounded label.
+const clusterConnectionsDispatchedCounter = meter.createCounter('fhir_cluster_connections_dispatched_total', {
+    description: 'Connections the cluster primary handed to a worker. With traefik-internal opening one connection per request this tracks the pod request rate; callers that reuse connections (cluster-local service calls) make it lower than http_server_request_duration_seconds_count.'
+});
+
+const clusterConnectionsDroppedCounter = meter.createCounter('fhir_cluster_connections_dropped_total', {
+    description: 'Connections the cluster primary closed without serving, by reason (no_worker: every worker is starting, draining or gone; send_failed: the hand-off to the chosen worker failed; worker_exited: the worker exited before taking a connection sent to it). Expected briefly at pod start and at the end of shutdown; anything else means the pod is refusing traffic.'
+});
+
+const clusterDispatchWorkerScoreHistogram = meter.createHistogram('fhir_cluster_dispatch_worker_score', {
+    description: 'Load score of the worker the cluster primary picked for each connection: in-flight requests, plus connections sent but not yet taken, plus blocked time (overdue load report / CLUSTER_BLOCKED_MS_PER_REQUEST). This is the least loaded worker, so a rising value means every worker in the pod is busy.',
+    unit: '1',
+    advice: {
+        explicitBucketBoundaries: [0, 1, 2, 4, 8, 16, 32, 64]
+    }
 });
 
 const everythingCacheInvalidationFailedCounter = meter.createCounter('fhir_everything_cache_invalidation_failed_total', {
@@ -859,6 +879,26 @@ function recordEverythingCacheInvalidationFailed (reason) {
 }
 
 /**
+ * Emit fhir_cluster_connections_dispatched_total and fhir_cluster_dispatch_worker_score for one
+ * connection the cluster primary handed to a worker.
+ * @param {number} workerScore load score of the chosen worker
+ */
+function recordClusterConnectionDispatched (workerScore) {
+    clusterConnectionsDispatchedCounter.add(1);
+    clusterDispatchWorkerScoreHistogram.record(workerScore);
+}
+
+/**
+ * Emit fhir_cluster_connections_dropped_total.
+ * @param {string} reason one of CLUSTER_CONNECTION_DROP_REASON (cluster/clusterDispatchConstants.js)
+ */
+function recordClusterConnectionDropped (reason) {
+    clusterConnectionsDroppedCounter.add(1, {
+        [LABEL.REASON]: Object.values(CLUSTER_CONNECTION_DROP_REASON).includes(reason) ? reason : UNKNOWN
+    });
+}
+
+/**
  * Emit fhir_graphql_errors_total. root_field is the schema name of the root field (never the
  * client's alias), or unknown.
  * @param {{endpoint: string, operationType: string, code: string, rootField: string}} labels
@@ -914,6 +954,9 @@ module.exports = {
     mongoPoolWaitQueueSizeUpDownCounter,
     viewControlOutcomeCounter,
     everythingCacheInvalidationFailedCounter,
+    clusterConnectionsDispatchedCounter,
+    clusterConnectionsDroppedCounter,
+    clusterDispatchWorkerScoreHistogram,
     graphqlErrorsCounter,
     graphqlPartialResponsesCounter,
 
@@ -945,6 +988,8 @@ module.exports = {
     recordMongoPoolWaitQueueSizeChange,
     recordViewControlOutcome,
     recordEverythingCacheInvalidationFailed,
+    recordClusterConnectionDispatched,
+    recordClusterConnectionDropped,
     recordGraphQlError,
     recordGraphQlPartialResponse,
 

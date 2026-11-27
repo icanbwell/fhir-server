@@ -78,8 +78,14 @@ const {
     VIEW_CONTROL_FAIL_REASON,
     recordEverythingCacheInvalidationFailed,
     everythingCacheInvalidationFailedCounter,
-    CACHE_INVALIDATION_FAILURE
+    CACHE_INVALIDATION_FAILURE,
+    recordClusterConnectionDispatched,
+    recordClusterConnectionDropped,
+    clusterConnectionsDispatchedCounter,
+    clusterConnectionsDroppedCounter,
+    clusterDispatchWorkerScoreHistogram
 } = require('../../../utils/metrics');
+const { CLUSTER_CONNECTION_DROP_REASON } = require('../../../utils/cluster/clusterDispatchConstants');
 
 describe('metrics.js', () => {
     beforeEach(() => {
@@ -656,6 +662,26 @@ describe('metrics.js', () => {
             recordEverythingCacheInvalidationFailed(reason);
 
             expect(everythingCacheInvalidationFailedCounter.add).toHaveBeenCalledWith(1, { reason: expected });
+        });
+    });
+
+    describe('recordClusterConnectionDispatched', () => {
+        test('counts the connection and records the chosen worker score', () => {
+            recordClusterConnectionDispatched(2.5);
+
+            expect(clusterConnectionsDispatchedCounter.add).toHaveBeenCalledWith(1);
+            expect(clusterDispatchWorkerScoreHistogram.record).toHaveBeenCalledWith(2.5);
+        });
+    });
+
+    describe('recordClusterConnectionDropped', () => {
+        test.each([
+            ...Object.values(CLUSTER_CONNECTION_DROP_REASON).map((reason) => [reason, reason]),
+            ['an unexpected reason', UNKNOWN]
+        ])('reason %s emits %s', (reason, expected) => {
+            recordClusterConnectionDropped(reason);
+
+            expect(clusterConnectionsDroppedCounter.add).toHaveBeenCalledWith(1, { reason: expected });
         });
     });
 

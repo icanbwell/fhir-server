@@ -3,16 +3,47 @@
  */
 // Load the rest of the modules
 const cluster = require('cluster');
+const net = require('net');
 const { initSentry } = require('./utils/initSentry');
 const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
 const { fhirSchemaValidator } = require('./utils/fhirSchemaValidator');
+const { fhirServerConfig } = require('./config');
+const {
+    CLUSTER_SCHEDULING_POLICIES,
+    readClusterSchedulingConfig
+} = require('./utils/cluster/clusterSchedulingConfig');
+const { WorkerLoadTable } = require('./utils/cluster/workerLoadTable');
+const { ConnectionDispatcher } = require('./utils/cluster/connectionDispatcher');
+const { WorkerLoadReporter, createIpcSender } = require('./utils/cluster/workerLoadReporter');
+const { logError } = require('./operations/common/logging');
+const {
+    recordClusterConnectionDispatched,
+    recordClusterConnectionDropped
+} = require('./utils/metrics');
 
 // Validates OpenTelemetry setup, which only this entrypoint (loaded via
 // --require=./src/otel_instrumentation.js) actually attempts.
 initSentry({ validateOpenTelemetry: true });
+
+const numCPUs = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT, 10) : 1;
+const isClustered = numCPUs > 1;
+// Validated at startup in both primary and workers so a bad value fails the pod immediately
+const clusterScheduling = readClusterSchedulingConfig(process.env);
+const primaryDispatchesConnections =
+    isClustered && clusterScheduling.policy === CLUSTER_SCHEDULING_POLICIES.LEAST_BUSY;
+
+/**
+ * @returns {WorkerLoadReporter}
+ */
+const createWorkerLoadReporter = () =>
+    new WorkerLoadReporter({
+        channel: process,
+        send: createIpcSender({ channel: process, logError }),
+        intervalMs: clusterScheduling.reportIntervalMs
+    });
 
 const main = async function () {
     try {
@@ -21,7 +52,9 @@ const main = async function () {
         // Pre-compile FHIR schema validators for every resourceType off the request path
         fhirSchemaValidator.preWarm();
 
-        await createServer(() => container);
+        await createServer(() => container, {
+            workerLoadReporter: primaryDispatchesConnections ? createWorkerLoadReporter() : undefined
+        });
 
         // Connect the V2 Kafka producer now (a no-op when V2 Kafka is disabled, and never throws),
         // so the first AuditEvent flush doesn't pay for the connect inside its produce timeout.
@@ -39,9 +72,36 @@ const main = async function () {
     }
 };
 
-const numCPUs = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT, 10) : 1;
-if (cluster.isPrimary && numCPUs > 1) {
-    console.log(JSON.stringify({message: `Master ${process.pid} is running with ${numCPUs} workers`}));
+if (cluster.isPrimary && isClustered) {
+    console.log(JSON.stringify({
+        message: `Master ${process.pid} is running with ${numCPUs} workers`,
+        clusterScheduling: clusterScheduling.policy
+    }));
+
+    /** @type {ConnectionDispatcher|null} */
+    let dispatcher = null;
+    if (primaryDispatchesConnections) {
+        dispatcher = new ConnectionDispatcher({
+            cluster,
+            net,
+            loadTable: new WorkerLoadTable({
+                reportIntervalMs: clusterScheduling.reportIntervalMs,
+                blockedMsPerRequest: clusterScheduling.blockedMsPerRequest
+            }),
+            port: Number(fhirServerConfig.server.port),
+            log: (message, args) => console.log(JSON.stringify({ message, ...args })),
+            metrics: {
+                connectionDispatched: recordClusterConnectionDispatched,
+                connectionDropped: recordClusterConnectionDropped
+            }
+        });
+        // Before forking, so every worker's 'fork' event is seen
+        dispatcher.trackWorkers();
+        dispatcher.listenAsync().catch((error) => {
+            console.error(JSON.stringify({ message: 'Connection dispatcher failed to listen', error: error.message }));
+            process.exit(1);
+        });
+    }
 
     // Workers read these in createServer. Validate here too so a malformed value ends the
     // container (Kubernetes backs off) instead of crash-looping re-forked workers.
@@ -60,6 +120,9 @@ if (cluster.isPrimary && numCPUs > 1) {
     let shuttingDown = false;
     const forwardSignal = (signal) => {
         shuttingDown = true;
+        if (dispatcher) {
+            dispatcher.closeAfterLastWorkerExits();
+        }
         for (const id in cluster.workers) {
             cluster.workers[id].process.kill(signal);
         }
