@@ -4,6 +4,12 @@ const { ACCESS_LOGS_ENTRY_DATA, STREAM_ACCESS_LOG_BODY_LIMIT } = require('../../
 const { ConfigManager } = require('../../utils/configManager');
 const { assertTypeEquals } = require('../../utils/assertType');
 
+/**
+ * Maximum number of characters allowed in a single NDJSON line (matches default payloadLimit of 50mb)
+ * @type {number}
+ */
+const MAX_NDJSON_LINE_LENGTH = 50 * 1024 * 1024;
+
 class NdjsonParser extends Transform {
     /**
      * @param {ConfigManager} configManager
@@ -21,10 +27,22 @@ class NdjsonParser extends Transform {
     }
 
     _transform(chunk, encoding, callback) {
-        this._buffer += chunk.toString();
+        const text = chunk.toString();
+        if (this._buffer.length + text.length > MAX_NDJSON_LINE_LENGTH && text.indexOf('\n') === -1) {
+            return callback(new Error(`Invalid NDJSON: line exceeds maximum length of ${MAX_NDJSON_LINE_LENGTH}`));
+        }
+        if (text.indexOf('\n') === -1) {
+            // no complete line yet; avoid re-splitting the whole buffer
+            this._buffer += text;
+            return callback();
+        }
+        this._buffer += text;
 
         let lines = this._buffer.split('\n');
         this._buffer = lines.pop(); // leave incomplete line in buffer
+        if (this._buffer.length > MAX_NDJSON_LINE_LENGTH) {
+            return callback(new Error(`Invalid NDJSON: line exceeds maximum length of ${MAX_NDJSON_LINE_LENGTH}`));
+        }
 
         for (const line of lines) {
             if (line.trim()) {
