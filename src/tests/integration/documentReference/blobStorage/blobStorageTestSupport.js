@@ -29,9 +29,10 @@ const ENV_ON = {
 // Only the DocumentReference flag is off; the base64 feature stays on (as it is for Binary).
 const ENV_FLAG_OFF = { ...ENV_ON, BASE64_FIELD_CLOUD_STORAGE_DOCUMENT_REFERENCE_ENABLED: undefined };
 // The write path is chosen per request from WRITE_PIPELINE_OPERATIONS (read on every call), so a
-// test can switch it without rebuilding anything. jest/setEnvVars.js sets the new path by default.
+// test can switch it without rebuilding anything. The new-path list is the value
+// jest/setEnvVars.js sets by default: every operation that can use the write pipeline.
 const WRITE_MODES = [
-    ['new write pipeline', 'create,merge,update'],
+    ['new write pipeline', 'create,merge,update,patch,admin,import'],
     ['old write path', '']
 ];
 // saveEnv/restoreEnv also carry WRITE_PIPELINE_OPERATIONS, so a mode never leaks into the next test

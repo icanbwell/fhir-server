@@ -59,11 +59,11 @@ async function processRangeAsync (handler, container, message) {
     }
 }
 
-// Bulk import writes through mergeManager.mergeResourceAsync in BOTH write modes: the write
-// pipeline has no import profile, so WRITE_PIPELINE_OPERATIONS does not change this path. The two
-// modes are kept to show that the result does not depend on it.
+// Bulk import has two write paths. With `import` in WRITE_PIPELINE_OPERATIONS a flush runs on the
+// write pipeline; without it the worker calls mergeManager.mergeResourceAsync per line. Both go
+// through the same merge, so the result is expected to be the same in both modes.
 describe.each(WRITE_MODES)(
-    'DocumentReference bulk import of an attachment, imported twice (same path in both write modes) [%s]',
+    'DocumentReference bulk import of an attachment, imported twice [%s]',
     (_mode, operations) => {
         let savedEnv;
         let savedImportEnv;

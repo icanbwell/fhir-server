@@ -180,6 +180,31 @@ describe('Base64DataManager protects an existing pointer with the DocumentRefere
             expect(Object.keys(live.uploadedData)).toEqual([liveKeyOf(manager)]);
         });
 
+        // A body built from the stored document (an admin write does) carries the stored pointer.
+        // The pointer does not tell elements apart: the same element keeps it, another one does not
+        // inherit it, whatever pointer the body carries.
+        test.each([
+            ['the same element carrying the stored pointer', {}, true],
+            ['another element carrying the stored pointer', { url: 'http://example.com/other' }, false]
+        ])('PUT of %s, without data', async (_name, extra, keepsPointer) => {
+            const { manager, live } = makeManager();
+            const stored = await storedWithPointer();
+            live.uploadedData[liveKeyOf(manager)] = LARGE;
+            const final = copyOf(stored);
+            const incoming = documentReference([
+                attachmentItem({ ...extra, _blobMeta: await pointerOf(LARGE) })
+            ]);
+            const requestInfo = { requestId: `flag-off-reconcile-carried-${Math.random()}` };
+
+            const patches = await manager.reconcileLeavesAsync(final, stored, incoming, false, requestInfo);
+            await manager.cleanupPreviousLiveObjectAsync(final, requestInfo);
+
+            expect(patches).toEqual([]);
+            expect(final.content[0].attachment._blobMeta)
+                .toEqual(keepsPointer ? await pointerOf(LARGE) : undefined);
+            expect(Object.keys(live.uploadedData)).toEqual([liveKeyOf(manager)]);
+        });
+
         test('other data goes onto the document and the object is not recorded for cleanup', async () => {
             const { manager, live, final, patches, requestInfo } = await reconcile({
                 incomingData: OTHER_LARGE, smartMerge: false
@@ -289,6 +314,18 @@ describe.each([
     test('the same element without data drops the pointer in the view, so the merge sees it as equal', async () => {
         const stored = documentReference([await storedItem({ title: 'a' })]);
         const incoming = documentReference([attachmentItem({ title: 'a' })]);
+
+        const { view, hydrated } = await hydrate({ stored, incoming });
+
+        expect(hydrated).toBe(1);
+        expect(view.content[0]).toEqual(attachmentItem({ title: 'a' }));
+    });
+
+    test('the same element carrying the stored pointer and no data is the same element', async () => {
+        const stored = documentReference([await storedItem({ title: 'a' })]);
+        const incoming = documentReference([
+            attachmentItem({ title: 'a', _blobMeta: await pointerOf(LARGE) })
+        ]);
 
         const { view, hydrated } = await hydrate({ stored, incoming });
 

@@ -417,7 +417,9 @@ class Base64DataManager {
 
     /**
      * True if `incomingElement` has no value at the leaf and equals `storedElement` apart from the
-     * leaf and its pointer. The one rule behind "the same element" for an externalized leaf.
+     * leaf and its pointer, on both sides: a body built from the stored document carries the stored
+     * pointer, a client body does not, and the pointer does not tell elements apart. The one rule
+     * behind "the same element" for an externalized leaf.
      * @private
      */
     _equalsApartFromLeaf (storedElement, incomingElement, leafSegments, blobMetaLeaf) {
@@ -433,7 +435,7 @@ class Base64DataManager {
             return false;
         }
         const leafKey = leafSegments[leafSegments.length - 1];
-        const withoutLeaf = (element, dropPointer) => {
+        const withoutLeaf = (element) => {
             const copy = deepcopy(element);
             let parent = copy;
             for (const segment of leafSegments.slice(0, -1)) {
@@ -441,13 +443,11 @@ class Base64DataManager {
             }
             if (parent) {
                 this._clearField(parent, leafKey);
-                if (dropPointer) {
-                    this._clearField(parent, blobMetaLeaf);
-                }
+                this._clearField(parent, blobMetaLeaf);
             }
             return copy;
         };
-        return deepEqual(withoutLeaf(incomingElement, false), withoutLeaf(storedElement, true));
+        return deepEqual(withoutLeaf(incomingElement), withoutLeaf(storedElement));
     }
 
     /**
