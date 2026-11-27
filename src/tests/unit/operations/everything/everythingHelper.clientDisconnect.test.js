@@ -16,7 +16,7 @@ jest.mock('../../../../operations/common/logging', () => ({
     logError: jest.fn(),
     logWarn: jest.fn()
 }));
-jest.mock('../../../../utils/metrics', () => ({ recordOutboundEverything: jest.fn() }));
+jest.mock('../../../../utils/metrics', () => ({ recordOutboundEverything: jest.fn(), recordEverythingClientDisconnect: jest.fn() }));
 jest.mock('../../../../utils/assertType', () => ({
     assertTypeEquals: jest.fn(),
     assertIsValid: jest.fn()
@@ -46,6 +46,36 @@ describe('BaseResponseStreamer.isClientGone', () => {
         ['client dropped mid-response', { destroyed: true, writableFinished: false }, true]
     ])('%s', (_name, response, expected) => {
         expect(createStreamer(response).isClientGone()).toBe(expected);
+    });
+});
+
+describe('BaseResponseStreamer.isClientGone on a real HTTP connection', () => {
+    test('is true after the client aborts mid-response and false while it is connected', async () => {
+        const http = require('http');
+        let streamer;
+        let resolveAborted;
+        const aborted = new Promise((resolve) => { resolveAborted = resolve; });
+        const server = http.createServer((req, res) => {
+            streamer = createStreamer(res);
+            res.write('{"first":true}\n');
+            res.on('close', () => resolveAborted());
+        });
+        await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+        try {
+            const request = http.get({ host: '127.0.0.1', port: server.address().port });
+            const firstChunk = await new Promise((resolve, reject) => {
+                request.on('response', (response) => response.once('data', resolve));
+                request.on('error', reject);
+            });
+            expect(firstChunk).toBeDefined();
+            expect(streamer.isClientGone()).toBe(false);
+            request.on('error', () => {});
+            request.destroy();
+            await aborted;
+            expect(streamer.isClientGone()).toBe(true);
+        } finally {
+            await new Promise((resolve) => server.close(resolve));
+        }
     });
 });
 
@@ -147,6 +177,18 @@ describe('EverythingHelper client disconnect', () => {
         }
     });
 
+    test.each([
+        ['a real failure is logged once even if the caller never awaits it', new Error('mongo failure'), 1],
+        ['a disconnect is not logged', new ClientDisconnectedError(), 0]
+    ])('markHandled: %s', async (_name, error, expectedWarnings) => {
+        const logging = require('../../../../operations/common/logging');
+        const { markHandled } = require('../../../../operations/everything/everythingHelper');
+        const pending = markHandled(Promise.reject(error));
+        await new Promise((resolve) => setImmediate(resolve));
+        expect(logging.logWarn).toHaveBeenCalledTimes(expectedWarnings);
+        await expect(pending).rejects.toBe(error);
+    });
+
     test('retriveEverythingAsync rethrows ClientDisconnectedError unwrapped, still audits the sent resources, and does not log an error', async () => {
         const logging = require('../../../../operations/common/logging');
         const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
@@ -200,18 +242,12 @@ describe('EverythingHelper client disconnect', () => {
             expect(events).toEqual(['fetch settled', 'thrown']);
         });
 
-        test('logs a non-disconnect failure of an abandoned fetch instead of dropping it', async () => {
-            const logging = require('../../../../operations/common/logging');
+        test('settles pending fetches and throws the disconnect error even if one failed', async () => {
             const streamer = createStreamer({ destroyed: true, writableFinished: false });
-            const realFailure = new Error('mongo failure');
-
             await expect(everythingHelper.assertClientConnectedAfterSettlingAsync({
                 responseStreamer: streamer,
-                pending: [Promise.reject(realFailure), Promise.reject(new ClientDisconnectedError())]
+                pending: [Promise.reject(new Error('mongo failure')), Promise.reject(new ClientDisconnectedError())]
             })).rejects.toBeInstanceOf(ClientDisconnectedError);
-
-            expect(logging.logError).toHaveBeenCalledTimes(1);
-            expect(logging.logError.mock.calls[0][1]).toEqual({ error: realFailure });
         });
     });
 
@@ -291,8 +327,7 @@ describe('EverythingHelper client disconnect', () => {
     });
 
     describe('settleAllOrThrow', () => {
-        test('prefers a real failure over a disconnect rejection and logs extras', async () => {
-            const logging = require('../../../../operations/common/logging');
+        test('prefers a real failure over a disconnect rejection', async () => {
             const { settleAllOrThrow } = require('../../../../operations/everything/everythingHelper');
             const real = new Error('mongo failure');
             await expect(settleAllOrThrow([
@@ -300,7 +335,6 @@ describe('EverythingHelper client disconnect', () => {
                 Promise.reject(real),
                 Promise.reject(new Error('second failure'))
             ])).rejects.toBe(real);
-            expect(logging.logError).toHaveBeenCalledTimes(1);
         });
 
         test('throws the disconnect error when it is the only rejection', async () => {

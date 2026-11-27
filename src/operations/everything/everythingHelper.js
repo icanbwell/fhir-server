@@ -14,7 +14,7 @@ const { EnrichmentManager } = require('../../enrich/enrich');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
-const { logError } = require('../common/logging');
+const { logError, logWarn } = require('../common/logging');
 const { ClientDisconnectedError } = require('../../utils/clientDisconnectedError');
 const { sliceIntoChunksGenerator, sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
@@ -62,7 +62,7 @@ const { RedisStreamManager } = require('../../utils/redisStreamManager');
 const { RedisManager } = require('../../utils/redisManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const httpContext = require('express-http-context');
-const { recordOutboundEverything } = require('../../utils/metrics');
+const { recordOutboundEverything, recordEverythingClientDisconnect } = require('../../utils/metrics');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -93,13 +93,20 @@ function escapeForJsonTemplate(value) {
 /**
  * Marks a promise as handled so that, if the caller exits early (e.g. the client disconnected) before
  * awaiting it, its rejection is not reported as an unhandledRejection (which shuts the process down).
- * The caller still sees the rejection when it awaits the same promise later.
+ * The caller still sees the rejection when it awaits the same promise later. Non-disconnect failures
+ * are logged (warn) here, once, whether or not the caller ever awaits the promise.
  * @template T
  * @param {Promise<T>} promise
  * @return {Promise<T>}
  */
 function markHandled(promise) {
-    promise.catch(() => {});
+    promise.catch((error) => {
+        // a disconnect is expected; log any other failure here so it is never lost, even when the caller
+        // leaves before awaiting this promise
+        if (!(error instanceof ClientDisconnectedError)) {
+            logWarn('$everything parallel fetch failed', { error });
+        }
+    });
     return promise;
 }
 
@@ -112,12 +119,8 @@ async function settleAllOrThrow(promises) {
     const rejections = settled.filter((s) => s.status === 'rejected');
     if (rejections.length > 0) {
         // a disconnect must not hide a real failure: prefer the first non-disconnect error
+        // (the others were already logged by markHandled)
         const primary = rejections.find((r) => !(r.reason instanceof ClientDisconnectedError)) || rejections[0];
-        for (const r of rejections) {
-            if (r !== primary && !(r.reason instanceof ClientDisconnectedError)) {
-                logError('Additional $everything fetch failure', { error: r.reason });
-            }
-        }
         throw primary.reason;
     }
     return settled.map((s) => s.value);
@@ -695,6 +698,9 @@ class EverythingHelper {
                         }
                     });
                 } catch (err) {
+                    if (err instanceof ClientDisconnectedError) {
+                        throw err;
+                    }
                     fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
                     logError('Error reading everything response from cache', { error: err, cacheKey });
                     if (!fallbackToMongo) {
@@ -825,6 +831,7 @@ class EverythingHelper {
             return bundle;
         } catch (error) {
             if (error instanceof ClientDisconnectedError) {
+                recordEverythingClientDisconnect(resourceType);
                 // nobody is waiting: drop a half-written cache entry and skip the error log, but still
                 // audit the resources already sent so access accounting stays complete
                 if (responseStreamer) {
@@ -2079,13 +2086,7 @@ class EverythingHelper {
      */
     async assertClientConnectedAfterSettlingAsync({ responseStreamer, pending }) {
         if (responseStreamer?.isClientGone()) {
-            const settled = await Promise.allSettled(pending);
-            // a disconnect is expected; any other failure of an abandoned fetch would otherwise vanish
-            settled
-                .filter((r) => r.status === 'rejected' && !(r.reason instanceof ClientDisconnectedError))
-                .forEach((r) => logError('Error in $everything fetch abandoned after client disconnect', {
-                    error: r.reason
-                }));
+            await Promise.allSettled(pending);
             throw new ClientDisconnectedError();
         }
     }

@@ -1,3 +1,4 @@
+const { ClientDisconnectedError } = require('./clientDisconnectedError');
 const { BaseResponseStreamer } = require('./baseResponseStreamer');
 const {EnrichmentManager} = require('../enrich/enrich');
 const { RedisStreamManager } = require('./redisStreamManager');
@@ -98,6 +99,10 @@ class CachedFhirResponseStreamer {
         await this.processEntriesBatch({ entries, streamedResources, enrichmentContext, isHidden });
         this.writeFromRedisStarted = true;
         while (hasMore){
+            // stop replaying to a client that has gone away
+            if (this.responseStreamer.isClientGone()) {
+                throw new ClientDisconnectedError();
+            }
             ({ entries, hasMore, lastId } = await this.redisStreamManager.readBundleEntriesFromStream(this.cacheKey, lastId));
             await this.processEntriesBatch({ entries, streamedResources, enrichmentContext, isHidden });
         }
