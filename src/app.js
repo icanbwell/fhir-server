@@ -15,6 +15,8 @@ const passport = require('passport');
 
 const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
+const {assertTypeEquals} = require('./utils/assertType');
+const {WritePipeline} = require('./operations/writePipeline/writePipeline');
 const {McpServer} = require('./routeHandlers/mcpServer');
 const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js')
 const {authenticateWithJsonFailure} = require('./middleware/fhir/authentication.middleware.js');
@@ -103,6 +105,7 @@ function createApp({fnGetContainer}) {
      */
     const configManager = container.configManager;
     container.writePipelineSwitch.assertValidConfiguration();
+    assertTypeEquals(container.writePipeline, WritePipeline);
 
     const accessLogger = container.accessLogger;
 

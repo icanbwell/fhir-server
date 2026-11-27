@@ -1,0 +1,13 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "forbidden",
+      "details": {
+        "text": "Write not allowed using user scopes if patient scope is present: user c8508855-bfe6-543d-baa4-3470e609661d does not have access to [Organization]"
+      },
+      "diagnostics": "Write not allowed using user scopes if patient scope is present: user c8508855-bfe6-543d-baa4-3470e609661d does not have access to [Organization]"
+    }
+  ]
+}

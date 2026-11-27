@@ -1,0 +1,25 @@
+{
+  "resourceType": "Person",
+  "id": "admin-person-b2",
+  "meta": {
+    "source": "https://example.com/admin-tests/tenant-b",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "tenant-b"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "tenant-b"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "Synthetic",
+      "given": [
+        "PersonB2"
+      ]
+    }
+  ]
+}

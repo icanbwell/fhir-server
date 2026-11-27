@@ -1,0 +1,16 @@
+{
+  "resourceType": "Observation",
+  "id": "put-parity-observation",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      { "system": "https://www.icanbwell.com/access", "code": "client" },
+      { "system": "https://www.icanbwell.com/owner", "code": "client" }
+    ]
+  },
+  "status": "final",
+  "code": {
+    "coding": [{ "system": "http://loinc.org", "code": "8867-4", "display": "Heart rate" }]
+  },
+  "subject": { "reference": "Patient/parity-patient-1" }
+}

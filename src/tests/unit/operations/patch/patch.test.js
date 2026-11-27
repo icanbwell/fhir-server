@@ -59,6 +59,10 @@ const { MongoGroupMemberRepository } = require('../../../../dataLayer/repositori
 const { AuditLogger } = require('../../../../utils/auditLogger');
 const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { WritePipelineSwitch } = require('../../../../operations/writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('../../../../operations/writePipeline/writePipeline');
+const { PatchResponder } = require('../../../../operations/writePipeline/operations/patch/responder');
+const { PATCH_WRITE_PROFILE } = require('../../../../operations/writePipeline/operations/patch/profile');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
 
@@ -92,7 +96,10 @@ describe('PatchOperation', () => {
             groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
             mongoGroupMemberRepository: createMockInstance(MongoGroupMemberRepository),
             auditLogger: createMockInstance(AuditLogger),
-            groupMemberMerger: createMockInstance(GroupMemberMerger)
+            groupMemberMerger: createMockInstance(GroupMemberMerger),
+            writePipelineSwitch: createMockInstance(WritePipelineSwitch),
+            writePipeline: createMockInstance(WritePipeline),
+            patchResponder: createMockInstance(PatchResponder)
         };
 
         // Setup mocks
@@ -139,6 +146,8 @@ describe('PatchOperation', () => {
         mocks.postRequestProcessor.add = jest.fn();
         mocks.auditLogger.logAuditEntryAsync = jest.fn().mockResolvedValue(undefined);
         mocks.postSaveHandlerFactory.getHandlers = jest.fn().mockReturnValue([]);
+        mocks.writePipelineSwitch.useNewPathFor = jest.fn().mockReturnValue(false);
+        mocks.writePipeline.runAsync = jest.fn();
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jest.fn();
         mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jest.fn(({ resources }) => Promise.resolve(resources));
 
@@ -155,6 +164,68 @@ describe('PatchOperation', () => {
 
     // ========== patchAsync (the single large method) ==========
     describe('patchAsync', () => {
+        test('routes to the pipeline when the patch switch is on', async () => {
+            const pipelineResponse = { id: 'obs-1', created: false, updated: true, resource_version: '2', resource: {} };
+            mocks.writePipelineSwitch.useNewPathFor.mockImplementation((operation) => operation === 'patch');
+            mocks.writePipeline.runAsync.mockResolvedValue(pipelineResponse);
+            const requestInfo = {
+                requestId: 'req-1',
+                body: [{ op: 'replace', path: '/status', value: 'amended' }],
+                contentTypeFromHeader: { type: fhirContentTypes.jsonPatch },
+                path: '/Observation/obs-1'
+            };
+
+            const result = await patchOp.patchAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Observation'
+            });
+
+            expect(result).toBe(pipelineResponse);
+            expect(mocks.writePipeline.runAsync).toHaveBeenCalledTimes(1);
+            expect(mocks.writePipeline.runAsync).toHaveBeenCalledWith({
+                profile: PATCH_WRITE_PROFILE,
+                responder: mocks.patchResponder,
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Observation'
+            });
+            expect(mocks.scopesValidator.verifyHasValidScopesAsync).not.toHaveBeenCalled();
+            expect(mocks.searchManager.constructQueryAsync).not.toHaveBeenCalled();
+            expect(mocks.databaseQueryFactory.createQuery).not.toHaveBeenCalled();
+            expect(mocks.fastDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
+            expect(mocks.fhirLoggingManager.logOperationSuccessAsync).not.toHaveBeenCalled();
+        });
+
+        test.each([
+            { name: 'create, update and merge', operations: ['create', 'update', 'merge'] },
+            { name: 'nothing', operations: [] }
+        ])('runs the old path when the switch lists $name', async ({ operations }) => {
+            mocks.writePipelineSwitch.useNewPathFor.mockImplementation(
+                (operation) => operations.includes(operation)
+            );
+            const requestInfo = {
+                requestId: 'req-1',
+                body: [{ op: 'replace', path: '/status', value: 'amended' }],
+                contentTypeFromHeader: { type: fhirContentTypes.jsonPatch },
+                user: 'admin',
+                scope: 'user/*.write',
+                isUser: false,
+                personIdFromJwtToken: null,
+                path: '/Observation/obs-1'
+            };
+
+            const result = await patchOp.patchAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Observation'
+            });
+
+            expect(mocks.writePipeline.runAsync).not.toHaveBeenCalled();
+            expect(result.updated).toBe(true);
+            expect(mocks.fastDatabaseBulkInserter.replaceOneAsync).toHaveBeenCalled();
+        });
+
         test('throws BadRequestError when Content-Type is not json-patch', async () => {
             const requestInfo = {
                 requestId: 'req-1',

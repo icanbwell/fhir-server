@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Group.member has 2 entries for one member, more than the 1 allowed"
+      }
+    }
+  ]
+}

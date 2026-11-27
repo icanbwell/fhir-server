@@ -1,0 +1,13 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "forbidden",
+      "details": {
+        "text": "user imran has no access to resource Observation with id put-parity-observation"
+      },
+      "diagnostics": "user imran has no access to resource Observation with id put-parity-observation"
+    }
+  ]
+}

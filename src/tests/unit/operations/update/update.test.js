@@ -48,6 +48,10 @@ const { generateUUIDv5 } = require('../../../../utils/uid.util');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const { GroupExtendedTagEnrichmentProvider } = require('../../../../enrich/providers/groupExtendedTagEnrichmentProvider');
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { WritePipelineSwitch } = require('../../../../operations/writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('../../../../operations/writePipeline/writePipeline');
+const { UpdateResponder } = require('../../../../operations/writePipeline/operations/update/responder');
+const { UPDATE_WRITE_PROFILE } = require('../../../../operations/writePipeline/operations/update/profile');
 const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
@@ -81,6 +85,9 @@ describe('UpdateOperation', () => {
             ),
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
             groupExtendedTagEnrichmentProvider: createMockInstance(GroupExtendedTagEnrichmentProvider),
+            writePipelineSwitch: createMockInstance(WritePipelineSwitch),
+            writePipeline: createMockInstance(WritePipeline),
+            updateResponder: createMockInstance(UpdateResponder),
             groupMemberMerger: createMockInstance(GroupMemberMerger)
         };
 
@@ -114,6 +121,8 @@ describe('UpdateOperation', () => {
         mocks.postSaveHandlerFactory.getHandlers = jest.fn().mockReturnValue([]);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jest.fn();
         mocks.groupExtendedTagEnrichmentProvider.enrichAsync = jest.fn(({ resources }) => Promise.resolve(resources));
+        mocks.writePipelineSwitch.useNewPathFor = jest.fn().mockReturnValue(false);
+        mocks.writePipeline.runAsync = jest.fn();
         mocks.groupMemberMerger.mergeMembers = jest.fn(({ resource }) => resource);
 
         Object.defineProperty(mocks.configManager, 'useAccessIndex', { get: () => false });
@@ -133,6 +142,30 @@ describe('UpdateOperation', () => {
 
     // ========== updateAsync (the single large method) ==========
     describe('updateAsync', () => {
+        test('routes to the pipeline when the update switch is on', async () => {
+            const pipelineResponse = { id: 'test-id', created: false, resource_version: '2', resource: {} };
+            mocks.writePipelineSwitch.useNewPathFor.mockImplementation((operation) => operation === 'update');
+            mocks.writePipeline.runAsync.mockResolvedValue(pipelineResponse);
+            const requestInfo = { path: '/Patient/test-id', body: { resourceType: 'Patient' }, requestId: 'req-1', headers: {} };
+
+            const result = await updateOp.updateAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+
+            expect(result).toBe(pipelineResponse);
+            expect(mocks.writePipeline.runAsync).toHaveBeenCalledWith({
+                profile: UPDATE_WRITE_PROFILE,
+                responder: mocks.updateResponder,
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Patient'
+            });
+            expect(mocks.scopesValidator.verifyHasValidScopesAsync).not.toHaveBeenCalled();
+            expect(mocks.databaseQueryFactory.createQuery).not.toHaveBeenCalled();
+        });
+
         test('throws when requestInfo is undefined', async () => {
             await expect(
                 updateOp.updateAsync({
@@ -173,6 +206,7 @@ describe('UpdateOperation', () => {
 
             expect(result.created).toBe(true);
             expect(mocks.fastDatabaseBulkInserter.insertOneAsync).toHaveBeenCalled();
+            expect(mocks.writePipeline.runAsync).not.toHaveBeenCalled();
         });
 
         test('strips a client-supplied _file_id and _uuid before validation and transformAttachments', async () => {

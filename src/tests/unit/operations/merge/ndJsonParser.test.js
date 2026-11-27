@@ -108,6 +108,71 @@ describe('NdjsonParser', () => {
             parser.end();
         });
 
+        /**
+         * Writes each chunk to a fresh parser, ends it, and resolves with what it emitted
+         * @param {Buffer[]} chunks
+         * @returns {Promise<{data: object[], error: Error|null}>}
+         */
+        function parseChunksAsync(chunks) {
+            const parser = new NdjsonParser({ configManager });
+            const data = [];
+            parser.on('data', (item) => data.push(item));
+            return new Promise((resolve) => {
+                parser.on('end', () => resolve({ data, error: null }));
+                parser.on('error', (error) => resolve({ data, error }));
+                chunks.forEach((chunk) => parser.write(chunk));
+                parser.end();
+            });
+        }
+
+        // synthetic names with 2-, 3- and 4-byte UTF-8 characters, split at every byte inside the
+        // last character, with and without a trailing newline (the latter is parsed in _flush)
+        const multiByteCases = [
+            ['2-byte', 'Muñ'],
+            ['3-byte', 'Euro€'],
+            ['4-byte', 'Smile😀']
+        ];
+        const splitCases = multiByteCases.flatMap(([label, family]) => {
+            const lastChar = Array.from(family).pop();
+            const charLength = Buffer.byteLength(lastChar, 'utf8');
+            return [true, false].flatMap((trailingNewline) =>
+                Array.from({ length: charLength - 1 }, (_, i) => [
+                    `${label} character split after byte ${i + 1}, trailingNewline=${trailingNewline}`,
+                    family,
+                    trailingNewline,
+                    i + 1
+                ])
+            );
+        });
+
+        test.each(splitCases)(
+            'should keep a multi-byte character intact when a chunk boundary splits it: %s',
+            async (label, family, trailingNewline, bytesBeforeSplit) => {
+                const bytes = Buffer.from(`{"family":"${family}"}${trailingNewline ? '\n' : ''}`, 'utf8');
+                const lastChar = Array.from(family).pop();
+                const splitAt = bytes.indexOf(Buffer.from(lastChar, 'utf8')) + bytesBeforeSplit;
+
+                const { data, error } = await parseChunksAsync([
+                    bytes.subarray(0, splitAt),
+                    bytes.subarray(splitAt)
+                ]);
+
+                expect(error).toBeNull();
+                expect(data).toEqual([{ family }]);
+            }
+        );
+
+        test('should emit an error when the stream ends inside a multi-byte character', async () => {
+            const bytes = Buffer.from('{"family":"Muñ"}', 'utf8');
+            const splitAt = bytes.indexOf(Buffer.from('ñ', 'utf8')) + 1;
+
+            const { data, error } = await parseChunksAsync([bytes.subarray(0, splitAt)]);
+
+            expect(data).toHaveLength(0);
+            expect(error.message).toContain('Invalid NDJSON on flush');
+        });
+
+
         test('should skip blank lines', (done) => {
             const parser = new NdjsonParser({ configManager });
             const data = [];

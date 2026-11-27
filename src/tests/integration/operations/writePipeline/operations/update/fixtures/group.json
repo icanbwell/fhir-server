@@ -1,0 +1,13 @@
+{
+  "resourceType": "Group",
+  "id": "put-parity-group",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      { "system": "https://www.icanbwell.com/access", "code": "client" },
+      { "system": "https://www.icanbwell.com/owner", "code": "client" }
+    ]
+  },
+  "type": "person",
+  "actual": true
+}

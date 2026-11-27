@@ -1,0 +1,9 @@
+{
+  "resourceType": "Patient",
+  "id": "import-no-meta",
+  "name": [
+    {
+      "family": "NoMeta"
+    }
+  ]
+}

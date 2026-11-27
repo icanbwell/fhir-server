@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "too-long",
+      "details": {
+        "text": "Payload size too large."
+      }
+    }
+  ]
+}

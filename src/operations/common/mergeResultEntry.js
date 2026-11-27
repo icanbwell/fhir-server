@@ -21,6 +21,9 @@ class MergeResultEntry {
      * @param {number|undefined} [sourceByteOffset] - absolute byte offset of the source NDJSON
      *   line this entry came from (bulk import only); used to restore output ordering to match
      *   the source file. Not part of toJSON() -- internal-only, doesn't change the NDJSON schema.
+     * @param {Object|null|undefined} [savedResource] - the document a lost versioned write saved
+     *   when the bulk inserter replayed it, so a caller can answer with what is stored instead of
+     *   what it queued. Not part of toJSON() -- internal-only, never serialized.
      */
     constructor (
         {
@@ -32,7 +35,8 @@ class MergeResultEntry {
             resourceType,
             updated,
             sourceAssigningAuthority,
-            sourceByteOffset
+            sourceByteOffset,
+            savedResource
         }
     ) {
         /**
@@ -71,6 +75,12 @@ class MergeResultEntry {
          * @type {number|undefined}
          */
         this.sourceByteOffset = sourceByteOffset;
+        if (savedResource) {
+            /**
+             * @type {Object}
+             */
+            this.savedResource = savedResource;
+        }
     }
 
     toJSON () {
@@ -155,6 +165,43 @@ class MergeResultEntry {
             }
         );
         return mergeResultEntry;
+    }
+
+    /**
+     * Creates the MergeResultEntry for an error thrown while merging a resource: the details text
+     * holds the resource as JSON, the diagnostics hold the error and the expression is
+     * `<resourceType>/<id>`. `MergeManager.mergeResourceAsync` attaches it to the error it
+     * rethrows.
+     * @param {Error} error
+     * @param {Resource} resource
+     * @param {string} resourceType
+     * @return {MergeResultEntry}
+     */
+    static createFromMergeException ({ error, resource, resourceType }) {
+        /**
+         * @type {OperationOutcome}
+         */
+        const operationOutcome = buildOperationOutcome({
+            severity: 'error',
+            code: 'exception',
+            details: {
+                text: 'Error merging: ' + JSON.stringify(resource)
+            },
+            diagnostics: error.toString(),
+            expression: [
+                resource.resourceType + '/' + resource.id
+            ]
+        });
+        return new MergeResultEntry({
+            id: resource.id,
+            uuid: resource._uuid,
+            sourceAssigningAuthority: resource._sourceAssigningAuthority,
+            resourceType,
+            created: false,
+            updated: false,
+            issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+            operationOutcome
+        });
     }
 }
 

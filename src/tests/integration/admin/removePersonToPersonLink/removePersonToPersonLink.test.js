@@ -33,8 +33,8 @@ describe('Person Tests', () => {
             resp = await request
                 .post('/admin/removePersonToPersonLink')
                 .send({
-                    bwellPersonId: 'Person/aba5bcf41cf64435839cf0568c121843',
-                    externalPersonId: 'Person/a58e50292d79469691d3048e787434cc'
+                    bwellPersonId: 'Person/849cb4f0-033b-5d6e-a614-9bbbbb3ba11e',
+                    externalPersonId: 'Person/d6d3a5b6-3178-5aa1-bca4-f60a5214bd2d'
                 })
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'));
 
@@ -69,8 +69,8 @@ describe('Person Tests', () => {
             resp = await request
                 .post('/admin/removePersonToPersonLink')
                 .send({
-                    bwellPersonId: 'Person/aba5bcf41cf64435839cf0568c121843',
-                    externalPersonId: 'Person/a58e50292d79469691d3048e787434cc'
+                    bwellPersonId: 'Person/849cb4f0-033b-5d6e-a614-9bbbbb3ba11e',
+                    externalPersonId: 'Person/d6d3a5b6-3178-5aa1-bca4-f60a5214bd2d'
                 })
                 .set(getHeadersWithCustomToken('admin/*.*'));
             expect(resp).toHaveStatusCode(200);

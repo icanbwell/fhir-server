@@ -1,0 +1,16 @@
+{
+  "resourceType": "Composition",
+  "id": "put-parity-composition",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      { "system": "https://www.icanbwell.com/access", "code": "client" },
+      { "system": "https://www.icanbwell.com/owner", "code": "client" }
+    ]
+  },
+  "status": "final",
+  "type": { "text": "Summary" },
+  "title": "Summary",
+  "date": "2026-01-01T00:00:00.000Z",
+  "author": [{ "display": "synthetic author" }]
+}

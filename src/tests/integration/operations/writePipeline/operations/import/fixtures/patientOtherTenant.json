@@ -1,0 +1,26 @@
+{
+  "resourceType": "Patient",
+  "id": "import-other-tenant",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-b"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-b"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client-b"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "OtherTenant"
+    }
+  ]
+}

@@ -1,5 +1,4 @@
 const { S3Client: S3, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
-const readline = require('readline');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { logInfo, logError } = require('../../common/logging');
@@ -16,6 +15,71 @@ function nonRetryableError (message) {
     const error = new Error(message);
     error.retryable = false;
     return error;
+}
+
+const NEWLINE_BYTE = 0x0a;
+const CARRIAGE_RETURN_BYTE = 0x0d;
+
+/**
+ * Splits a byte stream into lines on "\n" without decoding, so the caller sees the exact number
+ * of bytes each line occupies in the source (including a "\r\n" terminator, which a decoding line
+ * reader such as readline strips without reporting) and a multi-byte character is never decoded
+ * in pieces.
+ *
+ * A line longer than maxLineBytes is not buffered: its bytes are counted and dropped until the
+ * next "\n", and it is reported with content === null, so memory stays bounded by maxLineBytes
+ * whatever the input holds.
+ * @param {AsyncIterable<Buffer|string>} body
+ * @param {number} maxLineBytes
+ * @returns {AsyncGenerator<{content: Buffer|null, rawBytes: number, terminatorBytes: number}>}
+ * content excludes the "\n" terminator (and is null for an oversize line); rawBytes is the line's
+ * length before the terminator; terminatorBytes is 0 only for a final line with no trailing newline
+ */
+async function * readRawLinesAsync (body, maxLineBytes) {
+    // one extra byte of slack: a "\r" ahead of the "\n" is the terminator, not line content
+    const maxRawBytes = maxLineBytes + 1;
+    let parts = [];
+    let rawBytes = 0;
+    let discarding = false;
+
+    for await (const chunk of body) {
+        const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        let segmentStart = 0;
+        while (true) {
+            const newlineIndex = bytes.indexOf(NEWLINE_BYTE, segmentStart);
+            const segmentEnd = newlineIndex === -1 ? bytes.length : newlineIndex;
+            const segmentBytes = segmentEnd - segmentStart;
+
+            if (!discarding && rawBytes + segmentBytes > maxRawBytes) {
+                discarding = true;
+                parts = [];
+            }
+            if (!discarding && segmentBytes > 0) {
+                parts.push(bytes.subarray(segmentStart, segmentEnd));
+            }
+            rawBytes += segmentBytes;
+
+            if (newlineIndex === -1) {
+                break;
+            }
+            yield {
+                content: discarding ? null : Buffer.concat(parts, rawBytes),
+                rawBytes,
+                terminatorBytes: 1
+            };
+            parts = [];
+            rawBytes = 0;
+            discarding = false;
+            segmentStart = newlineIndex + 1;
+        }
+    }
+    if (rawBytes > 0) {
+        yield {
+            content: discarding ? null : Buffer.concat(parts, rawBytes),
+            rawBytes,
+            terminatorBytes: 0
+        };
+    }
 }
 
 class S3NdjsonReader {
@@ -45,9 +109,9 @@ class S3NdjsonReader {
     /**
      * Streams an S3 object (or byte range) and yields parsed NDJSON lines.
      * Validates the bucket against the configured allow-list to prevent SSRF.
-     * Assumes LF (\n) line terminators — byte accounting uses +1 per line.
-     * Input files are produced by Spark's .write.text() which always uses LF.
-     * CRLF files would miscount bytes and corrupt range boundaries.
+     * Lines end at LF (\n); a CR immediately before it (CRLF) is part of the terminator.
+     * A lone CR does not end a line. byteOffset and range splitting use the exact source
+     * byte counts, so LF and CRLF files are both handled correctly.
      *
      * When reading a byte range that is not the start of the file, the first
      * partial line is skipped (the previous range owns it). When reading a
@@ -109,15 +173,14 @@ class S3NdjsonReader {
                 Range: rangeHeader
             }));
 
-            const rl = readline.createInterface({
-                input: response.Body,
-                crlfDelay: Infinity
-            });
-
             let skippedFirst = isFirstRange;
 
-            for await (const line of rl) {
-                const lineBytes = Buffer.byteLength(line, 'utf8') + 1; // +1 for newline
+            for await (const { content, rawBytes, terminatorBytes } of readRawLinesAsync(
+                response.Body,
+                maxLineSizeBytes
+            )) {
+                // exact source bytes, so byteOffset stays correct for CRLF files too
+                const lineBytes = rawBytes + terminatorBytes;
                 bytesRead += lineBytes;
 
                 if (!skippedFirst) {
@@ -129,8 +192,18 @@ class S3NdjsonReader {
                     break;
                 }
 
-                if (line.trim().length === 0) {
-                    continue;
+                // content is null for a line over the size limit (it was counted, not buffered)
+                let line = null;
+                let contentBytes = rawBytes;
+                if (content !== null) {
+                    // a "\r" before the "\n" is part of the terminator, not the line
+                    if (content[content.length - 1] === CARRIAGE_RETURN_BYTE) {
+                        contentBytes -= 1;
+                    }
+                    line = content.toString('utf8', 0, contentBytes);
+                    if (line.trim().length === 0) {
+                        continue;
+                    }
                 }
 
                 lineNumber++;
@@ -144,7 +217,7 @@ class S3NdjsonReader {
                 // A single bad line (too large, unparseable) must not abort the rest of the
                 // range -- skip it and let the caller record it in the error output, the same
                 // way a per-resource write failure is handled.
-                if (Buffer.byteLength(line, 'utf8') > maxLineSizeBytes) {
+                if (line === null || contentBytes > maxLineSizeBytes) {
                     yield {
                         lineNumber,
                         byteOffset,

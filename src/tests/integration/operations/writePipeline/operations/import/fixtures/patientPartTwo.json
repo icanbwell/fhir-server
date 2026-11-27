@@ -1,0 +1,27 @@
+{
+  "resourceType": "Patient",
+  "id": "import-duplicate",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client-a"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "PartOne"
+    }
+  ],
+  "gender": "female"
+}

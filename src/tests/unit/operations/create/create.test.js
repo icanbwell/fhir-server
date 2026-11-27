@@ -50,6 +50,9 @@ const { Base64DataManager } = require('../../../../dataLayer/base64DataManager')
 const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
 const { IdentifierEnrichmentProvider } = require('../../../../enrich/providers/identifierEnrichmentProvider');
 const BaseSerializer = require('../../../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
+const { WritePipelineSwitch } = require('../../../../operations/writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('../../../../operations/writePipeline/writePipeline');
+const { CreateResponder } = require('../../../../operations/writePipeline/operations/create/responder');
 const { GroupMemberMerger } = require('../../../../operations/common/groupMemberMerger');
 
 BaseSerializer.setConfigManager({ preSaveCodingIdUpdateResources: [] });
@@ -83,6 +86,9 @@ describe('CreateOperation', () => {
             databaseAttachmentManager: createMockInstance(DatabaseAttachmentManager),
             base64DataManager: createMockInstance(Base64DataManager),
             identifierEnrichmentProvider: createMockInstance(IdentifierEnrichmentProvider),
+            writePipelineSwitch: createMockInstance(WritePipelineSwitch),
+            writePipeline: createMockInstance(WritePipeline),
+            createResponder: createMockInstance(CreateResponder),
             groupMemberMerger: createMockInstance(GroupMemberMerger)
         };
 
@@ -104,6 +110,7 @@ describe('CreateOperation', () => {
         mocks.postRequestProcessor.add = jest.fn();
         mocks.auditLogger.logAuditEntryAsync = jest.fn().mockResolvedValue(undefined);
         mocks.identifierEnrichmentProvider.enrichIdentifierList = jest.fn();
+        mocks.writePipelineSwitch.useNewPathFor = jest.fn().mockReturnValue(false);
 
         mockParsedArgs = createMockInstance(ParsedArgs);
         mockParsedArgs.base_version = '4_0_0';

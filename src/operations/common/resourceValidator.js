@@ -382,6 +382,10 @@ class ResourceValidator {
      * @property {string|undefined} validationContext - PATH.SAVE (default) or PATH.VALIDATE.
      *   Distinguishes save-time (POST/PUT/$merge) from validate-time ($validate)
      *   in the fhir_validation_failure_total metric.
+     * @property {boolean|undefined} checkPatientReference - when false, the patient reference
+     *   check (`validatePatientReference`, including the Person.link tenant check) is skipped; the
+     *   schema, Group member limit and other checks run as before. Defaults to true. Only a caller
+     *   that does its own check of what the write links to should pass false.
      *
      * @param {ValidateResourceAsyncParams}
      * @returns {Promise<OperationOutcome | null>}
@@ -398,7 +402,8 @@ class ResourceValidator {
             profile,
             currentResource,
             accessRequested = 'write',
-            validationContext
+            validationContext,
+            checkPatientReference = true
         }
     ) {
         // Count members before schema validation, which is slow on a large member[]. resourceObj is
@@ -449,7 +454,11 @@ class ResourceValidator {
 
         const { isUser, user, scope } = requestInfo;
 
-        if (!validationOperationOutcome && (currentResource || resourceType === 'Person')) {
+        if (
+            checkPatientReference &&
+            !validationOperationOutcome &&
+            (currentResource || resourceType === 'Person')
+        ) {
             validationOperationOutcome = await this.validatePatientReference({
                 currentResource,
                 resourceToValidateJson,

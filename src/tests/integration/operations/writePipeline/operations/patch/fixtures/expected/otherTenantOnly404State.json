@@ -1,0 +1,115 @@
+{
+  "headers": {
+    "location": null,
+    "contentLocation": null
+  },
+  "documents": [
+    {
+      "_uuid": "36aed667-5639-53b5-a353-3c3e07e3996f",
+      "_access": {
+        "other-client": 1
+      },
+      "_sourceAssigningAuthority": "other-client",
+      "_sourceId": "parity-other-patient",
+      "id": "parity-other-patient",
+      "meta": {
+        "source": "http://example.com/source",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "other-client",
+            "id": "b7418743-1e32-5e9a-9fd3-14ba267d3648"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "other-client",
+            "id": "05f22bcc-6fb5-534e-bc14-90034c833ba8"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "other-client",
+            "id": "eb6f5445-8296-54e3-b48f-dabee6b5f3a6"
+          }
+        ],
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>"
+      },
+      "name": [
+        {
+          "family": "Parity",
+          "given": [
+            "Beta"
+          ]
+        }
+      ],
+      "resourceType": "Patient"
+    }
+  ],
+  "history": [
+    {
+      "id": "36aed667-5639-53b5-a353-3c3e07e3996f",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "parity-other-patient",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "other-client",
+              "id": "b7418743-1e32-5e9a-9fd3-14ba267d3648"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "other-client",
+              "id": "05f22bcc-6fb5-534e-bc14-90034c833ba8"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "other-client",
+              "id": "eb6f5445-8296-54e3-b48f-dabee6b5f3a6"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "name": [
+          {
+            "family": "Parity",
+            "given": [
+              "Beta"
+            ]
+          }
+        ],
+        "_uuid": "36aed667-5639-53b5-a353-3c3e07e3996f",
+        "_sourceAssigningAuthority": "other-client",
+        "_sourceId": "parity-other-patient",
+        "_access": {
+          "other-client": 1
+        }
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "POST",
+        "url": "/4_0_0/Patient/parity-other-patient"
+      },
+      "_recorded": "<recorded>"
+    }
+  ],
+  "gridFsFileActive": [],
+  "accessLog": [
+    {
+      "statusCode": 404,
+      "operationResult": null
+    }
+  ],
+  "audit": {
+    "entries": [],
+    "errors": [
+      {
+        "errorCode": 404,
+        "errorMessage": "Not Found"
+      }
+    ]
+  }
+}

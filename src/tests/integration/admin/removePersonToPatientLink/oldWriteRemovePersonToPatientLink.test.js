@@ -1,0 +1,248 @@
+process.env.WRITE_PIPELINE_OPERATIONS = 'merge,create,update,patch';
+// test file
+const personResource = require('./fixtures/person/person.json');
+
+// expected
+const expectedPersonResources = require('./fixtures/expected/expectedPerson.json');
+const expectedPersonAfterTest1 = require('./fixtures/expected/oldWrite/personAfterTest1.json');
+const expectedPersonAfterTest2 = require('./fixtures/expected/personAfterTest2.json');
+const expectedPersonAfterTest3 = require('./fixtures/expected/personAfterTest3.json');
+const expectedTest1Result = require('./fixtures/expected/oldWrite/test1Result.json');
+const expectedTest2Result = require('./fixtures/expected/oldWrite/test2Result.json');
+const expectedTest3Result = require('./fixtures/expected/oldWrite/test3Result.json');
+
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomToken, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { MockKafkaClient } = require('../../mocks/mockKafkaClient');
+
+describe('Person Tests', () => {
+    beforeEach(async () => {
+        await commonBeforeEach();
+    });
+
+    afterEach(async () => {
+        await commonAfterEach();
+    });
+
+    describe('Remove person to patient link test', () => {
+        test('person to patient link is removed & added using id', async () => {
+            const ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS = process.env.ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS;
+            process.env.ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS = '1';
+
+            /**
+             * @type {MockKafkaClient}
+             */
+            let mockKafkaClient;
+            const request = await createTestRequest((c) => {
+                c.register(
+                    'kafkaClient',
+                    () =>
+                        new MockKafkaClient({
+                            configManager: c.configManager
+                        })
+                );
+                mockKafkaClient = c.kafkaClient;
+                return c;
+            });
+
+            // add the person resource to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/$merge?validate=true')
+                .send(personResource)
+                .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .get(`/4_0_0/Person/${personResource.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            // The link is removed from the person resource.
+            expect(resp).toHaveResponse(expectedPersonResources);
+
+            // Remove person to person link using admin panel
+            resp = await request
+                .post('/admin/removePersonToPatientLink')
+                .send({
+                    personId: 'Person/1',
+                    patientId: 'Patient/1'
+                })
+                .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
+                .expect(200);
+
+            // Expect removed meesage to be returned
+            expect(resp).toHaveResponse(expectedTest1Result);
+
+            resp = await request
+                .get(`/4_0_0/Person/${personResource.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            // The link is removed from the person resource.
+            expect(resp).toHaveResponse(expectedPersonAfterTest1);
+
+            // Expect the history collection to be created
+            resp = await request
+                .get(`/4_0_0/Person/${personResource.id}/_history/2`)
+                .set(getHeaders())
+                .expect(200);
+
+            // The history collection is created.
+            expect(resp).toHaveResponse(expectedPersonAfterTest1);
+
+            let mockHeaders = {
+                'content-type': 'application/json;charset=utf-8',
+                ce_type: 'PatientPersonManuallyUnlinked',
+                ce_source: 'https://www.icanbwell.com/fhir-server',
+                ce_specversion: '1.0',
+                ce_datacontenttype: 'application/json;charset=utf-8'
+            };
+            expect(mockKafkaClient.cloudEventMessages.length).toBe(1);
+            expect(mockKafkaClient.cloudEventMessages[0].value).toBe(
+                JSON.stringify({
+                    personId: 'cb7e34dd-2684-55ac-a1ad-bb926123ffa1',
+                    patientId: '1'
+                })
+            );
+            delete mockKafkaClient.cloudEventMessages[0].headers['ce_time'];
+            delete mockKafkaClient.cloudEventMessages[0].headers['ce_id'];
+            expect(mockKafkaClient.cloudEventMessages[0].headers).toStrictEqual(mockHeaders);
+
+            mockKafkaClient.cloudEventMessages = [];
+
+            // Add person to patient link using admin panel
+            resp = await request
+                .post('/admin/createPersonToPatientLink')
+                .send({
+                    externalPersonId: 'Person/1',
+                    patientId: 'Patient/1'
+                })
+                .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
+                .expect(200);
+
+            mockHeaders = {
+                'content-type': 'application/json;charset=utf-8',
+                ce_type: 'PatientPersonManuallyLinked',
+                ce_source: 'https://www.icanbwell.com/fhir-server',
+                ce_specversion: '1.0',
+                ce_datacontenttype: 'application/json;charset=utf-8'
+            };
+            expect(mockKafkaClient.cloudEventMessages.length).toBe(1);
+            expect(mockKafkaClient.cloudEventMessages[0].value).toBe(
+                JSON.stringify({
+                    personId: 'cb7e34dd-2684-55ac-a1ad-bb926123ffa1',
+                    patientId: '1'
+                })
+            );
+            delete mockKafkaClient.cloudEventMessages[0].headers['ce_time'];
+            delete mockKafkaClient.cloudEventMessages[0].headers['ce_id'];
+            expect(mockKafkaClient.cloudEventMessages[0].headers).toStrictEqual(mockHeaders);
+
+            mockKafkaClient.cloudEventMessages = [];
+
+            process.env.ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS = ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS;
+        });
+
+        test('person to patient link is removed using id and sourceAssigningAuthority', async () => {
+            const request = await createTestRequest();
+            // add the person resource to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/$merge?validate=true')
+                .send(personResource)
+                .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .get(`/4_0_0/Person/${personResource.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            // The link is removed from the person resource.
+            expect(resp).toHaveResponse(expectedPersonResources);
+
+            // Remove person to person link using admin panel
+            resp = await request
+                .post('/admin/removePersonToPatientLink')
+                .send({
+                    personId: 'Person/1',
+                    patientId: 'Patient/1|test'
+                })
+                .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
+                .expect(200);
+
+            // Expect removed meesage to be returned
+            expect(resp).toHaveResponse(expectedTest2Result);
+
+            resp = await request
+                .get(`/4_0_0/Person/${personResource.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            // The link is removed from the person resource.
+            expect(resp).toHaveResponse(expectedPersonAfterTest2);
+
+            // Expect the history collection to be created
+            resp = await request
+                .get(`/4_0_0/Person/${personResource.id}/_history/2`)
+                .set(getHeaders())
+                .expect(200);
+
+            // The history collection is created.
+            expect(resp).toHaveResponse(expectedPersonAfterTest2);
+        });
+
+        test('person to patient link is removed using uuid', async () => {
+            const request = await createTestRequest();
+            // add the person resource to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/$merge?validate=true')
+                .send(personResource)
+                .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .get(`/4_0_0/Person/${personResource.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            // The link is removed from the person resource.
+            expect(resp).toHaveResponse(expectedPersonResources);
+
+            // Remove person to person link using admin panel
+            resp = await request
+                .post('/admin/removePersonToPatientLink')
+                .send({
+                    personId: 'Person/1',
+                    patientId: 'Patient/0bf61676-9672-50e0-ae12-347ecddca84f'
+                })
+                .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
+                .expect(200);
+
+            // Expect removed meesage to be returned
+            expect(resp).toHaveResponse(expectedTest3Result);
+
+            resp = await request
+                .get(`/4_0_0/Person/${personResource.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            // The link is removed from the person resource.
+            expect(resp).toHaveResponse(expectedPersonAfterTest3);
+
+            // Expect the history collection to be created
+            resp = await request
+                .get(`/4_0_0/Person/${personResource.id}/_history/2`)
+                .set(getHeaders())
+                .expect(200);
+
+            // The history collection is created.
+            expect(resp).toHaveResponse(expectedPersonAfterTest3);
+        });
+    });
+});

@@ -8,6 +8,26 @@ const { fastValidateReferences } = require('./referenceValidator');
 const invalidIssue = (text) => ({ severity: 'error', code: 'invalid', details: { text } });
 
 /**
+ * Returns the OperationOutcome for a body whose resourceType is not the resource name in the URL,
+ * or null when the two match.
+ * @param {Object} resourceBody - payload of req.body
+ * @param {string} resourceName - name of resource in url
+ * @param {string} path - req.path from express
+ * @returns {Object|null}
+ */
+function getResourceTypeMismatchOutcome ({ resourceBody, resourceName, path }) {
+    if (resourceBody.resourceType === resourceName) {
+        return null;
+    }
+    return buildOperationOutcomeFromIssues([
+        invalidIssue(
+            `Validation failed for data posted to ${path} for resource ${resourceBody.resourceType}.` +
+            ' ResourceType does not match the endpoint you are posting to.'
+        )
+    ]);
+}
+
+/**
  * @function validateResource
  * @description - validates name is correct for resource body and resource body conforms to FHIR specification
  * @param {Object} resourceBody - payload of req.body
@@ -18,13 +38,13 @@ const invalidIssue = (text) => ({ severity: 'error', code: 'invalid', details: {
  * @returns {Object|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
 function validateResource ({ resourceBody, resourceName, path, resourceObj = null, excludeRequiredFieldErrors = false }) {
-    if (resourceBody.resourceType !== resourceName) {
-        return buildOperationOutcomeFromIssues([
-            invalidIssue(
-                `Validation failed for data posted to ${path} for resource ${resourceBody.resourceType}.` +
-                ' ResourceType does not match the endpoint you are posting to.'
-            )
-        ]);
+    const resourceTypeMismatchOutcome = getResourceTypeMismatchOutcome({
+        resourceBody,
+        resourceName,
+        path
+    });
+    if (resourceTypeMismatchOutcome) {
+        return resourceTypeMismatchOutcome;
     }
 
     let errors = fhirSchemaValidator.validate(resourceBody);
@@ -62,4 +82,4 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
     return null;
 }
 
-module.exports = { validateResource };
+module.exports = { validateResource, getResourceTypeMismatchOutcome };

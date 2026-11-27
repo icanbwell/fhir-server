@@ -24,8 +24,10 @@ const { getApolloServerLoggingPlugin } = require('./plugins/graphqlLoggingPlugin
 const { getAddRequestIdToResponseHeadersPlugin } = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const { getBundleMetaApolloServerPlugin } = require('./plugins/graphqlBundleMetaPlugin');
 const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
-const { removeNullFromArray } = require('../../utils/nullRemover');
+const { removeNullFromGraphQLResult } = require('../../utils/nullRemover');
 const { getSafeErrorMessage } = require('./graphqlErrorFormatter');
+const { getGraphQlErrorCode } = require('./graphqlErrorCode');
+const { getApolloServerErrorRecordingPlugin } = require('./plugins/graphqlErrorRecordingPlugin');
 const resolvers = require('../../graphql/resolvers');
 
 /**
@@ -62,6 +64,7 @@ const graphql = async (fnGetContainer) => {
             : ApolloServerPluginLandingPageDisabled(),
         getBundleMetaApolloServerPlugin(),
         getApolloServerLoggingPlugin('graphql'),
+        getApolloServerErrorRecordingPlugin('graphql'),
         getAddRequestIdToResponseHeadersPlugin(),
         getValidateMissingVariableValuesPlugin(),
 
@@ -139,12 +142,18 @@ const graphql = async (fnGetContainer) => {
                 const originalError = unwrapResolverError(error);
                 if (originalError !== error) {
                     formattedError.message = getSafeErrorMessage(originalError);
+                    // Map the error's statusCode (or a Mongo pool wait timeout) to extensions.code
+                    // so Forbidden, NotFound and timeouts are not all INTERNAL_SERVER_ERROR.
+                    formattedError.extensions = {
+                        ...formattedError.extensions,
+                        code: getGraphQlErrorCode(error)
+                    };
                 }
 
                 return formattedError;
             },
             stringifyResult: (value) => {
-                return JSON.stringify(removeNullFromArray(value), null, 2);
+                return JSON.stringify(removeNullFromGraphQLResult(value), null, 2);
             },
             // to process requests during server graceful shutdown
             // https://www.apollographql.com/docs/apollo-server/api/apollo-server#stoponterminationsignals

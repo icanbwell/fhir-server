@@ -73,7 +73,7 @@ jestObj.mock('../../../../middleware/graphql/plugins/graphqlValidateMissingVaria
 }));
 
 jestObj.mock('../../../../utils/nullRemover', () => ({
-    removeNullFromArray: jestObj.fn().mockImplementation(v => v)
+    removeNullFromGraphQLResult: jestObj.fn().mockImplementation(v => v)
 }));
 
 jestObj.mock('../../../../graphql/resolvers', () => ({}));
@@ -198,6 +198,29 @@ describe('graphqlServer', () => {
             expect(formattedError.extensions.stacktrace).toBeUndefined();
             expect(formattedError.extensions.exception).toBeUndefined();
             expect(formattedError.extensions.code).toBe('INTERNAL_SERVER_ERROR');
+        });
+
+        test('registers the error recording plugin', async () => {
+            await graphql(fnGetContainer);
+
+            const serverConfig = ApolloServer.mock.calls[0][0];
+            expect(serverConfig.plugins.some((plugin) => plugin.constructor.name === 'MyApolloServerErrorRecordingPlugin')).toBe(true);
+        });
+
+        test('formatError maps a resolver error statusCode to extensions.code', async () => {
+            const { GraphQLError } = require('graphql');
+            const { ForbiddenError } = require('../../../../utils/httpErrors');
+            await graphql(fnGetContainer);
+
+            const serverConfig = ApolloServer.mock.calls[0][0];
+            const original = new ForbiddenError('no access');
+            const error = new GraphQLError(original.message, { path: ['patients'], originalError: original });
+            const formattedError = serverConfig.formatError(
+                { message: error.message, extensions: { code: 'INTERNAL_SERVER_ERROR' } },
+                error
+            );
+
+            expect(formattedError.extensions.code).toBe('FORBIDDEN');
         });
 
         test('formatError converts CSRF error to OperationOutcome', async () => {

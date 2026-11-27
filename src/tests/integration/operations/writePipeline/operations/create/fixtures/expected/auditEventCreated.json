@@ -1,0 +1,109 @@
+{
+  "resourceType": "AuditEvent",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client",
+        "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client",
+        "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+      }
+    ],
+    "versionId": "1"
+  },
+  "type": {
+    "system": "http://dicom.nema.org/resources/ontology/DCM",
+    "code": "110112",
+    "display": "Query",
+    "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf"
+  },
+  "action": "C",
+  "recorded": "2024-05-01T12:49:55.000Z",
+  "agent": [
+    {
+      "who": {
+        "reference": "Person/parity-person-1",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Person/parity-person-1"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Person/c8508855-bfe6-543d-baa4-3470e609661d"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "client"
+          }
+        ]
+      },
+      "altId": "parity",
+      "requestor": true,
+      "network": {
+        "type": "2"
+      }
+    }
+  ],
+  "source": {
+    "observer": {
+      "reference": "Person/parity-person-1",
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Person/parity-person-1"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Person/c8508855-bfe6-543d-baa4-3470e609661d"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "client"
+        }
+      ]
+    }
+  },
+  "entity": [
+    {
+      "what": {
+        "reference": "Observation/parity-observation-1",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Observation/parity-observation-1"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Observation/1953449c-1360-5470-9c6b-8b3859bbe020"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "client"
+          }
+        ]
+      },
+      "detail": [
+        {
+          "type": "base_version",
+          "valueString": "4_0_0"
+        }
+      ]
+    }
+  ],
+  "id": "00000000-0000-4000-8000-000000000001"
+}

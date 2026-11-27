@@ -89,7 +89,7 @@ describe('AccessLogger ClickHouse integration', () => {
         const logger = makeLogger({ configManager: makeConfig(), writer: null });
         logger.queue.push({ doc: makeLogEntry('req-3'), requestInfo: { requestId: 'req-3' } });
 
-        await expect(logger.flushAsync()).resolves.toBeUndefined();
+        await expect(logger.flushAsync()).resolves.toBe(1);
     });
 
     test('swallows writer failures — a CH outage must not break the request cycle', async () => {
@@ -97,7 +97,7 @@ describe('AccessLogger ClickHouse integration', () => {
         const logger = makeLogger({ configManager: makeConfig(), writer });
         logger.queue.push({ doc: makeLogEntry('req-4'), requestInfo: { requestId: 'req-4' } });
 
-        await expect(logger.flushAsync()).resolves.toBeUndefined();
+        await expect(logger.flushAsync()).resolves.toBe(1);
         expect(writer.writeBatchAsync).toHaveBeenCalledTimes(1);
     });
 

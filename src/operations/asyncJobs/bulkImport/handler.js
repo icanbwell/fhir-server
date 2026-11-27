@@ -41,6 +41,9 @@ const { AuditLogger } = require('../../../utils/auditLogger');
 const { groupByLambda } = require('../../../utils/list.util');
 const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { SearchQueryBuilder } = require('../../search/searchQueryBuilder');
+const { WritePipelineSwitch } = require('../../writePipeline/writePipelineSwitch');
+const { ImportBatchWriter } = require('../../writePipeline/operations/import/importBatchWriter');
+const { ImportBatchFlushError } = require('../../writePipeline/operations/import/importBatchFlushError');
 
 const importTracer = trace.getTracer('fhir-server');
 
@@ -107,6 +110,8 @@ class BulkImportHandler {
      * @property {WriteAllowedByScopesValidator} writeAllowedByScopesValidator
      * @property {ResourceValidator} resourceValidator
      * @property {OwnerColumnHandler} ownerColumnHandler
+     * @property {WritePipelineSwitch} [writePipelineSwitch] chooses the write path of a flush
+     * @property {ImportBatchWriter} [importBatchWriter] writes a flush on the shared write pipeline
      *
      * @param {ConstructorParams}
      */
@@ -129,7 +134,9 @@ class BulkImportHandler {
         uuidColumnHandler,
         writeAllowedByScopesValidator,
         resourceValidator,
-        ownerColumnHandler
+        ownerColumnHandler,
+        writePipelineSwitch,
+        importBatchWriter
     }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -187,6 +194,16 @@ class BulkImportHandler {
 
         this.ownerColumnHandler = ownerColumnHandler;
         assertTypeEquals(ownerColumnHandler, OwnerColumnHandler);
+
+        this.writePipelineSwitch = writePipelineSwitch;
+        if (writePipelineSwitch) {
+            assertTypeEquals(writePipelineSwitch, WritePipelineSwitch);
+        }
+
+        this.importBatchWriter = importBatchWriter;
+        if (importBatchWriter) {
+            assertTypeEquals(importBatchWriter, ImportBatchWriter);
+        }
     }
 
     /**
@@ -927,6 +944,10 @@ class BulkImportHandler {
         let claimedIfNoneExistKeys = new Set();
 
         const flushBatchAsync = async () => {
+            if (this.importBatchWriter && this.writePipelineSwitch?.useNewPathFor('import')) {
+                await writeBatchOnPipelineAsync();
+                return;
+            }
             if (pendingMergeResources.length > 0) {
                 // Pre-load once for the whole batch (grouped by resourceType internally) so
                 // mergeBufferedResourceAsync's getResourceFromExistingList() calls below are
@@ -1084,6 +1105,90 @@ class BulkImportHandler {
                     error: mergeError.message
                 });
             }
+        };
+
+        /**
+         * Folds the entries of one flush, one per buffered line in line order, into this range's
+         * counters and entries: an entry with an issue or an OperationOutcome is failed, as the old
+         * flush counts every check failure failed, and an entry neither created nor updated (an
+         * unchanged line, or a write that found the stored resource already equal) is skipped.
+         * Unclaims the ifNoneExist key of each failed line, matched to its entry by position, and
+         * logs each failed line.
+         * @param {{fhirResource: Object, byteOffset: number, ifNoneExistKey: string|null}[]} bufferedLines
+         * @param {MergeResultEntry[]} entries
+         * @returns {void}
+         */
+        const foldBatchEntries = ({ bufferedLines, entries }) => {
+            entries.forEach((entry, index) => {
+                if (entry.issue || entry.operationOutcome) {
+                    failed++;
+                    const { fhirResource, byteOffset, ifNoneExistKey } = bufferedLines[index];
+                    if (ifNoneExistKey) {
+                        claimedIfNoneExistKeys.delete(ifNoneExistKey);
+                    }
+                    logError('Failed to merge bulk import resource', {
+                        taskId,
+                        filepath,
+                        resourceType: fhirResource.resourceType,
+                        byteOffset,
+                        issueCode: entry.issue?.code
+                    });
+                } else if (entry.created) {
+                    created++;
+                } else if (entry.updated) {
+                    updated++;
+                } else {
+                    skipped++;
+                }
+                mergeResultEntries.push(entry);
+            });
+        };
+
+        /**
+         * Writes the buffered lines of one flush through the import batch writer on the shared
+         * write pipeline, which preloads, checks, merges and flushes them itself, and decides which
+         * lines repeat an earlier line's resource, then folds its entries into this range's
+         * counters and entries. Marks the attempt as flushed only when the batch had a buffered
+         * line, since a batch of none writes nothing. When the flush throws, the writer's
+         * `ImportBatchFlushError` carries the batch's entries as the old flush recorded them before
+         * it flushed: they are folded in, and the flush's own error is rethrown. A flush of more
+         * than one resource type writes the types in parallel and may have committed some of them,
+         * so it marks the attempt as flushed and the range is not read again; its failure path
+         * audits the recorded entries. A flush of one resource type is treated as the old flush
+         * is, so the range may be read again if no earlier batch of it was flushed; it may in fact
+         * have committed part of its writes, and a retry may then report those lines as skipped
+         * (unchanged) instead of created, where the old flush reports them updated. Any other error thrown by the writer propagates with nothing of the
+         * batch counted.
+         * @returns {Promise<void>}
+         */
+        const writeBatchOnPipelineAsync = async () => {
+            const bufferedLines = pendingMergeResources;
+            pendingMergeResources = [];
+            const resources = bufferedLines.map(({ fhirResource, byteOffset }) => ({
+                fhirResource,
+                byteOffset
+            }));
+            let entries;
+            try {
+                entries = await this.importBatchWriter.writeBatchAsync({
+                    requestInfo,
+                    resources
+                });
+            } catch (error) {
+                if (!(error instanceof ImportBatchFlushError)) {
+                    throw error;
+                }
+                foldBatchEntries({ bufferedLines, entries: error.entries });
+                if (error.resourceTypeCount > 1) {
+                    hasFlushedThisAttempt = true;
+                }
+                throw error.cause;
+            }
+            foldBatchEntries({ bufferedLines, entries });
+            if (bufferedLines.length > 0) {
+                hasFlushedThisAttempt = true;
+            }
+            sinceLastFlush = 0;
         };
 
         const readAndProcessRangeAsync = async () => {

@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Patch operation contains internal field '_uuid' in value. Internal fields prefixed with _ cannot be set via PATCH."
+      }
+    }
+  ]
+}

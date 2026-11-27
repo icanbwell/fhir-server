@@ -156,6 +156,60 @@ describe('AccessLogger', () => {
             expect(accessLogger.queue).toHaveLength(1);
         });
 
+        test.each([
+            ['v2 endpoint', '/4_0_0/$graphqlv2', '$graphqlv2'],
+            ['v1 endpoint', '/$graphql', '$graphql']
+        ])('should log a GraphQL request on the %s that resolved no resource type', async (_, baseUrl, expected) => {
+            // inside the mounted GraphQL routers req.url is stripped to '/'
+            const req = { method: 'POST', url: '/', baseUrl, isGraphQLRoute: true, headers: {} };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue).toHaveLength(1);
+            expect(accessLogger.queue[0].doc.request.resourceType).toBe(expected);
+        });
+
+        test.each([
+            ['an unknown mount path', '/4_0_0/Patient'],
+            ['a missing mount path', undefined]
+        ])('should not log a GraphQL route request with %s as a resource type', async (_, baseUrl) => {
+            const req = { method: 'POST', url: '/', baseUrl, isGraphQLRoute: true, headers: {} };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue).toHaveLength(0);
+        });
+
+        test.each([
+            ['a query', '{ patient { id } }', 'READ'],
+            ['a federation _entities query', 'query($r: [_Any!]!) { _entities(representations: $r) { __typename } }', 'READ'],
+            ['an unparsable document', '{ nope', 'READ'],
+            ['no query text (persisted-query hash)', undefined, 'WRITE'],
+            ['a mutation', 'mutation { createThing { id } }', 'WRITE'],
+            ['a mutation after a query', 'query A { a } mutation B { b }', 'WRITE']
+        ])('should set the operation of a GraphQL POST with %s to %s', async (_, query, expected) => {
+            // req.url is stripped to '/' inside the mounted GraphQL routers
+            const req = {
+                method: 'POST', url: '/', baseUrl: '/4_0_0/$graphqlv2', isGraphQLRoute: true,
+                body: { query }, headers: {}
+            };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue[0].doc.request.operation).toBe(expected);
+        });
+
+        test('should prefer req.resourceType over the endpoint name on a GraphQL route', async () => {
+            const req = {
+                resourceType: 'Patient', method: 'POST', url: '/', baseUrl: '/4_0_0/$graphqlv2',
+                isGraphQLRoute: true, headers: {}
+            };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            expect(accessLogger.queue[0].doc.request.resourceType).toBe('Patient');
+        });
+
         test('should set operation to READ for GET requests', async () => {
             const req = { resourceType: 'Patient', method: 'GET', url: '/Patient', headers: {} };
             await accessLogger.logAccessLogAsync({
@@ -250,6 +304,46 @@ describe('AccessLogger', () => {
             expect(accessLogger.queue[0].doc.details.bodyTruncated).toBe('true');
         });
 
+        test('should not cut a multi-byte character in half when truncating rawBodyBuffer', async () => {
+            mockFhirOperationsManager.getRequestInfo.mockReturnValue({
+                user: 'user-1',
+                remoteIpAddress: '10.0.0.1',
+                originalUrl: '/Patient',
+                method: 'POST',
+                scope: null,
+                userRequestId: 'user-req-1',
+                body: { resourceType: 'Patient' },
+                contentTypeFromHeader: null,
+                accept: null
+            });
+            // the 1024-byte limit falls in the middle of the 2-byte character
+            const req = {
+                resourceType: 'Patient',
+                method: 'POST',
+                url: '/Patient',
+                headers: {},
+                rawBodyBuffer: Buffer.from('x'.repeat(1023) + 'ñ' + 'x'.repeat(10), 'utf8')
+            };
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100
+            });
+            const details = accessLogger.queue[0].doc.details;
+            expect(details.bodyTruncated).toBe('true');
+            expect(details.body).toBe('x'.repeat(1023));
+        });
+
+        test('should not cut a multi-byte character in half when truncating operationResult', async () => {
+            const req = { resourceType: 'Patient', method: 'GET', url: '/Patient', headers: {} };
+            // JSON.stringify output is '[{"data":"' (10 bytes) + 1013 x + 'ñ' ..., so byte 1024 is inside it
+            const operationResult = [{ data: 'x'.repeat(1013) + 'ñ' + 'x'.repeat(10) }];
+            await accessLogger.logAccessLogAsync({
+                req, statusCode: 200, startTime: Date.now() - 100, operationResult
+            });
+            const details = accessLogger.queue[0].doc.details;
+            expect(details.operationResultTruncated).toBe('true');
+            expect(details.operationResult).not.toContain('\uFFFD');
+        });
+
         test('should use streamRequestBody when provided', async () => {
             mockFhirOperationsManager.getRequestInfo.mockReturnValue({
                 user: 'user-1',
@@ -340,8 +434,9 @@ describe('AccessLogger', () => {
     // =====================================================
     describe('flushAsync', () => {
         test('should do nothing when queue is empty', async () => {
-            await accessLogger.flushAsync();
+            const count = await accessLogger.flushAsync();
             expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+            expect(count).toBe(0);
         });
 
         test('should flush queue and call executeAsync', async () => {
@@ -349,9 +444,10 @@ describe('AccessLogger', () => {
                 { doc: { timestamp: new Date() }, requestInfo: { requestId: 'r1' } },
                 { doc: { timestamp: new Date() }, requestInfo: { requestId: 'r2' } }
             ];
-            await accessLogger.flushAsync();
+            const count = await accessLogger.flushAsync();
             expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
             expect(accessLogger.queue).toHaveLength(0);
+            expect(count).toBe(2);
         });
 
         test('should log error when mergeResults have issues', async () => {
@@ -361,11 +457,13 @@ describe('AccessLogger', () => {
             accessLogger.queue = [
                 { doc: { timestamp: new Date() }, requestInfo: { requestId: 'r1' } }
             ];
-            await accessLogger.flushAsync();
+            const count = await accessLogger.flushAsync();
             expect(logError).toHaveBeenCalledWith(
                 'Error creating access-log entries',
                 expect.objectContaining({ source: 'flushAsync' })
             );
+            // count reflects entries dispatched, even when some had write issues
+            expect(count).toBe(1);
         });
 
         // BUG TEST: executeAsync returns null/undefined - crashes on .filter()
