@@ -2056,7 +2056,7 @@ class EverythingHelper {
             try {
                 await options.cursor.close();
             } catch (e) {
-                logError('Error closing $everything cursor', { error: e.message });
+                logError('Error closing $everything cursor', { error: e });
             }
         }
     }

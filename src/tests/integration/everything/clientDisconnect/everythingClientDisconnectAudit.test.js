@@ -13,32 +13,19 @@ const {
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { AuditLogger } = require('../../../../utils/auditLogger');
 const { FhirResponseStreamer } = require('../../../../utils/fhirResponseStreamer');
+const {
+    CLIENT_GONE_DEADLINE_MS,
+    pollUntilAsync,
+    buildPatient,
+    buildObservation,
+    abortOnFirstChunkAsync,
+    holdStreamAfterFirstEntry
+} = require('./clientDisconnectTestHelpers');
 
 const OBSERVATION_COUNT = 20;
-const SECURITY = [
-    { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
-    { system: 'https://www.icanbwell.com/access', code: 'bwell' }
-];
-
-const patient = {
-    resourceType: 'Patient',
-    id: 'patAudit',
-    birthDate: '2017-01-01',
-    gender: 'female',
-    name: [{ use: 'usual', family: 'TEST', given: ['TEST'] }],
-    meta: { source: 'bwell', security: SECURITY }
-};
-
-const observation = (id) => ({
-    resourceType: 'Observation',
-    id: `obs-${id}`,
-    status: 'final',
-    code: { coding: [{ system: 'http://loinc.org', code: '1234-5' }] },
-    subject: { reference: 'Patient/patAudit' },
-    meta: { source: 'bwell', security: SECURITY }
-});
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const PATIENT_ID = 'patAudit';
+const EVERYTHING_URL = `/4_0_0/Patient/${PATIENT_ID}/$everything`;
+const NO_COMPRESSION = { 'Accept-Encoding': 'identity' };
 
 describe('$everything audit events by outcome', () => {
     let requestId;
@@ -67,7 +54,10 @@ describe('$everything audit events by outcome', () => {
 
         const mergeResp = await request
             .post('/4_0_0/Patient/1/$merge')
-            .send([patient, ...Array.from({ length: OBSERVATION_COUNT }, (_, i) => observation(i))])
+            .send([
+                buildPatient(PATIENT_ID),
+                ...Array.from({ length: OBSERVATION_COUNT }, (_, i) => buildObservation(PATIENT_ID, i))
+            ])
             .set(getHeaders());
         expect(mergeResp).toHaveMergeResponse({ created: true });
         await postRequestProcessor.waitTillDoneAsync({ requestId });
@@ -80,81 +70,61 @@ describe('$everything audit events by outcome', () => {
         await commonAfterEach();
     });
 
-    const headersNoCompression = () => ({ ...getHeaders(), 'Accept-Encoding': 'identity' });
-
-    async function readAuditEventsAsync () {
-        // audit tasks run after the aborted request; give them time to be queued, then drain
-        await sleep(300);
-        await postRequestProcessor.waitTillDoneAsync({ requestId });
-        await sleep(300);
-        await postRequestProcessor.waitTillDoneAsync({ requestId });
-        await auditLogger.flushAsync();
-        return await auditCollection.find({}).toArray();
-    }
-
     const referencesOf = (events) => events.flatMap(
         (e) => (e.entity || []).map((x) => x.what?.reference).filter(Boolean)
     );
 
+    /**
+     * Audit tasks run after the response, so poll the collection until it has the expected number of
+     * references (or the deadline passes) rather than asserting right after waitTillDone.
+     * @param {number|null} expectedReferences null: wait for at least one event
+     */
+    async function readAuditEventsAsync (expectedReferences = null) {
+        let events = [];
+        await pollUntilAsync(async () => {
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+            events = await auditCollection.find({}).toArray();
+            return expectedReferences === null
+                ? events.length > 0
+                : referencesOf(events).length >= expectedReferences;
+        });
+        return events;
+    }
+
     test('completed request: audit events list every resource and carry no outcome', async () => {
-        const resp = await request.get('/4_0_0/Patient/patAudit/$everything').set(getHeaders());
+        const resp = await request.get(EVERYTHING_URL).set(getHeaders());
         expect(resp.status).toBe(200);
 
-        const events = await readAuditEventsAsync();
-        expect(events.length).toBeGreaterThan(0);
+        const events = await readAuditEventsAsync(OBSERVATION_COUNT + 1);
         expect(referencesOf(events).length).toBe(OBSERVATION_COUNT + 1);
         events.forEach((e) => expect(e.outcome).toBeUndefined());
     });
 
     test('client aborts after the first entry: streamed resources are audited with outcome 4', async () => {
-        const originalWrite = FhirResponseStreamer.prototype.writeBundleEntryAsync;
-        let written = 0;
-        jest.spyOn(FhirResponseStreamer.prototype, 'writeBundleEntryAsync').mockImplementation(
-            async function (args) {
-                await originalWrite.call(this, args);
-                written += 1;
-                if (written === 1) {
-                    const deadline = Date.now() + 5000;
-                    while (!this.isClientGone() && Date.now() < deadline) {
-                        await sleep(10);
-                    }
-                }
-            }
-        );
+        const held = holdStreamAfterFirstEntry();
 
-        await request
-            .get('/4_0_0/Patient/patAudit/$everything')
-            .set(headersNoCompression())
-            .buffer(false)
-            .parse((res, callback) => {
-                res.once('data', () => res.destroy());
-                res.on('close', () => callback(new Error('client aborted')));
-            })
-            .catch(() => undefined);
+        await abortOnFirstChunkAsync(request.get(EVERYTHING_URL).set({ ...getHeaders(), ...NO_COMPRESSION }));
 
-        const events = await readAuditEventsAsync();
-        expect(written).toBeLessThan(OBSERVATION_COUNT + 1);
-        expect(events.length).toBeGreaterThan(0);
-        expect(referencesOf(events).length).toBe(written);
+        const events = await readAuditEventsAsync(1);
+        expect(held.writtenCount()).toBeLessThan(OBSERVATION_COUNT + 1);
+        expect(referencesOf(events).length).toBe(held.writtenCount());
         events.forEach((e) => expect(e.outcome).toBe('4'));
     });
 
     test('client aborts before any entry is streamed: an audit event with outcome 4 is still written', async () => {
+        let markRequestArrived;
+        const requestArrived = new Promise((resolve) => { markRequestArrived = resolve; });
         let observedGone = false;
         jest.spyOn(FhirResponseStreamer.prototype, 'startAsync').mockImplementation(async function () {
-            const deadline = Date.now() + 5000;
-            while (!this.isClientGone() && Date.now() < deadline) {
-                await sleep(10);
-            }
-            observedGone = this.isClientGone();
+            markRequestArrived();
+            observedGone = await pollUntilAsync(() => this.isClientGone(), CLIENT_GONE_DEADLINE_MS);
         });
 
-        const pending = request
-            .get('/4_0_0/Patient/patAudit/$everything')
-            .set(headersNoCompression())
-            .buffer(false);
+        const pending = request.get(EVERYTHING_URL).set({ ...getHeaders(), ...NO_COMPRESSION }).buffer(false);
         const done = pending.then(() => undefined, () => undefined);
-        await sleep(500);
+        // abort only once the server is handling the request, before it streams anything
+        await requestArrived;
         pending.abort();
         await done;
 
