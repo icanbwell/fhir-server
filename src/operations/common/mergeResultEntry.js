@@ -166,6 +166,43 @@ class MergeResultEntry {
         );
         return mergeResultEntry;
     }
+
+    /**
+     * Creates the MergeResultEntry for an error thrown while merging a resource: the details text
+     * holds the resource as JSON, the diagnostics hold the error and the expression is
+     * `<resourceType>/<id>`. `MergeManager.mergeResourceAsync` attaches it to the error it
+     * rethrows.
+     * @param {Error} error
+     * @param {Resource} resource
+     * @param {string} resourceType
+     * @return {MergeResultEntry}
+     */
+    static createFromMergeException ({ error, resource, resourceType }) {
+        /**
+         * @type {OperationOutcome}
+         */
+        const operationOutcome = buildOperationOutcome({
+            severity: 'error',
+            code: 'exception',
+            details: {
+                text: 'Error merging: ' + JSON.stringify(resource)
+            },
+            diagnostics: error.toString(),
+            expression: [
+                resource.resourceType + '/' + resource.id
+            ]
+        });
+        return new MergeResultEntry({
+            id: resource.id,
+            uuid: resource._uuid,
+            sourceAssigningAuthority: resource._sourceAssigningAuthority,
+            resourceType,
+            created: false,
+            updated: false,
+            issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+            operationOutcome
+        });
+    }
 }
 
 module.exports = {

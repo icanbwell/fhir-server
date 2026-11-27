@@ -6,6 +6,7 @@ const WRITE_FAILURE_STAGE = Object.freeze({
     SCOPE: 'scope',
     SIZE: 'size',
     IDENTITY: 'identity',
+    LOOKUP: 'lookup',
     INCOMING_SCHEMA: 'incomingSchema',
     INCOMING_META: 'incomingMeta',
     ACCESS: 'access',

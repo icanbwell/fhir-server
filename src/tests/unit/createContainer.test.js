@@ -96,6 +96,29 @@ const { MERGE_WRITE_PROFILE } = require('../../operations/writePipeline/operatio
 const { CREATE_WRITE_PROFILE } = require('../../operations/writePipeline/operations/create/profile');
 const { UPDATE_WRITE_PROFILE } = require('../../operations/writePipeline/operations/update/profile');
 const { UpdateResponder } = require('../../operations/writePipeline/operations/update/responder');
+const { PATCH_WRITE_PROFILE } = require('../../operations/writePipeline/operations/patch/profile');
+const { PatchResponder } = require('../../operations/writePipeline/operations/patch/responder');
+const { FindExistingStep } = require('../../operations/writePipeline/steps/findExistingStep');
+const { AccessCheckStep } = require('../../operations/writePipeline/steps/accessCheckStep');
+const { AttachmentsStep } = require('../../operations/writePipeline/steps/attachmentsStep');
+const { SearchExistingLoader } = require('../../operations/writePipeline/steps/load/searchExistingLoader');
+const { StoredAccessChecker } = require('../../operations/writePipeline/steps/access/storedAccessChecker');
+const { PatchBuilder } = require('../../operations/writePipeline/steps/build/patchBuilder');
+const { PatchWriter } = require('../../operations/writePipeline/steps/write/patchWriter');
+const {
+    ADMIN_LINK_WRITE_PROFILE,
+    ADMIN_PATIENT_REFERENCE_WRITE_PROFILE
+} = require('../../operations/writePipeline/operations/admin/profile');
+const { ADMIN_OPERATIONS } = require('../../operations/writePipeline/operations/admin/adminOperations');
+const { AdminResponder } = require('../../operations/writePipeline/operations/admin/responder');
+const { ValidateResultStep } = require('../../operations/writePipeline/steps/validateResultStep');
+const { AdminTargetLoader } = require('../../operations/writePipeline/steps/load/adminTargetLoader');
+const { AdminTargetsAccessChecker } = require('../../operations/writePipeline/steps/access/adminTargetsAccessChecker');
+const { AdminResultAccessChecker } = require('../../operations/writePipeline/steps/access/adminResultAccessChecker');
+const { AdminBuilder } = require('../../operations/writePipeline/steps/build/adminBuilder');
+const { AdminWriteRunner } = require('../../admin/adminWriteRunner');
+const { ImportResponder } = require('../../operations/writePipeline/operations/import/responder');
+const { ImportBatchWriter } = require('../../operations/writePipeline/operations/import/importBatchWriter');
 
 // Registrations that require infrastructure-specific config this test file does not (and should
 // not) provide; excluded only from the "every name resolves" sweep. Each has its own dedicated,
@@ -237,6 +260,35 @@ describe('createContainer', () => {
         expect(container.writePipeline.registeredProfiles.has(UPDATE_WRITE_PROFILE)).toBe(true);
     });
 
+    test('writePipeline registers the patch variants for its search, stored access, patch build, always-new attachments and patch write steps', () => {
+        const container = createContainer();
+        const { findExisting, accessBeforeBuild, buildDocument, attachments, write } =
+            container.writePipeline.stepVariants;
+        expect(findExisting.search).toBeInstanceOf(FindExistingStep);
+        expect(findExisting.search.existingResourceLoader).toBeInstanceOf(SearchExistingLoader);
+        expect(accessBeforeBuild.stored).toBeInstanceOf(AccessCheckStep);
+        expect(accessBeforeBuild.stored.accessChecker).toBeInstanceOf(StoredAccessChecker);
+        expect(buildDocument.patch).toBeInstanceOf(BuildDocumentStep);
+        expect(buildDocument.patch.builder).toBeInstanceOf(PatchBuilder);
+        expect(attachments.alwaysCreateNew).toBeInstanceOf(AttachmentsStep);
+        expect(attachments.alwaysCreateNew.alwaysCreateNewBase64).toBe(true);
+        expect(container.writePipeline.attachmentsStep.alwaysCreateNewBase64).toBe(false);
+        expect(write.patch).toBeInstanceOf(WriteStep);
+        expect(write.patch.writer).toBeInstanceOf(PatchWriter);
+        expect(write.patch.writer.databaseBulkInserter).toBe(container.fastDatabaseBulkInserter);
+        expect(write.patch.writer.groupMemberPatchStrategy).toBe(buildDocument.patch.builder.groupMemberPatchStrategy);
+    });
+
+    test('patchOperation is wired to the write pipeline, its switch and the patch responder', () => {
+        const container = createContainer();
+        const operation = container.patchOperation;
+        expect(operation.writePipeline).toBe(container.writePipeline);
+        expect(operation.writePipelineSwitch).toBe(container.writePipelineSwitch);
+        expect(operation.patchResponder).toBeInstanceOf(PatchResponder);
+        expect(operation.patchResponder).toBe(container.patchResponder);
+        expect(container.writePipeline.registeredProfiles.has(PATCH_WRITE_PROFILE)).toBe(true);
+    });
+
     test('writePipeline still resolves the $merge and create profiles to their steps', () => {
         const pipeline = createContainer().writePipeline;
         expect(MERGE_WRITE_PROFILE.variants).toBeUndefined();
@@ -247,6 +299,138 @@ describe('createContainer', () => {
         expect(pipeline.registeredProfiles.has(CREATE_WRITE_PROFILE)).toBe(true);
         expect(CREATE_WRITE_PROFILE.variants).toStrictEqual({ buildDocument: 'insert' });
         expect(pipeline.stepVariants.buildDocument.insert.builder).toBeInstanceOf(InsertBuilder);
+    });
+
+    test('the patch profile asks for the u letter with the patch action, turns off the body steps and names the five patch variants', () => {
+        expect(PATCH_WRITE_PROFILE).toStrictEqual({
+            name: 'patch',
+            accessRequested: 'u',
+            action: 'patch',
+            off: ['identify', 'prepareBody', 'validateIncoming', 'validateNewResource', 'validateAgainstStored'],
+            variants: {
+                findExisting: 'search',
+                accessBeforeBuild: 'stored',
+                buildDocument: 'patch',
+                attachments: 'alwaysCreateNew',
+                write: 'patch'
+            }
+        });
+    });
+
+    test('the admin link profile asks for the u letter with the admin action, turns off the scope and body steps and names the four admin variants', () => {
+        expect(ADMIN_LINK_WRITE_PROFILE).toStrictEqual({
+            name: 'adminLink',
+            accessRequested: 'u',
+            action: 'admin',
+            off: [
+                'scopeCheck',
+                'identify',
+                'prepareBody',
+                'validateIncoming',
+                'validateNewResource',
+                'validateAgainstStored'
+            ],
+            variants: {
+                findExisting: 'adminTargets',
+                accessBeforeBuild: 'adminTargets',
+                buildDocument: 'admin',
+                accessOnResult: 'admin'
+            }
+        });
+    });
+
+    test('the admin patient reference profile is the admin link profile plus the adminPatientReference result check', () => {
+        expect(ADMIN_PATIENT_REFERENCE_WRITE_PROFILE).toStrictEqual({
+            name: 'adminPatientReference',
+            accessRequested: 'u',
+            action: 'admin',
+            off: [
+                'scopeCheck',
+                'identify',
+                'prepareBody',
+                'validateIncoming',
+                'validateNewResource',
+                'validateAgainstStored'
+            ],
+            variants: {
+                findExisting: 'adminTargets',
+                accessBeforeBuild: 'adminTargets',
+                buildDocument: 'admin',
+                validateResult: 'adminPatientReference',
+                accessOnResult: 'admin'
+            }
+        });
+    });
+
+    test('writePipeline registers both admin profiles and wires the admin variants to the registered admin services', () => {
+        const container = createContainer();
+        const pipeline = container.writePipeline;
+        const { findExisting, accessBeforeBuild, buildDocument, validateResult, accessOnResult } =
+            pipeline.stepVariants;
+        expect(pipeline.registeredProfiles.has(ADMIN_LINK_WRITE_PROFILE)).toBe(true);
+        expect(pipeline.registeredProfiles.has(ADMIN_PATIENT_REFERENCE_WRITE_PROFILE)).toBe(true);
+        expect(findExisting.adminTargets).toBeInstanceOf(FindExistingStep);
+        expect(findExisting.adminTargets.existingResourceLoader).toBeInstanceOf(AdminTargetLoader);
+        expect(findExisting.adminTargets.existingResourceLoader).toBe(container.adminTargetLoader);
+        expect(accessBeforeBuild.adminTargets).toBeInstanceOf(AccessCheckStep);
+        expect(accessBeforeBuild.adminTargets.accessChecker).toBeInstanceOf(AdminTargetsAccessChecker);
+        expect(accessBeforeBuild.adminTargets.accessChecker).toBe(container.adminTargetsAccessChecker);
+        expect(buildDocument.admin).toBeInstanceOf(BuildDocumentStep);
+        expect(buildDocument.admin.builder).toBeInstanceOf(AdminBuilder);
+        expect(buildDocument.admin.builder).toBe(container.adminBuilder);
+        expect(accessOnResult.admin).toBeInstanceOf(AccessCheckStep);
+        expect(accessOnResult.admin.accessChecker).toBeInstanceOf(AdminResultAccessChecker);
+        expect(accessOnResult.admin.accessChecker).toBe(container.adminResultAccessChecker);
+        expect(validateResult.adminPatientReference).toBeInstanceOf(ValidateResultStep);
+        expect(validateResult.adminPatientReference.checkPatientReference).toBe(false);
+    });
+
+    test('the admin link profile keeps the default result check, which checks the patient reference', () => {
+        const pipeline = createContainer().writePipeline;
+        expect(ADMIN_LINK_WRITE_PROFILE.variants).not.toHaveProperty('validateResult');
+        expect(pipeline.validateResultStep).toBeInstanceOf(ValidateResultStep);
+        expect(pipeline.validateResultStep.checkPatientReference).toBe(true);
+    });
+
+    test.each(Object.keys(ADMIN_OPERATIONS))(
+        'the %s admin operation runs under one of the two admin profiles',
+        (operationName) => {
+            expect([ADMIN_LINK_WRITE_PROFILE.name, ADMIN_PATIENT_REFERENCE_WRITE_PROFILE.name]).toContain(
+                ADMIN_OPERATIONS[`${operationName}`].profile
+            );
+        }
+    );
+
+    test('adminWriteRunner is wired to the write pipeline, the admin responder, the post-request processor and the request cache', () => {
+        const container = createContainer();
+        const runner = container.adminWriteRunner;
+        expect(runner).toBeInstanceOf(AdminWriteRunner);
+        expect(runner.fhirOperationsManager).toBe(container.fhirOperationsManager);
+        expect(runner.writePipeline).toBe(container.writePipeline);
+        expect(runner.adminResponder).toBeInstanceOf(AdminResponder);
+        expect(runner.adminResponder).toBe(container.adminResponder);
+        expect(runner.postRequestProcessor).toBe(container.postRequestProcessor);
+        expect(runner.requestSpecificCache).toBe(container.requestSpecificCache);
+    });
+
+    test('adminPersonPatientLinkManager is wired to the write pipeline switch and the admin write runner', () => {
+        const container = createContainer();
+        const manager = container.adminPersonPatientLinkManager;
+        expect(manager.writePipelineSwitch).toBe(container.writePipelineSwitch);
+        expect(manager.adminWriteRunner).toBe(container.adminWriteRunner);
+    });
+
+    test('importBatchWriter is wired to the write pipeline, the owner column handler, the import responder, the structure checker and the tracer', () => {
+        const container = createContainer();
+        const writer = container.importBatchWriter;
+        expect(writer).toBeInstanceOf(ImportBatchWriter);
+        expect(writer.writePipeline).toBe(container.writePipeline);
+        expect(writer.ownerColumnHandler).toBe(container.ownerColumnHandler);
+        expect(writer.importResponder).toBeInstanceOf(ImportResponder);
+        expect(writer.importResponder).toBe(container.importResponder);
+        expect(writer.resourceStructureChecker).toBe(container.resourceStructureChecker);
+        expect(container.mergeResponder.resourceStructureChecker).toBe(container.resourceStructureChecker);
+        expect(writer.customTracer).toBe(container.customTracer);
     });
 
     test('preSaveManager orders SourceAssigningAuthorityColumnHandler before UuidColumnHandler before ReferenceGlobalIdHandler', () => {

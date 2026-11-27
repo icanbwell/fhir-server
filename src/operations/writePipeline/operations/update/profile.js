@@ -4,8 +4,9 @@
  * stored document with the body (`buildDocument: 'replace'`), validates the body against the stored
  * document in the `validateAgainstStored` step before the build, so the result check of an update
  * is the meta check only (`validateResult: 'update'`), and writes with the request's `If-Match` and
- * `If-None-Match` preconditions (`write: 'httpPreconditions'`). It turns no step off, and it is the
- * only profile that runs `validateAgainstStored`.
+ * `If-None-Match` preconditions (`write: 'httpPreconditions'`). It turns off `accessOnResult`,
+ * because the access-tag change of a PUT is checked before the build, and it is the only profile
+ * that runs `validateAgainstStored`.
  */
 const UPDATE_WRITE_PROFILE = Object.freeze({
     name: 'update',
@@ -16,7 +17,8 @@ const UPDATE_WRITE_PROFILE = Object.freeze({
         buildDocument: 'replace',
         validateResult: 'update',
         write: 'httpPreconditions'
-    })
+    }),
+    off: Object.freeze(['accessOnResult'])
 });
 
 module.exports = {

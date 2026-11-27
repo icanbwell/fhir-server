@@ -79,4 +79,56 @@ describe('ScopeCheckStep', () => {
             }
         ]);
     });
+
+    test.each([
+        { itemErrorsFailItem: true, expected: 'fails the items of that type' },
+        { itemErrorsFailItem: undefined, expected: 'rejects' }
+    ])(
+        'with itemErrorsFailItem $itemErrorsFailItem, a scopes check that throws for a type $expected',
+        async ({ itemErrorsFailItem }) => {
+            const error = new Error('synthetic scopes check failure');
+            const scopesValidator = Object.create(ScopesValidator.prototype);
+            scopesValidator.isScopesValidAsync = jest.fn(async ({ resourceType }) => {
+                if (resourceType === 'Observation') {
+                    throw error;
+                }
+                return undefined;
+            });
+            const step = new ScopeCheckStep({ scopesValidator });
+            const items = buildItems(['Patient', 'Observation', 'Patient', 'Observation']);
+
+            const run = step.runAsync({ items, context, profile: { ...profile, itemErrorsFailItem } });
+
+            if (!itemErrorsFailItem) {
+                await expect(run).rejects.toBe(error);
+                return;
+            }
+            await run;
+            expect(scopesValidator.isScopesValidAsync).toHaveBeenCalledTimes(2);
+            expect(items.map((item) => ({
+                status: item.status,
+                stage: item.failure?.stage,
+                subject: item.failure?.subject,
+                error: item.failure?.error,
+                operationOutcome: item.failure?.operationOutcome
+            }))).toStrictEqual([
+                { status: WRITE_ITEM_STATUS.ACTIVE, stage: undefined, subject: undefined, error: undefined, operationOutcome: undefined },
+                {
+                    status: WRITE_ITEM_STATUS.FAILED,
+                    stage: WRITE_FAILURE_STAGE.SCOPE,
+                    subject: { id: 'id-1', uuid: undefined, sourceAssigningAuthority: undefined, resourceType: 'Observation' },
+                    error,
+                    operationOutcome: null
+                },
+                { status: WRITE_ITEM_STATUS.ACTIVE, stage: undefined, subject: undefined, error: undefined, operationOutcome: undefined },
+                {
+                    status: WRITE_ITEM_STATUS.FAILED,
+                    stage: WRITE_FAILURE_STAGE.SCOPE,
+                    subject: { id: 'id-3', uuid: undefined, sourceAssigningAuthority: undefined, resourceType: 'Observation' },
+                    error,
+                    operationOutcome: null
+                }
+            ]);
+        }
+    );
 });

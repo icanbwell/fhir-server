@@ -158,12 +158,145 @@ class GroupMemberPatchStrategy {
     }) {
         const groupId = id;
 
+        this._requireGroupHandler(resourceType);
+        const { eventsToAdd, eventsToRemove, sourceAssigningAuthority } = this._parseMemberEvents({
+            memberOperations,
+            foundResource
+        });
+
+        // 4. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
+        // IMPORTANT: Write MongoDB first, then ClickHouse (matches CREATE/UPDATE pattern)
+        // Different write orders = different failure modes = unpredictable behavior
+        const updatedResource = deepcopy(foundResource);
+        this.resourceMerger.fastUpdateMeta({
+            patched_resource_incoming: updatedResource,
+            currentResource: foundResource,
+            original_source: foundResource.meta?.source,
+            incrementVersion: true
+        });
+
+        // Build contextData and set flag to skip post-save handler
+        // buildContextDataForHybridStorage now always returns an object for Groups (never null)
+        const contextData = buildContextDataForHybridStorage(resourceType, foundResource, requestInfo);
+        if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
+            contextData.groupMemberEventsWritten = true;
+        }
+
+        // Update MongoDB metadata only (no member array)
+        await this.databaseBulkInserter.replaceOneAsync({
+            requestInfo,
+            resourceType,
+            doc: updatedResource,
+            uuid: updatedResource._uuid,
+            contextData
+        });
+
+        await this.databaseBulkInserter.executeAsync({
+            requestInfo,
+            base_version
+        });
+
+        // 5. Enrich member references with _uuid and _sourceId
+        // PATCH bypasses the normal pre-save pipeline (referenceGlobalIdHandler),
+        // so we must enrich references before writing ClickHouse events.
+        enrichMemberReferences(eventsToAdd, sourceAssigningAuthority);
+        enrichMemberReferences(eventsToRemove, sourceAssigningAuthority);
+
+        // 6. Write events to ClickHouse (AFTER MongoDB commit)
+        // Direct translation: 1 operation = 1 event (added or removed)
+        await this.writeClickHouseMemberEventsAsync({
+            resourceType,
+            groupId,
+            events: { eventsToAdd, eventsToRemove },
+            groupResource: updatedResource // Use updated resource with new versionId
+        });
+
+        return updatedResource;
+    }
+
+    /**
+     * Parses and enriches a Group PATCH's member operations into ClickHouse member events, for
+     * the 'useexternalstorage' flow, without writing anything and without touching the database.
+     * Runs the same checks, in the same order, that executeMemberOperations runs before its Mongo
+     * write (post-save handler available, operations limit, parsing, source assigning authority)
+     * and then enriches the member references the way executeMemberOperations does after it.
+     * The write pipeline's PATCH uses this to get the events it later writes through
+     * writeClickHouseMemberEventsAsync.
+     *
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {Array<Object>} params.memberOperations - JSON Patch operations on /member
+     * @param {Resource} params.foundResource - The validated Group resource from MongoDB
+     * @returns {{eventsToAdd: Array<Object>, eventsToRemove: Array<Object>}}
+     */
+    prepareClickHouseMemberWrites({ resourceType, memberOperations, foundResource }) {
+        this._requireGroupHandler(resourceType);
+        const { eventsToAdd, eventsToRemove, sourceAssigningAuthority } = this._parseMemberEvents({
+            memberOperations,
+            foundResource
+        });
+
+        enrichMemberReferences(eventsToAdd, sourceAssigningAuthority);
+        enrichMemberReferences(eventsToRemove, sourceAssigningAuthority);
+
+        return { eventsToAdd, eventsToRemove };
+    }
+
+    /**
+     * Writes already prepared member events to the ClickHouse event log through the Group's
+     * registered post-save handler, and does nothing when there is no event. The Mongo write of
+     * the Group is the caller's job and must have committed first. executeMemberOperations ends
+     * with this, and the write pipeline's PATCH uses it as its ClickHouse write.
+     *
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {string} params.groupId - Group ID
+     * @param {{eventsToAdd: Array<Object>, eventsToRemove: Array<Object>}} params.events - from prepareClickHouseMemberWrites
+     * @param {Resource} params.groupResource - The Group resource with its new versionId
+     * @returns {Promise<void>}
+     */
+    async writeClickHouseMemberEventsAsync({ resourceType, groupId, events, groupResource }) {
+        const groupHandler = this._requireGroupHandler(resourceType);
+        const { eventsToAdd, eventsToRemove } = events;
+
+        if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
+            await groupHandler.writeEventsAsync({
+                groupId,
+                added: eventsToAdd,
+                removed: eventsToRemove,
+                groupResource
+            });
+        }
+    }
+
+    /**
+     * Returns the post-save handler that writes a Group's member events to ClickHouse.
+     *
+     * @param {string} resourceType
+     * @returns {Object} The Group's ClickHouse post-save handler
+     * @throws {Error} When no post-save handler is registered for the resource type
+     * @private
+     */
+    _requireGroupHandler(resourceType) {
         const postSaveHandlers = this.postSaveHandlerFactory.getHandlers(resourceType);
         if (postSaveHandlers.length === 0) {
             throw new Error('No post-save handlers available for Group resource');
         }
-        const groupHandler = postSaveHandlers[0];
+        return postSaveHandlers[0];
+    }
 
+    /**
+     * Checks the operations limit, parses the member operations into add/remove events and checks
+     * that the Group has a source assigning authority, in that order, without enriching the
+     * events or writing anything.
+     *
+     * @param {Object} params
+     * @param {Array<Object>} params.memberOperations - JSON Patch operations on /member
+     * @param {Resource} params.foundResource - The validated Group resource from MongoDB
+     * @returns {{eventsToAdd: Array<Object>, eventsToRemove: Array<Object>, sourceAssigningAuthority: string}}
+     * @private
+     */
+    _parseMemberEvents({ memberOperations, foundResource }) {
         // 1. Enforce operations limit (empirically determined)
         const MAX_PATCH_OPERATIONS = this.configManager.groupPatchOperationsLimit;
         if (memberOperations.length > MAX_PATCH_OPERATIONS) {
@@ -247,56 +380,7 @@ class GroupMemberPatchStrategy {
             );
         }
 
-        // 4. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
-        // IMPORTANT: Write MongoDB first, then ClickHouse (matches CREATE/UPDATE pattern)
-        // Different write orders = different failure modes = unpredictable behavior
-        const updatedResource = deepcopy(foundResource);
-        this.resourceMerger.fastUpdateMeta({
-            patched_resource_incoming: updatedResource,
-            currentResource: foundResource,
-            original_source: foundResource.meta?.source,
-            incrementVersion: true
-        });
-
-        // Build contextData and set flag to skip post-save handler
-        // buildContextDataForHybridStorage now always returns an object for Groups (never null)
-        const contextData = buildContextDataForHybridStorage(resourceType, foundResource, requestInfo);
-        if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
-            contextData.groupMemberEventsWritten = true;
-        }
-
-        // Update MongoDB metadata only (no member array)
-        await this.databaseBulkInserter.replaceOneAsync({
-            requestInfo,
-            resourceType,
-            doc: updatedResource,
-            uuid: updatedResource._uuid,
-            contextData
-        });
-
-        await this.databaseBulkInserter.executeAsync({
-            requestInfo,
-            base_version
-        });
-
-        // 5. Enrich member references with _uuid and _sourceId
-        // PATCH bypasses the normal pre-save pipeline (referenceGlobalIdHandler),
-        // so we must enrich references before writing ClickHouse events.
-        enrichMemberReferences(eventsToAdd, sourceAssigningAuthority);
-        enrichMemberReferences(eventsToRemove, sourceAssigningAuthority);
-
-        // 6. Write events to ClickHouse (AFTER MongoDB commit)
-        // Direct translation: 1 operation = 1 event (added or removed)
-        if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
-            await groupHandler.writeEventsAsync({
-                groupId,
-                added: eventsToAdd,
-                removed: eventsToRemove,
-                groupResource: updatedResource // Use updated resource with new versionId
-            });
-        }
-
-        return updatedResource;
+        return { eventsToAdd, eventsToRemove, sourceAssigningAuthority };
     }
 
     /**

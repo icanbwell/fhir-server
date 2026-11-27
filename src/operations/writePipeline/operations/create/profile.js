@@ -3,7 +3,8 @@
  * the `insert` variant of `buildDocument`, runs the shared `validateIncoming`,
  * `validateNewResource` and `validateResult` steps as `$merge` does, and turns off `findExisting`,
  * because a POST has no stored document to load, `validateAgainstStored`, which only a PUT runs,
- * and `noOpCheck`.
+ * `noOpCheck`, and `accessOnResult`, because the access-tag change of a POST is checked before the
+ * build.
  */
 const CREATE_WRITE_PROFILE = Object.freeze({
     name: 'create',
@@ -12,7 +13,7 @@ const CREATE_WRITE_PROFILE = Object.freeze({
     variants: Object.freeze({
         buildDocument: 'insert'
     }),
-    off: Object.freeze(['findExisting', 'validateAgainstStored', 'noOpCheck'])
+    off: Object.freeze(['findExisting', 'validateAgainstStored', 'noOpCheck', 'accessOnResult'])
 });
 
 module.exports = {

@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "not-supported",
+      "details": {
+        "text": "This operation is not allowed on AuditEvent resources"
+      }
+    }
+  ]
+}

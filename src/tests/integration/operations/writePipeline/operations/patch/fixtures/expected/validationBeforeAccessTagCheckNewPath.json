@@ -1,0 +1,19 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/Patient/put-parity-patient should match pattern \"^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?)?$\" :{\"pattern\":\"^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?)?$\"}: at position .birthDate"
+      }
+    },
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/Patient/put-parity-patient should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+      }
+    }
+  ]
+}

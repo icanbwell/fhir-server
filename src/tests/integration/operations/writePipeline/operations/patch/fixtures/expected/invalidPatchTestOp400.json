@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Test operation failed\nname: TEST_OPERATION_FAILED\nindex: 0\noperation: {\n  \"op\": \"test\",\n  \"path\": \"/name/0/family\",\n  \"value\": \"NotParity\"\n}\ntree: {\n  \"id\": \"put-parity-patient\",\n  \"meta\": {\n    \"source\": \"http://example.com/source\",\n    \"security\": [\n      {\n        \"system\": \"https://www.icanbwell.com/access\",\n        \"code\": \"client\",\n        \"id\": \"21b6850a-a1fb-5de3-8f69-7962d5394390\"\n      },\n      {\n        \"system\": \"https://www.icanbwell.com/owner\",\n        \"code\": \"client\",\n        \"id\": \"1642e685-6de9-5bdb-89e8-b62ffe4420eb\"\n      },\n      {\n        \"system\": \"https://www.icanbwell.com/sourceAssigningAuthority\",\n        \"code\": \"client\",\n        \"id\": \"cea955c4-9b2c-5b0d-8b48-acfd40cabb59\"\n      }\n    ],\n    \"versionId\": \"1\",\n    \"lastUpdated\": \"<instant>\"\n  },\n  \"name\": [\n    {\n      \"family\": \"Parity\",\n      \"given\": [\n        \"Alpha\"\n      ]\n    }\n  ],\n  \"resourceType\": \"Patient\"\n}"
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-const { describe, test, expect, beforeEach, afterEach } = require('@jest/globals');
+const { describe, test, expect, jest, beforeEach, afterEach } = require('@jest/globals');
 const { FastDatabaseBulkInserter } = require('../../../../../dataLayer/fastDatabaseBulkInserter');
 const { ConfigManager } = require('../../../../../utils/configManager');
 const { WriteStep } = require('../../../../../operations/writePipeline/steps/writeStep');
@@ -128,5 +128,56 @@ describe('WriteStep', () => {
         expect(items[1].failure.stage).toBe(WRITE_FAILURE_STAGE.WRITE);
         expect(items[1].failure.error.message).toBe('Error updating: resource_uuid=uuid-1');
         expect(items[1].failure.error.nested.message).toBe('queueing patient-1 failed');
+    });
+
+    test("afterFlushAsync calls the writer's hook with the items and results", async () => {
+        const afterFlushAsync = jest.fn(async () => undefined);
+        const step = new WriteStep({
+            writer: { queueUpdateAsync: jest.fn(), queueInsertAsync: jest.fn(), afterFlushAsync },
+            configManager: new ConfigManager()
+        });
+        const items = [buildItem({ index: 0, writeMode: 'insert' })];
+        const executedResults = [{ id: 'patient-0', created: true }];
+
+        await step.afterFlushAsync({ items, context, executedResults });
+
+        expect(afterFlushAsync).toHaveBeenCalledTimes(1);
+        expect(afterFlushAsync).toHaveBeenCalledWith({ items, context, executedResults });
+        expect(afterFlushAsync.mock.calls[0][0].items).toBe(items);
+        expect(afterFlushAsync.mock.calls[0][0].executedResults).toBe(executedResults);
+    });
+
+    test('afterFlushAsync is a no-op for a writer without one', async () => {
+        const events = [];
+        const step = new WriteStep({
+            writer: new VersionedWriter({ databaseBulkInserter: buildDatabaseBulkInserter({ events }) }),
+            configManager: new ConfigManager()
+        });
+        const items = [buildItem({ index: 0, writeMode: 'update' })];
+
+        await expect(
+            step.afterFlushAsync({ items, context, executedResults: [] })
+        ).resolves.toBeUndefined();
+
+        expect(events).toStrictEqual([]);
+        expect(items[0].status).toBe(WRITE_ITEM_STATUS.ACTIVE);
+    });
+
+    test('afterFlushAsync throws the error from the writer\'s hook', async () => {
+        const error = new Error('synthetic hook failure');
+        const step = new WriteStep({
+            writer: {
+                queueUpdateAsync: jest.fn(),
+                queueInsertAsync: jest.fn(),
+                afterFlushAsync: jest.fn(async () => {
+                    throw error;
+                })
+            },
+            configManager: new ConfigManager()
+        });
+
+        await expect(
+            step.afterFlushAsync({ items: [], context, executedResults: [] })
+        ).rejects.toBe(error);
     });
 });

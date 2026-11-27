@@ -41,6 +41,10 @@ const { removeUnderscoreFieldsRecursive } = require('../../utils/removeUnderscor
 const { validateResource } = require('../../utils/validator.util');
 const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
 const deepcopy = require('deepcopy');
+const { WritePipelineSwitch } = require('../writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('../writePipeline/writePipeline');
+const { PatchResponder } = require('../writePipeline/operations/patch/responder');
+const { PATCH_WRITE_PROFILE } = require('../writePipeline/operations/patch/profile');
 
 class PatchOperation {
     /**
@@ -63,6 +67,9 @@ class PatchOperation {
      * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository} mongoGroupMemberRepository
      * @param {AuditLogger} auditLogger
      * @param {GroupMemberMerger} groupMemberMerger
+     * @param {WritePipelineSwitch} writePipelineSwitch
+     * @param {WritePipeline} writePipeline
+     * @param {PatchResponder} patchResponder
      */
     constructor (
         {
@@ -83,7 +90,10 @@ class PatchOperation {
             groupExtendedTagEnrichmentProvider,
             mongoGroupMemberRepository,
             auditLogger,
-            groupMemberMerger
+            groupMemberMerger,
+            writePipelineSwitch,
+            writePipeline,
+            patchResponder
         }
     ) {
         /**
@@ -209,10 +219,30 @@ class PatchOperation {
          */
         this.groupMemberMerger = groupMemberMerger;
         assertTypeEquals(groupMemberMerger, GroupMemberMerger);
+
+        /**
+         * @type {WritePipelineSwitch}
+         */
+        this.writePipelineSwitch = writePipelineSwitch;
+        assertTypeEquals(writePipelineSwitch, WritePipelineSwitch);
+
+        /**
+         * @type {WritePipeline}
+         */
+        this.writePipeline = writePipeline;
+        assertTypeEquals(writePipeline, WritePipeline);
+
+        /**
+         * @type {PatchResponder}
+         */
+        this.patchResponder = patchResponder;
+        assertTypeEquals(patchResponder, PatchResponder);
     }
 
     /**
      * does a FHIR Patch
+     * When the write pipeline switch is on for `patch`, the request goes to
+     * `WritePipeline.runAsync` with the patch profile and responder.
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
@@ -222,6 +252,15 @@ class PatchOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
+        if (this.writePipelineSwitch?.useNewPathFor('patch')) {
+            return await this.writePipeline.runAsync({
+                profile: PATCH_WRITE_PROFILE,
+                responder: this.patchResponder,
+                requestInfo,
+                parsedArgs,
+                resourceType
+            });
+        }
         const currentOperationName = 'patch';
         const extraInfo = {
             currentOperationName
