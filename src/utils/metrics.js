@@ -322,6 +322,10 @@ const historyMongoFallbackCounter = meter.createCounter('fhir_history_mongo_fall
     description: 'History documents written to MongoDB because the Kafka produce failed while the MongoDB history write is disabled, by resource_type and reason.'
 });
 
+const historyMongoFallbackFailedCounter = meter.createCounter('fhir_history_mongo_fallback_failed_total', {
+    description: 'History documents that could not be written to Kafka or to the MongoDB fallback, so history is lost, by resource_type and reason.'
+});
+
 const importOperationsTriggeredCounter = meter.createCounter('fhir_import_operations_triggered_total', {
     description: 'Bulk $import operations triggered — one per TaskCreated event the orchestrator begins processing (Task found, before S3 validation).'
 });
@@ -383,6 +387,10 @@ const kafkaConsumerGroupJoinsCounter = meter.createCounter('fhir_kafka_consumer_
 
 const groupMemberMergeEntriesCounter = meter.createCounter('fhir_group_member_merge_entries_total', {
     description: 'Group member entries a write did not store as sent, by outcome: merged_away (merged into the first entry of the same member), left_as_is (not merged, entity.reference is not a relative Type/id reference; counted only when the same write merged other entries), no_change (an extended Group add equal to the stored member, so nothing was written) and rejected (sent for a member over the per-member entry limit, so the write was rejected).'
+});
+
+const mongoCheckoutTimeoutSelfExitCounter = meter.createCounter('fhir_mongo_checkout_timeout_self_exit_total', {
+    description: 'Workers that shut themselves down after repeated MongoDB checkout timeouts on one pool, by pool. Each is a wedged pool that the cluster primary (or Kubernetes, in single-process mode) replaced with a fresh process.'
 });
 
 const mongoPoolCheckoutDurationHistogram = meter.createHistogram('fhir_mongo_pool_checkout_duration_seconds', {
@@ -571,6 +579,19 @@ function recordHistoryMongoFallback (resourceType, count, reason) {
 }
 
 /**
+ * Count history documents lost because the Kafka produce failed and the MongoDB fallback write failed too.
+ * @param {string} resourceType
+ * @param {number} count documents that were not written to MongoDB
+ * @param {string} reason why the fallback write failed
+ */
+function recordHistoryMongoFallbackFailed (resourceType, count, reason) {
+    historyMongoFallbackFailedCounter.add(count, {
+        [LABEL.RESOURCE_TYPE]: resourceType || UNKNOWN,
+        [LABEL.REASON]: reason || UNKNOWN
+    });
+}
+
+/**
  * Emit history Kafka produce metrics for one produce call (a chunk of messages).
  * @param {string} resourceType
  * @param {number} count messages in the call
@@ -722,6 +743,14 @@ function recordGroupMemberMergeEntries (outcome, count = 1) {
 }
 
 /**
+ * Emit fhir_mongo_checkout_timeout_self_exit_total.
+ * @param {string} pool
+ */
+function recordMongoCheckoutTimeoutSelfExit (pool) {
+    mongoCheckoutTimeoutSelfExitCounter.add(1, { [LABEL.POOL]: pool || UNKNOWN });
+}
+
+/**
  * Emit fhir_mongo_pool_checkout_duration_seconds. The driver reports the wait in
  * milliseconds; the instrument is in seconds to match the other duration histograms here.
  * @param {string} pool
@@ -832,6 +861,7 @@ module.exports = {
     historyKafkaFailedCounter,
     historyKafkaProduceDurationHistogram,
     historyMongoFallbackCounter,
+    historyMongoFallbackFailedCounter,
     importOperationsTriggeredCounter,
     importResourcesProcessedCounter,
     importResourcesFailedCounter,
@@ -861,6 +891,7 @@ module.exports = {
     recordHistoryKafkaProduce,
     recordHistoryClickHouseRead,
     recordHistoryMongoFallback,
+    recordHistoryMongoFallbackFailed,
     recordImportOperationTriggered,
     recordImportResourceOutcomes,
     recordImportRangeDuration,
@@ -870,6 +901,7 @@ module.exports = {
     recordImportTaskFinished,
     recordKafkaConsumerGroupJoin,
     recordGroupMemberMergeEntries,
+    recordMongoCheckoutTimeoutSelfExit,
     recordMongoPoolCheckoutDuration,
     recordMongoPoolCheckoutFailed,
     recordMongoPoolCleared,

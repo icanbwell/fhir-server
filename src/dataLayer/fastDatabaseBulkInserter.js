@@ -1,9 +1,10 @@
 'use strict';
 const async = require('async');
-const { logVerboseAsync, logInfo } = require('../operations/common/logging');
+const { logVerboseAsync, logInfo, logError } = require('../operations/common/logging');
 const { PostRequestProcessor } = require('../utils/postRequestProcessor');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
+const metrics = require('../utils/metrics');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
@@ -17,6 +18,8 @@ const BundleEntryWriteSerializer = require('../fhir/writeSerializers/4_0_0/backb
 const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 const { CustomTracer } = require('../utils/customTracer');
+
+const FALLBACK_WRITE_FAILED_REASON = 'mongo_write_failed';
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -294,9 +297,17 @@ class FastDatabaseBulkInserter {
      * @param {Object} doc
      * @param {Object|null} contextData - Optional context data for resource-specific handling
      * @param {boolean} [rejectIfExists] - fail with 412 instead of folding a lost create race into an update
+     * @param {boolean} [smartMerge] - how a lost create race is folded into the stored doc: true appends to it, false replaces it; not forwarded when an insert for the same _uuid is already pending
      * @returns {Promise<void>}
      */
-    async insertOneAsync({ requestInfo, resourceType, doc, contextData = null, rejectIfExists = false }) {
+    async insertOneAsync({
+        requestInfo,
+        resourceType,
+        doc,
+        contextData = null,
+        rejectIfExists = false,
+        smartMerge = true
+    }) {
         try {
             if (!doc.meta) {
                 doc.meta = {};
@@ -378,7 +389,8 @@ class FastDatabaseBulkInserter {
                         },
                         operationType: 'insertUniqueId',
                         contextData,
-                        writePrecondition: rejectIfExists ? { rejectIfExists: true } : null
+                        writePrecondition: rejectIfExists ? { rejectIfExists: true } : null,
+                        smartMerge
                     });
                 }
             }
@@ -529,6 +541,8 @@ class FastDatabaseBulkInserter {
      * @param {string|null} previousVersionId
      * @param {Object} doc
      * @param {Object|null} contextData - Optional context data for resource-specific handling
+     * @param {boolean} [smartMerge] - how a lost write is replayed against the latest stored doc: true appends, false replaces
+     * @param {Object|null} [writePrecondition] - the If-Match precondition the replay re-checks against the latest stored doc
      * @returns {Promise<void>}
      */
     async mergeOneAsync({
@@ -537,7 +551,8 @@ class FastDatabaseBulkInserter {
         previousVersionId,
         doc,
         contextData = null,
-        smartMerge = true
+        smartMerge = true,
+        writePrecondition = null
     }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
 
@@ -640,6 +655,7 @@ class FastDatabaseBulkInserter {
                             }
                         },
                         contextData,
+                        writePrecondition,
                         smartMerge
                     });
                 }
@@ -870,11 +886,27 @@ class FastDatabaseBulkInserter {
                 return { resourceType, mergeResult: undefined, error: null, mergeResultEntries: [] };
             }
         }
-        const result = await executor.executeBulkAsync({
-            resourceType, operations: operationsToWrite, requestInfo, base_version,
-            useHistoryCollection, maintainOrder, isAccessLogOperation, retryOnPoolWaitTimeout,
-            insertOneHistoryFn: this.insertOneHistoryAsync.bind(this)
-        });
+        let result;
+        try {
+            result = await executor.executeBulkAsync({
+                resourceType, operations: operationsToWrite, requestInfo, base_version,
+                useHistoryCollection, maintainOrder, isAccessLogOperation, retryOnPoolWaitTimeout,
+                insertOneHistoryFn: this.insertOneHistoryAsync.bind(this)
+            });
+        } catch (e) {
+            if (mongoHistoryDisabled) {
+                this._recordFallbackWriteFailed({
+                    resourceType, requestId: requestInfo.requestId, operationsToWrite, error: e
+                });
+            }
+            throw e;
+        }
+        // The executor returns (does not throw) a document-size rejection, which also loses the history.
+        if (mongoHistoryDisabled && result?.error) {
+            this._recordFallbackWriteFailed({
+                resourceType, requestId: requestInfo.requestId, operationsToWrite, error: result.error
+            });
+        }
         // Parallel history produce: only after a successful history write (a size-rejected write returns
         // `error` and writes nothing), never replaces it, never throws.
         if (useHistoryCollection === true && !mongoHistoryDisabled && this.historyKafkaProducer && !result?.error &&
@@ -884,6 +916,28 @@ class FastDatabaseBulkInserter {
             });
         }
         return result;
+    }
+
+    /**
+     * Records history documents lost because the Kafka-only fallback write to MongoDB failed.
+     * Counts the documents not written (the whole batch unless the driver reports how many were inserted).
+     * Logs the resource type, count, request id and reason only: no ids or payloads.
+     * @param {Object} params
+     * @param {string} params.resourceType
+     * @param {string} params.requestId
+     * @param {BulkInsertUpdateEntry[]} params.operationsToWrite
+     * @param {Error} params.error
+     * @private
+     */
+    _recordFallbackWriteFailed ({ resourceType, requestId, operationsToWrite, error }) {
+        const inserted = error?.result?.insertedCount ?? error?.error?.result?.insertedCount;
+        const count = Number.isInteger(inserted) && inserted >= 0 && inserted < operationsToWrite.length
+            ? operationsToWrite.length - inserted
+            : operationsToWrite.length;
+        metrics.recordHistoryMongoFallbackFailed(resourceType, count, FALLBACK_WRITE_FAILED_REASON);
+        logError('FastDatabaseBulkInserter: history lost, Kafka produce and MongoDB fallback write both failed', {
+            resourceType, count, requestId, reason: FALLBACK_WRITE_FAILED_REASON
+        });
     }
 
     /**

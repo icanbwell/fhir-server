@@ -369,6 +369,409 @@ describe('GroupMemberPatchStrategy', () => {
                 groupResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
         });
+
+        test('writes the Group to Mongo before enriching the member references, then writes the events', async () => {
+            const memberOperations = [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
+            ];
+            const { entity } = memberOperations[0].value;
+            const steps = [];
+            const record = (step) => async () => {
+                steps.push({ step, entityEnriched: entity._uuid !== undefined });
+            };
+            mockDatabaseBulkInserter.replaceOneAsync.mockImplementation(record('replaceOneAsync'));
+            mockDatabaseBulkInserter.executeAsync.mockImplementation(record('executeAsync'));
+            mockGroupHandler.writeEventsAsync.mockImplementationOnce(record('writeEventsAsync'));
+
+            await strategy.executeMemberOperations({
+                requestInfo: {},
+                resourceType: 'Group',
+                id: 'group-1',
+                base_version: '4_0_0',
+                memberOperations,
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+            });
+
+            expect(steps).toEqual([
+                { step: 'replaceOneAsync', entityEnriched: false },
+                { step: 'executeAsync', entityEnriched: false },
+                { step: 'writeEventsAsync', entityEnriched: true }
+            ]);
+        });
+
+        test('a non-string entity.reference fails in enrichment, after the Group was written to Mongo and before any event write', async () => {
+            const memberOperations = [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 123 } } }
+            ];
+
+            await expect(
+                strategy.executeMemberOperations({
+                    requestInfo: {},
+                    resourceType: 'Group',
+                    id: 'group-1',
+                    base_version: '4_0_0',
+                    memberOperations,
+                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+                })
+            ).rejects.toThrow(TypeError);
+
+            expect(mockDatabaseBulkInserter.replaceOneAsync).toHaveBeenCalledTimes(1);
+            expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
+            expect(mockGroupHandler.writeEventsAsync).not.toHaveBeenCalled();
+        });
+
+        test('writes a version-bumped copy of the Group to Mongo, hands that copy to the event write and returns it', async () => {
+            const foundResource = {
+                id: 'group-1',
+                _uuid: 'group-1-uuid',
+                resourceType: 'Group',
+                _sourceAssigningAuthority: SOURCE_AUTHORITY
+            };
+            const memberOperations = [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
+            ];
+
+            const result = await strategy.executeMemberOperations({
+                requestInfo: requestInfoWithHeader,
+                resourceType: 'Group',
+                id: 'group-1',
+                base_version: '4_0_0',
+                memberOperations,
+                foundResource
+            });
+
+            expect(result).not.toBe(foundResource);
+            expect(result).toEqual(foundResource);
+            expect(mockResourceMerger.fastUpdateMeta).toHaveBeenCalledWith({
+                patched_resource_incoming: result,
+                currentResource: foundResource,
+                original_source: undefined,
+                incrementVersion: true
+            });
+            expect(mockDatabaseBulkInserter.replaceOneAsync).toHaveBeenCalledWith({
+                requestInfo: requestInfoWithHeader,
+                resourceType: 'Group',
+                doc: result,
+                uuid: 'group-1-uuid',
+                contextData: {
+                    groupMembers: undefined,
+                    resourceType: 'Group',
+                    resourceId: 'group-1',
+                    useExternalStorage: true,
+                    smartMerge: undefined,
+                    groupMemberEventsWritten: true
+                }
+            });
+            expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledWith({
+                requestInfo: requestInfoWithHeader,
+                base_version: '4_0_0'
+            });
+            expect(mockGroupHandler.writeEventsAsync.mock.calls[0][0].groupResource).toBe(result);
+        });
+
+        test('with no operations it still writes the Group to Mongo, without the events flag and without an event write', async () => {
+            await strategy.executeMemberOperations({
+                requestInfo: {},
+                resourceType: 'Group',
+                id: 'group-1',
+                base_version: '4_0_0',
+                memberOperations: [],
+                foundResource: { id: 'group-1', _uuid: 'group-1-uuid', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+            });
+
+            expect(mockDatabaseBulkInserter.replaceOneAsync).toHaveBeenCalledTimes(1);
+            expect(mockDatabaseBulkInserter.replaceOneAsync.mock.calls[0][0].contextData.groupMemberEventsWritten).toBeUndefined();
+            expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
+            expect(mockGroupHandler.writeEventsAsync).not.toHaveBeenCalled();
+        });
+
+        test.each([
+            [
+                'the handler lookup runs before the operations limit',
+                false,
+                Array(5001).fill({ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }),
+                { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
+                'No post-save handlers available for Group resource'
+            ],
+            [
+                'the operations limit runs before parsing',
+                true,
+                [
+                    { op: 'remove', path: '/member/0', value: {} },
+                    ...Array(5000).fill({ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } })
+                ],
+                { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY },
+                'Group operations count exceeds maximum (5001 > 5000)'
+            ],
+            [
+                'parsing runs before the authority check',
+                true,
+                [{ op: 'remove', path: '/member/0', value: {} }],
+                { id: 'group-1', resourceType: 'Group' },
+                'Unsupported PATCH operation on Group.member: remove /member/0.'
+            ],
+            [
+                'the authority check runs before any write',
+                true,
+                [{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }],
+                { id: 'group-1', resourceType: 'Group' },
+                'Group group-1 has no _sourceAssigningAuthority; cannot enrich member references'
+            ]
+        ])('%s, and nothing is written when a check fails', async (_, hasHandler, memberOperations, foundResource, expectedMessage) => {
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue(hasHandler ? [mockGroupHandler] : []);
+
+            await expect(
+                strategy.executeMemberOperations({
+                    requestInfo: {},
+                    resourceType: 'Group',
+                    id: 'group-1',
+                    base_version: '4_0_0',
+                    memberOperations,
+                    foundResource
+                })
+            ).rejects.toThrow(expectedMessage);
+
+            expect(mockResourceMerger.fastUpdateMeta).not.toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+            expect(mockGroupHandler.writeEventsAsync).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('prepareClickHouseMemberWrites', () => {
+        let mockGroupHandler;
+        let foundResource;
+
+        beforeEach(() => {
+            mockGroupHandler = { writeEventsAsync: jest.fn() };
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([mockGroupHandler]);
+            foundResource = { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY };
+        });
+
+        function prepare(memberOperations, resource = foundResource) {
+            return strategy.prepareClickHouseMemberWrites({
+                resourceType: 'Group',
+                memberOperations,
+                foundResource: resource
+            });
+        }
+
+        function captureError(callback) {
+            try {
+                callback();
+            } catch (error) {
+                return error;
+            }
+            throw new Error('Expected the callback to throw');
+        }
+
+        test('parses add and remove operations into events, in the submitted order', () => {
+            const memberOperations = [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' }, period: { start: '2024-01-01' } } },
+                { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/2' } } },
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/3' }, inactive: true } }
+            ];
+
+            const result = prepare(memberOperations);
+
+            expect(result).toEqual({
+                eventsToAdd: [
+                    { entity: enrichedEntity('Patient/1'), period: { start: '2024-01-01' }, inactive: false },
+                    { entity: enrichedEntity('Patient/3'), period: undefined, inactive: true }
+                ],
+                eventsToRemove: [
+                    { entity: enrichedEntity('Patient/2'), period: undefined, inactive: false }
+                ]
+            });
+        });
+
+        test('returns empty event lists for no operations', () => {
+            expect(prepare([])).toEqual({ eventsToAdd: [], eventsToRemove: [] });
+        });
+
+        test.each([
+            ['a reference without an authority', 'Patient/1'],
+            ['a reference that carries its own authority', 'Patient/1|other-owner']
+        ])('enriches the event entity of %s with _uuid, _sourceId and _sourceAssigningAuthority', (_, reference) => {
+            const { eventsToAdd, eventsToRemove } = prepare([
+                { op: 'add', path: '/member/-', value: { entity: { reference } } },
+                { op: 'remove', path: '/member/', value: { entity: { reference } } }
+            ]);
+
+            expect(eventsToAdd[0].entity).toEqual(enrichedEntity(reference));
+            expect(eventsToRemove[0].entity).toEqual(enrichedEntity(reference));
+        });
+
+        test('enriches the entity objects of the input operations in place, as the old path does', () => {
+            const memberOperations = [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } },
+                { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/2' } } }
+            ];
+
+            const { eventsToAdd, eventsToRemove } = prepare(memberOperations);
+
+            expect(memberOperations[0].value.entity).toEqual(enrichedEntity('Patient/1'));
+            expect(memberOperations[1].value.entity).toEqual(enrichedEntity('Patient/2'));
+            expect(eventsToAdd[0].entity).toBe(memberOperations[0].value.entity);
+            expect(eventsToRemove[0].entity).toBe(memberOperations[1].value.entity);
+        });
+
+        test.each([
+            ['no value', { op: 'add', path: '/member/-' }],
+            ['an empty value', { op: 'add', path: '/member/-', value: {} }],
+            ['an add with an empty entity', { op: 'add', path: '/member/-', value: { entity: {} } }],
+            ['a remove with an empty entity', { op: 'remove', path: '/member/', value: { entity: {} } }]
+        ])('rejects an operation with %s as a required-field 400', (_, badOperation) => {
+            const error = captureError(() => prepare([badOperation]));
+
+            expect(error.message).toContain('Missing required value.entity.reference in PATCH operation');
+            expect(error.statusCode).toBe(400);
+            expect(error.issue).toEqual([{
+                severity: 'error',
+                code: 'required',
+                diagnostics: 'Each member PATCH operation must include value.entity.reference'
+            }]);
+        });
+
+        test.each([
+            ['remove', '/member/0'],
+            ['replace', '/member/-'],
+            ['add', '/member/0']
+        ])('rejects %s on %s as an unsupported-path 400', (op, path) => {
+            const error = captureError(() => prepare([{ op, path, value: { entity: { reference: 'Patient/1' } } }]));
+
+            expect(error.statusCode).toBe(400);
+            expect(error.message).toBe(
+                `Unsupported PATCH operation on Group.member: ${op} ${path}. ` +
+                'Supported paths: "/member/" or "/member/-". ' +
+                'Supported operations: ' +
+                '1) Add member: {"op":"add","path":"/member/-","value":{"entity":{"reference":"Patient/123"}}} ' +
+                '2) Remove member: {"op":"remove","path":"/member/-","value":{"entity":{"reference":"Patient/123"}}}'
+            );
+            expect(error.issue).toEqual([{ severity: 'error', code: 'not-supported', diagnostics: error.message }]);
+        });
+
+        test('rejects more operations than the configured limit as a too-costly 400', () => {
+            mockConfigManager.groupPatchOperationsLimit = 2;
+            const memberOperations = Array(3).fill(
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
+            );
+
+            const error = captureError(() => prepare(memberOperations));
+
+            expect(error.statusCode).toBe(400);
+            expect(error.message).toBe('Group operations count exceeds maximum (3 > 2)');
+            expect(error.issue[0].code).toBe('too-costly');
+            expect(error.issue[0].diagnostics).toContain('Split into 2 batches of 2 operations each');
+        });
+
+        test('accepts exactly the configured number of operations', () => {
+            mockConfigManager.groupPatchOperationsLimit = 2;
+            const memberOperations = Array(2).fill(
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
+            );
+
+            expect(prepare(memberOperations).eventsToAdd).toHaveLength(2);
+        });
+
+        test.each([
+            ['an id', { id: 'group-1' }, 'Group group-1 has no _sourceAssigningAuthority; cannot enrich member references'],
+            ['only a uuid', { _uuid: 'group-uuid-1' }, 'Group group-uuid-1 has no _sourceAssigningAuthority; cannot enrich member references']
+        ])('throws when the Group has no _sourceAssigningAuthority, naming the Group by %s', (_, resource, expectedMessage) => {
+            const memberOperations = [
+                { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
+            ];
+
+            expect(() => prepare(memberOperations, { resourceType: 'Group', ...resource })).toThrow(expectedMessage);
+            expect(memberOperations[0].value.entity).toEqual({ reference: 'Patient/1' });
+        });
+
+        test('throws when no post-save handler is registered, before it parses the operations', () => {
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([]);
+
+            expect(() => prepare([{ op: 'remove', path: '/member/0', value: {} }]))
+                .toThrow('No post-save handlers available for Group resource');
+            expect(mockPostSaveHandlerFactory.getHandlers).toHaveBeenCalledWith('Group');
+        });
+
+        test('performs no write and leaves the Group untouched', () => {
+            const groupBefore = { ...foundResource };
+
+            prepare([{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }]);
+
+            expect(mockDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+            expect(mockResourceMerger.fastUpdateMeta).not.toHaveBeenCalled();
+            expect(mockGroupHandler.writeEventsAsync).not.toHaveBeenCalled();
+            expect(foundResource).toEqual(groupBefore);
+        });
+    });
+
+    describe('writeClickHouseMemberEventsAsync', () => {
+        let mockGroupHandler;
+
+        const groupResource = { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY };
+        const addedEvent = { entity: enrichedEntity('Patient/1'), period: undefined, inactive: false };
+        const removedEvent = { entity: enrichedEntity('Patient/2'), period: undefined, inactive: false };
+
+        beforeEach(() => {
+            mockGroupHandler = { writeEventsAsync: jest.fn() };
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([mockGroupHandler]);
+        });
+
+        function writeEvents(events) {
+            return strategy.writeClickHouseMemberEventsAsync({
+                resourceType: 'Group',
+                groupId: 'group-1',
+                events,
+                groupResource
+            });
+        }
+
+        test.each([
+            ['adds and removes', [addedEvent], [removedEvent]],
+            ['only adds', [addedEvent], []],
+            ['only removes', [], [removedEvent]]
+        ])('calls the Group handler once with the events for %s', async (_, eventsToAdd, eventsToRemove) => {
+            await writeEvents({ eventsToAdd, eventsToRemove });
+
+            expect(mockPostSaveHandlerFactory.getHandlers).toHaveBeenCalledWith('Group');
+            expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledTimes(1);
+            expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
+                groupId: 'group-1',
+                added: eventsToAdd,
+                removed: eventsToRemove,
+                groupResource
+            });
+        });
+
+        test('does not call the Group handler when there are no events', async () => {
+            await expect(writeEvents({ eventsToAdd: [], eventsToRemove: [] })).resolves.toBeUndefined();
+
+            expect(mockGroupHandler.writeEventsAsync).not.toHaveBeenCalled();
+        });
+
+        test('rejects when no post-save handler is registered', async () => {
+            mockPostSaveHandlerFactory.getHandlers.mockReturnValue([]);
+
+            await expect(writeEvents({ eventsToAdd: [addedEvent], eventsToRemove: [] }))
+                .rejects.toThrow('No post-save handlers available for Group resource');
+        });
+
+        test('propagates a failure of the Group handler', async () => {
+            mockGroupHandler.writeEventsAsync.mockRejectedValue(new Error('ClickHouse connection refused'));
+
+            await expect(writeEvents({ eventsToAdd: [addedEvent], eventsToRemove: [] }))
+                .rejects.toThrow('ClickHouse connection refused');
+        });
+
+        test('never touches Mongo', async () => {
+            await writeEvents({ eventsToAdd: [addedEvent], eventsToRemove: [removedEvent] });
+
+            expect(mockDatabaseBulkInserter.replaceOneAsync).not.toHaveBeenCalled();
+            expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+            expect(mockResourceMerger.fastUpdateMeta).not.toHaveBeenCalled();
+        });
     });
 
     describe('prepareExtendedMemberWrites', () => {

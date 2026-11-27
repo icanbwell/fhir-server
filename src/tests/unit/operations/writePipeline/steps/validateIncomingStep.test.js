@@ -1,4 +1,24 @@
 const { describe, test, expect, jest, beforeEach, afterEach } = require('@jest/globals');
+
+/**
+ * Makes the schema check throw `error` for the body with the id `throwsForId`, and run unchanged
+ * for every other body, while `throwsForId` is set.
+ */
+const mockSchemaCheck = { throwsForId: null, error: null };
+jest.mock('../../../../../utils/validator.util', () => {
+    const { jest: j } = require('@jest/globals');
+    const actual = j.requireActual('../../../../../utils/validator.util');
+    return {
+        ...actual,
+        validateResource: (args) => {
+            const { throwsForId } = mockSchemaCheck;
+            if (throwsForId !== null && args.resourceBody?.id === throwsForId) {
+                throw mockSchemaCheck.error;
+            }
+            return actual.validateResource(args);
+        }
+    };
+});
 const metrics = require('../../../../../utils/metrics');
 const { ConfigManager } = require('../../../../../utils/configManager');
 const { ResourceValidator } = require('../../../../../operations/common/resourceValidator');
@@ -134,14 +154,38 @@ const buildPreparedItem = async (body) => {
 };
 
 /**
+ * The id of the item whose schema check throws in the cases that make one throw.
+ */
+const SCHEMA_THROWS_ID = 'synthetic-schema-throws';
+
+/**
+ * Builds three valid Patient items, the second with the id `SCHEMA_THROWS_ID`, each with its own
+ * saved `_uuid`, saved and stripped by `PrepareBodyStep`.
+ */
+const buildPreparedValidItems = async () => {
+    const ids = ['synthetic-first', SCHEMA_THROWS_ID, 'synthetic-third'];
+    const items = ids.map((id, index) => new WriteItem({
+        index,
+        incoming: {
+            resourceType: 'Patient',
+            id,
+            meta: structuredClone(meta),
+            _uuid: `00000000-0000-4000-8000-00000000000${index}`,
+            _sourceAssigningAuthority: 'client'
+        }
+    }));
+    await new PrepareBodyStep().runAsync({ items });
+    return items;
+};
+
+/**
  * Builds a `$merge` context without smart merge.
  */
 const buildContext = () => new WriteContext({
     requestInfo: { requestId: 'request-1', path: '/4_0_0/Patient/$merge' },
     base_version: '4_0_0',
     parsedArgs: {},
-    smartMerge: false,
-    operationName: 'merge'
+    smartMerge: false
 });
 
 /**
@@ -163,6 +207,8 @@ describe('ValidateIncomingStep', () => {
     });
 
     afterEach(() => {
+        mockSchemaCheck.throwsForId = null;
+        mockSchemaCheck.error = null;
         validationFailureAddSpy.mockRestore();
         if (originalAuditEventMaxSizeBytes === undefined) {
             delete process.env.AUDIT_EVENT_MAX_SIZE_BYTES;
@@ -209,4 +255,76 @@ describe('ValidateIncomingStep', () => {
             expect(schemaFailureLabelsOf(validationFailureAddSpy)).toHaveLength(schemaFailures);
         }
     );
+
+    test.each([{ itemErrorsFailItem: undefined }, { itemErrorsFailItem: false }])(
+        'with itemErrorsFailItem $itemErrorsFailItem, a schema check that throws for one item rejects with its error',
+        async ({ itemErrorsFailItem }) => {
+            const error = new TypeError('synthetic schema check failure');
+            mockSchemaCheck.throwsForId = SCHEMA_THROWS_ID;
+            mockSchemaCheck.error = error;
+            const step = new ValidateIncomingStep({ resourceValidator: buildResourceValidator() });
+
+            const run = step.runAsync({
+                items: await buildPreparedValidItems(),
+                context: buildContext(),
+                profile: { itemErrorsFailItem }
+            });
+
+            await expect(run).rejects.toBe(error);
+        }
+    );
+
+    test('with itemErrorsFailItem true, a schema check that throws for one item fails only that item at INCOMING_SCHEMA with the error and its restored identity', async () => {
+        const error = new TypeError('synthetic schema check failure');
+        mockSchemaCheck.throwsForId = SCHEMA_THROWS_ID;
+        mockSchemaCheck.error = error;
+        const step = new ValidateIncomingStep({ resourceValidator: buildResourceValidator() });
+        const items = await buildPreparedValidItems();
+
+        await step.runAsync({
+            items,
+            context: buildContext(),
+            profile: { itemErrorsFailItem: true }
+        });
+
+        expect(items.map((item) => ({
+            status: item.status,
+            stage: item.failure?.stage,
+            subject: item.failure?.subject,
+            error: item.failure?.error,
+            operationOutcome: item.failure?.operationOutcome,
+            uuid: item.incoming._uuid
+        }))).toStrictEqual([
+            {
+                status: WRITE_ITEM_STATUS.ACTIVE,
+                stage: undefined,
+                subject: undefined,
+                error: undefined,
+                operationOutcome: undefined,
+                uuid: '00000000-0000-4000-8000-000000000000'
+            },
+            {
+                status: WRITE_ITEM_STATUS.FAILED,
+                stage: WRITE_FAILURE_STAGE.INCOMING_SCHEMA,
+                subject: {
+                    id: SCHEMA_THROWS_ID,
+                    uuid: '00000000-0000-4000-8000-000000000001',
+                    sourceAssigningAuthority: 'client',
+                    resourceType: 'Patient'
+                },
+                error,
+                operationOutcome: null,
+                uuid: '00000000-0000-4000-8000-000000000001'
+            },
+            {
+                status: WRITE_ITEM_STATUS.ACTIVE,
+                stage: undefined,
+                subject: undefined,
+                error: undefined,
+                operationOutcome: undefined,
+                uuid: '00000000-0000-4000-8000-000000000002'
+            }
+        ]);
+        expect(schemaFailureLabelsOf(validationFailureAddSpy)).toHaveLength(0);
+    });
 });

@@ -1,0 +1,27 @@
+{
+  "resourceType": "AuditEvent",
+  "id": "put-parity-audit-event",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      { "system": "https://www.icanbwell.com/access", "code": "client" },
+      { "system": "https://www.icanbwell.com/owner", "code": "client" }
+    ]
+  },
+  "type": {
+    "system": "http://dicom.nema.org/resources/ontology/DCM",
+    "code": "110112",
+    "display": "Query"
+  },
+  "action": "R",
+  "recorded": "2026-01-01T00:00:00.000Z",
+  "agent": [
+    {
+      "who": { "reference": "Person/put-parity-agent" },
+      "requestor": true
+    }
+  ],
+  "source": {
+    "observer": { "reference": "Person/put-parity-agent" }
+  }
+}

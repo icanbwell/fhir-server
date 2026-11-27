@@ -1,0 +1,136 @@
+{
+  "headers": {
+    "etag": "W/\"2\"",
+    "location": "4_0_0/Patient/11111111-1111-4111-8111-111111111111",
+    "contentLocation": "http://localhost:3000/4_0_0/Patient/11111111-1111-4111-8111-111111111111/_history/2"
+  },
+  "documents": [
+    {
+      "_uuid": "11111111-1111-4111-8111-111111111111",
+      "_access": {},
+      "_sourceAssigningAuthority": "client",
+      "_sourceId": "11111111-1111-4111-8111-111111111111",
+      "id": "11111111-1111-4111-8111-111111111111",
+      "meta": {
+        "source": "http://example.com/source",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+          }
+        ],
+        "versionId": "2",
+        "lastUpdated": "<lastUpdated>"
+      },
+      "name": [
+        {
+          "family": "Parity",
+          "given": [
+            "Gamma"
+          ]
+        }
+      ],
+      "resourceType": "Patient"
+    }
+  ],
+  "history": [
+    {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "11111111-1111-4111-8111-111111111111",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "name": [
+          {
+            "family": "Parity",
+            "given": [
+              "Alpha"
+            ]
+          }
+        ],
+        "_uuid": "11111111-1111-4111-8111-111111111111",
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "11111111-1111-4111-8111-111111111111",
+        "_access": {
+          "client": 1
+        }
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "POST",
+        "url": "/4_0_0/Patient/11111111-1111-4111-8111-111111111111"
+      },
+      "_recorded": "<recorded>"
+    },
+    {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "resource": {
+        "_uuid": "11111111-1111-4111-8111-111111111111",
+        "_access": {},
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "11111111-1111-4111-8111-111111111111",
+        "id": "11111111-1111-4111-8111-111111111111",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            }
+          ],
+          "versionId": "2",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "name": [
+          {
+            "family": "Parity",
+            "given": [
+              "Gamma"
+            ]
+          }
+        ],
+        "resourceType": "Patient"
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "PUT",
+        "url": "/4_0_0/Patient/11111111-1111-4111-8111-111111111111"
+      },
+      "_recorded": "<recorded>"
+    }
+  ],
+  "gridFsFileCount": 0
+}

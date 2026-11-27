@@ -8,16 +8,22 @@ const { RethrownError } = require('../../../utils/rethrownError');
 const { BLOB_OP } = require('../../../constants');
 const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
 const { runInChunks } = require('../runInChunks');
+const { storesMembersInClickHouse, membersNotStored } = require('../groupMemberWrites');
 const { WriteFailure, WRITE_FAILURE_STAGE } = require('../writeFailure');
 const { WriteItem } = require('../writeItem');
 const { WriteContext } = require('../writeContext');
 
 /**
- * The `attachments` step, per item with a built document: runs preSave, hands the document to
- * `DatabaseAttachmentManager` and `Base64DataManager`, which store its attachment and base64 data
- * where configured, and builds the hybrid-storage context data for the write. It runs after every
- * check, so attachments are only written for items that passed them all. An error fails only that
- * item at the `ATTACHMENTS` stage.
+ * The `attachments` step, per item with a built document: gets the document ready to store. It
+ * runs preSave, hands the document to `DatabaseAttachmentManager` and `Base64DataManager`, which
+ * store its attachment and base64 data where configured, and builds the hybrid-storage context data
+ * for the write. For an update it also keeps the stored ClickHouse Group members on the document
+ * and drops duplicate `meta.security` tags. It runs after every check, so attachments are only
+ * written for items that passed them all. An error fails only that item at the `ATTACHMENTS` stage.
+ *
+ * With `alwaysCreateNewBase64` on, the base64 insert uploads a fresh live object for every
+ * over-threshold payload instead of skipping an unchanged one (`Base64DataManager`'s
+ * `alwaysCreateNew`), as an operation with no version check needs. It is off by default.
  */
 class AttachmentsStep {
     /**
@@ -25,8 +31,16 @@ class AttachmentsStep {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {Base64DataManager} base64DataManager
      * @param {ConfigManager} configManager
+     * @param {boolean} [alwaysCreateNewBase64] when true, the base64 insert is called with
+     *        `{ alwaysCreateNew: true }`; when false (the default), it is called without options
      */
-    constructor ({ preSaveManager, databaseAttachmentManager, base64DataManager, configManager }) {
+    constructor ({
+        preSaveManager,
+        databaseAttachmentManager,
+        base64DataManager,
+        configManager,
+        alwaysCreateNewBase64 = false
+    }) {
         /**
          * @type {PreSaveManager}
          */
@@ -47,6 +61,10 @@ class AttachmentsStep {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+        /**
+         * @type {boolean}
+         */
+        this.alwaysCreateNewBase64 = alwaysCreateNewBase64;
     }
 
     /**
@@ -64,18 +82,14 @@ class AttachmentsStep {
     }
 
     /**
-     * Prepares one item as an update or an insert; an error fails only that item.
+     * Prepares one item and sets its `candidate` and `contextData`; an error fails only that item.
      * @param {WriteItem} item
      * @param {WriteContext} context
      * @returns {Promise<void>}
      */
     async prepareOneAsync ({ item, context }) {
         try {
-            if (item.writeMode === 'update') {
-                await this.prepareUpdateAsync({ item, context });
-            } else {
-                await this.prepareInsertAsync({ item, context });
-            }
+            await this.prepareAsync({ item, context });
         } catch (error) {
             item.fail({
                 failure: new WriteFailure({
@@ -88,86 +102,87 @@ class AttachmentsStep {
     }
 
     /**
-     * Prepares a merged document: preSave, attachments, base64 data and context data, then drops
-     * duplicate `meta.security` tags. For a smart merge of a resource whose members are kept in
-     * ClickHouse, it keeps the stored members on the document and puts only the new members in the
-     * context data. Sets `candidate` and `contextData`.
+     * Prepares the item's document: preSave, attachments, base64 data and the hybrid-storage
+     * context data. An update also keeps the stored ClickHouse members (see
+     * `keepStoredClickHouseMembers`) and drops duplicate `meta.security` tags. Sets `candidate` and
+     * `contextData`, and wraps an error in a `RethrownError` that names the document's `_uuid`.
      * @param {WriteItem} item
      * @param {WriteContext} context
      * @returns {Promise<void>}
      */
-    async prepareUpdateAsync ({ item, context }) {
+    async prepareAsync ({ item, context }) {
         const { requestInfo, smartMerge } = context;
+        const isUpdate = item.writeMode === 'update';
         let doc = item.candidate;
         try {
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
             doc = await this.databaseAttachmentManager.transformAttachments(doc);
-            doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo);
+            doc = this.alwaysCreateNewBase64
+                ? await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo, {
+                    alwaysCreateNew: true
+                })
+                : await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo);
 
-            const contextData = buildContextDataForHybridStorage(doc.resourceType, doc, requestInfo, { smartMerge });
-
-            const currentMembers = item.stored.member;
-            if (smartMerge && contextData?.useExternalStorage && currentMembers &&
-                this.configManager.enableClickHouse &&
-                this.configManager.mongoWithClickHouseResources.includes(doc.resourceType)) {
-                const currentRefs = new Set(
-                    (currentMembers || []).map(m => m.entity?.reference).filter(Boolean)
-                );
-                contextData.groupMembers = (doc.member || []).filter(
-                    m => m.entity?.reference && !currentRefs.has(m.entity.reference)
-                );
-                doc.member = currentMembers;
-            }
-
-            if (Array.isArray(doc.meta?.security)) {
-                const seenSecurityTags = new Set();
-                doc.meta.security = doc.meta.security.filter((tag) => {
-                    const key = `${tag.system}|${tag.code}`;
-                    if (seenSecurityTags.has(key)) {
-                        return false;
-                    }
-                    seenSecurityTags.add(key);
-                    return true;
-                });
+            const contextData = isUpdate
+                ? buildContextDataForHybridStorage(doc.resourceType, doc, requestInfo, { smartMerge })
+                : buildContextDataForHybridStorage(doc.resourceType, doc, requestInfo);
+            if (isUpdate) {
+                this.keepStoredClickHouseMembers({ doc, contextData, stored: item.stored, smartMerge });
+                this.dropDuplicateSecurityTags(doc);
             }
 
             item.candidate = doc;
             item.contextData = contextData;
         } catch (e) {
             throw new RethrownError({
-                message: `Error updating: resource_uuid=${doc._uuid}`,
+                message: `Error ${isUpdate ? 'updating' : 'inserting'}: resource_uuid=${doc._uuid}`,
                 error: e
             });
         }
     }
 
     /**
-     * Prepares a new document: preSave, attachments, base64 data and context data. Sets `candidate`
-     * and `contextData`.
-     * @param {WriteItem} item
-     * @param {WriteContext} context
-     * @returns {Promise<void>}
+     * For a smart merge that asked for external storage, of a resource whose members are written to
+     * ClickHouse and whose stored document has members: puts only the members the stored document
+     * doesn't have in the context data, and keeps the stored members on the document.
+     * @param {Object} doc
+     * @param {Object|null} contextData
+     * @param {Object} stored
+     * @param {boolean} smartMerge
+     * @returns {void}
      */
-    async prepareInsertAsync ({ item, context }) {
-        const { requestInfo } = context;
-        let doc = item.candidate;
-        try {
-            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
-            await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
-            doc = await this.databaseAttachmentManager.transformAttachments(doc);
-            doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo);
-
-            const contextData = buildContextDataForHybridStorage(doc.resourceType, doc, requestInfo);
-
-            item.candidate = doc;
-            item.contextData = contextData;
-        } catch (e) {
-            throw new RethrownError({
-                message: `Error inserting: resource_uuid=${doc._uuid}`,
-                error: e
-            });
+    keepStoredClickHouseMembers ({ doc, contextData, stored, smartMerge }) {
+        const storedMembers = stored.member;
+        if (
+            smartMerge &&
+            contextData?.useExternalStorage &&
+            storedMembers &&
+            storesMembersInClickHouse({ resourceType: doc.resourceType, configManager: this.configManager })
+        ) {
+            contextData.groupMembers = membersNotStored({ members: doc.member, storedMembers });
+            doc.member = storedMembers;
         }
+    }
+
+    /**
+     * Removes each `meta.security` tag whose system and code repeat an earlier tag, in place.
+     * @param {Object} doc
+     * @returns {void}
+     */
+    dropDuplicateSecurityTags (doc) {
+        if (!Array.isArray(doc.meta?.security)) {
+            return;
+        }
+        const seenSecurityTags = new Set();
+        doc.meta.security = doc.meta.security.filter((tag) => {
+            const key = `${tag.system}|${tag.code}`;
+            if (seenSecurityTags.has(key)) {
+                return false;
+            }
+            seenSecurityTags.add(key);
+            return true;
+        });
     }
 }
 

@@ -12,14 +12,17 @@ const { WriteContext } = require('../writeContext');
  * The `validateResult` step, per item with a built document: validates the built document
  * (`candidate`) and fails the item at `RESULT_VALIDATION`. Checks that compare the body with the
  * stored document belong here, after the access check, so nothing about a stored document reaches a
- * caller who can't access it.
+ * caller who can't access it. `checkPatientReference` (default true) is passed to
+ * `validateResourceAsync`; false skips its patient reference check, for an operation that checks
+ * what the write links to in its own step.
  */
 class ValidateResultStep {
     /**
      * @param {ResourceValidator} resourceValidator
      * @param {ConfigManager} configManager
+     * @param {boolean} [checkPatientReference]
      */
-    constructor ({ resourceValidator, configManager }) {
+    constructor ({ resourceValidator, configManager, checkPatientReference = true }) {
         /**
          * @type {ResourceValidator}
          */
@@ -30,6 +33,10 @@ class ValidateResultStep {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+        /**
+         * @type {boolean}
+         */
+        this.checkPatientReference = checkPatientReference;
     }
 
     /**
@@ -111,7 +118,8 @@ class ValidateResultStep {
                 resourceToValidate,
                 path: requestInfo.path,
                 resourceObj: candidate,
-                currentResource: item.stored
+                currentResource: item.stored,
+                checkPatientReference: this.checkPatientReference
             });
         }
         return operationOutcome;
@@ -139,7 +147,8 @@ class ValidateResultStep {
             resourceType: candidate.resourceType,
             resourceToValidate,
             path: requestInfo.path,
-            resourceObj: candidate
+            resourceObj: candidate,
+            checkPatientReference: this.checkPatientReference
         });
     }
 }

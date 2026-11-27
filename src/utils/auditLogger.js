@@ -426,11 +426,11 @@ class AuditLogger {
 
     /**
      * Flush queued audit events to the database via the bulk inserter.
-     * @return {Promise<void>}
+     * @return {Promise<number>} number of entries dispatched to the database (not necessarily persisted successfully)
      */
     async flushAsync() {
         if (this.queue.length === 0) {
-            return;
+            return 0;
         }
         const release = await mutex.acquire();
         let currentQueue = [];
@@ -480,6 +480,8 @@ class AuditLogger {
                 });
             }
         }
+
+        return currentQueue.length;
     }
 }
 

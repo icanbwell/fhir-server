@@ -1,0 +1,12 @@
+{
+  "resourceType": "Person",
+  "id": "put-parity-person",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      { "system": "https://www.icanbwell.com/access", "code": "client" },
+      { "system": "https://www.icanbwell.com/owner", "code": "client" }
+    ]
+  },
+  "active": true
+}

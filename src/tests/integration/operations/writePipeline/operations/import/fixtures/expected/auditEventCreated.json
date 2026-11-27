@@ -1,0 +1,101 @@
+{
+  "result": [
+    {
+      "created": true,
+      "id": "import-audit-event",
+      "uuid": "4c14f113-cdab-583b-88f2-2abf58c67287",
+      "resourceType": "AuditEvent",
+      "updated": false,
+      "sourceAssigningAuthority": "client-a"
+    }
+  ],
+  "errors": [],
+  "task": {
+    "status": "completed",
+    "output": [
+      {
+        "id": "bulk-import-range:s3://allowed-bucket/Patient.ndjson#0-result",
+        "type": {
+          "text": "result"
+        },
+        "valueUri": "s3://allowed-bucket/output/Patient-001.ndjson"
+      }
+    ]
+  },
+  "spanAttributes": [
+    {
+      "fhir_import.resources_created": 1,
+      "fhir_import.resources_updated": 0,
+      "fhir_import.resources_failed": 0
+    }
+  ],
+  "readAttempts": 1,
+  "stored": {},
+  "history": {},
+  "auditEvents": [
+    {
+      "resourceType": "AuditEvent",
+      "id": "<uuid>",
+      "meta": {
+        "source": "http://example.com/source",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "client-a",
+            "id": "bea9f852-cb0f-5a1e-9990-4be9900c9623"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "client-a",
+            "id": "780f3570-15d5-5dcc-ab06-b088da3c1651"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "client-a",
+            "id": "f7279584-e65f-5598-bbc1-5e769f302e3c"
+          }
+        ],
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>"
+      },
+      "type": {
+        "system": "http://dicom.nema.org/resources/ontology/DCM",
+        "code": "110112",
+        "display": "Query",
+        "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf"
+      },
+      "action": "C",
+      "recorded": "<lastUpdated>",
+      "agent": [
+        {
+          "who": {
+            "reference": "Person/import-agent",
+            "_uuid": "Person/13fc352a-020e-5b37-8355-482bbaa41c28",
+            "_sourceId": "Person/import-agent",
+            "_sourceAssigningAuthority": "client-a"
+          },
+          "altId": "import-agent",
+          "requestor": true,
+          "network": {
+            "type": "2"
+          }
+        }
+      ],
+      "source": {
+        "observer": {
+          "reference": "Person/import-agent",
+          "_uuid": "Person/13fc352a-020e-5b37-8355-482bbaa41c28",
+          "_sourceId": "Person/import-agent",
+          "_sourceAssigningAuthority": "client-a"
+        }
+      },
+      "_sourceAssigningAuthority": "client-a",
+      "_uuid": "<uuid>",
+      "_sourceId": "<uuid>",
+      "_access": {
+        "client-a": 1
+      }
+    }
+  ],
+  "gridFsFiles": []
+}

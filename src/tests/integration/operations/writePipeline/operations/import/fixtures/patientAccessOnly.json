@@ -1,0 +1,18 @@
+{
+  "resourceType": "Patient",
+  "id": "7b4f5c2e-3a1d-4e8b-9c6f-2d5a8e1b4c70",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-a"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "AccessOnly"
+    }
+  ]
+}

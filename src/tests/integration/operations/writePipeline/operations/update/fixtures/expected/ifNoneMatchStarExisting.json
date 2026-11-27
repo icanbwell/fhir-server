@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "precondition-failed",
+      "details": {
+        "text": "Version conflict: If-None-Match: * was provided but resource already exists."
+      }
+    }
+  ]
+}

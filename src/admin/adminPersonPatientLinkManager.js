@@ -12,6 +12,8 @@ const { SecurityTagSystem } = require('../utils/securityTagSystem');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { RemoveHelper } = require('../operations/remove/removeHelper');
 const { PatientPersonManualLinkingEventProducer } = require('../utils/patientPersonManualLinkingEventProducer');
+const { WritePipelineSwitch } = require('../operations/writePipeline/writePipelineSwitch');
+const { AdminWriteRunner } = require('./adminWriteRunner');
 
 const maximumRecursionDepth = 5;
 const patientReferencePrefix = 'Patient/';
@@ -29,6 +31,8 @@ class AdminPersonPatientLinkManager {
      * @param {PatientFilterManager} patientFilterManager
      * @param {RemoveHelper} removeHelper
      * @param {PatientPersonManualLinkingEventProducer} patientPersonManualLinkingEventProducer
+     * @param {WritePipelineSwitch} writePipelineSwitch
+     * @param {AdminWriteRunner} adminWriteRunner
      */
     constructor (
         {
@@ -38,7 +42,9 @@ class AdminPersonPatientLinkManager {
             postSaveProcessor,
             patientFilterManager,
             removeHelper,
-            patientPersonManualLinkingEventProducer
+            patientPersonManualLinkingEventProducer,
+            writePipelineSwitch,
+            adminWriteRunner
         }
     ) {
         /**
@@ -82,6 +88,38 @@ class AdminPersonPatientLinkManager {
          */
         this.patientPersonManualLinkingEventProducer = patientPersonManualLinkingEventProducer;
         assertTypeEquals(patientPersonManualLinkingEventProducer, PatientPersonManualLinkingEventProducer);
+
+        /**
+         * @type {WritePipelineSwitch}
+         */
+        this.writePipelineSwitch = writePipelineSwitch;
+        assertTypeEquals(writePipelineSwitch, WritePipelineSwitch);
+
+        /**
+         * @type {AdminWriteRunner}
+         */
+        this.adminWriteRunner = adminWriteRunner;
+        assertTypeEquals(adminWriteRunner, AdminWriteRunner);
+    }
+
+    /**
+     * Runs the admin operation on the ids through the shared write pipeline, sends the manual-link
+     * event the run returns, if any, and returns the response body.
+     * @param {string} operation
+     * @param {import('http').IncomingMessage} req
+     * @param {Object} input
+     * @return {Promise<Object>}
+     */
+    async runOnWritePipelineAsync ({ operation, req, input }) {
+        const { json, linkEvent } = await this.adminWriteRunner.runAsync({ operation, req, input });
+        if (linkEvent !== null) {
+            await this.patientPersonManualLinkingEventProducer.produceEventAsync({
+                personId: linkEvent.personId,
+                patientId: linkEvent.patientId,
+                isLinking: linkEvent.isLinking
+            });
+        }
+        return json;
     }
 
     /**
@@ -92,6 +130,13 @@ class AdminPersonPatientLinkManager {
      * @return {Promise<Object>}
      */
     async createPersonToPersonLinkAsync ({ req, bwellPersonId, externalPersonId }) {
+        if (this.writePipelineSwitch.useNewPathFor('admin')) {
+            return await this.runOnWritePipelineAsync({
+                operation: 'createPersonToPersonLink',
+                req,
+                input: { bwellPersonId, externalPersonId }
+            });
+        }
         bwellPersonId = bwellPersonId.replace('Person/', '');
         externalPersonId = externalPersonId.replace('Person/', '');
         /**
@@ -161,6 +206,30 @@ class AdminPersonPatientLinkManager {
      * @return {Promise<Object>}
      */
     async removePersonToPersonLinkAsync ({ req, bwellPersonId, externalPersonId }) {
+        if (this.writePipelineSwitch.useNewPathFor('admin')) {
+            return await this.runOnWritePipelineAsync({
+                operation: 'removePersonToPersonLink',
+                req,
+                input: { bwellPersonId, externalPersonId }
+            });
+        }
+        return await this.removePersonToPersonLinkOldPathAsync({
+            req,
+            bwellPersonId,
+            externalPersonId
+        });
+    }
+
+    /**
+     * Removes a person to person link on the old write path, through the admin resource writer,
+     * whatever the write pipeline switch says. Finds the parent Person by `_uuid` or `_sourceId`
+     * and removes its links that name the child Person by `reference` or by `_uuid`.
+     * @param {import('http').IncomingMessage} req
+     * @param {string} bwellPersonId
+     * @param {string} externalPersonId
+     * @return {Promise<Object>}
+     */
+    async removePersonToPersonLinkOldPathAsync ({ req, bwellPersonId, externalPersonId }) {
         bwellPersonId = bwellPersonId.replace('Person/', '');
         externalPersonId = externalPersonId.replace('Person/', '');
 
@@ -236,6 +305,13 @@ class AdminPersonPatientLinkManager {
      * @return {Promise<Object>}
      */
     async createPersonToPatientLinkAsync ({ req, externalPersonId, patientId }) {
+        if (this.writePipelineSwitch.useNewPathFor('admin')) {
+            return await this.runOnWritePipelineAsync({
+                operation: 'createPersonToPatientLink',
+                req,
+                input: { externalPersonId, patientId }
+            });
+        }
         externalPersonId = externalPersonId.replace('Person/', '');
         patientId = patientId.replace('Patient/', '');
 
@@ -359,6 +435,13 @@ class AdminPersonPatientLinkManager {
      * @return {Promise<Object>}
      */
     async removePersonToPatientLinkAsync ({ req, personId, patientId }) {
+        if (this.writePipelineSwitch.useNewPathFor('admin')) {
+            return await this.runOnWritePipelineAsync({
+                operation: 'removePersonToPatientLink',
+                req,
+                input: { personId, patientId }
+            });
+        }
         personId = personId.replace('Person/', '');
         patientId = patientId.replace('Patient/', '');
 
@@ -606,7 +689,7 @@ class AdminPersonPatientLinkManager {
         // iterate and remove links to this person
         while (await personsLinkingToThisPersonId.hasNext()) {
             const parentPerson = await personsLinkingToThisPersonId.next();
-            const removePersonResult = await this.removePersonToPersonLinkAsync({
+            const removePersonResult = await this.removePersonToPersonLinkOldPathAsync({
                 req,
                 bwellPersonId: parentPerson.id,
                 externalPersonId: personId
@@ -658,6 +741,13 @@ class AdminPersonPatientLinkManager {
      * @param {UpdatePatientLinkAsyncParams}
      */
     async updatePatientLinkAsync ({ req, resourceId, resourceType, patientId }) {
+        if (this.writePipelineSwitch.useNewPathFor('admin')) {
+            return await this.runOnWritePipelineAsync({
+                operation: 'updatePatientReference',
+                req,
+                input: { resourceId, resourceType, patientId }
+            });
+        }
         if (!Object.values(COLLECTION).includes(resourceType)) {
             return {
                 message: `ResourceType ${resourceType} not supported`

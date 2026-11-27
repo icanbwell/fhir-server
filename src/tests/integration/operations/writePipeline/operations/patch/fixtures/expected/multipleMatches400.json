@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Multiple resources found with id put-parity-patient.  Please either specify the owner/sourceAssigningAuthority tag: put-parity-patient|client or put-parity-patient|other-client OR use uuid to query."
+      }
+    }
+  ]
+}

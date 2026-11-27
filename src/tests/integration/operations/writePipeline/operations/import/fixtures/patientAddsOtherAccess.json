@@ -1,0 +1,33 @@
+{
+  "resourceType": "Patient",
+  "id": "import-patient-1",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-b"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "Importer",
+      "given": [
+        "Alpha"
+      ]
+    }
+  ]
+}

@@ -32,6 +32,10 @@ const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSer
 const deepcopy = require('deepcopy');
 const { validateResource } = require('../../utils/validator.util');
 const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
+const { WritePipelineSwitch } = require('../writePipeline/writePipelineSwitch');
+const { WritePipeline } = require('../writePipeline/writePipeline');
+const { UpdateResponder } = require('../writePipeline/operations/update/responder');
+const { UPDATE_WRITE_PROFILE } = require('../writePipeline/operations/update/profile');
 
 /**
  * Update Operation
@@ -54,6 +58,9 @@ class UpdateOperation {
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      * @param {GroupExtendedTagEnrichmentProvider} groupExtendedTagEnrichmentProvider
+     * @param {WritePipelineSwitch} writePipelineSwitch
+     * @param {WritePipeline} writePipeline
+     * @param {UpdateResponder} updateResponder
      * @param {GroupMemberMerger} groupMemberMerger
      */
     constructor (
@@ -73,6 +80,9 @@ class UpdateOperation {
             postSaveHandlerFactory,
             identifierEnrichmentProvider,
             groupExtendedTagEnrichmentProvider,
+            writePipelineSwitch,
+            writePipeline,
+            updateResponder,
             groupMemberMerger
         }
     ) {
@@ -162,6 +172,24 @@ class UpdateOperation {
         assertTypeEquals(groupExtendedTagEnrichmentProvider, GroupExtendedTagEnrichmentProvider);
 
         /**
+         * @type {WritePipelineSwitch}
+         */
+        this.writePipelineSwitch = writePipelineSwitch;
+        assertTypeEquals(writePipelineSwitch, WritePipelineSwitch);
+
+        /**
+         * @type {WritePipeline}
+         */
+        this.writePipeline = writePipeline;
+        assertTypeEquals(writePipeline, WritePipeline);
+
+        /**
+         * @type {UpdateResponder}
+         */
+        this.updateResponder = updateResponder;
+        assertTypeEquals(updateResponder, UpdateResponder);
+
+        /**
          * @type {GroupMemberMerger}
          */
         this.groupMemberMerger = groupMemberMerger;
@@ -192,6 +220,8 @@ class UpdateOperation {
 
     /**
      * does a FHIR Update (PUT)
+     * When the write pipeline switch is on for `update`, the request goes to
+     * `WritePipeline.runAsync` with the update profile and responder.
      * @param {Object} params
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @param {ParsedArgs} params.parsedArgs
@@ -202,6 +232,15 @@ class UpdateOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
+        if (this.writePipelineSwitch?.useNewPathFor('update')) {
+            return await this.writePipeline.runAsync({
+                profile: UPDATE_WRITE_PROFILE,
+                responder: this.updateResponder,
+                requestInfo,
+                parsedArgs,
+                resourceType
+            });
+        }
 
         const currentOperationName = 'update';
         const extraInfo = {

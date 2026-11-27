@@ -1,0 +1,77 @@
+{
+  "result": [
+    {
+      "resourceType": "Group",
+      "id": "import-group-1",
+      "created": true,
+      "updated": false,
+      "failed": false
+    }
+  ],
+  "changeEvents": [
+    {
+      "eventType": "C",
+      "resourceType": "Group",
+      "id": "import-group-1",
+      "uuid": "76413505-6da1-5b5e-b1b8-3116802fe918",
+      "contextData": {
+        "groupMembers": [
+          {
+            "entity": {
+              "reference": "Patient/import-member-1",
+              "_uuid": "Patient/afd6b70d-d6e7-5cd0-a68e-c1aa8dc76131",
+              "_sourceId": "Patient/import-member-1",
+              "_sourceAssigningAuthority": "client-a"
+            }
+          },
+          {
+            "entity": {
+              "reference": "Patient/import-member-2",
+              "_uuid": "Patient/6ece6a12-a210-5ba8-870a-9b5ad50a6caa",
+              "_sourceId": "Patient/import-member-2",
+              "_sourceAssigningAuthority": "client-a"
+            }
+          }
+        ],
+        "resourceType": "Group",
+        "resourceId": "import-group-1",
+        "useExternalStorage": false
+      }
+    }
+  ],
+  "kafkaMessages": [
+    {
+      "key": "import-group-1",
+      "action": "C",
+      "eventName": "Group Create",
+      "who": "Group/import-group-1"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "recordImportRanges",
+      "outcome": "started",
+      "count": null
+    },
+    {
+      "name": "recordImportRanges",
+      "outcome": "completed",
+      "count": null
+    },
+    {
+      "name": "recordImportResourceOutcomes",
+      "outcomes": [
+        {
+          "resourceType": "Group",
+          "created": true,
+          "updated": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "recordImportRangeDuration",
+      "isNonNegativeNumber": true
+    }
+  ]
+}

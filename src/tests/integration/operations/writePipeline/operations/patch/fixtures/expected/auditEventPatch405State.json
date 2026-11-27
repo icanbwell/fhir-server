@@ -1,0 +1,24 @@
+{
+  "headers": {
+    "location": null,
+    "contentLocation": null
+  },
+  "documents": [],
+  "history": [],
+  "gridFsFileActive": [],
+  "accessLog": [
+    {
+      "statusCode": 405,
+      "operationResult": null
+    }
+  ],
+  "audit": {
+    "entries": [],
+    "errors": [
+      {
+        "errorCode": 405,
+        "errorMessage": "Method Not Allowed"
+      }
+    ]
+  }
+}

@@ -94,6 +94,13 @@ class BulkInsertUpdateEntry {
          */
         this.writePrecondition = writePrecondition;
         this.smartMerge = smartMerge;
+        /**
+         * The document the one-by-one replay of a lost versioned write saved, which differs from
+         * `resource` as queued (a later `versionId`, merged with what the competing write stored),
+         * or null when the bulk write succeeded or no replay saved a document.
+         * @type {Resource|null}
+         */
+        this.replayedResource = null;
     }
 }
 

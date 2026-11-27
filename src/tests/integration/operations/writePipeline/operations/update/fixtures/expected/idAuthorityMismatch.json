@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "The sourceAssigningAuthority in the id (put-parity-patient|other-client) does not match the owner/sourceAssigningAuthority tag of the resource (client)"
+      }
+    }
+  ]
+}

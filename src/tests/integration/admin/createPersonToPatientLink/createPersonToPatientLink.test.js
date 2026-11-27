@@ -4,9 +4,13 @@ const { setTimeout: sleep } = require('node:timers/promises');
 
 const adminHeaders = () => getHeadersWithCustomToken('user/*.read user/*.write admin/*.*');
 
+const PATIENT_1 = '5f0c7a2e-3b1d-4c8e-9a6f-1d2e3f4a5b61';
+const PATIENT_2 = '5f0c7a2e-3b1d-4c8e-9a6f-1d2e3f4a5b62';
+const MISSING_PERSON = '5f0c7a2e-3b1d-4c8e-9a6f-1d2e3f4a5b6f';
+
 const patientResource = {
     resourceType: 'Patient',
-    id: 'link-patient-1',
+    id: PATIENT_1,
     meta: {
         source: 'http://example.com/source',
         security: [
@@ -36,17 +40,17 @@ describe('createPersonToPatientLink creates a Person when none exists', () => {
 
         resp = await request
             .post('/admin/createPersonToPatientLink')
-            .send({ externalPersonId: 'no-such-person', patientId: 'link-patient-1' })
+            .send({ externalPersonId: MISSING_PERSON, patientId: PATIENT_1 })
             .set(adminHeaders())
             .expect(200);
         expect(resp.body).toEqual({
-            message: 'Created Person and added link from Person/no-such-person to Patient/link-patient-1',
-            patientId: 'link-patient-1',
-            externalPersonId: 'no-such-person'
+            message: `Created Person and added link from Person/${MISSING_PERSON} to Patient/${PATIENT_1}`,
+            patientId: PATIENT_1,
+            externalPersonId: MISSING_PERSON
         });
 
         resp = await request
-            .get('/4_0_0/Person?link=Patient/link-patient-1')
+            .get(`/4_0_0/Person?link=Patient/${PATIENT_1}`)
             .set(adminHeaders())
             .expect(200);
         expect(resp.body).toHaveLength(1);
@@ -62,7 +66,7 @@ describe('createPersonToPatientLink creates a Person when none exists', () => {
                     expect.objectContaining({ system: 'https://www.icanbwell.com/owner', code: 'owner' })
                 ])
             },
-            link: [{ target: { reference: 'Patient/link-patient-1' } }]
+            link: [{ target: { reference: `Patient/${PATIENT_1}` } }]
         });
         expect(person.id).toMatch(/^[0-9a-f-]{36}$/);
 
@@ -70,7 +74,7 @@ describe('createPersonToPatientLink creates a Person when none exists', () => {
             .get(`/4_0_0/Person/${person.id}`)
             .set(adminHeaders())
             .expect(200);
-        expect(resp.body).toMatchObject({ id: person.id, link: [{ target: { reference: 'Patient/link-patient-1' } }] });
+        expect(resp.body).toMatchObject({ id: person.id, link: [{ target: { reference: `Patient/${PATIENT_1}` } }] });
 
         const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
         const historyRows = await db.collection('Person_4_0_0_History').find({ 'resource.id': person.id }).toArray();
@@ -82,7 +86,7 @@ describe('createPersonToPatientLink creates a Person when none exists', () => {
             resourceType: 'Person',
             id: person.id,
             meta: { versionId: '1' },
-            link: [{ target: { reference: 'Patient/link-patient-1' } }]
+            link: [{ target: { reference: `Patient/${PATIENT_1}` } }]
         });
 
         resp = await request
@@ -93,7 +97,7 @@ describe('createPersonToPatientLink creates a Person when none exists', () => {
             resourceType: 'Person',
             id: person.id,
             meta: { versionId: '1' },
-            link: [{ target: { reference: 'Patient/link-patient-1' } }]
+            link: [{ target: { reference: `Patient/${PATIENT_1}` } }]
         });
     });
 
@@ -102,33 +106,33 @@ describe('createPersonToPatientLink creates a Person when none exists', () => {
         await request.post('/4_0_0/Patient/$merge').send(patientResource).set(adminHeaders()).expect(200);
         await request
             .post('/4_0_0/Patient/$merge')
-            .send({ ...patientResource, id: 'link-patient-2' })
+            .send({ ...patientResource, id: PATIENT_2 })
             .set(adminHeaders())
             .expect(200);
 
         await request
             .post('/admin/createPersonToPatientLink')
-            .send({ externalPersonId: 'no-such-person', patientId: 'link-patient-1' })
+            .send({ externalPersonId: MISSING_PERSON, patientId: PATIENT_1 })
             .set(adminHeaders())
             .expect(200);
-        const created = await request.get('/4_0_0/Person?link=Patient/link-patient-1').set(adminHeaders()).expect(200);
+        const created = await request.get(`/4_0_0/Person?link=Patient/${PATIENT_1}`).set(adminHeaders()).expect(200);
         const personId = created.body[0].id;
         const createdLastUpdated = Date.parse(created.body[0].meta.lastUpdated);
         await sleep(20);
 
         const resp = await request
             .post('/admin/createPersonToPatientLink')
-            .send({ externalPersonId: personId, patientId: 'link-patient-2' })
+            .send({ externalPersonId: personId, patientId: PATIENT_2 })
             .set(adminHeaders())
             .expect(200);
-        expect(resp.body.message).toBe(`Added link from Person/${personId} to Patient/link-patient-2`);
+        expect(resp.body.message).toBe(`Added link from Person/${personId} to Patient/${PATIENT_2}`);
 
         const updated = await request.get(`/4_0_0/Person/${personId}`).set(adminHeaders()).expect(200);
         expect(updated.body.meta.versionId).toBe('2');
         expect(Date.parse(updated.body.meta.lastUpdated)).toBeGreaterThan(createdLastUpdated);
         expect(updated.body.link.map(l => l.target.reference)).toEqual([
-            'Patient/link-patient-1',
-            'Patient/link-patient-2'
+            `Patient/${PATIENT_1}`,
+            `Patient/${PATIENT_2}`
         ]);
 
         const db = await getTestContainer().mongoDatabaseManager.getClientDbAsync();
@@ -139,12 +143,12 @@ describe('createPersonToPatientLink creates a Person when none exists', () => {
         expect(historyRows.map(row => row.resource.meta.versionId)).toEqual(['1', '2']);
         expect(historyRows[1].request.url).toBe(`/4_0_0/Person/${personId}`);
         expect(historyRows[1].resource.link.map(l => l.target.reference)).toEqual([
-            'Patient/link-patient-1',
-            'Patient/link-patient-2'
+            `Patient/${PATIENT_1}`,
+            `Patient/${PATIENT_2}`
         ]);
 
         const version1 = await request.get(`/4_0_0/Person/${personId}/_history/1`).set(adminHeaders()).expect(200);
-        expect(version1.body.link.map(l => l.target.reference)).toEqual(['Patient/link-patient-1']);
+        expect(version1.body.link.map(l => l.target.reference)).toEqual([`Patient/${PATIENT_1}`]);
     });
 
     test('a second call finds the created Person and reports the link as existing', async () => {
@@ -153,20 +157,20 @@ describe('createPersonToPatientLink creates a Person when none exists', () => {
 
         await request
             .post('/admin/createPersonToPatientLink')
-            .send({ externalPersonId: 'no-such-person', patientId: 'link-patient-1' })
+            .send({ externalPersonId: MISSING_PERSON, patientId: PATIENT_1 })
             .set(adminHeaders())
             .expect(200);
-        const created = await request.get('/4_0_0/Person?link=Patient/link-patient-1').set(adminHeaders()).expect(200);
+        const created = await request.get(`/4_0_0/Person?link=Patient/${PATIENT_1}`).set(adminHeaders()).expect(200);
         const personId = created.body[0].id;
 
         const resp = await request
             .post('/admin/createPersonToPatientLink')
-            .send({ externalPersonId: personId, patientId: 'link-patient-1' })
+            .send({ externalPersonId: personId, patientId: PATIENT_1 })
             .set(adminHeaders())
             .expect(200);
         expect(resp.body.message).toContain('Link already exists');
 
-        const after = await request.get('/4_0_0/Person?link=Patient/link-patient-1').set(adminHeaders()).expect(200);
+        const after = await request.get(`/4_0_0/Person?link=Patient/${PATIENT_1}`).set(adminHeaders()).expect(200);
         expect(after.body).toHaveLength(1);
         expect(after.body[0].meta.versionId).toBe('1');
     });
