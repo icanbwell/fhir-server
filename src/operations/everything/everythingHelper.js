@@ -14,7 +14,7 @@ const { EnrichmentManager } = require('../../enrich/enrich');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
-const { logError, logWarn } = require('../common/logging');
+const { logError, logInfo, logWarn } = require('../common/logging');
 const { ClientDisconnectedError } = require('../../utils/clientDisconnectedError');
 const { sliceIntoChunksGenerator, sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
@@ -831,18 +831,21 @@ class EverythingHelper {
             return bundle;
         } catch (error) {
             if (error instanceof ClientDisconnectedError) {
+                // a disconnect is not a failure: it is recorded in logs and metrics only. Resources already
+                // sent were still disclosed, so they get the normal read audit (no outcome).
                 recordEverythingClientDisconnect(resourceType);
-                // nobody is waiting: drop a half-written cache entry and skip the error log, but still
-                // audit the resources already sent so access accounting stays complete
-                if (responseStreamer) {
+                logInfo('$everything stopped: client disconnected', {
+                    resourceType,
+                    requestId: requestInfo?.requestId,
+                    streamedResourceCount: streamedResources.length
+                });
+                if (responseStreamer && streamedResources.length > 0) {
                     this._logAuditForRequestAsync({
                         resourcesToAudit: streamedResources,
                         requestInfo,
                         base_version,
                         resourceType,
-                        parsedArgs,
-                        outcome: '4',
-                        outcomeDesc: 'Client disconnected before the response completed'
+                        parsedArgs
                     });
                 }
                 if (cachedStreamer && !cachedStreamer.isFirstEntry) {

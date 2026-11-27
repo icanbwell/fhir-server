@@ -189,7 +189,7 @@ describe('EverythingHelper client disconnect', () => {
         await expect(pending).rejects.toBe(error);
     });
 
-    test('retriveEverythingAsync rethrows ClientDisconnectedError unwrapped, still audits the sent resources, and does not log an error', async () => {
+    test('retriveEverythingAsync rethrows ClientDisconnectedError unwrapped; with nothing streamed it writes no audit, only a log and a metric', async () => {
         const logging = require('../../../../operations/common/logging');
         const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
         everythingHelper.supportedResources = ['Patient'];
@@ -207,11 +207,12 @@ describe('EverythingHelper client disconnect', () => {
             responseStreamer: streamer
         })).rejects.toBeInstanceOf(ClientDisconnectedError);
 
-        expect(everythingHelper._logAuditForRequestAsync).toHaveBeenCalledTimes(1);
-        expect(everythingHelper._logAuditForRequestAsync.mock.calls[0][0]).toMatchObject({
-            outcome: '4',
-            resourcesToAudit: []
-        });
+        expect(everythingHelper._logAuditForRequestAsync).not.toHaveBeenCalled();
+        expect(require('../../../../utils/metrics').recordEverythingClientDisconnect).toHaveBeenCalledWith('Patient');
+        expect(logging.logInfo).toHaveBeenCalledWith(
+            '$everything stopped: client disconnected',
+            expect.objectContaining({ resourceType: 'Patient', streamedResourceCount: 0 })
+        );
         expect(logging.logError).not.toHaveBeenCalled();
     });
 
@@ -269,8 +270,9 @@ describe('EverythingHelper client disconnect', () => {
             deleteStream.mockImplementation(async () => {
                 order.push('delete');
             });
-            everythingHelper.retrieveEverythingMulipleIdsAsync = jest.fn(async ({ cachedStreamer }) => {
+            everythingHelper.retrieveEverythingMulipleIdsAsync = jest.fn(async ({ cachedStreamer, streamedResources }) => {
                 cachedStreamer.isFirstEntry = false;
+                streamedResources.push({ _uuid: 'uuid-1', resourceType: 'Observation' });
                 throw new ClientDisconnectedError();
             });
             const parsedArgs = Object.assign(Object.create(ParsedArgs.prototype), {
@@ -289,10 +291,13 @@ describe('EverythingHelper client disconnect', () => {
             responseStreamer: createStreamer({ destroyed: false, writableFinished: false })
         });
 
-        test('audits, then deletes the partial cache stream, and rethrows unwrapped', async () => {
+        test('audits what was streamed (plain read, no outcome), then deletes the partial cache stream, and rethrows unwrapped', async () => {
             const deleteStream = jest.fn();
             const { parsedArgs, order } = setup({ deleteStream });
             await expect(run(parsedArgs)).rejects.toBeInstanceOf(ClientDisconnectedError);
+            const auditArgs = everythingHelper._logAuditForRequestAsync.mock.calls[0][0];
+            expect(auditArgs.resourcesToAudit).toEqual([{ _uuid: 'uuid-1', resourceType: 'Observation' }]);
+            expect(auditArgs.outcome).toBeUndefined();
             expect(deleteStream).toHaveBeenCalledWith('cache-key');
             expect(order).toEqual(['audit', 'delete']);
         });

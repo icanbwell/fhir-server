@@ -1,6 +1,7 @@
 /**
- * An AuditEvent is written for $everything in every outcome: completed, client aborted after
- * some resources were streamed, and client aborted before any resource was streamed.
+ * $everything audit events: a completed request and a request aborted after some resources were
+ * streamed both record a read AuditEvent for what was sent (no outcome); a request aborted before
+ * anything was streamed records none, because a disconnect is a log and metric, not an access.
  */
 const {
     commonBeforeEach,
@@ -101,7 +102,7 @@ describe('$everything audit events by outcome', () => {
         events.forEach((e) => expect(e.outcome).toBeUndefined());
     });
 
-    test('client aborts after the first entry: streamed resources are audited with outcome 4', async () => {
+    test('client aborts after the first entry: the streamed resources get a plain read audit (no outcome)', async () => {
         const held = holdStreamAfterFirstEntry();
 
         await abortOnFirstChunkAsync(request.get(EVERYTHING_URL).set({ ...getHeaders(), ...NO_COMPRESSION }));
@@ -109,16 +110,20 @@ describe('$everything audit events by outcome', () => {
         const events = await readAuditEventsAsync(1);
         expect(held.writtenCount()).toBeLessThan(OBSERVATION_COUNT + 1);
         expect(referencesOf(events).length).toBe(held.writtenCount());
-        events.forEach((e) => expect(e.outcome).toBe('4'));
+        events.forEach((e) => {
+            expect(e.action).toBe('R');
+            expect(e.outcome).toBeUndefined();
+        });
     });
 
-    test('client aborts before any entry is streamed: an audit event with outcome 4 is still written', async () => {
+    test('client aborts before any entry is streamed: no audit event is written', async () => {
         let markRequestArrived;
         const requestArrived = new Promise((resolve) => { markRequestArrived = resolve; });
-        let observedGone = false;
+        let markServerSawGone;
+        const serverSawGone = new Promise((resolve) => { markServerSawGone = resolve; });
         jest.spyOn(FhirResponseStreamer.prototype, 'startAsync').mockImplementation(async function () {
             markRequestArrived();
-            observedGone = await pollUntilAsync(() => this.isClientGone(), CLIENT_GONE_DEADLINE_MS);
+            markServerSawGone(await pollUntilAsync(() => this.isClientGone(), CLIENT_GONE_DEADLINE_MS));
         });
 
         const pending = request.get(EVERYTHING_URL).set({ ...getHeaders(), ...NO_COMPRESSION }).buffer(false);
@@ -128,9 +133,10 @@ describe('$everything audit events by outcome', () => {
         pending.abort();
         await done;
 
-        const events = await readAuditEventsAsync();
-        expect(observedGone).toBe(true);
-        expect(events.length).toBeGreaterThan(0);
-        events.forEach((e) => expect(e.outcome).toBe('4'));
+        // the server saw the client go; let the post-request work finish, then confirm nothing was audited
+        expect(await serverSawGone).toBe(true);
+        await postRequestProcessor.waitTillDoneAsync({ requestId });
+        await auditLogger.flushAsync();
+        expect(await auditCollection.countDocuments({})).toBe(0);
     });
 });

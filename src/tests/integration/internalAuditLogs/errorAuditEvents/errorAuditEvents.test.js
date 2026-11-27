@@ -321,7 +321,7 @@ describe('Error Audit Events Integration Tests', () => {
     });
 
     describe('Request Aborted', () => {
-        test('client disconnect — creates abort audit event', async () => {
+        test('client disconnect — is logged only and creates no audit event', async () => {
             const request = await createTestRequest(createContainerWithRealAuditLogger);
             const container = getTestContainer();
             const auditEventCollection = await getAuditEventCollection(container);
@@ -359,14 +359,8 @@ describe('Error Audit Events Integration Tests', () => {
             const logs = await auditEventCollection.find({ action: 'E' }).toArray();
             const abortLog = logs.find(l => l.outcomeDesc === 'Request Aborted by Client');
 
-            if (abortLog) {
-                expect(abortLog.type.code).toBe('rest');
-                expect(abortLog.outcome).toBe('4');
-                expect(abortLog.outcomeDesc).toBe('Request Aborted by Client');
-                expect(abortLog.entity[0].detail.find(d => d.type === 'requestUrl')).toBeDefined();
-            }
-            // Note: abort detection depends on timing; if the response completes before
-            // the abort fires, no abort audit event is created (correct behavior)
+            // a client disconnect is recorded in logs and metrics, never as an audit event
+            expect(abortLog).toBeUndefined();
         });
     });
 });
