@@ -147,7 +147,7 @@ describe('EverythingHelper client disconnect', () => {
         }
     });
 
-    test('retriveEverythingAsync rethrows ClientDisconnectedError unwrapped, without a failure audit or error log', async () => {
+    test('retriveEverythingAsync rethrows ClientDisconnectedError unwrapped, still audits the sent resources, and does not log an error', async () => {
         const logging = require('../../../../operations/common/logging');
         const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
         everythingHelper.supportedResources = ['Patient'];
@@ -165,7 +165,53 @@ describe('EverythingHelper client disconnect', () => {
             responseStreamer: streamer
         })).rejects.toBeInstanceOf(ClientDisconnectedError);
 
-        expect(everythingHelper._logAuditForRequestAsync).not.toHaveBeenCalled();
+        expect(everythingHelper._logAuditForRequestAsync).toHaveBeenCalledTimes(1);
+        expect(everythingHelper._logAuditForRequestAsync.mock.calls[0][0]).toMatchObject({
+            outcome: '4',
+            resourcesToAudit: []
+        });
         expect(logging.logError).not.toHaveBeenCalled();
+    });
+
+    describe('assertClientConnectedAfterSettlingAsync', () => {
+        test('does nothing while the client is connected', async () => {
+            const streamer = createStreamer({ destroyed: false, writableFinished: false });
+            await expect(everythingHelper.assertClientConnectedAfterSettlingAsync({
+                responseStreamer: streamer, pending: []
+            })).resolves.toBeUndefined();
+        });
+
+        test('waits for already-started fetches to settle before throwing', async () => {
+            const streamer = createStreamer({ destroyed: true, writableFinished: false });
+            const events = [];
+            const slow = new Promise((resolve) => setTimeout(() => {
+                events.push('fetch settled');
+                resolve();
+            }, 20));
+            const failing = Promise.reject(new ClientDisconnectedError());
+
+            await expect(everythingHelper.assertClientConnectedAfterSettlingAsync({
+                responseStreamer: streamer, pending: [slow, failing]
+            }).catch((e) => {
+                events.push('thrown');
+                throw e;
+            })).rejects.toBeInstanceOf(ClientDisconnectedError);
+
+            expect(events).toEqual(['fetch settled', 'thrown']);
+        });
+
+        test('logs a non-disconnect failure of an abandoned fetch instead of dropping it', async () => {
+            const logging = require('../../../../operations/common/logging');
+            const streamer = createStreamer({ destroyed: true, writableFinished: false });
+            const realFailure = new Error('mongo failure');
+
+            await expect(everythingHelper.assertClientConnectedAfterSettlingAsync({
+                responseStreamer: streamer,
+                pending: [Promise.reject(realFailure), Promise.reject(new ClientDisconnectedError())]
+            })).rejects.toBeInstanceOf(ClientDisconnectedError);
+
+            expect(logging.logError).toHaveBeenCalledTimes(1);
+            expect(logging.logError.mock.calls[0][1]).toEqual({ error: realFailure });
+        });
     });
 });

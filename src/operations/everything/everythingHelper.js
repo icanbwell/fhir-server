@@ -14,7 +14,7 @@ const { EnrichmentManager } = require('../../enrich/enrich');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
-const { logError, logWarn } = require('../common/logging');
+const { logError } = require('../common/logging');
 const { ClientDisconnectedError } = require('../../utils/clientDisconnectedError');
 const { sliceIntoChunksGenerator, sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
@@ -99,13 +99,7 @@ function escapeForJsonTemplate(value) {
  * @return {Promise<T>}
  */
 function markHandled(promise) {
-    promise.catch((e) => {
-        // a disconnect is expected; anything else is surfaced when the caller awaits, but log it in
-        // case the caller exited early and never does
-        if (!(e instanceof ClientDisconnectedError)) {
-            logWarn('Error in abandoned $everything fetch', { error: e?.message });
-        }
-    });
+    promise.catch(() => {});
     return promise;
 }
 
@@ -824,9 +818,21 @@ class EverythingHelper {
             return bundle;
         } catch (error) {
             if (error instanceof ClientDisconnectedError) {
-                // nobody is waiting: drop a half-written cache entry, skip the failure audit and error log
+                // nobody is waiting: drop a half-written cache entry and skip the error log, but still
+                // audit the resources already sent so access accounting stays complete
                 if (cachedStreamer && !cachedStreamer.isFirstEntry) {
                     await this.redisStreamManager.deleteStream(cacheKey);
+                }
+                if (responseStreamer) {
+                    this._logAuditForRequestAsync({
+                        resourcesToAudit: streamedResources,
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        parsedArgs,
+                        outcome: '4',
+                        outcomeDesc: 'Client disconnected before the response completed'
+                    });
                 }
                 throw error;
             }
@@ -1246,7 +1252,9 @@ class EverythingHelper {
                         const idChunks = this.getNonClinicalIdChunks({ ids, explain });
 
                         for (const idChunk of idChunks) {
-                            this.assertClientConnected({ responseStreamer });
+                            await this.assertClientConnectedAfterSettlingAsync({
+                                responseStreamer, pending: depthParallelProcess
+                            });
                             const childParseArgs = this.r4ArgsParser.parseArgs({
                                 resourceType,
                                 args: { ...baseArgs, id: idChunk.join(',') }
@@ -1653,7 +1661,9 @@ class EverythingHelper {
         }
 
         for (const relatedResource of relatedResourcesMap) {
-            this.assertClientConnected({ responseStreamer });
+            await this.assertClientConnectedAfterSettlingAsync({
+                responseStreamer, pending: parallelProcess
+            });
             const relatedResourceType = relatedResource.type;
             const filterTemplateParam = relatedResource.params;
             const filterTemplateCustomQuery = relatedResource.customQuery;
@@ -2043,6 +2053,26 @@ class EverythingHelper {
      */
     assertClientConnected({ responseStreamer }) {
         if (responseStreamer?.isClientGone()) {
+            throw new ClientDisconnectedError();
+        }
+    }
+
+    /**
+     * Like assertClientConnected, but when the client is gone it first waits for fetches already started
+     * to stop (each stops at its own next check), so none is left running, e.g. writing to the cache,
+     * after the caller has cleaned up.
+     * @param {{responseStreamer?: BaseResponseStreamer|null, pending: Promise[]}} options
+     * @throws {ClientDisconnectedError}
+     */
+    async assertClientConnectedAfterSettlingAsync({ responseStreamer, pending }) {
+        if (responseStreamer?.isClientGone()) {
+            const settled = await Promise.allSettled(pending);
+            // a disconnect is expected; any other failure of an abandoned fetch would otherwise vanish
+            settled
+                .filter((r) => r.status === 'rejected' && !(r.reason instanceof ClientDisconnectedError))
+                .forEach((r) => logError('Error in $everything fetch abandoned after client disconnect', {
+                    error: r.reason
+                }));
             throw new ClientDisconnectedError();
         }
     }
