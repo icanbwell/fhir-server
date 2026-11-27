@@ -61,6 +61,7 @@ describe('CachedFhirResponseStreamer', () => {
 
         mockResponseStreamer = {
             response: mockResponse,
+            isClientGone: jestObj.fn().mockReturnValue(false),
             writeBundleEntryAsync: jestObj.fn().mockResolvedValue(undefined)
         };
 
@@ -359,6 +360,19 @@ describe('CachedFhirResponseStreamer', () => {
                 { _uuid: 'uuid-1', resourceType: 'Patient' },
                 { _uuid: 'uuid-2', resourceType: 'Observation' }
             ]);
+        });
+
+        test('stops replaying and throws when the client disconnects between batches', async () => {
+            const { ClientDisconnectedError } = require('../../../utils/clientDisconnectedError');
+            const batch1 = [{ resource: { _uuid: 'uuid-1', resourceType: 'Patient' } }];
+            mockRedisStreamManager.readBundleEntriesFromStream
+                .mockResolvedValueOnce({ entries: batch1, hasMore: true, lastId: '1-0' });
+            mockResponseStreamer.isClientGone.mockReturnValue(true);
+
+            await expect(cachedStreamer.streamFromCacheAsync()).rejects.toBeInstanceOf(ClientDisconnectedError);
+
+            expect(mockRedisStreamManager.readBundleEntriesFromStream).toHaveBeenCalledTimes(1);
+            expect(mockResponseStreamer.writeBundleEntryAsync).toHaveBeenCalledTimes(1);
         });
 
         test('passes the enrichment context to the enrichment of every batch', async () => {

@@ -288,6 +288,10 @@ const everythingEmptyCounter = meter.createCounter('fhir_everything_empty_total'
     description: 'Successful $everything responses returning a zero-entry bundle. Read-correctness signal: a 200 with an empty bundle is the consumer getting nothing while HTTP and latency look green.'
 });
 
+const everythingClientDisconnectCounter = meter.createCounter('fhir_everything_client_disconnect_total', {
+    description: '$everything requests stopped early because the client disconnected. Aborted requests never reach the bundle-size histogram, so this is their volume signal.'
+});
+
 const kafkaRetryExhaustedCounter = meter.createCounter('fhir_kafka_retry_exhausted_total', {
     description: 'Kafka producer retry-loop exhaustion. Increments only when the retry loop runs out without success.'
 });
@@ -533,6 +537,16 @@ function recordInboundBundleSize (operation, entryCount) {
     bundleSizeHistogram.record(entryCount, {
         [LABEL.DIRECTION]: DIRECTION.INBOUND,
         [LABEL.OPERATION]: operation || UNKNOWN
+    });
+}
+
+/**
+ * Count a $everything request stopped early because the client disconnected.
+ * @param {string} resourceType
+ */
+function recordEverythingClientDisconnect (resourceType) {
+    everythingClientDisconnectCounter.add(1, {
+        [LABEL.RESOURCE_TYPE]: resourceType || UNKNOWN
     });
 }
 
@@ -889,6 +903,7 @@ module.exports = {
     validationFailureCounter,
     bundleSizeHistogram,
     everythingEmptyCounter,
+    everythingClientDisconnectCounter,
     kafkaRetryExhaustedCounter,
     historyKafkaProducedCounter,
     historyKafkaFailedCounter,
@@ -922,6 +937,7 @@ module.exports = {
     recordValidationFailure,
     recordInboundBundleSize,
     recordOutboundEverything,
+    recordEverythingClientDisconnect,
     recordKafkaRetryExhausted,
     recordHistoryKafkaProduce,
     recordHistoryClickHouseRead,

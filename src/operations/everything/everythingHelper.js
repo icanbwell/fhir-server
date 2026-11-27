@@ -14,7 +14,8 @@ const { EnrichmentManager } = require('../../enrich/enrich');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
-const { logError } = require('../common/logging');
+const { logError, logInfo, logWarn } = require('../common/logging');
+const { ClientDisconnectedError } = require('../../utils/clientDisconnectedError');
 const { sliceIntoChunksGenerator, sliceIntoChunks } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
@@ -61,7 +62,7 @@ const { RedisStreamManager } = require('../../utils/redisStreamManager');
 const { RedisManager } = require('../../utils/redisManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const httpContext = require('express-http-context');
-const { recordOutboundEverything } = require('../../utils/metrics');
+const { recordOutboundEverything, recordEverythingClientDisconnect } = require('../../utils/metrics');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -90,14 +91,40 @@ function escapeForJsonTemplate(value) {
 }
 
 /**
+ * Marks a promise as handled so that, if the caller exits early (e.g. the client disconnected) before
+ * awaiting it, its rejection is not reported as an unhandledRejection (which shuts the process down).
+ * The caller still sees the rejection when it awaits the same promise later. Non-disconnect failures
+ * are logged (warn) here, once, whether or not the caller ever awaits the promise.
+ * @template T
+ * @param {Promise<T>} promise
+ * @return {Promise<T>}
+ */
+function markHandled(promise) {
+    promise.catch((error) => {
+        // a disconnect is expected; log any other failure here so it is never lost, even when the caller
+        // leaves before awaiting this promise
+        if (!(error instanceof ClientDisconnectedError)) {
+            // name, message and code only: a driver error object can carry query values or document fragments
+            logWarn('$everything parallel fetch failed', {
+                error: { name: error?.name, message: error?.message, code: error?.code }
+            });
+        }
+    });
+    return promise;
+}
+
+/**
  * @param {Promise[]} promises
  * @return {Promise<*[]>}
  */
 async function settleAllOrThrow(promises) {
     const settled = await Promise.allSettled(promises);
-    const rejected = settled.find((s) => s.status === 'rejected');
-    if (rejected) {
-        throw rejected.reason;
+    const rejections = settled.filter((s) => s.status === 'rejected');
+    if (rejections.length > 0) {
+        // a disconnect must not hide a real failure: prefer the first non-disconnect error
+        // (the others were already logged by markHandled)
+        const primary = rejections.find((r) => !(r.reason instanceof ClientDisconnectedError)) || rejections[0];
+        throw primary.reason;
     }
     return settled.map((s) => s.value);
 }
@@ -674,6 +701,9 @@ class EverythingHelper {
                         }
                     });
                 } catch (err) {
+                    if (err instanceof ClientDisconnectedError) {
+                        throw err;
+                    }
                     fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
                     logError('Error reading everything response from cache', { error: err, cacheKey });
                     if (!fallbackToMongo) {
@@ -684,6 +714,7 @@ class EverythingHelper {
             if (!readFromCache || fallbackToMongo) {
                 let everythingChunkIndex = 0;
                 for (const idChunk of idChunks) {
+                    this.assertClientConnected({ responseStreamer });
                     const parsedArgsForChunk = parsedArgs.clone();
                     parsedArgsForChunk.id = idChunk;
                     parsedArgsForChunk.resourceFilterList = parsedArgs.resourceFilterList;
@@ -802,6 +833,30 @@ class EverythingHelper {
 
             return bundle;
         } catch (error) {
+            if (error instanceof ClientDisconnectedError) {
+                // a disconnect is not a failure: it is recorded in logs and metrics only. Resources already
+                // sent were still disclosed, so they get the normal read audit (no outcome).
+                recordEverythingClientDisconnect(resourceType);
+                logInfo('$everything stopped: client disconnected', {
+                    resourceType,
+                    requestId: requestInfo?.requestId,
+                    streamedResourceCount: streamedResources.length
+                });
+                if (responseStreamer && streamedResources.length > 0) {
+                    this._logAuditForRequestAsync({
+                        resourcesToAudit: streamedResources,
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        parsedArgs
+                    });
+                }
+                if (cachedStreamer && !cachedStreamer.isFirstEntry) {
+                    // deleteStream logs and reports its own failures, so it cannot replace the disconnect error
+                    await this.redisStreamManager.deleteStream(cacheKey);
+                }
+                throw error;
+            }
             if (responseStreamer) {
                 const statusCode = error.statusCode || 500;
                 this._logAuditForRequestAsync({
@@ -1077,6 +1132,7 @@ class EverythingHelper {
              * @type {import('mongodb').Document[]}
              */
             for (const relatedResourceMapChunk of relatedResourceMapChunks) {
+                this.assertClientConnected({ responseStreamer });
                 let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions, additionalRewriteQueries: relatedRewriteQueries } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
                     base_version,
@@ -1217,6 +1273,9 @@ class EverythingHelper {
                         const idChunks = this.getNonClinicalIdChunks({ ids, explain });
 
                         for (const idChunk of idChunks) {
+                            await this.assertClientConnectedAfterSettlingAsync({
+                                responseStreamer, pending: depthParallelProcess
+                            });
                             const childParseArgs = this.r4ArgsParser.parseArgs({
                                 resourceType,
                                 args: { ...baseArgs, id: idChunk.join(',') }
@@ -1244,7 +1303,7 @@ class EverythingHelper {
                                 viewControlExcludeMap: resourceToExcludeIdsMap
                             });
 
-                            depthParallelProcess.push(result);
+                            depthParallelProcess.push(markHandled(result));
 
                             if (depthParallelProcess.length >= this.configManager.everythingMaxParallelProcess) {
                                 const depthResults = await settleAllOrThrow(depthParallelProcess);
@@ -1307,6 +1366,9 @@ class EverythingHelper {
                 streamedResources
             })
         } catch (e) {
+            if (e instanceof ClientDisconnectedError) {
+                throw e;
+            }
             logError(`Error in retrieveEverythingMulipleIdsAsync(): ${e.message}`, { error: e });
             throw new RethrownError({
                 message: 'Error in retrieveEverythingMulipleIdsAsync(): ' +
@@ -1620,6 +1682,9 @@ class EverythingHelper {
         }
 
         for (const relatedResource of relatedResourcesMap) {
+            await this.assertClientConnectedAfterSettlingAsync({
+                responseStreamer, pending: parallelProcess
+            });
             const relatedResourceType = relatedResource.type;
             const filterTemplateParam = relatedResource.params;
             const filterTemplateCustomQuery = relatedResource.customQuery;
@@ -1902,7 +1967,7 @@ class EverythingHelper {
                 viewControlExcludeMap: resourceToExcludeIdsMap
             })
 
-            parallelProcess.push(promiseResult)
+            parallelProcess.push(markHandled(promiseResult))
 
             queryItems.push(new QueryItem({
                 query,
@@ -1988,7 +2053,51 @@ class EverythingHelper {
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
-    async processCursorAsync({
+    async processCursorAsync(options) {
+        try {
+            return await this.iterateCursorAsync(options);
+        } finally {
+            // Release the server-side cursor (and its pooled connection) even when iteration stops
+            // early, e.g. the client disconnected. close() is a no-op on an exhausted cursor.
+            try {
+                await options.cursor.close();
+            } catch (e) {
+                logError('Error closing $everything cursor', { error: e });
+            }
+        }
+    }
+
+    /**
+     * Throws when the client has gone, so in-flight $everything work stops instead of running to completion
+     * @param {{responseStreamer?: BaseResponseStreamer|null}} options
+     * @throws {ClientDisconnectedError}
+     */
+    assertClientConnected({ responseStreamer }) {
+        if (responseStreamer?.isClientGone()) {
+            throw new ClientDisconnectedError();
+        }
+    }
+
+    /**
+     * Like assertClientConnected, but when the client is gone it first waits for fetches already started
+     * to stop (each stops at its own next check), so none is left running, e.g. writing to the cache,
+     * after the caller has cleaned up.
+     * @param {{responseStreamer?: BaseResponseStreamer|null, pending: Promise[]}} options
+     * @throws {ClientDisconnectedError}
+     */
+    async assertClientConnectedAfterSettlingAsync({ responseStreamer, pending }) {
+        if (responseStreamer?.isClientGone()) {
+            await Promise.allSettled(pending);
+            throw new ClientDisconnectedError();
+        }
+    }
+
+    /**
+     * Iterates the cursor and streams its resources; see processCursorAsync
+     * @param {Parameters<EverythingHelper['processCursorAsync']>[0]} options
+     * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
+     */
+    async iterateCursorAsync({
         cursor,
         requestInfo,
         responseStreamer,
@@ -2019,6 +2128,7 @@ class EverythingHelper {
          */
         const memberOfParentsByGroupUuid = new Map();
         while (await cursor.hasNext()) {
+            this.assertClientConnected({ responseStreamer });
             /**
              * element
              * @type {Resource|null}
@@ -2310,5 +2420,7 @@ module.exports = {
     EverythingHelper,
     escapeForJsonTemplate,
     getEverythingIdChunks,
-    pushAll
+    markHandled,
+    pushAll,
+    settleAllOrThrow
 };

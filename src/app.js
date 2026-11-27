@@ -227,26 +227,6 @@ function createApp({fnGetContainer}) {
                     altId: req.authInfo?.context?.username || req.authInfo?.context?.subject || ((!req.user || typeof req.user === 'string') ? req.user : req.user?.name || req.user?.id),
                     scope: req.authInfo?.scope
                 });
-
-                if (configManager.enableAccessAuditEvent) {
-                    try {
-                        const resourceType = (reqPath.split('/')[2])?.split('?')[0];
-                        const auditLogger = container.auditLogger;
-                        const requestInfo = new FhirRequestInfoBuilder(req).build({
-                            requestId: req.uniqueRequestId
-                        });
-                        auditLogger.logErrorAuditEntryAsync({
-                            requestInfo,
-                            resourceType,
-                            errorCode: 0,
-                            errorMessage: 'Request Aborted by Client'
-                        }).catch((e) => {
-                            logError('Error logging abort audit event', { error: e.message });
-                        });
-                    } catch (e) {
-                        logError('Error building abort audit event', { error: e.message });
-                    }
-                }
             }
         });
         next();

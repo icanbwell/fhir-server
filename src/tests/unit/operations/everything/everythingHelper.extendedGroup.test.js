@@ -27,6 +27,7 @@ function createCursor (docs = []) {
     let index = 0;
     return {
         hasNext: async () => index < docs.length,
+        close: async () => undefined,
         next: async () => docs[index++]
     };
 }

@@ -309,6 +309,23 @@ describe('EverythingOperation - bug hunting', () => {
         });
     });
 
+    describe('client disconnect in everythingAsync', () => {
+        test('rethrows ClientDisconnectedError without logging an operation failure', async () => {
+            const { ClientDisconnectedError } = require('../../../../utils/clientDisconnectedError');
+            mockGraphOperation.graph.mockRejectedValue(new ClientDisconnectedError());
+
+            await expect(
+                operation.everythingAsync({
+                    requestInfo: buildRequestInfo({ method: 'GET' }),
+                    parsedArgs: buildParsedArgs(),
+                    resourceType: 'Practitioner'
+                })
+            ).rejects.toBeInstanceOf(ClientDisconnectedError);
+
+            expect(mockFhirLoggingManager.logOperationFailureAsync).not.toHaveBeenCalled();
+        });
+    });
+
     describe('postRequestProcessor for user Patient everything', () => {
         test('adds usage event task when isUser and Patient everything', async () => {
             const requestInfo = buildRequestInfo({
