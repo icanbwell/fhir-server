@@ -9,6 +9,7 @@ const { isTrue } = require('./isTrue');
  * @property {string|null} [consentPolicy] - Consent policy URI, set after consent validation
  * @property {string[]} [allowedConnectionTypes] - connectionType codes from the entitlement Consent's
  *   provision.securityLabel; unset = no connection-type restriction
+ * @property {string[]} [entitlements] - the JWT `entitlements` claim of a RelatedPerson actor; set at authentication
  * @property {import('./delegatedAccessRulesManager').DelegatedAccessFilteringRules|null} [_filteringRules] - Cached filtering rules (request-scoped)
  */
 

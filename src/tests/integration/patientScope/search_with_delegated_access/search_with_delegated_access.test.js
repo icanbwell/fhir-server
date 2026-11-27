@@ -184,13 +184,17 @@ describe('Delegated Access Streaming Search Tests', () => {
                     sub: 'delegated-sub-123'
                 }
             };
-            const delegatedAccessToken = getTokenWithCustomPayload(delegatedPayload);
-
-            // should not be able to access since no consent
-            resp = await request.get('/4_0_0/Observation/?_debug=1').set({
-                Authorization: `Bearer ${delegatedAccessToken}`,
+            // The token names the Consent it acts under; each step names the Consent it just merged.
+            const delegatedHeadersNaming = (consent) => ({
+                Authorization: `Bearer ${getTokenWithCustomPayload({
+                    ...delegatedPayload,
+                    entitlements: [`Consent/${consent.id}`]
+                })}`,
                 Accept: 'application/fhir+json'
             });
+
+            // should not be able to access since the named consent does not exist yet
+            resp = await request.get('/4_0_0/Observation/?_debug=1').set(delegatedHeadersNaming(activeConsent));
             expect(resp.status).toBe(403);
 
             // create an inactive consent
@@ -202,10 +206,7 @@ describe('Delegated Access Streaming Search Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // access using delegated token should still be forbidden
-            resp = await request.get('/4_0_0/Observation/?_debug=1').set({
-                Authorization: `Bearer ${delegatedAccessToken}`,
-                Accept: 'application/fhir+json'
-            });
+            resp = await request.get('/4_0_0/Observation/?_debug=1').set(delegatedHeadersNaming(inactiveConsent));
             expect(resp.status).toBe(403);
 
             // create an expired consent
@@ -217,10 +218,7 @@ describe('Delegated Access Streaming Search Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // access using delegated token should still be forbidden
-            resp = await request.get('/4_0_0/Observation/?_debug=1').set({
-                Authorization: `Bearer ${delegatedAccessToken}`,
-                Accept: 'application/fhir+json'
-            });
+            resp = await request.get('/4_0_0/Observation/?_debug=1').set(delegatedHeadersNaming(expiredConsent));
             expect(resp.status).toBe(403);
 
             // create a future start consent
@@ -232,10 +230,7 @@ describe('Delegated Access Streaming Search Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // access using delegated token should still be forbidden
-            resp = await request.get('/4_0_0/Observation/?_debug=1').set({
-                Authorization: `Bearer ${delegatedAccessToken}`,
-                Accept: 'application/fhir+json'
-            });
+            resp = await request.get('/4_0_0/Observation/?_debug=1').set(delegatedHeadersNaming(futureStartConsent));
             expect(resp.status).toBe(403);
 
 
@@ -248,10 +243,7 @@ describe('Delegated Access Streaming Search Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // access using delegated token
-            resp = await request.get('/4_0_0/Observation/?_debug=1').set({
-                Authorization: `Bearer ${delegatedAccessToken}`,
-                Accept: 'application/fhir+json'
-            });
+            resp = await request.get('/4_0_0/Observation/?_debug=1').set(delegatedHeadersNaming(activeConsent));
 
             let expectedResp = deepcopy(expectedObservationPerson1WithDelegatedAccess);
 
@@ -275,10 +267,7 @@ describe('Delegated Access Streaming Search Tests', () => {
 
             expectedResp = deepcopy(expectedObservationPerson1WithDelegatedAccessAllSensitiveExcluded);
             // access using delegated token should return nothing now
-            resp = await request.get('/4_0_0/Observation/?_debug=1').set({
-                Authorization: `Bearer ${delegatedAccessToken}`,
-                Accept: 'application/fhir+json'
-            });
+            resp = await request.get('/4_0_0/Observation/?_debug=1').set(delegatedHeadersNaming(activeConsent));
 
             expect(resp).toHaveMongoQuery(expectedResp);
             expect(resp).toHaveResponse(
@@ -295,10 +284,7 @@ describe('Delegated Access Streaming Search Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // access using delegated token should return sensitive excluded observations including the one with multiple categories
-            resp = await request.get('/4_0_0/Observation/?_debug=1').set({
-                Authorization: `Bearer ${delegatedAccessToken}`,
-                Accept: 'application/fhir+json'
-            });
+            resp = await request.get('/4_0_0/Observation/?_debug=1').set(delegatedHeadersNaming(activeConsent));
 
             expectedResp = deepcopy(expectedObservationPerson1WithDelegatedAccessAllSensitiveExcluded);
             expect(resp).toHaveMongoQuery(expectedResp);
@@ -322,10 +308,7 @@ describe('Delegated Access Streaming Search Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // should exclude only HIV_AIDS tagged observation now even with multiple sensitive categories
-            resp = await request.get('/4_0_0/Observation/?_debug=1').set({
-                Authorization: `Bearer ${delegatedAccessToken}`,
-                Accept: 'application/fhir+json'
-            });
+            resp = await request.get('/4_0_0/Observation/?_debug=1').set(delegatedHeadersNaming(activeConsent));
 
             expectedResp = deepcopy(expectedObservationPerson1WithDelegatedAccess);
             expect(resp).toHaveMongoQuery(expectedResp);

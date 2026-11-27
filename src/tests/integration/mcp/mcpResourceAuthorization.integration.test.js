@@ -30,6 +30,7 @@ const {
     patientScopedToken
 } = require('./mcpTestHelpers');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 describe('/mcp resource authorization', () => {
     afterEach(async () => {
@@ -100,8 +101,8 @@ describe('/mcp resource authorization', () => {
     test('a delegated actor using /mcp is subject to the same consent gate and sensitivity denylist as REST (resource-authorization.md §6c, §10)', async () => {
         const ENABLE_DELEGATED_ACCESS_DETECTION = process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
         process.env.ENABLE_DELEGATED_ACCESS_DETECTION = 'true';
-        // DelegatedAccessRulesManager.fetchConsentResourcesAsync (src/utils/delegatedAccessRulesManager.js)
-        // hints the Consent query at the 'consent_of_linked_person' named index (see
+        // Consent searches (the PROA/CMS consent managers) hint at the
+        // 'consent_of_linked_person' named index (see
         // src/indexes/customIndexes.js) -- that index only exists once the custom-index migration
         // has run against a real deployment; the ephemeral jest MongoMemoryServer never runs it, so
         // the real DatabaseCursor.hint() would throw "hint provided does not correspond to an
@@ -161,7 +162,9 @@ describe('/mcp resource authorization', () => {
             // below already relies on, so the helper's base patient-scoped payload applies unchanged.
             const delegatedToken = patientScopedToken(grantorPersonId, {
                 username: 'delegated-actor@example.com',
-                act: { reference: `RelatedPerson/${actorRelatedPersonId}`, sub: 'delegated-sub-mcp-sec2' }
+                act: { reference: `RelatedPerson/${actorRelatedPersonId}`, sub: 'delegated-sub-mcp-sec2' },
+                // Names the Consent merged below by its uuid, derived from its id and `client` owner.
+                entitlements: [`Consent/${generateUUIDv5('mcp-sec2-consent|client')}`]
             });
 
             // No Consent authorizing this actor yet -- DelegatedAccessRulesManager.hasValidConsentAsync

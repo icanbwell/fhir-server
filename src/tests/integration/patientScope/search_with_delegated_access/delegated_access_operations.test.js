@@ -21,6 +21,8 @@ const patient3Resource = require('./fixtures/Patient/patient3.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation4Resource = require('./fixtures/Observation/observation4.json');
 const activeConsent = require('./fixtures/Consent/consentWithSensitiveCategoriesExcluded.json');
+const inactiveConsent = require('./fixtures/Consent/inactiveConsent.json');
+const expiredConsent = require('./fixtures/Consent/expiredConsent.json');
 const expectedSearchResponse = require('./fixtures/expected/delegated_operations/search.json');
 const expectedSearchByIdResponse = require('./fixtures/expected/delegated_operations/searchById.json');
 const expectedGraphqlV1Response = require('./fixtures/expected/delegated_operations/graphqlV1.json');
@@ -40,6 +42,7 @@ const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.jso
 
 const { ConfigManager } = require('../../../../utils/configManager');
 const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
+const { MongoNetworkTimeoutError } = require('mongodb');
 
 
 class MockConfigManager extends ConfigManager {
@@ -64,7 +67,8 @@ const delegatedPayload = {
     act: {
         reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
         sub: 'delegated-sub-123'
-    }
+    },
+    entitlements: [`Consent/${activeConsent.id}`, 'FAMRQT']
 };
 
 describe('Delegated Access Operations Tests', () => {
@@ -349,7 +353,7 @@ describe('Delegated Access Operations Tests', () => {
         const container = getTestContainer();
         const fetchConsentSpy = jest.spyOn(
             container.delegatedAccessRulesManager,
-            'fetchConsentResourcesAsync'
+            'findConsentByReferenceAsync'
         );
 
         const delegatedHeaders = getHeadersWithCustomPayload(delegatedPayload);
@@ -360,10 +364,111 @@ describe('Delegated Access Operations Tests', () => {
         const resp = await request.get('/4_0_0/Observation/').set(delegatedHeaders);
         expect(resp).toHaveStatusCode(200);
 
-        // fetchConsentResourcesAsync should only be called once — the second call hits actor._filteringRules cache
+        // The Consent is read by id once; the second call hits the actor._filteringRules cache.
+        // Login does not read it for a RelatedPerson token.
         expect(fetchConsentSpy).toHaveBeenCalledTimes(1);
+        expect(fetchConsentSpy).toHaveBeenCalledWith(expect.objectContaining({
+            consentReference: `Consent/${activeConsent.id}`
+        }));
 
         fetchConsentSpy.mockRestore();
+    });
+
+    // ─── CONSENT REFUSALS ────────────────────────────────────────────
+
+    const otherConsentMerges = {
+        inactive: inactiveConsent,
+        expired: expiredConsent
+    };
+
+    test.each([
+        ['the token has no entitlements', { entitlements: undefined }, null],
+        ['the token has only a purpose code', { entitlements: ['FAMRQT'] }, null],
+        [
+            'the named Consent does not exist',
+            { entitlements: ['Consent/0b0f8a4e-2c7d-4e1a-9f3b-5d6c7e8f9a0b'] },
+            null
+        ],
+        ['the named Consent is inactive', { entitlements: [`Consent/${inactiveConsent.id}`] }, 'inactive'],
+        ['the named Consent is expired', { entitlements: [`Consent/${expiredConsent.id}`] }, 'expired'],
+        [
+            'the token is for another grantor',
+            { clientFhirPersonId: '0b0f8a4e-2c7d-4e1a-9f3b-5d6c7e8f9a0b' },
+            null
+        ],
+        [
+            'the token is for another delegate',
+            {
+                act: {
+                    reference: 'RelatedPerson/0e6f9a35-8b0c-4c47-9b1a-2f3d4e5f6a7b',
+                    sub: 'delegated-sub-123'
+                }
+            },
+            null
+        ]
+    ])('delegated search is refused with 403 when %s', async (_label, payloadOverride, extraConsent) => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+        if (extraConsent) {
+            const mergeResp = await request
+                .post('/4_0_0/Consent/$merge?validate=true')
+                .send(otherConsentMerges[extraConsent])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(mergeResp).toHaveMergeResponse({ created: true });
+        }
+
+        const payload = { ...delegatedPayload, ...payloadOverride };
+        if (payload.entitlements === undefined) {
+            delete payload.entitlements;
+        }
+        const resp = await request.get('/4_0_0/Observation/').set(getHeadersWithCustomPayload(payload));
+
+        expect(resp).toHaveStatusCode(403);
+    });
+
+    // ─── CONSENT READ FAILURE ────────────────────────────────────────
+
+    test('delegated search returns a generic 503, without the database error text, when the Consent read fails', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+
+        // Fail only the Mongo driver call that reads the token's Consent by uuid, so the data
+        // layer wraps the driver error exactly as it does in production.
+        const driverErrorText = 'connection 7 to 10.20.30.40:27017 timed out';
+        let consentReadFailed = false;
+        const originalToArrayAsync = DatabaseCursor.prototype.toArrayAsync;
+        const toArraySpy = jest
+            .spyOn(DatabaseCursor.prototype, 'toArrayAsync')
+            .mockImplementation(async function () {
+                if (this.resourceType === 'Consent' && this.query?._uuid === activeConsent.id) {
+                    consentReadFailed = true;
+                    this.cursor.toArray = () => Promise.reject(new MongoNetworkTimeoutError(driverErrorText));
+                }
+                return originalToArrayAsync.call(this);
+            });
+
+        try {
+            const resp = await request
+                .get('/4_0_0/Observation/')
+                .set(getHeadersWithCustomPayload(delegatedPayload));
+
+            expect(consentReadFailed).toBe(true);
+            expect(resp).toHaveStatusCode(503);
+            expect(resp.body.resourceType).toBe('OperationOutcome');
+            expect(resp.body.issue[0].details.text).toBe(
+                'Unexpected Error: Consent lookup temporarily unavailable'
+            );
+            expect(JSON.stringify(resp.body)).not.toContain(driverErrorText);
+        } finally {
+            toArraySpy.mockRestore();
+        }
     });
 
     // ─── NON-PATIENT-SCOPED RESOURCE FILTERING PROOF ─────────────────

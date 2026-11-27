@@ -2,21 +2,13 @@ const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ConfigManager } = require('./configManager');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { CustomTracer } = require('./customTracer');
-const { MongoQuerySimplifier } = require('./mongoQuerySimplifier');
-const { RethrownError } = require('./rethrownError');
-const {
-    SearchFilterFromReference
-} = require('../operations/query/filters/searchFilterFromReference');
 const { ReferenceParser } = require('./referenceParser');
 const { QueryItem } = require('../operations/graph/queryItem');
-const { ForbiddenError } = require('./httpErrors');
 const {
-    CONSENT_OF_LINKED_PERSON_INDEX,
     PERSON_PROXY_PREFIX,
     SENSITIVE_CATEGORY,
     CONSENT_CATEGORY
 } = require('../constants');
-const { dateQueryBuilder } = require('./querybuilder.util');
 const { isUuid, generateUUIDv5 } = require('./uid.util');
 const { logWarn } = require('../operations/common/logging');
 const { SecurityTagSystem } = require('./securityTagSystem');
@@ -61,8 +53,9 @@ class DelegatedAccessRulesManager {
     }
 
     /**
-     * Returns the filtering rules for a delegated actor.
-     * filteringRules as null represents no consent found.
+     * Returns the filtering rules for a delegated actor. For a RelatedPerson actor, reads the
+     * Consent named in its `entitlements` by id and checks it against the token.
+     * filteringRules as null means the Consent was refused.
      *
      * @param {Object} params
      * @param {string} params.base_version
@@ -95,10 +88,8 @@ class DelegatedAccessRulesManager {
             };
         }
 
-        const actorReference = actor.reference;
-
         // An Organization actor's Consent is org-level (no `patient` field), so it can never
-        // match the query below. Skip the lookup and trust the upstream mint-time check.
+        // pass the grantor check below. Skip the lookup and trust the login-time check.
         if (actor.isOrganizationActor === true) {
             const filteringRules = {
                 consentId: null,
@@ -118,41 +109,60 @@ class DelegatedAccessRulesManager {
             };
         }
 
+        // A RelatedPerson actor's Consent is the one named in its `entitlements`. Any failed
+        // check is logged and returns `filteringRules: null`.
+        const refuse = ({ consentReference, actorConsentQueries = [] }) => {
+            logWarn('Delegated Consent refused', {
+                source: 'DelegatedAccessRulesManager.getFilteringRulesAsync',
+                args: { consentReference }
+            });
+            return { filteringRules: null, actorConsentQueries, actorConsentQueryOptions: [] };
+        };
+
         const filteringRulesObj = await this.customTracer.trace({
             name: 'DelegatedAccessRulesManager.getFilteringRulesAsync',
             func: async () => {
-                // Fetch Consent resources from database
-                const { consentResources, queryItem, options } =
-                    await this.fetchConsentResourcesAsync({
-                        personIdFromJwtToken,
-                        actorReference,
-                        base_version,
-                        _debug
-                    });
-
-                // No consent found - deny access
-                if (consentResources.length === 0) {
-                    return {
-                        filteringRules: null,
-                        actorConsentQueries: [queryItem],
-                        actorConsentQueryOptions: [options]
-                    };
+                const entitlements = Array.isArray(actor.entitlements) ? actor.entitlements : [];
+                const consentReferences = entitlements.filter(
+                    (entitlement) => typeof entitlement === 'string' &&
+                        ReferenceParser.parseReference(entitlement).resourceType === 'Consent'
+                );
+                if (consentReferences.length !== 1) {
+                    return refuse({ consentReference: null });
                 }
 
-                // Multiple consents found - ambiguous, deny access for safety
-                if (consentResources.length > 1) {
-                    throw new ForbiddenError(
-                        `ambiguous permissions found for the actor ${actorReference}`
-                    );
+                const [consentReference] = consentReferences;
+                // Only a uuid id is read; a sourceId or an id with an authority is refused.
+                const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(consentReference);
+                if (!isUuid(id) || sourceAssigningAuthority) {
+                    return refuse({ consentReference });
                 }
 
-                // Parse the single consent resource to extract filtering rules
-                const consent = consentResources[0];
-                const filteringRules = this.parseConsentFilteringRules({ consent });
+                const { consents, queryItem } = await this.findConsentByReferenceAsync({
+                    consentReference,
+                    base_version,
+                    _debug
+                });
+                const actorConsentQueries = queryItem ? [queryItem] : [];
+
+                if (consents.length !== 1) {
+                    return refuse({ consentReference, actorConsentQueries });
+                }
+
+                const [consent] = consents;
+                if (!this.consentGrantsAccess({
+                    consent,
+                    actorReference: actor.reference,
+                    personIdFromJwtToken,
+                    now: new Date()
+                })) {
+                    return refuse({ consentReference, actorConsentQueries });
+                }
+
                 return {
-                    filteringRules,
-                    actorConsentQueries: [queryItem],
-                    actorConsentQueryOptions: [options]
+                    filteringRules: this.parseConsentFilteringRules({ consent }),
+                    actorConsentQueries,
+                    actorConsentQueryOptions: []
                 };
             }
         });
@@ -162,7 +172,85 @@ class DelegatedAccessRulesManager {
         return filteringRulesObj;
     }
 
+    /**
+     * Whether a stored (server-enriched) reference points at `reference`. Matches the same
+     * fields SearchFilterFromReference.buildFilter queries: `_uuid` for a uuid id,
+     * `_sourceId` + `_sourceAssigningAuthority` for an id with an authority, else `_sourceId`.
+     * @param {Object|undefined} storedReference
+     * @param {string} reference
+     * @return {boolean}
+     */
+    static referenceMatches(storedReference, reference) {
+        if (!storedReference || typeof reference !== 'string') {
+            return false;
+        }
+        const { id, resourceType, sourceAssigningAuthority } = ReferenceParser.parseReference(reference);
+        if (!id || !resourceType) {
+            return false;
+        }
+        const typedId = `${resourceType}/${id}`;
+        if (isUuid(id)) {
+            return storedReference._uuid === typedId;
+        }
+        if (sourceAssigningAuthority) {
+            return storedReference._sourceId === typedId &&
+                storedReference._sourceAssigningAuthority === sourceAssigningAuthority;
+        }
+        return storedReference._sourceId === typedId;
+    }
 
+    /**
+     * Checks a Consent against the delegated token. Returns true when the Consent grants
+     * access. An unparseable period date fails its check.
+     * @param {Object} params
+     * @param {Object} params.consent
+     * @param {string} params.actorReference - `act.reference` from the token
+     * @param {string} params.personIdFromJwtToken - the grantor (`clientFhirPersonId`)
+     * @param {Date} params.now
+     * @return {boolean}
+     */
+    consentGrantsAccess({ consent, actorReference, personIdFromJwtToken, now }) {
+        if (consent.status !== 'active') {
+            return false;
+        }
+        if (consent.provision?.type !== 'permit') {
+            return false;
+        }
+        const allowedCategoryCodes = this.configManager.dataSharingAccessCodes;
+        const hasAllowedCategory = (consent.category || []).some(
+            (category) => (category?.coding || []).some(
+                (coding) => coding?.system === CONSENT_CATEGORY.DATA_SHARING_ACCESS.SYSTEM &&
+                    allowedCategoryCodes.includes(coding.code)
+            )
+        );
+        if (!hasAllowedCategory) {
+            return false;
+        }
+        // A present but empty or unparseable date fails its check, as the old `$exists` query did.
+        const { start, end } = consent.provision.period || {};
+        if (start === undefined && end === undefined) {
+            return false;
+        }
+        if (start !== undefined && !(Date.parse(start) <= now.getTime())) {
+            return false;
+        }
+        if (end !== undefined && !(Date.parse(end) >= now.getTime())) {
+            return false;
+        }
+        if (!DelegatedAccessRulesManager.referenceMatches(
+            consent.patient,
+            `Patient/${PERSON_PROXY_PREFIX}${personIdFromJwtToken}`
+        )) {
+            return false;
+        }
+        const consentActors = Array.isArray(consent.provision.actor) ? consent.provision.actor : [];
+        if (!consentActors.some(
+            (consentActor) => DelegatedAccessRulesManager.referenceMatches(consentActor?.reference, actorReference)
+        )) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Parses a Consent resource to extract filtering rules
@@ -207,165 +295,6 @@ class DelegatedAccessRulesManager {
             enumerable: false
         });
         return rules;
-    }
-
-    /**
-     * Fetches active Consent resources for the delegated actor
-     * @param {Object} params
-     * @param {string} params.personIdFromJwtToken
-     * @param {string} params.actorReference
-     * @param {string} params.base_version
-     * @param {boolean} params._debug
-     * @returns {Promise<{
-     *  consentResources: Object[],
-     *  queryItem: QueryItem,
-     *  options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>
-     * }>}
-     */
-    async fetchConsentResourcesAsync({
-        personIdFromJwtToken,
-        actorReference,
-        base_version,
-        _debug = false
-    }) {
-        try {
-            // Build patient reference filter
-            const patientReferenceFilter = SearchFilterFromReference.buildFilter(
-                [{ id: `${PERSON_PROXY_PREFIX}${personIdFromJwtToken}`, resourceType: 'Patient' }],
-                'patient'
-            );
-
-            // Parse actor reference and build actor reference filter
-            const {
-                id: actorId,
-                resourceType: actorResourceType,
-                sourceAssigningAuthority: actorSourceAssigningAuthority
-            } = ReferenceParser.parseReference(actorReference);
-
-            assertIsValid(actorId, 'Actor reference must have an ID');
-            assertIsValid(actorResourceType, 'Actor reference must have a resource type');
-            const actorReferenceFilter = SearchFilterFromReference.buildFilter(
-                [
-                    {
-                        id: actorId,
-                        resourceType: actorResourceType,
-                        sourceAssigningAuthority: actorSourceAssigningAuthority
-                    }
-                ],
-                'provision.actor.reference'
-            );
-
-            const currDate = new Date().toISOString();
-            /**
-             * @type {import('mongodb').Document}
-             */
-            const query = {
-                $and: [
-                    // Consent must be active
-                    { status: 'active' },
-                    { $or: patientReferenceFilter },
-                    { $or: actorReferenceFilter },
-                    // Provision type must be permit
-                    { 'provision.type': 'permit' },
-                    {
-                        'category.coding': {
-                            $elemMatch: {
-                                system: CONSENT_CATEGORY.DATA_SHARING_ACCESS.SYSTEM,
-                                code: { $in: this.configManager.dataSharingAccessCodes }
-                            }
-                        }
-                    },
-                    // At least one of start or end must exist (FHIR period requires at least one)
-                    {
-                        $or: [
-                            { 'provision.period.start': { $exists: true } },
-                            { 'provision.period.end': { $exists: true } }
-                        ]
-                    },
-                    // Period start must not be in the future OR not exist
-                    {
-                        $or: [
-                            {
-                                'provision.period.start': dateQueryBuilder({
-                                    date: `le${currDate}`,
-                                    type: 'dateTime'
-                                })
-                            },
-                            { 'provision.period.start': { $exists: false } }
-                        ]
-                    },
-                    // Period end must be in the future OR not exist
-                    {
-                        $or: [
-                            {
-                                'provision.period.end': dateQueryBuilder({
-                                    date: `ge${currDate}`,
-                                    type: 'dateTime'
-                                })
-                            },
-                            { 'provision.period.end': { $exists: false } }
-                        ]
-                    }
-                ]
-            };
-
-            const options = {
-                projection: { _id: 0 }
-            };
-
-            // Simplify and optimize the query
-            const simplifiedQuery = MongoQuerySimplifier.simplifyFilter({ filter: query });
-
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                resourceType: 'Consent',
-                base_version
-            });
-
-            const cursor = await databaseQueryManager.findAsync({
-                query: simplifiedQuery,
-                options
-            });
-
-            // Set MongoDB timeout
-            const maxMongoTimeMS = this.configManager.mongoTimeout;
-            cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
-            // can use custom index of status and patient id
-            cursor.hint({
-                indexHint: CONSENT_OF_LINKED_PERSON_INDEX
-            });
-
-            const collectionName = cursor.getCollection();
-
-            /**
-             * @type {import('mongodb').Document[]}
-             */
-            const explanations = _debug ? await cursor.explainAsync() : [];
-
-            const consentResources = await cursor.toArrayAsync();
-
-            const queryItem = new QueryItem({
-                query: simplifiedQuery,
-                resourceType: 'Consent',
-                collectionName,
-                explanations
-            });
-
-            return {
-                consentResources,
-                queryItem,
-                options
-            };
-        } catch (error) {
-            throw new RethrownError({
-                message: `Error while fetching Consent resources for delegated actor: ${error.message}`,
-                error,
-                source: 'DelegatedAccessRulesManager.fetchConsentResourcesAsync',
-                args: {
-                    personIdFromJwtToken,
-                    actorReference
-                }
-            });
-        }
     }
 
     /**
@@ -503,68 +432,101 @@ class DelegatedAccessRulesManager {
      * @return {Promise<{ purposeCodes: string[], connectionTypes: { codes: string[], malformed: boolean } | null } | null>}
      */
     async resolveEntitlementConsentAsync({ consentReference, base_version }) {
-        try {
-            return await this.customTracer.trace({
-                name: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync',
-                func: async () => {
-                    const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(consentReference);
-                    if (!id) {
-                        return null;
-                    }
+        return await this.customTracer.trace({
+            name: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync',
+            func: async () => {
+                const { consents } = await this.findConsentByReferenceAsync({
+                    consentReference,
+                    base_version
+                });
 
-                    let query;
-                    if (isUuid(id)) {
-                        query = { _uuid: id };
-                    } else if (sourceAssigningAuthority) {
-                        query = { _uuid: generateUUIDv5(`${id}|${sourceAssigningAuthority}`) };
-                    } else {
-                        query = { _sourceId: id };
-                    }
-
-                    const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                        resourceType: 'Consent',
-                        base_version
+                if (consents.length === 0) {
+                    logWarn(`Consent referenced by entitlements could not be resolved: ${consentReference}`, {
+                        source: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync'
                     });
-                    const cursor = await databaseQueryManager.findAsync({ query });
-                    cursor.maxTimeMS({ milliSecs: this.configManager.mongoTimeout });
-                    const consents = await cursor.toArrayAsync();
-
-                    if (consents.length === 0) {
-                        logWarn(`Consent referenced by entitlements could not be resolved: ${consentReference}`, {
-                            source: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync'
-                        });
-                        return null;
-                    }
-
-                    // Bare, authority-less id is ambiguous across tenants -- never substitute an
-                    // arbitrary match's purpose codes; fail closed like getFilteringRulesAsync does.
-                    if (consents.length > 1) {
-                        logWarn(`Consent referenced by entitlements is ambiguous (${consents.length} matches): ${consentReference}`, {
-                            source: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync'
-                        });
-                        return null;
-                    }
-
-                    const [consent] = consents;
-                    const purposeCodings = consent.provision?.purpose;
-                    return {
-                        purposeCodes: Array.isArray(purposeCodings)
-                            ? purposeCodings.map(coding => coding?.code).filter(Boolean)
-                            : [],
-                        connectionTypes: this.parseConnectionTypeLabels({ consent })
-                    };
+                    return null;
                 }
+
+                // Bare, authority-less id is ambiguous across tenants -- never substitute an
+                // arbitrary match's purpose codes; fail closed like getFilteringRulesAsync does.
+                if (consents.length > 1) {
+                    logWarn(`Consent referenced by entitlements is ambiguous (${consents.length} matches): ${consentReference}`, {
+                        source: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync'
+                    });
+                    return null;
+                }
+
+                const [consent] = consents;
+                const purposeCodings = consent.provision?.purpose;
+                return {
+                    purposeCodes: Array.isArray(purposeCodings)
+                        ? purposeCodings.map(coding => coding?.code).filter(Boolean)
+                        : [],
+                    connectionTypes: this.parseConnectionTypeLabels({ consent })
+                };
+            }
+        });
+    }
+
+    /**
+     * Reads the Consent a `Consent/<id>` reference names: a uuid id by `_uuid`, an id with a
+     * sourceAssigningAuthority by its deterministic uuid, any other id by `_sourceId` (which
+     * can match more than one tenant's Consent). A reference with no id matches nothing.
+     *
+     * Rethrows a lookup error marked transient (isTransient, statusCode 503 unless already
+     * set) so callers surface a 503 instead of treating it as "not found".
+     *
+     * @param {Object} params
+     * @param {string} params.consentReference
+     * @param {string} params.base_version
+     * @param {boolean} [params._debug] include the query plan in the returned QueryItem
+     * @return {Promise<{ consents: Object[], queryItem: QueryItem|null }>}
+     */
+    async findConsentByReferenceAsync({ consentReference, base_version, _debug = false }) {
+        const { id, sourceAssigningAuthority } = ReferenceParser.parseReference(consentReference);
+        if (!id) {
+            return { consents: [], queryItem: null };
+        }
+
+        let query;
+        if (isUuid(id)) {
+            query = { _uuid: id };
+        } else if (sourceAssigningAuthority) {
+            query = { _uuid: generateUUIDv5(`${id}|${sourceAssigningAuthority}`) };
+        } else {
+            query = { _sourceId: id };
+        }
+
+        try {
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                resourceType: 'Consent',
+                base_version
             });
+            const cursor = await databaseQueryManager.findAsync({ query });
+            cursor.maxTimeMS({ milliSecs: this.configManager.mongoTimeout });
+            const explanations = _debug ? await cursor.explainAsync() : [];
+            const consents = await cursor.toArrayAsync();
+            const queryItem = new QueryItem({
+                query,
+                resourceType: 'Consent',
+                collectionName: cursor.getCollection?.(),
+                explanations
+            });
+            return { consents, queryItem };
         } catch (error) {
             logWarn(`Error resolving Consent referenced by entitlements: ${consentReference}`, {
-                source: 'DelegatedAccessRulesManager.resolveEntitlementConsentAsync',
+                source: 'DelegatedAccessRulesManager.findConsentByReferenceAsync',
                 error
             });
-            error.isTransient = true;
-            if (!error.statusCode) {
-                error.statusCode = 503;
-            }
-            throw error;
+            // A new error with a generic message: the REST error handler sends a non-500 message
+            // to the caller, and the driver's text must not reach it. The data layer wraps driver
+            // errors in RethrownError, which defaults to 500; a lookup failure is retriable, so
+            // surface 503. A specific status (e.g. 429) stays.
+            const transientError = new Error('Consent lookup temporarily unavailable', { cause: error });
+            transientError.isTransient = true;
+            transientError.statusCode =
+                !error.statusCode || error.statusCode === 500 ? 503 : error.statusCode;
+            throw transientError;
         }
     }
 }

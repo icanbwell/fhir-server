@@ -415,8 +415,9 @@ sequenceDiagram
 
 1. **Detection** — gated by `configManager.enableDelegatedAccessDetection`. If the JWT carries an
    `act` claim, `AuthService.processForDelegatedActor` (`src/strategies/authService.js`) sets
-   `userType: delegatedUser` and `actor` on the request context; `entitlements`, if present, become
-   `purposeOfUse`.
+   `userType: delegatedUser` and `actor` on the request context. For a `RelatedPerson` actor,
+   `entitlements` is kept on `actor.entitlements` and its non-Consent entries become
+   `purposeOfUse`; an `Organization` actor's `Consent/<id>` entitlement is resolved at login.
 2. **Operation restriction** — checked before anything else below: `OperationAccessManager` →
    `DelegatedAccessManager.verifyAccess` (`src/utils/delegatedAccessManager.js`) runs at the top of
    the operation handler in `fhirOperationsManager.js`, before request args are even parsed
@@ -425,8 +426,13 @@ sequenceDiagram
    rejected with `ForbiddenError` immediately — the consent/query logic below never runs for a write.
 3. **Pre-query consent gate** (alongside the §3 scope check) — `ScopesValidator.isScopesValidAsync`
    calls `DelegatedAccessScopeManager.isAccessAllowedAsync` →
-   `DelegatedAccessRulesManager.hasValidConsentAsync`. No active Consent tying the grantor Person
-   to the actor → `ForbiddenError` before any query is built.
+   `DelegatedAccessRulesManager.hasValidConsentAsync` → `getFilteringRulesAsync`. It reads the
+   single Consent named in `actor.entitlements` by `_uuid` and checks it against the token (active,
+   permit, data-sharing category, within its period, `patient` = the grantor's proxy patient,
+   `provision.actor` includes `act.reference`). No `Consent/<id>` entry or more than one, an id that
+   is not a uuid or carries an authority, a Consent not found, or any failed check → 403
+   `ForbiddenError` before any query is built. A transient
+   read error → 503 with a generic message.
 4. **Query path** — because the actor holds a `patient/` scope, `SearchManager.constructQueryAsync`
    routes the request through the ordinary patient-scope/identity-graph branch (§5), **not** the
    access-tag branch (§1); reachability is decided exactly as it would be for the grantor Person.
@@ -435,11 +441,10 @@ sequenceDiagram
    `SearchManager.constructQueryAsync` additionally calls
    `DataSharingManager.updateQueryForDelegatedAccessSensitiveData`
    (`src/operations/search/dataSharingManager.js`), which:
-   - looks up the grantor→actor Consent via `DelegatedAccessRulesManager.getFilteringRulesAsync`
-     (cached on the request-scoped `actor` object, so it's fetched once per request);
-   - returns an impossible query (`_uuid: '__invalid__'`) if no active Consent is found, and throws
-     `ForbiddenError` if more than one is found — ambiguous permissions fail closed rather than
-     guessing;
+   - takes the filtering rules from `DelegatedAccessRulesManager.getFilteringRulesAsync` (cached
+     on the request-scoped `actor` object by the step 3 gate, so the Consent is read once per
+     request);
+   - returns an impossible query (`_uuid: '__invalid__'`) if there are no filtering rules;
    - otherwise parses `consent.provision.provision[]` entries with `type: 'deny'` and a
      `sensitivity-category` `securityLabel` into a denied-code list, and ANDs a
      `meta.security` `$not`/`$elemMatch` exclusion for those codes **plus** the hardcoded
