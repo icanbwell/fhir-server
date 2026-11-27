@@ -774,10 +774,15 @@ describe('Data sharing test cases for different scenarios', () => {
         const mergeResources = (request, resources) =>
             request.post('/4_0_0/Person/1/$merge').send(resources).set(getHeaders());
 
-        const everythingCompositions = (request, personId, requestHeaders) =>
-            request
+        // Fails on any non-200 or non-Bundle response, so the negative assertions cannot pass on an error.
+        const everythingCompositions = async (request, personId, requestHeaders) => {
+            const resp = await request
                 .get(`/4_0_0/Person/${personId}/$everything`)
                 .set({ ...requestHeaders, prefer: 'global_id=false' });
+            expect(resp.status).toEqual(200);
+            expect(resp.body.resourceType).toEqual('Bundle');
+            return resp;
+        };
 
         let originalConsentConnectionTypesList;
 
