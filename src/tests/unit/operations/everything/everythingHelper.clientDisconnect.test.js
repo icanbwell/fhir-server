@@ -214,4 +214,99 @@ describe('EverythingHelper client disconnect', () => {
             expect(logging.logError.mock.calls[0][1]).toEqual({ error: realFailure });
         });
     });
+
+    describe('disconnect cleanup of a partially written cache entry', () => {
+        function setup ({ deleteStream }) {
+            const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+            everythingHelper.supportedResources = ['Patient'];
+            everythingHelper.configManager = {
+                everythingBatchSize: 10,
+                writeToCacheForEverythingOperation: true,
+                readFromCacheForEverythingOperation: false,
+                everythingCacheTtlSeconds: 60
+            };
+            everythingHelper.getCacheKey = jest.fn(async () => 'cache-key');
+            everythingHelper.redisStreamManager = { deleteStream, hasCachedStream: jest.fn(async () => false) };
+            everythingHelper.enrichmentManager = {};
+            const order = [];
+            everythingHelper._logAuditForRequestAsync = jest.fn(() => order.push('audit'));
+            deleteStream.mockImplementation(async () => {
+                order.push('delete');
+                return deleteStream.impl ? deleteStream.impl() : undefined;
+            });
+            everythingHelper.retrieveEverythingMulipleIdsAsync = jest.fn(async ({ cachedStreamer }) => {
+                cachedStreamer.isFirstEntry = false;
+                throw new ClientDisconnectedError();
+            });
+            const parsedArgs = Object.assign(Object.create(ParsedArgs.prototype), {
+                get: (name) => (name === 'id' ? { queryParameterValue: { values: ['p1'] } } : undefined),
+                clone: () => ({})
+            });
+            return { parsedArgs, order };
+        }
+
+        const run = (parsedArgs) => everythingHelper.retriveEverythingAsync({
+            requestInfo: { userType: undefined, skipCachedData: () => false },
+            base_version: '4_0_0',
+            resourceType: 'Patient',
+            parsedArgs,
+            // connected at entry so the loop reaches the (stubbed) fetch that reports the disconnect
+            responseStreamer: createStreamer({ destroyed: false, writableFinished: false })
+        });
+
+        test('audits, then deletes the partial cache stream, and rethrows unwrapped', async () => {
+            const deleteStream = jest.fn();
+            const { parsedArgs, order } = setup({ deleteStream });
+            await expect(run(parsedArgs)).rejects.toBeInstanceOf(ClientDisconnectedError);
+            expect(deleteStream).toHaveBeenCalledWith('cache-key');
+            expect(order).toEqual(['audit', 'delete']);
+        });
+
+        test('a failing cache delete is logged and does not replace the disconnect error', async () => {
+            const logging = require('../../../../operations/common/logging');
+            const deleteStream = jest.fn();
+            deleteStream.impl = () => { throw new Error('redis down'); };
+            const { parsedArgs } = setup({ deleteStream });
+            await expect(run(parsedArgs)).rejects.toBeInstanceOf(ClientDisconnectedError);
+            expect(everythingHelper._logAuditForRequestAsync).toHaveBeenCalledTimes(1);
+            expect(logging.logError).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    test('retrieveEverythingMulipleIdsAsync rethrows ClientDisconnectedError unwrapped', async () => {
+        const { ParsedArgs } = require('../../../../operations/query/parsedArgs');
+        const logging = require('../../../../operations/common/logging');
+        everythingHelper.supportedResources = ['Patient'];
+        await expect(everythingHelper.retrieveEverythingMulipleIdsAsync({
+            base_version: '4_0_0',
+            requestInfo: { userType: undefined },
+            resourceType: 'Patient',
+            parsedArgs: Object.defineProperty(Object.create(ParsedArgs.prototype), 'resourceFilterList', {
+                get () { throw new ClientDisconnectedError(); }
+            }),
+            responseStreamer: createStreamer({ destroyed: true, writableFinished: false }),
+            streamedResources: []
+        })).rejects.toBeInstanceOf(ClientDisconnectedError);
+        expect(logging.logError).not.toHaveBeenCalled();
+    });
+
+    describe('settleAllOrThrow', () => {
+        test('prefers a real failure over a disconnect rejection and logs extras', async () => {
+            const logging = require('../../../../operations/common/logging');
+            const { settleAllOrThrow } = require('../../../../operations/everything/everythingHelper');
+            const real = new Error('mongo failure');
+            await expect(settleAllOrThrow([
+                Promise.reject(new ClientDisconnectedError()),
+                Promise.reject(real),
+                Promise.reject(new Error('second failure'))
+            ])).rejects.toBe(real);
+            expect(logging.logError).toHaveBeenCalledTimes(1);
+        });
+
+        test('throws the disconnect error when it is the only rejection', async () => {
+            const { settleAllOrThrow } = require('../../../../operations/everything/everythingHelper');
+            await expect(settleAllOrThrow([Promise.resolve(1), Promise.reject(new ClientDisconnectedError())]))
+                .rejects.toBeInstanceOf(ClientDisconnectedError);
+        });
+    });
 });

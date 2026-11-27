@@ -109,9 +109,16 @@ function markHandled(promise) {
  */
 async function settleAllOrThrow(promises) {
     const settled = await Promise.allSettled(promises);
-    const rejected = settled.find((s) => s.status === 'rejected');
-    if (rejected) {
-        throw rejected.reason;
+    const rejections = settled.filter((s) => s.status === 'rejected');
+    if (rejections.length > 0) {
+        // a disconnect must not hide a real failure: prefer the first non-disconnect error
+        const primary = rejections.find((r) => !(r.reason instanceof ClientDisconnectedError)) || rejections[0];
+        for (const r of rejections) {
+            if (r !== primary && !(r.reason instanceof ClientDisconnectedError)) {
+                logError('Additional $everything fetch failure', { error: r.reason });
+            }
+        }
+        throw primary.reason;
     }
     return settled.map((s) => s.value);
 }
@@ -820,9 +827,6 @@ class EverythingHelper {
             if (error instanceof ClientDisconnectedError) {
                 // nobody is waiting: drop a half-written cache entry and skip the error log, but still
                 // audit the resources already sent so access accounting stays complete
-                if (cachedStreamer && !cachedStreamer.isFirstEntry) {
-                    await this.redisStreamManager.deleteStream(cacheKey);
-                }
                 if (responseStreamer) {
                     this._logAuditForRequestAsync({
                         resourcesToAudit: streamedResources,
@@ -833,6 +837,15 @@ class EverythingHelper {
                         outcome: '4',
                         outcomeDesc: 'Client disconnected before the response completed'
                     });
+                }
+                if (cachedStreamer && !cachedStreamer.isFirstEntry) {
+                    try {
+                        await this.redisStreamManager.deleteStream(cacheKey);
+                    } catch (deleteError) {
+                        logError('Error deleting partial $everything cache stream after client disconnect', {
+                            error: deleteError.message
+                        });
+                    }
                 }
                 throw error;
             }
@@ -2406,5 +2419,6 @@ module.exports = {
     escapeForJsonTemplate,
     getEverythingIdChunks,
     markHandled,
-    pushAll
+    pushAll,
+    settleAllOrThrow
 };

@@ -771,6 +771,37 @@ describe('FhirOperationsManager', () => {
             const passedArgs = manager.getParsedArgsAsync.mock.calls[0][0].args;
             expect(passedArgs.id).toBe('person.person-1');
         });
+
+        test.each([
+            ['client disconnect', new (require('../../../utils/clientDisconnectedError').ClientDisconnectedError)(), false],
+            ['operation failure', Object.assign(new Error('boom'), { statusCode: 500 }), true]
+        ])('streaming $everything on %s: error entry written only when the client is still there', async (_name, error, expectsErrorEntry) => {
+            manager.getRequestInfo = jest.fn().mockReturnValue({
+                user: 'u', requestId: 'r', method: 'GET', accept: 'application/fhir+json', headers: {}
+            });
+            manager.parseParametersFromBody = jest.fn().mockImplementation(({ combined_args }) => combined_args);
+            manager.getParsedArgsAsync = jest.fn().mockResolvedValue({ get: jest.fn(), headers: {} });
+            const { get_all_args } = require('../../../operations/common/get_all_args');
+            get_all_args.mockReturnValue({ base_version: '4_0_0', id: 'p1' });
+            const { shouldStreamResponse } = require('../../../utils/requestHelpers');
+            shouldStreamResponse.mockReturnValue(true);
+            const streamer = {
+                startAsync: jest.fn(),
+                endAsync: jest.fn(),
+                writeBundleEntryAsync: jest.fn(),
+                setStatusCodeAsync: jest.fn()
+            };
+            const { ResponseStreamerFactory } = require('../../../utils/responseStreamerFactory');
+            ResponseStreamerFactory.create = jest.fn().mockReturnValue(streamer);
+            mockEverythingOperation.everythingAsync.mockRejectedValueOnce(error);
+
+            await expect(
+                manager.everything([], { req: { headers: {}, body: null, method: 'GET' }, res: {} }, 'Patient')
+            ).resolves.toBeUndefined();
+
+            expect(streamer.writeBundleEntryAsync).toHaveBeenCalledTimes(expectsErrorEntry ? 1 : 0);
+            shouldStreamResponse.mockReturnValue(false);
+        });
     });
 
     describe('expand', () => {
