@@ -14,6 +14,7 @@ const {
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { AuditLogger } = require('../../../../utils/auditLogger');
 const { FhirResponseStreamer } = require('../../../../utils/fhirResponseStreamer');
+const { everythingClientDisconnectCounter } = require('../../../../utils/metrics');
 const {
     CLIENT_GONE_DEADLINE_MS,
     pollUntilAsync,
@@ -117,6 +118,7 @@ describe('$everything audit events by outcome', () => {
     });
 
     test('client aborts before any entry is streamed: no audit event is written', async () => {
+        const disconnectCounterAdd = jest.spyOn(everythingClientDisconnectCounter, 'add');
         let markRequestArrived;
         const requestArrived = new Promise((resolve) => { markRequestArrived = resolve; });
         let markServerSawGone;
@@ -133,8 +135,13 @@ describe('$everything audit events by outcome', () => {
         pending.abort();
         await done;
 
-        // the server saw the client go; let the post-request work finish, then confirm nothing was audited
+        // the server saw the client go; wait until it has handled the disconnect (the counter is
+        // incremented in the disconnect branch), then let post-request work finish and confirm
+        // nothing was audited
         expect(await serverSawGone).toBe(true);
+        expect(await pollUntilAsync(
+            () => disconnectCounterAdd.mock.calls.length > 0, CLIENT_GONE_DEADLINE_MS
+        )).toBe(true);
         await postRequestProcessor.waitTillDoneAsync({ requestId });
         await auditLogger.flushAsync();
         expect(await auditCollection.countDocuments({})).toBe(0);
