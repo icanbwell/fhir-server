@@ -14,6 +14,7 @@ const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
 const {DelegatedAccessRulesManager} = require('../utils/delegatedAccessRulesManager');
 const {ReferenceParser} = require('../utils/referenceParser');
+const {filterToV2LetterScopes} = require('../operations/security/smartScopeParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -350,6 +351,19 @@ class AuthService {
                     context.actor = result.actor;
                     context.userType = AUTH_USER_TYPES.delegatedUser;
 
+                    if (this.configManager.enableDelegatedV2ScopesOnly && !context.actor.isOrganizationActor) {
+                        scope = filterToV2LetterScopes(scope);
+                        if (!this.hasPatientScope(scope)) {
+                            logWarn('Auth rejected', {
+                                reason: 'delegated_actor_no_v2_scope',
+                                username,
+                                subject
+                            });
+                            done(null, false, { reason: 'delegated_actor_no_v2_scope' });
+                            return;
+                        }
+                    }
+
                     if (Array.isArray(jwt_payload.entitlements)) {
                         context.purposeOfUse = jwt_payload.entitlements;
                         // Only take the async Consent-dereference path when entitlements
@@ -555,6 +569,16 @@ class AuthService {
             }
         }
         return jwt_payload;
+    }
+
+    /**
+     * Whether a space-separated scope string holds a patient/ scope. The match is case-insensitive
+     * and the string is split on a single space, the same rule getFieldsFromToken uses for isUser.
+     * @param {string} scope
+     * @returns {boolean}
+     */
+    hasPatientScope(scope) {
+        return scope.split(' ').some((token) => token.toLowerCase().startsWith('patient/'));
     }
 
     /**

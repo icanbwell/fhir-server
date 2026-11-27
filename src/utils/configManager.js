@@ -1652,6 +1652,16 @@ class ConfigManager {
     }
 
     /**
+     * A RelatedPerson delegated token is evaluated on its SMART v2 letter scopes only. Needs
+     * ENABLE_SMART_V2_CRUDS_SCOPES on too: with that flag off the letters do not parse, so the
+     * delegate is denied. Default off.
+     * @return {boolean}
+     */
+    get enableDelegatedV2ScopesOnly() {
+        return isTrue(env.ENABLE_DELEGATED_V2_SCOPES_ONLY);
+    }
+
+    /**
      * Kill switch for SMART v2 fine-grained (`.cruds`) scope suffix grammar. Default off: a
      * scope token with a v2 suffix (e.g. `user/Patient.rs`, `access/tenantA.c`) parses as
      * invalid until this is enabled, exactly matching this server's original behavior of

@@ -161,6 +161,15 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
             expect(new ConfigManager().enableDelegatedConsentResourcePermissions).toBe(true);
         });
 
+        test('enableDelegatedV2ScopesOnly defaults to FALSE when unset and for "false"', () => {
+            setEnv('ENABLE_DELEGATED_V2_SCOPES_ONLY', undefined);
+            expect(new ConfigManager().enableDelegatedV2ScopesOnly).toBe(false);
+            setEnv('ENABLE_DELEGATED_V2_SCOPES_ONLY', 'false');
+            expect(new ConfigManager().enableDelegatedV2ScopesOnly).toBe(false);
+            setEnv('ENABLE_DELEGATED_V2_SCOPES_ONLY', 'true');
+            expect(new ConfigManager().enableDelegatedV2ScopesOnly).toBe(true);
+        });
+
         test('documented, intentional: enforcePersonLinkAssuranceMinimum defaults to FALSE and logPersonLinkAssuranceBelowMinimum defaults to FALSE', () => {
             setEnv('ENFORCE_PERSON_LINK_ASSURANCE_MINIMUM', undefined);
             setEnv('LOG_PERSON_LINK_ASSURANCE_BELOW_MINIMUM', undefined);

@@ -6,7 +6,8 @@ const {
     parseScopeToken,
     getRequiredCrudsForAccessRequested,
     isCrudsRequirementSatisfied,
-    isReadOnlyAccessRequested
+    isReadOnlyAccessRequested,
+    filterToV2LetterScopes
 } = require('../../../../operations/security/smartScopeParser');
 
 describe('smartScopeParser', () => {
@@ -253,6 +254,32 @@ describe('smartScopeParser', () => {
 
         test('an unrecognized value is not read-only', () => {
             expect(isReadOnlyAccessRequested('bogus')).toBe(false);
+        });
+    });
+
+    describe('filterToV2LetterScopes', () => {
+        test.each([
+            ['patient/Observation.rs', 'patient/Observation.rs'],
+            ['patient/Observation.read patient/Patient.rs', 'patient/Patient.rs'],
+            ['openid patient/Patient.write access/client.*', 'openid'],
+            ['openid user/*.rs access/client.cruds', 'openid user/*.rs access/client.cruds'],
+            ['patient/Observation.sr', ''],
+            ['Patient/Observation.rs Patient/Observation.read', 'Patient/Observation.rs'],
+            ['  patient/Patient.rs   openid ', 'patient/Patient.rs openid'],
+            ['patient/Patient', ''],
+            ['', ''],
+            ['admin/*.write', ''],
+            ['admin/*.cruds', 'admin/*.cruds'],
+            ['openid admin/*.* patient/Patient.rs', 'openid patient/Patient.rs'],
+            ['patient/Patient.rs.read', ''],
+            ['patient/Patient.RS', ''],
+            ['patient/Patient.', ''],
+            ['PATIENT/Patient.read', ''],
+            ['patient/Patient.rs\tuser/*.rs', ''],
+            ['patient/Patient.rs\npatient/Patient.read', ''],
+            ['openid\tpatient/Patient.rs', 'openid\tpatient/Patient.rs']
+        ])('filters %j to %j', (input, expected) => {
+            expect(filterToV2LetterScopes(input)).toBe(expected);
         });
     });
 });

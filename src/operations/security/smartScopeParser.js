@@ -185,6 +185,40 @@ function isReadOnlyAccessRequested (accessRequested) {
     return true;
 }
 
+const V2_FILTERED_PREFIXES = [...SCOPE_PREFIXES, 'admin'];
+
+/**
+ * Keeps only the scope tokens that are safe to carry on a v2-only token: every token that does
+ * not start with one of the five resource prefixes (patient, user, access, system, admin), and
+ * every token that does and has a valid in-order v2 CRUDS letter suffix. A prefixed token with a v1
+ * suffix (read, write, *), an out-of-order or unknown letter suffix, or no suffix is dropped.
+ * The prefix match is case-insensitive. The string is split on a single space, as every other
+ * scope consumer does, so a token holding any other whitespace stays one token (and is dropped when
+ * it carries a resource prefix): the filter can only remove scopes, never create new ones.
+ * @param {string} scope space-separated scope string
+ * @return {string} the kept tokens joined by a single space, or '' when none are kept
+ */
+function filterToV2LetterScopes (scope) {
+    const kept = [];
+    for (const token of String(scope || '').split(' ')) {
+        if (!token) {
+            continue;
+        }
+        const slashIndex = token.indexOf('/');
+        const prefix = slashIndex === -1 ? '' : token.slice(0, slashIndex).toLowerCase();
+        if (!V2_FILTERED_PREFIXES.includes(prefix)) {
+            kept.push(token);
+            continue;
+        }
+        const rest = token.slice(slashIndex + 1);
+        const dotIndex = rest.indexOf('.');
+        if (dotIndex !== -1 && isV2Suffix(rest.slice(dotIndex + 1))) {
+            kept.push(token);
+        }
+    }
+    return kept.join(' ');
+}
+
 module.exports = {
     SCOPE_PREFIXES,
     CRUDS_LETTERS,
@@ -195,5 +229,6 @@ module.exports = {
     parseScopeToken,
     isCrudsRequirementSatisfied,
     getRequiredCrudsForAccessRequested,
-    isReadOnlyAccessRequested
+    isReadOnlyAccessRequested,
+    filterToV2LetterScopes
 };
