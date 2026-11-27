@@ -647,6 +647,271 @@ describe('Data sharing test cases for different scenarios', () => {
         });
     });
 
+    describe('Resource referencing a consented Person proxy Patient, with connectionType', () => {
+        // Synthetic ids only. Each member has a uuid Person id, one Patient owned by the client,
+        // a dataSharing permit with one CST actor (the client Patient), and 10 health-service Patients linked to
+        // the Person, so the Person has 11 linked Patients: more than one default batch of 10, so the
+        // proxy id is not left alone in the last chunk.
+        const COMPOSITION_A_ID = '0f6c1e2a-5b7d-4c8e-9a1f-3d2b4c5e6f70';
+        const COMPOSITION_B_ID = '1a7d2f3b-6c8e-4d9f-8b2a-4e3c5d6f7a81';
+        const MEMBER_A = {
+            personId: 'aaaaaaaa-1111-4222-8333-444444444444',
+            clientPatientId: 'bbbbbbbb-1111-4222-8333-444444444444',
+            healthServiceIdBase: 'cccccccc-1111-4222-8333-4444444444',
+            consentId: 'dddddddd-1111-4222-8333-444444444444'
+        };
+        const MEMBER_B = {
+            personId: 'eeeeeeee-1111-4222-8333-444444444444',
+            clientPatientId: 'ffffffff-1111-4222-8333-444444444444',
+            healthServiceIdBase: '1a1a1a1a-1111-4222-8333-4444444444',
+            consentId: '2b2b2b2b-1111-4222-8333-444444444444'
+        };
+        const BWELL_LABELS = [
+            { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
+            { system: 'https://www.icanbwell.com/access', code: 'bwell' },
+            { system: 'https://www.icanbwell.com/vendor', code: 'bwell' },
+            { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'bwell' }
+        ];
+
+        // The resource under test is a Composition, the case the composition service writes: four bwell
+        // labels, a proxy Patient subject (Patient/person.<Person id>), and optional connectionType labels.
+        const buildComposition = ({ id, personId, connectionTypeCodes = [] }) => ({
+            resourceType: 'Composition',
+            id,
+            meta: {
+                source: 'bwell',
+                security: [
+                    ...BWELL_LABELS,
+                    ...connectionTypeCodes.map((code) => ({
+                        system: 'https://www.icanbwell.com/connectionType',
+                        code
+                    }))
+                ]
+            },
+            status: 'final',
+            type: { text: 'Synthetic composition' },
+            subject: { reference: `Patient/person.${personId}` },
+            date: '2024-01-01T00:00:00.000Z',
+            author: [{ reference: 'Organization/synthetic-author' }],
+            title: 'Synthetic composition'
+        });
+
+        const buildMemberResources = ({ member, clientCode, withPermit = true, changePermit = () => {} }) => {
+            const clientSecurity = [
+                { system: 'https://www.icanbwell.com/access', code: clientCode },
+                { system: 'https://www.icanbwell.com/owner', code: clientCode }
+            ];
+            const healthServiceIds = Array.from(
+                { length: 10 },
+                (_, i) => member.healthServiceIdBase + String(i).padStart(2, '0')
+            );
+            const person = {
+                resourceType: 'Person',
+                id: member.personId,
+                meta: { source: 'client', security: clientSecurity },
+                link: [member.clientPatientId, ...healthServiceIds].map((id) => ({
+                    target: { reference: `Patient/${id}`, type: 'Patient' },
+                    assurance: 'level4'
+                }))
+            };
+            const clientPatient = {
+                resourceType: 'Patient',
+                id: member.clientPatientId,
+                meta: { source: 'client', security: clientSecurity },
+                birthDate: '1990-01-01',
+                gender: 'female'
+            };
+            const healthServicePatients = healthServiceIds.map((id) => ({
+                resourceType: 'Patient',
+                id,
+                meta: {
+                    source: 'health-service',
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'health-service' },
+                        { system: 'https://www.icanbwell.com/owner', code: 'health-service' },
+                        { system: 'https://www.icanbwell.com/connectionType', code: 'proa' }
+                    ]
+                },
+                birthDate: '1990-01-01',
+                gender: 'female'
+            }));
+            const resources = [person, clientPatient, ...healthServicePatients];
+            if (withPermit) {
+                const consent = {
+                    resourceType: 'Consent',
+                    id: member.consentId,
+                    meta: { source: 'client', security: clientSecurity },
+                    status: 'active',
+                    category: [
+                        { coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataSharing' }] }
+                    ],
+                    scope: {
+                        coding: [{ system: 'http://terminology.hl7.org/CodeSystem/consentscope', code: 'patient-privacy' }]
+                    },
+                    patient: { reference: `Patient/${member.clientPatientId}` },
+                    dateTime: '2022-09-08T14:05:07.350Z',
+                    provision: {
+                        type: 'permit',
+                        actor: [
+                            {
+                                role: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-ParticipationType', code: 'CST' }] },
+                                reference: { reference: `Patient/${member.clientPatientId}` }
+                            }
+                        ]
+                    }
+                };
+                changePermit(consent);
+                resources.push(consent);
+            }
+            return resources;
+        };
+
+        const compositionIdsIn = (resp) =>
+            (resp.body.entry ?? [])
+                .filter((e) => e.resource?.resourceType === 'Composition')
+                .map((e) => e.resource.id);
+
+        const mergeResources = (request, resources) =>
+            request.post('/4_0_0/Person/1/$merge').send(resources).set(getHeaders());
+
+        const everythingCompositions = (request, personId, requestHeaders) =>
+            request
+                .get(`/4_0_0/Person/${personId}/$everything`)
+                .set({ ...requestHeaders, prefer: 'global_id=false' });
+
+        let originalConsentConnectionTypesList;
+
+        beforeEach(() => {
+            originalConsentConnectionTypesList = process.env.CONSENT_CONNECTION_TYPES_LIST;
+            process.env.CONSENT_CONNECTION_TYPES_LIST = 'proa,ias';
+        });
+
+        afterEach(() => {
+            if (originalConsentConnectionTypesList === undefined) {
+                delete process.env.CONSENT_CONNECTION_TYPES_LIST;
+            } else {
+                process.env.CONSENT_CONNECTION_TYPES_LIST = originalConsentConnectionTypesList;
+            }
+        });
+
+        test.each(['proa', 'ias'])(
+            'consented client Person $everything returns a Composition stamped with connectionType %s',
+            async (connectionType) => {
+                const request = await createTestRequest((c) => c);
+                const composition = buildComposition({
+                    id: COMPOSITION_A_ID,
+                    personId: MEMBER_A.personId,
+                    connectionTypeCodes: [connectionType]
+                });
+                const resources = [...buildMemberResources({ member: MEMBER_A, clientCode: 'client' }), composition];
+
+                let resp = await mergeResources(request, resources);
+                // noinspection JSUnresolvedFunction
+                expect(resp).toHaveMergeResponse({ created: true });
+
+                resp = await everythingCompositions(request, MEMBER_A.personId, headers);
+                expect(compositionIdsIn(resp)).toContain(COMPOSITION_A_ID);
+            }
+        );
+
+        test('consented client Person $everything does not return a Composition with no connectionType label', async () => {
+            const request = await createTestRequest((c) => c);
+            const composition = buildComposition({ id: COMPOSITION_A_ID, personId: MEMBER_A.personId });
+            const resources = [...buildMemberResources({ member: MEMBER_A, clientCode: 'client' }), composition];
+
+            let resp = await mergeResources(request, resources);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await everythingCompositions(request, MEMBER_A.personId, headers);
+            expect(compositionIdsIn(resp)).not.toContain(COMPOSITION_A_ID);
+        });
+
+        test('Person $everything does not return a stamped Composition when the member has no permit', async () => {
+            const request = await createTestRequest((c) => c);
+            const composition = buildComposition({
+                id: COMPOSITION_A_ID,
+                personId: MEMBER_A.personId,
+                connectionTypeCodes: ['proa']
+            });
+            const resources = [
+                ...buildMemberResources({ member: MEMBER_A, clientCode: 'client', withPermit: false }),
+                composition
+            ];
+
+            let resp = await mergeResources(request, resources);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await everythingCompositions(request, MEMBER_A.personId, headers);
+            expect(compositionIdsIn(resp)).not.toContain(COMPOSITION_A_ID);
+        });
+
+        test.each([
+            ['deactivated', (consent) => { consent.status = 'inactive'; }, false],
+            ['ended', (consent) => {
+                consent.provision.period = { start: '2020-01-01T00:00:00.000Z', end: '2021-01-01T00:00:00.000Z' };
+            }, false],
+            ['deleted', () => {}, true]
+        ])(
+            'Person $everything does not return a stamped Composition when the permit is %s',
+            async (_state, changePermit, deletePermit) => {
+                const request = await createTestRequest((c) => c);
+                const composition = buildComposition({
+                    id: COMPOSITION_A_ID,
+                    personId: MEMBER_A.personId,
+                    connectionTypeCodes: ['proa']
+                });
+                const resources = [
+                    ...buildMemberResources({ member: MEMBER_A, clientCode: 'client', changePermit }),
+                    composition
+                ];
+
+                let resp = await mergeResources(request, resources);
+                // noinspection JSUnresolvedFunction
+                expect(resp).toHaveMergeResponse({ created: true });
+
+                if (deletePermit) {
+                    resp = await request.delete(`/4_0_0/Consent/${MEMBER_A.consentId}`).set(getHeaders());
+                    expect(resp.status).toBeLessThan(300);
+                }
+
+                resp = await everythingCompositions(request, MEMBER_A.personId, headers);
+                expect(compositionIdsIn(resp)).not.toContain(COMPOSITION_A_ID);
+            }
+        );
+
+        test('tenant isolation: consented client A receives only its own Composition, and unconsented client B receives none', async () => {
+            const request = await createTestRequest((c) => c);
+            const compositionA = buildComposition({
+                id: COMPOSITION_A_ID,
+                personId: MEMBER_A.personId,
+                connectionTypeCodes: ['proa']
+            });
+            const compositionB = buildComposition({
+                id: COMPOSITION_B_ID,
+                personId: MEMBER_B.personId,
+                connectionTypeCodes: ['proa']
+            });
+            const resources = [
+                ...buildMemberResources({ member: MEMBER_A, clientCode: 'client' }),
+                ...buildMemberResources({ member: MEMBER_B, clientCode: 'client-1', withPermit: false }),
+                compositionA,
+                compositionB
+            ];
+
+            let resp = await mergeResources(request, resources);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await everythingCompositions(request, MEMBER_A.personId, headers);
+            expect(compositionIdsIn(resp)).toEqual([COMPOSITION_A_ID]);
+
+            resp = await everythingCompositions(request, MEMBER_B.personId, client1Headers);
+            expect(compositionIdsIn(resp)).toEqual([]);
+        });
+    });
+
     test('Two client person of same client having common connection should ', async () => {
         const request = await createTestRequest((c) => c);
 
