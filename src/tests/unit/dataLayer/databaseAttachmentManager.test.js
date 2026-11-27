@@ -234,6 +234,41 @@ describe('DatabaseAttachmentManager', () => {
             expect(result._file_id).toBeUndefined();
         });
 
+        test('keeps a multi-byte character intact when a chunk boundary splits it', async () => {
+            const { EventEmitter } = require('events');
+            const downloadStream = new EventEmitter();
+            const mockBucket = {
+                openDownloadStream: jest.fn().mockReturnValue(downloadStream)
+            };
+            // synthetic text; the boundary falls inside the 2-byte "ñ"
+            const bytes = Buffer.from('Muñoz', 'utf8');
+            const splitAt = bytes.indexOf(0xc3) + 1;
+
+            const resource = { _file_id: '507f1f77bcf86cd799439011' };
+            const promise = manager.convertFileIdToData(resource, mockBucket);
+            downloadStream.emit('data', bytes.subarray(0, splitAt));
+            downloadStream.emit('data', bytes.subarray(splitAt));
+            downloadStream.emit('end');
+
+            const result = await promise;
+            expect(result.data).toBe('Muñoz');
+        });
+
+        test('leaves data unset for an empty file', async () => {
+            const { EventEmitter } = require('events');
+            const downloadStream = new EventEmitter();
+            const mockBucket = {
+                openDownloadStream: jest.fn().mockReturnValue(downloadStream)
+            };
+
+            const resource = { _file_id: '507f1f77bcf86cd799439011' };
+            const promise = manager.convertFileIdToData(resource, mockBucket);
+            downloadStream.emit('end');
+
+            const result = await promise;
+            expect(result.data).toBeUndefined();
+        });
+
         test('handles error on download stream', async () => {
             const { EventEmitter } = require('events');
             const downloadStream = new EventEmitter();
