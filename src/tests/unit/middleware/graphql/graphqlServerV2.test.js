@@ -100,6 +100,7 @@ jestGlobal.mock('../../../../graphqlv2/resolvers', () => ({}));
 
 const { GraphQLError } = require('graphql');
 const { ApolloServer } = require('@apollo/server');
+const { ForbiddenError, NotFoundError } = require('../../../../utils/httpErrors');
 
 /**
  * Wraps an original error (as thrown inside a resolver/data source) in a
@@ -227,6 +228,42 @@ describe('graphqlServerV2 - Security Tests', () => {
                     customTracer: mockContainer.customTracer
                 })
             );
+        });
+    });
+
+    test('registers the error recording plugin', async () => {
+        const config = await getApolloConfig(mockContainer);
+
+        expect(config.plugins.some((plugin) => plugin.constructor.name === 'MyApolloServerErrorRecordingPlugin')).toBe(true);
+    });
+
+    describe('formatError - extensions.code', () => {
+        test.each([
+            [new ForbiddenError('no access'), 'FORBIDDEN'],
+            [new NotFoundError('missing'), 'NOT_FOUND'],
+            [new Error('boom'), 'INTERNAL_SERVER_ERROR']
+        ])('maps a resolver error to its code', async (originalError, expected) => {
+            const config = await getApolloConfig(mockContainer);
+            const error = asResolverError(originalError);
+
+            const result = config.formatError(
+                { message: error.message, extensions: { code: 'INTERNAL_SERVER_ERROR' } },
+                error
+            );
+
+            expect(result.extensions.code).toBe(expected);
+        });
+
+        test('keeps the code of an error that did not come from a resolver', async () => {
+            const config = await getApolloConfig(mockContainer);
+            const error = new GraphQLError('invalid');
+
+            const result = config.formatError(
+                { message: 'invalid', extensions: { code: 'GRAPHQL_VALIDATION_FAILED' } },
+                error
+            );
+
+            expect(result.extensions.code).toBe('GRAPHQL_VALIDATION_FAILED');
         });
     });
 

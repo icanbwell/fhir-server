@@ -92,4 +92,4 @@ const retryOnPoolWaitTimeoutAsync = ({
     });
 };
 
-module.exports = { retryOnPoolWaitTimeoutAsync };
+module.exports = { retryOnPoolWaitTimeoutAsync, isPoolWaitTimeoutError };

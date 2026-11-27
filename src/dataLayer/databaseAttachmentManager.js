@@ -1,4 +1,5 @@
 const { Readable, pipeline } = require('stream');
+const { StringDecoder } = require('string_decoder');
 const ObjectId = require('mongodb').ObjectId;
 const { GridFSBucket, ReadPreferenceMode } = require('mongodb');
 
@@ -301,11 +302,17 @@ class DatabaseAttachmentManager {
                         reject(err);
                     });
 
+                    // a multi-byte character can straddle two GridFS chunks, so decode statefully
+                    const decoder = new StringDecoder('utf8');
                     downloadStream.on('data', (chunk) => {
-                        resource.data = (resource.data) ? resource.data + chunk.toString() : chunk.toString();
+                        resource.data = (resource.data || '') + decoder.write(chunk);
                     });
 
                     downloadStream.on('end', () => {
+                        const trailingText = decoder.end();
+                        if (trailingText) {
+                            resource.data = (resource.data || '') + trailingText;
+                        }
                         delete resource._file_id;
                         resolve(resource);
                     });
