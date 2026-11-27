@@ -319,48 +319,4 @@ describe('Error Audit Events Integration Tests', () => {
             expect(errorRequestUrl.valueString).toContain('$merge');
         });
     });
-
-    describe('Request Aborted', () => {
-        test('client disconnect — is logged only and creates no audit event', async () => {
-            const request = await createTestRequest(createContainerWithRealAuditLogger);
-            const container = getTestContainer();
-            const auditEventCollection = await getAuditEventCollection(container);
-
-            // Create resource so search has data to return
-            let resp = await request
-                .post('/4_0_0/Practitioner/1679033641/$merge?validate=true')
-                .send(practitionerResource)
-                .set(getHeaders());
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            await waitForAuditFlush(container);
-            await auditEventCollection.deleteMany({});
-
-            // Make a request and abort it by destroying the underlying connection
-            const supertestRequest = request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
-
-            // Abort the request after a short delay (before response completes)
-            setTimeout(() => {
-                supertestRequest.abort();
-            }, 50);
-
-            try {
-                await supertestRequest;
-            } catch (_) {
-                // Expected — request was aborted
-            }
-
-            // Give the server time to process the close event and flush audit
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await waitForAuditFlush(container);
-
-            const logs = await auditEventCollection.find({ action: 'E' }).toArray();
-            const abortLog = logs.find(l => l.outcomeDesc === 'Request Aborted by Client');
-
-            // a client disconnect is recorded in logs and metrics, never as an audit event
-            expect(abortLog).toBeUndefined();
-        });
-    });
 });

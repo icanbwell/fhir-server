@@ -104,7 +104,10 @@ function markHandled(promise) {
         // a disconnect is expected; log any other failure here so it is never lost, even when the caller
         // leaves before awaiting this promise
         if (!(error instanceof ClientDisconnectedError)) {
-            logWarn('$everything parallel fetch failed', { error });
+            // name, message and code only: a driver error object can carry query values or document fragments
+            logWarn('$everything parallel fetch failed', {
+                error: { name: error?.name, message: error?.message, code: error?.code }
+            });
         }
     });
     return promise;
