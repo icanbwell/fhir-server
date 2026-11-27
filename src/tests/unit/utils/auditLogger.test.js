@@ -578,8 +578,9 @@ describe('AuditLogger', () => {
     // =====================================================
     describe('flushAsync', () => {
         test('should do nothing when queue is empty', async () => {
-            await auditLogger.flushAsync();
+            const count = await auditLogger.flushAsync();
             expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+            expect(count).toBe(0);
         });
 
         test('should flush queue and call executeAsync', async () => {
@@ -587,9 +588,10 @@ describe('AuditLogger', () => {
                 { doc: { resourceType: 'AuditEvent', id: '1' }, requestInfo: { requestId: 'r1' } },
                 { doc: { resourceType: 'AuditEvent', id: '2' }, requestInfo: { requestId: 'r2' } }
             ];
-            await auditLogger.flushAsync();
+            const count = await auditLogger.flushAsync();
             expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
             expect(auditLogger.queue).toHaveLength(0);
+            expect(count).toBe(2);
         });
 
         test('should log error when mergeResults contain issues', async () => {
@@ -599,11 +601,13 @@ describe('AuditLogger', () => {
             auditLogger.queue = [
                 { doc: { resourceType: 'AuditEvent', id: '1' }, requestInfo: { requestId: 'r1' } }
             ];
-            await auditLogger.flushAsync();
+            const count = await auditLogger.flushAsync();
             expect(logError).toHaveBeenCalledWith(
                 'Error creating audit entries',
                 expect.objectContaining({ source: 'flushAsync' })
             );
+            // count reflects entries dispatched, even when some had write issues
+            expect(count).toBe(1);
         });
 
         // BUG TEST: executeAsync returns null/undefined - crashes on .filter()

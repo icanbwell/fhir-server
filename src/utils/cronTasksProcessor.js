@@ -40,6 +40,34 @@ class CronTasksProcessor {
         this.configManager = configManager;
     }
 
+    /**
+     * Runs a background task and logs when it starts, finishes (with duration) or fails.
+     * Errors are rethrown so the existing cron error handling is unchanged.
+     * @param {string} taskName
+     * @param {() => Promise<number|void>} fnTask a numeric result is logged as the number of
+     *   entries dispatched
+     * @return {Promise<void>}
+     */
+    async runTaskAsync(taskName, fnTask) {
+        const startTime = Date.now();
+        logInfo(`Background task started: ${taskName}`, { task: taskName });
+        try {
+            const result = await fnTask();
+            logInfo(`Background task finished: ${taskName}`, {
+                task: taskName,
+                durationMs: Date.now() - startTime,
+                ...(typeof result === 'number' ? { entryCount: result } : {})
+            });
+        } catch (e) {
+            logError(`Background task failed: ${taskName}`, {
+                task: taskName,
+                durationMs: Date.now() - startTime,
+                errMessage: e.message
+            });
+            throw e;
+        }
+    }
+
     async initiateTasks() {
         // Validate cron expression
         const validation = validateCronExpression(this.configManager.postRequestFlushTime);
@@ -52,9 +80,11 @@ class CronTasksProcessor {
             name: 'CronTasksProcessor',
             cronTime: this.configManager.postRequestFlushTime,
             onTick: async () => {
-                await this.postSaveProcessor.flushAsync();
-                await this.auditLogger.flushAsync();
-                await this.accessLogger.flushAsync();
+                await this.runTaskAsync('postSaveProcessorFlush', () =>
+                    this.postSaveProcessor.flushAsync()
+                );
+                await this.runTaskAsync('auditLoggerFlush', () => this.auditLogger.flushAsync());
+                await this.runTaskAsync('accessLoggerFlush', () => this.accessLogger.flushAsync());
             },
             start: true,
             waitForCompletion: true,
