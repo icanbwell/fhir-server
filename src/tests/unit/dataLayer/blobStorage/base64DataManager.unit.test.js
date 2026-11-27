@@ -481,7 +481,7 @@ describe('Base64DataManager — reconcileLeavesAsync', () => {
         expect(patches).toEqual([]);
         expect(ctx.mgr._readUnchangedLeafMarker(requestInfo, 'uuid-r4', ['data'], [])).toBe(true);
         const stashed = ctx.mgr._readStashedOriginalData(requestInfo, 'uuid-r4', ['data'], []);
-        expect(stashed).toEqual({ hash: 'stable-hash', changed: false });
+        expect(stashed).toEqual({ hash: 'stable-hash', changed: false, omitted: true });
     });
 
     test('leaf not externalized: returns no patch entry and does not touch finalResource', async () => {

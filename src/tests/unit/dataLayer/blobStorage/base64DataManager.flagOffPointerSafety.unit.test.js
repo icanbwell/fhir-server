@@ -192,7 +192,7 @@ describe('Base64DataManager protects an existing pointer with the DocumentRefere
 
             expect(manager._readUnchangedLeafMarker(requestInfo, 'uuid-d1', segments, [0])).toBe(true);
             expect(manager._readStashedOriginalData(requestInfo, 'uuid-d1', segments, [0]))
-                .toEqual({ hash: (await pointerOf(LARGE)).hash, changed: false });
+                .toEqual({ hash: (await pointerOf(LARGE)).hash, changed: false, omitted: true });
         });
 
         // A body built from the stored document (an admin write does) carries the stored pointer.

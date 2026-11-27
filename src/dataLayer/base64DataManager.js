@@ -568,7 +568,7 @@ class Base64DataManager {
                         const uuid = finalResource._uuid;
                         this._stashUnchangedLeaf(requestInfo, uuid, dataSegments, indices);
                         this._stashOriginalData(requestInfo, uuid, dataSegments, indices, {
-                            hash: blobMeta.hash, changed: false
+                            hash: blobMeta.hash, changed: false, omitted: true
                         });
                         return;
                     }
@@ -605,7 +605,7 @@ class Base64DataManager {
                 // _processEntry's own unchanged branch would have written.
                 this._stashUnchangedLeaf(requestInfo, finalResource._uuid, dataSegments, indices);
                 this._stashOriginalData(requestInfo, finalResource._uuid, dataSegments, indices, {
-                    hash: blobMeta.hash, changed: false
+                    hash: blobMeta.hash, changed: false, omitted: true
                 });
             });
         }
@@ -1162,8 +1162,10 @@ class Base64DataManager {
             const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
             this._processPathsSync(currentResource, dataSegments, [], ({ parent: currentParent, indices }) => {
                 const stashed = this._readStashedOriginalData(requestInfo, uuid, dataSegments, indices);
-                if (!stashed || !stashed.hash) {
-                    return; // this leaf wasn't externalized by this request — nothing to reconcile
+                if (!stashed || !stashed.hash || stashed.omitted) {
+                    // not externalized by this request, or kept without data of its own: there are
+                    // no bytes to re-assert over what a concurrent writer put there
+                    return;
                 }
                 const currentBlobMeta = currentParent ? currentParent[blobMetaLeaf] : undefined;
                 const currentHash = currentBlobMeta ? currentBlobMeta.hash : undefined;
