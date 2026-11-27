@@ -9,6 +9,8 @@ const { logError, logInfo } = require('../operations/common/logging');
 const base64DataResources = require('./base64DataResources.json');
 const { CloudStorageClient } = require('../utils/cloudStorageClient');
 const { computeContentHashAsync } = require('../utils/contentHash');
+const deepEqual = require('fast-deep-equal');
+const deepcopy = require('deepcopy');
 
 // Request-scoped stash of the bytes uploaded by INSERT, so transformHistoryAsync can mirror them to
 // the history bucket without re-fetching from S3. `changed` marks whether this write uploaded new
@@ -88,8 +90,18 @@ class Base64DataManager {
         this.historyResourceCloudStorageClient = historyResourceCloudStorageClient;
         this.requestSpecificCache = requestSpecificCache;
         this.preSaveManager = preSaveManager;
+        // Every configured path. Whatever protects a `_blobMeta` pointer already in a stored
+        // document (merge, reconcile, cleanup, history, delete) works on this set, whatever
+        // the flag.
         this.resourcePaths = base64DataResources;
-
+        // The paths new data is externalized on and read back from (INSERT, RETRIEVE, search
+        // projection). DocumentReference is in it only when its own flag is on; otherwise it stays
+        // on GridFS and its pointers are kept but not followed.
+        this.externalizationPaths = configManager.enableBase64FieldCloudStorageForDocumentReference
+            ? base64DataResources
+            : Object.fromEntries(
+                Object.entries(base64DataResources).filter(([type]) => type !== 'DocumentReference')
+            );
     }
 
     /**
@@ -123,7 +135,13 @@ class Base64DataManager {
         if (!entries) {
             return resource;
         }
+        // Absent when the type is configured but not externalized (DocumentReference, flag off)
+        const externalizationEntries = this.externalizationPaths[resource.resourceType];
         if (operation === BLOB_OP.INSERT) {
+            if (!externalizationEntries) {
+                this._dropReplacedPointers(resource, entries);
+                return resource;
+            }
             // Keys are derived from `_uuid`; on create/update paths preSave hasn't populated it yet.
             // preSave is idempotent, so running it here (and again later) is safe.
             if (!resource._uuid && requestInfo) {
@@ -132,19 +150,48 @@ class Base64DataManager {
                     options: PreSaveOptions.fromRequestInfo(requestInfo)
                 });
             }
-            for (const entry of entries) {
+            for (const entry of externalizationEntries) {
                 await this._processEntry(resource, entry, requestInfo, options.alwaysCreateNew);
             }
         } else if (operation === BLOB_OP.RETRIEVE) {
-            for (const entry of entries) {
+            for (const entry of externalizationEntries || []) {
                 await this._processRetrieveEntry(resource, entry, requestInfo, options.historyRead === true);
             }
         } else if (operation === BLOB_OP.DELETE) {
             for (const entry of entries) {
-                await this._processDeleteEntry(resource, entry);
+                await this._processDeleteEntry(resource, entry, !!externalizationEntries);
             }
         }
         return resource;
+    }
+
+    /**
+     * INSERT for a type that is not externalized (DocumentReference, flag off): nothing is
+     * uploaded, but a leaf that now holds new content (a `data` string, or the GridFS `_file_id`
+     * the attachment step gave it) no longer matches its pointer, so the pointer is removed.
+     * Otherwise the leaf would hold both. The live object is not recorded for cleanup and stays
+     * in place.
+     * A pointer on a leaf with neither is the stored value kept, and stays.
+     * @param {Object} resource - mutated in place.
+     * @param {Array<{dataPath: string, blobMetaPath: string}>} entries
+     * @returns {void}
+     * @private
+     */
+    _dropReplacedPointers (resource, entries) {
+        for (const entry of entries) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            this._processPathsSync(resource, dataSegments, [], ({ parent, key }) => {
+                if (!parent || !parent[blobMetaLeaf]) {
+                    return;
+                }
+                const holdsData = typeof parent[key] === 'string' && parent[key].length > 0;
+                if (holdsData || parent._file_id) {
+                    this._clearField(parent, blobMetaLeaf);
+                }
+            });
+        }
     }
 
     /**
@@ -218,6 +265,219 @@ class Base64DataManager {
     }
 
     /**
+     * Virtually hydrates `view` (a copy of the stored resource) for the array merge: for each
+     * configured leaf inside an array that is externalized on `currentResource`, finds an element
+     * of the same incoming array whose `data` hashes to the stored `_blobMeta.hash`, copies that
+     * incoming `data` into the copy and drops the copy's `_blobMeta`. Nothing is downloaded. The
+     * array merge then sees the stored element and the resent one as equal (as it does for an
+     * inline or GridFS attachment) instead of appending a duplicate.
+     *
+     * Matching is by hash, not by position, and one incoming element can match several stored
+     * ones. A stored leaf with no matching incoming element is left as it is. Scalar leaves (a
+     * path with no "[]", e.g. `Binary.data`) are not touched.
+     * @param {Object} view - a copy of `currentResource`; mutated in place.
+     * @param {Object} currentResource - the stored resource; never mutated.
+     * @param {Object} resourceToMerge - the incoming resource.
+     * @returns {Promise<number>} how many stored leaves were hydrated.
+     */
+    async hydrateExternalizedLeavesFromIncomingAsync (view, currentResource, resourceToMerge) {
+        if (!view || !currentResource || !resourceToMerge || !this.enableBase64FieldCloudStorage) {
+            return 0;
+        }
+        const entries = this.resourcePaths[currentResource.resourceType];
+        if (!entries) {
+            return 0;
+        }
+        // hash of each incoming leaf, computed once however many stored leaves look at it
+        const incomingHashes = new Map();
+        // incoming elements already taken as the same element as a stored one (one for one)
+        const usedElements = new Set();
+        let hydrated = 0;
+        for (const [entryIndex, entry] of entries.entries()) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const lastArraySegment = dataSegments.lastIndexOf('[]');
+            if (lastArraySegment === -1) {
+                continue;
+            }
+            const arraySegments = dataSegments.slice(0, lastArraySegment);
+            const arrayDepth = arraySegments.filter((segment) => segment === '[]').length;
+            const leafSegments = dataSegments.slice(lastArraySegment + 1);
+            if (leafSegments.includes('[]')) {
+                continue;
+            }
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            const leafKey = dataSegments[dataSegments.length - 1];
+            const storedLeaves = [];
+            this._processPathsSync(currentResource, dataSegments, [], ({ parent, indices }) => {
+                const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
+                if (blobMeta && blobMeta.hash) {
+                    storedLeaves.push({ hash: blobMeta.hash, indices });
+                }
+            });
+            for (const { hash, indices } of storedLeaves) {
+                const arrayIndices = indices.slice(0, arrayDepth);
+                const incomingArray = this._parentAt(
+                    resourceToMerge, [...arraySegments, '[]'], arrayIndices
+                );
+                if (!Array.isArray(incomingArray)) {
+                    continue;
+                }
+                const incomingValue = await this._findIncomingValueByHashAsync({
+                    incomingArray,
+                    leafSegments,
+                    hash,
+                    hashCacheKey: `${entryIndex}|${arrayIndices.join(',')}`,
+                    incomingHashes
+                });
+                if (incomingValue === undefined) {
+                    // No element of the same hash. An incoming element without data, equal to
+                    // this stored one apart from its pointer, is this element: leaving out a
+                    // value keeps the previous one.
+                    const sameElementIndex = this._findSameElementWithoutLeaf({
+                        currentResource, arraySegments, arrayIndices,
+                        elementIndex: indices[arrayDepth], incomingArray, leafSegments,
+                        blobMetaLeaf, usedElements, entryIndex
+                    });
+                    const sameParent = sameElementIndex === -1
+                        ? null
+                        : this._parentAt(view, dataSegments, indices);
+                    if (sameParent && sameParent[blobMetaLeaf]) {
+                        this._clearField(sameParent, blobMetaLeaf);
+                        hydrated += 1;
+                    }
+                    continue;
+                }
+                const viewParent = this._parentAt(view, dataSegments, indices);
+                if (viewParent && viewParent[blobMetaLeaf]) {
+                    viewParent[leafKey] = incomingValue;
+                    this._clearField(viewParent, blobMetaLeaf);
+                    hydrated += 1;
+                }
+            }
+        }
+        return hydrated;
+    }
+
+    /**
+     * Position in `incomingArray` of the first element, not taken yet, that has no value at the
+     * leaf and equals the stored element apart from its pointer; -1 when there is none. The match
+     * is recorded in `usedElements`, so one incoming element stands for one stored element only.
+     * @private
+     */
+    _findSameElementWithoutLeaf (
+        {
+            currentResource, arraySegments, arrayIndices, elementIndex, incomingArray, leafSegments,
+            blobMetaLeaf, usedElements, entryIndex
+        }
+    ) {
+        const storedArray = this._parentAt(currentResource, [...arraySegments, '[]'], arrayIndices);
+        const storedElement = Array.isArray(storedArray) ? storedArray[elementIndex] : undefined;
+        for (let position = 0; position < incomingArray.length; position++) {
+            const usedKey = `${entryIndex}|${arrayIndices.join(',')}|${position}`;
+            if (
+                !usedElements.has(usedKey) &&
+                this._equalsApartFromLeaf(
+                    storedElement, incomingArray[position], leafSegments, blobMetaLeaf
+                )
+            ) {
+                usedElements.add(usedKey);
+                return position;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Whether the incoming body still holds, at the index of a stored externalized leaf, the same
+     * element: one with no value at the leaf that equals the stored element apart from the leaf and
+     * its pointer. A leaf that is not in an array has no other element to be taken for, so it is
+     * the same.
+     * @private
+     */
+    _holdsStoredElementAt (
+        { currentResource, resourceToMerge, dataSegments, indices, blobMetaLeaf }
+    ) {
+        const lastArraySegment = dataSegments.lastIndexOf('[]');
+        const leafSegments = dataSegments.slice(lastArraySegment + 1);
+        if (lastArraySegment === -1 || leafSegments.includes('[]')) {
+            return true;
+        }
+        const arrayPath = [...dataSegments.slice(0, lastArraySegment), '[]'];
+        const arrayDepth = arrayPath.filter((segment) => segment === '[]').length;
+        const arrayIndices = indices.slice(0, arrayDepth - 1);
+        const elementIndex = indices[arrayDepth - 1];
+        const storedArray = this._parentAt(currentResource, arrayPath, arrayIndices);
+        const incomingArray = this._parentAt(resourceToMerge, arrayPath, arrayIndices);
+        return Array.isArray(storedArray) && Array.isArray(incomingArray) &&
+            this._equalsApartFromLeaf(
+                storedArray[elementIndex], incomingArray[elementIndex], leafSegments, blobMetaLeaf
+            );
+    }
+
+    /**
+     * True if `incomingElement` has no value at the leaf and equals `storedElement` apart from the
+     * leaf and its pointer, on both sides: a body built from the stored document carries the stored
+     * pointer, a client body does not, and the pointer does not tell elements apart. The one rule
+     * behind "the same element" for an externalized leaf.
+     * @private
+     */
+    _equalsApartFromLeaf (storedElement, incomingElement, leafSegments, blobMetaLeaf) {
+        const isObject = (element) => element !== null && typeof element === 'object';
+        if (!isObject(storedElement) || !isObject(incomingElement)) {
+            return false;
+        }
+        let value = incomingElement;
+        for (const segment of leafSegments) {
+            value = value === null || value === undefined ? undefined : value[segment];
+        }
+        if (value !== undefined && value !== null) {
+            return false;
+        }
+        const leafKey = leafSegments[leafSegments.length - 1];
+        const withoutLeaf = (element) => {
+            const copy = deepcopy(element);
+            let parent = copy;
+            for (const segment of leafSegments.slice(0, -1)) {
+                parent = parent ? parent[segment] : undefined;
+            }
+            if (parent) {
+                this._clearField(parent, leafKey);
+                this._clearField(parent, blobMetaLeaf);
+            }
+            return copy;
+        };
+        return deepEqual(withoutLeaf(incomingElement), withoutLeaf(storedElement));
+    }
+
+    /**
+     * First element of `incomingArray` whose leaf string hashes to `hash`; returns that string, or
+     * undefined. Each incoming leaf is hashed once and the hash kept in `incomingHashes`.
+     * @private
+     */
+    async _findIncomingValueByHashAsync (
+        { incomingArray, leafSegments, hash, hashCacheKey, incomingHashes }
+    ) {
+        for (let position = 0; position < incomingArray.length; position++) {
+            let value = incomingArray[position];
+            for (const segment of leafSegments) {
+                value = value === null || value === undefined ? undefined : value[segment];
+            }
+            if (typeof value !== 'string') {
+                continue;
+            }
+            const cacheKey = `${hashCacheKey}|${position}`;
+            if (!incomingHashes.has(cacheKey)) {
+                incomingHashes.set(cacheKey, await computeContentHashAsync(value));
+            }
+            if (incomingHashes.get(cacheKey) === hash) {
+                return value;
+            }
+        }
+        return undefined;
+    }
+
+    /**
      * Explicitly clears one configured leaf's sidecar on `finalResource` — the same stash-and-clear
      * `_processEntry`'s "below threshold, clear the stale sidecar" branch already performs, invoked
      * directly for a write that's known for certain to remove this leaf (never inferred from mere
@@ -259,9 +519,17 @@ class Base64DataManager {
      * @param {boolean} smartMerge - true: deepmerge semantics (omission keeps the old value); false:
      *        literal-replace semantics (omission means removal).
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {Map<string, string|undefined>|null} [mergedLeafValues] - what
+     *        `captureMergedLeafValues` returned. A leaf with an entry here takes its value from
+     *        the merged result, not from `resourceToMerge` at the same index; a leaf with none (a
+     *        scalar leaf, or an array the merge did not keep in place) takes it from
+     *        `resourceToMerge`, as it always has.
      * @returns {Promise<Array<{op: string, path: string, value?: *}>>}
      */
-    async reconcileLeavesAsync (finalResource, currentResource, resourceToMerge, smartMerge, requestInfo) {
+    async reconcileLeavesAsync (
+        finalResource, currentResource, resourceToMerge, smartMerge, requestInfo,
+        mergedLeafValues = null
+    ) {
         if (!finalResource || !this.enableBase64FieldCloudStorage) {
             return [];
         }
@@ -269,8 +537,12 @@ class Base64DataManager {
         if (!entries) {
             return [];
         }
+        // With the type not externalized (DocumentReference, flag off) nothing below uploads or
+        // clears an object, so a pointer is only ever kept: an omitted value never removes it, and
+        // data of the stored hash is no change and is not stored a second time.
+        const externalizes = !!this.externalizationPaths[currentResource.resourceType];
         const patches = [];
-        for (const entry of entries) {
+        for (const [entryIndex, entry] of entries.entries()) {
             const dataSegments = this._parseJsonPointer(entry.dataPath);
             const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
             const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
@@ -280,24 +552,51 @@ class Base64DataManager {
                 if (!blobMeta || !blobMeta.hash) {
                     return; // not externalized — nothing to reconcile
                 }
-                const incomingParent = this._parentAt(resourceToMerge, dataSegments, indices);
-                const incomingValue = incomingParent ? incomingParent[leafKey] : undefined;
+                const mergedKey = this._mergedLeafKey(entryIndex, indices);
+                let incomingValue;
+                if (mergedLeafValues && mergedLeafValues.has(mergedKey)) {
+                    incomingValue = mergedLeafValues.get(mergedKey);
+                } else {
+                    const incomingParent = this._parentAt(resourceToMerge, dataSegments, indices);
+                    incomingValue = incomingParent ? incomingParent[leafKey] : undefined;
+                }
                 const resolvedPath = `/${this._substituteIndices(dataSegments, indices)}`;
                 if (typeof incomingValue === 'string') {
+                    const hash = await computeContentHashAsync(incomingValue);
+                    if (!externalizes && hash === blobMeta.hash) {
+                        // same stash as the omitted-data branch: refreshes the history object
+                        const uuid = finalResource._uuid;
+                        this._stashUnchangedLeaf(requestInfo, uuid, dataSegments, indices);
+                        this._stashOriginalData(requestInfo, uuid, dataSegments, indices, {
+                            hash: blobMeta.hash, changed: false, omitted: true
+                        });
+                        return;
+                    }
                     const finalParent = this._parentAt(finalResource, dataSegments, indices);
                     if (finalParent) {
                         finalParent[leafKey] = incomingValue;
                     }
-                    const hash = await computeContentHashAsync(incomingValue);
                     if (hash !== blobMeta.hash) {
                         patches.push({ op: 'replace', path: resolvedPath, value: incomingValue });
                     }
                     return;
                 }
                 // Omitted: no literal value anywhere to hand _processEntry.
-                if (!smartMerge) {
+                if (!smartMerge && externalizes) {
                     this.clearExternalizedLeaf(finalResource, entry, requestInfo);
                     patches.push({ op: 'remove', path: resolvedPath });
+                    return;
+                }
+                // Flag off, PUT: the pointer stays only on the element the body still holds, equal
+                // to the stored one apart from data and pointer. Another element must not inherit
+                // it. The object is not recorded for cleanup and stays in storage.
+                if (!smartMerge && !this._holdsStoredElementAt({
+                    currentResource, resourceToMerge, dataSegments, indices, blobMetaLeaf
+                })) {
+                    const finalParent = this._parentAt(finalResource, dataSegments, indices);
+                    if (finalParent) {
+                        this._clearField(finalParent, blobMetaLeaf);
+                    }
                     return;
                 }
                 // smartMerge: true — deepmerge keeps the old value. Leave the leaf untouched, but
@@ -306,11 +605,117 @@ class Base64DataManager {
                 // _processEntry's own unchanged branch would have written.
                 this._stashUnchangedLeaf(requestInfo, finalResource._uuid, dataSegments, indices);
                 this._stashOriginalData(requestInfo, finalResource._uuid, dataSegments, indices, {
-                    hash: blobMeta.hash, changed: false
+                    hash: blobMeta.hash, changed: false, omitted: true
                 });
             });
         }
         return patches;
+    }
+
+    /**
+     * Captures, for each externalized leaf that sits in an array of `currentResource`, the value
+     * the merged result holds at the same position, before `excludeExternalizedLeaves` removes it
+     * from the merged result. The values are the strings themselves, nothing is copied. A stored
+     * element the merge kept in place and did not hydrate has no `data` there, so its value is
+     * `undefined` (omitted: keep it); one that was hydrated, or merged by id, holds the incoming
+     * `data`.
+     *
+     * `smartMerge` keeps the stored elements of an array in place and appends the new ones, so a
+     * position in the merged result is the same element as in `currentResource`. That does not
+     * hold when the incoming array has an element with a `sequence` (it is inserted among the
+     * stored ones) or an `id` that ends with `-delete` (it removes a stored one), or when the
+     * merged array is shorter than the stored one. For such an array no entry is captured, so
+     * `reconcileLeavesAsync` reads `resourceToMerge` by index, as it did before. Scalar leaves (a
+     * path with no "[]") are not captured either.
+     * @param {Object} mergedObject - the merged result; only read.
+     * @param {Object} currentResource - the stored resource.
+     * @param {Object} resourceToMerge - the incoming resource.
+     * @returns {Map<string, string|undefined>} the value per leaf, keyed as `_mergedLeafKey` does.
+     */
+    captureMergedLeafValues (mergedObject, currentResource, resourceToMerge) {
+        const values = new Map();
+        if (
+            !mergedObject || !currentResource || !resourceToMerge ||
+            !this.enableBase64FieldCloudStorage
+        ) {
+            return values;
+        }
+        const entries = this.resourcePaths[currentResource.resourceType];
+        if (!entries) {
+            return values;
+        }
+        for (const [entryIndex, entry] of entries.entries()) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const lastArraySegment = dataSegments.lastIndexOf('[]');
+            if (lastArraySegment === -1) {
+                continue;
+            }
+            const arraySegments = dataSegments.slice(0, lastArraySegment);
+            const arrayDepth = arraySegments.filter((segment) => segment === '[]').length;
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            const leafKey = dataSegments[dataSegments.length - 1];
+            const keptInPlace = new Map();
+            this._processPathsSync(currentResource, dataSegments, [], ({ parent, indices }) => {
+                const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
+                if (!blobMeta || !blobMeta.hash) {
+                    return;
+                }
+                const arrayIndices = indices.slice(0, arrayDepth);
+                const arrayId = arrayIndices.join(',');
+                if (!keptInPlace.has(arrayId)) {
+                    keptInPlace.set(arrayId, this._isArrayMergedInPlace({
+                        arraySegments, arrayIndices, mergedObject, currentResource, resourceToMerge
+                    }));
+                }
+                if (!keptInPlace.get(arrayId)) {
+                    return;
+                }
+                const mergedParent = this._parentAt(mergedObject, dataSegments, indices);
+                values.set(
+                    this._mergedLeafKey(entryIndex, indices),
+                    mergedParent ? mergedParent[leafKey] : undefined
+                );
+            });
+        }
+        return values;
+    }
+
+    /**
+     * Whether the array at `arraySegments` (with `arrayIndices` for any outer "[]") was merged so
+     * that each stored element is still at its own index: the merged array is not shorter than the
+     * stored one, and the incoming array has no element that is inserted by `sequence` or that
+     * removes a stored one with an `id` ending in `-delete`.
+     * @private
+     */
+    _isArrayMergedInPlace (
+        { arraySegments, arrayIndices, mergedObject, currentResource, resourceToMerge }
+    ) {
+        const arrayPath = [...arraySegments, '[]'];
+        const storedArray = this._parentAt(currentResource, arrayPath, arrayIndices);
+        const mergedArray = this._parentAt(mergedObject, arrayPath, arrayIndices);
+        if (
+            !Array.isArray(storedArray) || !Array.isArray(mergedArray) ||
+            mergedArray.length < storedArray.length
+        ) {
+            return false;
+        }
+        const incomingArray = this._parentAt(resourceToMerge, arrayPath, arrayIndices);
+        if (!Array.isArray(incomingArray)) {
+            return true;
+        }
+        return !incomingArray.some((element) => element !== null && typeof element === 'object' &&
+            ('sequence' in element ||
+                (typeof element.id === 'string' && element.id.endsWith('-delete'))));
+    }
+
+    /**
+     * Key of one leaf in the map `captureMergedLeafValues` returns: the configured path (by its
+     * position in the resource type's entries) and the array indices.
+     * @private
+     */
+    _mergedLeafKey (entryIndex, indices) {
+        return `${entryIndex}|${indices.join(',')}`;
     }
 
     /**
@@ -611,7 +1016,10 @@ class Base64DataManager {
         if (!entries) {
             return refs;
         }
-        const fallback = this._normalizeStamp(resource.meta && resource.meta.lastUpdated);
+        // A type that is not externalized has objects only where a pointer says so
+        const fallback = this.externalizationPaths[resource.resourceType]
+            ? this._normalizeStamp(resource.meta && resource.meta.lastUpdated)
+            : null;
         for (const entry of entries) {
             const dataSegments = this._parseJsonPointer(entry.dataPath);
             const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
@@ -754,8 +1162,10 @@ class Base64DataManager {
             const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
             this._processPathsSync(currentResource, dataSegments, [], ({ parent: currentParent, indices }) => {
                 const stashed = this._readStashedOriginalData(requestInfo, uuid, dataSegments, indices);
-                if (!stashed || !stashed.hash) {
-                    return; // this leaf wasn't externalized by this request — nothing to reconcile
+                if (!stashed || !stashed.hash || stashed.omitted) {
+                    // not externalized by this request, or kept without data of its own: there are
+                    // no bytes to re-assert over what a concurrent writer put there
+                    return;
                 }
                 const currentBlobMeta = currentParent ? currentParent[blobMetaLeaf] : undefined;
                 const currentHash = currentBlobMeta ? currentBlobMeta.hash : undefined;
@@ -962,10 +1372,12 @@ class Base64DataManager {
      * leaf that was never externalized and stays under the live-write threshold is left untouched.
      * @param {Object} resource - mutated in place.
      * @param {{dataPath: string, blobMetaPath: string}} entry - JSON-Pointers to the base64 field and its sidecar.
+     * @param {boolean} [externalizeNew] - false for a type that is not externalized (flag off):
+     *        only a leaf that already has a pointer is handled.
      * @returns {Promise<void>}
      * @private
      */
-    async _processDeleteEntry (resource, entry) {
+    async _processDeleteEntry (resource, entry, externalizeNew = true) {
         const dataSegments = this._parseJsonPointer(entry.dataPath);
         const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
         const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
@@ -994,7 +1406,11 @@ class Base64DataManager {
                 return;
             }
             // Never externalized: only act if this content is over the live-write threshold — e.g.
-            // the feature was disabled when this version was written.
+            // the feature was disabled when this version was written. Not for a type that is not
+            // externalized (DocumentReference, flag off): its large values stay as they are.
+            if (!externalizeNew) {
+                return;
+            }
             const byteLength = typeof value === 'string' ? Buffer.byteLength(value, 'utf8') : 0;
             if (byteLength <= thresholdBytes) {
                 return; // stays inline — unchanged from today's behavior
@@ -1315,7 +1731,7 @@ class Base64DataManager {
         if (!this.enableBase64FieldCloudStorage || !historyEntry || !historyEntry.resource) {
             return;
         }
-        const entries = this.resourcePaths[historyEntry.resource.resourceType];
+        const entries = this.externalizationPaths[historyEntry.resource.resourceType];
         if (!entries) {
             return;
         }

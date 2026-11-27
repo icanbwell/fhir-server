@@ -106,6 +106,7 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
     beforeEach(() => {
         ctx = makeManager();
         ctx.mgr.resourcePaths = { ...ctx.mgr.resourcePaths, DocRefFake: NESTED_CONFIG };
+        ctx.mgr.externalizationPaths = { ...ctx.mgr.externalizationPaths, DocRefFake: NESTED_CONFIG };
     });
 
     test('getLiveObjectRefsOrResourceLastUpdated falls back to resource.meta.lastUpdated for a leaf with no _blobMeta, but keeps the sidecar timestamp where one exists', () => {
@@ -480,7 +481,7 @@ describe('Base64DataManager — reconcileLeavesAsync', () => {
         expect(patches).toEqual([]);
         expect(ctx.mgr._readUnchangedLeafMarker(requestInfo, 'uuid-r4', ['data'], [])).toBe(true);
         const stashed = ctx.mgr._readStashedOriginalData(requestInfo, 'uuid-r4', ['data'], []);
-        expect(stashed).toEqual({ hash: 'stable-hash', changed: false });
+        expect(stashed).toEqual({ hash: 'stable-hash', changed: false, omitted: true });
     });
 
     test('leaf not externalized: returns no patch entry and does not touch finalResource', async () => {

@@ -422,6 +422,16 @@ class ResourceMerger {
          */
         let mergedObject;
         if (smartMerge) {
+            // An externalized attachment kept in an array has no `data` here, so a resent copy of
+            // it would not equal the stored element and mergeObject would append it again. Give
+            // the copy the incoming `data` of the elements that hash to the stored sidecar (no
+            // download), so they merge as equal like inline and GridFS attachments do. Nothing to
+            // do when no configured leaf is externalized on the stored resource.
+            if (base64DataManager && hasExternalizedLeaf) {
+                await base64DataManager.hydrateExternalizedLeavesFromIncomingAsync(
+                    currentResourceWithAttachmentData, currentResource, resourceToMerge
+                );
+            }
             const currentResourceWithAttachmentDataObject = this.removeOwnerTagIfDisplayFieldMissing({
                 currentResource: deepcopy(currentResourceWithAttachmentData),
                 resourceToMerge
@@ -442,6 +452,15 @@ class ResourceMerger {
             requestInfo,
             olderEntries: smartMerge ? unchangedStoredEntries(currentResource.member) : undefined
         });
+
+        // Under smartMerge the merged result says, per stored array element, whether the incoming
+        // body changed its data. Take that now: excludeExternalizedLeaves below removes the data
+        // from the merged result. Without smartMerge the incoming body is the result, as before.
+        const mergedLeafValues = smartMerge && base64DataManager && hasExternalizedLeaf
+            ? base64DataManager.captureMergedLeafValues(
+                mergedObject, currentResource, resourceToMerge
+            )
+            : null;
 
         // now create a patch between the document in db and the incoming document
         // this returns an array of patchecurrentResources
@@ -485,7 +504,8 @@ class ResourceMerger {
         let base64Patches = [];
         if (base64DataManager) {
             base64Patches = await base64DataManager.reconcileLeavesAsync(
-                patched_resource_incoming, currentResource, resourceToMerge, smartMerge, requestInfo
+                patched_resource_incoming, currentResource, resourceToMerge, smartMerge,
+                requestInfo, mergedLeafValues
             );
         }
 

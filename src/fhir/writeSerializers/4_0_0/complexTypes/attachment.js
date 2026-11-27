@@ -3,6 +3,8 @@ const BaseSerializer = require('../customSerializers/baseSerializer.js');
 
 /** @type {import('../complexTypes/extension.js')} */
 let ExtensionSerializer;
+/** @type {import('../customSerializers/blobMeta.js')} */
+let BlobMetaSerializer;
 
 class AttachmentSerializer extends BaseSerializer {
     // Private cache for lazy-loaded property configs
@@ -54,7 +56,19 @@ class AttachmentSerializer extends BaseSerializer {
         hash: null,
         title: null,
         creation: null,
-        _file_id: null
+        _file_id: null,
+        _blobMeta: () => {
+            if (!this.#configCache['_blobMeta']) {
+                if (!BlobMetaSerializer) {
+                    BlobMetaSerializer = require('../customSerializers/blobMeta.js');
+                }
+                this.#configCache['_blobMeta'] = {
+                    serializeFunction: 'serialize',
+                    serializerClass: BlobMetaSerializer
+                };
+            }
+            return this.#configCache['_blobMeta'];
+        }
     };
 }
 

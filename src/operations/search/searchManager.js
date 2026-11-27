@@ -862,7 +862,7 @@ class SearchManager {
             // Only project _blobMeta sidecars when the corresponding `data` field is also
             // projected — otherwise Base64DataManager.transformAsync(RETRIEVE) has nothing
             // to rehydrate, so the sidecar would just be dead weight in the result.
-            const base64Entries = this.base64DataManager.resourcePaths[resourceType];
+            const base64Entries = this.base64DataManager.externalizationPaths[resourceType];
             if (base64Entries) {
                 for (const entry of base64Entries) {
                     const dataProjectionPath = entry.dataPath
@@ -877,7 +877,16 @@ class SearchManager {
                             .replace(/^\//, '')
                             .replace(/\/\[\]/g, '')
                             .replace(/\//g, '.');
-                        projection[blobMetaProjectionPath] = 1;
+                        // MongoDB rejects a projection that holds both a path and one of its
+                        // descendants (Path collision). When an ancestor such as `content` is
+                        // already projected whole, it returns the nested `_blobMeta` too.
+                        const segments = blobMetaProjectionPath.split('.');
+                        const ancestorProjected = segments
+                            .slice(0, -1)
+                            .some((_, i) => projection[segments.slice(0, i + 1).join('.')]);
+                        if (!ancestorProjected) {
+                            projection[blobMetaProjectionPath] = 1;
+                        }
                     }
                 }
             }

@@ -6,6 +6,7 @@ const {
 } = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 const { DEFAULT_ASSURANCE_MINIMUM_LEVEL } = require('./personLinkAssuranceLevel');
+const { logWarn } = require('../operations/common/logging');
 
 const env = process.env;
 
@@ -987,6 +988,35 @@ class ConfigManager {
      */
     get enableBase64FieldCloudStorage() {
         return isTrue(env.BASE64_FIELD_CLOUD_STORAGE_ENABLED);
+    }
+
+    /**
+     * Whether DocumentReference attachments (content[], extension[] and modifierExtension[]
+     * valueAttachment) are written through Base64DataManager (inline below the threshold,
+     * cloud storage above it) instead of GridFS. This is the effective value: it is on only when
+     * both BASE64_FIELD_CLOUD_STORAGE_DOCUMENT_REFERENCE_ENABLED and
+     * BASE64_FIELD_CLOUD_STORAGE_ENABLED are on. With only the first one set, GridFS and cloud
+     * storage would both skip the data, so the flag is ignored (with one warning) and
+     * DocumentReference stays on GridFS. Gate 1 and Gate 2 read only this getter.
+     * @returns {boolean}
+     */
+    get enableBase64FieldCloudStorageForDocumentReference() {
+        if (!isTrue(env.BASE64_FIELD_CLOUD_STORAGE_DOCUMENT_REFERENCE_ENABLED)) {
+            return false;
+        }
+        if (!this.enableBase64FieldCloudStorage) {
+            if (!this._warnedDocumentReferenceFlagIgnored) {
+                this._warnedDocumentReferenceFlagIgnored = true;
+                logWarn(
+                    'BASE64_FIELD_CLOUD_STORAGE_DOCUMENT_REFERENCE_ENABLED is ignored because ' +
+                    'BASE64_FIELD_CLOUD_STORAGE_ENABLED is off; DocumentReference attachments ' +
+                    'stay on GridFS',
+                    { source: 'ConfigManager enableBase64FieldCloudStorageForDocumentReference' }
+                );
+            }
+            return false;
+        }
+        return true;
     }
 
     /**
