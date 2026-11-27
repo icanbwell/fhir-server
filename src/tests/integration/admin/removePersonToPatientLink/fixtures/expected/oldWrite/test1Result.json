@@ -1,0 +1,5 @@
+{
+  "message": "Removed link from Person/1 to Patient/1",
+  "patientId": "1",
+  "personId": "1"
+}

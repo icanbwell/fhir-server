@@ -442,31 +442,15 @@ class MergeManager {
                     }
                 }
             );
-            const operationOutcome = buildOperationOutcome({
-                severity: 'error',
-                code: 'exception',
-                details: {
-                    text: 'Error merging: ' + JSON.stringify(resourceToMerge)
-                },
-                diagnostics: e.toString(),
-                expression: [
-                    resourceToMerge.resourceType + '/' + resourceToMerge.id
-                ]
-            });
             throw new RethrownError(
                 {
                     message: e.message,
                     error: e,
                     source: 'MergeManager',
-                    args: new MergeResultEntry({
-                        id: resourceToMerge.id,
-                        uuid: resourceToMerge._uuid,
-                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                        resourceType,
-                        created: false,
-                        updated: false,
-                        issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                        operationOutcome
+                    args: MergeResultEntry.createFromMergeException({
+                        error: e,
+                        resource: resourceToMerge,
+                        resourceType
                     })
                 }
             );

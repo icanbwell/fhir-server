@@ -7,7 +7,8 @@ const { WriteContext } = require('../writeContext');
  * document in the `validateAgainstStored` step, as PUT does before the build, so that a body that
  * fails never reaches the soft-deletion of the stored GridFS attachments the merge does. It
  * validates an update's built document with the meta check only. A new document is validated in
- * full, as `ValidateResultStep` does.
+ * full, as `ValidateResultStep` does. `checkPatientReference` is honored only on inserts, because its
+ * update override never calls `validateResourceAsync`.
  */
 class ValidateUpdateResultStep extends ValidateResultStep {
     /**

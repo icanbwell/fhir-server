@@ -1,0 +1,88 @@
+{
+  "actual": true,
+  "id": "put-parity-group",
+  "member": [
+    {
+      "entity": {
+        "reference": "Patient/patch-parity-member-0",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/patch-parity-member-0"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/efbd24ba-1a02-58b0-b492-7d36eb0663ae"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "client"
+          }
+        ]
+      },
+      "period": {
+        "start": "2026-01-01"
+      }
+    },
+    {
+      "entity": {
+        "reference": "Patient/patch-parity-member-1",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/patch-parity-member-1"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/a2244242-8466-5712-b4dd-4ca6c0053211"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "client"
+          }
+        ]
+      }
+    }
+  ],
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client",
+        "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client",
+        "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client",
+        "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+      }
+    ],
+    "versionId": "2"
+  },
+  "resourceType": "Group",
+  "type": "person",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "put-parity-group"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "60ec7c65-db79-5938-a83c-bd3150e08a1d"
+    }
+  ]
+}

@@ -11,9 +11,11 @@ const { WriteContext } = require('../writeContext');
  * fields: runs the size check, then the pipe-in-id check, then the schema check, then restores
  * the `_uuid` and `_sourceAssigningAuthority` saved by `PrepareBodyStep`; the first failure wins.
  * A size or pipe-in-id failure is built before the identity is restored, so it carries no `uuid`
- * or source assigning authority. Every operation runs both checks. A schema error fails the item
- * at `INCOMING_SCHEMA` and is recorded in `fhir_validation_failure_total` at the `schema` stage.
- * It runs before `findExisting`, so an item that fails here is not loaded.
+ * or source assigning authority. Every operation with a resource body runs both checks. A schema
+ * error fails the item at `INCOMING_SCHEMA` and is recorded in `fhir_validation_failure_total` at
+ * the `schema` stage. It runs before `findExisting`, so an item that fails here is not loaded.
+ * When the profile sets `itemErrorsFailItem`, an error the schema check throws for an item fails
+ * only that item at `INCOMING_SCHEMA`, with its identity restored; otherwise it rejects.
  */
 class ValidateIncomingStep {
     /**
@@ -31,11 +33,12 @@ class ValidateIncomingStep {
      * Validates each item and fails each item that a check rejects.
      * @param {WriteItem[]} items
      * @param {WriteContext} context
+     * @param {{itemErrorsFailItem?: boolean}} [profile]
      * @returns {Promise<void>}
      */
-    async runAsync ({ items, context }) {
+    async runAsync ({ items, context, profile }) {
         for (const item of items) {
-            const failure = this.validateItem({ item, context });
+            const failure = this.validateItem({ item, context, profile });
             if (failure) {
                 item.fail({ failure });
             }
@@ -46,23 +49,39 @@ class ValidateIncomingStep {
      * Runs the size check, the pipe-in-id check, then the schema check with required fields
      * relaxed for a smart merge, then restores the saved identity, and returns the first failure,
      * or null. An item that fails the size or pipe-in-id check skips the schema check and keeps its
-     * stripped body.
+     * stripped body. An error the schema check throws is rethrown, unless the profile sets
+     * `itemErrorsFailItem`: then the identity is restored and the error is returned as an
+     * `INCOMING_SCHEMA` failure.
      * @param {WriteItem} item
      * @param {WriteContext} context
+     * @param {{itemErrorsFailItem?: boolean}} [profile]
      * @returns {WriteFailure|null}
      */
-    validateItem ({ item, context }) {
+    validateItem ({ item, context, profile }) {
         const bodyFailure = this.checkSize(item) ?? this.checkPipeInId(item);
         if (bodyFailure) {
             return bodyFailure;
         }
         const resource = item.incoming;
-        const validationError = validateResource({
-            resourceBody: resource,
-            resourceName: resource.resourceType,
-            path: context.requestInfo.path,
-            excludeRequiredFieldErrors: context.smartMerge
-        });
+        let validationError;
+        try {
+            validationError = validateResource({
+                resourceBody: resource,
+                resourceName: resource.resourceType,
+                path: context.requestInfo.path,
+                excludeRequiredFieldErrors: context.smartMerge
+            });
+        } catch (error) {
+            if (profile?.itemErrorsFailItem !== true) {
+                throw error;
+            }
+            this.restoreIdentity(item);
+            return new WriteFailure({
+                stage: WRITE_FAILURE_STAGE.INCOMING_SCHEMA,
+                subject: WriteFailure.subjectOf(resource),
+                error
+            });
+        }
         this.restoreIdentity(item);
         if (!validationError) {
             return null;

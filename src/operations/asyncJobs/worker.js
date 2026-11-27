@@ -95,6 +95,7 @@ async function main() {
     try {
         initialize();
         const container = createContainer();
+        container.writePipelineSwitch.assertValidConfiguration();
         const { kafkaClientV2 } = container;
         const jobs = getJobs(container);
 

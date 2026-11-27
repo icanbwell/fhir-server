@@ -2,20 +2,17 @@ const { assertTypeEquals } = require('../../../../utils/assertType');
 const { BundleResourceValidator } = require('../../../merge/validators/bundleResourceValidator');
 const { ParametersResourceValidator } = require('../../../merge/validators/parameterResourceValidator');
 const { MergeManager } = require('../../../merge/mergeManager');
-const { ScopesManager } = require('../../../security/scopesManager');
 const { BundleManager } = require('../../../common/bundleManager');
 const { MergeResultEntry } = require('../../../common/mergeResultEntry');
 const { buildOperationOutcomeFromIssues } = require('../../../../utils/operationOutcomeBuilder');
 const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
 const BundleSerializer = require('../../../../fhir/serializers/4_0_0/resources/bundle');
 const { QueryItem } = require('../../../graph/queryItem');
-const { COLLECTION } = require('../../../../constants');
-const { isUuid } = require('../../../../utils/uid.util');
 const { isTrue } = require('../../../../utils/isTrue');
 const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../../../utils/metrics');
 const { WriteItem, WRITE_ITEM_STATUS } = require('../../writeItem');
 const { WriteContext } = require('../../writeContext');
-const { WriteFailure, WRITE_FAILURE_STAGE } = require('../../writeFailure');
+const { ResourceStructureChecker } = require('../../resourceStructureChecker');
 const { WriteResponder } = require('../../writeResponder');
 
 /**
@@ -52,10 +49,10 @@ class MergeResponder extends WriteResponder {
      * @param {BundleResourceValidator} bundleResourceValidator
      * @param {ParametersResourceValidator} parametersResourceValidator
      * @param {MergeManager} mergeManager
-     * @param {ScopesManager} scopesManager
+     * @param {ResourceStructureChecker} resourceStructureChecker
      * @param {BundleManager} bundleManager
      */
-    constructor ({ bundleResourceValidator, parametersResourceValidator, mergeManager, scopesManager, bundleManager }) {
+    constructor ({ bundleResourceValidator, parametersResourceValidator, mergeManager, resourceStructureChecker, bundleManager }) {
         super();
         /**
          * @type {BundleResourceValidator}
@@ -73,10 +70,10 @@ class MergeResponder extends WriteResponder {
         this.mergeManager = mergeManager;
         assertTypeEquals(mergeManager, MergeManager);
         /**
-         * @type {ScopesManager}
+         * @type {ResourceStructureChecker}
          */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
+        this.resourceStructureChecker = resourceStructureChecker;
+        assertTypeEquals(resourceStructureChecker, ResourceStructureChecker);
         /**
          * @type {BundleManager}
          */
@@ -173,74 +170,15 @@ class MergeResponder extends WriteResponder {
             return new WriteItem({ index, incoming: resource });
         });
 
-        for (const item of items) {
-            const structuralError = this.findStructuralError(item.incoming);
-            if (structuralError) {
-                item.fail({
-                    failure: new WriteFailure({
-                        stage: WRITE_FAILURE_STAGE.STRUCTURE,
-                        subject: {
-                            id: structuralError.id,
-                            uuid: structuralError._uuid,
-                            sourceAssigningAuthority: structuralError._sourceAssigningAuthority,
-                            resourceType: structuralError.resourceType
-                        },
-                        operationOutcome: structuralError.operationOutcome
-                    })
-                });
-            }
-        }
+        this.resourceStructureChecker.failItemsWithStructuralError({ items });
 
         return { items, requestErrors, wasIncomingAList };
     }
 
     /**
-     * Returns a merge error entry if the resource has no id, no resourceType, an unsupported
-     * resourceType, or neither a UUID id nor an owner or source assigning authority tag; otherwise
-     * null.
-     * @param {Object} resource
-     * @returns {MergeResultEntry|null}
-     */
-    findStructuralError (resource) {
-        const resourceType = resource.resourceType;
-        const id = resource.id;
-
-        if (!id) {
-            return this.mergeManager.createMergeError(resource, resourceType, 'resource is missing id', resourceType);
-        }
-
-        if (!resource.resourceType) {
-            return this.mergeManager.createMergeError(
-                resource, resourceType, 'resource is missing resourceType', `${resourceType}/${id}`
-            );
-        }
-
-        if (COLLECTION[resource.resourceType.toUpperCase()] !== resource.resourceType) {
-            return this.mergeManager.createMergeError(
-                resource, resourceType, 'resourceType is not supported', `${resourceType}/${id}`
-            );
-        }
-
-        if (
-            !isUuid(resource.id) &&
-            !this.scopesManager.doesResourceHaveSourceAssigningAuthority(resource) &&
-            !this.scopesManager.doesResourceHaveOwnerTags(resource)
-        ) {
-            return this.mergeManager.createMergeError(
-                resource,
-                resourceType,
-                'Either id passed in resource should be uuid or meta.security tag with system: https://www.icanbwell.com/owner or https://www.icanbwell.com/sourceAssigningAuthority should be present',
-                `${resourceType}/${id}`
-            );
-        }
-
-        return null;
-    }
-
-    /**
      * Turns a failure into its `$merge` result entry. A check failure keeps its OperationOutcome
      * and first issue; an error failure goes through `MergeResultEntry.createFromError`.
-     * @param {WriteFailure} failure
+     * @param {import('../../writeFailure').WriteFailure} failure
      * @returns {MergeResultEntry}
      */
     toResult (failure) {

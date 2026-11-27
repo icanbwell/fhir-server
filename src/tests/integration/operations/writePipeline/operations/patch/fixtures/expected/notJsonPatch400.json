@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported."
+      }
+    }
+  ]
+}

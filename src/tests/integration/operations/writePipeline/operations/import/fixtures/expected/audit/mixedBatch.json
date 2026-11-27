@@ -1,0 +1,133 @@
+{
+  "result": [
+    {
+      "resourceType": "Patient",
+      "id": "import-patient-1",
+      "created": false,
+      "updated": true,
+      "failed": false
+    },
+    {
+      "resourceType": "Observation",
+      "id": "import-observation-1",
+      "created": false,
+      "updated": true,
+      "failed": false
+    },
+    {
+      "resourceType": "Patient",
+      "id": "import-audit-new",
+      "created": true,
+      "updated": false,
+      "failed": false
+    },
+    {
+      "resourceType": "Patient",
+      "id": "import-two-owners",
+      "created": false,
+      "updated": false,
+      "failed": true
+    },
+    {
+      "resourceType": "Patient",
+      "id": "import-ident-new",
+      "created": false,
+      "updated": false,
+      "failed": false
+    },
+    {
+      "resourceType": "AuditEvent",
+      "id": "import-audit-event",
+      "created": true,
+      "updated": false,
+      "failed": false
+    }
+  ],
+  "changeEvents": [
+    {
+      "eventType": "C",
+      "resourceType": "Patient",
+      "id": "import-audit-new",
+      "uuid": "41664305-9a3d-5186-a430-1a8bb9e75fcb",
+      "contextData": null
+    },
+    {
+      "eventType": "U",
+      "resourceType": "Patient",
+      "id": "import-patient-1",
+      "uuid": "bc87f85d-3ee5-5e63-bae8-e30c6cd3abf1",
+      "contextData": null
+    }
+  ],
+  "kafkaMessages": [
+    {
+      "key": "import-audit-new",
+      "action": "C",
+      "eventName": "Patient Create",
+      "who": "Patient/import-audit-new"
+    },
+    {
+      "key": "import-patient-1",
+      "action": "U",
+      "eventName": "Patient Change",
+      "who": "Patient/import-patient-1"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "recordImportRanges",
+      "outcome": "started",
+      "count": null
+    },
+    {
+      "name": "recordImportRanges",
+      "outcome": "completed",
+      "count": null
+    },
+    {
+      "name": "recordImportResourceOutcomes",
+      "outcomes": [
+        {
+          "resourceType": "Patient",
+          "created": false,
+          "updated": true,
+          "failed": false
+        },
+        {
+          "resourceType": "Observation",
+          "created": false,
+          "updated": true,
+          "failed": false
+        },
+        {
+          "resourceType": "Patient",
+          "created": true,
+          "updated": false,
+          "failed": false
+        },
+        {
+          "resourceType": "Patient",
+          "created": false,
+          "updated": false,
+          "failed": true
+        },
+        {
+          "resourceType": "Patient",
+          "created": false,
+          "updated": false,
+          "failed": false
+        },
+        {
+          "resourceType": "AuditEvent",
+          "created": true,
+          "updated": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "recordImportRangeDuration",
+      "isNonNegativeNumber": true
+    }
+  ]
+}

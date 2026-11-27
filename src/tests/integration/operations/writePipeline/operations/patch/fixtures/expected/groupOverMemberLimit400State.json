@@ -1,0 +1,124 @@
+{
+  "headers": {
+    "location": null,
+    "contentLocation": null
+  },
+  "documents": [
+    {
+      "_uuid": "60ec7c65-db79-5938-a83c-bd3150e08a1d",
+      "_access": {
+        "client": 1
+      },
+      "_sourceAssigningAuthority": "client",
+      "_sourceId": "put-parity-group",
+      "actual": true,
+      "id": "put-parity-group",
+      "member": [
+        {
+          "entity": {
+            "reference": "Patient/patch-parity-member-0",
+            "_uuid": "Patient/efbd24ba-1a02-58b0-b492-7d36eb0663ae",
+            "_sourceId": "Patient/patch-parity-member-0",
+            "_sourceAssigningAuthority": "client"
+          }
+        }
+      ],
+      "meta": {
+        "source": "http://example.com/source",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "client",
+            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+          }
+        ],
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>"
+      },
+      "resourceType": "Group",
+      "type": "person"
+    }
+  ],
+  "history": [
+    {
+      "id": "60ec7c65-db79-5938-a83c-bd3150e08a1d",
+      "resource": {
+        "resourceType": "Group",
+        "id": "put-parity-group",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "type": "person",
+        "actual": true,
+        "member": [
+          {
+            "entity": {
+              "reference": "Patient/patch-parity-member-0",
+              "_uuid": "Patient/efbd24ba-1a02-58b0-b492-7d36eb0663ae",
+              "_sourceId": "Patient/patch-parity-member-0",
+              "_sourceAssigningAuthority": "client"
+            }
+          }
+        ],
+        "_uuid": "60ec7c65-db79-5938-a83c-bd3150e08a1d",
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "put-parity-group",
+        "_access": {
+          "client": 1
+        }
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "POST",
+        "url": "/4_0_0/Group/put-parity-group"
+      },
+      "_recorded": "<recorded>"
+    }
+  ],
+  "gridFsFileActive": [],
+  "accessLog": [
+    {
+      "statusCode": 400,
+      "operationResult": null
+    }
+  ],
+  "audit": {
+    "entries": [],
+    "errors": [
+      {
+        "errorCode": 400,
+        "errorMessage": "Bad Request"
+      }
+    ]
+  },
+  "groupMembers": []
+}

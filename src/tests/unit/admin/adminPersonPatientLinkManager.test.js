@@ -41,6 +41,8 @@ const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
 const { RemoveHelper } = require('../../../operations/remove/removeHelper');
 const { PatientPersonManualLinkingEventProducer } = require('../../../utils/patientPersonManualLinkingEventProducer');
+const { WritePipelineSwitch } = require('../../../operations/writePipeline/writePipelineSwitch');
+const { AdminWriteRunner } = require('../../../admin/adminWriteRunner');
 
 function createMockInstance (ClassType) {
     const instance = Object.create(ClassType.prototype);
@@ -56,6 +58,8 @@ describe('AdminPersonPatientLinkManager', () => {
     let mockPatientFilterManager;
     let mockRemoveHelper;
     let mockPatientPersonManualLinkingEventProducer;
+    let mockWritePipelineSwitch;
+    let mockAdminWriteRunner;
 
     beforeEach(() => {
         mockDatabaseQueryFactory = createMockInstance(DatabaseQueryFactory);
@@ -70,6 +74,10 @@ describe('AdminPersonPatientLinkManager', () => {
         mockFhirOperationsManager.getRequestInfo = jestGlobal.fn().mockReturnValue({ requestId: 'req-1' });
         mockPostSaveProcessor.afterSaveAsync = jestGlobal.fn().mockResolvedValue(undefined);
         mockPatientPersonManualLinkingEventProducer.produceEventAsync = jestGlobal.fn().mockResolvedValue(undefined);
+        mockWritePipelineSwitch = createMockInstance(WritePipelineSwitch);
+        mockWritePipelineSwitch.useNewPathFor = jestGlobal.fn().mockReturnValue(false);
+        mockAdminWriteRunner = createMockInstance(AdminWriteRunner);
+        mockAdminWriteRunner.runAsync = jestGlobal.fn();
 
         manager = new AdminPersonPatientLinkManager({
             databaseQueryFactory: mockDatabaseQueryFactory,
@@ -78,8 +86,210 @@ describe('AdminPersonPatientLinkManager', () => {
             postSaveProcessor: mockPostSaveProcessor,
             patientFilterManager: mockPatientFilterManager,
             removeHelper: mockRemoveHelper,
-            patientPersonManualLinkingEventProducer: mockPatientPersonManualLinkingEventProducer
+            patientPersonManualLinkingEventProducer: mockPatientPersonManualLinkingEventProducer,
+            writePipelineSwitch: mockWritePipelineSwitch,
+            adminWriteRunner: mockAdminWriteRunner
         });
+    });
+
+    describe('routing to the write pipeline', () => {
+        const PERSON_UUID = '00000000-0000-4000-8000-0000000000a1';
+        const OTHER_PERSON_UUID = '00000000-0000-4000-8000-0000000000a2';
+        const PATIENT_UUID = '00000000-0000-4000-8000-0000000000b1';
+        const OBSERVATION_UUID = '00000000-0000-4000-8000-0000000000c1';
+        const ROUTED_METHODS = [
+            [
+                'createPersonToPersonLinkAsync',
+                'createPersonToPersonLink',
+                { bwellPersonId: `Person/${PERSON_UUID}`, externalPersonId: OTHER_PERSON_UUID }
+            ],
+            [
+                'removePersonToPersonLinkAsync',
+                'removePersonToPersonLink',
+                { bwellPersonId: PERSON_UUID, externalPersonId: `Person/${OTHER_PERSON_UUID}` }
+            ],
+            [
+                'createPersonToPatientLinkAsync',
+                'createPersonToPatientLink',
+                { externalPersonId: PERSON_UUID, patientId: `Patient/${PATIENT_UUID}` }
+            ],
+            [
+                'removePersonToPatientLinkAsync',
+                'removePersonToPatientLink',
+                { personId: PERSON_UUID, patientId: PATIENT_UUID }
+            ],
+            [
+                'updatePatientLinkAsync',
+                'updatePatientReference',
+                {
+                    resourceId: OBSERVATION_UUID,
+                    resourceType: 'Observation',
+                    patientId: PATIENT_UUID
+                }
+            ]
+        ];
+        const req = { body: { synthetic: true } };
+
+        test.each(ROUTED_METHODS)(
+            'with the admin switch on, %s runs %s through the runner with the ids as given and returns its json',
+            async (method, operation, ids) => {
+                const json = { message: 'synthetic' };
+                mockWritePipelineSwitch.useNewPathFor.mockReturnValue(true);
+                mockAdminWriteRunner.runAsync.mockResolvedValue({ json, linkEvent: null });
+                mockDatabaseQueryFactory.createQuery = jestGlobal.fn();
+
+                const result = await manager[`${method}`]({ req, ...ids });
+
+                expect(result).toBe(json);
+                expect(mockWritePipelineSwitch.useNewPathFor).toHaveBeenCalledWith('admin');
+                expect(mockAdminWriteRunner.runAsync).toHaveBeenCalledTimes(1);
+                expect(mockAdminWriteRunner.runAsync).toHaveBeenCalledWith({
+                    operation,
+                    req,
+                    input: ids
+                });
+                expect(mockDatabaseQueryFactory.createQuery).not.toHaveBeenCalled();
+                expect(mockAdminResourceWriter.writeAsync).not.toHaveBeenCalled();
+                expect(mockPatientPersonManualLinkingEventProducer.produceEventAsync).not.toHaveBeenCalled();
+            }
+        );
+
+        test.each([
+            [
+                'createPersonToPatientLinkAsync',
+                { externalPersonId: PERSON_UUID, patientId: PATIENT_UUID },
+                true
+            ],
+            [
+                'removePersonToPatientLinkAsync',
+                { personId: PERSON_UUID, patientId: PATIENT_UUID },
+                false
+            ]
+        ])(
+            'with the admin switch on, %s sends the runner\'s link event once',
+            async (method, ids, isLinking) => {
+                const json = { message: 'synthetic' };
+                const linkEvent = { personId: PERSON_UUID, patientId: PATIENT_UUID, isLinking };
+                mockWritePipelineSwitch.useNewPathFor.mockReturnValue(true);
+                mockAdminWriteRunner.runAsync.mockResolvedValue({ json, linkEvent });
+
+                const result = await manager[`${method}`]({ req, ...ids });
+
+                expect(result).toBe(json);
+                expect(mockPatientPersonManualLinkingEventProducer.produceEventAsync).toHaveBeenCalledTimes(1);
+                expect(mockPatientPersonManualLinkingEventProducer.produceEventAsync).toHaveBeenCalledWith({
+                    personId: PERSON_UUID,
+                    patientId: PATIENT_UUID,
+                    isLinking
+                });
+            }
+        );
+
+        test('with the admin switch on, an error from the runner is rethrown and no link event is sent', async () => {
+            const error = new Error('synthetic runner failure');
+            mockWritePipelineSwitch.useNewPathFor.mockReturnValue(true);
+            mockAdminWriteRunner.runAsync.mockRejectedValue(error);
+
+            await expect(
+                manager.createPersonToPatientLinkAsync({
+                    req,
+                    externalPersonId: PERSON_UUID,
+                    patientId: PATIENT_UUID
+                })
+            ).rejects.toBe(error);
+
+            expect(mockPatientPersonManualLinkingEventProducer.produceEventAsync).not.toHaveBeenCalled();
+        });
+
+        const PARENT_UUID = '00000000-0000-4000-8000-0000000000d1';
+        const OTHER_PARENT_UUID = '00000000-0000-4000-8000-0000000000d2';
+
+        /**
+         * Sets up a stored Person to delete, `person-1` with `PERSON_UUID`, and two parent Persons
+         * that link to it and to one other Person, each with an `id` that differs from its `_uuid`
+         * and found by its `_sourceId`. Returns the query manager's `fastFindOneAsync` mock.
+         * @returns {Function}
+         */
+        function setUpPersonWithParents () {
+            const parentsBySourceId = {
+                'parent-1': { id: 'parent-1', _uuid: PARENT_UUID },
+                'parent-2': { id: 'parent-2', _uuid: OTHER_PARENT_UUID }
+            };
+            for (const parent of Object.values(parentsBySourceId)) {
+                parent.link = [
+                    { target: { reference: 'Person/person-1' } },
+                    { target: { reference: 'Person/other-person' } }
+                ];
+            }
+            const parents = Object.values(parentsBySourceId);
+            const cursor = {
+                hasNext: jestGlobal.fn(async () => parents.length > 0),
+                next: jestGlobal.fn(async () => parents.shift())
+            };
+            const fastFindOneAsync = jestGlobal.fn(async ({ query }) => (
+                query._sourceId
+                    ? parentsBySourceId[query._sourceId]
+                    : { id: 'person-1', _uuid: PERSON_UUID, link: [] }
+            ));
+            mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
+                fastFindOneAsync,
+                findAsync: jestGlobal.fn().mockResolvedValue(cursor)
+            });
+            mockRemoveHelper.deleteManyAsync = jestGlobal.fn().mockResolvedValue(1);
+            return fastFindOneAsync;
+        }
+
+        test.each([
+            ['on', true],
+            ['off', false]
+        ])(
+            'with the admin switch %s, deletePersonAsync removes each parent link on the old path by the parent\'s id and the given person id',
+            async (description, switchOn) => {
+                const fastFindOneAsync = setUpPersonWithParents();
+                mockWritePipelineSwitch.useNewPathFor.mockReturnValue(switchOn);
+
+                const result = await manager.deletePersonAsync({ req, requestId: 'req-1', personId: 'person-1' });
+
+                expect(mockAdminWriteRunner.runAsync).not.toHaveBeenCalled();
+                expect(fastFindOneAsync.mock.calls.map(([args]) => args.query)).toStrictEqual([
+                    { _sourceId: 'parent-1' },
+                    { _sourceId: 'parent-2' },
+                    { id: 'person-1' }
+                ]);
+                expect(
+                    mockAdminResourceWriter.writeAsync.mock.calls.map(([args]) => ({
+                        id: args.resource.id,
+                        link: args.resource.link,
+                        smartMerge: args.smartMerge
+                    }))
+                ).toStrictEqual(['parent-1', 'parent-2'].map((id) => ({
+                    id,
+                    link: [{ target: { reference: 'Person/other-person' } }],
+                    smartMerge: false
+                })));
+                expect(result.deletedCount).toBe(1);
+                expect(result.linksRemoved).toStrictEqual(['parent-1', 'parent-2'].map((id) => ({
+                    message: `Removed link from Person/${id} to Person/person-1`,
+                    bwellPersonId: id,
+                    externalPersonId: 'person-1'
+                })));
+            }
+        );
+
+        test.each(ROUTED_METHODS)(
+            'with the admin switch off, %s never touches the runner',
+            async (method, operation, ids) => {
+                mockDatabaseQueryFactory.createQuery = jestGlobal.fn().mockReturnValue({
+                    fastFindOneAsync: jestGlobal.fn().mockResolvedValue(null)
+                });
+
+                await manager[`${method}`]({ req, ...ids });
+
+                expect(mockWritePipelineSwitch.useNewPathFor).toHaveBeenCalledWith('admin');
+                expect(mockAdminWriteRunner.runAsync).not.toHaveBeenCalled();
+                expect(mockDatabaseQueryFactory.createQuery).toHaveBeenCalled();
+            }
+        );
     });
 
     describe('createPersonToPersonLinkAsync', () => {

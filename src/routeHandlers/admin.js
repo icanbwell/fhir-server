@@ -13,9 +13,98 @@ const { AdminExportManager } = require('../admin/adminExportManager');
 const { logError } = require('../operations/common/logging');
 const { FhirRequestInfoBuilder } = require('../utils/fhirRequestInfoBuilder');
 const { isTrue } = require('../utils/isTrue');
-const { ForbiddenError } = require('../utils/httpErrors');
+const { BadRequestError, ForbiddenError } = require('../utils/httpErrors');
+const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
+const { sanitizeOutcomeDesc } = require('../utils/auditLogger');
+const {
+    ADMIN_OPERATIONS
+} = require('../operations/writePipeline/operations/admin/adminOperations');
 
 const DELETE_OPERATIONS_THAT_SEARCH = ['deletePerson', 'deletePatientDataGraph', 'deletePersonDataGraph'];
+
+/**
+ * Returns whether the admin POST operation is one of the admin writes in `ADMIN_OPERATIONS` and
+ * the admin write pipeline switch is on. Only then do errors use the standard FHIR error format
+ * instead of the old `exception` OperationOutcome.
+ * @param {SimpleContainer} container
+ * @param {string} operation
+ * @returns {boolean}
+ */
+function usesWritePipelineErrorFormat ({ container, operation }) {
+    return Object.hasOwn(ADMIN_OPERATIONS, operation) &&
+        container.writePipelineSwitch.useNewPathFor('admin');
+}
+
+/**
+ * Throws the 400 `invalid` BadRequestError for a missing parameter of an admin link write,
+ * whether or not the admin write pipeline switch is on. The error's message is the old response's
+ * message, which the old error format returns as `diagnostics`. Its issue, which the standard
+ * error format returns, names only the missing parameters, without the values the request sent.
+ * @param {string} message the old response's message
+ * @param {Object<string, *>} parameters the required parameters with the values the request sent
+ * @returns {never} always throws a BadRequestError
+ */
+function throwMissingParameter ({ message, parameters }) {
+    const missing = Object.keys(parameters).filter((name) => !parameters[`${name}`]);
+    throw new BadRequestError(new Error(message), {
+        issue: [
+            {
+                severity: 'error',
+                code: 'invalid',
+                details: { text: `Missing required parameter(s): ${missing.join(', ')}` }
+            }
+        ]
+    });
+}
+
+/**
+ * Returns the resource type an admin write's error audit event names: the target's fixed type
+ * (Person for the link writes), or for `updatePatientReference` the request's `resourceType` when
+ * it is a string; else null.
+ * @param {string} operation one of the names in `ADMIN_OPERATIONS`
+ * @param {Object|undefined} body
+ * @returns {string|null}
+ */
+function adminWriteResourceType ({ operation, body }) {
+    const { resourceType, resourceTypeParameter } = ADMIN_OPERATIONS[`${operation}`].target;
+    const value = resourceType ?? body?.[`${resourceTypeParameter}`];
+    return typeof value === 'string' ? value : null;
+}
+
+/**
+ * Logs an error audit event for a failed admin write, as the FHIR error handler does for a FHIR
+ * request: nothing when access audit events are off; else an entry with the status, the
+ * sanitized message (the status text, or the forbidden message for a 403) and, for a 403, the
+ * caller's scope. It never throws and never waits for the entry to be queued: a failure to build
+ * or queue the entry is logged and the response goes on.
+ * @param {SimpleContainer} container
+ * @param {import('http').IncomingMessage} req
+ * @param {string} operation one of the names in `ADMIN_OPERATIONS`
+ * @param {number} status
+ * @param {Error} error
+ * @returns {void}
+ */
+function logAdminWriteErrorAuditEvent ({ container, req, operation, status, error }) {
+    try {
+        if (!container.configManager.enableAccessAuditEvent) {
+            return;
+        }
+        const extraParams = status === 403 && req.authInfo?.scope
+            ? [{ type: 'scope', valueString: req.authInfo.scope }]
+            : undefined;
+        container.auditLogger.logErrorAuditEntryAsync({
+            requestInfo: FhirRequestInfoBuilder.fromRequest(req),
+            resourceType: adminWriteResourceType({ operation, body: req.body }),
+            errorCode: status,
+            errorMessage: sanitizeOutcomeDesc({ error, statusCode: status }),
+            extraParams
+        }).catch((e) => {
+            logError('Error logging admin error audit event', { error: e.message });
+        });
+    } catch (e) {
+        logError('Error building admin error audit event', { error: e.message });
+    }
+}
 
 /**
  * Every admin operation, read or write, calls this with its own required action. Throws (rather
@@ -359,17 +448,20 @@ async function handleAdminPost (
     req,
     res
 ) {
+    let useWritePipelineErrors = false;
+    /**
+     * @type {SimpleContainer|undefined}
+     */
+    let container;
+    const operation = req.params.op;
     try {
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
         httpContext.set('requestId', req.id);
-        const operation = req.params.op;
         logInfo(`op=${operation}`, {});
 
         // set up all the standard services in the container
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = fnGetContainer();
+        container = fnGetContainer();
+        useWritePipelineErrors = usesWritePipelineErrorFormat({ container, operation });
         /**
          * @type {ScopesManager}
          */
@@ -406,8 +498,9 @@ async function handleAdminPost (
                         });
                         return res.json(json);
                     }
-                    return res.json({
-                        message: `No bwellPersonId: ${bwellPersonId} or externalPersonId: ${externalPersonId} passed`
+                    return throwMissingParameter({
+                        message: `No bwellPersonId: ${bwellPersonId} or externalPersonId: ${externalPersonId} passed`,
+                        parameters: { bwellPersonId, externalPersonId }
                     });
                 }
 
@@ -428,8 +521,9 @@ async function handleAdminPost (
                         });
                         return res.json(json);
                     }
-                    return res.json({
-                        message: `No bwellPersonId: ${bwellPersonId} or externalPersonId: ${externalPersonId} passed`
+                    return throwMissingParameter({
+                        message: `No bwellPersonId: ${bwellPersonId} or externalPersonId: ${externalPersonId} passed`,
+                        parameters: { bwellPersonId, externalPersonId }
                     });
                 }
 
@@ -450,8 +544,9 @@ async function handleAdminPost (
                         });
                         return res.json(json);
                     }
-                    return res.json({
-                        message: `No patientId: ${patientId} passed`
+                    return throwMissingParameter({
+                        message: `No patientId: ${patientId} passed`,
+                        parameters: { patientId }
                     });
                 }
 
@@ -472,8 +567,9 @@ async function handleAdminPost (
                         });
                         return res.json(json);
                     }
-                    return res.json({
-                        message: `No personId: ${personId} or patientId: ${patientId} passed`
+                    return throwMissingParameter({
+                        message: `No personId: ${personId} or patientId: ${patientId} passed`,
+                        parameters: { personId, patientId }
                     });
                 }
 
@@ -496,8 +592,9 @@ async function handleAdminPost (
                         });
                         return res.json(json);
                     }
-                    return res.json({
-                        message: `No resourceId: ${resourceId} or resourceType: ${resourceType} or patientId: ${patientId} passed`
+                    return throwMissingParameter({
+                        message: `No resourceId: ${resourceId} or resourceType: ${resourceType} or patientId: ${patientId} passed`,
+                        parameters: { resourceId, resourceType, patientId }
                     });
                 }
                 case 'triggerExport': {
@@ -561,17 +658,46 @@ async function handleAdminPost (
             }
         } else {
             logInfo('Admin scope check failed', { scope, accessRequested: 'read' });
+            if (useWritePipelineErrors) {
+                const error = new ForbiddenError('user does not have access to this admin route');
+                logAdminWriteErrorAuditEvent({ container, req, operation, status: 403, error });
+                return res.status(403).json(
+                    convertErrorToOperationOutcome({ error, internalError: false })
+                );
+            }
             return res.status(403).json({
                 message: 'user does not have access to this admin route'
             });
         }
     } catch (error) {
-        logError(`Error in handleAdminPost`, {
-            message: error.message,
-            stack: error.stack,
-            source: 'handleAdminPost'
-        });
         const statusCode = error.statusCode || 500;
+        if (statusCode < 500) {
+            logInfo(`Error in handleAdminPost`, {
+                message: error.message,
+                statusCode,
+                source: 'handleAdminPost'
+            });
+        } else {
+            logError(`Error in handleAdminPost`, {
+                message: error.message,
+                stack: error.stack,
+                source: 'handleAdminPost'
+            });
+        }
+        if (useWritePipelineErrors) {
+            if (statusCode >= 400) {
+                logAdminWriteErrorAuditEvent({
+                    container,
+                    req,
+                    operation,
+                    status: statusCode,
+                    error
+                });
+            }
+            return res.status(statusCode).json(
+                convertErrorToOperationOutcome({ error, internalError: statusCode >= 500 })
+            );
+        }
         const operationOutcome = buildOperationOutcome({
             severity: 'error',
             code: 'exception',

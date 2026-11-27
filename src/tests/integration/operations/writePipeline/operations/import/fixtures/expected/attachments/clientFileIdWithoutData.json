@@ -1,0 +1,231 @@
+{
+  "result": [
+    {
+      "created": true,
+      "id": "import-document-pointer",
+      "uuid": "972adac7-e00e-5493-bfaa-3b99749e782d",
+      "resourceType": "DocumentReference",
+      "updated": false,
+      "sourceAssigningAuthority": "client-a"
+    }
+  ],
+  "errors": [],
+  "task": {
+    "status": "completed",
+    "output": [
+      {
+        "id": "bulk-import-range:s3://allowed-bucket/Patient.ndjson#0-result",
+        "type": {
+          "text": "result"
+        },
+        "valueUri": "s3://allowed-bucket/output/Patient-001.ndjson"
+      }
+    ]
+  },
+  "spanAttributes": [
+    {
+      "fhir_import.resources_created": 1,
+      "fhir_import.resources_updated": 0,
+      "fhir_import.resources_failed": 0
+    }
+  ],
+  "readAttempts": 1,
+  "stored": {
+    "DocumentReference_4_0_0": [
+      {
+        "_uuid": "972adac7-e00e-5493-bfaa-3b99749e782d",
+        "_access": {
+          "client-a": 1
+        },
+        "_sourceAssigningAuthority": "client-a",
+        "_sourceId": "import-document-pointer",
+        "content": [
+          {
+            "attachment": {
+              "contentType": "application/pdf"
+            }
+          }
+        ],
+        "id": "import-document-pointer",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client-a",
+              "id": "780f3570-15d5-5dcc-ab06-b088da3c1651"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client-a",
+              "id": "bea9f852-cb0f-5a1e-9990-4be9900c9623"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client-a",
+              "id": "f7279584-e65f-5598-bbc1-5e769f302e3c"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "resourceType": "DocumentReference",
+        "status": "current"
+      }
+    ]
+  },
+  "history": {
+    "DocumentReference_4_0_0_History": [
+      {
+        "id": "972adac7-e00e-5493-bfaa-3b99749e782d",
+        "resource": {
+          "resourceType": "DocumentReference",
+          "id": "import-document-pointer",
+          "meta": {
+            "source": "http://example.com/source",
+            "security": [
+              {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client-a",
+                "id": "780f3570-15d5-5dcc-ab06-b088da3c1651"
+              },
+              {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client-a",
+                "id": "bea9f852-cb0f-5a1e-9990-4be9900c9623"
+              },
+              {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client-a",
+                "id": "f7279584-e65f-5598-bbc1-5e769f302e3c"
+              }
+            ],
+            "versionId": "1",
+            "lastUpdated": "<lastUpdated>"
+          },
+          "status": "current",
+          "content": [
+            {
+              "attachment": {
+                "contentType": "application/pdf"
+              }
+            }
+          ],
+          "_sourceAssigningAuthority": "client-a",
+          "_uuid": "972adac7-e00e-5493-bfaa-3b99749e782d",
+          "_sourceId": "import-document-pointer",
+          "_access": {
+            "client-a": 1
+          }
+        },
+        "request": {
+          "method": "POST",
+          "url": "/4_0_0/DocumentReference/import-document-pointer"
+        },
+        "_recorded": "<lastUpdated>"
+      }
+    ]
+  },
+  "auditEvents": [
+    {
+      "resourceType": "AuditEvent",
+      "id": "<uuid>",
+      "meta": {
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "bwell",
+            "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "bwell",
+            "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "bwell",
+            "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c"
+          }
+        ]
+      },
+      "recorded": "<lastUpdated>",
+      "agent": [
+        {
+          "who": {
+            "reference": "Patient/person.import-parity-user",
+            "_uuid": "Patient/06fe4d3b-dc7f-5ad1-9a80-8f056ba865cf",
+            "_sourceId": "Patient/person.import-parity-user",
+            "_sourceAssigningAuthority": "bwell"
+          },
+          "altId": "import-parity-alt-id",
+          "requestor": true,
+          "network": {
+            "address": "10.0.0.1",
+            "type": "2"
+          }
+        }
+      ],
+      "source": {
+        "observer": {
+          "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_sourceAssigningAuthority": "bwell"
+        }
+      },
+      "type": {
+        "system": "http://dicom.nema.org/resources/ontology/DCM",
+        "code": "110112",
+        "display": "Query",
+        "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf"
+      },
+      "action": "C",
+      "entity": [
+        {
+          "what": {
+            "reference": "DocumentReference/972adac7-e00e-5493-bfaa-3b99749e782d",
+            "_uuid": "DocumentReference/972adac7-e00e-5493-bfaa-3b99749e782d",
+            "_sourceId": "DocumentReference/972adac7-e00e-5493-bfaa-3b99749e782d",
+            "_sourceAssigningAuthority": "bwell"
+          },
+          "detail": [
+            {
+              "type": "requestUrl",
+              "valueString": "$import"
+            },
+            {
+              "type": "requestId",
+              "valueString": "<uuid>"
+            },
+            {
+              "type": "taskId",
+              "valueString": "import-parity"
+            },
+            {
+              "type": "filepath",
+              "valueString": "s3://allowed-bucket/Patient.ndjson"
+            }
+          ]
+        }
+      ],
+      "_sourceId": "<uuid>",
+      "_access": {
+        "bwell": 1
+      },
+      "_sourceAssigningAuthority": "bwell",
+      "_uuid": "<uuid>"
+    }
+  ],
+  "gridFsFiles": [],
+  "gridFsContents": [],
+  "readBack": {
+    "import-document-pointer": [
+      {
+        "contentType": "application/pdf"
+      }
+    ]
+  }
+}

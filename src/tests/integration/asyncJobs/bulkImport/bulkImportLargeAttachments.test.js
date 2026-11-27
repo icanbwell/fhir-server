@@ -70,123 +70,139 @@ async function processRangeAsync(handler, container, message) {
     }
 }
 
-describe('Bulk import — large attachment externalization', () => {
-    beforeEach(async () => {
-        process.env.ENABLE_BULK_IMPORT = '1';
-        process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
-        process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
-        await commonBeforeEach();
-    });
+const WRITE_PATHS = [{ writePath: 'old' }, { writePath: 'new' }];
+const WRITE_PATH_OPERATIONS = {
+    old: 'merge,create,update,patch,admin',
+    new: 'merge,create,update,patch,admin,import'
+};
+let originalWritePipelineOperations;
 
-    afterEach(async () => {
-        delete process.env.ENABLE_BULK_IMPORT;
-        delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
-        delete process.env.ENABLE_EVENTS_KAFKA_V2;
-        await commonAfterEach();
-    });
+describe.each(WRITE_PATHS)('$writePath write path', ({ writePath }) => {
+    describe('Bulk import — large attachment externalization', () => {
+        beforeEach(async () => {
+            originalWritePipelineOperations = process.env.WRITE_PIPELINE_OPERATIONS;
+            process.env.WRITE_PIPELINE_OPERATIONS = WRITE_PATH_OPERATIONS[writePath];
+            process.env.ENABLE_BULK_IMPORT = '1';
+            process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
+            process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
+            await commonBeforeEach();
+        });
 
-    test('handleMessageAsync externalizes a DocumentReference attachment to GridFS instead of failing the line', async () => {
-        const request = await createTestRequest();
-
-        await request
-            .post('/4_0_0/$import')
-            .send(validParametersBody)
-            .set(getHeaders())
-            .expect(202);
-
-        const container = createTestContainer();
-        const handler = container.bulkImportHandler;
-
-        container.s3NdjsonReader.setLinesToYield([
-            {
-                resourceType: 'DocumentReference',
-                id: 'bulk-import-large-doc',
-                status: 'current',
-                content: [
-                    { attachment: { contentType: 'application/pdf', data: LARGE_DATA } }
-                ]
+        afterEach(async () => {
+            delete process.env.ENABLE_BULK_IMPORT;
+            if (originalWritePipelineOperations === undefined) {
+                delete process.env.WRITE_PIPELINE_OPERATIONS;
+            } else {
+                process.env.WRITE_PIPELINE_OPERATIONS = originalWritePipelineOperations;
             }
-        ]);
-
-        await processRangeAsync(handler, container, {
-            key: 'import-large-attachment-0',
-            value: makeCloudEvent(),
-            headers: []
+            delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
+            delete process.env.ENABLE_EVENTS_KAFKA_V2;
+            await commonAfterEach();
         });
 
-        const taskResp = await request
-            .get('/4_0_0/Task/import-large-attachment')
-            .set(getHeaders())
-            .expect(200);
-        expect(taskResp.body.status).toBe('completed');
+        test('handleMessageAsync externalizes a DocumentReference attachment to GridFS instead of failing the line', async () => {
+            const request = await createTestRequest();
 
-        // The line must NOT have been rejected as too-large -- no error output written.
-        const writeCalls = container.s3NdjsonReader.getWriteCalls();
-        const errorWrite = writeCalls.find((c) => c.filepath.includes('/output/errors/'));
-        expect(errorWrite).toBeUndefined();
+            await request
+                .post('/4_0_0/$import')
+                .send(validParametersBody)
+                .set(getHeaders())
+                .expect(202);
 
-        // Mongo doc should have the attachment externalized: no inline data, a _file_id sidecar.
-        const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
-        const mongoDoc = await fhirDb.collection('DocumentReference_4_0_0').findOne({ id: 'bulk-import-large-doc' });
-        expect(mongoDoc).toBeDefined();
-        expect(mongoDoc.content[0].attachment.data).toBeUndefined();
-        expect(typeof mongoDoc.content[0].attachment._file_id).toBe('string');
+            const container = createTestContainer();
+            const handler = container.bulkImportHandler;
 
-        // The actual bytes should be retrievable back out of GridFS.
-        const gridFSBucket = await container.mongoDatabaseManager.getGridFsBucket();
-        const chunks = [];
-        await new Promise((resolve, reject) => {
-            gridFSBucket.openDownloadStream(new (require('mongodb').ObjectId)(mongoDoc.content[0].attachment._file_id))
-                .on('data', (chunk) => chunks.push(chunk))
-                .on('error', reject)
-                .on('end', resolve);
-        });
-        expect(Buffer.concat(chunks).toString('utf-8')).toBe(LARGE_DATA);
-    });
+            container.s3NdjsonReader.setLinesToYield([
+                {
+                    resourceType: 'DocumentReference',
+                    id: 'bulk-import-large-doc',
+                    status: 'current',
+                    content: [
+                        { attachment: { contentType: 'application/pdf', data: LARGE_DATA } }
+                    ]
+                }
+            ]);
 
-    test('handleMessageAsync strips an attacker-supplied _file_id with no data instead of persisting it verbatim', async () => {
-        const request = await createTestRequest();
+            await processRangeAsync(handler, container, {
+                key: 'import-large-attachment-0',
+                value: makeCloudEvent(),
+                headers: []
+            });
 
-        await request
-            .post('/4_0_0/$import')
-            .send({ ...validParametersBody, id: 'import-attachment-pointer-injection' })
-            .set(getHeaders())
-            .expect(202);
+            const taskResp = await request
+                .get('/4_0_0/Task/import-large-attachment')
+                .set(getHeaders())
+                .expect(200);
+            expect(taskResp.body.status).toBe('completed');
 
-        const container = createTestContainer();
-        const handler = container.bulkImportHandler;
+            // The line must NOT have been rejected as too-large -- no error output written.
+            const writeCalls = container.s3NdjsonReader.getWriteCalls();
+            const errorWrite = writeCalls.find((c) => c.filepath.includes('/output/errors/'));
+            expect(errorWrite).toBeUndefined();
 
-        // No `data` at all -- only a directly-supplied _file_id, as if crafted to point at
-        // another tenant's already-uploaded GridFS content. convertDataToFileId only ever sets
-        // _file_id when `data` is present, so an unstripped _file_id here would persist
-        // unchanged and later reads would stream back whatever that id actually points to.
-        container.s3NdjsonReader.setLinesToYield([
-            {
-                resourceType: 'DocumentReference',
-                id: 'bulk-import-pointer-injection',
-                status: 'current',
-                content: [
-                    { attachment: { contentType: 'application/pdf', _file_id: '000000000000000000000000' } }
-                ]
-            }
-        ]);
+            // Mongo doc should have the attachment externalized: no inline data, a _file_id sidecar.
+            const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
+            const mongoDoc = await fhirDb.collection('DocumentReference_4_0_0').findOne({ id: 'bulk-import-large-doc' });
+            expect(mongoDoc).toBeDefined();
+            expect(mongoDoc.content[0].attachment.data).toBeUndefined();
+            expect(typeof mongoDoc.content[0].attachment._file_id).toBe('string');
 
-        await processRangeAsync(handler, container, {
-            key: 'import-attachment-pointer-injection-0',
-            value: makeCloudEvent({ taskId: 'import-attachment-pointer-injection' }),
-            headers: []
+            // The actual bytes should be retrievable back out of GridFS.
+            const gridFSBucket = await container.mongoDatabaseManager.getGridFsBucket();
+            const chunks = [];
+            await new Promise((resolve, reject) => {
+                gridFSBucket.openDownloadStream(new (require('mongodb').ObjectId)(mongoDoc.content[0].attachment._file_id))
+                    .on('data', (chunk) => chunks.push(chunk))
+                    .on('error', reject)
+                    .on('end', resolve);
+            });
+            expect(Buffer.concat(chunks).toString('utf-8')).toBe(LARGE_DATA);
         });
 
-        const taskResp = await request
-            .get('/4_0_0/Task/import-attachment-pointer-injection')
-            .set(getHeaders())
-            .expect(200);
-        expect(taskResp.body.status).toBe('completed');
+        test('handleMessageAsync strips an attacker-supplied _file_id with no data instead of persisting it verbatim', async () => {
+            const request = await createTestRequest();
 
-        const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
-        const mongoDoc = await fhirDb.collection('DocumentReference_4_0_0')
-            .findOne({ id: 'bulk-import-pointer-injection' });
-        expect(mongoDoc).toBeDefined();
-        expect(mongoDoc.content[0].attachment._file_id).toBeUndefined();
+            await request
+                .post('/4_0_0/$import')
+                .send({ ...validParametersBody, id: 'import-attachment-pointer-injection' })
+                .set(getHeaders())
+                .expect(202);
+
+            const container = createTestContainer();
+            const handler = container.bulkImportHandler;
+
+            // No `data` at all -- only a directly-supplied _file_id, as if crafted to point at
+            // another tenant's already-uploaded GridFS content. convertDataToFileId only ever sets
+            // _file_id when `data` is present, so an unstripped _file_id here would persist
+            // unchanged and later reads would stream back whatever that id actually points to.
+            container.s3NdjsonReader.setLinesToYield([
+                {
+                    resourceType: 'DocumentReference',
+                    id: 'bulk-import-pointer-injection',
+                    status: 'current',
+                    content: [
+                        { attachment: { contentType: 'application/pdf', _file_id: '000000000000000000000000' } }
+                    ]
+                }
+            ]);
+
+            await processRangeAsync(handler, container, {
+                key: 'import-attachment-pointer-injection-0',
+                value: makeCloudEvent({ taskId: 'import-attachment-pointer-injection' }),
+                headers: []
+            });
+
+            const taskResp = await request
+                .get('/4_0_0/Task/import-attachment-pointer-injection')
+                .set(getHeaders())
+                .expect(200);
+            expect(taskResp.body.status).toBe('completed');
+
+            const fhirDb = await container.mongoDatabaseManager.getClientDbAsync();
+            const mongoDoc = await fhirDb.collection('DocumentReference_4_0_0')
+                .findOne({ id: 'bulk-import-pointer-injection' });
+            expect(mongoDoc).toBeDefined();
+            expect(mongoDoc.content[0].attachment._file_id).toBeUndefined();
+        });
     });
 });

@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Resource Patient/put-parity-patient has null/empty value for 'system' or 'code' in security access tag."
+      }
+    }
+  ]
+}
