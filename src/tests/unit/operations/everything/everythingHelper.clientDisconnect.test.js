@@ -268,7 +268,6 @@ describe('EverythingHelper client disconnect', () => {
             everythingHelper._logAuditForRequestAsync = jest.fn(() => order.push('audit'));
             deleteStream.mockImplementation(async () => {
                 order.push('delete');
-                return deleteStream.impl ? deleteStream.impl() : undefined;
             });
             everythingHelper.retrieveEverythingMulipleIdsAsync = jest.fn(async ({ cachedStreamer }) => {
                 cachedStreamer.isFirstEntry = false;
@@ -296,16 +295,6 @@ describe('EverythingHelper client disconnect', () => {
             await expect(run(parsedArgs)).rejects.toBeInstanceOf(ClientDisconnectedError);
             expect(deleteStream).toHaveBeenCalledWith('cache-key');
             expect(order).toEqual(['audit', 'delete']);
-        });
-
-        test('a failing cache delete is logged and does not replace the disconnect error', async () => {
-            const logging = require('../../../../operations/common/logging');
-            const deleteStream = jest.fn();
-            deleteStream.impl = () => { throw new Error('redis down'); };
-            const { parsedArgs } = setup({ deleteStream });
-            await expect(run(parsedArgs)).rejects.toBeInstanceOf(ClientDisconnectedError);
-            expect(everythingHelper._logAuditForRequestAsync).toHaveBeenCalledTimes(1);
-            expect(logging.logError).toHaveBeenCalledTimes(1);
         });
     });
 

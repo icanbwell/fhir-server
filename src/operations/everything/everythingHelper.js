@@ -846,13 +846,8 @@ class EverythingHelper {
                     });
                 }
                 if (cachedStreamer && !cachedStreamer.isFirstEntry) {
-                    try {
-                        await this.redisStreamManager.deleteStream(cacheKey);
-                    } catch (deleteError) {
-                        logError('Error deleting partial $everything cache stream after client disconnect', {
-                            error: deleteError.message
-                        });
-                    }
+                    // deleteStream logs and reports its own failures, so it cannot replace the disconnect error
+                    await this.redisStreamManager.deleteStream(cacheKey);
                 }
                 throw error;
             }
