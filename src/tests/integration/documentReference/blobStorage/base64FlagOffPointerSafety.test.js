@@ -2,7 +2,7 @@
 
 const { afterEach, beforeEach, describe, expect, test } = require('@jest/globals');
 const {
-    commonAfterEach, commonBeforeEach, getHeaders, getHeadersJsonPatch, mockHttpContext
+    commonAfterEach, commonBeforeEach, getHeaders, getHeadersJsonPatch, getTestContainer, mockHttpContext
 } = require('../../common');
 const {
     ENV_FLAG_OFF, ENV_ON, LARGE_DATA, WRITES, WRITE_MODES,
@@ -92,6 +92,27 @@ describe.each(WRITE_MODES)('DocumentReference pointer safety with the flag off [
 
         expect(written.status).toBeLessThan(300);
         expect((await getMongoDocument(id)).meta.versionId).toBe(versionId);
+        await expectPointerKept({ id, uuid, pointer });
+    });
+
+    // The version written now references the stored history object, so its lifetime is refreshed
+    // (copy onto itself) as it is when the data is omitted.
+    test.each(WRITE_KINDS)('%s of the stored data and another field changed refreshes the history object', async (_name, kind) => {
+        const { request, id, uuid, pointer } = await createExternalizedWithFlagOff();
+        const body = {
+            ...buildDocumentReference({ id, content: [{ attachment: attachmentOf(LARGE_DATA) }] }),
+            description: 'another field'
+        };
+        const historyClient = getTestContainer().historyResourceCloudStorageClient;
+        historyClient.copyCalls = [];
+
+        const written = await send[kind](request, id, body);
+        await settle(requestId);
+
+        expect(written.status).toBeLessThan(300);
+        expect((await getMongoDocument(id)).meta.versionId).toBe('2');
+        expect(historyClient.copyCalls)
+            .toContain(`DocumentReference_4_0_0_History/${uuid}/${pointer.hash}`);
         await expectPointerKept({ id, uuid, pointer });
     });
 

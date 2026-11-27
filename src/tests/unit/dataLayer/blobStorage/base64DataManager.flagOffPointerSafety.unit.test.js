@@ -180,6 +180,21 @@ describe('Base64DataManager protects an existing pointer with the DocumentRefere
             expect(Object.keys(live.uploadedData)).toEqual([liveKeyOf(manager)]);
         });
 
+        // The stored object of the history bucket has a lifetime that every write of a version
+        // referencing it refreshes (copy onto itself), so the leaf is marked unchanged, as an
+        // omitted data is.
+        test.each([
+            ['smartMerge false (PUT)', false],
+            ['smartMerge true ($merge)', true]
+        ])('data of the stored hash marks the leaf unchanged for the history refresh [%s]', async (_name, smartMerge) => {
+            const { manager, requestInfo } = await reconcile({ incomingData: LARGE, smartMerge });
+            const segments = ['content', '[]', 'attachment', 'data'];
+
+            expect(manager._readUnchangedLeafMarker(requestInfo, 'uuid-d1', segments, [0])).toBe(true);
+            expect(manager._readStashedOriginalData(requestInfo, 'uuid-d1', segments, [0]))
+                .toEqual({ hash: (await pointerOf(LARGE)).hash, changed: false });
+        });
+
         // A body built from the stored document (an admin write does) carries the stored pointer.
         // The pointer does not tell elements apart: the same element keeps it, another one does not
         // inherit it, whatever pointer the body carries.

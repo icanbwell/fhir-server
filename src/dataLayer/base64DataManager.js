@@ -564,6 +564,12 @@ class Base64DataManager {
                 if (typeof incomingValue === 'string') {
                     const hash = await computeContentHashAsync(incomingValue);
                     if (!externalizes && hash === blobMeta.hash) {
+                        // same stash as the omitted-data branch: refreshes the history object
+                        const uuid = finalResource._uuid;
+                        this._stashUnchangedLeaf(requestInfo, uuid, dataSegments, indices);
+                        this._stashOriginalData(requestInfo, uuid, dataSegments, indices, {
+                            hash: blobMeta.hash, changed: false
+                        });
                         return;
                     }
                     const finalParent = this._parentAt(finalResource, dataSegments, indices);
