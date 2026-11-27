@@ -394,8 +394,9 @@ describe('AccessLogger', () => {
     // =====================================================
     describe('flushAsync', () => {
         test('should do nothing when queue is empty', async () => {
-            await accessLogger.flushAsync();
+            const count = await accessLogger.flushAsync();
             expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+            expect(count).toBe(0);
         });
 
         test('should flush queue and call executeAsync', async () => {
@@ -403,9 +404,10 @@ describe('AccessLogger', () => {
                 { doc: { timestamp: new Date() }, requestInfo: { requestId: 'r1' } },
                 { doc: { timestamp: new Date() }, requestInfo: { requestId: 'r2' } }
             ];
-            await accessLogger.flushAsync();
+            const count = await accessLogger.flushAsync();
             expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
             expect(accessLogger.queue).toHaveLength(0);
+            expect(count).toBe(2);
         });
 
         test('should log error when mergeResults have issues', async () => {
@@ -415,11 +417,13 @@ describe('AccessLogger', () => {
             accessLogger.queue = [
                 { doc: { timestamp: new Date() }, requestInfo: { requestId: 'r1' } }
             ];
-            await accessLogger.flushAsync();
+            const count = await accessLogger.flushAsync();
             expect(logError).toHaveBeenCalledWith(
                 'Error creating access-log entries',
                 expect.objectContaining({ source: 'flushAsync' })
             );
+            // count reflects entries dispatched, even when some had write issues
+            expect(count).toBe(1);
         });
 
         // BUG TEST: executeAsync returns null/undefined - crashes on .filter()
