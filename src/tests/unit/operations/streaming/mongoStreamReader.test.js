@@ -646,6 +646,19 @@ describe('MongoReadableStream', () => {
         });
     });
 
+    describe('readCursorAsync without params and response', () => {
+        test('rethrows the original cursor error and closes the cursor', async () => {
+            const poolTimeout = new Error('Timed out while checking out a connection from connection pool');
+            poolTimeout.name = 'MongoWaitQueueTimeoutError';
+            mockCursor.hasNext.mockRejectedValue(poolTimeout);
+
+            const stream = createStream({ params: undefined, response: undefined });
+
+            await expect(stream.readCursorAsync({ size: 10 })).rejects.toBe(poolTimeout);
+            expect(mockCursor.close).toHaveBeenCalled();
+        });
+    });
+
     describe('_read', () => {
         test('should prevent concurrent reads via isFetchingData flag', async () => {
             mockCursor.hasNext.mockResolvedValue(false);

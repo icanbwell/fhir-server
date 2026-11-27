@@ -440,6 +440,14 @@ const everythingCacheInvalidationFailedCounter = meter.createCounter('fhir_every
     description: 'Failed attempts to bump an $everything cache generation after a Consent save, after retries, by reason (increment|linked_patient_lookup). Each one leaves a window, up to the cache TTL, in which a cached $everything can still hold what the Consent now hides.'
 });
 
+const graphqlErrorsCounter = meter.createCounter('fhir_graphql_errors_total', {
+    description: 'GraphQL errors by endpoint, operation_type, code (extensions.code) and root_field. One per error in a response, so a response with several failing fields counts each. Alert on code INTERNAL_SERVER_ERROR and DOWNSTREAM_*.'
+});
+
+const graphqlPartialResponsesCounter = meter.createCounter('fhir_graphql_partial_responses_total', {
+    description: 'GraphQL responses that carry both data and errors, by endpoint and operation_type. The client gets a 200 with some fields null.'
+});
+
 /**
  * Splits a `tallyMergeOutcomes` composite key ("outcome|resourceType") back into its parts.
  * Shared by recordMergeOutcomes and recordImportResourceOutcomes so the key format has one
@@ -850,6 +858,31 @@ function recordEverythingCacheInvalidationFailed (reason) {
     });
 }
 
+/**
+ * Emit fhir_graphql_errors_total. root_field is the schema name of the root field (never the
+ * client's alias), or unknown.
+ * @param {{endpoint: string, operationType: string, code: string, rootField: string}} labels
+ */
+function recordGraphQlError ({ endpoint, operationType, code, rootField }) {
+    graphqlErrorsCounter.add(1, {
+        endpoint: endpoint || UNKNOWN,
+        operation_type: operationType || UNKNOWN,
+        code: code || UNKNOWN,
+        root_field: rootField || UNKNOWN
+    });
+}
+
+/**
+ * Emit fhir_graphql_partial_responses_total.
+ * @param {{endpoint: string, operationType: string}} labels
+ */
+function recordGraphQlPartialResponse ({ endpoint, operationType }) {
+    graphqlPartialResponsesCounter.add(1, {
+        endpoint: endpoint || UNKNOWN,
+        operation_type: operationType || UNKNOWN
+    });
+}
+
 module.exports = {
     // Instruments — exported so integration tests can spy on `.add` / `.record`.
     mergeOutcomeCounter,
@@ -881,6 +914,8 @@ module.exports = {
     mongoPoolWaitQueueSizeUpDownCounter,
     viewControlOutcomeCounter,
     everythingCacheInvalidationFailedCounter,
+    graphqlErrorsCounter,
+    graphqlPartialResponsesCounter,
 
     // Recording functions — production code calls these.
     recordMergeOutcomes,
@@ -910,6 +945,8 @@ module.exports = {
     recordMongoPoolWaitQueueSizeChange,
     recordViewControlOutcome,
     recordEverythingCacheInvalidationFailed,
+    recordGraphQlError,
+    recordGraphQlPartialResponse,
 
     // Pure helpers — exported for direct unit testing.
     tallyMergeOutcomes,
