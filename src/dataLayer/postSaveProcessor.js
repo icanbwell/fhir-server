@@ -1,6 +1,13 @@
 const { assertTypeEquals } = require('../utils/assertType');
 const { BasePostSaveHandler } = require('../utils/basePostSaveHandler');
 const { RethrownError } = require('../utils/rethrownError');
+const { logInfo, logError } = require('../operations/common/logging');
+
+/**
+ * A handler flush at least this long is logged, so a stalled handler can be identified
+ * without logging every fast flush.
+ */
+const SLOW_HANDLER_FLUSH_THRESHOLD_MS = 1000;
 
 /**
  * @classdesc This class holds all the tasks to run after we insert/update a resource
@@ -65,11 +72,30 @@ class PostSaveProcessor {
      */
     async flushAsync () {
         for (const handler of this.handlers) {
-            await handler.flushAsync();
+            const handlerName = handler.constructor.name;
+            const startTime = Date.now();
+            try {
+                await handler.flushAsync();
+            } catch (e) {
+                logError(`Post-save handler flush failed: ${handlerName}`, {
+                    handler: handlerName,
+                    durationMs: Date.now() - startTime,
+                    errMessage: e.message
+                });
+                throw e;
+            }
+            const durationMs = Date.now() - startTime;
+            if (durationMs >= SLOW_HANDLER_FLUSH_THRESHOLD_MS) {
+                logInfo(`Slow post-save handler flush finished: ${handlerName}`, {
+                    handler: handlerName,
+                    durationMs
+                });
+            }
         }
     }
 }
 
 module.exports = {
-    PostSaveProcessor
+    PostSaveProcessor,
+    SLOW_HANDLER_FLUSH_THRESHOLD_MS
 };

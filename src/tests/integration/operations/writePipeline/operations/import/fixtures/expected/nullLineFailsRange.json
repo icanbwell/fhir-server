@@ -1,0 +1,23 @@
+{
+  "result": [],
+  "errors": [],
+  "task": {
+    "status": "failed",
+    "output": []
+  },
+  "spanAttributes": [
+    {
+      "fhir_import.outcome": "failed"
+    },
+    {
+      "fhir_import.resources_created": 0,
+      "fhir_import.resources_updated": 0,
+      "fhir_import.resources_failed": 1
+    }
+  ],
+  "readAttempts": 3,
+  "stored": {},
+  "history": {},
+  "auditEvents": [],
+  "gridFsFiles": []
+}

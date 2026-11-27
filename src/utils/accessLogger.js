@@ -324,11 +324,11 @@ class AccessLogger {
 
     /**
      * Flush
-     * @return {Promise<void>}
+     * @return {Promise<number>} number of entries dispatched to the database (not necessarily persisted successfully)
      */
     async flushAsync() {
         if (this.queue.length === 0) {
-            return;
+            return 0;
         }
         const release = await mutex.acquire();
         let currentQueue = [];
@@ -397,6 +397,8 @@ class AccessLogger {
                 });
             }
         }
+
+        return currentQueue.length;
     }
 }
 

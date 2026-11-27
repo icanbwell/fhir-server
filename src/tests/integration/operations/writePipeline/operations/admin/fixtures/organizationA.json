@@ -1,0 +1,18 @@
+{
+  "resourceType": "Organization",
+  "id": "admin-organization-a",
+  "meta": {
+    "source": "https://example.com/admin-tests/tenant-a",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "tenant-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "tenant-a"
+      }
+    ]
+  },
+  "name": "Synthetic Organization A"
+}

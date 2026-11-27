@@ -1,0 +1,103 @@
+{
+  "headers": {
+    "location": null,
+    "contentLocation": null
+  },
+  "documents": [
+    {
+      "_uuid": "0286c9b9-1774-52c8-b949-ee3d46209942",
+      "_access": {
+        "client": 1
+      },
+      "_sourceAssigningAuthority": "client",
+      "_sourceId": "patch-parity-organization",
+      "active": true,
+      "id": "patch-parity-organization",
+      "meta": {
+        "source": "http://example.com/source",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "client",
+            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "client",
+            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "client",
+            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+          }
+        ],
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>"
+      },
+      "name": "Synthetic Parity Organization",
+      "resourceType": "Organization"
+    }
+  ],
+  "history": [
+    {
+      "id": "0286c9b9-1774-52c8-b949-ee3d46209942",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "patch-parity-organization",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client",
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client",
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client",
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "active": true,
+        "name": "Synthetic Parity Organization",
+        "_uuid": "0286c9b9-1774-52c8-b949-ee3d46209942",
+        "_sourceAssigningAuthority": "client",
+        "_sourceId": "patch-parity-organization",
+        "_access": {
+          "client": 1
+        }
+      },
+      "request": {
+        "id": "<requestId>",
+        "method": "POST",
+        "url": "/4_0_0/Organization/patch-parity-organization"
+      },
+      "_recorded": "<recorded>"
+    }
+  ],
+  "gridFsFileActive": [],
+  "accessLog": [
+    {
+      "statusCode": 403,
+      "operationResult": null
+    }
+  ],
+  "audit": {
+    "entries": [],
+    "errors": [
+      {
+        "errorCode": 403,
+        "errorMessage": "Write not allowed using user scopes if patient scope is present: user c8508855-bfe6-543d-baa4-3470e609661d does not have access to [Organization]"
+      }
+    ]
+  }
+}

@@ -109,7 +109,7 @@ describe('Seperate History Resource Database Cluster Tests', () => {
         );
     });
 
-    test('admin endpoint, person to patient link is removed using id', async () => {
+    test('admin endpoint, person to patient links are removed using uuid', async () => {
         const request = await createTestRequest((c) => {
             c.register(
                 'mongoDatabaseManager',
@@ -141,8 +141,8 @@ describe('Seperate History Resource Database Cluster Tests', () => {
         resp = await request
             .post('/admin/removePersonToPatientLink')
             .send({
-                personId: 'Person/1',
-                patientId: 'Patient/1'
+                personId: 'Person/cb7e34dd-2684-55ac-a1ad-bb926123ffa1',
+                patientId: 'Patient/cb7e34dd-2684-55ac-a1ad-bb926123ffa1'
             })
             .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
             .expect(200);

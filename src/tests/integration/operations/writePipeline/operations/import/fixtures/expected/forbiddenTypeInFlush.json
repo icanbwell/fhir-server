@@ -1,0 +1,496 @@
+{
+  "result": [
+    {
+      "created": true,
+      "id": "import-patient-1",
+      "uuid": "bc87f85d-3ee5-5e63-bae8-e30c6cd3abf1",
+      "resourceType": "Patient",
+      "updated": false,
+      "sourceAssigningAuthority": "client-a"
+    },
+    {
+      "operationOutcome": {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "forbidden",
+            "details": {
+              "text": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Observation]"
+            },
+            "diagnostics": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Observation]",
+            "extension": [
+              {
+                "url": "https://www.icanbwell.com/source-byte-offset",
+                "valueInteger": 100
+              }
+            ]
+          }
+        ]
+      },
+      "issue": {
+        "severity": "error",
+        "code": "forbidden",
+        "details": {
+          "text": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Observation]"
+        },
+        "diagnostics": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Observation]",
+        "extension": [
+          {
+            "url": "https://www.icanbwell.com/source-byte-offset",
+            "valueInteger": 100
+          }
+        ]
+      },
+      "created": false,
+      "id": "import-observation-1",
+      "uuid": "9d1147ad-0f6e-5765-8ed7-18386e814b53",
+      "resourceType": "Observation",
+      "updated": false,
+      "sourceAssigningAuthority": "client-a"
+    },
+    {
+      "created": true,
+      "id": "import-forbidden-type-second",
+      "uuid": "aec8a32a-2fa5-5ba1-a64e-158a45f84880",
+      "resourceType": "Patient",
+      "updated": false,
+      "sourceAssigningAuthority": "client-a"
+    }
+  ],
+  "errors": [
+    {
+      "operationOutcome": {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "forbidden",
+            "details": {
+              "text": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Observation]"
+            },
+            "diagnostics": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Observation]",
+            "extension": [
+              {
+                "url": "https://www.icanbwell.com/source-byte-offset",
+                "valueInteger": 100
+              }
+            ]
+          }
+        ]
+      },
+      "issue": {
+        "severity": "error",
+        "code": "forbidden",
+        "details": {
+          "text": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Observation]"
+        },
+        "diagnostics": "None of the provided scopes matched an allowed scope.: user import-parity-user does not have access to [Observation]",
+        "extension": [
+          {
+            "url": "https://www.icanbwell.com/source-byte-offset",
+            "valueInteger": 100
+          }
+        ]
+      },
+      "created": false,
+      "id": "import-observation-1",
+      "uuid": "9d1147ad-0f6e-5765-8ed7-18386e814b53",
+      "resourceType": "Observation",
+      "updated": false,
+      "sourceAssigningAuthority": "client-a"
+    }
+  ],
+  "task": {
+    "status": "completed",
+    "output": [
+      {
+        "id": "bulk-import-range:s3://allowed-bucket/Patient.ndjson#0-result",
+        "type": {
+          "text": "result"
+        },
+        "valueUri": "s3://allowed-bucket/output/Patient-001.ndjson"
+      },
+      {
+        "id": "bulk-import-range:s3://allowed-bucket/Patient.ndjson#0-error",
+        "type": {
+          "text": "error"
+        },
+        "valueUri": "s3://allowed-bucket/output/errors/Patient-001-errors.ndjson"
+      }
+    ]
+  },
+  "spanAttributes": [
+    {
+      "fhir_import.resources_created": 2,
+      "fhir_import.resources_updated": 0,
+      "fhir_import.resources_failed": 1
+    }
+  ],
+  "readAttempts": 1,
+  "stored": {
+    "Patient_4_0_0": [
+      {
+        "_uuid": "aec8a32a-2fa5-5ba1-a64e-158a45f84880",
+        "_access": {
+          "client-a": 1
+        },
+        "_sourceAssigningAuthority": "client-a",
+        "_sourceId": "import-forbidden-type-second",
+        "id": "import-forbidden-type-second",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client-a",
+              "id": "780f3570-15d5-5dcc-ab06-b088da3c1651"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client-a",
+              "id": "bea9f852-cb0f-5a1e-9990-4be9900c9623"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client-a",
+              "id": "f7279584-e65f-5598-bbc1-5e769f302e3c"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "name": [
+          {
+            "family": "Importer",
+            "given": [
+              "Alpha"
+            ]
+          }
+        ],
+        "resourceType": "Patient"
+      },
+      {
+        "_uuid": "bc87f85d-3ee5-5e63-bae8-e30c6cd3abf1",
+        "_access": {
+          "client-a": 1
+        },
+        "_sourceAssigningAuthority": "client-a",
+        "_sourceId": "import-patient-1",
+        "id": "import-patient-1",
+        "meta": {
+          "source": "http://example.com/source",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client-a",
+              "id": "780f3570-15d5-5dcc-ab06-b088da3c1651"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client-a",
+              "id": "bea9f852-cb0f-5a1e-9990-4be9900c9623"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client-a",
+              "id": "f7279584-e65f-5598-bbc1-5e769f302e3c"
+            }
+          ],
+          "versionId": "1",
+          "lastUpdated": "<lastUpdated>"
+        },
+        "name": [
+          {
+            "family": "Importer",
+            "given": [
+              "Alpha"
+            ]
+          }
+        ],
+        "resourceType": "Patient"
+      }
+    ]
+  },
+  "history": {
+    "Patient_4_0_0_History": [
+      {
+        "id": "aec8a32a-2fa5-5ba1-a64e-158a45f84880",
+        "resource": {
+          "resourceType": "Patient",
+          "id": "import-forbidden-type-second",
+          "meta": {
+            "source": "http://example.com/source",
+            "security": [
+              {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client-a",
+                "id": "780f3570-15d5-5dcc-ab06-b088da3c1651"
+              },
+              {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client-a",
+                "id": "bea9f852-cb0f-5a1e-9990-4be9900c9623"
+              },
+              {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client-a",
+                "id": "f7279584-e65f-5598-bbc1-5e769f302e3c"
+              }
+            ],
+            "versionId": "1",
+            "lastUpdated": "<lastUpdated>"
+          },
+          "name": [
+            {
+              "family": "Importer",
+              "given": [
+                "Alpha"
+              ]
+            }
+          ],
+          "_sourceAssigningAuthority": "client-a",
+          "_uuid": "aec8a32a-2fa5-5ba1-a64e-158a45f84880",
+          "_sourceId": "import-forbidden-type-second",
+          "_access": {
+            "client-a": 1
+          }
+        },
+        "request": {
+          "method": "POST",
+          "url": "/4_0_0/Patient/import-forbidden-type-second"
+        },
+        "_recorded": "<lastUpdated>"
+      },
+      {
+        "id": "bc87f85d-3ee5-5e63-bae8-e30c6cd3abf1",
+        "resource": {
+          "resourceType": "Patient",
+          "id": "import-patient-1",
+          "meta": {
+            "source": "http://example.com/source",
+            "security": [
+              {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client-a",
+                "id": "780f3570-15d5-5dcc-ab06-b088da3c1651"
+              },
+              {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client-a",
+                "id": "bea9f852-cb0f-5a1e-9990-4be9900c9623"
+              },
+              {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client-a",
+                "id": "f7279584-e65f-5598-bbc1-5e769f302e3c"
+              }
+            ],
+            "versionId": "1",
+            "lastUpdated": "<lastUpdated>"
+          },
+          "name": [
+            {
+              "family": "Importer",
+              "given": [
+                "Alpha"
+              ]
+            }
+          ],
+          "_sourceAssigningAuthority": "client-a",
+          "_uuid": "bc87f85d-3ee5-5e63-bae8-e30c6cd3abf1",
+          "_sourceId": "import-patient-1",
+          "_access": {
+            "client-a": 1
+          }
+        },
+        "request": {
+          "method": "POST",
+          "url": "/4_0_0/Patient/import-patient-1"
+        },
+        "_recorded": "<lastUpdated>"
+      }
+    ]
+  },
+  "auditEvents": [
+    {
+      "resourceType": "AuditEvent",
+      "id": "<uuid>",
+      "meta": {
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "bwell",
+            "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "bwell",
+            "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "bwell",
+            "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c"
+          }
+        ]
+      },
+      "recorded": "<lastUpdated>",
+      "agent": [
+        {
+          "who": {
+            "reference": "Patient/person.import-parity-user",
+            "_uuid": "Patient/06fe4d3b-dc7f-5ad1-9a80-8f056ba865cf",
+            "_sourceId": "Patient/person.import-parity-user",
+            "_sourceAssigningAuthority": "bwell"
+          },
+          "altId": "import-parity-alt-id",
+          "requestor": true,
+          "network": {
+            "address": "10.0.0.1",
+            "type": "2"
+          }
+        }
+      ],
+      "source": {
+        "observer": {
+          "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_sourceAssigningAuthority": "bwell"
+        }
+      },
+      "type": {
+        "system": "http://dicom.nema.org/resources/ontology/DCM",
+        "code": "110112",
+        "display": "Query",
+        "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf"
+      },
+      "action": "C",
+      "entity": [
+        {
+          "what": {
+            "reference": "Patient/bc87f85d-3ee5-5e63-bae8-e30c6cd3abf1",
+            "_uuid": "Patient/bc87f85d-3ee5-5e63-bae8-e30c6cd3abf1",
+            "_sourceId": "Patient/bc87f85d-3ee5-5e63-bae8-e30c6cd3abf1",
+            "_sourceAssigningAuthority": "bwell"
+          },
+          "detail": [
+            {
+              "type": "requestUrl",
+              "valueString": "$import"
+            },
+            {
+              "type": "requestId",
+              "valueString": "<uuid>"
+            },
+            {
+              "type": "taskId",
+              "valueString": "import-parity"
+            },
+            {
+              "type": "filepath",
+              "valueString": "s3://allowed-bucket/Patient.ndjson"
+            }
+          ]
+        },
+        {
+          "what": {
+            "reference": "Patient/aec8a32a-2fa5-5ba1-a64e-158a45f84880",
+            "_uuid": "Patient/aec8a32a-2fa5-5ba1-a64e-158a45f84880",
+            "_sourceId": "Patient/aec8a32a-2fa5-5ba1-a64e-158a45f84880",
+            "_sourceAssigningAuthority": "bwell"
+          }
+        }
+      ],
+      "_sourceId": "<uuid>",
+      "_access": {
+        "bwell": 1
+      },
+      "_sourceAssigningAuthority": "bwell",
+      "_uuid": "<uuid>"
+    },
+    {
+      "resourceType": "AuditEvent",
+      "id": "<uuid>",
+      "meta": {
+        "versionId": "1",
+        "lastUpdated": "<lastUpdated>",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "bwell",
+            "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "bwell",
+            "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "bwell",
+            "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c"
+          }
+        ]
+      },
+      "recorded": "<lastUpdated>",
+      "agent": [
+        {
+          "who": {
+            "reference": "Patient/person.import-parity-user",
+            "_uuid": "Patient/06fe4d3b-dc7f-5ad1-9a80-8f056ba865cf",
+            "_sourceId": "Patient/person.import-parity-user",
+            "_sourceAssigningAuthority": "bwell"
+          },
+          "altId": "import-parity-alt-id",
+          "requestor": true,
+          "network": {
+            "address": "10.0.0.1",
+            "type": "2"
+          }
+        }
+      ],
+      "source": {
+        "observer": {
+          "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+          "_sourceAssigningAuthority": "bwell"
+        }
+      },
+      "type": {
+        "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+        "code": "rest",
+        "display": "RESTful Operation",
+        "id": "79ed374f-3461-54db-bba1-a6aaa1f06ca0"
+      },
+      "action": "E",
+      "outcome": "4",
+      "outcomeDesc": "Observation/import-observation-1: bulk import failure",
+      "entity": [
+        {
+          "detail": [
+            {
+              "type": "requestUrl",
+              "valueString": "$import"
+            },
+            {
+              "type": "requestId",
+              "valueString": "<uuid>"
+            }
+          ]
+        }
+      ],
+      "_sourceId": "<uuid>",
+      "_access": {
+        "bwell": 1
+      },
+      "_sourceAssigningAuthority": "bwell",
+      "_uuid": "<uuid>"
+    }
+  ],
+  "gridFsFiles": []
+}

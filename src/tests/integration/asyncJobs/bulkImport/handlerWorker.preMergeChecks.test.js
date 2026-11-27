@@ -52,106 +52,122 @@ const patient = (overrides = {}) => ({
     ...overrides
 });
 
-// Each imported resource must clear the same pre-merge checks the $merge API applies before it
-// is written. These cases cover the checks the worker did not run before: the pipe-in-id rule and
-// meta validation (here, more than one owner tag on a new resource). In each case the rejected
-// line is recorded in the error output and the rest of the range is still imported.
-describe('BulkImportHandler - $merge pre-merge checks in the worker', () => {
-    let fakeSpan;
-    let activeSpanSpy;
+const WRITE_PATHS = [{ writePath: 'old' }, { writePath: 'new' }];
+const WRITE_PATH_OPERATIONS = {
+    old: 'merge,create,update,patch,admin',
+    new: 'merge,create,update,patch,admin,import'
+};
+let originalWritePipelineOperations;
 
-    beforeEach(async () => {
-        process.env.ENABLE_BULK_IMPORT = '1';
-        process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
-        process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
-        fakeSpan = { setAttributes: jest.fn() };
-        activeSpanSpy = jest.spyOn(trace, 'getActiveSpan').mockReturnValue(fakeSpan);
-        await commonBeforeEach();
-    });
+describe.each(WRITE_PATHS)('$writePath write path', ({ writePath }) => {
+    // Each imported resource must clear the same pre-merge checks the $merge API applies before it
+    // is written. These cases cover the checks the worker did not run before: the pipe-in-id rule and
+    // meta validation (here, more than one owner tag on a new resource). In each case the rejected
+    // line is recorded in the error output and the rest of the range is still imported.
+    describe('BulkImportHandler - $merge pre-merge checks in the worker', () => {
+        let fakeSpan;
+        let activeSpanSpy;
 
-    afterEach(async () => {
-        delete process.env.ENABLE_BULK_IMPORT;
-        delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
-        delete process.env.ENABLE_EVENTS_KAFKA_V2;
-        activeSpanSpy.mockRestore();
-        await commonAfterEach();
-    });
-
-    const runImportAsync = async ({ taskId, lines }) => {
-        const request = await createTestRequest();
-        await request
-            .post('/4_0_0/$import')
-            .send({
-                resourceType: 'Parameters',
-                id: taskId,
-                parameter: [{ name: 'input', valueUri: 's3://allowed-bucket/Patient.ndjson' }]
-            })
-            .set(getHeaders())
-            .expect(202);
-
-        const { createTestContainer } = require('../../createTestContainer');
-        const container = createTestContainer();
-        container.s3NdjsonReader.setLinesToYield(lines);
-
-        await processRangeAsync(container.bulkImportHandler, container, {
-            key: `${taskId}-0`,
-            value: makeCloudEvent({ taskId, scope: 'user/*.write access/*.*' }),
-            headers: []
+        beforeEach(async () => {
+            originalWritePipelineOperations = process.env.WRITE_PIPELINE_OPERATIONS;
+            process.env.WRITE_PIPELINE_OPERATIONS = WRITE_PATH_OPERATIONS[writePath];
+            process.env.ENABLE_BULK_IMPORT = '1';
+            process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
+            process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
+            fakeSpan = { setAttributes: jest.fn(), setAttribute: jest.fn() };
+            activeSpanSpy = jest.spyOn(trace, 'getActiveSpan').mockReturnValue(fakeSpan);
+            await commonBeforeEach();
         });
 
-        const errorWrite = container.s3NdjsonReader.getWriteCalls()
-            .find((c) => c.filepath.includes('/output/errors/'));
-        return { request, errorWrite };
-    };
-
-    test.each([
-        ['an id containing a pipe', patient({ id: 'import-check|patient' }), 'Patient', 'Pipe | is not allowed in id field'],
-        [
-            'more than one owner tag on a new resource',
-            patient({
-                meta: {
-                    source: 'test',
-                    security: [...ownerTags, { system: 'https://www.icanbwell.com/owner', code: 'client-b' }]
-                }
-            }),
-            'Patient',
-            'owner'
-        ]
-    ])('a resource with %s is rejected and not written', async (name, resource, resourceType, expectedText) => {
-        const { request, errorWrite } = await runImportAsync({
-            taskId: 'import-check-rejected',
-            lines: [patient({ id: 'import-check-survivor' }), resource]
+        afterEach(async () => {
+            delete process.env.ENABLE_BULK_IMPORT;
+            if (originalWritePipelineOperations === undefined) {
+                delete process.env.WRITE_PIPELINE_OPERATIONS;
+            } else {
+                process.env.WRITE_PIPELINE_OPERATIONS = originalWritePipelineOperations;
+            }
+            delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
+            delete process.env.ENABLE_EVENTS_KAFKA_V2;
+            activeSpanSpy.mockRestore();
+            await commonAfterEach();
         });
 
-        expect(errorWrite).toBeDefined();
-        expect(errorWrite.data).toContain(expectedText);
-        const errorEntry = JSON.parse(errorWrite.data.trim().split('\n')[0]);
-        expect(errorEntry.operationOutcome.issue[0].extension).toEqual([
-            { url: 'https://www.icanbwell.com/source-byte-offset', valueInteger: 100 }
-        ]);
-        const resp = await request.get(`/4_0_0/${resourceType}/${resource.id}`).set(getHeaders());
-        expect(resp.status).not.toBe(200);
-        await request.get('/4_0_0/Patient/import-check-survivor').set(getHeaders()).expect(200);
-        expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
-            'fhir_import.resources_created': 1,
-            'fhir_import.resources_updated': 0,
-            'fhir_import.resources_failed': 1
-        });
-    });
+        const runImportAsync = async ({ taskId, lines }) => {
+            const request = await createTestRequest();
+            await request
+                .post('/4_0_0/$import')
+                .send({
+                    resourceType: 'Parameters',
+                    id: taskId,
+                    parameter: [{ name: 'input', valueUri: 's3://allowed-bucket/Patient.ndjson' }]
+                })
+                .set(getHeaders())
+                .expect(202);
 
-    test('a new resource that carries only an access tag is imported with its owner backfilled', async () => {
-        const id = '7b4f5c2e-3a1d-4e8b-9c6f-2d5a8e1b4c70';
-        const { request, errorWrite } = await runImportAsync({
-            taskId: 'import-check-access-only',
-            lines: [patient({
-                id,
-                meta: { source: 'test', security: [{ system: 'https://www.icanbwell.com/access', code: 'client-a' }] }
-            })]
+            const { createTestContainer } = require('../../createTestContainer');
+            const container = createTestContainer();
+            container.s3NdjsonReader.setLinesToYield(lines);
+
+            await processRangeAsync(container.bulkImportHandler, container, {
+                key: `${taskId}-0`,
+                value: makeCloudEvent({ taskId, scope: 'user/*.write access/*.*' }),
+                headers: []
+            });
+
+            const errorWrite = container.s3NdjsonReader.getWriteCalls()
+                .find((c) => c.filepath.includes('/output/errors/'));
+            return { request, errorWrite };
+        };
+
+        test.each([
+            ['an id containing a pipe', patient({ id: 'import-check|patient' }), 'Patient', 'Pipe | is not allowed in id field'],
+            [
+                'more than one owner tag on a new resource',
+                patient({
+                    meta: {
+                        source: 'test',
+                        security: [...ownerTags, { system: 'https://www.icanbwell.com/owner', code: 'client-b' }]
+                    }
+                }),
+                'Patient',
+                'owner'
+            ]
+        ])('a resource with %s is rejected and not written', async (name, resource, resourceType, expectedText) => {
+            const { request, errorWrite } = await runImportAsync({
+                taskId: 'import-check-rejected',
+                lines: [patient({ id: 'import-check-survivor' }), resource]
+            });
+
+            expect(errorWrite).toBeDefined();
+            expect(errorWrite.data).toContain(expectedText);
+            const errorEntry = JSON.parse(errorWrite.data.trim().split('\n')[0]);
+            expect(errorEntry.operationOutcome.issue[0].extension).toEqual([
+                { url: 'https://www.icanbwell.com/source-byte-offset', valueInteger: 100 }
+            ]);
+            const resp = await request.get(`/4_0_0/${resourceType}/${resource.id}`).set(getHeaders());
+            expect(resp.status).not.toBe(200);
+            await request.get('/4_0_0/Patient/import-check-survivor').set(getHeaders()).expect(200);
+            expect(fakeSpan.setAttributes).toHaveBeenCalledWith({
+                'fhir_import.resources_created': 1,
+                'fhir_import.resources_updated': 0,
+                'fhir_import.resources_failed': 1
+            });
         });
 
-        expect(errorWrite).toBeUndefined();
-        const resp = await request.get(`/4_0_0/Patient/${id}`).set(getHeaders()).expect(200);
-        const owner = resp.body.meta.security.find((t) => t.system === 'https://www.icanbwell.com/owner');
-        expect(owner.code).toBe('client-a');
+        test('a new resource that carries only an access tag is imported with its owner backfilled', async () => {
+            const id = '7b4f5c2e-3a1d-4e8b-9c6f-2d5a8e1b4c70';
+            const { request, errorWrite } = await runImportAsync({
+                taskId: 'import-check-access-only',
+                lines: [patient({
+                    id,
+                    meta: { source: 'test', security: [{ system: 'https://www.icanbwell.com/access', code: 'client-a' }] }
+                })]
+            });
+
+            expect(errorWrite).toBeUndefined();
+            const resp = await request.get(`/4_0_0/Patient/${id}`).set(getHeaders()).expect(200);
+            const owner = resp.body.meta.security.find((t) => t.system === 'https://www.icanbwell.com/owner');
+            expect(owner.code).toBe('client-a');
+        });
     });
 });

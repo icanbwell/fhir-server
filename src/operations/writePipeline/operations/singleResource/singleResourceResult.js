@@ -11,9 +11,9 @@ const { WRITE_ITEM_STATUS } = require('../../writeItem');
 const { WRITE_FAILURE_STAGE } = require('../../writeFailure');
 
 /**
- * What the responders of single-resource writes (POST, PUT) share: a failed check is thrown as an
- * HTTP error instead of being reported as a result, and the flush must return a result for the one
- * resource.
+ * What the responders of single-resource writes (POST, PUT, PATCH) share: a failed check is thrown
+ * as an HTTP error instead of being reported as a result, and the flush must return a result for
+ * the one resource.
  */
 
 /**

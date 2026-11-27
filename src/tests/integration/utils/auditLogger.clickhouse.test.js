@@ -175,7 +175,7 @@ describe('AuditLogger', () => {
         const doc = createTestAuditEvent('test-audit-5');
         logger.queue.push({ doc, requestInfo: { requestId: 'req-5' } });
 
-        await expect(logger.flushAsync()).resolves.toBeUndefined();
+        await expect(logger.flushAsync()).resolves.toBe(1);
         expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
     });
 

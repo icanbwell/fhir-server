@@ -1,0 +1,32 @@
+{
+  "resourceType": "Patient",
+  "id": "import-ident-existing",
+  "meta": {
+    "source": "http://example.com/source",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-a"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "client-a"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "system": "http://example.com/import-identifier",
+      "value": "ident-1"
+    }
+  ],
+  "name": [
+    {
+      "family": "Existing"
+    }
+  ]
+}

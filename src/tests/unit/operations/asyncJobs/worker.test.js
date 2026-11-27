@@ -55,11 +55,16 @@ const mockConfigManager = {
     asyncJobConsumerJoinTimeoutMs: 90000
 };
 
+const { WritePipelineSwitch } = require('../../../../operations/writePipeline/writePipelineSwitch');
+const { ConfigManager } = require('../../../../utils/configManager');
+const mockWritePipelineSwitch = new WritePipelineSwitch({ configManager: new ConfigManager() });
+
 jestObj.mock('../../../../createContainer', () => ({
     createContainer: jestObj.fn(() => ({
         kafkaClientV2: mockKafkaClientV2,
         configManager: mockConfigManager,
-        bulkImportWorkerDispatcher: mockBulkImportWorkerDispatcher
+        bulkImportWorkerDispatcher: mockBulkImportWorkerDispatcher,
+        writePipelineSwitch: mockWritePipelineSwitch
     }))
 }));
 
@@ -525,6 +530,37 @@ describe('asyncJobs/worker', () => {
             expect(consoleSpy).toHaveBeenCalled();
 
             consoleSpy.mockRestore();
+        });
+
+        test('exits with code 1 before starting a consumer when WRITE_PIPELINE_OPERATIONS lists an unknown operation', async () => {
+            const savedOperations = process.env.WRITE_PIPELINE_OPERATIONS;
+            process.env.WRITE_PIPELINE_OPERATIONS = 'merge,import,not-an-operation';
+            const consoleSpy = jestObj.spyOn(console, 'error').mockImplementation(() => {});
+            let consoleMessages;
+
+            try {
+                jestObj.isolateModules(() => {
+                    require('../../../../operations/asyncJobs/worker');
+                });
+                await new Promise(resolve => setImmediate(resolve));
+                await new Promise(resolve => setImmediate(resolve));
+                consoleMessages = consoleSpy.mock.calls.map(([line]) => JSON.parse(line).message);
+            } finally {
+                if (savedOperations === undefined) {
+                    delete process.env.WRITE_PIPELINE_OPERATIONS;
+                } else {
+                    process.env.WRITE_PIPELINE_OPERATIONS = savedOperations;
+                }
+                consoleSpy.mockRestore();
+            }
+
+            expect(processExitSpy).toHaveBeenCalledWith(1);
+            expect(consoleMessages).toEqual([
+                'WRITE_PIPELINE_OPERATIONS has unknown operation(s): not-an-operation. ' +
+                'Allowed: create, update, patch, merge, import, admin'
+            ]);
+            expect(mockHealthServer.listen).not.toHaveBeenCalled();
+            expect(mockKafkaClientV2.createConsumerAsync).not.toHaveBeenCalled();
         });
     });
 });

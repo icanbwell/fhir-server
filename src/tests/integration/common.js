@@ -334,6 +334,21 @@ module.exports.getHeadersWithCustomPayload = (payload) => {
     };
 };
 
+/**
+ * Returns FHIR JSON request headers for an access token that carries exactly the given `scope`
+ * and `groups` claims, so a test can limit the caller to the `access/` scopes of chosen tenants.
+ * @param {string} scope
+ * @param {string[]} [groups]
+ * @return {Object<string, string>}
+ */
+module.exports.getHeadersWithScopeAndGroups = ({ scope, groups = [] }) => {
+    return {
+        'Content-Type': 'application/fhir+json',
+        Accept: 'application/fhir+json',
+        Authorization: `Bearer ${getTokenWithCustomPayload({ scope, groups, token_use: 'access' })}`
+    };
+};
+
 module.exports.getUnAuthenticatedHtmlHeaders = () => {
     return {
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',

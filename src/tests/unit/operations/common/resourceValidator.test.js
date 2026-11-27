@@ -639,6 +639,62 @@ describe('ResourceValidator', () => {
             expect(result).toBeNull();
             expect(resourceToValidateJson.link[1].target.reference).toBe('Person/bridged-person');
         });
+
+        describe('validateResourceAsync - checkPatientReference', () => {
+            const crossTenantTarget = {
+                resourceType: 'Person',
+                id: 'other-tenant-person',
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/owner', code: 'tenant_b' },
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant_b' }
+                    ]
+                }
+            };
+            const validatePersonAsync = (overrides) => personResourceValidator.validateResourceAsync({
+                base_version: '4_0_0',
+                requestInfo: { isUser: false, user: 'service@tenant_a', scope: 'access/tenant_a.*' },
+                resourceType: 'Person',
+                resourceToValidate: personWithLinks(['uuid-a', 'uuid-tenant-b-person']),
+                path: '/4_0_0/Person',
+                currentResource: personWithLinks(['uuid-a']),
+                ...overrides
+            });
+
+            it.each([
+                { name: 'an update by default', overrides: {}, rejected: true },
+                { name: 'an update with the check on', overrides: { checkPatientReference: true }, rejected: true },
+                { name: 'an update with the check off', overrides: { checkPatientReference: false }, rejected: false },
+                { name: 'an insert by default', overrides: { currentResource: undefined }, rejected: true },
+                {
+                    name: 'an insert with the check off',
+                    overrides: { currentResource: undefined, checkPatientReference: false },
+                    rejected: false
+                }
+            ])('a Person whose link changes tenant is rejected only when the check is on: $name', async ({ overrides, rejected }) => {
+                resolveTargetsAs([crossTenantTarget]);
+
+                const result = await validatePersonAsync(overrides);
+
+                if (rejected) {
+                    const issue = Array.isArray(result.issue) ? result.issue[0] : result.issue;
+                    expect(issue.details.text).toContain('does not have access');
+                } else {
+                    expect(result).toBeNull();
+                    expect(mockFindAsync).not.toHaveBeenCalled();
+                }
+            });
+
+            it('still runs schema validation when the check is off', async () => {
+                const result = await validatePersonAsync({
+                    resourceToValidate: { resourceType: 'Person', id: 'person-1', link: [{ assurance: 'level1' }] },
+                    checkPatientReference: false
+                });
+
+                expect(result).not.toBeNull();
+                expect(result.resourceType).toBe('OperationOutcome');
+            });
+        });
     });
 
     describe('validateResourceSizeSync', () => {
@@ -776,6 +832,12 @@ describe('ResourceValidator', () => {
 
         it('allows a Group at the limit', async () => {
             expect(await validate({ resourceObj: groupWithMembers(3) })).toBeNull();
+        });
+
+        it('rejects a Group over the limit when the patient reference check is off', async () => {
+            const result = await validate({ resourceObj: groupWithMembers(4), checkPatientReference: false });
+
+            expect(result.issue[0].code).toBe('too-costly');
         });
 
         it('allows an over-limit Group on PATCH, which promotes it', async () => {

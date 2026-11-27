@@ -12,17 +12,46 @@ const WRITE_ITEM_STATUS = Object.freeze({
 });
 
 /**
+ * An admin operation's description of its change: `kind` is `addLink`, `removeLink` or
+ * `rewritePatientReference`; `target` is the resource being changed, its `id` the id the caller
+ * sent without its prefix (a `_uuid`, a plain `id` or `id|authority`); `linkTarget` is the other
+ * end of the link, or the new Patient, with its `id` as the caller sent it too;
+ * `linkTargetLookup` says when `linkTarget` is looked up, and must then exist and be readable
+ * (`whenTargetMissing` or `never`);
+ * `createsMissingTarget` is true only for `createPersonToPatientLink`.
+ * @typedef {Object} AdminChange
+ * @property {'addLink'|'removeLink'|'rewritePatientReference'} kind
+ * @property {{resourceType: string, id: string}} target
+ * @property {{resourceType: string, id: string}} linkTarget
+ * @property {'whenTargetMissing'|'never'} linkTargetLookup
+ * @property {boolean} createsMissingTarget
+ */
+
+/**
+ * What an import line adds to its item: the absolute byte offset of the line in the source file,
+ * which the result entry carries.
+ * @typedef {Object} ImportLine
+ * @property {number} byteOffset
+ */
+
+/**
  * One resource in a write batch, with the state the steps fill in: the stored document, the built
  * document (`candidate`), the write mode, the hybrid-storage context data, the identity saved
  * before `_` fields are stripped, and its status and failure. `index` is its position in the batch,
- * which the responder orders results by.
+ * which the responder orders results by. A PATCH also keeps the JSON Patch operations to apply
+ * (`patch`), the writes it makes to Group members (`memberWrites`) and the operations it applied
+ * (`appliedPatch`); the steps that fill them are PATCH's own. An admin write keeps the description
+ * of its change (`adminChange`) and the resources the change links to (`linked`); the steps that
+ * fill them are the admin operations' own. An import line keeps its byte offset (`importLine`),
+ * which only the import responder reads.
  */
 class WriteItem {
     /**
      * @param {number} index
      * @param {Object} incoming
+     * @param {ImportLine|null} [importLine]
      */
-    constructor ({ index, incoming }) {
+    constructor ({ index, incoming, importLine = null }) {
         /**
          * @type {number}
          */
@@ -51,6 +80,35 @@ class WriteItem {
          * @type {Object|null}
          */
         this.savedIdentity = null;
+        /**
+         * @type {Array|null}
+         */
+        this.patch = null;
+        /**
+         * @type {Object|null}
+         */
+        this.memberWrites = null;
+        /**
+         * @type {Array|null}
+         */
+        this.appliedPatch = null;
+        /**
+         * The admin operation's description of its change. Null for an operation that is not an
+         * admin write.
+         * @type {AdminChange|null}
+         */
+        this.adminChange = null;
+        /**
+         * The resources looked up for the change's `linkTarget`; empty until a step fills it.
+         * @type {Array<{resourceType: string, resource: Object}>}
+         */
+        this.linked = [];
+        /**
+         * The import line's byte offset. Null for an operation that is not an
+         * import.
+         * @type {ImportLine|null}
+         */
+        this.importLine = importLine;
         /**
          * @type {WriteFailure|null}
          */

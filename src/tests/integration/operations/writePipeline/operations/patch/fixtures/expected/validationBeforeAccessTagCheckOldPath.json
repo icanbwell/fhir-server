@@ -1,0 +1,13 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "forbidden",
+      "details": {
+        "text": "user imran can only add or remove access tags it has write access to, for resource Patient with id put-parity-patient"
+      },
+      "diagnostics": "user imran can only add or remove access tags it has write access to, for resource Patient with id put-parity-patient"
+    }
+  ]
+}

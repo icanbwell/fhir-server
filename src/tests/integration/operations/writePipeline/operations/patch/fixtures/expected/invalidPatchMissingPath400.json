@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Operation `path` property is not a string\nname: OPERATION_PATH_INVALID\nindex: 0\noperation: {\n  \"op\": \"replace\",\n  \"value\": \"Gamma\"\n}"
+      }
+    }
+  ]
+}
