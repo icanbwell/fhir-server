@@ -152,6 +152,15 @@ describe('ConfigManager — env var matrix (set / unset / empty / malformed)', (
             expect(new ConfigManager().enableDelegatedAccessDetection).toBe(true);
         });
 
+        test('enableDelegatedConsentResourcePermissions defaults to FALSE when unset and for "false"', () => {
+            setEnv('ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS', undefined);
+            expect(new ConfigManager().enableDelegatedConsentResourcePermissions).toBe(false);
+            setEnv('ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS', 'false');
+            expect(new ConfigManager().enableDelegatedConsentResourcePermissions).toBe(false);
+            setEnv('ENABLE_DELEGATED_CONSENT_RESOURCE_PERMISSIONS', 'true');
+            expect(new ConfigManager().enableDelegatedConsentResourcePermissions).toBe(true);
+        });
+
         test('documented, intentional: enforcePersonLinkAssuranceMinimum defaults to FALSE and logPersonLinkAssuranceBelowMinimum defaults to FALSE', () => {
             setEnv('ENFORCE_PERSON_LINK_ASSURANCE_MINIMUM', undefined);
             setEnv('LOG_PERSON_LINK_ASSURANCE_BELOW_MINIMUM', undefined);
