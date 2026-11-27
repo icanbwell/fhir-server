@@ -777,8 +777,14 @@ describe('Data sharing test cases for different scenarios', () => {
                 .filter((e) => e.resource?.resourceType === 'Composition')
                 .map((e) => e.resource.id);
 
-        const mergeResources = (request, resources) =>
-            request.post('/4_0_0/Person/1/$merge').send(resources).set(getHeaders());
+        // Merges the resources and checks one created entry per resource, so a dropped or rejected
+        // resource fails here instead of passing silently.
+        const mergeResources = async (request, resources) => {
+            const resp = await request.post('/4_0_0/Person/1/$merge').send(resources).set(getHeaders());
+            expect(resp.body).toHaveLength(resources.length);
+            expect(resp).toHaveMergeResponse(resources.map(() => ({ created: true })));
+            return resp;
+        };
 
         // Fails on any non-200 or non-Bundle response, so the negative assertions cannot pass on an error.
         const everythingCompositions = async (request, personId, requestHeaders) => {
@@ -817,8 +823,6 @@ describe('Data sharing test cases for different scenarios', () => {
                 const resources = [...buildMemberResources({ member: MEMBER_A, clientCode: 'client' }), composition];
 
                 let resp = await mergeResources(request, resources);
-                // noinspection JSUnresolvedFunction
-                expect(resp).toHaveMergeResponse({ created: true });
 
                 resp = await everythingCompositions(request, MEMBER_A.personId, headers);
                 expect(compositionIdsIn(resp)).toContain(COMPOSITION_A_ID);
@@ -831,8 +835,6 @@ describe('Data sharing test cases for different scenarios', () => {
             const resources = [...buildMemberResources({ member: MEMBER_A, clientCode: 'client' }), composition];
 
             let resp = await mergeResources(request, resources);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await everythingCompositions(request, MEMBER_A.personId, headers);
             expect(compositionIdsIn(resp)).not.toContain(COMPOSITION_A_ID);
@@ -851,8 +853,6 @@ describe('Data sharing test cases for different scenarios', () => {
             ];
 
             let resp = await mergeResources(request, resources);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await everythingCompositions(request, MEMBER_A.personId, headers);
             expect(compositionIdsIn(resp)).not.toContain(COMPOSITION_A_ID);
@@ -879,12 +879,14 @@ describe('Data sharing test cases for different scenarios', () => {
                 ];
 
                 let resp = await mergeResources(request, resources);
-                // noinspection JSUnresolvedFunction
-                expect(resp).toHaveMergeResponse({ created: true });
 
                 if (deletePermit) {
+                    const before = await request.get(`/4_0_0/Consent/${MEMBER_A.consentId}`).set(getHeaders());
+                    expect(before.status).toEqual(200);
                     resp = await request.delete(`/4_0_0/Consent/${MEMBER_A.consentId}`).set(getHeaders());
                     expect(resp.status).toBeLessThan(300);
+                    const after = await request.get(`/4_0_0/Consent/${MEMBER_A.consentId}`).set(getHeaders());
+                    expect(after.status).toEqual(404);
                 }
 
                 resp = await everythingCompositions(request, MEMBER_A.personId, headers);
@@ -912,8 +914,6 @@ describe('Data sharing test cases for different scenarios', () => {
             ];
 
             let resp = await mergeResources(request, resources);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await everythingCompositions(request, MEMBER_A.personId, headers);
             expect(compositionIdsIn(resp)).toEqual([COMPOSITION_A_ID]);
@@ -935,8 +935,6 @@ describe('Data sharing test cases for different scenarios', () => {
             ];
 
             let resp = await mergeResources(request, resources);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await everythingCompositions(request, MEMBER_B.personId, client1Headers);
             expect(compositionIdsIn(resp)).toEqual([]);
