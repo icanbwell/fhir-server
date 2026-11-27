@@ -696,7 +696,7 @@ describe('Data sharing test cases for different scenarios', () => {
             title: 'Synthetic composition'
         });
 
-        const buildMemberResources = ({ member, clientCode, withPermit = true, changePermit = () => {} }) => {
+        const buildMemberResources = ({ member, clientCode, withPermit = true, changePermit = () => {}, permitOwnerCode = clientCode }) => {
             const clientSecurity = [
                 { system: 'https://www.icanbwell.com/access', code: clientCode },
                 { system: 'https://www.icanbwell.com/owner', code: clientCode }
@@ -740,7 +740,13 @@ describe('Data sharing test cases for different scenarios', () => {
                 const consent = {
                     resourceType: 'Consent',
                     id: member.consentId,
-                    meta: { source: 'client', security: clientSecurity },
+                    meta: {
+                        source: 'client',
+                        security: [
+                            { system: 'https://www.icanbwell.com/access', code: permitOwnerCode },
+                            { system: 'https://www.icanbwell.com/owner', code: permitOwnerCode }
+                        ]
+                    },
                     status: 'active',
                     category: [
                         { coding: [{ system: 'http://www.icanbwell.com/consent-category', code: 'dataSharing' }] }
@@ -911,6 +917,26 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await everythingCompositions(request, MEMBER_A.personId, headers);
             expect(compositionIdsIn(resp)).toEqual([COMPOSITION_A_ID]);
+
+            resp = await everythingCompositions(request, MEMBER_B.personId, client1Headers);
+            expect(compositionIdsIn(resp)).toEqual([]);
+        });
+
+        test('tenant isolation: a permit owned by another client does not expose the Composition to an unconsented client', async () => {
+            const request = await createTestRequest((c) => c);
+            const compositionB = buildComposition({
+                id: COMPOSITION_B_ID,
+                personId: MEMBER_B.personId,
+                connectionTypeCodes: ['proa']
+            });
+            const resources = [
+                ...buildMemberResources({ member: MEMBER_B, clientCode: 'client-1', permitOwnerCode: 'client' }),
+                compositionB
+            ];
+
+            let resp = await mergeResources(request, resources);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await everythingCompositions(request, MEMBER_B.personId, client1Headers);
             expect(compositionIdsIn(resp)).toEqual([]);
