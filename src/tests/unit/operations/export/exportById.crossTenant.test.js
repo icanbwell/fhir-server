@@ -16,6 +16,8 @@ const { ConfigManager } = require('../../../../utils/configManager');
 const { PatientFilterManager } = require('../../../../fhir/patientFilterManager');
 const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
+const { AuditLogger } = require('../../../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
 
 function createMockInstance(ClassType) {
     return Object.create(ClassType.prototype);
@@ -54,7 +56,9 @@ describe('ExportByIdOperation - Cross-Tenant PHI Leakage', () => {
         exportByIdOp = new ExportByIdOperation({
             scopesManager: mockScopesManager,
             fhirLoggingManager: mockFhirLoggingManager,
-            databaseExportManager: mockDatabaseExportManager
+            databaseExportManager: mockDatabaseExportManager,
+            auditLogger: createMockInstance(AuditLogger),
+            postRequestProcessor: Object.assign(createMockInstance(PostRequestProcessor), { add: jest.fn() })
         });
     });
 

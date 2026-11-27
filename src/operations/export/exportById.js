@@ -2,6 +2,8 @@ const { DatabaseExportManager } = require("../../dataLayer/databaseExportManager
 const { FhirLoggingManager } = require("../common/fhirLoggingManager");
 const { ForbiddenError, NotFoundError } = require("../../utils/httpErrors");
 const { ScopesManager } = require("../security/scopesManager");
+const { AuditLogger } = require("../../utils/auditLogger");
+const { PostRequestProcessor } = require("../../utils/postRequestProcessor");
 const { assertTypeEquals, assertIsValid } = require("../../utils/assertType");
 
 class ExportByIdOperation {
@@ -10,10 +12,12 @@ class ExportByIdOperation {
      * @property {ScopesManager} scopesManager
      * @property {FhirLoggingManager} fhirLoggingManager
      * @property {DatabaseExportManager} databaseExportManager
+     * @property {AuditLogger} auditLogger
+     * @property {PostRequestProcessor} postRequestProcessor
      *
      * @param {ConstructorParams}
      */
-    constructor({ scopesManager, fhirLoggingManager, databaseExportManager }) {
+    constructor({ scopesManager, fhirLoggingManager, databaseExportManager, auditLogger, postRequestProcessor }) {
         /**
          * @type {ScopesManager}
          */
@@ -31,6 +35,18 @@ class ExportByIdOperation {
          */
         this.databaseExportManager = databaseExportManager;
         assertTypeEquals(databaseExportManager, DatabaseExportManager);
+
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     async exportByIdAsync({ requestInfo, args }) {
@@ -84,6 +100,24 @@ class ExportByIdOperation {
                 accessRequested: 'r'
             })) {
                 throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
+            }
+
+            // Only a completed export returns its output (the file list whose contents hold PHI), so
+            // only that response is audited. In-progress polls return no data and are not audited.
+            if (exportStatusResource.status === 'completed') {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version: '4_0_0',
+                            resourceType: 'ExportStatus',
+                            operation: 'read',
+                            args,
+                            ids: [exportStatusResource._uuid]
+                        });
+                    }
+                });
             }
 
             // log operation
